@@ -446,6 +446,20 @@ func (suite *PayloadsSuite) TestInternalServerError() {
 	suite.Equal(traceID.String(), detailError.Instance.String())
 }
 
+func (suite *PayloadsSuite) TestNotImplementedError() {
+	traceID, _ := uuid.NewV4()
+	detail := "Err"
+
+	noDetailError := NotImplementedError(nil, traceID)
+	suite.Equal(handlers.NotImplementedErrMessage, *noDetailError.Title)
+	suite.Equal(traceID.String(), noDetailError.Instance.String())
+
+	detailError := NotImplementedError(&detail, traceID)
+	suite.Equal(handlers.NotImplementedErrMessage, *detailError.Title)
+	suite.Equal(detail, *detailError.Detail)
+	suite.Equal(traceID.String(), detailError.Instance.String())
+}
+
 func (suite *PayloadsSuite) TestGetDimension() {
 	dimensionType := models.DimensionTypeItem
 	dimensions := models.MTOServiceItemDimensions{
@@ -500,6 +514,80 @@ func (suite *PayloadsSuite) TestPaymentRequests() {
 
 	suite.NotNil(result)
 	suite.Equal(len(paymentRequests), len(*result))
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentWithoutServiceItems() {
+	// Create the addresses
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationType := models.DestinationTypeHomeOfRecord
+	secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+	secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+	dlhTestWeight := unit.Pound(4000)
+
+	// Create the MTOShipment with populated PickupAddress and DestinationAddress
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PickupAddressID:            &pickupAddress.ID,
+				DestinationAddressID:       &destinationAddress.ID,
+				DestinationType:            &destinationType,
+				SecondaryPickupAddressID:   &secondaryPickupAddress.ID,
+				SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
+				PrimeEstimatedWeight:       models.PoundPointer(unit.Pound(980)),
+				PrimeActualWeight:          &dlhTestWeight,
+				NTSRecordedWeight:          models.PoundPointer(unit.Pound(249)),
+			},
+		},
+	}, nil)
+	shipmentWithoutServiceItem := MTOShipmentWithoutServiceItems(&mtoShipment)
+	suite.NotNil(shipmentWithoutServiceItem)
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentsWithoutServiceItems() {
+	// Create the addresses
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationType := models.DestinationTypeHomeOfRecord
+	secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+	secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+	dlhTestWeight := unit.Pound(4000)
+
+	// Create the MTOShipment
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PickupAddressID:            &pickupAddress.ID,
+				DestinationAddressID:       &destinationAddress.ID,
+				DestinationType:            &destinationType,
+				SecondaryPickupAddressID:   &secondaryPickupAddress.ID,
+				SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
+				PrimeEstimatedWeight:       models.PoundPointer(unit.Pound(980)),
+				PrimeActualWeight:          &dlhTestWeight,
+				NTSRecordedWeight:          models.PoundPointer(unit.Pound(249)),
+			},
+		},
+	}, nil)
+
+	// Create the MTOShipment
+	mtoShipmentTwo := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PickupAddressID:            &pickupAddress.ID,
+				DestinationAddressID:       &destinationAddress.ID,
+				DestinationType:            &destinationType,
+				SecondaryPickupAddressID:   &secondaryPickupAddress.ID,
+				SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
+				PrimeEstimatedWeight:       models.PoundPointer(unit.Pound(980)),
+				PrimeActualWeight:          &dlhTestWeight,
+				NTSRecordedWeight:          models.PoundPointer(unit.Pound(249)),
+			},
+		},
+	}, nil)
+	shipmentList := models.MTOShipments{}
+	shipmentList = append(shipmentList, mtoShipmentTwo, mtoShipment)
+	value := MTOShipmentsWithoutServiceItems(&shipmentList)
+	suite.NotNil(value)
 }
 
 func (suite *PayloadsSuite) TestPaymentServiceItem() {
@@ -595,8 +683,11 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 	suite.Equal(strfmt.UUID(shipmentAddressUpdate.ID.String()), result.ID)
 }
 
-func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
+func (suite *PayloadsSuite) TestMTOServiceItemDCRTandDOFSITandDDFSIT() {
 	reServiceCode := models.ReServiceCodeDCRT
+	reServiceCodeSIT := models.ReServiceCodeDOFSIT
+	reServiceCodeDDFSIT := models.ReServiceCodeDDFSIT
+
 	reason := "reason"
 	dateOfContact1 := time.Now()
 	timeMilitary1 := "1500Z"
@@ -624,11 +715,83 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 			},
 		},
 	}
+	year, month, day := time.Now().Date()
+	aWeekAgo := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
+	departureDate := aWeekAgo.Add(time.Hour * 24 * 30)
+	actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+	requestApprovalRequestedStatus := false
+	mtoServiceItemDOFSIT := &models.MTOServiceItem{
+		ID:                        uuid.Must(uuid.NewV4()),
+		ReService:                 models.ReService{Code: reServiceCodeSIT},
+		Reason:                    &reason,
+		SITDepartureDate:          &departureDate,
+		SITEntryDate:              &aWeekAgo,
+		SITPostalCode:             models.StringPointer("90210"),
+		SITOriginHHGActualAddress: &actualPickupAddress,
+		SITCustomerContacted:      &aWeekAgo,
+		SITRequestedDelivery:      &aWeekAgo,
+		SITOriginHHGOriginalAddress: &models.Address{
+			StreetAddress1: "dummyStreet2",
+			City:           "dummyCity2",
+			State:          "FL",
+			PostalCode:     "55555",
+		},
+		RequestedApprovalsRequestedStatus: &requestApprovalRequestedStatus,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+	mtoServiceItemDDFSIT := &models.MTOServiceItem{
+		ID:                        uuid.Must(uuid.NewV4()),
+		ReService:                 models.ReService{Code: reServiceCodeDDFSIT},
+		Reason:                    &reason,
+		SITDepartureDate:          &departureDate,
+		SITEntryDate:              &aWeekAgo,
+		SITPostalCode:             models.StringPointer("90210"),
+		SITOriginHHGActualAddress: &actualPickupAddress,
+		SITCustomerContacted:      &aWeekAgo,
+		SITRequestedDelivery:      &aWeekAgo,
+		SITOriginHHGOriginalAddress: &models.Address{
+			StreetAddress1: "dummyStreet2",
+			City:           "dummyCity2",
+			State:          "FL",
+			PostalCode:     "55555",
+		},
+		RequestedApprovalsRequestedStatus: &requestApprovalRequestedStatus,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
 
 	resultDCRT := MTOServiceItem(mtoServiceItemDCRT)
+	resultDOFSIT := MTOServiceItem(mtoServiceItemDOFSIT)
+	resultDDFSIT := MTOServiceItem(mtoServiceItemDDFSIT)
 
 	suite.NotNil(resultDCRT)
-
+	suite.NotNil(resultDOFSIT)
+	suite.NotNil(resultDDFSIT)
 	_, ok := resultDCRT.(*primemessages.MTOServiceItemDomesticCrating)
 
 	suite.True(ok)
