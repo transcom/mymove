@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -263,6 +264,18 @@ type CustomNewUploadStatusOK struct {
 	storer   storage.FileStorer
 }
 
+// AVStatusType represents the type of the anti-virus status, whether it is still processing, clean or infected
+type AVStatusType string
+
+const (
+	// AVStatusTypePROCESSING string PROCESSING
+	AVStatusTypePROCESSING AVStatusType = "PROCESSING"
+	// AVStatusTypeCLEAN string CLEAN
+	AVStatusTypeCLEAN AVStatusType = "CLEAN"
+	// AVStatusTypeINFECTED string INFECTED
+	AVStatusTypeINFECTED AVStatusType = "INFECTED"
+)
+
 func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	// TODO: add check for permissions to view upload
@@ -282,11 +295,11 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 	}
 
 	tags, err := o.storer.Tags(uploaded.Upload.StorageKey)
-	var uploadStatus models.AVStatusType
+	var uploadStatus AVStatusType
 	if err != nil || len(tags) == 0 {
-		uploadStatus = models.AVStatusTypePROCESSING
+		uploadStatus = AVStatusTypePROCESSING
 	} else {
-		uploadStatus = models.AVStatusType(tags["av-status"])
+		uploadStatus = AVStatusType(tags["av-status"])
 	}
 
 	resProcess := []byte("id: 0\nevent: message\ndata: " + string(uploadStatus) + "\n\n")
@@ -298,7 +311,7 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 		f.Flush()
 	}
 
-	if uploadStatus == models.AVStatusTypeCLEAN || uploadStatus == models.AVStatusTypeINFECTED {
+	if uploadStatus == AVStatusTypeCLEAN || uploadStatus == AVStatusTypeINFECTED {
 		return
 	}
 
@@ -315,13 +328,23 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 		o.appCtx.Logger().Error(err.Error())
 	}
 
+	// Cleanup
+	go func() {
+		<-o.params.HTTPRequest.Context().Done()
+		_ = o.receiver.CloseoutQueue(o.appCtx, queueUrl)
+	}()
+
 	id_counter := 0
 	// Run for 120 seconds, 20 second long polling 6 times
 	for range 6 {
 		o.appCtx.Logger().Info("Receiving...")
 		messages, errs := o.receiver.ReceiveMessages(o.appCtx, queueUrl)
-		if errs != nil {
+		if errs != nil && errs != context.Canceled {
 			o.appCtx.Logger().Error(errs.Error())
+		}
+
+		if errs == context.Canceled {
+			break
 		}
 
 		if len(messages) != 0 {
@@ -330,9 +353,9 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 				tags, err := o.storer.Tags(uploaded.Upload.StorageKey)
 
 				if err != nil || len(tags) == 0 {
-					uploadStatus = models.AVStatusTypePROCESSING
+					uploadStatus = AVStatusTypePROCESSING
 				} else {
-					uploadStatus = models.AVStatusType(tags["av-status"])
+					uploadStatus = AVStatusType(tags["av-status"])
 				}
 
 				resProcess := []byte("id: " + strconv.Itoa(id_counter) + "\nevent: message\ndata: " + string(uploadStatus) + "\n\n")

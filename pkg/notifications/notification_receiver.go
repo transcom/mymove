@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -30,23 +31,26 @@ type NotificationQueueParams struct {
 type NotificationReceiver interface {
 	CreateQueueWithSubscription(appCtx appcontext.AppContext, topicArn string, params NotificationQueueParams) (string, error)
 	ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]types.Message, error)
+	CloseoutQueue(appCtx appcontext.AppContext, queueUrl string) error
 }
 
 // NotificationSendingContext provides context to a notification sender
 type NotificationReceiverContext struct {
-	snsService   *sns.Client
-	sqsService   *sqs.Client
-	awsRegion    string
-	awsAccountId string
+	snsService         *sns.Client
+	sqsService         *sqs.Client
+	awsRegion          string
+	awsAccountId       string
+	receiverContextMap map[string]context.CancelFunc
 }
 
 // NewNotificationSender returns a new NotificationSendingContext
-func NewNotificationReceiver(snsService *sns.Client, sqsService *sqs.Client, awsRegion string, awsAccountId string) NotificationReceiverContext {
+func NewNotificationReceiver(snsService *sns.Client, sqsService *sqs.Client, awsRegion string, awsAccountId string, receiverContextMap map[string]context.CancelFunc) NotificationReceiverContext {
 	return NotificationReceiverContext{
-		snsService:   snsService,
-		sqsService:   sqsService,
-		awsRegion:    awsRegion,
-		awsAccountId: awsAccountId,
+		snsService:         snsService,
+		sqsService:         sqsService,
+		awsRegion:          awsRegion,
+		awsAccountId:       awsAccountId,
+		receiverContextMap: receiverContextMap,
 	}
 }
 
@@ -120,15 +124,37 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 
 // SendNotification sends a one or more notifications for all supported mediums
 func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]types.Message, error) {
-	result, err := n.sqsService.ReceiveMessage(context.Background(), &sqs.ReceiveMessageInput{
+	recCtx, cancelRecCtx := context.WithTimeout(context.Background(), 120*time.Second)
+	defer cancelRecCtx()
+	n.receiverContextMap[queueUrl] = cancelRecCtx
+
+	result, err := n.sqsService.ReceiveMessage(recCtx, &sqs.ReceiveMessageInput{
 		QueueUrl:            &queueUrl,
 		MaxNumberOfMessages: 1,
 		WaitTimeSeconds:     20,
 	})
-	if err != nil {
-		appCtx.Logger().Fatal("Couldn't get messages from queue. Here's why: %v\n", zap.Error(err))
+	if err != nil && recCtx.Err() != context.Canceled {
+		appCtx.Logger().Info("Couldn't get messages from queue. Here's why: %v\n", zap.Error(err))
+		return nil, err
 	}
-	return result.Messages, err
+
+	if recCtx.Err() == context.Canceled {
+		return nil, recCtx.Err()
+	}
+
+	return result.Messages, recCtx.Err()
+}
+
+// map of queueUrl to context
+
+// CloseoutQueue stops receiving messages and cleans up the queue and its subscriptions
+func (n NotificationReceiverContext) CloseoutQueue(appCtx appcontext.AppContext, queueUrl string) error {
+	n.receiverContextMap[queueUrl]()
+	// n.snsService.Unsubscribe(...)
+	// n.sqsService.DeleteQueue(...)
+	appCtx.Logger().Error("CLOSING OUT CONTEXT")
+	n.receiverContextMap[queueUrl] = nil
+	return nil
 }
 
 // InitEmail initializes the email backend
@@ -183,7 +209,9 @@ func InitReceiver(v *viper.Viper, logger *zap.Logger) (NotificationReceiver, err
 	snsService := sns.NewFromConfig(cfg)
 	sqsService := sqs.NewFromConfig(cfg)
 
-	return NewNotificationReceiver(snsService, sqsService, awsSESRegion, awsAccountId), nil
+	receiverContextMap := make(map[string]context.CancelFunc)
+
+	return NewNotificationReceiver(snsService, sqsService, awsSESRegion, awsAccountId, receiverContextMap), nil
 }
 
 func (n NotificationReceiverContext) constructArn(awsService string, endpointName string) string {
