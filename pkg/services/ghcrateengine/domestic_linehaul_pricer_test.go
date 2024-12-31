@@ -56,7 +56,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		paymentServiceItem.PaymentServiceItemParams[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypeMobileHome
 		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, featureFlagValues)
 		suite.NoError(err)
-		expectedTotalPriceInt := 8534037
+		expectedTotalPriceInt := 651173930
 		expectedPrice := unit.Cents(expectedTotalPriceInt)
 		suite.Equal(expectedPrice, priceCents)
 

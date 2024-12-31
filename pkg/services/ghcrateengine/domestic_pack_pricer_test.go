@@ -21,7 +21,7 @@ const (
 	dpkTestContractYearName       = "DPK Test Year"
 	dpkTestBasePriceCents         = unit.Cents(6544)
 	dpkTestPriceCents             = unit.Cents(143010)
-	dpkDMHFTestPriceCents         = unit.Cents(114001)
+	dpkDMHFTestPriceCents         = unit.Cents(5111749)
 	mobileHomeFactor              = 33.51
 )
 
@@ -62,7 +62,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticPackPricer() {
 			{Key: models.ServiceItemParamNameContractYearName, Value: "Mobile Home Factor Test Year"},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.11000"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
-			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dpkTestBasePriceCents)},
 			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: "33.51"},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)

@@ -192,28 +192,6 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPriceForDMHF(servic
 	}
 
 	suite.MustSave(&shipmentTypePrice)
-
-	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
-		testdatagen.Assertions{
-			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				ContractID:  contractYear.Contract.ID,
-				Contract:    contractYear.Contract,
-				ServiceArea: serviceAreaCode,
-			},
-		})
-
-	baseLinehaulPrice := models.ReDomesticLinehaulPrice{
-		ContractID:            contractYear.Contract.ID,
-		WeightLower:           weightLower,
-		WeightUpper:           weightUpper,
-		MilesLower:            milesLower,
-		MilesUpper:            milesUpper,
-		IsPeakPeriod:          isPeakPeriod,
-		DomesticServiceAreaID: serviceArea.ID,
-		PriceMillicents:       priceMillicents,
-	}
-
-	suite.MustSave(&baseLinehaulPrice)
 }
 
 func (suite *GHCRateEngineServiceSuite) setupShipmentTypePrice(code models.ReServiceCode, market models.Market, factor float64, contractYearName string, escalationCompounded float64) {
