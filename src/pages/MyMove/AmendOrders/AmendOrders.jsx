@@ -38,6 +38,21 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
   const currentOrders = orders.find((order) => order.id === orderId);
   const uploads = currentOrders?.uploaded_amended_orders?.uploads;
 
+  const [capturedFilePath, setCapturedFilePath] = useState('');
+
+  const resetState = () => {
+    setCapturedFilePath('');
+  };
+
+  const captureUploadPath = (file) => {
+    const { path } = file;
+    setCapturedFilePath(path);
+
+    setTimeout(() => {
+      resetState();
+    }, 9000); // 9 seconds
+  };
+
   const handleDelete = async (uploadId) => {
     return deleteUpload(uploadId, orderId).then(() => {
       getOrders(orderId).then((response) => {
@@ -47,6 +62,7 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
   };
 
   const handleUpload = (file) => {
+    captureUploadPath(file);
     return createUploadForAmendedOrdersDocument(file, orderId);
   };
 
@@ -121,7 +137,12 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
             {uploads?.length > 0 && (
               <>
                 <br />
-                <UploadsTable uploads={uploads} onDelete={handleDelete} showDeleteButton={false} />
+                <UploadsTable
+                  uploads={uploads}
+                  onDelete={handleDelete}
+                  showDeleteButton={false}
+                  capturedFilePath={capturedFilePath}
+                />
               </>
             )}
             <div className="uploader-box">
