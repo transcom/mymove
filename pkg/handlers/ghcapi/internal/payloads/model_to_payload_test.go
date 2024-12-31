@@ -242,7 +242,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		State:          state,
 		PostalCode:     postalcode,
 		Country:        &country,
-		County:         county,
+		County:         &county,
 	}
 
 	isActualExpenseReimbursement := true
@@ -288,7 +288,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 			State:          state,
 			PostalCode:     postalcode,
 			Country:        &country,
-			County:         county,
+			County:         &county,
 		}
 
 		expectedPPMShipment2 := models.PPMShipment{
@@ -352,7 +352,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	oldAddress := models.Address{
@@ -360,7 +360,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	sitOriginalAddress := models.Address{
@@ -368,7 +368,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89501",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 	officeRemarks := "some office remarks"
 	newSitDistanceBetween := 0
@@ -480,7 +480,7 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	backupAddress := models.Address{
@@ -488,7 +488,7 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	phone := "444-555-6677"
@@ -597,7 +597,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	backupAddress := models.Address{
@@ -605,7 +605,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	phone := "444-555-6677"
@@ -979,6 +979,33 @@ func (suite *PayloadsSuite) TestGsrAppeal() {
 		suite.Equal(remarks, result.Remarks, "Expected Remarks to match")
 		suite.Equal(strfmt.DateTime(createdAt), result.CreatedAt, "Expected CreatedAt to match")
 		suite.False(result.IsSeriousIncident, "Expected IsSeriousIncident to be false")
+	})
+}
+
+func (suite *PayloadsSuite) TestVLocation() {
+	suite.Run("correctly maps VLocation with all fields populated", func() {
+		city := "LOS ANGELES"
+		state := "CA"
+		postalCode := "90210"
+		county := "LOS ANGELES"
+		usPostRegionCityID := uuid.Must(uuid.NewV4())
+
+		vLocation := &models.VLocation{
+			CityName:             city,
+			StateName:            state,
+			UsprZipID:            postalCode,
+			UsprcCountyNm:        county,
+			UsPostRegionCitiesID: &usPostRegionCityID,
+		}
+
+		payload := VLocation(vLocation)
+
+		suite.IsType(payload, &ghcmessages.VLocation{})
+		suite.Equal(handlers.FmtUUID(usPostRegionCityID), &payload.UsPostRegionCitiesID, "Expected UsPostRegionCitiesID to match")
+		suite.Equal(city, payload.City, "Expected City to match")
+		suite.Equal(state, payload.State, "Expected State to match")
+		suite.Equal(postalCode, payload.PostalCode, "Expected PostalCode to match")
+		suite.Equal(county, *(payload.County), "Expected County to match")
 	})
 }
 
