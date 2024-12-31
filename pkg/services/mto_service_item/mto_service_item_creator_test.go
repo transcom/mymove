@@ -180,7 +180,6 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 // Should return a message stating that service items can't be created if
 // the move is not in approved status.
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 
 	// TESTCASE SCENARIO
 	// Under test: CreateMTOServiceItem function
@@ -188,6 +187,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 	// Expected outcome:
 	//             Error because we cannot create service items before move is approved.
 
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &mocks.Planner{}
@@ -217,7 +217,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
+
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &mocks.Planner{}
@@ -978,12 +979,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
+
 	// Set up data to use for all Origin SIT Service Item tests
 	var reServiceDOASIT models.ReService
 	var reServiceDOFSIT models.ReService
 	var reServiceDOPSIT models.ReService
 	var reServiceDOSFSC models.ReService
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 
 	setupTestData := func() models.MTOShipment {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1405,10 +1407,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCreateDOFSIT() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
 	sitPostalCode := "99999"
 	reason := "lorem ipsum"
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 
 	suite.Run("Fail to create DOFSIT service item due to missing SITOriginHHGActualAddress", func() {
 		// Set up data to use for all Origin SIT Service Item tests
@@ -1454,8 +1456,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 
 // TestCreateDestSITServiceItem tests the creation of destination SIT service items
 func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 	setupTestData := func() (models.MTOShipment, services.MTOServiceItemCreator, models.ReService) {
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
@@ -1845,6 +1847,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 	suite.Run("Calcuating price estimated on creation for HHG ", func() {
 		setupTestData := func() models.MTOShipment {
 			// Set up data to use for all Origin SIT Service Item tests
@@ -2120,33 +2123,31 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			false,
 			false,
 		).Return(400, nil)
-		featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(83280), dopEstimatedPriceInCents)
+		suite.Equal(unit.Cents(61080), dopEstimatedPriceInCents)
 
 		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(8160), dpkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(540000), dpkEstimatedPriceInCents)
 
 		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(32520), ddpEstimatedPriceInCents)
+		suite.Equal(unit.Cents(42240), ddpEstimatedPriceInCents)
 
 		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(63780), dupkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(43860), dupkEstimatedPriceInCents)
 
 		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(14400), dlhEstimatedPriceInCents)
+		suite.Equal(unit.Cents(12381600), dlhEstimatedPriceInCents)
 
 		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(26976000), dshEstimatedPriceInCents)
+		suite.Equal(unit.Cents(10080000), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(786), fscEstimatedPriceInCents)
+		suite.Equal(unit.Cents(-168), fscEstimatedPriceInCents)
 	})
 
 	suite.Run("Calcuating price estimated on creation for NTS shipment ", func() {
-		featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 		setupTestData := func() models.MTOShipment {
 			// Set up data to use for all Origin SIT Service Item tests
 
@@ -2425,25 +2426,25 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(91608), dopEstimatedPriceInCents)
+		suite.Equal(unit.Cents(67188), dopEstimatedPriceInCents)
 
 		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(8976), dpkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(594000), dpkEstimatedPriceInCents)
 
 		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(35772), ddpEstimatedPriceInCents)
+		suite.Equal(unit.Cents(46464), ddpEstimatedPriceInCents)
 
 		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(70158), dupkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(48246), dupkEstimatedPriceInCents)
 
 		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(15840), dlhEstimatedPriceInCents)
+		suite.Equal(unit.Cents(29990400), dlhEstimatedPriceInCents)
 
 		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(29673600), dshEstimatedPriceInCents)
+		suite.Equal(unit.Cents(22176000), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment, featureFlagValues)
-		suite.Equal(unit.Cents(786), fscEstimatedPriceInCents)
+		suite.Equal(unit.Cents(-335), fscEstimatedPriceInCents)
 	})
 
 }
