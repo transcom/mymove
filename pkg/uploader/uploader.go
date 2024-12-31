@@ -285,11 +285,12 @@ func (u *Uploader) Download(_ appcontext.AppContext, upload *models.Upload) (io.
 		if err == nil {
 			return file, nil
 		}
-		if strings.Contains(strings.ToLower(err.Error()), "could not open file") {
+		if strings.Contains(strings.ToLower(err.Error()), "authentication") {
 			time.Sleep(3 * time.Second)
 		} else {
 			break
 		}
 	}
+
 	return nil, err
 }
