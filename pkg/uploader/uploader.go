@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"strings"
+	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -276,5 +278,18 @@ func (u *Uploader) DeleteUpload(appCtx appcontext.AppContext, upload *models.Upl
 //
 // It is the caller's responsibility to delete the tempfile.
 func (u *Uploader) Download(_ appcontext.AppContext, upload *models.Upload) (io.ReadCloser, error) {
-	return u.Storer.Fetch(upload.StorageKey)
+	var file io.ReadCloser
+	var err error
+	for i := 0; i < 4; i++ {
+		file, err = u.Storer.Fetch(upload.StorageKey)
+		if err == nil {
+			return file, nil
+		}
+		if strings.Contains(strings.ToLower(err.Error()), "could not open file") {
+			time.Sleep(3 * time.Second)
+		} else {
+			break
+		}
+	}
+	return nil, err
 }
