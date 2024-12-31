@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import bytes from 'bytes';
 import moment from 'moment';
@@ -11,14 +11,30 @@ import styles from './UploadsTable.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ExistingUploadsShape } from 'types/uploads';
 
-const UploadsTable = ({
-  className,
-  uploads,
-  onDelete,
-  showDeleteButton,
-  capturedFilePath,
-  showDownloadLink = false,
-}) => {
+const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDownloadLink = false }) => {
+  const [fileAvailable, setFileAvailable] = useState({});
+
+  const checkFileAvailability = async (url, fileId) => {
+    try {
+      const response = await fetch(url, { method: 'HEAD' }); // Send a HEAD request
+      if (response.ok) {
+        setFileAvailable((prev) => ({ ...prev, [fileId]: true }));
+      } else {
+        setFileAvailable((prev) => ({ ...prev, [fileId]: false }));
+      }
+    } catch (error) {
+      setFileAvailable((prev) => ({ ...prev, [fileId]: false }));
+    }
+  };
+
+  useEffect(() => {
+    uploads.forEach((upload) => {
+      if (upload.url) {
+        checkFileAvailability(upload.url, upload.id); // Check file availability on mount
+      }
+    });
+  }, [uploads]);
+
   const getIcon = (fileType) => {
     switch (fileType) {
       case 'application/pdf':
@@ -34,6 +50,20 @@ const UploadsTable = ({
     }
   };
 
+  const renderFileLink = (upload) => {
+    if (showDownloadLink && upload.url) {
+      if (fileAvailable[upload.id]) {
+        return (
+          <a href={upload.url} download>
+            {upload.filename}
+          </a>
+        );
+      }
+      return upload.filename;
+    }
+    return upload.filename;
+  };
+
   return (
     uploads?.length > 0 && (
       <SectionWrapper className={classnames(styles.uploadsTableContainer, className)} data-testid="uploads-table">
@@ -44,15 +74,7 @@ const UploadsTable = ({
               <div className={styles.fileInfoContainer}>
                 <FontAwesomeIcon size="lg" icon={getIcon(upload.contentType)} className={styles.faIcon} />
                 <div className={styles.fileInfo}>
-                  <p>
-                    {showDownloadLink ? (
-                      <a href={capturedFilePath || upload.url} download>
-                        {upload.filename}
-                      </a>
-                    ) : (
-                      upload.filename
-                    )}
-                  </p>
+                  <p>{renderFileLink(upload)}</p>
                   <p className={styles.fileSizeAndTime}>
                     <span className={styles.uploadFileSize}>{bytes(upload.bytes)}</span>
                     <span>Uploaded {moment(upload.createdAt).format('DD MMM YYYY h:mm A')}</span>
