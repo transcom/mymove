@@ -699,7 +699,7 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, f
 	// Fills form using the template reader with json reader, outputs to byte, to be saved to afero file.
 	formerr := api.FillForm(templateReader, readJSON, buf, conf)
 	if formerr != nil {
-		return nil, err
+		return nil, formerr
 	}
 
 	tempFile, err := g.newTempFileWithName(fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
@@ -729,6 +729,10 @@ func (g *Generator) LockPDFForm(templateReader io.ReadSeeker, fileName string) (
 	buf := new(bytes.Buffer)
 	// Reads all form fields on document as []form.Field
 	fields, err := api.FormFields(templateReader, conf)
+	if err != nil {
+		return nil, err
+	}
+
 	// Assembles them to the API's required []string
 	fieldList := make([]string, len(fields))
 	for i, field := range fields {
