@@ -21,6 +21,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/rds v1.78.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.59.0
 	github.com/aws/aws-sdk-go-v2/service/ses v1.25.3
+	github.com/aws/aws-sdk-go-v2/service/sns v1.31.8
+	github.com/aws/aws-sdk-go-v2/service/sqs v1.34.6
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.52.8
 	github.com/aws/aws-sdk-go-v2/service/sts v1.30.7
 	github.com/aws/smithy-go v1.20.4
@@ -264,7 +266,7 @@ require (
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/term v0.24.0 // indirect
-	google.golang.org/genproto v0.0.0-20240401170217-c3f982113cda // indirect
+	google.golang.org/genproto v0.0.0-20240401170217-c3f982113cda
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect

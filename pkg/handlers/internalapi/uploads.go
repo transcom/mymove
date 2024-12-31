@@ -3,8 +3,10 @@ package internalapi
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/go-openapi/runtime"
@@ -19,9 +21,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
@@ -243,6 +247,126 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 			}
 
 			return uploadop.NewDeleteUploadsNoContent(), nil
+		})
+}
+
+// UploadStatusHandler returns status of an upload
+type GetUploadStatusHandler struct {
+	handlers.HandlerConfig
+	services.UploadInformationFetcher
+}
+
+type CustomNewUploadStatusOK struct {
+	params   uploadop.GetUploadStatusParams
+	appCtx   appcontext.AppContext
+	receiver notifications.NotificationReceiver
+	storer   storage.FileStorer
+}
+
+func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	// TODO: add check for permissions to view upload
+
+	uploadId := o.params.UploadID.String()
+
+	uploadUUID, err := uuid.FromString(uploadId)
+	if err != nil {
+		panic(err)
+	}
+
+	// Check current tag before event-driven wait for anti-virus
+
+	uploaded, err := models.FetchUserUploadFromUploadID(o.appCtx.DB(), o.appCtx.Session(), uploadUUID)
+	if err != nil {
+		o.appCtx.Logger().Error(err.Error())
+	}
+
+	tags, err := o.storer.Tags(uploaded.Upload.StorageKey)
+	var uploadStatus models.AVStatusType
+	if err != nil || len(tags) == 0 {
+		uploadStatus = models.AVStatusTypePROCESSING
+	} else {
+		uploadStatus = models.AVStatusType(tags["av-status"])
+	}
+
+	resProcess := []byte("id: 0\nevent: message\ndata: " + string(uploadStatus) + "\n\n")
+	if produceErr := producer.Produce(rw, resProcess); produceErr != nil {
+		panic(produceErr)
+	}
+
+	if f, ok := rw.(http.Flusher); ok {
+		f.Flush()
+	}
+
+	if uploadStatus == models.AVStatusTypeCLEAN || uploadStatus == models.AVStatusTypeINFECTED {
+		return
+	}
+
+	// Start waiting for tag updates
+
+	topicName := "app_s3_tag_events"
+	notificationParams := notifications.NotificationQueueParams{
+		Action:   "ObjectTagsAdded",
+		ObjectId: uploadId,
+	}
+
+	queueUrl, err := o.receiver.CreateQueueWithSubscription(o.appCtx, topicName, notificationParams)
+	if err != nil {
+		o.appCtx.Logger().Error(err.Error())
+	}
+
+	id_counter := 0
+	// Run for 120 seconds, 20 second long polling 6 times
+	for range 6 {
+		o.appCtx.Logger().Info("Receiving...")
+		messages, errs := o.receiver.ReceiveMessages(o.appCtx, queueUrl)
+		if errs != nil {
+			o.appCtx.Logger().Error(errs.Error())
+		}
+
+		if len(messages) != 0 {
+			errTransaction := o.appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+
+				tags, err := o.storer.Tags(uploaded.Upload.StorageKey)
+
+				if err != nil || len(tags) == 0 {
+					uploadStatus = models.AVStatusTypePROCESSING
+				} else {
+					uploadStatus = models.AVStatusType(tags["av-status"])
+				}
+
+				resProcess := []byte("id: " + strconv.Itoa(id_counter) + "\nevent: message\ndata: " + string(uploadStatus) + "\n\n")
+				if produceErr := producer.Produce(rw, resProcess); produceErr != nil {
+					panic(produceErr) // let the recovery middleware deal with this
+				}
+
+				return nil
+			})
+
+			if errTransaction != nil {
+				o.appCtx.Logger().Error(err.Error())
+			}
+		}
+
+		if f, ok := rw.(http.Flusher); ok {
+			f.Flush()
+		}
+		id_counter++
+	}
+
+	// TODO: add a close here after ends
+}
+
+// Handle returns status of an upload
+func (h GetUploadStatusHandler) Handle(params uploadop.GetUploadStatusParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			return &CustomNewUploadStatusOK{
+				params:   params,
+				appCtx:   h.AppContextFromRequest(params.HTTPRequest),
+				receiver: h.NotificationReceiver(),
+				storer:   h.FileStorer(),
+			}, nil
 		})
 }
 
