@@ -13,6 +13,7 @@ import { ExistingUploadsShape } from 'types/uploads';
 
 const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDownloadLink = false }) => {
   const [fileAvailable, setFileAvailable] = useState({});
+  const pollingInterval = 5000; // Poll every 5 seconds
 
   const getIcon = (fileType) => {
     switch (fileType) {
@@ -31,27 +32,38 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
 
   const checkFileAvailability = async (url, fileId) => {
     try {
-      const response = await fetch(url, { method: 'HEAD' }); // Send a HEAD request
+      const response = await fetch(url, { method: 'HEAD' }); // Send a HEAD request to check availability
       if (response.ok) {
-        setFileAvailable((prev) => ({ ...prev, [fileId]: true }));
+        setFileAvailable((prev) => ({ ...prev, [fileId]: true })); // Mark as available
       } else {
-        setFileAvailable((prev) => ({ ...prev, [fileId]: false }));
+        setFileAvailable((prev) => ({ ...prev, [fileId]: false })); // Mark as unavailable
       }
     } catch (error) {
-      setFileAvailable((prev) => ({ ...prev, [fileId]: false }));
+      setFileAvailable((prev) => ({ ...prev, [fileId]: false })); // Mark as unavailable if error occurs
     }
   };
 
   useEffect(() => {
+    const intervalIds = {}; // Store interval IDs for each file to clear later
+
     uploads.forEach((upload) => {
-      if (upload.url) {
-        checkFileAvailability(upload.url, upload.id); // Check file availability on mount
+      if (upload.url && !Object.hasOwn(fileAvailable, upload.id)) {
+        // Start polling if the file URL is available and polling isn't already in progress
+        intervalIds[upload.id] = setInterval(() => {
+          checkFileAvailability(upload.url, upload.id);
+        }, pollingInterval);
       }
     });
-  }, [uploads]);
+
+    // Cleanup polling on component unmount
+    return () => {
+      Object.values(intervalIds).forEach(clearInterval); // Clear all intervals
+    };
+  }, [uploads, fileAvailable]);
 
   const renderFileContent = (upload) => {
     if (showDownloadLink && upload.url) {
+      // If the file is available, show a link; otherwise, just the filename as plain text
       return fileAvailable[upload.id] ? (
         <a href={upload.url} download>
           {upload.filename}
