@@ -7,7 +7,6 @@ package internalmessages
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -99,10 +98,9 @@ type MoveQueueItem struct {
 	// Format: date
 	MoveDate *strfmt.Date `json:"move_date,omitempty"`
 
-	// Move Type
+	// orders type
 	// Required: true
-	// Enum: [PCS - OCONUS PCS - CONUS PCS + TDY - OCONUS PCS + TDY - CONUS]
-	OrdersType *string `json:"orders_type"`
+	OrdersType *OrdersType `json:"orders_type"`
 
 	// Origin
 	// Example: Dover AFB
@@ -381,50 +379,25 @@ func (m *MoveQueueItem) validateMoveDate(formats strfmt.Registry) error {
 	return nil
 }
 
-var moveQueueItemTypeOrdersTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["PCS - OCONUS","PCS - CONUS","PCS + TDY - OCONUS","PCS + TDY - CONUS"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		moveQueueItemTypeOrdersTypePropEnum = append(moveQueueItemTypeOrdersTypePropEnum, v)
-	}
-}
-
-const (
-
-	// MoveQueueItemOrdersTypePCSDashOCONUS captures enum value "PCS - OCONUS"
-	MoveQueueItemOrdersTypePCSDashOCONUS string = "PCS - OCONUS"
-
-	// MoveQueueItemOrdersTypePCSDashCONUS captures enum value "PCS - CONUS"
-	MoveQueueItemOrdersTypePCSDashCONUS string = "PCS - CONUS"
-
-	// MoveQueueItemOrdersTypePCSPlusTDYDashOCONUS captures enum value "PCS + TDY - OCONUS"
-	MoveQueueItemOrdersTypePCSPlusTDYDashOCONUS string = "PCS + TDY - OCONUS"
-
-	// MoveQueueItemOrdersTypePCSPlusTDYDashCONUS captures enum value "PCS + TDY - CONUS"
-	MoveQueueItemOrdersTypePCSPlusTDYDashCONUS string = "PCS + TDY - CONUS"
-)
-
-// prop value enum
-func (m *MoveQueueItem) validateOrdersTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, moveQueueItemTypeOrdersTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *MoveQueueItem) validateOrdersType(formats strfmt.Registry) error {
 
 	if err := validate.Required("orders_type", "body", m.OrdersType); err != nil {
 		return err
 	}
 
-	// value enum
-	if err := m.validateOrdersTypeEnum("orders_type", "body", *m.OrdersType); err != nil {
+	if err := validate.Required("orders_type", "body", m.OrdersType); err != nil {
 		return err
+	}
+
+	if m.OrdersType != nil {
+		if err := m.OrdersType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("orders_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -502,6 +475,10 @@ func (m *MoveQueueItem) ContextValidate(ctx context.Context, formats strfmt.Regi
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateOrdersType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateWeightAllotment(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -521,6 +498,23 @@ func (m *MoveQueueItem) contextValidateGrade(ctx context.Context, formats strfmt
 				return ve.ValidateName("grade")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("grade")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveQueueItem) contextValidateOrdersType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OrdersType != nil {
+
+		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("orders_type")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("orders_type")
 			}
 			return err
 		}

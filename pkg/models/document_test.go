@@ -42,9 +42,17 @@ func (suite *ModelSuite) TestFetchDocument() {
 		ApplicationName: auth.MilApp,
 		ServiceMemberID: serviceMember.ID,
 	}
+	userUpload := factory.BuildUserUpload(suite.DB(), nil, nil)
+	err := models.DeleteUserUpload(suite.DB(), &userUpload)
+	suite.Nil(err)
+	userUploads := models.UserUploads{userUpload}
+
 	document := models.Document{
+		ID:              *userUpload.DocumentID,
 		ServiceMemberID: serviceMember.ID,
+		UserUploads:     userUploads,
 	}
+	userUpload.DocumentID = &document.ID
 
 	verrs, err := suite.DB().ValidateAndSave(&document)
 	if err != nil {
@@ -58,6 +66,7 @@ func (suite *ModelSuite) TestFetchDocument() {
 
 	doc, _ := models.FetchDocument(suite.DB(), &session, document.ID, false)
 	suite.Equal(doc.ID, document.ID)
+	suite.Equal(0, len(doc.UserUploads))
 }
 
 func (suite *ModelSuite) TestFetchDeletedDocument() {
@@ -70,11 +79,19 @@ func (suite *ModelSuite) TestFetchDeletedDocument() {
 		ServiceMemberID: serviceMember.ID,
 	}
 
+	userUpload := factory.BuildUserUpload(suite.DB(), nil, nil)
+	err := models.DeleteUserUpload(suite.DB(), &userUpload)
+	suite.Nil(err)
+	userUploads := models.UserUploads{userUpload}
+
 	deletedAt := time.Date(2019, 8, 7, 0, 0, 0, 0, time.UTC)
 	document := models.Document{
+		ID:              *userUpload.DocumentID,
 		ServiceMemberID: serviceMember.ID,
 		DeletedAt:       &deletedAt,
+		UserUploads:     userUploads,
 	}
+	userUpload.DocumentID = &document.ID
 
 	verrs, err := suite.DB().ValidateAndSave(&document)
 	if err != nil {
@@ -97,4 +114,5 @@ func (suite *ModelSuite) TestFetchDeletedDocument() {
 	// fetches a nil document
 	suite.Equal(doc2.ID, document.ID)
 	suite.Equal(doc2.ServiceMemberID, serviceMember.ID)
+	suite.Equal(1, len(doc2.UserUploads))
 }
