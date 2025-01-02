@@ -32,7 +32,7 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
 
   const checkFileAvailability = async (url, fileId) => {
     try {
-      const response = await fetch(url, { method: 'HEAD' }); // Send a HEAD request to check availability
+      const response = await fetch(url, { method: 'GET', headers: { Range: 'bytes=0-0' } }); // Try to fetch just a byte
       if (response.ok) {
         setFileAvailable((prev) => ({ ...prev, [fileId]: true })); // Mark as available
       } else {
