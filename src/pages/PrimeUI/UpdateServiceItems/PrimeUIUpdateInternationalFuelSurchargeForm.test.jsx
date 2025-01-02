@@ -7,29 +7,40 @@ import PrimeUIUpdateInternationalFuelSurchargeForm from './PrimeUIUpdateInternat
 import { renderWithProviders } from 'testUtils';
 import { primeSimulatorRoutes } from 'constants/routes';
 
-const intlFscInitialValues = {
-  mtoServiceItemID: '48569958-2889-41e5-8101-82c56ec48430',
-  reServiceCode: 'POEFSC',
-  portCode: 'SEA',
-};
+const mtoServiceItemID = '38569958-2889-41e5-8101-82c56ec48430';
 
 const serviceItem = {
+  id: mtoServiceItemID,
   reServiceCode: 'POEFSC',
   reServiceName: 'International POE Fuel Surcharge',
   status: 'APPROVED',
+  mtoShipmentID: '38569958-2889-41e5-8102-82c56ec48430',
 };
 
-const port = {
+const portOfEmbarkation = {
   city: 'SEATTLE',
   country: 'UNITED STATES',
   county: 'KING',
-  id: '48569958-2889-41e5-8101-82c56ec48430',
+  id: '38569958-2889-41e5-8101-82c56ec48430',
   portCode: 'SEA',
   portName: 'SEATTLE TACOMA INTL',
   portType: 'A',
   state: 'WASHINGTON',
   zip: '98158',
 };
+
+const mtoShipment = {
+  id: '38569958-2889-41e5-8102-82c56ec48430',
+  portOfEmbarkation,
+};
+
+const moveTaskOrder = {
+  mtoShipments: [mtoShipment],
+  mtoServiceItems: [serviceItem],
+  serviceItem,
+};
+
+const onUpdateServiceItemMock = jest.fn();
 
 // Mock the react-router-dom functions
 const mockNavigate = jest.fn();
@@ -43,10 +54,9 @@ describe('PrimeUIUpdateInternationalFuelSurchargeForm', () => {
   it('renders the international fuel surcharge form', async () => {
     renderWithProviders(
       <PrimeUIUpdateInternationalFuelSurchargeForm
-        initialValues={intlFscInitialValues}
-        serviceItem={serviceItem}
-        port={port}
-        onSubmit={jest.fn()}
+        moveTaskOrder={moveTaskOrder}
+        mtoServiceItemId={mtoServiceItemID}
+        onUpdateServiceItem={onUpdateServiceItemMock}
       />,
     );
 
@@ -63,14 +73,12 @@ describe('PrimeUIUpdateInternationalFuelSurchargeForm', () => {
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
   });
 
-  it('fires off onSubmit function when save button is clicked', async () => {
-    const onSubmitMock = jest.fn();
+  it('fires off onUpdateServiceItemMock function when save button is clicked', async () => {
     renderWithProviders(
       <PrimeUIUpdateInternationalFuelSurchargeForm
-        initialValues={intlFscInitialValues}
-        serviceItem={serviceItem}
-        port={port}
-        onSubmit={onSubmitMock}
+        moveTaskOrder={moveTaskOrder}
+        mtoServiceItemId={mtoServiceItemID}
+        onUpdateServiceItem={onUpdateServiceItemMock}
       />,
     );
     const portCodeInput = screen.getByLabelText(/Port Code/);
@@ -79,54 +87,49 @@ describe('PrimeUIUpdateInternationalFuelSurchargeForm', () => {
 
     await userEvent.click(saveButton);
 
-    expect(onSubmitMock).toHaveBeenCalled();
+    expect(onUpdateServiceItemMock).toHaveBeenCalled();
   });
 
-  it('does not fire off onSubmit function when save button is clicked and port code is empty', async () => {
-    const onSubmitMock = jest.fn();
+  it('does not fire off onUpdateServiceItemMock function when save button is clicked and port code is empty', async () => {
     renderWithProviders(
       <PrimeUIUpdateInternationalFuelSurchargeForm
-        initialValues={intlFscInitialValues}
-        serviceItem={serviceItem}
-        port={port}
-        onSubmit={onSubmitMock}
+        moveTaskOrder={moveTaskOrder}
+        mtoServiceItemId={mtoServiceItemID}
+        onUpdateServiceItem={onUpdateServiceItemMock}
       />,
     );
     const portCodeInput = screen.getByLabelText(/Port Code/);
     await userEvent.clear(portCodeInput, '');
     const saveButton = await screen.findByRole('button', { name: 'Save' });
 
+    onUpdateServiceItemMock.mockClear();
     await userEvent.click(saveButton);
-
-    expect(onSubmitMock).not.toHaveBeenCalled();
+    expect(onUpdateServiceItemMock).not.toHaveBeenCalled();
   });
 
-  it('does not fire off onSubmit function when save button is clicked and port code is fewer than 3 characters', async () => {
-    const onSubmitMock = jest.fn();
+  it('does not fire off onUpdateServiceItemMock function when save button is clicked and port code is fewer than 3 characters', async () => {
     renderWithProviders(
       <PrimeUIUpdateInternationalFuelSurchargeForm
-        initialValues={intlFscInitialValues}
-        serviceItem={serviceItem}
-        port={port}
-        onSubmit={onSubmitMock}
+        moveTaskOrder={moveTaskOrder}
+        mtoServiceItemId={mtoServiceItemID}
+        onUpdateServiceItem={onUpdateServiceItemMock}
       />,
     );
     const portCodeInput = screen.getByLabelText(/Port Code/);
     await userEvent.clear(portCodeInput, '12');
     const saveButton = await screen.findByRole('button', { name: 'Save' });
 
+    onUpdateServiceItemMock.mockClear();
     await userEvent.click(saveButton);
-
-    expect(onSubmitMock).not.toHaveBeenCalled();
+    expect(onUpdateServiceItemMock).not.toHaveBeenCalled();
   });
 
   it('directs the user back to the move page when cancel button is clicked', async () => {
     renderWithProviders(
       <PrimeUIUpdateInternationalFuelSurchargeForm
-        initialValues={intlFscInitialValues}
-        serviceItem={serviceItem}
-        port={port}
-        onSubmit={jest.fn()}
+        moveTaskOrder={moveTaskOrder}
+        mtoServiceItemId={mtoServiceItemID}
+        onUpdateServiceItem={onUpdateServiceItemMock}
       />,
     );
 

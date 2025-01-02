@@ -16,12 +16,41 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
 
-const PrimeUIUpdateInternationalFuelSurchargeForm = ({ initialValues, onSubmit, serviceItem, port }) => {
+const PrimeUIUpdateInternationalFuelSurchargeForm = ({ onUpdateServiceItem, moveTaskOrder, mtoServiceItemId }) => {
   const { moveCodeOrID } = useParams();
   const navigate = useNavigate();
 
   const handleClose = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+  };
+
+  const serviceItem = moveTaskOrder?.mtoServiceItems.find((s) => s?.id === mtoServiceItemId);
+  const mtoShipment = moveTaskOrder?.mtoShipments.find((s) => s.id === serviceItem.mtoShipmentID);
+  let port;
+  if (mtoShipment.portOfEmbarkation) {
+    port = mtoShipment.portOfEmbarkation;
+  } else if (mtoShipment.portOfDebarkation) {
+    port = mtoShipment.portOfDebarkation;
+  } else {
+    port = null;
+  }
+  const initialValues = {
+    mtoServiceItemID: serviceItem.id,
+    reServiceCode: serviceItem.reServiceCode,
+    eTag: serviceItem.eTag,
+    portCode: port?.portCode,
+  };
+
+  const onSubmit = (values) => {
+    const { eTag, mtoServiceItemID, portCode, reServiceCode } = values;
+
+    const body = {
+      portCode,
+      reServiceCode,
+      modelType: 'UpdateMTOServiceItemInternationalPortFSC',
+    };
+
+    onUpdateServiceItem({ mtoServiceItemID, eTag, body });
   };
 
   return (

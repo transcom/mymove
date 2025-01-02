@@ -71,35 +71,7 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
   const { modelType } = serviceItem;
   let initialValues;
   let onSubmit;
-  let port;
-  if (modelType === 'MTOServiceItemInternationalFuelSurcharge') {
-    const mtoShipment = moveTaskOrder?.mtoShipments.find((s) => s.id === serviceItem.mtoShipmentID);
-    if (mtoShipment.portOfEmbarkation) {
-      port = mtoShipment.portOfEmbarkation;
-    } else if (mtoShipment.portOfDebarkation) {
-      port = mtoShipment.portOfDebarkation;
-    } else {
-      port = null;
-    }
-    initialValues = {
-      mtoServiceItemID: serviceItem.id,
-      reServiceCode: serviceItem.reServiceCode,
-      eTag: serviceItem.eTag,
-      portCode: port?.portCode,
-    };
-
-    onSubmit = (values) => {
-      const { eTag, mtoServiceItemID, portCode, reServiceCode } = values;
-
-      const body = {
-        portCode,
-        reServiceCode,
-        modelType: 'UpdateMTOServiceItemInternationalPortFSC',
-      };
-
-      createUpdateServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
-    };
-  } else if (modelType === 'MTOServiceItemOriginSIT' || modelType === 'MTOServiceItemDestSIT') {
+  if (modelType === 'MTOServiceItemOriginSIT' || modelType === 'MTOServiceItemDestSIT') {
     initialValues = {
       sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
       sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
@@ -171,10 +143,9 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
               ) : null}
               {modelType === 'MTOServiceItemInternationalFuelSurcharge' ? (
                 <PrimeUIUpdateInternationalFuelSurchargeForm
-                  serviceItem={serviceItem}
-                  port={port}
-                  initialValues={initialValues}
-                  onSubmit={onSubmit}
+                  moveTaskOrder={moveTaskOrder}
+                  mtoServiceItemId={mtoServiceItemId}
+                  onUpdateServiceItem={createUpdateServiceItemRequestMutation}
                 />
               ) : null}
             </Grid>
