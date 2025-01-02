@@ -132,7 +132,7 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 		City:           "city",
 		State:          "CA",
 		PostalCode:     "59801",
-		County:         "County",
+		County:         models.StringPointer("County"),
 	}
 	addressCreator := address.NewAddressCreator()
 	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)

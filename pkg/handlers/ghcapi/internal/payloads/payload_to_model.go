@@ -92,10 +92,13 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 		return nil
 	}
 
+	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+
 	modelAddress := &models.Address{
-		ID:             uuid.FromStringOrNil(address.ID.String()),
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
+		ID:                 uuid.FromStringOrNil(address.ID.String()),
+		StreetAddress2:     address.StreetAddress2,
+		StreetAddress3:     address.StreetAddress3,
+		UsPostRegionCityID: &usPostRegionCitiesID,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
@@ -122,11 +125,13 @@ func PPMDestinationAddressModel(address *ghcmessages.PPMDestinationAddress) *mod
 	if address == nil || (address.ID == blankSwaggerID && address.City == nil && address.State == nil && address.PostalCode == nil) {
 		return nil
 	}
+	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
 
 	modelAddress := &models.Address{
-		ID:             uuid.FromStringOrNil(address.ID.String()),
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
+		ID:                 uuid.FromStringOrNil(address.ID.String()),
+		StreetAddress2:     address.StreetAddress2,
+		StreetAddress3:     address.StreetAddress3,
+		UsPostRegionCityID: &usPostRegionCitiesID,
 	}
 
 	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {
@@ -951,4 +956,20 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		SubmittedAt:                        handlers.FmtDateTimePtrToPopPtr(evaluationReport.SubmittedAt),
 	}
 	return &model, nil
+}
+
+func VLocationModel(vLocation *ghcmessages.VLocation) *models.VLocation {
+	if vLocation == nil {
+		return nil
+	}
+
+	usPostRegionCitiesID := uuid.FromStringOrNil(vLocation.UsPostRegionCitiesID.String())
+
+	return &models.VLocation{
+		CityName:             vLocation.City,
+		StateName:            vLocation.State,
+		UsprZipID:            vLocation.PostalCode,
+		UsprcCountyNm:        *vLocation.County,
+		UsPostRegionCitiesID: &usPostRegionCitiesID,
+	}
 }
