@@ -13,46 +13,40 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+const islhPricerMinimumWeight = unit.Pound(500)
+
 type intlShippingAndLinehaulPricer struct {
 }
 
-// NewDomesticLinehaulPricer creates a new pricer for domestic linehaul services
-func NewIntlShippingAndLinehaulPricer() services.DomesticLinehaulPricer {
+func NewIntlShippingAndLinehaulPricer() services.IntlShippingAndLinehaulPricer {
 	return &intlShippingAndLinehaulPricer{}
 }
 
-// Price determines the price for a domestic linehaul
-func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
-	// Validate parameters
+func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, distance unit.Miles, weight unit.Pound, perUnitCents int) (unit.Cents, services.PricingDisplayParams, error) {
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
 	}
 	if referenceDate.IsZero() {
-		return 0, nil, errors.New("ReferenceDate is required")
+		return 0, nil, errors.New("referenceDate is required")
 	}
-	if !isPPM && weight < dlhPricerMinimumWeight {
-		return 0, nil, fmt.Errorf("Weight must be at least %d", dlhPricerMinimumWeight)
+	if weight < islhPricerMinimumWeight {
+		return 0, nil, fmt.Errorf("weight must be at least %d", islhPricerMinimumWeight)
 	}
-	if len(serviceArea) == 0 {
-		return 0, nil, errors.New("ServiceArea is required")
+	if perUnitCents == 0 {
+		return 0, nil, errors.New("PerUnitCents is required")
 	}
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)
-	finalWeight := weight
 
-	if isPPM && weight < dlhPricerMinimumWeight {
-		finalWeight = dlhPricerMinimumWeight
-	}
-
-	domesticLinehaulPrice, err := fetchDomesticLinehaulPrice(appCtx, contractCode, isPeakPeriod, distance, finalWeight, serviceArea)
+	contract, err := fetchContractsByContractCode(appCtx, contractCode)
 	if err != nil {
-		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
+		return 0, nil, fmt.Errorf("could not find contract with code: %s: %w", contractCode, err)
 	}
 
-	basePrice := domesticLinehaulPrice.PriceMillicents.Float64() / 1000
+	basePrice := float64(perUnitCents)
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(
 		appCtx,
-		domesticLinehaulPrice.ContractID,
+		contract.ID,
 		referenceDate,
 		true,
 		basePrice)
@@ -60,26 +54,30 @@ func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contr
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	totalPrice := finalWeight.ToCWTFloat64() * distance.Float64() * escalatedPrice
-	totalPriceCents := unit.Cents(math.Round(totalPrice))
+	escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
+	totalPriceCents := unit.Cents(math.Round(escalatedPrice))
 
 	params := services.PricingDisplayParams{
-		{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
-		{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
-		{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
-		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(domesticLinehaulPrice.PriceMillicents.ToDollarFloatNoRound(), 3)},
-	}
-
-	if isPPM && weight < dlhPricerMinimumWeight {
-		weightFactor := float64(weight) / float64(dlhPricerMinimumWeight)
-		cost := float64(weightFactor) * float64(totalPriceCents)
-		return unit.Cents(cost), params, nil
-	}
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(unit.Cents(perUnitCents)),
+		}}
 
 	return totalPriceCents, params, nil
 }
 
-// PriceUsingParams determines the price for a domestic linehaul given PaymentServiceItemParams
 func (p intlShippingAndLinehaulPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
@@ -96,42 +94,15 @@ func (p intlShippingAndLinehaulPricer) PriceUsingParams(appCtx appcontext.AppCon
 		return unit.Cents(0), nil, err
 	}
 
-	serviceAreaOrigin, err := getParamString(params, models.ServiceItemParamNameServiceAreaOrigin)
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
-
 	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
 
-	var isPPM = false
-	if params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypePPM {
-		// PPMs do not require minimums for a shipment's weight or distance
-		// this flag is passed into the Price function to ensure the weight and distance mins
-		// are not enforced for PPMs
-		isPPM = true
+	perUnitCents, err := getParamInt(params, models.ServiceItemParamNamePerUnitCents)
+	if err != nil {
+		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distance), unit.Pound(weightBilled), serviceAreaOrigin, isPPM)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distance), unit.Pound(weightBilled), perUnitCents)
 }
-
-// func fetchDomesticLinehaulPrice(appCtx appcontext.AppContext, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {
-// 	var domesticLinehaulPrice models.ReDomesticLinehaulPrice
-// 	err := appCtx.DB().Q().
-// 		Join("re_domestic_service_areas sa", "domestic_service_area_id = sa.id").
-// 		Join("re_contracts c", "re_domestic_linehaul_prices.contract_id = c.id").
-// 		Where("c.code = $1", contractCode).
-// 		Where("re_domestic_linehaul_prices.is_peak_period = $2", isPeakPeriod).
-// 		Where("$3 between weight_lower and weight_upper", weight).
-// 		Where("$4 between miles_lower and miles_upper", distance).
-// 		Where("sa.service_area = $5", serviceArea).
-// 		First(&domesticLinehaulPrice)
-
-// 	if err != nil {
-// 		return models.ReDomesticLinehaulPrice{}, err
-// 	}
-
-// 	return domesticLinehaulPrice, nil
-// }

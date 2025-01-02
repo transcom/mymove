@@ -237,7 +237,7 @@ type DomesticOriginSITFuelSurchargePricer interface {
 //
 //go:generate mockery --name IntlShippingAndLinehaulPricer
 type IntlShippingAndLinehaulPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
