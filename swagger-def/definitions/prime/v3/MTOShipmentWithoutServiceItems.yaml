@@ -249,3 +249,7 @@ properties:
     $ref: 'RateArea.yaml'
   destinationRateArea:
     $ref: 'RateArea.yaml'
+  portOfDebarkation:
+    $ref: '../../Port.yaml'
+  portOfEmbarkation:
+    $ref: '../../Port.yaml'

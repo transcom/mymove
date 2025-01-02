@@ -833,6 +833,21 @@ paths:
         }
         ```
 
+        The following service items allow you to update the Port that the shipment will use:
+        - PODFSC (Port of Debarkation can be updated)
+        - POEFSC (Port of Embarkation can be updated)
+
+        At a MINIMUM, the payload for updating the port should contain the reServiceCode (PODFSC or POEFSC), modelType (UpdateMTOServiceItemInternationalPortFSC), portCode, and id for the service item.
+        Please see the example payload below:
+        ```json
+        {
+          "id": "1ed224b6-c65e-4616-b88e-8304d26c9562",
+          "modelType": "UpdateMTOServiceItemInternationalPortFSC",
+          "portCode": "SEA",
+          "reServiceCode": "POEFSC"
+        }
+        ```
+
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -1525,6 +1540,8 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
+  MTOServiceItemInternationalFuelSurcharge: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalFuelSurcharge.yaml'
   MTOShipment:
     type: object
     properties:
@@ -1607,12 +1624,15 @@ definitions:
         * DDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
+        * PODFSC - UpdateMTOServiceItemInternationalPortFSC
+        * POEFSC - UpdateMTOServiceItemInternationalPortFSC
 
       The documentation will then update with the supported fields.
     type: string
     enum:
       - UpdateMTOServiceItemSIT
       - UpdateMTOServiceItemShuttle
+      - UpdateMTOServiceItemInternationalPortFSC
   UpdateMTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
       Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
@@ -1724,6 +1744,25 @@ definitions:
             description: Indicates if "Approvals Requested" status is being requested.
             type: boolean
             x-nullable: true
+  UpdateMTOServiceItemInternationalPortFSC: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: |
+      Subtype used to provide the port for fuel surcharge. This is not creating a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          portCode:
+            type: string
+            example: PDX
+            description: Port used for the shipment. Relevant for moving (PODFSC & POEFSC) service items.
+            x-nullable: true
+            x-omitempty: false
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - PODFSC # International Port of Debarkation Fuel Surcharge
+              - POEFSC # International Port of Embarkation Fuel Surcharge
   UpdateMTOShipment:
     properties:
       actualProGearWeight:

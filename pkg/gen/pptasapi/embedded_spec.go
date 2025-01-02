@@ -114,6 +114,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -431,7 +436,7 @@ func init() {
           "example": "G"
         },
         "orderNumber": {
-          "description": "not to be confused with Orders Number",
+          "description": "LoaDocID in lines of accounting table. Not to be confused with Orders Number",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
@@ -591,7 +596,7 @@ func init() {
           "x-nullable": true
         },
         "bcn": {
-          "description": "LoaSbaltmtRcpntID in lines_of_accounting",
+          "description": "LoaAlltSnID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -686,7 +691,7 @@ func init() {
           "x-nullable": true
         },
         "objClass": {
-          "description": "LoaAlltSnID in lines_of_accounting",
+          "description": "LoaObjClsID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -699,7 +704,7 @@ func init() {
           "x-nullable": true
         },
         "paa": {
-          "description": "LoaDocID in lines_of_accounting",
+          "description": "LoaInstlAcntgActID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -844,12 +849,12 @@ func init() {
           "example": "Destination"
         },
         "subAllotCD": {
-          "description": "LoaInstlAcntgActID in lines_of_accounting",
+          "description": "LoaSbaltmtRcpntID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
         "subhead": {
-          "description": "LoaObjClsID in lines_of_accounting",
+          "description": "LoaTrsySfxTx in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1008,6 +1013,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -1325,7 +1335,7 @@ func init() {
           "example": "G"
         },
         "orderNumber": {
-          "description": "not to be confused with Orders Number",
+          "description": "LoaDocID in lines of accounting table. Not to be confused with Orders Number",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
@@ -1485,7 +1495,7 @@ func init() {
           "x-nullable": true
         },
         "bcn": {
-          "description": "LoaSbaltmtRcpntID in lines_of_accounting",
+          "description": "LoaAlltSnID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1580,7 +1590,7 @@ func init() {
           "x-nullable": true
         },
         "objClass": {
-          "description": "LoaAlltSnID in lines_of_accounting",
+          "description": "LoaObjClsID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1593,7 +1603,7 @@ func init() {
           "x-nullable": true
         },
         "paa": {
-          "description": "LoaDocID in lines_of_accounting",
+          "description": "LoaInstlAcntgActID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1738,12 +1748,12 @@ func init() {
           "example": "Destination"
         },
         "subAllotCD": {
-          "description": "LoaInstlAcntgActID in lines_of_accounting",
+          "description": "LoaSbaltmtRcpntID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
         "subhead": {
-          "description": "LoaObjClsID in lines_of_accounting",
+          "description": "LoaTrsySfxTx in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },

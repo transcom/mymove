@@ -34,6 +34,7 @@ type Address struct {
 	IsOconus           *bool             `json:"is_oconus" db:"is_oconus"`
 	UsPostRegionCityID *uuid.UUID        `json:"us_post_region_cities_id" db:"us_post_region_cities_id"`
 	UsPostRegionCity   *UsPostRegionCity `belongs_to:"us_post_region_cities" fk_id:"us_post_region_cities_id"`
+	DestinationGbloc   *string           `db:"-"` // this tells Pop not to look in the db for this value
 }
 
 // TableName overrides the table name used by Pop.
@@ -129,6 +130,20 @@ func (a *Address) LineFormat() string {
 	}
 
 	return strings.Join(parts, ", ")
+}
+
+// LineDisplayFormat returns the address in a single line representation of the US mailing address format
+func (a *Address) LineDisplayFormat() string {
+	optionalStreetAddress2 := ""
+	if a.StreetAddress2 != nil && len(*a.StreetAddress2) > 0 {
+		optionalStreetAddress2 = " " + *a.StreetAddress2
+	}
+	optionalStreetAddress3 := ""
+	if a.StreetAddress3 != nil && len(*a.StreetAddress3) > 0 {
+		optionalStreetAddress3 = " " + *a.StreetAddress3
+	}
+
+	return fmt.Sprintf("%s%s%s, %s, %s %s", a.StreetAddress1, optionalStreetAddress2, optionalStreetAddress3, a.City, a.State, a.PostalCode)
 }
 
 // NotImplementedCountryCode is the default for unimplemented country code lookup

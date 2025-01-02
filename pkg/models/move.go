@@ -105,6 +105,11 @@ type Move struct {
 	CounselingOffice                               *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
 }
 
+type MoveWithEarliestDate struct {
+	ID           uuid.UUID `json:"id" db:"id"`
+	EarliestDate time.Time `db:"earliest_date"`
+}
+
 // TableName overrides the table name used by Pop.
 func (m Move) TableName() string {
 	return "moves"
@@ -457,6 +462,21 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 	}
 
 	return responseVErrors, responseError
+}
+
+// FetchMoveByMoveIDWithServiceItems returns a Move along with all the associations needed to determine
+// the move service item's status.
+func FetchMoveByMoveIDWithServiceItems(db *pop.Connection, moveID uuid.UUID) (Move, error) {
+	var move Move
+	err := db.Q().Eager().Where("show = TRUE").Find(&move, moveID)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Move{}, ErrFetchNotFound
+		}
+		return Move{}, err
+	}
+	return move, nil
 }
 
 // FetchMoveForMoveDates returns a Move along with all the associations needed to determine
