@@ -1,11 +1,13 @@
 package ghcapi
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -376,6 +378,16 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
 						appCtx.Logger().Error("ghcapi.UpdateShipmentHandler error", zap.Error(e.Unwrap()))
+					}
+
+					// Try to unwrap the error to access the underlying pq.Error (aka error from the db)
+					var pqErr *pq.Error
+					if errors.As(e.Unwrap(), &pqErr) {
+						appCtx.Logger().Error("QueryError message", zap.String("databaseError", pqErr.Message))
+						databaseErrorMessage := fmt.Sprintf("Database error: %s", pqErr.Message)
+						return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+							&ghcmessages.Error{Message: &databaseErrorMessage},
+						), err
 					}
 
 					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
