@@ -103,7 +103,7 @@ func fetchContractsByContractId(appCtx appcontext.AppContext, contractID uuid.UU
 	return contracts, nil
 }
 
-func fetchContractsByContractCode(appCtx appcontext.AppContext, contractCode string) (models.ReContract, error) {
+func fetchContractByContractCode(appCtx appcontext.AppContext, contractCode string) (models.ReContract, error) {
 	var contract models.ReContract
 	err := appCtx.DB().Where("code = $1", contractCode).First(&contract)
 	if err != nil {

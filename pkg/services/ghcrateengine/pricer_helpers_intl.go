@@ -23,10 +23,13 @@ func priceIntlPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReS
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
+	if perUnitCents == 0 {
+		return 0, nil, errors.New("PerUnitCents is required")
+	}
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 
-	contract, err := fetchContractsByContractCode(appCtx, contractCode)
+	contract, err := fetchContractByContractCode(appCtx, contractCode)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not find contract with code: %s: %w", contractCode, err)
 	}
