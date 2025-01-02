@@ -241,7 +241,7 @@ type IntlShippingAndLinehaulPricer interface {
 	ParamsPricer
 }
 
-// IntlHHGPackPricer prices international packing for an HHG shipment within a move
+// IntlHHGPackPricer prices international packing for an iHHG shipment within a move
 //
 //go:generate mockery --name IntlHHGPackPricer
 type IntlHHGPackPricer interface {
@@ -249,7 +249,7 @@ type IntlHHGPackPricer interface {
 	ParamsPricer
 }
 
-// IntlHHGUnpackPricer prices international unpacking for an HHG shipment within a move
+// IntlHHGUnpackPricer prices international unpacking for an iHHG shipment within a move
 //
 //go:generate mockery --name IntlHHGUnpackPricer
 type IntlHHGUnpackPricer interface {
@@ -257,7 +257,7 @@ type IntlHHGUnpackPricer interface {
 	ParamsPricer
 }
 
-// IntlPortFuelSurchargePricer prices the POEFSC/PODFSC service items on a shipment within a move
+// IntlPortFuelSurchargePricer prices the POEFSC/PODFSC service items on an iHHG shipment within a move
 //
 //go:generate mockery --name IntlPortFuelSurchargePricer
 type IntlPortFuelSurchargePricer interface {
