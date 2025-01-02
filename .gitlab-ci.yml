@@ -184,7 +184,7 @@ pre_deps_golang:
   before_script:
     - *setup_milmove_env
   variables:
-    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_CPU_REQUEST: "4"
     KUBERNETES_MEMORY_REQUEST: "4Gi"
     KUBERNETES_MEMORY_LIMIT: "4Gi"
   script:
@@ -336,7 +336,7 @@ compile_app_client:
   stage: build
   image: $DOCKER_APP_IMAGE
   variables:
-    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "8Gi"
     KUBERNETES_MEMORY_LIMIT: "8Gi"
   before_script: *setup_milmove_env
@@ -363,7 +363,7 @@ compile_app_server:
   stage: build
   image: $DOCKER_APP_IMAGE
   variables:
-    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "4Gi"
     KUBERNETES_MEMORY_LIMIT: "4Gi"
   needs:
