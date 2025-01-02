@@ -10,6 +10,12 @@ export const ORDERS_TYPE = {
 
 export const SPECIAL_ORDERS_TYPES = {
   WOUNDED_WARRIOR: 'Wounded Warrior',
+  BLUEBARK: 'Bluebark',
+  SAFETY: 'Safety',
+};
+
+export const SPECIAL_ORDERS_TYPES_NON_LABEL = {
+  WOUNDED_WARRIOR: 'Wounded Warrior',
   BLUEBARK: 'BLUEBARK',
   SAFETY: 'SAFETY',
 };
