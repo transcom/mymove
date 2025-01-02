@@ -637,16 +637,16 @@ func (suite *PayloadsSuite) TestReServiceItems() {
 		marketCodeInternational := models.MarketCodeInternational
 		marketCodeDomestic := models.MarketCodeDomestic
 		poefscReServiceCode := models.ReServiceCodePOEFSC
-		poedscReServiceCode := models.ReServiceCodePODFSC
+		podfscReServiceCode := models.ReServiceCodePODFSC
 		poefscServiceName := "International POE Fuel Surcharge"
-		poedscServiceName := "International POD Fuel Surcharge"
+		podfscServiceName := "International POD Fuel Surcharge"
 		poefscService := models.ReService{
 			Code: poefscReServiceCode,
 			Name: poefscServiceName,
 		}
 		podfscService := models.ReService{
-			Code: poedscReServiceCode,
-			Name: poedscServiceName,
+			Code: podfscReServiceCode,
+			Name: podfscServiceName,
 		}
 		hhgShipmentType := models.MTOShipmentTypeHHG
 		ubShipmentType := models.MTOShipmentTypeUnaccompaniedBaggage
