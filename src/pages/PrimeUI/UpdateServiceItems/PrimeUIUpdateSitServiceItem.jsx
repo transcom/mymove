@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 
 import PrimeUIUpdateOriginSITForm from './PrimeUIUpdateOriginSITForm';
 import PrimeUIUpdateDestSITForm from './PrimeUIUpdateDestSITForm';
+import PrimeUIUpdateInternationalFuelSurchargeForm from './PrimeUIUpdateInternationalFuelSurchargeForm';
 
 import { updateMTOServiceItem } from 'services/primeApi';
 import scrollToTop from 'shared/scrollToTop';
@@ -67,7 +68,18 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   if (isError) return <SomethingWentWrong />;
 
   const serviceItem = moveTaskOrder?.mtoServiceItems.find((s) => s?.id === mtoServiceItemId);
+  const mtoShipment = moveTaskOrder?.mtoShipments.find((s) => s.id === serviceItem.mtoShipmentID);
   const { modelType } = serviceItem;
+  let port;
+  if (modelType === 'MTOServiceItemInternationalFuelSurcharge') {
+    if (mtoShipment.portOfEmbarkation) {
+      port = mtoShipment.portOfEmbarkation;
+    } else if (mtoShipment.portOfDebarkation) {
+      port = mtoShipment.portOfDebarkation;
+    } else {
+      port = null;
+    }
+  }
 
   const initialValues = {
     sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
@@ -76,6 +88,7 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
     mtoServiceItemID: serviceItem.id,
     reServiceCode: serviceItem.reServiceCode,
     eTag: serviceItem.eTag,
+    portCode: port?.portCode,
   };
 
   // sending the data submitted in the form to the API
@@ -132,6 +145,14 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
               {modelType === 'MTOServiceItemOriginSIT' ? (
                 <PrimeUIUpdateOriginSITForm
                   serviceItem={serviceItem}
+                  initialValues={initialValues}
+                  onSubmit={onSubmit}
+                />
+              ) : null}
+              {modelType === 'MTOServiceItemInternationalFuelSurcharge' ? (
+                <PrimeUIUpdateInternationalFuelSurchargeForm
+                  serviceItem={serviceItem}
+                  port={port}
                   initialValues={initialValues}
                   onSubmit={onSubmit}
                 />

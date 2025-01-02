@@ -803,6 +803,19 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
 			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
+
+	case models.ReServiceCodePODFSC, models.ReServiceCodePOEFSC:
+		var portCode string
+		if mtoServiceItem.POELocation != nil {
+			portCode = mtoServiceItem.POELocation.Port.PortCode
+		} else if mtoServiceItem.PODLocation != nil {
+			portCode = mtoServiceItem.PODLocation.Port.PortCode
+		}
+		payload = &primev3messages.MTOServiceItemInternationalFuelSurcharge{
+			ReServiceCode: string(mtoServiceItem.ReService.Code),
+			PortCode:      portCode,
+		}
+
 	default:
 		// otherwise, basic service item
 		payload = &primev3messages.MTOServiceItemBasic{
