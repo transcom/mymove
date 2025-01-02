@@ -14,6 +14,7 @@ import (
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
 	dateservice "github.com/transcom/mymove/pkg/services/calendar"
 	customerserviceremarks "github.com/transcom/mymove/pkg/services/customer_support_remarks"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	evaluationreport "github.com/transcom/mymove/pkg/services/evaluation_report"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -59,6 +60,7 @@ import (
 
 // NewGhcAPIHandler returns a handler for the GHC API
 func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
+	waf := entitlements.NewWeightAllotmentFetcher()
 	ghcSpec, err := loads.Analyzed(ghcapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -310,6 +312,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 	ghcAPI.OrderCreateOrderHandler = CreateOrderHandler{
 		handlerConfig,
+		waf,
 	}
 
 	ghcAPI.OrderUpdateOrderHandler = UpdateOrderHandler{

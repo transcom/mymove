@@ -19,6 +19,7 @@ type pptasReportListFetcher struct {
 	moveFetcher services.MoveFetcher
 	tacFetcher  services.TransportationAccountingCodeFetcher
 	loaFetcher  services.LineOfAccountingFetcher
+	waf         services.WeightAllotmentFetcher
 }
 
 func NewPPTASReportListFetcher(estimator services.PPMEstimator, moveFetcher services.MoveFetcher, tacFetcher services.TransportationAccountingCodeFetcher, loaFetcher services.LineOfAccountingFetcher) services.PPTASReportListFetcher {
@@ -91,7 +92,11 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 		report.Address = orders.ServiceMember.ResidentialAddress
 
 		if orders.Grade != nil && orders.Entitlement != nil {
-			orders.Entitlement.SetWeightAllotment(string(*orders.Grade), orders.OrdersType)
+			entitlement, err := f.waf.GetWeightAllotment(appCtx, string(*orders.Grade), orders.OrdersType)
+			if err != nil {
+				return nil, err
+			}
+			orders.Entitlement.WeightAllotted = &entitlement
 		}
 
 		weightAllotment := orders.Entitlement.WeightAllotment()

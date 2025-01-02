@@ -23,7 +23,8 @@ const RiskOfExcessThreshold = .9
 const AutoReweighRequestThreshold = .9
 
 type moveWeights struct {
-	ReweighRequestor services.ShipmentReweighRequester
+	ReweighRequestor       services.ShipmentReweighRequester
+	WeightAllotmentFetcher services.WeightAllotmentFetcher
 }
 
 // NewMoveWeights creates a new moveWeights service
@@ -98,7 +99,10 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		return nil, nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	totalWeightAllowance := models.GetWeightAllotment(*move.Orders.Grade, move.Orders.OrdersType)
+	totalWeightAllowance, err := w.WeightAllotmentFetcher.GetWeightAllotment(appCtx, string(*move.Orders.Grade), move.Orders.OrdersType)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	weight := totalWeightAllowance.TotalWeightSelf
 	if *move.Orders.Entitlement.DependentsAuthorized {
@@ -175,7 +179,10 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		return nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	totalWeightAllowance := models.GetWeightAllotment(*move.Orders.Grade, move.Orders.OrdersType)
+	totalWeightAllowance, err := w.WeightAllotmentFetcher.GetWeightAllotment(appCtx, string(*move.Orders.Grade), move.Orders.OrdersType)
+	if err != nil {
+		return nil, err
+	}
 
 	weight := totalWeightAllowance.TotalWeightSelf
 	if *move.Orders.Entitlement.DependentsAuthorized {

@@ -5,9 +5,27 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 )
 
 func (suite *FactorySuite) TestBuildEntitlement() {
+	fetcher := entitlements.NewWeightAllotmentFetcher()
+
+	setupE1Allotment := func() {
+		pg := BuildPayGrade(suite.DB(), []Customization{
+			{
+				Model: models.PayGrade{
+					Grade: "E_1",
+				},
+			},
+		}, nil)
+		BuildHHGAllowance(suite.DB(), []Customization{
+			{
+				Model:    pg,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
 	suite.Run("Successful creation of default entitlement", func() {
 		// Under test:      BuildEntitlement
 		// Mocked:          None
@@ -16,6 +34,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 
 		// SETUP
 		// Create a default entitlement to compare values
+		setupE1Allotment()
 		defEnt := models.Entitlement{
 			DependentsAuthorized:                         models.BoolPointer(true),
 			TotalDependents:                              models.IntPointer(0),
@@ -27,7 +46,10 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 			RequiredMedicalEquipmentWeight:               1000,
 			OrganizationalClothingAndIndividualEquipment: true,
 		}
-		defEnt.SetWeightAllotment("E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		defEnt.WeightAllotted = &allotment
+
 		defEnt.DBAuthorizedWeight = defEnt.AuthorizedWeight()
 
 		// FUNCTION UNDER TEST
@@ -55,6 +77,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 
 		// SETUP
 		// Create a default entitlement to compare values
+		setupE1Allotment()
 		custEnt := models.Entitlement{
 			DependentsAuthorized:                         models.BoolPointer(false),
 			TotalDependents:                              models.IntPointer(0),
@@ -84,7 +107,9 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		suite.Equal(custEnt.OrganizationalClothingAndIndividualEquipment, entitlement.OrganizationalClothingAndIndividualEquipment)
 
 		// Set the weight allotment on the custom object so as to compare
-		custEnt.SetWeightAllotment("E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		*custEnt.WeightAllotted = allotment
 		custEnt.DBAuthorizedWeight = custEnt.AuthorizedWeight()
 
 		// Check that the created object had the correct allotments set
@@ -126,10 +151,13 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 
 		// SETUP
 		// Create a default stubbed entitlement to compare values
+		setupE1Allotment()
 		testEnt := BuildEntitlement(nil, nil, nil)
 		// Set the weight allotment on the custom object to O_9
 		testEnt.DBAuthorizedWeight = nil // clear original value
-		testEnt.SetWeightAllotment("O_9", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		*testEnt.WeightAllotted = allotment
 		testEnt.DBAuthorizedWeight = testEnt.AuthorizedWeight()
 		// Now DBAuthorizedWeight should be appropriate for O_9 grade
 

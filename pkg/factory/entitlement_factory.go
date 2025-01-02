@@ -46,7 +46,6 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 	ocie := true
 	proGearWeight := 2000
 	proGearWeightSpouse := 500
-	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 
 	// Create default Entitlement
 	entitlement := models.Entitlement{
@@ -61,7 +60,14 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 		OrganizationalClothingAndIndividualEquipment: ocie,
 	}
 	// Set default calculated values
-	entitlement.SetWeightAllotment(string(*grade), ordersType)
+	weightData := getDefaultWeightData(string(*grade))
+	allotment := models.WeightAllotment{
+		TotalWeightSelf:               weightData.TotalWeightSelf,
+		TotalWeightSelfPlusDependents: weightData.TotalWeightSelfPlusDependents,
+		ProGearWeight:                 weightData.ProGearWeight,
+		ProGearWeightSpouse:           weightData.ProGearWeightSpouse,
+	}
+	entitlement.WeightAllotted = &allotment
 	entitlement.DBAuthorizedWeight = entitlement.AuthorizedWeight()
 
 	// Overwrite default values with those from custom Entitlement
@@ -98,7 +104,7 @@ func BuildPayGrade(db *pop.Connection, customs []Customization, traits []Trait) 
 
 	// Create default Pay Grade
 	payGrade := models.PayGrade{
-		Grade:            "E-5",
+		Grade:            "E_5",
 		GradeDescription: models.StringPointer("Enlisted Grade E-5"),
 	}
 
@@ -170,6 +176,7 @@ func getDefaultWeightData(grade string) struct {
 }
 
 // Default allowances CAO December 2024
+// Note that the testdatagen package has its own default allowance
 var knownAllowances = map[string]struct {
 	TotalWeightSelf               int
 	TotalWeightSelfPlusDependents int
@@ -180,30 +187,30 @@ var knownAllowances = map[string]struct {
 	"ACADEMY_CADET":            {350, 350, 0, 0},
 	"MIDSHIPMAN":               {350, 350, 0, 0},
 	"AVIATION_CADET":           {7000, 8000, 2000, 500},
-	"E-1":                      {5000, 8000, 2000, 500},
-	"E-2":                      {5000, 8000, 2000, 500},
-	"E-3":                      {5000, 8000, 2000, 500},
-	"E-4":                      {7000, 8000, 2000, 500},
-	"E-5":                      {7000, 9000, 2000, 500},
-	"E-6":                      {8000, 11000, 2000, 500},
-	"E-7":                      {11000, 13000, 2000, 500},
-	"E-8":                      {12000, 14000, 2000, 500},
-	"E-9":                      {13000, 15000, 2000, 500},
-	"E-9SPECIALSENIORENLISTED": {14000, 17000, 2000, 500},
-	"O-1ACADEMYGRADUATE":       {10000, 12000, 2000, 500},
-	"O-2":                      {12500, 13500, 2000, 500},
-	"O-3":                      {13000, 14500, 2000, 500},
-	"O-4":                      {14000, 17000, 2000, 500},
-	"O-5":                      {16000, 17500, 2000, 500},
-	"O-6":                      {18000, 18000, 2000, 500},
-	"O-7":                      {18000, 18000, 2000, 500},
-	"O-8":                      {18000, 18000, 2000, 500},
-	"O-9":                      {18000, 18000, 2000, 500},
-	"O-10":                     {18000, 18000, 2000, 500},
-	"W-1":                      {10000, 12000, 2000, 500},
-	"W-2":                      {12500, 13500, 2000, 500},
-	"W-3":                      {13000, 14500, 2000, 500},
-	"W-4":                      {14000, 17000, 2000, 500},
-	"W-5":                      {16000, 17500, 2000, 500},
+	"E_1":                      {5000, 8000, 2000, 500},
+	"E_2":                      {5000, 8000, 2000, 500},
+	"E_3":                      {5000, 8000, 2000, 500},
+	"E_4":                      {7000, 8000, 2000, 500},
+	"E_5":                      {7000, 9000, 2000, 500},
+	"E_6":                      {8000, 11000, 2000, 500},
+	"E_7":                      {11000, 13000, 2000, 500},
+	"E_8":                      {12000, 14000, 2000, 500},
+	"E_9":                      {13000, 15000, 2000, 500},
+	"E_9SPECIALSENIORENLISTED": {14000, 17000, 2000, 500},
+	"O_1ACADEMYGRADUATE":       {10000, 12000, 2000, 500},
+	"O_2":                      {12500, 13500, 2000, 500},
+	"O_3":                      {13000, 14500, 2000, 500},
+	"O_4":                      {14000, 17000, 2000, 500},
+	"O_5":                      {16000, 17500, 2000, 500},
+	"O_6":                      {18000, 18000, 2000, 500},
+	"O_7":                      {18000, 18000, 2000, 500},
+	"O_8":                      {18000, 18000, 2000, 500},
+	"O_9":                      {18000, 18000, 2000, 500},
+	"O_10":                     {18000, 18000, 2000, 500},
+	"W_1":                      {10000, 12000, 2000, 500},
+	"W_2":                      {12500, 13500, 2000, 500},
+	"W_3":                      {13000, 14500, 2000, 500},
+	"W_4":                      {14000, 17000, 2000, 500},
+	"W_5":                      {16000, 17500, 2000, 500},
 	"CIVILIAN_EMPLOYEE":        {18000, 18000, 2000, 500},
 }

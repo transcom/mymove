@@ -208,6 +208,27 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		return Order{}, err
 	}
 
+	// Conduct allotment lookup
+	// TODO: OCONUS case orders type
+	if order.Entitlement != nil && order.Grade != nil {
+		var hhgAllowance HHGAllowance
+		err = db.RawQuery(`
+            SELECT hhg_allowances.*
+            FROM hhg_allowances
+            INNER JOIN pay_grades ON hhg_allowances.pay_grade_id = pay_grades.id
+            WHERE pay_grades.grade = $1
+            LIMIT 1
+        `, order.Grade).First(&hhgAllowance)
+		if err == nil {
+			order.Entitlement.WeightAllotted = &WeightAllotment{
+				TotalWeightSelf:               hhgAllowance.TotalWeightSelf,
+				TotalWeightSelfPlusDependents: hhgAllowance.TotalWeightSelfPlusDependents,
+				ProGearWeight:                 hhgAllowance.ProGearWeight,
+				ProGearWeightSpouse:           hhgAllowance.ProGearWeightSpouse,
+			}
+		}
+	}
+
 	// TODO: Handle case where more than one user is authorized to modify orders
 	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
 		return Order{}, ErrFetchForbidden

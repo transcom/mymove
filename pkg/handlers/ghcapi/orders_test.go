@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -36,6 +37,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
 	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -83,7 +85,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	createHandler := CreateOrderHandler{handlerConfig}
+	createHandler := CreateOrderHandler{handlerConfig, waf}
 
 	response := createHandler.Handle(params)
 
@@ -106,6 +108,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 }
 
 func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
 	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -159,7 +163,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	createHandler := CreateOrderHandler{handlerConfig}
+	createHandler := CreateOrderHandler{handlerConfig, waf}
 
 	response := createHandler.Handle(params)
 
