@@ -12,24 +12,25 @@ const maxWholeFamilyCivilianUBAllowanceTestConstant = 2000
 
 func (suite *ModelSuite) TestGetEntitlementWithValidValues() {
 	E1 := models.ServiceMemberGradeE1
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 
 	suite.Run("E1 with dependents", func() {
-		E1FullLoad := models.GetWeightAllotment(E1)
+		E1FullLoad := models.GetWeightAllotment(E1, ordersType)
 		suite.Assertions.Equal(8000, E1FullLoad.TotalWeightSelfPlusDependents)
 	})
 
 	suite.Run("E1 without dependents", func() {
-		E1Solo := models.GetWeightAllotment(E1)
+		E1Solo := models.GetWeightAllotment(E1, ordersType)
 		suite.Assertions.Equal(5000, E1Solo.TotalWeightSelf)
 	})
 
 	suite.Run("E1 Pro Gear", func() {
-		E1ProGear := models.GetWeightAllotment(E1)
+		E1ProGear := models.GetWeightAllotment(E1, ordersType)
 		suite.Assertions.Equal(2000, E1ProGear.ProGearWeight)
 	})
 
 	suite.Run("E1 Pro Gear Spouse", func() {
-		E1ProGearSpouse := models.GetWeightAllotment(E1)
+		E1ProGearSpouse := models.GetWeightAllotment(E1, ordersType)
 		suite.Assertions.Equal(500, E1ProGearSpouse.ProGearWeightSpouse)
 	})
 }
@@ -127,6 +128,14 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceCivilians() {
 		suite.Assertions.Equal(2275, civilianPlusDependentsTotalBaggageAllowance)
 		suite.Assertions.NotEqual(civilianPlusDependentsTotalBaggageAllowance, ubAllowance)
 		suite.Assertions.Equal(maxWholeFamilyCivilianUBAllowanceTestConstant, ubAllowance)
+	})
+
+	orderType = internalmessages.OrdersTypeSTUDENTTRAVEL
+	// This should limit the ub allowance to 350 lbs because it is a Student Travel order type
+	suite.Run("UB allowance is set to 350 for Student Travel orders", func() {
+		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
+		suite.NoError(err)
+		suite.Assertions.Equal(350, ubAllowance)
 	})
 }
 
@@ -240,5 +249,30 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
 		suite.Assertions.Equal(600, ubAllowance)
+	})
+}
+
+func (suite *ModelSuite) TestGetEntitlementByOrdersTypeWithValidValues() {
+	E1 := models.ServiceMemberGradeE1
+	ordersType := internalmessages.OrdersTypeSTUDENTTRAVEL
+
+	suite.Run("Student Travel with dependents", func() {
+		STFullLoad := models.GetWeightAllotment(E1, ordersType)
+		suite.Assertions.Equal(350, STFullLoad.TotalWeightSelfPlusDependents)
+	})
+
+	suite.Run("Student Travel without dependents", func() {
+		STSolo := models.GetWeightAllotment(E1, ordersType)
+		suite.Assertions.Equal(350, STSolo.TotalWeightSelf)
+	})
+
+	suite.Run("Student Travel Pro Gear", func() {
+		STProGear := models.GetWeightAllotment(E1, ordersType)
+		suite.Assertions.Equal(0, STProGear.ProGearWeight)
+	})
+
+	suite.Run("Student Travel Pro Gear Spouse", func() {
+		STProGearSpouse := models.GetWeightAllotment(E1, ordersType)
+		suite.Assertions.Equal(0, STProGearSpouse.ProGearWeightSpouse)
 	})
 }
