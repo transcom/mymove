@@ -110,7 +110,7 @@ test.describe('(MultiMove) Orders', () => {
     await page.getByRole('combobox', { name: 'Pay grade' }).selectOption({ label: 'E-7' });
     await page
       .getByRole('combobox', { name: 'Counseling Office' })
-      .selectOption({ label: 'PPPO DMO Camp Pendleton - USMC' });
+      .selectOption({ label: 'PPPO DMO Camp Pendelton - USMC' });
 
     await customerPage.navigateForward();
     await customerPage.waitForPage.ordersUpload();
