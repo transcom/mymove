@@ -245,7 +245,7 @@ type IntlShippingAndLinehaulPricer interface {
 //
 //go:generate mockery --name IntlHHGPackPricer
 type IntlHHGPackPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -253,7 +253,7 @@ type IntlHHGPackPricer interface {
 //
 //go:generate mockery --name IntlHHGUnpackPricer
 type IntlHHGUnpackPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 

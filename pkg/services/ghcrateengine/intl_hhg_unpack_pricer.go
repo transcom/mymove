@@ -12,17 +12,14 @@ import (
 type intlHHGUnpackPricer struct {
 }
 
-// NewDomesticUnpackPricer creates a new pricer for the domestic unpack service
 func NewIntlHHGUnpackPricer() services.IntlHHGUnpackPricer {
 	return &intlHHGUnpackPricer{}
 }
 
-// Price determines the price for a domestic unpack service
-func (p intlHHGUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDUPK, contractCode, referenceDate, weight, servicesScheduleDest, isPPM)
+func (p intlHHGUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceIntlPackUnpack(appCtx, models.ReServiceCodeIHUPK, contractCode, referenceDate, weight, perUnitCents)
 }
 
-// PriceUsingParams determines the price for a domestic unpack service given PaymentServiceItemParams
 func (p intlHHGUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
@@ -34,7 +31,7 @@ func (p intlHHGUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, para
 		return unit.Cents(0), nil, err
 	}
 
-	servicesScheduleDest, err := getParamInt(params, models.ServiceItemParamNameServicesScheduleDest)
+	perUnitCents, err := getParamInt(params, models.ServiceItemParamNamePerUnitCents)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -44,13 +41,5 @@ func (p intlHHGUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, para
 		return unit.Cents(0), nil, err
 	}
 
-	var isPPM = false
-	if params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypePPM {
-		// PPMs do not require minimums for a shipment's weight
-		// this flag is passed into the Price function to ensure the weight min
-		// are not enforced for PPMs
-		isPPM = true
-	}
-
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleDest, isPPM)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), perUnitCents)
 }

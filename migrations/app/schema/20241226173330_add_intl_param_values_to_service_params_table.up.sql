@@ -1,3 +1,7 @@
+-- need to add in param keys for international shipments, this will be used to show breakdowns to the TIO
+INSERT INTO service_item_param_keys (id, key,description,type,origin,created_at,updated_at) VALUES
+     ('d9ad3878-4b94-4722-bbaf-d4b8080f339d','PortName','Name of the port for an international shipment','STRING','PRICER','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957'),
+     ('597bb77e-0ce7-4ba2-9624-24300962625f','PerUnitCents','Per unit cents for a service item','INTEGER','SYSTEM','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957');
 
 -- inserting params for PODFSC
 INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,updated_at,is_optional) VALUES
@@ -14,7 +18,8 @@ INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,u
      ('aa68a318-fe17-445c-ab53-0505fe48d0bb'::uuid,'388115e8-abe9-441d-96cf-a39f24baa0a3','b79978a7-21b7-4656-af83-25585acffb20','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',true),
      ('882e7978-9754-4c8e-bb71-8fe4f4059503'::uuid,'388115e8-abe9-441d-96cf-a39f24baa0a3','d87d82da-3ac2-44e8-bce0-cb4de40f9a72','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',true),
      ('8fc4571d-235b-4d4f-90e4-77e7ad9250d5'::uuid,'388115e8-abe9-441d-96cf-a39f24baa0a3','1e6257e9-757d-4d59-8846-727dd8a055e7','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',true),
-     ('836606ce-894e-4765-bba5-b696cb5fe8cc'::uuid,'388115e8-abe9-441d-96cf-a39f24baa0a3','2cbc2251-eb7d-4c69-a120-9a83785c994b','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false);
+     ('836606ce-894e-4765-bba5-b696cb5fe8cc'::uuid,'388115e8-abe9-441d-96cf-a39f24baa0a3','2cbc2251-eb7d-4c69-a120-9a83785c994b','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false),
+     ('08701fa6-6352-4808-88b6-1fe103068f29'::uuid,'388115e8-abe9-441d-96cf-a39f24baa0a3','d9ad3878-4b94-4722-bbaf-d4b8080f339d','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false);
 
 -- inserting params for POEFSC
 INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,updated_at,is_optional) VALUES
@@ -31,7 +36,8 @@ INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,u
      ('f747f231-66f5-4a52-bb71-8d7b5f618d23'::uuid,'f75758d8-2fcd-40ba-9432-3ff3032a71d1','b79978a7-21b7-4656-af83-25585acffb20','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',true),
      ('0177f93a-15f6-41e5-a3ca-dc8f5bb727ab'::uuid,'f75758d8-2fcd-40ba-9432-3ff3032a71d1','d87d82da-3ac2-44e8-bce0-cb4de40f9a72','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',true),
      ('cbf5b41f-2d89-4284-858f-d2cda7b060f7'::uuid,'f75758d8-2fcd-40ba-9432-3ff3032a71d1','1e6257e9-757d-4d59-8846-727dd8a055e7','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',true),
-     ('ebed3001-93f1-49ba-a935-3d463b0d76fc'::uuid,'f75758d8-2fcd-40ba-9432-3ff3032a71d1','2cbc2251-eb7d-4c69-a120-9a83785c994b','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false);
+     ('ebed3001-93f1-49ba-a935-3d463b0d76fc'::uuid,'f75758d8-2fcd-40ba-9432-3ff3032a71d1','2cbc2251-eb7d-4c69-a120-9a83785c994b','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false),
+     ('aa7c3492-be44-46dd-983e-478623edc0be'::uuid,'f75758d8-2fcd-40ba-9432-3ff3032a71d1','d9ad3878-4b94-4722-bbaf-d4b8080f339d','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false);
 
 
 -- inserting params for ISLH
@@ -94,10 +100,12 @@ INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,u
 
 -- inserting params fo IHPK
 INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,updated_at,is_optional) VALUES
-     ('d9acb388-09a5-464b-bb50-bf418b25e96b'::uuid,'67ba1eaf-6ffd-49de-9a69-497be7789877','a1d31d35-c87d-4a7d-b0b8-8b2646b96e43','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false),
-     ('3c2297b0-1ec7-4261-a41d-37e58999258b'::uuid,'67ba1eaf-6ffd-49de-9a69-497be7789877','cd37b2a6-ac7d-4c93-a148-ca67f7f67cff','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false);
+     ('d9acb388-09a5-464b-bb50-bf418b25e96b'::uuid,'67ba1eaf-6ffd-49de-9a69-497be7789877','a1d31d35-c87d-4a7d-b0b8-8b2646b96e43','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false), -- ContractCode
+     ('0b31db7a-fbab-4e49-8526-00458ac3900c'::uuid,'67ba1eaf-6ffd-49de-9a69-497be7789877','597bb77e-0ce7-4ba2-9624-24300962625f','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false), -- PerUnitCents
+     ('9b0a74e3-afc4-4f42-8eb3-828f80fbfaf0'::uuid,'67ba1eaf-6ffd-49de-9a69-497be7789877','95ee2e21-b232-4d74-9ec5-218564a8a8b9','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false); -- IsPeak
 
 -- inserting params fo IHUPK
 INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,updated_at,is_optional) VALUES
-     ('d9acb388-09a5-464b-bb50-bf418b25e96c'::uuid,'56e91c2d-015d-4243-9657-3ed34867abaa','a1d31d35-c87d-4a7d-b0b8-8b2646b96e43','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false),
-     ('c045524a-90ec-4116-80a1-e2edb5cdf38f'::uuid,'56e91c2d-015d-4243-9657-3ed34867abaa','cd37b2a6-ac7d-4c93-a148-ca67f7f67cff','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false);
+     ('cb110853-6b1d-452b-9607-345721a70313'::uuid,'56e91c2d-015d-4243-9657-3ed34867abaa','a1d31d35-c87d-4a7d-b0b8-8b2646b96e43','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false), -- ContractCode
+     ('cc95d5df-1167-4fe9-8682-07f8fbe7c286'::uuid,'56e91c2d-015d-4243-9657-3ed34867abaa','597bb77e-0ce7-4ba2-9624-24300962625f','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false), -- PerUnitCents
+     ('759bd482-b2f6-461b-a898-792415efa5f1'::uuid,'56e91c2d-015d-4243-9657-3ed34867abaa','95ee2e21-b232-4d74-9ec5-218564a8a8b9','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false); -- IsPeak
