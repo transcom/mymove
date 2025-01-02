@@ -84,7 +84,7 @@ const OrdersDetailForm = ({
         name="ordersType"
         label="Orders type"
         options={
-          formOrdersType === 'SAFETY' || formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
+          formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY || formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
             ? dropdownInputOptions({ SAFETY: 'Safety', BLUEBARK: 'Bluebark' })
             : ordersTypeOptions
         }
@@ -92,7 +92,11 @@ const OrdersDetailForm = ({
           setFormOrdersType(e.target.value);
           setFieldValue('ordersType', e.target.value);
         }}
-        isDisabled={formIsDisabled || formOrdersType === 'SAFETY' || formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK}
+        isDisabled={
+          formIsDisabled ||
+          formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY ||
+          formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
+        }
       />
       {showOrdersTypeDetail && (
         <DropdownInput
