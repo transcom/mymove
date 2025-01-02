@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	dlhTestServiceArea = "004"
+	dlhTestServiceArea = "042"
 	dlhTestWeight      = unit.Pound(4000)
 )
 
@@ -648,7 +648,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		},
 	})
 
-	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+	baseLinehaulPrice := testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
 			ContractID:            contractYear.Contract.ID,
 			Contract:              contractYear.Contract,
@@ -658,7 +658,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		},
 	})
 
-	_ = testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+	_ = testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
 			ContractID:            contractYear.Contract.ID,
 			Contract:              contractYear.Contract,
@@ -746,6 +746,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
+			false,
+			false,
 		).Return(defaultZipDistance, nil)
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
@@ -905,6 +907,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
+			false,
+			false,
 		).Return(defaultZipDistance, nil)
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
@@ -963,6 +967,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
+			false,
+			false,
 		).Return(defaultZipDistance, nil)
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
