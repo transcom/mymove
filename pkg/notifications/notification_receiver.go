@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
+	"github.com/gofrs/uuid"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -34,29 +35,33 @@ type NotificationReceiver interface {
 	CloseoutQueue(appCtx appcontext.AppContext, queueUrl string) error
 }
 
-// NotificationSendingContext provides context to a notification sender
+// NotificationSendingContext provides context to a notification sender. Maps use queueUrl
 type NotificationReceiverContext struct {
-	snsService         *sns.Client
-	sqsService         *sqs.Client
-	awsRegion          string
-	awsAccountId       string
-	receiverContextMap map[string]context.CancelFunc
+	snsService           *sns.Client
+	sqsService           *sqs.Client
+	awsRegion            string
+	awsAccountId         string
+	queueSubscriptionMap map[string]string
+	receiverCancelMap    map[string]context.CancelFunc
 }
 
 // NewNotificationSender returns a new NotificationSendingContext
-func NewNotificationReceiver(snsService *sns.Client, sqsService *sqs.Client, awsRegion string, awsAccountId string, receiverContextMap map[string]context.CancelFunc) NotificationReceiverContext {
+func NewNotificationReceiver(snsService *sns.Client, sqsService *sqs.Client, awsRegion string, awsAccountId string) NotificationReceiverContext {
 	return NotificationReceiverContext{
-		snsService:         snsService,
-		sqsService:         sqsService,
-		awsRegion:          awsRegion,
-		awsAccountId:       awsAccountId,
-		receiverContextMap: receiverContextMap,
+		snsService:           snsService,
+		sqsService:           sqsService,
+		awsRegion:            awsRegion,
+		awsAccountId:         awsAccountId,
+		queueSubscriptionMap: make(map[string]string),
+		receiverCancelMap:    make(map[string]context.CancelFunc),
 	}
 }
 
 func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appcontext.AppContext, topicName string, params NotificationQueueParams) (string, error) {
 
-	queueName := fmt.Sprintf("%s_%s", params.Action, params.ObjectId)
+	queueUUID := uuid.Must(uuid.NewV4())
+
+	queueName := fmt.Sprintf("%s_%s", params.Action, queueUUID)
 	queueArn := n.constructArn("sqs", queueName)
 	topicArn := n.constructArn("sns", topicName)
 
@@ -114,10 +119,12 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 			"FilterPolicyScope": "MessageBody",
 		},
 	}
-	_, err = n.snsService.Subscribe(context.Background(), subscribeInput)
+	subscribeOutput, err := n.snsService.Subscribe(context.Background(), subscribeInput)
 	if err != nil {
 		log.Fatalf("Failed to create subscription, %v", err)
 	}
+
+	n.queueSubscriptionMap[*result.QueueUrl] = *subscribeOutput.SubscriptionArn
 
 	return *result.QueueUrl, err
 }
@@ -126,7 +133,7 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]types.Message, error) {
 	recCtx, cancelRecCtx := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancelRecCtx()
-	n.receiverContextMap[queueUrl] = cancelRecCtx
+	n.receiverCancelMap[queueUrl] = cancelRecCtx
 
 	result, err := n.sqsService.ReceiveMessage(recCtx, &sqs.ReceiveMessageInput{
 		QueueUrl:            &queueUrl,
@@ -149,11 +156,29 @@ func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContex
 
 // CloseoutQueue stops receiving messages and cleans up the queue and its subscriptions
 func (n NotificationReceiverContext) CloseoutQueue(appCtx appcontext.AppContext, queueUrl string) error {
-	n.receiverContextMap[queueUrl]()
-	// n.snsService.Unsubscribe(...)
-	// n.sqsService.DeleteQueue(...)
-	appCtx.Logger().Error("CLOSING OUT CONTEXT")
-	n.receiverContextMap[queueUrl] = nil
+	appCtx.Logger().Info("CLOSING OUT QUEUE CONTEXT")
+
+	if cancelFunc, exists := n.receiverCancelMap[queueUrl]; exists {
+		cancelFunc()
+		delete(n.receiverCancelMap, queueUrl)
+	}
+	if subscriptionArn, exists := n.queueSubscriptionMap[queueUrl]; exists {
+		_, err := n.snsService.Unsubscribe(context.Background(), &sns.UnsubscribeInput{
+			SubscriptionArn: &subscriptionArn,
+		})
+		if err != nil {
+			return err
+		}
+		delete(n.queueSubscriptionMap, queueUrl)
+	}
+
+	_, err := n.sqsService.DeleteQueue(context.Background(), &sqs.DeleteQueueInput{
+		QueueUrl: &queueUrl,
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -209,9 +234,7 @@ func InitReceiver(v *viper.Viper, logger *zap.Logger) (NotificationReceiver, err
 	snsService := sns.NewFromConfig(cfg)
 	sqsService := sqs.NewFromConfig(cfg)
 
-	receiverContextMap := make(map[string]context.CancelFunc)
-
-	return NewNotificationReceiver(snsService, sqsService, awsSESRegion, awsAccountId, receiverContextMap), nil
+	return NewNotificationReceiver(snsService, sqsService, awsSESRegion, awsAccountId), nil
 }
 
 func (n NotificationReceiverContext) constructArn(awsService string, endpointName string) string {
