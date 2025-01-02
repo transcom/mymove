@@ -106,7 +106,8 @@ const PrimeUIUpdateInternationalFuelSurchargeForm = ({ onUpdateServiceItem, move
                   <div className={descriptionListStyles.row}>
                     <dt>Port Location:</dt>
                     <dd>
-                      {port && port.city}, {port && port.state} {port && port.zip}
+                      {port && port.city}
+                      {port && port.city && ','} {port && port.state} {port && port.zip}
                     </dd>
                   </div>
                 </dl>
