@@ -8,7 +8,7 @@ import { CheckboxField, DropdownInput, DatePickerInput, DutyLocationInput } from
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { DropdownArrayOf } from 'types/form';
-import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { SPECIAL_ORDERS_TYPES_NON_LABEL } from 'constants/orders';
 
 const OrdersDetailForm = ({
   deptIndicatorOptions,
@@ -84,7 +84,8 @@ const OrdersDetailForm = ({
         name="ordersType"
         label="Orders type"
         options={
-          formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY || formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
+          formOrdersType === SPECIAL_ORDERS_TYPES_NON_LABEL.SAFETY ||
+          formOrdersType === SPECIAL_ORDERS_TYPES_NON_LABEL.BLUEBARK
             ? dropdownInputOptions({ SAFETY: 'Safety', BLUEBARK: 'Bluebark' })
             : ordersTypeOptions
         }
@@ -94,8 +95,8 @@ const OrdersDetailForm = ({
         }}
         isDisabled={
           formIsDisabled ||
-          formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY ||
-          formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
+          formOrdersType === SPECIAL_ORDERS_TYPES_NON_LABEL.SAFETY ||
+          formOrdersType === SPECIAL_ORDERS_TYPES_NON_LABEL.BLUEBARK
         }
       />
       {showOrdersTypeDetail && (
