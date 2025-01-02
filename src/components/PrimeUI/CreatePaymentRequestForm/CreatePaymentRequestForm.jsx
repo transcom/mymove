@@ -145,7 +145,10 @@ const CreatePaymentRequestForm = ({
                             mtoServiceItem.reServiceCode === 'DOSFSC' ||
                             mtoServiceItem.reServiceCode === 'DDSHUT' ||
                             mtoServiceItem.reServiceCode === 'IHPK' ||
-                            mtoServiceItem.reServiceCode === 'IHUPK') && (
+                            mtoServiceItem.reServiceCode === 'IHUPK' ||
+                            mtoServiceItem.reServiceCode === 'ISLH' ||
+                            mtoServiceItem.reServiceCode === 'POEFSC' ||
+                            mtoServiceItem.reServiceCode === 'PODFSC') && (
                             <TextField
                               id={`${mtoServiceItem.id}-billedWeight`}
                               label="Weight Billed (if different from shipment weight)"

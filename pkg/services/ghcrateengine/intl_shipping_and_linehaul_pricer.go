@@ -38,7 +38,7 @@ func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contr
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 
-	contract, err := fetchContractsByContractCode(appCtx, contractCode)
+	contract, err := fetchContractByContractCode(appCtx, contractCode)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not find contract with code: %s: %w", contractCode, err)
 	}
