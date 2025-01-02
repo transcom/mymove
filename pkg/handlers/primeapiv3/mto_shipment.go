@@ -109,7 +109,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				appCtx.Logger().Error("Error validating mto shipment object: ", zap.Error(verrs))
 
 				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
-					"The MTO shipment object is invalid.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
+					"The MTO shipment object is invalid. "+verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
 			}
 
 			mtoShipment.Status = models.MTOShipmentStatusSubmitted

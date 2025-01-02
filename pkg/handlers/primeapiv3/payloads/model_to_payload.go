@@ -95,7 +95,7 @@ func Order(order *models.Order) *primev3messages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade))
+		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
 	}
 
 	var grade string
@@ -214,7 +214,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         &address.County,
+		County:         address.County,
 	}
 }
 
@@ -233,7 +233,7 @@ func PPMDestinationAddress(address *models.Address) *primev3messages.PPMDestinat
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         &address.County,
+		County:         address.County,
 	}
 	// Street address 1 is optional per business rule but not nullable on the database level.
 	// Check if streetAddress 1 is using place holder value to represent 'NULL'.
