@@ -82,9 +82,7 @@ const PrimeSimulatorUploadServiceRequestDocuments = lazy(() =>
   import('pages/PrimeUI/UploadServiceRequestDocuments/UploadServiceRequestDocuments'),
 );
 const PrimeSimulatorCreateServiceItem = lazy(() => import('pages/PrimeUI/CreateServiceItem/CreateServiceItem'));
-const PrimeSimulatorUpdateSitServiceItem = lazy(() =>
-  import('pages/PrimeUI/UpdateServiceItems/PrimeUIUpdateSitServiceItem'),
-);
+const PrimeSimulatorUpdateServiceItem = lazy(() => import('pages/PrimeUI/UpdateServiceItems/PrimeUIUpdateServiceItem'));
 const PrimeUIShipmentUpdateAddress = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateAddress'));
 const PrimeUIShipmentUpdateReweigh = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateReweigh'));
 const PrimeSimulatorCreateSITExtensionRequest = lazy(() =>
@@ -510,11 +508,11 @@ export class OfficeApp extends Component {
                         }
                       />
                       <Route
-                        key="primeSimulatorUpdateSitServiceItems"
+                        key="primeSimulatorUpdateServiceItems"
                         path={primeSimulatorRoutes.UPDATE_SIT_SERVICE_ITEM_PATH}
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                            <PrimeSimulatorUpdateSitServiceItem />
+                            <PrimeSimulatorUpdateServiceItem />
                           </PrivateRoute>
                         }
                       />
