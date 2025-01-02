@@ -107,7 +107,7 @@ test.describe('(MultiMove) Orders', () => {
     await expect(page.getByLabel('Current duty location')).toBeEmpty();
     await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'origin_duty_location');
 
-    await page.getByRole('combobox', { name: 'Counseling Office' }).selectOption({ label: 'PPPO DMO Camp Pendelton' });
+    await page.getByRole('combobox', { name: 'Counseling Office' }).selectOption({ label: 'PPPO DMO Camp Pendleton' });
     await page.getByRole('combobox', { name: 'Pay grade' }).selectOption({ label: 'E-7' });
 
     await customerPage.navigateForward();
