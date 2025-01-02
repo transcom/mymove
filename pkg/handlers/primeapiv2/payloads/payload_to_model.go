@@ -821,6 +821,20 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}
+	case primev2messages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle:
+		shuttle := mtoServiceItem.(*primev2messages.UpdateMTOServiceItemInternationalShuttle)
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
+
+		if shuttle.RequestApprovalsRequestedStatus != nil {
+			pointerValue := *shuttle.RequestApprovalsRequestedStatus
+			model.RequestedApprovalsRequestedStatus = &pointerValue
+			model.Status = models.MTOServiceItemStatusSubmitted
+		}
+
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
 	default:
 		// assume basic service item
 		if verrs != nil && verrs.HasAny() {

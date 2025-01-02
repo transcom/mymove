@@ -2391,6 +2391,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -3955,12 +3960,53 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "UpdateMTOServiceItemInternationalShuttle": {
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "IDSHUT",
+                "IOSHUT"
+              ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemShuttle\n  * IOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n  * PODFSC - UpdateMTOServiceItemInternationalPortFSC\n  * POEFSC - UpdateMTOServiceItemInternationalPortFSC\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
-        "UpdateMTOServiceItemShuttle"
+        "UpdateMTOServiceItemShuttle",
+        "UpdateMTOServiceItemInternationalShuttle"
       ]
     },
     "UpdateMTOServiceItemSIT": {
@@ -7284,6 +7330,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -8853,12 +8904,53 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "UpdateMTOServiceItemInternationalShuttle": {
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "IDSHUT",
+                "IOSHUT"
+              ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemShuttle\n  * IOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n  * PODFSC - UpdateMTOServiceItemInternationalPortFSC\n  * POEFSC - UpdateMTOServiceItemInternationalPortFSC\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
-        "UpdateMTOServiceItemShuttle"
+        "UpdateMTOServiceItemShuttle",
+        "UpdateMTOServiceItemInternationalShuttle"
       ]
     },
     "UpdateMTOServiceItemSIT": {

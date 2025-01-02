@@ -687,10 +687,11 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev2messages.MTOSe
 		}
 	case models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
 		shuttleSI := &primev2messages.MTOServiceItemInternationalShuttle{
-			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:          mtoServiceItem.Reason,
-			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
-			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			RequestApprovalsRequestedStatus: mtoServiceItem.RequestedApprovalsRequestedStatus,
+			EstimatedWeight:                 handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:                    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
 
 		if mtoServiceItem.ReService.Code == models.ReServiceCodeIOSHUT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
