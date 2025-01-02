@@ -1,10 +1,14 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { userEvent, within } from '@storybook/testing-library';
 
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
+import { configureStore } from 'shared/store';
+
+const mockStore = configureStore({});
 
 export default {
   title: 'Customer Components / PPM Closeout / About PPM Form',
@@ -23,7 +27,11 @@ export default {
   argTypes: { onBack: { action: 'back button clicked' }, onSubmit: { action: 'submit button clicked' } },
 };
 
-const Template = (args) => <AboutForm {...args} />;
+const Template = (args) => (
+  <Provider store={mockStore.store}>
+    <AboutForm {...args} />
+  </Provider>
+);
 
 export const Blank = Template.bind({});
 Blank.args = {
@@ -54,6 +62,7 @@ const validW2Address = {
   city: 'San Antonio',
   state: 'TX',
   postalCode: '78227',
+  county: 'Bexar',
 };
 export const RequiredValues = Template.bind({});
 RequiredValues.args = {
@@ -90,6 +99,7 @@ OptionalValues.args = {
         city: 'Cheyenne',
         state: 'WY',
         postalCode: '82001',
+        county: 'Laramie',
       },
     },
   },
