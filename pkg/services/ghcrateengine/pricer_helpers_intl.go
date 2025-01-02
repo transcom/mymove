@@ -38,6 +38,7 @@ func priceIntlPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReS
 	}
 
 	escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
+	totalCost := unit.Cents(math.Round(escalatedPrice))
 
 	displayParams := services.PricingDisplayParams{
 		{
@@ -58,6 +59,5 @@ func priceIntlPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReS
 		},
 	}
 
-	totalCost := unit.Cents(math.Round(escalatedPrice))
 	return totalCost, displayParams, nil
 }

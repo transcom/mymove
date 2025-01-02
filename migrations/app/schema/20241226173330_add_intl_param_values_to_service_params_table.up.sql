@@ -61,7 +61,8 @@ INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,u
      ('c08f7ab1-6c3c-4627-b22f-1e987ba6f4f2'::uuid,'9f3d551a-0725-430e-897e-80ee9add3ae9','1e6257e9-757d-4d59-8846-727dd8a055e7','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',true),
      ('4d9ed9b0-957d-4e6a-a3d4-5e2e2784ef62'::uuid,'9f3d551a-0725-430e-897e-80ee9add3ae9','14a93209-370d-42f3-8ca2-479c953be839','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',true),
      ('6acb30b9-65a0-4902-85ed-1acb6f4ac930'::uuid,'9f3d551a-0725-430e-897e-80ee9add3ae9','5335e243-ab5b-4906-b84f-bd8c35ba64b3','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false),
-     ('fd83c2ba-0c59-4598-81d6-b56cc8d9979d'::uuid,'9f3d551a-0725-430e-897e-80ee9add3ae9','2cbc2251-eb7d-4c69-a120-9a83785c994b','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false);
+     ('fd83c2ba-0c59-4598-81d6-b56cc8d9979d'::uuid,'9f3d551a-0725-430e-897e-80ee9add3ae9','2cbc2251-eb7d-4c69-a120-9a83785c994b','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false),
+     ('b370c895-e356-4d2c-a200-c2c67ac51011'::uuid,'9f3d551a-0725-430e-897e-80ee9add3ae9','597bb77e-0ce7-4ba2-9624-24300962625f','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false);
 
 -- inserting params fo IOSFSC
 INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,updated_at,is_optional) VALUES
