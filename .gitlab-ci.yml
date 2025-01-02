@@ -418,7 +418,7 @@ pre_test:
     - ./scripts/rebuild-dependencies-without-binaries
     - ./scripts/pre-commit-go-mod || exit 0
     - echo "Run pre-commit tests without golangci-lint, eslint, or prettier"
-    - SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
+    - SKIP=golangci-lint,eslint,prettier,ato-go-linter pre-commit run --all-files
     - echo "Run pre-commit tests with golangci-lint only"
     - |
         echo 'export GOLANGCI_LINT_CONCURRENCY=4' >> $BASH_ENV
