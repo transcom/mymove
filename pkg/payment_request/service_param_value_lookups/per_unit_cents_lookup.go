@@ -21,7 +21,7 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 	contractID := s.ContractID
 	if p.ServiceItem.ReService.Code == models.ReServiceCodeIHPK {
 		// IHPK we need the rate area id for the pickup address
-		rateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.PickupAddressID, p.ServiceItem.ReServiceID)
+		rateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.PickupAddressID, p.ServiceItem.ReServiceID, contractID)
 		if err != nil {
 			return "", fmt.Errorf("error fetching rate area id for shipment ID: %s and service ID %s: %s", p.MTOShipment.ID, p.ServiceItem.ReServiceID, err)
 		}
@@ -40,7 +40,7 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 	}
 	if p.ServiceItem.ReService.Code == models.ReServiceCodeIHUPK {
 		// IHUPK we need the rate area id for the destination address
-		rateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.PickupAddressID, p.ServiceItem.ReServiceID)
+		rateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.PickupAddressID, p.ServiceItem.ReServiceID, contractID)
 		if err != nil && err != sql.ErrNoRows {
 			return "", fmt.Errorf("error fetching rate area id for shipment ID: %s and service ID %s: %s", p.MTOShipment.ID, p.ServiceItem.ReServiceID, err)
 		}
@@ -58,11 +58,11 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 		return reIntlOtherPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
 	} else if p.ServiceItem.ReService.Code == models.ReServiceCodeISLH {
 		// IHUPK we need the rate area id for the destination address
-		originRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.PickupAddressID, p.ServiceItem.ReServiceID)
+		originRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.PickupAddressID, p.ServiceItem.ReServiceID, contractID)
 		if err != nil && err != sql.ErrNoRows {
 			return "", fmt.Errorf("error fetching rate area id for origina address for shipment ID: %s and service ID %s: %s", p.MTOShipment.ID, p.ServiceItem.ReServiceID, err)
 		}
-		destRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.DestinationAddressID, p.ServiceItem.ReServiceID)
+		destRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.DestinationAddressID, p.ServiceItem.ReServiceID, contractID)
 		if err != nil && err != sql.ErrNoRows {
 			return "", fmt.Errorf("error fetching rate area id for destination address for shipment ID: %s and service ID %s: %s", p.MTOShipment.ID, p.ServiceItem.ReServiceID, err)
 		}
