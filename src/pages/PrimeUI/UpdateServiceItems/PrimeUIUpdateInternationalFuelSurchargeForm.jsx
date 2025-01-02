@@ -1,5 +1,6 @@
 import React from 'react';
 import { Formik } from 'formik';
+import * as Yup from 'yup';
 import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
@@ -24,7 +25,16 @@ const PrimeUIUpdateInternationalFuelSurchargeForm = ({ initialValues, onSubmit, 
   };
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit}>
+    <Formik
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      validationSchema={Yup.object({
+        portCode: Yup.string()
+          .required('Required')
+          .min(3, 'Port Code must be 3-4 characters.')
+          .max(4, 'Port Code must be 3-4 characters.'),
+      })}
+    >
       {({ handleSubmit }) => (
         <Form className={classnames(formStyles.form)}>
           <FormGroup>
@@ -71,17 +81,16 @@ const PrimeUIUpdateInternationalFuelSurchargeForm = ({ initialValues, onSubmit, 
                     </dd>
                   </div>
                 </dl>
-                {serviceItem.status === SERVICE_ITEM_STATUSES.APPROVED && (
-                  <TextField
-                    data-testid="portCode"
-                    name="portCode"
-                    label="Port Code"
-                    id="portCode"
-                    required
-                    labelHint="Required"
-                    maxLength="4"
-                  />
-                )}
+                <TextField
+                  data-testid="portCode"
+                  name="portCode"
+                  label="Port Code"
+                  id="portCode"
+                  required
+                  labelHint="Required"
+                  maxLength="4"
+                  isDisabled={serviceItem.status !== SERVICE_ITEM_STATUSES.APPROVED}
+                />
               </SectionWrapper>
               <WizardNavigation
                 editMode

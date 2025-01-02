@@ -7,17 +7,16 @@ import PrimeUIUpdateInternationalFuelSurchargeForm from './PrimeUIUpdateInternat
 import { renderWithProviders } from 'testUtils';
 import { primeSimulatorRoutes } from 'constants/routes';
 
-const originSitInitialValues = {
-  sitDepartureDate: '01 Nov 2023',
-  sitRequestedDelivery: '01 Dec 2023',
-  sitCustomerContacted: '15 Oct 2023',
-  mtoServiceItemID: '45fe9475-d592-48f5-896a-45d4d6eb7e76',
-  reServiceCode: 'DOPSIT',
+const intlFscInitialValues = {
+  mtoServiceItemID: '48569958-2889-41e5-8101-82c56ec48430',
+  reServiceCode: 'POEFSC',
+  portCode: 'SEA',
 };
 
 const serviceItem = {
   reServiceCode: 'POEFSC',
   reServiceName: 'International POE Fuel Surcharge',
+  status: 'APPROVED',
 };
 
 const port = {
@@ -41,10 +40,10 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('PrimeUIUpdateInternationalFuelSurchargeForm', () => {
-  it('renders the address change request form', async () => {
+  it('renders the international fuel surcharge form', async () => {
     renderWithProviders(
       <PrimeUIUpdateInternationalFuelSurchargeForm
-        initialValues={originSitInitialValues}
+        initialValues={intlFscInitialValues}
         serviceItem={serviceItem}
         port={port}
         onSubmit={jest.fn()}
@@ -68,13 +67,14 @@ describe('PrimeUIUpdateInternationalFuelSurchargeForm', () => {
     const onSubmitMock = jest.fn();
     renderWithProviders(
       <PrimeUIUpdateInternationalFuelSurchargeForm
-        initialValues={originSitInitialValues}
+        initialValues={intlFscInitialValues}
         serviceItem={serviceItem}
         port={port}
         onSubmit={onSubmitMock}
       />,
     );
-
+    const portCodeInput = screen.getByLabelText(/Port Code/);
+    await userEvent.type(portCodeInput, 'SEA');
     const saveButton = await screen.findByRole('button', { name: 'Save' });
 
     await userEvent.click(saveButton);
@@ -82,10 +82,48 @@ describe('PrimeUIUpdateInternationalFuelSurchargeForm', () => {
     expect(onSubmitMock).toHaveBeenCalled();
   });
 
+  it('does not fire off onSubmit function when save button is clicked and port code is empty', async () => {
+    const onSubmitMock = jest.fn();
+    renderWithProviders(
+      <PrimeUIUpdateInternationalFuelSurchargeForm
+        initialValues={intlFscInitialValues}
+        serviceItem={serviceItem}
+        port={port}
+        onSubmit={onSubmitMock}
+      />,
+    );
+    const portCodeInput = screen.getByLabelText(/Port Code/);
+    await userEvent.clear(portCodeInput, '');
+    const saveButton = await screen.findByRole('button', { name: 'Save' });
+
+    await userEvent.click(saveButton);
+
+    expect(onSubmitMock).not.toHaveBeenCalled();
+  });
+
+  it('does not fire off onSubmit function when save button is clicked and port code is fewer than 3 characters', async () => {
+    const onSubmitMock = jest.fn();
+    renderWithProviders(
+      <PrimeUIUpdateInternationalFuelSurchargeForm
+        initialValues={intlFscInitialValues}
+        serviceItem={serviceItem}
+        port={port}
+        onSubmit={onSubmitMock}
+      />,
+    );
+    const portCodeInput = screen.getByLabelText(/Port Code/);
+    await userEvent.clear(portCodeInput, '12');
+    const saveButton = await screen.findByRole('button', { name: 'Save' });
+
+    await userEvent.click(saveButton);
+
+    expect(onSubmitMock).not.toHaveBeenCalled();
+  });
+
   it('directs the user back to the move page when cancel button is clicked', async () => {
     renderWithProviders(
       <PrimeUIUpdateInternationalFuelSurchargeForm
-        initialValues={originSitInitialValues}
+        initialValues={intlFscInitialValues}
         serviceItem={serviceItem}
         port={port}
         onSubmit={jest.fn()}
