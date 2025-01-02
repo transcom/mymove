@@ -417,6 +417,7 @@ pre_test:
     - echo "Rebuild dependencies without binaries"
     - ./scripts/rebuild-dependencies-without-binaries
     - ./scripts/pre-commit-go-mod || exit 0
+    - ./scripts/pre-commit-go-custom-linter ato-linter
     - echo "Run pre-commit tests without golangci-lint, eslint, or prettier"
     - SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
     - echo "Run pre-commit tests with golangci-lint only"
