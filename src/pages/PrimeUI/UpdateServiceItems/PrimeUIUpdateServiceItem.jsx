@@ -20,18 +20,18 @@ import { primeSimulatorRoutes } from 'constants/routes';
 import { formatDateForSwagger, formatDateWithUTC } from 'shared/dates';
 import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
 
-const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
+const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
   const navigate = useNavigate();
   const { moveCodeOrID, mtoServiceItemId } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
   /* istanbul ignore next */
-  const { mutate: createUpdateSITServiceItemRequestMutation } = useMutation(updateMTOServiceItem, {
+  const { mutate: createUpdateServiceItemRequestMutation } = useMutation(updateMTOServiceItem, {
     onSuccess: () => {
       setFlashMessage(
-        `UPDATE_SIT_SERVICE_ITEM_REQUEST_SUCCESS${moveCodeOrID}`,
+        `UPDATE_SERVICE_ITEM_REQUEST_SUCCESS${moveCodeOrID}`,
         'success',
-        'Successfully updated SIT service item',
+        'Successfully updated service item',
         '',
         true,
       );
@@ -68,10 +68,12 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   if (isError) return <SomethingWentWrong />;
 
   const serviceItem = moveTaskOrder?.mtoServiceItems.find((s) => s?.id === mtoServiceItemId);
-  const mtoShipment = moveTaskOrder?.mtoShipments.find((s) => s.id === serviceItem.mtoShipmentID);
   const { modelType } = serviceItem;
+  let initialValues;
+  let onSubmit;
   let port;
   if (modelType === 'MTOServiceItemInternationalFuelSurcharge') {
+    const mtoShipment = moveTaskOrder?.mtoShipments.find((s) => s.id === serviceItem.mtoShipmentID);
     if (mtoShipment.portOfEmbarkation) {
       port = mtoShipment.portOfEmbarkation;
     } else if (mtoShipment.portOfDebarkation) {
@@ -79,46 +81,64 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
     } else {
       port = null;
     }
-  }
-
-  const initialValues = {
-    sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    sitCustomerContacted: formatDateWithUTC(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    mtoServiceItemID: serviceItem.id,
-    reServiceCode: serviceItem.reServiceCode,
-    eTag: serviceItem.eTag,
-    portCode: port?.portCode,
-  };
-
-  // sending the data submitted in the form to the API
-  // if any of the dates are skipped or not filled with values, we'll just make them null
-  const onSubmit = (values) => {
-    const {
-      sitCustomerContacted,
-      sitDepartureDate,
-      sitRequestedDelivery,
-      updateReason,
-      mtoServiceItemID,
-      reServiceCode,
-      eTag,
-    } = values;
-
-    const body = {
-      sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
-      sitRequestedDelivery: sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
-      sitCustomerContacted: sitCustomerContacted === 'Invalid date' ? null : formatDateForSwagger(sitCustomerContacted),
-      reServiceCode,
-      modelType: 'UpdateMTOServiceItemSIT',
+    initialValues = {
+      mtoServiceItemID: serviceItem.id,
+      reServiceCode: serviceItem.reServiceCode,
+      eTag: serviceItem.eTag,
+      portCode: port?.portCode,
     };
 
-    if (serviceItem?.status === SERVICE_ITEM_STATUSES.REJECTED) {
-      body.requestApprovalsRequestedStatus = true;
-      body.updateReason = updateReason;
-    }
+    onSubmit = (values) => {
+      const { eTag, mtoServiceItemID, portCode, reServiceCode } = values;
 
-    createUpdateSITServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
-  };
+      const body = {
+        portCode,
+        reServiceCode,
+        modelType: 'UpdateMTOServiceItemInternationalPortFSC',
+      };
+
+      createUpdateServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
+    };
+  } else if (modelType === 'MTOServiceItemOriginSIT' || modelType === 'MTOServiceItemDestSIT') {
+    initialValues = {
+      sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+      sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+      sitCustomerContacted: formatDateWithUTC(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+      mtoServiceItemID: serviceItem.id,
+      reServiceCode: serviceItem.reServiceCode,
+      eTag: serviceItem.eTag,
+    };
+    // sending the data submitted in the form to the API
+    // if any of the dates are skipped or not filled with values, we'll just make them null
+    onSubmit = (values) => {
+      const {
+        sitCustomerContacted,
+        sitDepartureDate,
+        sitRequestedDelivery,
+        updateReason,
+        mtoServiceItemID,
+        reServiceCode,
+        eTag,
+      } = values;
+
+      const body = {
+        sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
+        sitRequestedDelivery:
+          sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
+        sitCustomerContacted:
+          sitCustomerContacted === 'Invalid date' ? null : formatDateForSwagger(sitCustomerContacted),
+        reServiceCode,
+        modelType: 'UpdateMTOServiceItemSIT',
+      };
+
+      if (serviceItem?.status === SERVICE_ITEM_STATUSES.REJECTED) {
+        body.requestApprovalsRequestedStatus = true;
+        body.updateReason = updateReason;
+      }
+
+      createUpdateServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
+    };
+  }
 
   return (
     <div className={styles.tabContent}>
@@ -169,4 +189,4 @@ const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(PrimeUIUpdateSitServiceItem);
+export default connect(() => ({}), mapDispatchToProps)(PrimeUIUpdateServiceItem);
