@@ -45,24 +45,6 @@ func fetchDomOtherPrice(appCtx appcontext.AppContext, contractCode string, servi
 	return domOtherPrice, nil
 }
 
-func fetchIntlOtherPrice(appCtx appcontext.AppContext, contractCode string, serviceCode models.ReServiceCode, schedule int, isPeakPeriod bool) (models.ReIntlOtherPrice, error) {
-	var intlOtherPrice models.ReIntlOtherPrice
-	err := appCtx.DB().Q().
-		Join("re_services", "service_id = re_services.id").
-		Join("re_contracts", "re_contracts.id = re_intl_other_prices.contract_id").
-		Where("re_contracts.code = $1", contractCode).
-		Where("re_services.code = $2", serviceCode).
-		Where("schedule = $3", schedule).
-		Where("is_peak_period = $4", isPeakPeriod).
-		First(&intlOtherPrice)
-
-	if err != nil {
-		return models.ReIntlOtherPrice{}, err
-	}
-
-	return intlOtherPrice, nil
-}
-
 func fetchDomServiceAreaPrice(appCtx appcontext.AppContext, contractCode string, serviceCode models.ReServiceCode, serviceArea string, isPeakPeriod bool) (models.ReDomesticServiceAreaPrice, error) {
 	var domServiceAreaPrice models.ReDomesticServiceAreaPrice
 	err := appCtx.DB().Q().
@@ -119,6 +101,16 @@ func fetchContractsByContractId(appCtx appcontext.AppContext, contractID uuid.UU
 	}
 
 	return contracts, nil
+}
+
+func fetchContractsByContractCode(appCtx appcontext.AppContext, contractCode string) (models.ReContract, error) {
+	var contract models.ReContract
+	err := appCtx.DB().Where("code = $1", contractCode).First(&contract)
+	if err != nil {
+		return models.ReContract{}, err
+	}
+
+	return contract, nil
 }
 
 func fetchShipmentTypePrice(appCtx appcontext.AppContext, contractCode string, serviceCode models.ReServiceCode, market models.Market) (models.ReShipmentTypePrice, error) {

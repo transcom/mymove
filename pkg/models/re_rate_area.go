@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -52,4 +53,20 @@ func FetchReRateAreaItem(tx *pop.Connection, contractID uuid.UUID, code string) 
 	}
 
 	return &area, err
+}
+
+// a db stored proc that takes in an address id & a service code to get the rate area id for an address
+func FetchRateAreaID(db *pop.Connection, addressID uuid.UUID, serviceID uuid.UUID) (uuid.UUID, error) {
+	if addressID != uuid.Nil && serviceID != uuid.Nil {
+		var rateAreaID uuid.UUID
+		err := db.RawQuery("SELECT get_rate_area_id($1, $2)", addressID, serviceID).
+			First(&rateAreaID)
+
+		if err != nil {
+			return uuid.Nil, fmt.Errorf("error fetching rate area id for shipment ID: %s and service ID %s: %s", addressID, serviceID, err)
+		}
+		return rateAreaID, nil
+	}
+	// Return error if required parameters are not provided
+	return uuid.Nil, fmt.Errorf("error fetching rate area ID - required parameters not provided")
 }

@@ -13,15 +13,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceIntlPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
-	// Validate parameters
-	var intlOtherPriceCode models.ReServiceCode
-	switch packUnpackCode {
-	case models.ReServiceCodeIHPK:
-		intlOtherPriceCode = models.ReServiceCodeIHPK
-	case models.ReServiceCodeIHUPK:
-		intlOtherPriceCode = models.ReServiceCodeIHUPK
-	default:
+func priceIntlPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, services.PricingDisplayParams, error) {
+	if packUnpackCode != models.ReServiceCodeIHPK && packUnpackCode != models.ReServiceCodeIHUPK {
 		return 0, nil, fmt.Errorf("unsupported pack/unpack code of %s", packUnpackCode)
 	}
 	if len(contractCode) == 0 {
@@ -30,32 +23,21 @@ func priceIntlPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReS
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if !isPPM && weight < minDomesticWeight {
-		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
-	}
-	if servicesSchedule == 0 {
-		return 0, nil, errors.New("Services schedule is required")
-	}
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 
-	intlOtherPrice, err := fetchIntlOtherPrice(appCtx, contractCode, intlOtherPriceCode, servicesSchedule, isPeakPeriod)
+	contract, err := fetchContractsByContractCode(appCtx, contractCode)
 	if err != nil {
-		return 0, nil, fmt.Errorf("could not lookup domestic other price: %w", err)
+		return 0, nil, fmt.Errorf("could not find contract with code: %s: %w", contractCode, err)
 	}
 
-	finalWeight := weight
-	if isPPM && weight < minDomesticWeight {
-		finalWeight = minDomesticWeight
-	}
-
-	basePrice := intlOtherPrice.PerUnitCents.Float64()
-	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, intlOtherPrice.ContractID, referenceDate, false, basePrice)
+	basePrice := float64(perUnitCents)
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, contract.ID, referenceDate, false, basePrice)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	escalatedPrice = escalatedPrice * finalWeight.ToCWTFloat64()
+	escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
 
 	displayParams := services.PricingDisplayParams{
 		{
@@ -64,7 +46,7 @@ func priceIntlPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReS
 		},
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(intlOtherPrice.PerUnitCents),
+			Value: FormatCents(unit.Cents(perUnitCents)),
 		},
 		{
 			Key:   models.ServiceItemParamNameIsPeak,
@@ -77,10 +59,5 @@ func priceIntlPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReS
 	}
 
 	totalCost := unit.Cents(math.Round(escalatedPrice))
-	if isPPM && weight < minDomesticWeight {
-		weightFactor := float64(weight) / float64(minDomesticWeight)
-		cost := float64(weightFactor) * float64(totalCost)
-		return unit.Cents(cost), displayParams, nil
-	}
 	return totalCost, displayParams, nil
 }
