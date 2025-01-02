@@ -16,17 +16,14 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// FuelSurchargePricer is a service object to price domestic shorthaul
 type portFuelSurchargePricer struct {
 }
 
-// NewFuelSurchargePricer is the public constructor for a domesticFuelSurchargePricer using Pop
 func NewPortFuelSurchargePricer() services.IntlPortFuelSurchargePricer {
 	return &portFuelSurchargePricer{}
 }
 
-// Price determines the price for fuel surcharge
-func (p portFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p portFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, portName string) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
@@ -34,7 +31,7 @@ func (p portFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}
-	if !isPPM && weight < minIntlWeightHHG {
+	if weight < minIntlWeightHHG {
 		return 0, nil, fmt.Errorf("weight must be a minimum of %d", minIntlWeightHHG)
 	}
 	if fscWeightBasedDistanceMultiplier == 0 {
@@ -42,6 +39,9 @@ func (p portFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate
 	}
 	if eiaFuelPrice == 0 {
 		return 0, nil, errors.New("EIAFuelPrice is required")
+	}
+	if portName == "" {
+		return 0, nil, errors.New("PortName is required")
 	}
 
 	fscPriceDifferenceInCents := (eiaFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
@@ -99,13 +99,10 @@ func (p portFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, 
 		return unit.Cents(0), nil, err
 	}
 
-	var isPPM = false
-	if params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypePPM {
-		// PPMs do not require minimums for a shipment's weight
-		// this flag is passed into the Price function to ensure the weight min
-		// are not enforced for PPMs
-		isPPM = true
+	portName, err := getParamString(params, models.ServiceItemParamNamePortName)
+	if err != nil {
+		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), isPPM)
+	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), portName)
 }
