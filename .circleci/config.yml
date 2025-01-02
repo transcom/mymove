@@ -1544,7 +1544,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v11-server-tests-coverage-
+            - v1-server-tests-coverage-integration
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1583,7 +1583,7 @@ jobs:
       - when:
           condition:
             and:
-              - equal: [main, << pipeline.git.branch >>]
+              - equal: [integrationTesting, << pipeline.git.branch >>]
               - when: always
           steps:
             - run:
@@ -1600,7 +1600,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v11-server-tests-coverage-{{ .BuildNum }}
+                key: v1-server-tests-coverage-integration{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-go-coverage
                 when: always
@@ -1662,8 +1662,12 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - restore_cache:
-          #
+      - when:
+          condition:
+            equal: [integrationTesting, << pipeline.git.branch >>]
+          steps:
+            - restore_cache:
+            #
           # https://circleci.com/docs/caching/#restoring-cache
           #
           # restore the latest version of the test coverage in the
@@ -1680,8 +1684,8 @@ jobs:
           #
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
-          keys:
-            - v8-client-tests-coverage-
+               keys:
+               - v1-client-tests-coverage-integration
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1718,7 +1722,7 @@ jobs:
       - when:
           condition:
             and:
-              - equal: [main, << pipeline.git.branch >>]
+              - equal: [integrationTesting, << pipeline.git.branch >>]
           steps:
             - run:
                 name: 'Copy coverage to baseline'
@@ -1733,7 +1737,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v8-client-tests-coverage-{{ .BuildNum }}
+                key: v1-client-tests-coverage-integration{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-jest-coverage
                 when: always
@@ -1750,7 +1754,6 @@ jobs:
                   --value "${coverage}" \
                   --timestamp "${timestamp}"
                 when: always
-
   # Compile the server side of the app once and persist the relevant
   # build artifacts to the workspace.
   # This way we don't have to re-run the build and since all necessary
