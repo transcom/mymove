@@ -72,6 +72,16 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		address.County = models.StringPointer("db nil when created")
 	}
 
+	if db != nil {
+		usprc, err := models.FindByZipCode(db, address.PostalCode)
+		if err != nil {
+			return models.Address{}
+		} else {
+			address.UsPostRegionCityID = &usprc.ID
+			address.UsPostRegionCity = usprc
+		}
+	}
+
 	// If db is false, it's a stub. No need to create in database.
 	if db != nil {
 		mustCreate(db, &address)
