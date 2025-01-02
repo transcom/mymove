@@ -1626,8 +1626,8 @@ definitions:
         * DDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
-        * IDSHUT - UpdateMTOServiceItemShuttle
-        * IOSHUT - UpdateMTOServiceItemShuttle
+        * IDSHUT - UpdateMTOServiceItemInternationalShuttle
+        * IOSHUT - UpdateMTOServiceItemInternationalShuttle
         * PODFSC - UpdateMTOServiceItemInternationalPortFSC
         * POEFSC - UpdateMTOServiceItemInternationalPortFSC
 
@@ -1636,6 +1636,7 @@ definitions:
     enum:
       - UpdateMTOServiceItemSIT
       - UpdateMTOServiceItemShuttle
+      - UpdateMTOServiceItemInternationalShuttle
       - UpdateMTOServiceItemInternationalPortFSC
   UpdateMTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
@@ -1662,6 +1663,35 @@ definitions:
             enum:
               - DDSHUT # Domestic Destination Shuttle
               - DOSHUT # Domestic Origin Shuttle
+  UpdateMTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: |
+      Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          actualWeight:
+            type: integer
+            example: 4000
+            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - IDSHUT # Domestic Destination Shuttle
+              - IOSHUT # Domestic Origin Shuttle
   UpdateMTOServiceItemSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
       Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.
