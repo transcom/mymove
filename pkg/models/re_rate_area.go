@@ -67,6 +67,5 @@ func FetchRateAreaID(db *pop.Connection, addressID uuid.UUID, serviceID uuid.UUI
 		}
 		return rateAreaID, nil
 	}
-	// Return error if required parameters are not provided
 	return uuid.Nil, fmt.Errorf("error fetching rate area ID - required parameters not provided")
 }

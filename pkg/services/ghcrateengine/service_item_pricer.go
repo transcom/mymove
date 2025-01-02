@@ -36,7 +36,6 @@ func (p serviceItemPricer) PriceServiceItem(appCtx appcontext.AppContext, item m
 	// createPricerGeneratedParams will throw an error if pricingParams is an empty slice
 	// currently our pricers are returning empty slices for pricingParams
 	// once all pricers have been updated to return pricingParams
-	// TODO: this conditional logic should be removed
 	var displayParams models.PaymentServiceItemParams
 	if len(pricingParams) > 0 {
 		displayParams, err = createPricerGeneratedParams(appCtx, item.ID, pricingParams)

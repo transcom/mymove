@@ -1,6 +1,6 @@
 -- need to add in param keys for international shipments, this will be used to show breakdowns to the TIO
 INSERT INTO service_item_param_keys (id, key,description,type,origin,created_at,updated_at) VALUES
-     ('d9ad3878-4b94-4722-bbaf-d4b8080f339d','PortName','Name of the port for an international shipment','STRING','PRICER','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957'),
+     ('d9ad3878-4b94-4722-bbaf-d4b8080f339d','PortName','Name of the port for an international shipment','STRING','SYSTEM','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957'),
      ('597bb77e-0ce7-4ba2-9624-24300962625f','PerUnitCents','Per unit cents for a service item','INTEGER','SYSTEM','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957');
 
 -- inserting params for PODFSC
