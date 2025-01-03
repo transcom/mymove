@@ -468,11 +468,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			false,
 			true,
 		).Return(1000, nil)
-
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			"50314",
 			"97220",
+			"99505",
 			true,
 			true,
 		).Return(1000, nil)
@@ -638,7 +637,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			{
 				Model:    portLocation,
 				LinkOnly: true,
-				Type:     &factory.PortLocations.PortOfEmbarkation,
+				Type:     &factory.PortLocations.PortOfDebarkation,
 			},
 		}, nil)
 
@@ -662,6 +661,204 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		for i := 0; i < len(serviceItems); i++ {
 			// because the estimated weight is provided & POEFSC has a port location, estimated pricing should be updated
 			suite.NotNil(serviceItems[i].PricingEstimate)
+		}
+	})
+
+	suite.Run("Successful update on international shipment with estimated weight results in the update of estimated pricing for basic service items except for port fuel surcharge", func() {
+		setupTestData()
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"50314",
+			"99505",
+			false,
+			true,
+		).Return(1000, nil)
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"50314",
+			"97220",
+			true,
+			true,
+		).Return(1000, nil)
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "50314")
+		suite.FatalNoError(err)
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "Tester Address",
+					City:               "Des Moines",
+					State:              "IA",
+					PostalCode:         "50314",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &pickupUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		suite.FatalNoError(err)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "JBER",
+					City:               "Anchorage",
+					State:              "AK",
+					PostalCode:         "99505",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &destUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		pickupDate := now.AddDate(0, 0, 10)
+		requestedPickup := time.Now()
+		dbShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					PrimeEstimatedWeight: nil,
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+					ScheduledPickupDate:  &pickupDate,
+					RequestedPickupDate:  &requestedPickup,
+					MarketCode:           models.MarketCodeInternational,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    dbShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeISLH,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: nil,
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    dbShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIHPK,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: nil,
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    dbShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIHUPK,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: nil,
+				},
+			},
+		}, nil)
+
+		// this will not have a port location and pricing shouldn't be updated
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    dbShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePODFSC,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: nil,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(dbShipment.UpdatedAt)
+
+		shipment := models.MTOShipment{
+			ID:                   dbShipment.ID,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		}
+
+		session := auth.Session{}
+		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &shipment, eTag, "test")
+		suite.NoError(err)
+
+		// checking the service item data
+		var serviceItems []models.MTOServiceItem
+		err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", dbShipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err)
+
+		suite.Equal(4, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			if serviceItems[i].ReService.Code != models.ReServiceCodePODFSC {
+				suite.NotNil(serviceItems[i].PricingEstimate)
+			} else if serviceItems[i].ReService.Code == models.ReServiceCodePODFSC {
+				suite.Nil(serviceItems[i].PricingEstimate)
+			}
 		}
 	})
 
