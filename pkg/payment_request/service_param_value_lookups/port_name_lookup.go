@@ -21,7 +21,7 @@ func (p PortNameLookup) lookup(appCtx appcontext.AppContext, _ *ServiceItemParam
 	} else if p.ServiceItem.POELocationID != nil {
 		portLocationID = p.ServiceItem.POELocationID
 	} else {
-		return "", nil
+		return "", fmt.Errorf("unable to find port location for service item id: %s", p.ServiceItem.ID)
 	}
 	var portLocation models.PortLocation
 	err := appCtx.DB().Q().

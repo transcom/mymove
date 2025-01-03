@@ -23,7 +23,7 @@ func NewPortFuelSurchargePricer() services.IntlPortFuelSurchargePricer {
 	return &portFuelSurchargePricer{}
 }
 
-func (p portFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, portName string) (unit.Cents, services.PricingDisplayParams, error) {
+func (p portFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
@@ -39,9 +39,6 @@ func (p portFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate
 	}
 	if eiaFuelPrice == 0 {
 		return 0, nil, errors.New("EIAFuelPrice is required")
-	}
-	if portName == "" {
-		return 0, nil, errors.New("PortName is required")
 	}
 
 	fscPriceDifferenceInCents := (eiaFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
@@ -99,10 +96,10 @@ func (p portFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, 
 		return unit.Cents(0), nil, err
 	}
 
-	portName, err := getParamString(params, models.ServiceItemParamNamePortName)
+	_, err = getParamString(params, models.ServiceItemParamNamePortName)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), portName)
+	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
 }

@@ -45,7 +45,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlPortFuelSurchargePricer() {
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		priceCents, _, err := intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, intlPortFscTestWeight, intlPortFscWeightDistanceMultiplier, intlPortFscFuelPrice, intlPortFscPortName)
+		priceCents, _, err := intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, intlPortFscTestWeight, intlPortFscWeightDistanceMultiplier, intlPortFscFuelPrice)
 		suite.NoError(err)
 		suite.Equal(intlPortFscPriceCents, priceCents)
 	})
@@ -71,7 +71,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlPortFuelSurchargePricer() {
 	})
 
 	suite.Run("FSC is negative if fuel price from EIA is below $2.50", func() {
-		priceCents, _, err := intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, intlPortFscTestWeight, intlPortFscWeightDistanceMultiplier, 242400, intlPortFscPortName)
+		priceCents, _, err := intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, intlPortFscTestWeight, intlPortFscWeightDistanceMultiplier, 242400)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(-721), priceCents)
 	})
@@ -79,27 +79,27 @@ func (suite *GHCRateEngineServiceSuite) TestIntlPortFuelSurchargePricer() {
 	suite.Run("Price validation errors", func() {
 
 		// No actual pickup date
-		_, _, err := intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), time.Time{}, intlPortFscTestDistance, intlPortFscTestWeight, intlPortFscWeightDistanceMultiplier, intlPortFscFuelPrice, intlPortFscPortName)
+		_, _, err := intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), time.Time{}, intlPortFscTestDistance, intlPortFscTestWeight, intlPortFscWeightDistanceMultiplier, intlPortFscFuelPrice)
 		suite.Error(err)
 		suite.Equal("ActualPickupDate is required", err.Error())
 
 		// No distance
-		_, _, err = intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, unit.Miles(0), intlPortFscTestWeight, intlPortFscWeightDistanceMultiplier, intlPortFscFuelPrice, intlPortFscPortName)
+		_, _, err = intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, unit.Miles(0), intlPortFscTestWeight, intlPortFscWeightDistanceMultiplier, intlPortFscFuelPrice)
 		suite.Error(err)
 		suite.Equal("Distance must be greater than 0", err.Error())
 
 		// No weight
-		_, _, err = intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, unit.Pound(0), intlPortFscWeightDistanceMultiplier, intlPortFscFuelPrice, intlPortFscPortName)
+		_, _, err = intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, unit.Pound(0), intlPortFscWeightDistanceMultiplier, intlPortFscFuelPrice)
 		suite.Error(err)
 		suite.Equal(fmt.Sprintf("weight must be a minimum of %d", minDomesticWeight), err.Error())
 
 		// No weight based distance multiplier
-		_, _, err = intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, intlPortFscTestWeight, 0, intlPortFscFuelPrice, intlPortFscPortName)
+		_, _, err = intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, intlPortFscTestWeight, 0, intlPortFscFuelPrice)
 		suite.Error(err)
 		suite.Equal("WeightBasedDistanceMultiplier is required", err.Error())
 
 		// No EIA fuel price
-		_, _, err = intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, intlPortFscTestWeight, intlPortFscWeightDistanceMultiplier, 0, intlPortFscPortName)
+		_, _, err = intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, intlPortFscTestWeight, intlPortFscWeightDistanceMultiplier, 0)
 		suite.Error(err)
 		suite.Equal("EIAFuelPrice is required", err.Error())
 	})
