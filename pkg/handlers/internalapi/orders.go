@@ -167,9 +167,19 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+			var newDutyLocationGBLOC *string
+			if *newDutyLocation.Address.IsOconus {
+				newDutyLocationGBLOCOconus, err := models.FetchOconusDutyLocationGbloc(appCtx.DB(), newDutyLocation, serviceMember)
+				if err != nil {
+					return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
+				}
+				newDutyLocationGBLOC = &newDutyLocationGBLOCOconus.Gbloc
+			} else {
+				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+				newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
 			}
 
 			var dependentsTwelveAndOver *int
@@ -285,7 +295,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				&entitlement,
 				originDutyLocationGBLOC,
 				packingAndShippingInstructions,
-				&newDutyLocationGBLOC.GBLOC,
+				newDutyLocationGBLOC,
 			)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

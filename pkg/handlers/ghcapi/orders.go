@@ -218,11 +218,21 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
-			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
-			if err != nil {
-				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
-				appCtx.Logger().Error(err.Error())
-				return orderop.NewCreateOrderUnprocessableEntity(), err
+			var newDutyLocationGBLOC *string
+			if *newDutyLocation.Address.IsOconus {
+				newDutyLocationGBLOCOconus, err := models.FetchOconusDutyLocationGbloc(appCtx.DB(), newDutyLocation, serviceMember)
+				if err != nil {
+					return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
+				}
+				newDutyLocationGBLOC = &newDutyLocationGBLOCOconus.Gbloc
+			} else {
+				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
+				if err != nil {
+					err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+					appCtx.Logger().Error(err.Error())
+					return orderop.NewCreateOrderUnprocessableEntity(), err
+				}
+				newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
 			}
 
 			var originDutyLocationGBLOC *string
@@ -323,7 +333,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				&entitlement,
 				originDutyLocationGBLOC,
 				packingAndShippingInstructions,
-				&newDutyLocationGBLOC.GBLOC,
+				newDutyLocationGBLOC,
 			)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
