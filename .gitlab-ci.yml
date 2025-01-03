@@ -149,6 +149,26 @@ stages:
     - echo "Rebuild dependencies without binaries"
     - ./scripts/rebuild-dependencies-without-binaries
 
+.setup_generic_app_env_variables: &setup_generic_app_env_variables
+  - |
+      export APPLICATION=app
+      export DB_PASSWORD=mysecretpassword
+      export DB_USER_LOW_PRIV=crud
+      export DB_PASSWORD_LOW_PRIV=mysecretpassword
+      export DB_USER=postgres
+      export DB_HOST=localhost
+      export DB_PORT=5432
+      export MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+      export MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+      export EIA_KEY=db2522a43820268a41a802a16ae9fd26
+
+.setup_devseed_env_variables: &setup_devseed_env_variables
+  - |
+      export DB_NAME=dev_db
+      export DB_NAME_DEV=dev_db
+      export ENVIRONMENT=development
+      export DOD_CA_PACKAGE=/builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+
 .setup_server_env_variables: &setup_server_env_variables
     - |
       echo "make server_test_build for app"
@@ -158,21 +178,11 @@ stages:
       export OKTA_OFFICE_SECRET_KEY=notrealkey1
       export OKTA_ADMIN_SECRET_KEY=notrealkey2
       export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
-      export APPLICATION=app
       export GOTEST_PARALLEL=8
-      export DB_PASSWORD=mysecretpassword
-      export DB_USER_LOW_PRIV=crud
-      export DB_PASSWORD_LOW_PRIV=mysecretpassword
-      export DB_USER=postgres
-      export DB_HOST=localhost
       export DB_PORT_TEST=5433
-      export DB_PORT=5432
       export DB_NAME=test_db
       export DB_NAME_TEST=test_db
       export DTOD_USE_MOCK='true'
-      export MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
-      export MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
-      export EIA_KEY=db2522a43820268a41a802a16ae9fd26
       export ENV=test
       export ENVIRONMENT=test
       export SERVER_REPORT=1
@@ -497,19 +507,24 @@ pre_test:
 
 server_test:
   stage: test
-  image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
   before_script:
   - *setup_milmove_env
+  - *setup_generic_app_env_variables
   - *setup_server_env_variables
   script:
     - echo "server test -- TODO Add steps need to potentially pass job id to file and persist"
-    - make -j 2 bin/milmove bin/gotestsum
-    - make server_test
+    # - make -j 2 bin/milmove bin/gotestsum
+    # - make server_test
+    - go install gotest.tools/gotestsum@latest
+    - gotestsum --junitfile report.xml --format testname
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/gotestsum
+    when: always
+    reports:
+      junit: report.xml
   after_script:
     - *announce_failure
   # rules:
@@ -588,10 +603,18 @@ integration_test_devseed:
   needs:
     - pre_deps_golang
     - prep_server_hosted_client_deps
-  before_script: *setup_milmove_env
+  before_script:
+   - *setup_milmove_env
+   - *setup_generic_app_env_variables
+   - *setup_devseed_env_variables
   script:
-    - echo "TODO Add steps"
-    - echo "integration_test_devseed"
+    - |
+      echo "integration_test_devseed"
+      echo 'export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)' >> $BASH_ENV
+      echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)' >> $BASH_ENV
+      echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
+      source $BASH_ENV
+      make db_dev_fresh
   after_script:
     - *announce_failure
   # rules:
