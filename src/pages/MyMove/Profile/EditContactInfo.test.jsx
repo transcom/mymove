@@ -53,6 +53,8 @@ describe('EditContactInfo page', () => {
         city: 'Fake City',
         state: 'TX',
         postalCode: '79936',
+        county: 'EL PASO',
+        usPostRegionCitiesID: '',
       },
       backup_mailing_address: {
         streetAddress1: '10642 N Second Ave',
@@ -60,6 +62,8 @@ describe('EditContactInfo page', () => {
         city: 'Fake City',
         state: 'TX',
         postalCode: '79936',
+        county: 'EL PASO',
+        usPostRegionCitiesID: '',
       },
     },
     setFlashMessage: jest.fn(),

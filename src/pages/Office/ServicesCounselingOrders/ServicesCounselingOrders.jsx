@@ -31,6 +31,7 @@ import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialL
 import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialTacState } from 'reducers/tacValidation';
 import { LOA_TYPE, MOVE_DOCUMENT_TYPE, FEATURE_FLAG_KEYS } from 'shared/constants';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
+import { scrollToViewFormikError } from 'utils/validation';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
@@ -52,7 +53,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
 
   const ordersDocuments = files[MOVE_DOCUMENT_TYPE.ORDERS];
   const amendedDocuments = files[MOVE_DOCUMENT_TYPE.AMENDMENTS];
-
+  const hasOrdersDocuments = ordersDocuments?.length > 0;
   const handleClose = () => {
     navigate(`../${servicesCounselingRoutes.MOVE_VIEW_PATH}`);
   };
@@ -365,6 +366,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     </Link>
                   </div>
                   <DocumentViewerFileManager
+                    fileUploadRequired={!hasOrdersDocuments}
                     orderId={orderId}
                     documentId={orderDocumentId}
                     files={ordersDocuments}
@@ -400,7 +402,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                 </div>
                 <div className={styles.bottom}>
                   <div className={styles.buttonGroup}>
-                    <Button type="submit" disabled={formik.isSubmitting}>
+                    <Button type="submit" disabled={formik.isSubmitting} onClick={scrollToViewFormikError(formik)}>
                       Save
                     </Button>
                     <Button type="button" secondary onClick={handleClose}>

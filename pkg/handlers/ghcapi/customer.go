@@ -31,13 +31,17 @@ func addressModelFromPayload(rawAddress *ghcmessages.Address) *models.Address {
 	if rawAddress == nil {
 		return nil
 	}
+
+	usPostRegionCitiesID := uuid.FromStringOrNil(rawAddress.UsPostRegionCitiesID.String())
+
 	return &models.Address{
-		StreetAddress1: *rawAddress.StreetAddress1,
-		StreetAddress2: rawAddress.StreetAddress2,
-		StreetAddress3: rawAddress.StreetAddress3,
-		City:           *rawAddress.City,
-		State:          *rawAddress.State,
-		PostalCode:     *rawAddress.PostalCode,
+		StreetAddress1:     *rawAddress.StreetAddress1,
+		StreetAddress2:     rawAddress.StreetAddress2,
+		StreetAddress3:     rawAddress.StreetAddress3,
+		City:               *rawAddress.City,
+		State:              *rawAddress.State,
+		PostalCode:         *rawAddress.PostalCode,
+		UsPostRegionCityID: &usPostRegionCitiesID,
 	}
 }
 
@@ -210,6 +214,11 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				badDataError := apperror.NewBadDataError("missing personal email")
 				payload := payloadForValidationError("Unable to create a customer", badDataError.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 				return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), badDataError
+			}
+
+			// emplid needs to be unique so if it is not provided, we need to ensure it is nil by checking for empty strings
+			if payload.Emplid != nil && *payload.Emplid == "" {
+				payload.Emplid = nil
 			}
 
 			// declaring okta values outside of if statements so we can use them later
