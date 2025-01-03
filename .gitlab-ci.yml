@@ -419,10 +419,10 @@ pre_test:
     - ./scripts/rebuild-dependencies-without-binaries
     - ./scripts/pre-commit-go-mod || exit 0
     - echo "Run pre-commit tests without golangci-lint, eslint, or prettier"
-    - SKIP=golangci-lint,eslint,prettier,ato-go-linter pre-commit run --all-files
+    - SKIP=golangci-lint,eslint,prettier,ato-go-linter,gomod pre-commit run --all-files
     - |
         echo "Run pre-commit tests with ato-go-linter only"
-        pre-commit run -v --all-files ato-go-linter
+        pre-commit run -v --all-files ato-go-linter,gomod
     - echo "Run pre-commit tests with golangci-lint only"
     - |
         echo 'export GOLANGCI_LINT_CONCURRENCY=4' >> $BASH_ENV
@@ -448,8 +448,12 @@ server_test:
     - pre_deps_golang
   before_script: *setup_milmove_env
   script:
-    - echo "TODO Add steps"
+    - echo "TODO Add steps need to potentially pass job id to file and persist"
     - echo "server test"
+    - make -j 2 bin/milmove bin/gotestsum
+  artifacts:
+    paths:
+      - /builds/milmove/mymove/tmp/test-results
   after_script:
     - *announce_failure
   # rules:
@@ -465,10 +469,21 @@ server_test_coverage:
   script:
     - echo "TODO Add steps"
     - echo "server test coverage"
+    - |
+        echo "Ensure Test Coverage Increasing"
+        ./scripts/ensure-go-test-coverage \
+        tmp/baseline-go-coverage/go-coverage.txt \
+        tmp/test-results/gotest/app/go-coverage.txt
   after_script:
     - *announce_failure
   # rules:
-  # - *check_main  ###may need to rethink the logic and intent of this
+  # - *check_main  ###may need to rethink the logic and intent of this they save per the following and do some PR interaction
+      # only save the cache on default branch builds because we only want to
+      # change the baseline of test results on main builds
+      #
+      # Save the new baseline regardless of if the coverage succeeds
+      # or fails as a merge to main means we have a new baseline. We
+      # will use other means to measure if our coverage is increasing
 
 client_test:
   stage: test
