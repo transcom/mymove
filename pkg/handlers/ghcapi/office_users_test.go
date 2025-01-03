@@ -19,18 +19,20 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-func (suite *HandlerSuite) setupOfficeUserCreatorTestScenario() (*mocks.OfficeUserCreator, *mocks.UserRoleAssociator, *mocks.RoleAssociater, *RequestOfficeUserHandler) {
+func (suite *HandlerSuite) setupOfficeUserCreatorTestScenario() (*mocks.OfficeUserCreator, *mocks.UserRoleAssociator, *mocks.RoleAssociater, *mocks.TransportaionOfficeAssignmentUpdater, *RequestOfficeUserHandler) {
 	mockCreator := &mocks.OfficeUserCreator{}
 	mockUserRoleAssociator := &mocks.UserRoleAssociator{}
 	mockRoleAssociator := &mocks.RoleAssociater{}
+	mockTransportaionOfficeAssignmentUpdater := &mocks.TransportaionOfficeAssignmentUpdater{}
 	handler := &RequestOfficeUserHandler{
-		HandlerConfig:      suite.HandlerConfig(),
-		OfficeUserCreator:  mockCreator,
-		NewQueryFilter:     query.NewQueryFilter,
-		UserRoleAssociator: mockUserRoleAssociator,
-		RoleAssociater:     mockRoleAssociator,
+		HandlerConfig:                        suite.HandlerConfig(),
+		OfficeUserCreator:                    mockCreator,
+		NewQueryFilter:                       query.NewQueryFilter,
+		UserRoleAssociator:                   mockUserRoleAssociator,
+		RoleAssociater:                       mockRoleAssociator,
+		TransportaionOfficeAssignmentUpdater: mockTransportaionOfficeAssignmentUpdater,
 	}
-	return mockCreator, mockUserRoleAssociator, mockRoleAssociator, handler
+	return mockCreator, mockUserRoleAssociator, mockRoleAssociator, mockTransportaionOfficeAssignmentUpdater, handler
 }
 
 // Services Counselor. Task Ordering Officer (TOO), Task Invoicing Officer (TIO),
@@ -38,7 +40,7 @@ func (suite *HandlerSuite) setupOfficeUserCreatorTestScenario() (*mocks.OfficeUs
 // Are all roles allowed to request office user (They authenticate with AuthenticateOfficeRequest)
 func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 	suite.Run("Successfully requests the creation of an office user", func() {
-		mockCreator, mockRoleAssociator, mockRoleFetcher, handler := suite.setupOfficeUserCreatorTestScenario()
+		mockCreator, mockRoleAssociator, mockRoleFetcher, mockTransportaionOfficeAssignmentUpdater, handler := suite.setupOfficeUserCreatorTestScenario()
 
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
@@ -102,6 +104,22 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 			mock.Anything,
 		).Return(mockRoles, nil)
 
+		mockTransportationAssignments := models.TransportationOfficeAssignments{
+			models.TransportationOfficeAssignment{
+				ID:                     officeUser.ID,
+				TransportationOfficeID: officeUser.TransportationOfficeID,
+				PrimaryOffice:          models.BoolPointer(true),
+				CreatedAt:              time.Now(),
+				UpdatedAt:              time.Now(),
+			},
+		}
+		mockTransportaionOfficeAssignmentUpdater.On(
+			"UpdateTransportaionOfficeAssignments",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(mockTransportationAssignments, nil)
+
 		// Handle params with mocked services
 		response := handler.Handle(params)
 
@@ -109,6 +127,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 		createdResponse := response.(*officeuserop.CreateRequestedOfficeUserCreated)
 		suite.Equal("John", *createdResponse.Payload.FirstName)
 		suite.Equal("REQUESTED", *createdResponse.Payload.Status)
+		suite.Equal(1, len(createdResponse.Payload.TransportationOfficeAssignments))
 
 		// Ensure that the mock assertions are met
 		mockCreator.AssertExpectations(suite.T())
@@ -116,7 +135,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 	})
 
 	suite.Run("Responds proper validation errors", func() {
-		mockCreator, _, _, handler := suite.setupOfficeUserCreatorTestScenario()
+		mockCreator, _, _, _, handler := suite.setupOfficeUserCreatorTestScenario()
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeServicesCounselor})
 		transportationOfficeID, _ := uuid.NewV4()
@@ -157,7 +176,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 	})
 
 	suite.Run("Bad transportation office ID", func() {
-		_, _, _, handler := suite.setupOfficeUserCreatorTestScenario()
+		_, _, _, _, handler := suite.setupOfficeUserCreatorTestScenario()
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		transportationOfficeID := "Not a UUID"
 		request := httptest.NewRequest("POST", "/requested-office-users", nil)
@@ -181,7 +200,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 	})
 
 	suite.Run("No payload roles", func() {
-		_, _, _, handler := suite.setupOfficeUserCreatorTestScenario()
+		_, _, _, _, handler := suite.setupOfficeUserCreatorTestScenario()
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		transportationOfficeID, _ := uuid.NewV4()
 		request := httptest.NewRequest("POST", "/requested-office-users", nil)
@@ -204,7 +223,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 	})
 
 	suite.Run("Bad payload roles", func() {
-		_, _, _, handler := suite.setupOfficeUserCreatorTestScenario()
+		_, _, _, _, handler := suite.setupOfficeUserCreatorTestScenario()
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{})
 		transportationOfficeID := "Not a UUID"
 		request := httptest.NewRequest("POST", "/requested-office-users", nil)
@@ -228,7 +247,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 	})
 
 	suite.Run("Enforces identification rule", func() {
-		_, _, _, handler := suite.setupOfficeUserCreatorTestScenario()
+		_, _, _, _, handler := suite.setupOfficeUserCreatorTestScenario()
 
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 

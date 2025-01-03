@@ -14,6 +14,7 @@ func makeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	rmeWeight := 1000
 	ocie := true
 	grade := assertions.Order.Grade
+	ordersType := assertions.Order.OrdersType
 	proGearWeight := 2000
 	proGearWeightSpouse := 500
 
@@ -32,7 +33,7 @@ func makeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 		RequiredMedicalEquipmentWeight:               rmeWeight,
 		OrganizationalClothingAndIndividualEquipment: ocie,
 	}
-	entitlement.SetWeightAllotment(string(*grade))
+	entitlement.SetWeightAllotment(string(*grade), ordersType)
 	dBAuthorizedWeight := entitlement.AuthorizedWeight()
 	entitlement.DBAuthorizedWeight = dBAuthorizedWeight
 

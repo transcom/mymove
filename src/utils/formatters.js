@@ -449,6 +449,15 @@ export function formatWeight(weight) {
   return '0 lbs';
 }
 
+// Format a UB allowance weight with lbs following, e.g. 4000 becomes 4,000 lbs
+// if it's 0 or undefined, we'll send back a relevant string instead
+export function formatUBAllowanceWeight(weight) {
+  if (weight) {
+    return `${weight.toLocaleString()} lbs`;
+  }
+  return 'your UB allowance';
+}
+
 export const formatDelimitedNumber = (number) => {
   // Fail-safe in case an actual number value is passed in
   const numberString = number.toString();

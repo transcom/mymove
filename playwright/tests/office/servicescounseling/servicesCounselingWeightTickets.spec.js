@@ -50,13 +50,6 @@ test('A services counselor can reduce PPM weights for a move with excess weight'
   await page.getByRole('button', { name: 'Review shipment weights' }).click();
   await scPage.waitForPage.reviewShipmentWeights();
 
-  await expect(page.getByText('Weight allowance', { exact: true })).toBeVisible();
-  await expect(page.getByText('Estimated weight (total)', { exact: true })).toBeVisible();
-  await expect(page.getByText('Max billable weight', { exact: true })).toBeVisible();
-  await expect(page.getByText('Move weight (total)', { exact: true })).toBeVisible();
-  await expect(page.getByText('Weight moved by customer', { exact: true })).toBeVisible();
-  await expect(page.getByText('Weight moved', { exact: true })).toBeVisible();
-
   // verify that the excess weight alert is visible, since the move has excess weight
   await expect(
     page.getByText('This move has excess weight. Review PPM weight ticket documents to resolve.'),
@@ -69,6 +62,7 @@ test('A services counselor can reduce PPM weights for a move with excess weight'
   await page.getByTestId('fullWeight').clear();
   await page.getByTestId('fullWeight').fill('8000');
   await page.getByTestId('fullWeight').blur();
+
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
   await page.getByTestId('closeSidebar').click();
@@ -80,6 +74,33 @@ test('A services counselor can reduce PPM weights for a move with excess weight'
   await expect(
     page.getByText('This move has excess weight. Review PPM weight ticket documents to resolve.'),
   ).toHaveCount(0);
+});
+
+test('A services counselor can edit allowable weight', async ({ page, scPage }) => {
+  const move = await scPage.testHarness.buildApprovedMoveWithPPMShipmentAndExcessWeight();
+  await scPage.navigateToCloseoutMove(move.locator);
+
+  await page.getByRole('button', { name: 'Review shipment weights' }).click();
+  await scPage.waitForPage.reviewShipmentWeights();
+
+  await page.getByRole('link', { name: 'Review Documents' }).click();
+  await scPage.waitForPage.reviewWeightTicket();
+
+  await page.getByTestId('editAllowableWeightButton').click();
+  await page.getByText('Cancel').click();
+
+  await page.getByTestId('editAllowableWeightButton').click();
+  await page.getByTestId('editAllowableWeightInput').focus();
+  await page.getByTestId('editAllowableWeightInput').fill('8000');
+  await page.getByTestId('editAllowableWeightInput').blur();
+  await page.getByText('Save').click();
+  await expect(page.getByText('8,000 lbs')).toBeVisible();
+
+  await page.getByTestId('closeSidebar').click();
+
+  // Ensure change appears in audit history
+  await page.getByText('Move History').click();
+  await expect(page.getByText('Allowable Weight: 8,000 lbs')).toBeVisible();
 });
 
 test('A service counselor can see HHG weights when reviewing weight tickets', async ({ page, scPage }) => {

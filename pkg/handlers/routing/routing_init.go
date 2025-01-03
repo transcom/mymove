@@ -222,6 +222,11 @@ func mountHealthRoute(appCtx appcontext.AppContext, redisPool *redis.Pool,
 }
 
 func mountLocalStorageRoute(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
+	appCtx.Logger().Info("Mounting local storage route",
+		zap.String("LocalStorageRoot", routingConfig.LocalStorageRoot),
+		zap.String("LocalStorageWebRoot", routingConfig.LocalStorageWebRoot),
+	)
+
 	if routingConfig.LocalStorageRoot != "" && routingConfig.LocalStorageWebRoot != "" {
 		localStorageHandlerFunc := storage.NewFilesystemHandler(
 			routingConfig.FileSystem, routingConfig.LocalStorageRoot)

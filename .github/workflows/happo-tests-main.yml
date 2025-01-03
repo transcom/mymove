@@ -20,6 +20,13 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      # Rebuild the "canvas" dependency, when you yarn install canvas it doesn't come with a prebuilt binary
+      # this means we gotta build the binary itself before we yarn install.
+      # Expect this to be a required step until they release https://github.com/Automattic/node-canvas/releases/tag/v3.0.0-rc2
+      - name: Rebuild dependencies without binaries
+        run: |
+          ./scripts/rebuild-dependencies-without-binaries
+
       - name: Start Happo run
         run: yarn happo-ci-github-actions
         env:

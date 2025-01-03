@@ -1,0 +1,67 @@
+#!/bin/bash
+set -e
+
+YARN_LOCK_PATH="yarn.lock"
+TARGET_PACKAGE="@transcom/react-file-viewer"
+ORIGINAL_DIR="$(pwd)"
+SERVER_PUBLIC_DIR="$ORIGINAL_DIR/public/static/react-file-viewer"
+
+# Ensure yarn.lock exists
+if [ ! -f "$YARN_LOCK_PATH" ]; then
+  echo "Error: $YARN_LOCK_PATH not found!"
+  exit 1
+fi
+
+# Extract the version of @transcom/react-file-viewer from yarn.lock using awk
+# We use awk to parse the file instead of yarn because yarn is a client dependency
+# and this script is a backend dependency. Yarn will not be available
+PACKAGE_VERSION=$(awk -v package="$TARGET_PACKAGE" '
+  $0 ~ "^\"" package "@" {
+    getline
+    if ($1 == "version") {
+      gsub(/"/, "", $2)
+      print $2
+      exit
+    }
+  }' "$YARN_LOCK_PATH")
+
+if [ -z "$PACKAGE_VERSION" ]; then
+  echo "Error: Could not find $TARGET_PACKAGE version in $YARN_LOCK_PATH"
+  exit 1
+fi
+
+echo "Found $TARGET_PACKAGE version: $PACKAGE_VERSION"
+
+# Create a temporary directory to clone into
+# We download the react file-viewer version outlined in yarn
+# and then serve the ESM chunk
+TEMP_DIR=$(mktemp -d)
+echo "Created temporary directory at $TEMP_DIR"
+
+# Clone the repository
+cd "$TEMP_DIR"
+git clone https://github.com/transcom/react-file-viewer.git
+cd react-file-viewer
+
+# Checkout the specific version
+git checkout "v$PACKAGE_VERSION" 2>/dev/null || git checkout "$PACKAGE_VERSION" 2>/dev/null
+
+# Check if dist directory exists
+if [ ! -d "dist" ]; then
+  echo "Error: 'dist' directory not found"
+  exit 1
+fi
+
+# Create the target directory if it doesn't exist
+mkdir -p "$SERVER_PUBLIC_DIR"
+
+# Copy dist/*.js to the server's public directory
+cp -r dist/*.js "$SERVER_PUBLIC_DIR"
+echo "Copied dist/*.js to $SERVER_PUBLIC_DIR"
+
+# Remove temp
+cd "$ORIGINAL_DIR"
+rm -rf "$TEMP_DIR"
+echo "Cleaned up temporary files"
+
+echo "Script completed successfully"

@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // ppmShipmentUpdatedSubmitter is the concrete struct implementing the services.PPMShipmentUpdatedSubmitter interface
@@ -45,6 +46,15 @@ func (p *ppmShipmentUpdatedSubmitter) SubmitUpdatedCustomerCloseOut(appCtx appco
 	if err != nil {
 		return nil, err
 	}
+
+	// initial allowable weight is equal to net weight of all shipments, E-05722
+	var allowableWeight = unit.Pound(0)
+	if len(updatedPPMShipment.WeightTickets) >= 1 {
+		for _, weightTicket := range ppmShipment.WeightTickets {
+			allowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+		}
+	}
+	updatedPPMShipment.AllowableWeight = &allowableWeight
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		updatedPPMShipment.SignedCertification, err = p.SignedCertificationUpdater.UpdateSignedCertification(txnAppCtx, signedCertification, eTag)

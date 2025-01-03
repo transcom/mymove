@@ -196,7 +196,8 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			grade := payload.Grade
 
 			// Calculate the entitlement for the order
-			weightAllotment := models.GetWeightAllotment(*grade)
+			ordersType := payload.OrdersType
+			weightAllotment := models.GetWeightAllotment(*grade, *ordersType)
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				weight = weightAllotment.TotalWeightSelfPlusDependents
@@ -229,8 +230,15 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				in move_dats.go, move_weights, and move_submitted, etc
 			*/
 
-			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), saveEntitlementErr), saveEntitlementErr
+			verrs, err := appCtx.DB().ValidateAndSave(&entitlement)
+			if err != nil {
+				appCtx.Logger().Error("Error saving customer entitlement", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			if verrs.HasAny() {
+				appCtx.Logger().Error("Validation error saving customer entitlement", zap.Any("errors", verrs.Errors))
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, nil), nil
 			}
 
 			var deptIndicator *string
@@ -429,7 +437,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 			// Check if the grade or dependents are receiving an update
 			if hasEntitlementChanged(order, payload.OrdersType, payload.Grade, payload.DependentsUnderTwelve, payload.DependentsTwelveAndOver, payload.AccompaniedTour) {
-				weightAllotment := models.GetWeightAllotment(*payload.Grade)
+				weightAllotment := models.GetWeightAllotment(*payload.Grade, *payload.OrdersType)
 				weight := weightAllotment.TotalWeightSelf
 				if *payload.HasDependents {
 					weight = weightAllotment.TotalWeightSelfPlusDependents

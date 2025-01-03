@@ -282,3 +282,45 @@ func (suite *ModelSuite) TestDetermineMarketCode() {
 		suite.EqualError(err, "both address1 and address2 must be provided")
 	})
 }
+func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
+	suite.Run("test creating approved service items for shipment", func() {
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "CA",
+					PostalCode:     "90210",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: "i",
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "AK",
+					PostalCode:     "98765",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
+		suite.NoError(err)
+	})
+
+	suite.Run("test error handling for invalid shipment", func() {
+		invalidShipment := models.MTOShipment{}
+
+		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &invalidShipment)
+		suite.Error(err)
+	})
+}
