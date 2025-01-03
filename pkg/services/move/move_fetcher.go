@@ -182,22 +182,24 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentTaskOrder(appCtx a
 				INNER JOIN service_members ON orders.service_member_id = service_members.id
 				INNER JOIN mto_shipments ON mto_shipments.move_id = moves.id
 				LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
+				LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
 				WHERE
 					(moves.status IN ('APPROVALS REQUESTED', 'SUBMITTED', 'SERVICE COUNSELING COMPLETED'))
-					AND orders.gbloc = $1
-					AND moves.show = $2
+					AND moves.show = $1
 					AND moves.too_assigned_id IS NULL
-					AND moves.counseling_transportation_office_id = $3
-					AND (orders.orders_type NOT IN ($4, $5, $6))
+					AND (orders.orders_type NOT IN ($2, $3, $4))
 					AND service_members.affiliation != 'MARINES'
+					AND ((mto_shipments.shipment_type != $5 AND move_to_gbloc.gbloc = $6) OR (mto_shipments.shipment_type = $7 AND orders.gbloc = $8))
 				GROUP BY moves.id
 				ORDER BY earliest_date ASC`,
-			gbloc,
 			models.BoolPointer(true),
-			officeId,
 			internalmessages.OrdersTypeBLUEBARK,
 			internalmessages.OrdersTypeWOUNDEDWARRIOR,
-			internalmessages.OrdersTypeSAFETY).
+			internalmessages.OrdersTypeSAFETY,
+			models.MTOShipmentTypeHHGOutOfNTSDom,
+			gbloc,
+			models.MTOShipmentTypeHHGOutOfNTSDom,
+			gbloc).
 		All(&moves)
 
 	if err != nil {
