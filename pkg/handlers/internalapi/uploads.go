@@ -286,11 +286,11 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 
 	uploadUUID, err := uuid.FromString(uploadId)
 	if err != nil {
+		uploadop.NewGetUploadStatusInternalServerError().WriteResponse(rw, producer)
 		panic(err)
 	}
 
 	// Check current tag before event-driven wait for anti-virus
-
 	uploaded, err := models.FetchUserUploadFromUploadID(o.appCtx.DB(), o.appCtx.Session(), uploadUUID)
 	if err != nil {
 		panic(err)

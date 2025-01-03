@@ -206,8 +206,7 @@ func InitReceiver(v *viper.Viper, logger *zap.Logger) (NotificationReceiver, err
 		return NewNotificationReceiver(snsService, sqsService, awsSNSRegion, awsAccountId), nil
 	}
 
-	// TODO: add local notification receiver initializer here
-	return nil, nil
+	return NewStubNotificationReceiver(), nil
 }
 
 func (n NotificationReceiverContext) constructArn(awsService string, endpointName string) string {
