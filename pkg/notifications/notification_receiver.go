@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -19,23 +18,23 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 )
 
-// Notification is an interface for creating emails
+// NotificationQueueParams stores the params for queue creation
 type NotificationQueueParams struct {
-	// TODO: change to enum
-	Action   string
-	ObjectId string
+	SubscriptionTopicName string
+	NamePrefix            string
+	FilterPolicy          string
 }
 
-// NotificationSender is an interface for sending notifications
+// NotificationReceiver is an interface for receiving notifications
 //
-//go:generate mockery --name NotificationSender
+//go:generate mockery --name NotificationReceiver
 type NotificationReceiver interface {
-	CreateQueueWithSubscription(appCtx appcontext.AppContext, topicArn string, params NotificationQueueParams) (string, error)
+	CreateQueueWithSubscription(appCtx appcontext.AppContext, params NotificationQueueParams) (string, error)
 	ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]types.Message, error)
 	CloseoutQueue(appCtx appcontext.AppContext, queueUrl string) error
 }
 
-// NotificationSendingContext provides context to a notification sender. Maps use queueUrl
+// NotificationReceiverConext provides context to a notification Receiver. Maps use queueUrl for key
 type NotificationReceiverContext struct {
 	snsService           *sns.Client
 	sqsService           *sqs.Client
@@ -45,7 +44,7 @@ type NotificationReceiverContext struct {
 	receiverCancelMap    map[string]context.CancelFunc
 }
 
-// NewNotificationSender returns a new NotificationSendingContext
+// NewNotificationReceiver returns a new NotificationReceiverContext
 func NewNotificationReceiver(snsService *sns.Client, sqsService *sqs.Client, awsRegion string, awsAccountId string) NotificationReceiverContext {
 	return NotificationReceiverContext{
 		snsService:           snsService,
@@ -57,13 +56,14 @@ func NewNotificationReceiver(snsService *sns.Client, sqsService *sqs.Client, aws
 	}
 }
 
-func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appcontext.AppContext, topicName string, params NotificationQueueParams) (string, error) {
+// CreateQueueWithSubscription first creates a new queue, then subscribes an AWS topic to it
+func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appcontext.AppContext, params NotificationQueueParams) (string, error) {
 
 	queueUUID := uuid.Must(uuid.NewV4())
 
-	queueName := fmt.Sprintf("%s_%s", params.Action, queueUUID)
+	queueName := fmt.Sprintf("%s_%s", params.NamePrefix, queueUUID)
 	queueArn := n.constructArn("sqs", queueName)
-	topicArn := n.constructArn("sns", topicName)
+	topicArn := n.constructArn("sns", params.SubscriptionTopicName)
 
 	// Create queue
 
@@ -98,24 +98,12 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 		log.Fatalf("Failed to create SQS queue, %v", err)
 	}
 
-	// Create subscription
-
-	filterPolicy := fmt.Sprintf(`{
-		"detail": {
-				"object": {
-					"key": [
-						{"suffix": "%s"}
-					]
-				}
-			}
-	}`, params.ObjectId)
-
 	subscribeInput := &sns.SubscribeInput{
 		TopicArn: &topicArn,
 		Protocol: aws.String("sqs"),
 		Endpoint: &queueArn,
 		Attributes: map[string]string{
-			"FilterPolicy":      filterPolicy,
+			"FilterPolicy":      params.FilterPolicy,
 			"FilterPolicyScope": "MessageBody",
 		},
 	}
@@ -129,9 +117,9 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 	return *result.QueueUrl, err
 }
 
-// SendNotification sends a one or more notifications for all supported mediums
+// ReceiveMessages polls given queue continuously for messages for up to 20 seconds
 func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]types.Message, error) {
-	recCtx, cancelRecCtx := context.WithTimeout(context.Background(), 120*time.Second)
+	recCtx, cancelRecCtx := context.WithCancel(context.Background())
 	defer cancelRecCtx()
 	n.receiverCancelMap[queueUrl] = cancelRecCtx
 
@@ -162,6 +150,7 @@ func (n NotificationReceiverContext) CloseoutQueue(appCtx appcontext.AppContext,
 		cancelFunc()
 		delete(n.receiverCancelMap, queueUrl)
 	}
+
 	if subscriptionArn, exists := n.queueSubscriptionMap[queueUrl]; exists {
 		_, err := n.snsService.Unsubscribe(context.Background(), &sns.UnsubscribeInput{
 			SubscriptionArn: &subscriptionArn,
@@ -184,26 +173,7 @@ func (n NotificationReceiverContext) CloseoutQueue(appCtx appcontext.AppContext,
 
 // InitEmail initializes the email backend
 func InitReceiver(v *viper.Viper, logger *zap.Logger) (NotificationReceiver, error) {
-	// if v.GetString(cli.EmailBackendFlag) == "ses" {
-	// 	// Setup Amazon SES (email) service TODO: This might be able
-	// 	// to be combined with the AWS Session that we're using for S3
-	// 	// down below.
 
-	// 	awsSESRegion := v.GetString(cli.AWSSESRegionFlag)
-	// 	awsSESDomain := v.GetString(cli.AWSSESDomainFlag)
-	// 	sysAdminEmail := v.GetString(cli.SysAdminEmail)
-	// 	logger.Info("Using ses email backend",
-	// 		zap.String("region", awsSESRegion),
-	// 		zap.String("domain", awsSESDomain))
-	// 	cfg, err := config.LoadDefaultConfig(context.Background(),
-	// 		config.WithRegion(awsSESRegion),
-	// 	)
-	// 	if err != nil {
-	// 		logger.Fatal("error loading ses aws config", zap.Error(err))
-	// 	}
-
-	// 	sesService := ses.NewFromConfig(cfg)
-	// 	input := &ses.GetAccountSendingEnabledInput{}
 	// 	result, err := sesService.GetAccountSendingEnabled(context.Background(), input)
 	// 	if err != nil || result == nil || !result.Enabled {
 	// 		logger.Error("email sending not enabled", zap.Error(err))
@@ -216,25 +186,28 @@ func InitReceiver(v *viper.Viper, logger *zap.Logger) (NotificationReceiver, err
 	// logger.Info("Using local email backend", zap.String("domain", domain))
 	// return NewStubNotificationSender(domain), nil
 
-	// Setup Amazon SES (email) service TODO: This might be able
-	// to be combined with the AWS Session that we're using for S3
-	// down below.
+	if v.GetString(cli.ReceiverBackendFlag) == "sns&sqs" {
+		// Setup notification receiver service with SNS & SQS backend dependencies
+		awsSNSRegion := v.GetString(cli.AWSSNSRegionFlag)
+		awsAccountId := v.GetString(cli.AWSSNSAccountId)
 
-	// TODO: verify if we should change this param name to awsNotificationRegion
-	awsSESRegion := v.GetString(cli.AWSSESRegionFlag)
-	awsAccountId := v.GetString("aws-account-id")
+		logger.Info("Using aws sns&sqs receiver backend", zap.String("region", awsSNSRegion))
 
-	cfg, err := config.LoadDefaultConfig(context.Background(),
-		config.WithRegion(awsSESRegion),
-	)
-	if err != nil {
-		logger.Fatal("error loading ses aws config", zap.Error(err))
+		cfg, err := config.LoadDefaultConfig(context.Background(),
+			config.WithRegion(awsSNSRegion),
+		)
+		if err != nil {
+			logger.Fatal("error loading sns aws config", zap.Error(err))
+		}
+
+		snsService := sns.NewFromConfig(cfg)
+		sqsService := sqs.NewFromConfig(cfg)
+
+		return NewNotificationReceiver(snsService, sqsService, awsSNSRegion, awsAccountId), nil
 	}
 
-	snsService := sns.NewFromConfig(cfg)
-	sqsService := sqs.NewFromConfig(cfg)
-
-	return NewNotificationReceiver(snsService, sqsService, awsSESRegion, awsAccountId), nil
+	// TODO: add local notification receiver initializer here
+	return nil, nil
 }
 
 func (n NotificationReceiverContext) constructArn(awsService string, endpointName string) string {

@@ -14,9 +14,11 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/cli"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -291,7 +293,7 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 
 	uploaded, err := models.FetchUserUploadFromUploadID(o.appCtx.DB(), o.appCtx.Session(), uploadUUID)
 	if err != nil {
-		o.appCtx.Logger().Error(err.Error())
+		panic(err)
 	}
 
 	tags, err := o.storer.Tags(uploaded.Upload.StorageKey)
@@ -316,14 +318,32 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 	}
 
 	// Start waiting for tag updates
-
-	topicName := "app_s3_tag_events"
-	notificationParams := notifications.NotificationQueueParams{
-		Action:   "ObjectTagsAdded",
-		ObjectId: uploadId,
+	v := viper.New()
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+	topicName := v.GetString(cli.AWSSNSObjectTagsAddedTopicFlag)
+	if topicName == "" {
+		o.appCtx.Logger().Error("aws_sns_object_tags_added_topic key not available.")
+		return
 	}
 
-	queueUrl, err := o.receiver.CreateQueueWithSubscription(o.appCtx, topicName, notificationParams)
+	filterPolicy := fmt.Sprintf(`{
+		"detail": {
+				"object": {
+					"key": [
+						{"suffix": "%s"}
+					]
+				}
+			}
+	}`, uploadId)
+
+	notificationParams := notifications.NotificationQueueParams{
+		SubscriptionTopicName: topicName,
+		NamePrefix:            "ObjectTagsAdded",
+		FilterPolicy:          filterPolicy,
+	}
+
+	queueUrl, err := o.receiver.CreateQueueWithSubscription(o.appCtx, notificationParams)
 	if err != nil {
 		o.appCtx.Logger().Error(err.Error())
 	}
@@ -335,7 +355,7 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 	}()
 
 	id_counter := 0
-	// Run for 120 seconds, 20 second long polling 6 times
+	// Run for 120 seconds, 20 second long polling for receiver, 6 times
 	for range 6 {
 		o.appCtx.Logger().Info("Receiving...")
 		messages, errs := o.receiver.ReceiveMessages(o.appCtx, queueUrl)
