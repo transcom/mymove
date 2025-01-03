@@ -64,7 +64,7 @@ const PrimeUIUpdateInternationalFuelSurchargeForm = ({ onUpdateServiceItem, move
           .max(4, 'Port Code must be 3-4 characters.'),
       })}
     >
-      {({ handleSubmit }) => (
+      {({ handleSubmit, setFieldValue }) => (
         <Form className={classnames(formStyles.form)}>
           <FormGroup>
             <div className={styles.IntlFsc}>
@@ -120,6 +120,9 @@ const PrimeUIUpdateInternationalFuelSurchargeForm = ({ onUpdateServiceItem, move
                   labelHint="Required"
                   maxLength="4"
                   isDisabled={serviceItem.status !== SERVICE_ITEM_STATUSES.APPROVED}
+                  onBlur={(e) => {
+                    setFieldValue('portCode', e.target.value.toUpperCase());
+                  }}
                 />
               </SectionWrapper>
               <WizardNavigation
