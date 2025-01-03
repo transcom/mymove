@@ -1026,7 +1026,6 @@ func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
 		suite.NotNil(payload.PoeLocation, "Expected POELocation to not be nil")
 		suite.Equal("PDX", payload.PoeLocation.PortCode, "Expected POE Port Code to match")
 		suite.Equal("PORTLAND INTL", payload.PoeLocation.PortName, "Expected POE Port Name to match")
-
 		suite.Nil(payload.PodLocation, "Expected PODLocation to be nil when POELocation is set")
 	})
 
@@ -1069,7 +1068,6 @@ func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
 		suite.NotNil(payload.PodLocation, "Expected PODLocation to not be nil")
 		suite.Equal("PDX", payload.PodLocation.PortCode, "Expected POD Port Code to match")
 		suite.Equal("PORTLAND INTL", payload.PodLocation.PortName, "Expected POD Port Name to match")
-
 		suite.Nil(payload.PoeLocation, "Expected PODLocation to be nil when PODLocation is set")
 	})
 }
