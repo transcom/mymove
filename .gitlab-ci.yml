@@ -149,6 +149,41 @@ stages:
     - echo "Rebuild dependencies without binaries"
     - ./scripts/rebuild-dependencies-without-binaries
 
+.setup_server_env_variables: &setup_server_env_variables
+    - |
+      echo "make server_test_build for app"
+      export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+      export OKTA_CUST_CLIENT_ID=notrealkey
+      export OKTA_CUSTOMER_SECRET_KEY=notrealkey
+      export OKTA_OFFICE_SECRET_KEY=notrealkey1
+      export OKTA_ADMIN_SECRET_KEY=notrealkey2
+      export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
+      export APPLICATION=app
+      export GOTEST_PARALLEL=8
+      export DB_PASSWORD=mysecretpassword
+      export DB_USER_LOW_PRIV=crud
+      export DB_PASSWORD_LOW_PRIV=mysecretpassword
+      export DB_USER=postgres
+      export DB_HOST=localhost
+      export DB_PORT_TEST=5433
+      export DB_PORT=5432
+      export DB_NAME=test_db
+      export DB_NAME_TEST=test_db
+      export DTOD_USE_MOCK='true'
+      export MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+      export MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+      export EIA_KEY=db2522a43820268a41a802a16ae9fd26
+      export ENV=test
+      export ENVIRONMENT=test
+      export SERVER_REPORT=1
+      export COVERAGE=1
+      export SERVE_API_INTERNAL='true'
+      export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
+      export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
+      export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
+      export OKTA_API_KEY=notrealapikey8675309
+      export OKTA_OFFICE_GROUP_ID=notrealgroupId
+      export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
 
 sast:
   stage: pre_checks
@@ -438,10 +473,10 @@ pre_test:
     - *reinstall_yarn
     - ./scripts/pre-commit-go-mod || exit 0
     - echo "Run pre-commit tests without golangci-lint, eslint, or prettier"
-    - SKIP=golangci-lint,eslint,prettier,ato-go-linter,gomod pre-commit run --all-files
+    - SKIP=golangci-lint,eslint,prettier,ato-go-linter,gomod,appcontext-linter pre-commit run --all-files
     - |
         echo "Run pre-commit tests with ato-go-linter only"
-        pre-commit run -v --all-files ato-go-linter,gomod
+        pre-commit run -v --all-files ato-go-linter,gomod,appcontext-linter
     - echo "Run pre-commit tests with golangci-lint only"
     - |
         echo 'export GOLANGCI_LINT_CONCURRENCY=4' >> $BASH_ENV
@@ -465,60 +500,16 @@ server_test:
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
-  before_script: *setup_milmove_env
+  before_script:
+  - *setup_milmove_env
+  - *setup_server_env_variables
   script:
-    - echo "TODO Add steps need to potentially pass job id to file and persist"
-    - echo "server test"
+    - echo "server test -- TODO Add steps need to potentially pass job id to file and persist"
     - make -j 2 bin/milmove bin/gotestsum
-    - |
-      echo "make server_test_build for app"
-      export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
-      export OKTA_CUST_CLIENT_ID=notrealkey
-      export OKTA_OFFICE_CLIENT_ID=notrealkey1
-      export OKTA_ADMIN_CLIENT_ID=notrealkey2
-      export OKTA_CUSTOMER_SECRET_KEY=notrealkey
-      export OKTA_OFFICE_SECRET_KEY=notrealkey1
-      export OKTA_ADMIN_SECRET_KEY=notrealkey2
-      export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
-      export OKTA_API_KEY=notrealapikey
-      export OKTA_OFFICE_GROUP_ID=notrealgroupId
-      export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
-      export APPLICATION=app
-    - # 8 since this runs on xlarge with 8 CPUs
-    - |
-      export GOTEST_PARALLEL=8
-      export DB_PASSWORD=mysecretpassword
-      export DB_USER_LOW_PRIV=crud
-      export DB_PASSWORD_LOW_PRIV=mysecretpassword
-      export DB_USER=postgres
-      export DB_HOST=localhost
-      export DB_PORT_TEST=5433
-      export DB_PORT=5432
-      export DB_NAME=test_db
-      export DB_NAME_TEST=test_db
-      export DTOD_USE_MOCK='true'
-      export MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
-      export MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
-    - # dummy key generated with openssl rand -hex 16
-    - |
-      export EIA_KEY=db2522a43820268a41a802a16ae9fd26
-      export ENV=test
-      export ENVIRONMENT=test
-      export SERVER_REPORT=1
-      export COVERAGE=1
-      export SERVE_API_INTERNAL='true'
-      export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
-      export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
-      export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
-      export OKTA_API_KEY=notrealapikey8675309
-      export OKTA_OFFICE_GROUP_ID=notrealgroupId
-      export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
     - make server_test
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/gotestsum
-
-
   after_script:
     - *announce_failure
   # rules:
@@ -562,7 +553,7 @@ client_test:
     - *reinstall_yarn
     - |
       echo "client test coverage"
-      JEST_JUNIT_OUTPUT_DIR=jest-junit-reports make client_test_coverage
+      JEST_JUNIT_OUTPUT_DIR=jest-junit-reports make client_test_coverage >> /builds/milmove/mymove/jest-junit-reports
   artifacts:
     paths:
       - /builds/milmove/mymove/coverage
