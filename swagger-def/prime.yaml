@@ -1544,10 +1544,10 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
-  MTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
-    $ref: 'definitions/prime/MTOServiceItemInternationalShuttle.yaml'
   MTOServiceItemInternationalFuelSurcharge: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemInternationalFuelSurcharge.yaml'
+  MTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalShuttle.yaml'
   MTOShipment:
     type: object
     properties:
@@ -1630,6 +1630,8 @@ definitions:
         * DDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
+        * PODFSC - UpdateMTOServiceItemInternationalPortFSC
+        * POEFSC - UpdateMTOServiceItemInternationalPortFSC
         * IDSHUT - UpdateMTOServiceItemInternationalShuttle
         * IOSHUT - UpdateMTOServiceItemInternationalShuttle
         * PODFSC - UpdateMTOServiceItemInternationalPortFSC
@@ -1640,8 +1642,8 @@ definitions:
     enum:
       - UpdateMTOServiceItemSIT
       - UpdateMTOServiceItemShuttle
-      - UpdateMTOServiceItemInternationalShuttle
       - UpdateMTOServiceItemInternationalPortFSC
+      - UpdateMTOServiceItemInternationalShuttle
   UpdateMTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
       Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
