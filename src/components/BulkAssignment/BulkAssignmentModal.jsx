@@ -10,6 +10,16 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, content, submitT
     <ModalTitle>
       <h3>{title}</h3>
     </ModalTitle>
+    <div>
+      <table>
+        <tr>
+          <th>Select/Deselect All </th>
+          <th>User</th>
+          <th>Equal Assignment</th>
+          <th>Re-assignment</th>
+        </tr>
+      </table>
+    </div>
     <p>{content}</p>
     <ModalActions autofocus="true">
       <Button
