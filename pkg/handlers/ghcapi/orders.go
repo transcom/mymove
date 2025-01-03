@@ -225,24 +225,14 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
-			var originDutyLocationGBLOC *string
-			if *originDutyLocation.Address.IsOconus {
-				originDutyLocationGBLOCOconus, err := models.FetchOconusDutyLocationGbloc(appCtx.DB(), originDutyLocation, serviceMember)
-				if err != nil {
-					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
+			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
+				default:
+					return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
 				}
-				originDutyLocationGBLOC = &originDutyLocationGBLOCOconus.Gbloc
-			} else {
-				originDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
-				if err != nil {
-					switch err {
-					case sql.ErrNoRows:
-						return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
-					default:
-						return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
-					}
-				}
-				originDutyLocationGBLOC = &originDutyLocationGBLOCConus.GBLOC
 			}
 
 			grade := (internalmessages.OrderPayGrade)(*payload.Grade)
@@ -321,7 +311,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				&originDutyLocation,
 				&grade,
 				&entitlement,
-				originDutyLocationGBLOC,
+				&originDutyLocationGBLOC.GBLOC,
 				packingAndShippingInstructions,
 				&destinationGBLOC.GBLOC,
 			)
