@@ -45,7 +45,7 @@ const PrimeUIUpdateInternationalFuelSurchargeForm = ({ onUpdateServiceItem, move
     const { eTag, mtoServiceItemID, portCode, reServiceCode } = values;
 
     const body = {
-      portCode,
+      portCode: portCode.toUpperCase(),
       reServiceCode,
       modelType: 'UpdateMTOServiceItemInternationalPortFSC',
     };
