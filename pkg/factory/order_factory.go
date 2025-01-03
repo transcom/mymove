@@ -290,41 +290,41 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&order, cOrder)
 
-	// Check if PayGrade already exists
-	var existingPayGrade models.PayGrade
-	if order.Grade != nil {
-		err := db.Where("grade = ?", string(*order.Grade)).First(&existingPayGrade)
-		if err == nil {
-			// PayGrade exists
-			grade := internalmessages.OrderPayGrade(existingPayGrade.Grade)
-			order.Grade = internalmessages.NewOrderPayGrade(grade)
-		} else {
-			// Create a new PayGrade
-			existingPayGrade = BuildPayGrade(db, []Customization{
-				{
-					Model: models.PayGrade{
-						Grade: string(*order.Grade),
+	// If db is false, it's a stub. No need to create in database
+	if db != nil {
+		// Check if PayGrade already exists
+		var existingPayGrade models.PayGrade
+		if order.Grade != nil {
+			err := db.Where("grade = ?", string(*order.Grade)).First(&existingPayGrade)
+			if err == nil {
+				// PayGrade exists
+				grade := internalmessages.OrderPayGrade(existingPayGrade.Grade)
+				order.Grade = internalmessages.NewOrderPayGrade(grade)
+			} else {
+				// Create a new PayGrade
+				existingPayGrade = BuildPayGrade(db, []Customization{
+					{
+						Model: models.PayGrade{
+							Grade: string(*order.Grade),
+						},
 					},
+				}, nil)
+			}
+		}
+
+		// Check if HHGAllowance already exists for this PayGrade
+		var existingHHGAllowance models.HHGAllowance
+		err := db.Where("pay_grade_id = ?", existingPayGrade.ID).First(&existingHHGAllowance)
+		if err != nil {
+			// Create a new HHGAllowance
+			BuildHHGAllowance(db, []Customization{
+				{
+					Model:    existingPayGrade,
+					LinkOnly: true,
 				},
 			}, nil)
 		}
-	}
 
-	// Check if HHGAllowance already exists for this PayGrade
-	var existingHHGAllowance models.HHGAllowance
-	err := db.Where("pay_grade_id = ?", existingPayGrade.ID).First(&existingHHGAllowance)
-	if err != nil {
-		// Create a new HHGAllowance
-		BuildHHGAllowance(db, []Customization{
-			{
-				Model:    existingPayGrade,
-				LinkOnly: true,
-			},
-		}, nil)
-	}
-
-	// If db is false, it's a stub. No need to create in database
-	if db != nil {
 		mustCreate(db, &order)
 	}
 
