@@ -40,7 +40,7 @@ func makeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 		ProGearWeight:                 weightData.ProGearWeight,
 		ProGearWeightSpouse:           weightData.ProGearWeightSpouse,
 	}
-	*entitlement.WeightAllotted = allotment
+	entitlement.WeightAllotted = &allotment
 	dBAuthorizedWeight := entitlement.AuthorizedWeight()
 	entitlement.DBAuthorizedWeight = dBAuthorizedWeight
 

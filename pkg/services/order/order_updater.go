@@ -521,7 +521,7 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 	if order.Entitlement != nil {
 		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, &hasDepedents, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
 		if err == nil {
-			order.Entitlement.WeightAllotted.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+			order.Entitlement.UBAllowance = &unaccompaniedBaggageAllowance
 		}
 	}
 
@@ -558,7 +558,7 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	// Calculate new DBWeightAuthorized based on the new grade
 	weightAllotment, err := waf.GetWeightAllotment(appCtx, string(*order.Grade), order.OrdersType)
 	if err != nil {
-		return models.Order{}, nil
+		return models.Order{}, err
 	}
 	weight := weightAllotment.TotalWeightSelf
 	// Payload does not have this information, retrieve dependents from the existing order
@@ -609,18 +609,20 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	if order.NewDutyLocationID != uuid.Nil {
 		var newDutyLocation models.DutyLocation
 		newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), order.NewDutyLocationID)
-		if err == nil {
-			order.NewDutyLocationID = newDutyLocation.ID
-			order.NewDutyLocation = newDutyLocation
+		if err != nil {
+			return models.Order{}, err
 		}
+		order.NewDutyLocationID = newDutyLocation.ID
+		order.NewDutyLocation = newDutyLocation
 	}
 
 	// Recalculate UB allowance of order entitlement
 	if order.Entitlement != nil {
 		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, payload.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
-		if err == nil {
-			weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+		if err != nil {
+			return models.Order{}, err
 		}
+		order.Entitlement.UBAllowance = &unaccompaniedBaggageAllowance
 	}
 
 	return order, nil
