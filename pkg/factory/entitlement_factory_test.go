@@ -26,6 +26,21 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 			},
 		}, nil)
 	}
+	setupO9Allotment := func() {
+		pg := BuildPayGrade(suite.DB(), []Customization{
+			{
+				Model: models.PayGrade{
+					Grade: "O_9",
+				},
+			},
+		}, nil)
+		BuildHHGAllowance(suite.DB(), []Customization{
+			{
+				Model:    pg,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
 	suite.Run("Successful creation of default entitlement", func() {
 		// Under test:      BuildEntitlement
 		// Mocked:          None
@@ -109,7 +124,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		// Set the weight allotment on the custom object so as to compare
 		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 		suite.NoError(err)
-		*custEnt.WeightAllotted = allotment
+		custEnt.WeightAllotted = &allotment
 		custEnt.DBAuthorizedWeight = custEnt.AuthorizedWeight()
 
 		// Check that the created object had the correct allotments set
@@ -151,15 +166,14 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 
 		// SETUP
 		// Create a default stubbed entitlement to compare values
-		setupE1Allotment()
+		setupO9Allotment()
 		testEnt := BuildEntitlement(nil, nil, nil)
 		// Set the weight allotment on the custom object to O_9
 		testEnt.DBAuthorizedWeight = nil // clear original value
-		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "O_9", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 		suite.NoError(err)
-		*testEnt.WeightAllotted = allotment
+		testEnt.WeightAllotted = &allotment
 		testEnt.DBAuthorizedWeight = testEnt.AuthorizedWeight()
-		// Now DBAuthorizedWeight should be appropriate for O_9 grade
 
 		// FUNCTION UNDER TEST
 		grade := internalmessages.OrderPayGrade(models.ServiceMemberGradeO9)
@@ -180,11 +194,11 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 
 func (suite *FactorySuite) TestBuildPayGrade() {
 	suite.Run("Successful creation of PayGrade with default values", func() {
-		// Default grade should be "E-5"
+		// Default grade should be "E_5"
 		payGrade := BuildPayGrade(suite.DB(), nil, nil)
 
 		suite.NotNil(payGrade.ID)
-		suite.Equal("E-5", payGrade.Grade)
+		suite.Equal("E_5", payGrade.Grade)
 		suite.Equal("Enlisted Grade E-5", *payGrade.GradeDescription)
 
 		pgCount, err := suite.DB().Count(models.PayGrade{})
@@ -231,7 +245,7 @@ func (suite *FactorySuite) TestBuildPayGrade() {
 
 func (suite *FactorySuite) TestBuildHHGAllowance() {
 	suite.Run("Successful creation of HHGAllowance with default values", func() {
-		// Default allowance and grade of E-5
+		// Default allowance and grade of E_5
 		hhgAllowance := BuildHHGAllowance(suite.DB(), nil, nil)
 		suite.NotNil(hhgAllowance.PayGradeID)
 		suite.NotEmpty(hhgAllowance.PayGrade)
@@ -255,7 +269,7 @@ func (suite *FactorySuite) TestBuildHHGAllowance() {
 			nil,
 		)
 
-		// E-5 default allowances
+		// E_5 default allowances
 		suite.Equal(8000, hhgAllowance.TotalWeightSelf)
 		suite.Equal(12000, hhgAllowance.TotalWeightSelfPlusDependents)
 		suite.Equal(3000, hhgAllowance.ProGearWeight)
