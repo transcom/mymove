@@ -310,6 +310,15 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     // set order type to value that disables and defaults "has dependents"
     await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.STUDENT_TRAVEL);
 
+    const hasDependentsYesStudent = screen.getByLabelText('Yes');
+    const hasDependentsNoStudent = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesStudent).toBeChecked();
+      expect(hasDependentsYesStudent).toBeDisabled();
+      expect(hasDependentsNoStudent).toBeDisabled();
+    });
+
     // set order type to value the re-enables "has dependents"
     await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.LOCAL_MOVE);
 
@@ -347,6 +356,15 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
 
     // set order type to value that disables and defaults "has dependents"
     await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    const hasDependentsYesEarly = screen.getByLabelText('Yes');
+    const hasDependentsNoEarly = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesEarly).toBeChecked();
+      expect(hasDependentsYesEarly).toBeDisabled();
+      expect(hasDependentsNoEarly).toBeDisabled();
+    });
 
     // set order type to value the re-enables "has dependents"
     await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.LOCAL_MOVE);
