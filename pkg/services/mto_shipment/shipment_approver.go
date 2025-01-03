@@ -78,7 +78,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 	}
 
 	// create international shipment service items
-	if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.MarketCode == models.MarketCodeInternational {
+	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage) && shipment.MarketCode == models.MarketCodeInternational {
 		err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
 		if err != nil {
 			return shipment, err
@@ -181,7 +181,7 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 }
 
 func (f *shipmentApprover) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
-	reServiceCodes := reServiceCodesForShipment(appCtx, *shipment)
+	reServiceCodes := reServiceCodesForShipment(*shipment)
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
 		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
