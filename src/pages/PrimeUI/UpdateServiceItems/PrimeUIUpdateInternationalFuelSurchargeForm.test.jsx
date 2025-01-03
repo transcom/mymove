@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import PrimeUIUpdateInternationalFuelSurchargeForm from './PrimeUIUpdateInternationalFuelSurchargeForm';
@@ -88,6 +88,21 @@ describe('PrimeUIUpdateInternationalFuelSurchargeForm', () => {
     await userEvent.click(saveButton);
 
     expect(onUpdateServiceItemMock).toHaveBeenCalled();
+  });
+
+  it('port code value is set to uppercase when user types in a value', async () => {
+    renderWithProviders(
+      <PrimeUIUpdateInternationalFuelSurchargeForm
+        moveTaskOrder={moveTaskOrder}
+        mtoServiceItemId={mtoServiceItemID}
+        onUpdateServiceItem={onUpdateServiceItemMock}
+      />,
+    );
+    const portCodeInput = screen.getByLabelText(/Port Code/);
+    expect(portCodeInput).toHaveValue('SEA');
+    fireEvent.change(portCodeInput, { target: { value: 'pdx' } });
+
+    expect(portCodeInput).toHaveValue('PDX');
   });
 
   it('does not fire off onUpdateServiceItemMock function when save button is clicked and port code is empty', async () => {

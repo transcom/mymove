@@ -120,7 +120,7 @@ const PrimeUIUpdateInternationalFuelSurchargeForm = ({ onUpdateServiceItem, move
                   labelHint="Required"
                   maxLength="4"
                   isDisabled={serviceItem.status !== SERVICE_ITEM_STATUSES.APPROVED}
-                  onBlur={(e) => {
+                  onChange={(e) => {
                     setFieldValue('portCode', e.target.value.toUpperCase());
                   }}
                 />
