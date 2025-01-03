@@ -157,9 +157,6 @@ type MTOShipment struct {
 	// poe location
 	PoeLocation *Port `json:"poeLocation,omitempty"`
 
-	// port
-	Port *Port `json:"port,omitempty"`
-
 	// ppm shipment
 	PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
 
@@ -332,10 +329,6 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePoeLocation(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePort(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -757,25 +750,6 @@ func (m *MTOShipment) validatePoeLocation(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOShipment) validatePort(formats strfmt.Registry) error {
-	if swag.IsZero(m.Port) { // not required
-		return nil
-	}
-
-	if m.Port != nil {
-		if err := m.Port.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("port")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("port")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *MTOShipment) validatePpmShipment(formats strfmt.Registry) error {
 	if swag.IsZero(m.PpmShipment) { // not required
 		return nil
@@ -1137,10 +1111,6 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidatePort(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1400,27 +1370,6 @@ func (m *MTOShipment) contextValidatePoeLocation(ctx context.Context, formats st
 				return ve.ValidateName("poeLocation")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("poeLocation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MTOShipment) contextValidatePort(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.Port != nil {
-
-		if swag.IsZero(m.Port) { // not required
-			return nil
-		}
-
-		if err := m.Port.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("port")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("port")
 			}
 			return err
 		}
