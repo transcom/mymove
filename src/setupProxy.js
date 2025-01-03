@@ -11,7 +11,7 @@ module.exports = (app) => {
   app.use('/testharness', createProxyMiddleware({ target: 'http://milmovelocal:8080/testharness' }));
   app.use('/storage', createProxyMiddleware({ target: 'http://milmovelocal:8080/storage' }));
   app.use('/devlocal-auth', createProxyMiddleware({ target: 'http://milmovelocal:8080/devlocal-auth' }));
-  app.use('/auth', createProxyMiddleware({ target: 'http://milmovelocal:8080/auth' }));
+  app.use('/auth/**', createProxyMiddleware({ target: 'http://milmovelocal:8080/auth/**' }));
   app.use('/logout', createProxyMiddleware({ target: 'http://milmovelocal:8080/logout' }));
   app.use('/downloads', createProxyMiddleware({ target: 'http://milmovelocal:8080/downloads' }));
   app.use('/debug/**', createProxyMiddleware({ target: 'http://milmovelocal:8080/debug/**' }));
