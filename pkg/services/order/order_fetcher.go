@@ -193,7 +193,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
 			query.LeftJoin("mto_service_items", "mto_shipments.id = mto_service_items.mto_shipment_id").
 				LeftJoin("re_services", "mto_service_items.re_service_id = re_services.id").
-				LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id AND shipment_address_updates.new_address_id != mto_shipments.destination_address_id")
+				LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id AND shipment_address_updates.new_address_id != mto_shipments.destination_address_id").
+				LeftJoin("sit_extensions", "mto_shipments.id = sit_extensions.mto_shipment_id")
 		}
 
 		if params.NeedsPPMCloseout != nil {
@@ -997,32 +998,24 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 func tooDestinationOnlyRequestsFilter(role roles.RoleType, locator *string) QueryOption {
 	return func(query *pop.Query) {
 		if role == roles.RoleTypeTOO {
-			if locator != nil {
-				query.Where(`
+			baseQuery := `
 			(
-				moves.locator = ?
-			)
-			AND
-			(
-				(
-					(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DODSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT', 'IOPSIT', 'ICRT', 'IOSFSC')))
-				)
-				OR
-				(
-					((moves.excess_weight_qualified_at IS NOT NULL AND moves.excess_weight_acknowledged_at IS NULL) AND moves.status = 'APPROVALS REQUESTED')
-				)
-			)
-			`, strings.ToUpper(*locator))
-			} else {
-				query.Where(`
-			(
-				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DODSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT', 'IOPSIT', 'ICRT', 'IOSFSC')))
+				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DOPSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT', 'IOPSIT', 'ICRT', 'IOSFSC')))
 			)
 			OR
 			(
 				((moves.excess_weight_qualified_at IS NOT NULL AND moves.excess_weight_acknowledged_at IS NULL) AND moves.status = 'APPROVALS REQUESTED')
 			)
-			`)
+			OR
+			(
+				((sit_extensions.mto_shipment_id IS NOT NULL) AND sit_extensions.status = 'PENDING')
+			)
+			`
+			if locator != nil {
+				query.Where(`
+			(moves.locator = ?) AND ( `+baseQuery+`)`, strings.ToUpper(*locator))
+			} else {
+				query.Where(baseQuery)
 			}
 		}
 	}

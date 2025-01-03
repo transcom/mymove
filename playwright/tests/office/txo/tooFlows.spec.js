@@ -807,17 +807,10 @@ test.describe('TOO user', () => {
       await page.getByRole('button', { name: 'Select task_ordering_officer' }).click();
     });
     test('weight-based multiplier prioritizes billed weight', async ({ page }) => {
-      await page.getByRole('row', { name: 'Select...' }).getByTestId('locator').getByTestId('TextBoxFilter').click();
-      await page
-        .getByRole('row', { name: 'Select...' })
-        .getByTestId('locator')
-        .getByTestId('TextBoxFilter')
-        .fill(moveLoc);
-      await page
-        .getByRole('row', { name: 'Select...' })
-        .getByTestId('locator')
-        .getByTestId('TextBoxFilter')
-        .press('Enter');
+      await page.getByRole('link', { name: 'Search' }).click();
+      await page.getByTestId('searchText').click();
+      await page.getByTestId('searchText').fill(moveLoc);
+      await page.getByTestId('searchText').press('Enter');
       await page.getByTestId('locator-0').click();
       await page.getByRole('link', { name: 'Payment requests' }).click();
       await page.getByRole('button', { name: 'Review shipment weights' }).click();
