@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
+	"github.com/transcom/mymove/pkg/pricing"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -490,12 +491,51 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		}
 
 		var shipmentDetails models.MTOShipment
-		err = appCtx.DB().EagerPreload("MoveTaskOrder", "MTOServiceItems.ReService").Find(&shipmentDetails, shipmentID)
+		err = appCtx.DB().EagerPreload("MoveTaskOrder", "MTOServiceItems.ReService", "MTOServiceItems.SITDestinationOriginalAddress", "MTOServiceItems.SITDestinationFinalAddress").Find(&shipmentDetails, shipmentID)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment")
 			}
 			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
+
+		shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipmentDetails)
+
+		for i, serviceItem := range shipmentDetails.MTOServiceItems {
+			if shipment.PrimeEstimatedWeight != nil || shipment.PrimeActualWeight != nil {
+				var updatedServiceItem *models.MTOServiceItem
+				if serviceItem.ReService.Code == models.ReServiceCodeDDP || serviceItem.ReService.Code == models.ReServiceCodeDUPK {
+					price, err := pricing.FetchServiceItemPrice(appCtx, &serviceItem, shipment, f.planner)
+					if err != nil {
+						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+					}
+
+					serviceItem.PricingEstimate = &price
+					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItem(appCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt), mtoserviceitem.UpdateMTOServiceItemBasicValidator)
+					if err != nil {
+						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+					}
+				}
+
+				if !shipmentHasApprovedDestSIT {
+					if serviceItem.ReService.Code == models.ReServiceCodeDLH || serviceItem.ReService.Code == models.ReServiceCodeFSC {
+						price, err := pricing.FetchServiceItemPrice(appCtx, &serviceItem, shipment, f.planner)
+						if err != nil {
+							return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+						}
+
+						serviceItem.PricingEstimate = &price
+						updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItem(appCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt), mtoserviceitem.UpdateMTOServiceItemBasicValidator)
+						if err != nil {
+							return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+						}
+					}
+				}
+
+				if updatedServiceItem != nil {
+					shipmentDetails.MTOServiceItems[i] = *updatedServiceItem
+				}
+			}
 		}
 
 		// If the pricing type has changed then we automatically reject the DLH or DSH service item on the shipment since it is now inaccurate
@@ -512,8 +552,6 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 					if err != nil {
 						return nil, apperror.NewQueryError("ServiceItemPaymentRequests", err, "")
 					}
-
-					shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipmentDetails)
 
 					// do NOT regenerate any service items if the following conditions exist:
 					// payment has already been approved for DLH or DSH service item

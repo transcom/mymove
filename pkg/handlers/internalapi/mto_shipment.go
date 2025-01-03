@@ -169,7 +169,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						h.GetTraceIDFromRequest(params.HTTPRequest))), invalidShipmentStatusErr
 			}
 
-			updatedMTOShipment, err := h.shipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "internal")
+			updatedMTOShipment, err := h.shipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "internal", nil)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))

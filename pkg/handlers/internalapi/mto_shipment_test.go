@@ -1484,6 +1484,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.MTOShipment"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
+			mock.Anything,
 		).Return(nil, err)
 
 		subtestData := getDefaultMTOShipmentAndParams(&mockUpdater)

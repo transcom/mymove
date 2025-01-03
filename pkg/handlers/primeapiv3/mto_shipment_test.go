@@ -108,7 +108,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
+
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 
 	setupTestData := func(boatFeatureFlag bool, ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
@@ -548,6 +550,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -829,6 +832,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -1548,6 +1552,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		now := time.Now()
@@ -1623,6 +1628,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{}, nil)
@@ -1671,6 +1677,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			nil,
 		}
 
 		now := time.Now()
