@@ -2159,6 +2159,7 @@ definitions:
         * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
         * ICRT, IUCRT - MTOServiceItemInternationalCrating
+        * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge
 
       The documentation will then update with the supported fields.
     type: string
@@ -2170,6 +2171,7 @@ definitions:
       - MTOServiceItemInternationalShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
+      - MTOSerivceItemInternationalFuelSurcharge
   ServiceRequestDocument:
     properties:
       uploads:

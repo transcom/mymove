@@ -1533,7 +1533,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -1542,7 +1542,8 @@ func init() {
         "MTOServiceItemShuttle",
         "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
-        "MTOServiceItemInternationalCrating"
+        "MTOServiceItemInternationalCrating",
+        "MTOSerivceItemInternationalFuelSurcharge"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -5239,7 +5240,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -5248,7 +5249,8 @@ func init() {
         "MTOServiceItemShuttle",
         "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
-        "MTOServiceItemInternationalCrating"
+        "MTOServiceItemInternationalCrating",
+        "MTOSerivceItemInternationalFuelSurcharge"
       ]
     },
     "MTOServiceItemOriginSIT": {

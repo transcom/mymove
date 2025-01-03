@@ -23,6 +23,7 @@ import (
 //   - IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle
 //   - DCRT, DUCRT - MTOServiceItemDomesticCrating
 //   - ICRT, IUCRT - MTOServiceItemInternationalCrating
+//   - PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge
 //
 // The documentation will then update with the supported fields.
 //
@@ -60,6 +61,9 @@ const (
 
 	// MTOServiceItemModelTypeMTOServiceItemInternationalCrating captures enum value "MTOServiceItemInternationalCrating"
 	MTOServiceItemModelTypeMTOServiceItemInternationalCrating MTOServiceItemModelType = "MTOServiceItemInternationalCrating"
+
+	// MTOServiceItemModelTypeMTOSerivceItemInternationalFuelSurcharge captures enum value "MTOSerivceItemInternationalFuelSurcharge"
+	MTOServiceItemModelTypeMTOSerivceItemInternationalFuelSurcharge MTOServiceItemModelType = "MTOSerivceItemInternationalFuelSurcharge"
 )
 
 // for schema
@@ -67,7 +71,7 @@ var mTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []MTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemOriginSIT","MTOServiceItemDestSIT","MTOServiceItemShuttle","MTOServiceItemInternationalShuttle","MTOServiceItemDomesticCrating","MTOServiceItemInternationalCrating"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemOriginSIT","MTOServiceItemDestSIT","MTOServiceItemShuttle","MTOServiceItemInternationalShuttle","MTOServiceItemDomesticCrating","MTOServiceItemInternationalCrating","MTOSerivceItemInternationalFuelSurcharge"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

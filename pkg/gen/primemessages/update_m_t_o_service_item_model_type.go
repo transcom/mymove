@@ -25,6 +25,8 @@ import (
 //   - DDSFSC - UpdateMTOServiceItemSIT
 //   - DDSHUT - UpdateMTOServiceItemShuttle
 //   - DOSHUT - UpdateMTOServiceItemShuttle
+//   - PODFSC - UpdateMTOServiceItemInternationalPortFSC
+//   - POEFSC - UpdateMTOServiceItemInternationalPortFSC
 //   - IDSHUT - UpdateMTOServiceItemInternationalShuttle
 //   - IOSHUT - UpdateMTOServiceItemInternationalShuttle
 //   - PODFSC - UpdateMTOServiceItemInternationalPortFSC
@@ -52,6 +54,9 @@ const (
 	// UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle captures enum value "UpdateMTOServiceItemShuttle"
 	UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle UpdateMTOServiceItemModelType = "UpdateMTOServiceItemShuttle"
 
+	// UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalPortFSC captures enum value "UpdateMTOServiceItemInternationalPortFSC"
+	UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalPortFSC UpdateMTOServiceItemModelType = "UpdateMTOServiceItemInternationalPortFSC"
+
 	// UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle captures enum value "UpdateMTOServiceItemInternationalShuttle"
 	UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle UpdateMTOServiceItemModelType = "UpdateMTOServiceItemInternationalShuttle"
 )
@@ -61,7 +66,7 @@ var updateMTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []UpdateMTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["UpdateMTOServiceItemSIT","UpdateMTOServiceItemShuttle","UpdateMTOServiceItemInternationalShuttle"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["UpdateMTOServiceItemSIT","UpdateMTOServiceItemShuttle","UpdateMTOServiceItemInternationalPortFSC","UpdateMTOServiceItemInternationalShuttle"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
