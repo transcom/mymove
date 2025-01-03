@@ -215,6 +215,208 @@ func (suite *ModelSuite) Test_FetchDutyLocationWithTransportationOffice() {
 	})
 }
 
+func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
+	setupDataForOconusDutyLocation := func(postalCode string) (models.ReRateArea, models.OconusRateArea, models.UsPostRegionCity, models.DutyLocation) {
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), postalCode)
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &usprc.ID,
+				},
+			},
+		}, nil)
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DutyLocationAddress,
+			},
+		}, nil)
+
+		contract := models.ReContract{
+			Code: "Test_create_oconus_order_code",
+			Name: "Test_create_oconus_order",
+		}
+		verrs, err := suite.AppContextForTest().DB().ValidateAndSave(&contract)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(verrs.Error())
+		}
+
+		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+		rateArea := models.ReRateArea{
+			ID:         uuid.Must(uuid.NewV4()),
+			ContractID: contract.ID,
+			IsOconus:   true,
+			Code:       rateAreaCode,
+			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+			Contract:   contract,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&rateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NotNil(us_country)
+		suite.Nil(err)
+
+		oconusRateArea := models.OconusRateArea{
+			ID:                 uuid.Must(uuid.NewV4()),
+			RateAreaId:         rateArea.ID,
+			CountryId:          us_country.ID,
+			UsPostRegionCityId: usprc.ID,
+			Active:             true,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		return rateArea, oconusRateArea, *usprc, originDutyLocation
+	}
+
+	suite.Run("fetches duty location GBLOC for AK address, Zone II AirForce", func() {
+		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99707")
+
+		airForce := models.AffiliationAIRFORCE
+		defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &airForce,
+				},
+			},
+		}, nil)
+
+		jppsoRegion := models.JppsoRegions{
+			Name: "JPPSO Elmendorf-Richardson",
+			Code: "MBFL",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := models.GblocAors{
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
+		}
+		suite.MustSave(&gblocAors)
+
+		gbloc, err := models.FetchOconusDutyLocationGbloc(suite.DB(), originDutyLocation, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(gbloc.Gbloc, "MBFL")
+	})
+
+	suite.Run("fetches duty location GBLOC for AK address, Zone II Army", func() {
+		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99707")
+
+		army := models.AffiliationARMY
+		defaultDepartmentIndicator := "ARMY"
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		jppsoRegion := models.JppsoRegions{
+			Name: "JPPSO-Northwest",
+			Code: "JEAT",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := models.GblocAors{
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
+		}
+		suite.MustSave(&gblocAors)
+
+		gbloc, err := models.FetchOconusDutyLocationGbloc(suite.DB(), originDutyLocation, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(gbloc.Gbloc, "JEAT")
+	})
+
+	suite.Run("fetches duty location GBLOC for AK Cordova address, Zone IV", func() {
+		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99574")
+
+		army := models.AffiliationARMY
+		defaultDepartmentIndicator := "ARMY"
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		jppsoRegion := models.JppsoRegions{
+			Name: "USCG Base Kodiak",
+			Code: "MAPS",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := models.GblocAors{
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
+		}
+		suite.MustSave(&gblocAors)
+
+		gbloc, err := models.FetchOconusDutyLocationGbloc(suite.DB(), originDutyLocation, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(gbloc.Gbloc, "MAPS")
+	})
+
+	suite.Run("fetches duty location GBLOC for AK NOT Cordova address, Zone IV", func() {
+		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99803")
+
+		army := models.AffiliationARMY
+		defaultDepartmentIndicator := "ARMY"
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		jppsoRegion := models.JppsoRegions{
+			Name: "USCG Base Ketchikan",
+			Code: "MAPK",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := models.GblocAors{
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
+		}
+		suite.MustSave(&gblocAors)
+
+		gbloc, err := models.FetchOconusDutyLocationGbloc(suite.DB(), originDutyLocation, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(gbloc.Gbloc, "MAPK")
+	})
+}
+
 func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 	createContract := func(appCtx appcontext.AppContext, contractCode string, contractName string) (*models.ReContract, error) {
 		// See if contract code already exists.
@@ -573,6 +775,151 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), ts.query, []string{})
 			suite.NoError(err)
 			suite.Require().Equal(0, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+		}
+	})
+}
+
+func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Po_Box_Zip() {
+	setupDataForDutyLocationSearch := func(postalCode string, dutyLocationName string) models.DutyLocation {
+		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NotNil(us_country)
+		suite.Nil(err)
+
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), postalCode)
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
+		address := models.Address{
+			StreetAddress1:     "n/a",
+			City:               "SomeCity",
+			State:              "VA",
+			PostalCode:         postalCode,
+			County:             models.StringPointer("SomeCounty"),
+			IsOconus:           models.BoolPointer(true),
+			UsPostRegionCityID: &usprc.ID,
+			CountryId:          models.UUIDPointer(us_country.ID),
+		}
+		suite.MustSave(&address)
+
+		origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name:                       dutyLocationName,
+					AddressID:                  address.ID,
+					ProvidesServicesCounseling: true,
+				},
+			},
+		}, nil)
+		origDutyLocation.Affiliation = nil
+		suite.MustSave(&origDutyLocation)
+
+		found_duty_location, _ := models.FetchDutyLocation(suite.DB(), origDutyLocation.ID)
+
+		return found_duty_location
+	}
+
+	const poBoxPostalCode = "92137"
+	const nonPoBoxPostalCode = "23690"
+	const nonPoBoxPostalCode2 = "88101"
+	testDutyLocationName := "test case"
+	testDutyLocationName2 := "test case 2"
+	testDutyLocationName3 := "test case 3"
+
+	suite.Run("test search by duty location name - 1 with po box and 2 without po box", func() {
+
+		// duty location with a po box
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+
+		// duty location without a po box
+		nonPoBoxDutyLocation := setupDataForDutyLocationSearch(nonPoBoxPostalCode, testDutyLocationName2)
+		nonPoBoxDutyLocation2 := setupDataForDutyLocationSearch(nonPoBoxPostalCode2, testDutyLocationName3)
+
+		tests := []struct {
+			query         string
+			dutyLocations []string
+		}{
+			{query: "search duty locations by name test", dutyLocations: []string{testDutyLocationName}},
+		}
+
+		expectedDutyLocationNames := []string{nonPoBoxDutyLocation.Name, nonPoBoxDutyLocation2.Name}
+
+		for _, ts := range tests {
+			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), testDutyLocationName, []string{})
+			suite.NoError(err)
+			suite.Require().Equal(2, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+			for _, o := range dutyLocations {
+				suite.True(slices.Contains(expectedDutyLocationNames, o.Name))
+			}
+		}
+	})
+
+	suite.Run("test search by duty location name - only po box", func() {
+
+		// duty location with a po box
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+
+		tests := []struct {
+			query         string
+			dutyLocations []string
+		}{
+			{query: "search duty locations by name test", dutyLocations: []string{testDutyLocationName}},
+		}
+
+		for _, ts := range tests {
+			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), testDutyLocationName, []string{})
+			suite.NoError(err)
+			suite.Require().Equal(0, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+		}
+	})
+
+	suite.Run("test search by zip - a po box zip", func() {
+
+		// duty location with a po box
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+
+		// duty location without a po box
+		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode, testDutyLocationName2)
+		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode2, testDutyLocationName3)
+
+		tests := []struct {
+			query         string
+			dutyLocations []string
+		}{
+			{query: "search duty locations by name test", dutyLocations: []string{testDutyLocationName}},
+		}
+
+		for _, ts := range tests {
+			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), poBoxPostalCode, []string{})
+			suite.NoError(err)
+			suite.Require().Equal(0, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+		}
+	})
+
+	suite.Run("test search by zip - not a po box zip", func() {
+
+		// duty location with a po box
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+
+		// duty location without a po box
+		nonPoBoxDutyLocation := setupDataForDutyLocationSearch(nonPoBoxPostalCode, testDutyLocationName2)
+		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode2, testDutyLocationName3)
+
+		tests := []struct {
+			query         string
+			dutyLocations []string
+		}{
+			{query: "search duty locations by name test", dutyLocations: []string{testDutyLocationName}},
+		}
+
+		expectedDutyLocationNames := []string{nonPoBoxDutyLocation.Name}
+
+		for _, ts := range tests {
+			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), nonPoBoxPostalCode, []string{})
+			suite.NoError(err)
+			suite.Require().Equal(1, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+			for _, o := range dutyLocations {
+				suite.True(slices.Contains(expectedDutyLocationNames, o.Name))
+			}
 		}
 	})
 }
