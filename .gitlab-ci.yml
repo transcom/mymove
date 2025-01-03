@@ -408,6 +408,7 @@ pre_test:
     - check_tls_certificate_prd
   before_script: *setup_milmove_env
   script:
+    - export GODEBUG=asyncpreemptoff=1
     - echo "Save Baseline Spectral Lint"
     - |
       [ -d ~/transcom/mymove/spectral ] && cp -r ~/transcom/mymove/spectral /tmp/spectral_baseline || echo "Skipping saving baseline"
