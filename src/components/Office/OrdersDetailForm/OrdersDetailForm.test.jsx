@@ -196,7 +196,7 @@ describe('OrdersDetailForm', () => {
       showNTSTac: false,
       showNTSSac: false,
       showOrdersAcknowledgement: false,
-      ordersType: 'Safety',
+      ordersType: 'SAFETY',
     });
 
     // correct labels are visible

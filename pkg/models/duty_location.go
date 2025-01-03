@@ -119,13 +119,20 @@ func FindDutyLocationsExcludingStates(tx *pop.Connection, search string, exclusi
 	        -- search against duty_locations table
 			(
 				select
-					id as duty_location_id,
-					name,
-					similarity(name, $1) as sim
+					dl.id as duty_location_id,
+					dl.name,
+					similarity(dl.name, $1) as sim
 				from
-					duty_locations
+					duty_locations as dl
+					inner join addresses a on dl.address_id = a.id
 				where
-					name % $1
+					dl.name % $1
+					and not exists (
+            			select 1
+            			from re_us_post_regions p
+            			where p.uspr_zip_id = a.postal_code
+             				and p.is_po_box = true
+        			)
 				order by sim desc limit 5
 			)
 			-- exclude OCONUS locations that are not active
@@ -153,12 +160,20 @@ func FindDutyLocationsExcludingStates(tx *pop.Connection, search string, exclusi
 			(
 				select
 					duty_location_id,
-					name,
-					similarity(name, $1) as sim
+					dn.name,
+					similarity(dn.name, $1) as sim
 				from
-					duty_location_names
+					duty_location_names as dn
+					inner join duty_locations dl on dn.duty_location_id = dl.id
+        			inner join addresses a on dl.address_id = a.id
 				where
-					name % $1
+					dn.name % $1
+					and not exists (
+            			select 1
+            			from re_us_post_regions p
+            			where p.uspr_zip_id = a.postal_code
+             				and p.is_po_box = true
+        			)
 				order by sim desc limit 5
 			)
 			-- exclude OCONUS locations that are not active
@@ -198,6 +213,12 @@ func FindDutyLocationsExcludingStates(tx *pop.Connection, search string, exclusi
 					and dl.affiliation is null
 				where
 					a2.postal_code ILIKE $1
+					and not exists (
+        				select 1
+        				from re_us_post_regions p
+        				where p.uspr_zip_id = a2.postal_code
+          					and p.is_po_box = true
+    				)
 				limit 5
 			)
 			-- exclude OCONUS locations that are not active
@@ -289,4 +310,36 @@ func FetchDutyLocationsByPostalCode(tx *pop.Connection, postalCode string) (Duty
 	}
 
 	return locations, nil
+}
+
+type oconusGbloc struct {
+	Gbloc string `db:"gbloc" rw:"r"`
+}
+
+func FetchOconusDutyLocationGbloc(appCtx *pop.Connection, dutyLocation DutyLocation, serviceMember ServiceMember) (*oconusGbloc, error) {
+	oconusGbloc := oconusGbloc{}
+
+	sqlQuery := `
+    	SELECT j.code gbloc
+    	FROM addresses a,
+    	re_oconus_rate_areas o,
+    	jppso_regions j,
+    	gbloc_aors g
+    	WHERE a.us_post_region_cities_id = o.us_post_region_cities_id
+    	and o.id = g.oconus_rate_area_id
+    	and j.id = g.jppso_regions_id
+		and a.id = $1 `
+
+	if serviceMember.Affiliation.String() == "AIR_FORCE" || serviceMember.Affiliation.String() == "SPACE_FORCE" {
+		sqlQuery += `
+		and g.department_indicator = 'AIR_AND_SPACE_FORCE' `
+	}
+
+	err := appCtx.Q().RawQuery(sqlQuery, dutyLocation.Address.ID).First(&oconusGbloc)
+	if err != nil {
+		return nil, err
+	}
+
+	return &oconusGbloc, nil
+
 }
