@@ -1,7 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -24,7 +23,7 @@ func (suite *ServiceParamValueLookupsSuite) TestMarketDestinationLookup() {
 
 		value, err := conusLookup.lookup(nil, nil)
 		suite.FatalNoError(err)
-		suite.Equal(value, handlers.FmtString(models.MarketConus.String()))
+		suite.Equal(models.MarketConus.String(), value)
 	})
 
 	suite.Run("test oconus market destination lookup", func() {
@@ -45,6 +44,6 @@ func (suite *ServiceParamValueLookupsSuite) TestMarketDestinationLookup() {
 
 		value, err := oconusLookup.lookup(nil, nil)
 		suite.FatalNoError(err)
-		suite.Equal(value, handlers.FmtString(models.MarketOconus.String()))
+		suite.Equal(models.MarketOconus.String(), value)
 	})
 }
