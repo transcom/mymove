@@ -9992,9 +9992,6 @@ func init() {
         "poeLocation": {
           "$ref": "#/definitions/Port"
         },
-        "port": {
-          "$ref": "#/definitions/Port"
-        },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
@@ -27199,9 +27196,6 @@ func init() {
           "$ref": "#/definitions/Port"
         },
         "poeLocation": {
-          "$ref": "#/definitions/Port"
-        },
-        "port": {
           "$ref": "#/definitions/Port"
         },
         "ppmShipment": {
