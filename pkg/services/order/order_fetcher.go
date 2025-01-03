@@ -792,7 +792,7 @@ func tooDestinationOnlyRequestsFilter(role roles.RoleType, locator *string) Quer
 		if role == roles.RoleTypeTOO {
 			baseQuery := `
 			(
-				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DODSIT', 'DOPSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT', 'IOPSIT', 'ICRT', 'IOSFSC')))
+				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DOPSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT', 'IOPSIT', 'ICRT', 'IOSFSC')))
 			)
 			OR
 			(
