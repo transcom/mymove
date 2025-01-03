@@ -21,6 +21,7 @@ func (suite *ModelSuite) TestPort() {
 
 		suite.Equal(port.TableName(), "ports")
 		suite.Equal(port.PortName, "PortName")
+		suite.Equal(port.PortType.String(), "Both")
 	})
 
 }
