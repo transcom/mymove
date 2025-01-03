@@ -363,9 +363,9 @@ describe('shipmentDisplay utils', () => {
       expect(formattedPortInfo).toEqual('PDX - PORTLAND INTL\nPORTLAND, OREGON 97220');
     });
 
-    it('returns an empty string when no port is provided', () => {
+    it('returns a dash when no port is provided', () => {
       const formattedPortInfo = formatPortInfo(null);
-      expect(formattedPortInfo).toEqual('');
+      expect(formattedPortInfo).toEqual('-');
     });
   });
 });
