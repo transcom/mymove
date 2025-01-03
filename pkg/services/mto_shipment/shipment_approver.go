@@ -77,14 +77,55 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		}
 	}
 
-	// create international shipment service items
-	if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.MarketCode == models.MarketCodeInternational {
-		err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
-		if err != nil {
-			return shipment, err
-		}
-	}
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		// create international shipment service items before approving
+		// we use a database proc to create the basic auto-approved service items
+		if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.MarketCode == models.MarketCodeInternational {
+			err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
+			if err != nil {
+				return err
+			}
+
+			// Update the service item pricing if we have the estimated weight
+			if shipment.PrimeEstimatedWeight != nil {
+				portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), shipment.ID)
+				if err != nil {
+					return err
+				}
+				// if we don't have the port data, then we won't worry about pricing
+				if portZip != nil && portType != nil {
+					var pickupZip string
+					var destZip string
+					// if the port type is POEFSC this means the shipment is CONUS -> OCONUS (pickup -> port)
+					// if the port type is PODFSC this means the shipment is OCONUS -> CONUS (port -> destination)
+					if *portType == models.ReServiceCodePOEFSC.String() {
+						pickupZip = shipment.PickupAddress.PostalCode
+						destZip = *portZip
+					} else if *portType == models.ReServiceCodePODFSC.String() {
+						pickupZip = *portZip
+						destZip = shipment.DestinationAddress.PostalCode
+					}
+					// we need to get the mileage from DTOD first, the db proc will consume that
+					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+					if err != nil {
+						return err
+					}
+
+					// update the service item pricing if relevant fields have changed
+					err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), shipment, mileage)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		} else {
+			// after approving shipment, shipment level service items must be created (this is for domestic shipments only)
+			err = f.createShipmentServiceItems(txnAppCtx, shipment)
+			if err != nil {
+				return err
+			}
+		}
+
 		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
@@ -95,11 +136,6 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 			return err
 		}
 
-		// after approving shipment, shipment level service items must be created
-		err = f.createShipmentServiceItems(txnAppCtx, shipment)
-		if err != nil {
-			return err
-		}
 		return nil
 	})
 
@@ -169,7 +205,7 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 			deliveryLocation = shipment.DestinationAddress
 			weight = shipment.PrimeEstimatedWeight.Int()
 		}
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight)
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight, shipment.MarketCode)
 		if calcErr != nil {
 			return calcErr
 		}
