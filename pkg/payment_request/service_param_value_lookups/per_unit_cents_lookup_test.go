@@ -129,4 +129,35 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 		suite.Error(err)
 		suite.Equal(perUnitCents, "")
 	})
+
+	suite.Run("failure - no requested pickup date on shipment", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIHPK,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: nil,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+
+		mtoServiceItem.MTOShipment.RequestedPickupDate = nil
+		suite.MustSave(&mtoServiceItem.MTOShipment)
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.Error(err)
+		suite.Equal(perUnitCents, "")
+	})
 }

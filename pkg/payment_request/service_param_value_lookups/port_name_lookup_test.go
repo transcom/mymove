@@ -64,7 +64,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPortNameLookup() {
 
 		portName, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(portName, "SEATTLE TACOMA INTL")
+		suite.Equal(portName, port.Port.PortName)
 	})
 
 	suite.Run("success - returns PortName value for PODFSC", func() {
@@ -82,6 +82,33 @@ func (suite *ServiceParamValueLookupsSuite) TestPortNameLookup() {
 
 		portName, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(portName, "PORTLAND INTL")
+		suite.Equal(portName, port.Port.PortName)
+	})
+
+	suite.Run("failure - no port value on service item", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					POELocationID: nil,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.Error(err)
 	})
 }

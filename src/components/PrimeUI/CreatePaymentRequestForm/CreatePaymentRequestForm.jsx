@@ -18,6 +18,7 @@ import ServiceItem from 'components/PrimeUI/ServiceItem/ServiceItem';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import { DatePickerInput } from 'components/form/fields';
 import TextField from 'components/form/fields/TextField/TextField';
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 
 const CreatePaymentRequestForm = ({
   initialValues,
@@ -128,27 +129,27 @@ const CreatePaymentRequestForm = ({
                               />
                             </>
                           )}
-                          {(mtoServiceItem.reServiceCode === 'DLH' ||
-                            mtoServiceItem.reServiceCode === 'DSH' ||
-                            mtoServiceItem.reServiceCode === 'FSC' ||
-                            mtoServiceItem.reServiceCode === 'DUPK' ||
-                            mtoServiceItem.reServiceCode === 'DNPK' ||
-                            mtoServiceItem.reServiceCode === 'DOFSIT' ||
-                            mtoServiceItem.reServiceCode === 'DOPSIT' ||
-                            mtoServiceItem.reServiceCode === 'DOSHUT' ||
-                            mtoServiceItem.reServiceCode === 'DDFSIT' ||
-                            mtoServiceItem.reServiceCode === 'DDDSIT' ||
-                            mtoServiceItem.reServiceCode === 'DOP' ||
-                            mtoServiceItem.reServiceCode === 'DDP' ||
-                            mtoServiceItem.reServiceCode === 'DPK' ||
-                            mtoServiceItem.reServiceCode === 'DDSFSC' ||
-                            mtoServiceItem.reServiceCode === 'DOSFSC' ||
-                            mtoServiceItem.reServiceCode === 'DDSHUT' ||
-                            mtoServiceItem.reServiceCode === 'IHPK' ||
-                            mtoServiceItem.reServiceCode === 'IHUPK' ||
-                            mtoServiceItem.reServiceCode === 'ISLH' ||
-                            mtoServiceItem.reServiceCode === 'POEFSC' ||
-                            mtoServiceItem.reServiceCode === 'PODFSC') && (
+                          {(mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DLH ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DSH ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.FSC ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DUPK ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DNPK ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DOFSIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DOSHUT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDFSIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDDSIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DOP ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDP ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DPK ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDSFSC ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DOSFSC ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDSHUT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IHPK ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IHUPK ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.ISLH ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.POEFSC ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.PODFSC) && (
                             <TextField
                               id={`${mtoServiceItem.id}-billedWeight`}
                               label="Weight Billed (if different from shipment weight)"

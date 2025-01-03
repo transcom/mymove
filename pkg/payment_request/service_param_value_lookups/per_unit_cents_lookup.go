@@ -17,6 +17,9 @@ type PerUnitCentsLookup struct {
 func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemParamKeyData) (string, error) {
 	serviceID := p.ServiceItem.ReServiceID
 	contractID := s.ContractID
+	if p.MTOShipment.RequestedPickupDate == nil {
+		return "", fmt.Errorf("requested pickup date is required for shipment with id: %s", p.MTOShipment.ID)
+	}
 
 	switch p.ServiceItem.ReService.Code {
 	case models.ReServiceCodeIHPK:
