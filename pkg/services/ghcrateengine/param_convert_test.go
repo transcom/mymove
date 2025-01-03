@@ -148,20 +148,20 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamTime() {
 func (suite *GHCRateEngineServiceSuite) Test_getParamMarket() {
 
 	params := models.PaymentServiceItemParams{
-		setupParamConvertParam(models.ServiceItemParamNameMarketDest, models.ServiceItemParamTypeString, models.MarketConus.String()),
-		setupParamConvertParam(models.ServiceItemParamNameMarketOrigin, models.ServiceItemParamTypeString, models.MarketOconus.String()),
+		setupParamConvertParam(models.ServiceItemParamNameMarketOrigin, models.ServiceItemParamTypeString, models.MarketConus.String()),
+		setupParamConvertParam(models.ServiceItemParamNameMarketDest, models.ServiceItemParamTypeString, models.MarketOconus.String()),
 	}
 
 	suite.Run("finding expected market origin", func() {
 		value, err := getParamMarket(params, models.ServiceItemParamNameMarketOrigin)
 		suite.NoError(err)
-		suite.Equal("O", value)
+		suite.Equal(models.MarketConus, value)
 	})
 
 	suite.Run("finding expected market destination", func() {
 		value, err := getParamMarket(params, models.ServiceItemParamNameMarketDest)
 		suite.NoError(err)
-		suite.Equal("C", value)
+		suite.Equal(models.MarketOconus, value)
 	})
 }
 

@@ -12,9 +12,9 @@ type MarketDestinationLookup struct {
 
 func (r MarketDestinationLookup) lookup(_ appcontext.AppContext, _ *ServiceItemParamKeyData) (string, error) {
 	international := r.Address.IsOconus
-	value := handlers.FmtString(models.MarketOconus.String())
+	value := handlers.FmtString(models.MarketConus.String())
 	if *international {
-		value = handlers.FmtString(models.MarketConus.String())
+		value = handlers.FmtString(models.MarketOconus.String())
 	}
 	return *value, nil
 }
