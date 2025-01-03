@@ -100,7 +100,7 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	SubmittedAt *strfmt.DateTime
-	/*Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
+	/*Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
 
 	  In: query
 	*/

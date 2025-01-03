@@ -27,6 +27,8 @@ const ServicesCounselingAddShipment = () => {
     shipmentType = SHIPMENT_OPTIONS.BOAT;
   } else if (shipmentType === SHIPMENT_OPTIONS_URL.MOBILE_HOME) {
     shipmentType = SHIPMENT_OPTIONS.MOBILE_HOME;
+  } else if (shipmentType === SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE) {
+    shipmentType = SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE;
   } else {
     shipmentType = SHIPMENT_OPTIONS[shipmentType];
   }

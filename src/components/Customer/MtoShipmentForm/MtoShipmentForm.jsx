@@ -45,7 +45,7 @@ import { AddressShape, SimpleAddressShape } from 'types/address';
 import { OrdersShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
-import { formatWeight } from 'utils/formatters';
+import { formatUBAllowanceWeight, formatWeight } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
 import withRouter from 'utils/routing';
 import { ORDERS_TYPE } from 'constants/orders';
@@ -208,7 +208,7 @@ class MtoShipmentForm extends Component {
         validationSchema={schema}
         onSubmit={this.submitMTOShipment}
       >
-        {({ values, isValid, isSubmitting, setValues, handleSubmit }) => {
+        {({ values, isValid, isSubmitting, setValues, handleSubmit, ...formikProps }) => {
           const {
             hasDeliveryAddress,
             hasSecondaryPickup,
@@ -316,7 +316,9 @@ class MtoShipmentForm extends Component {
                     <Alert headingLevel="h4" type="info" noIcon>
                       Remember: You can move
                       {isUB
-                        ? ` up to your UB allowance for this move`
+                        ? ` up to ${formatUBAllowanceWeight(
+                            orders?.entitlement?.ub_allowance,
+                          )} for this UB shipment. The weight of your UB is part of your authorized weight allowance`
                         : ` ${formatWeight(orders.authorizedWeight)} total`}
                       . You’ll be billed for any excess weight you move.
                     </Alert>
@@ -349,6 +351,8 @@ class MtoShipmentForm extends Component {
                             name="pickup.address"
                             legend="Pickup Address"
                             labelHint="Required"
+                            locationLookup
+                            formikProps={formikProps}
                             render={(fields) => (
                               <>
                                 <p>What address are the movers picking up from?</p>
@@ -390,7 +394,12 @@ class MtoShipmentForm extends Component {
                                   </div>
                                 </FormGroup>
                                 {hasSecondaryPickup === 'yes' && (
-                                  <AddressFields name="secondaryPickup.address" labelHint="Required" />
+                                  <AddressFields
+                                    name="secondaryPickup.address"
+                                    labelHint="Required"
+                                    locationLookup
+                                    formikProps={formikProps}
+                                  />
                                 )}
                                 {isTertiaryAddressEnabled && hasSecondaryPickup === 'yes' && (
                                   <div>
@@ -426,7 +435,12 @@ class MtoShipmentForm extends Component {
                                   hasSecondaryPickup === 'yes' && (
                                     <>
                                       <h3>Third Pickup Address</h3>
-                                      <AddressFields name="tertiaryPickup.address" labelHint="Required" />
+                                      <AddressFields
+                                        name="tertiaryPickup.address"
+                                        labelHint="Required"
+                                        locationLookup
+                                        formikProps={formikProps}
+                                      />
                                     </>
                                   )}
                               </>
@@ -500,6 +514,8 @@ class MtoShipmentForm extends Component {
                               <AddressFields
                                 name="delivery.address"
                                 labelHint="Required"
+                                locationLookup
+                                formikProps={formikProps}
                                 render={(fields) => (
                                   <>
                                     {fields}
@@ -533,7 +549,12 @@ class MtoShipmentForm extends Component {
                                       </div>
                                     </FormGroup>
                                     {hasSecondaryDelivery === 'yes' && (
-                                      <AddressFields name="secondaryDelivery.address" labelHint="Required" />
+                                      <AddressFields
+                                        name="secondaryDelivery.address"
+                                        labelHint="Required"
+                                        locationLookup
+                                        formikProps={formikProps}
+                                      />
                                     )}
                                     {isTertiaryAddressEnabled && hasSecondaryDelivery === 'yes' && (
                                       <div>
@@ -569,7 +590,12 @@ class MtoShipmentForm extends Component {
                                       hasSecondaryDelivery === 'yes' && (
                                         <>
                                           <h4>Third Delivery Address</h4>
-                                          <AddressFields name="tertiaryDelivery.address" labelHint="Required" />
+                                          <AddressFields
+                                            name="tertiaryDelivery.address"
+                                            labelHint="Required"
+                                            locationLookup
+                                            formikProps={formikProps}
+                                          />
                                         </>
                                       )}
                                   </>

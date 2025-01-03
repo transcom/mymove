@@ -17,6 +17,18 @@ import (
 // swagger:model Entitlement
 type Entitlement struct {
 
+	// Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.
+	// Example: true
+	AccompaniedTour *bool `json:"accompanied_tour,omitempty"`
+
+	// Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+	// Example: 3
+	DependentsTwelveAndOver *int64 `json:"dependents_twelve_and_over,omitempty"`
+
+	// Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.
+	// Example: 5
+	DependentsUnderTwelve *int64 `json:"dependents_under_twelve,omitempty"`
+
 	// Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade
 	//
 	// Example: 2000
@@ -26,6 +38,10 @@ type Entitlement struct {
 	//
 	// Example: 500
 	ProGearSpouse *int64 `json:"proGearSpouse,omitempty"`
+
+	// The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.
+	// Example: 3
+	UbAllowance *int64 `json:"ub_allowance,omitempty"`
 }
 
 // Validate validates this entitlement

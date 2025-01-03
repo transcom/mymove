@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { func, number, object, PropTypes } from 'prop-types';
+import { func, number, string, object, PropTypes } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Alert, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
@@ -34,7 +34,6 @@ const validationSchema = Yup.object().shape({
         ? schema.min(emptyWeight + 1, 'The full weight must be greater than the empty weight')
         : schema;
     }),
-  allowableWeight: Yup.number().required('Required').min(0, 'reimbursable weight must be at least 0'),
   trailerMeetsCriteria: Yup.string().when('ownsTrailer', {
     is: 'true',
     then: (schema) => schema.required('Required'),
@@ -59,7 +58,6 @@ function ReviewWeightTicket({
   onSuccess,
   formRef,
   updateTotalWeight,
-  updateDocumentSetAllowableWeight,
   readOnly,
 }) {
   const {
@@ -68,22 +66,13 @@ function ReviewWeightTicket({
     missingFullWeightTicket,
     emptyWeight,
     fullWeight,
-    allowableWeight,
     ownsTrailer,
     proofOfTrailerOwnershipDocument,
     trailerMeetsCriteria,
     status,
     reason,
   } = weightTicket || {};
-  const currentAllowableWeight = useRef(
-    allowableWeight ? `${allowableWeight}` : `${getWeightTicketNetWeight(weightTicket)}`,
-  );
-  if (!allowableWeight || (allowableWeight && currentAllowableWeight.current !== allowableWeight)) {
-    const newWeight = weightTicket.allowableWeight
-      ? weightTicket.allowableWeight
-      : weightTicket.fullWeight - weightTicket.emptyWeight;
-    currentAllowableWeight.current = newWeight;
-  }
+
   const currentEmptyWeight = useRef(emptyWeight ? `${emptyWeight}` : `${getWeightTicketNetWeight(weightTicket)}`);
   const currentFullWeight = useRef(fullWeight ? `${fullWeight}` : `${getWeightTicketNetWeight(fullWeight)}`);
   const [canEditRejection, setCanEditRejection] = useState(true);
@@ -101,7 +90,6 @@ function ReviewWeightTicket({
       ...weightTicket,
       emptyWeight: parseInt(removeCommas(updatedFormValues.emptyWeight), 10),
       fullWeight: parseInt(removeCommas(updatedFormValues.fullWeight), 10),
-      allowableWeight: parseInt(removeCommas(updatedFormValues.allowableWeight), 10),
       status: updatedFormValues.status,
     };
     return updatedWeightTicket;
@@ -161,7 +149,6 @@ function ReviewWeightTicket({
       trailerMeetsCriteria: trailerMeetsCriteriaSubmit,
       reason: formValues.rejectionReason,
       status: formValues.status,
-      allowableWeight: parseInt(removeCommas(formValues.allowableWeight), 10),
     };
     patchWeightTicketMutation({
       ppmShipmentId: weightTicket.ppmShipmentId,
@@ -178,11 +165,10 @@ function ReviewWeightTicket({
   } else {
     isTrailerClaimable = '';
   }
-  // Allowable weight should default to the net weight if there isn't already an allowable weight defined.
+
   const initialValues = {
     emptyWeight: `${currentEmptyWeight.current}`,
     fullWeight: `${currentFullWeight.current}`,
-    allowableWeight: `${currentAllowableWeight.current}`,
     ownsTrailer: ownsTrailer ? 'true' : 'false',
     trailerMeetsCriteria: isTrailerClaimable,
     status: status || '',
@@ -228,13 +214,6 @@ function ReviewWeightTicket({
             }
             if (event.target.name === 'fullWeight') {
               currentFullWeight.current = `${removeCommas(event.target.value)}`;
-            }
-            if (event.target.name === 'allowableWeight') {
-              const trimmedValue = removeCommas(event.target.value);
-              if (parseInt(trimmedValue, 10) !== currentAllowableWeight.current) {
-                currentAllowableWeight.current = trimmedValue;
-                updateDocumentSetAllowableWeight(currentAllowableWeight.current);
-              }
             }
             if (currentMtoShipments !== undefined && currentMtoShipments.length > 0) {
               getNewNetWeightCalculation(currentMtoShipments, mtoShipment.id, values);
@@ -310,23 +289,6 @@ function ReviewWeightTicket({
                   disabled={readOnly}
                 />
 
-                <MaskedTextField
-                  defaultValue="0"
-                  name="allowableWeight"
-                  label="Allowable weight"
-                  id="allowableWeight"
-                  data-testid="allowableWeight"
-                  inputTestId="allowableWeight"
-                  mask={Number}
-                  description="Maximum allowable weight"
-                  scale={0} // digits after point, 0 for integers
-                  min={0} // disallow negative
-                  thousandsSeparator=","
-                  lazy={false} // immediate masking evaluation
-                  suffix="lbs"
-                  onBlur={handleWeightFieldsChange}
-                  disabled={readOnly}
-                />
                 <EditPPMNetWeight
                   weightTicket={currentWeightTicket}
                   weightAllowance={weightAllowance}
@@ -472,7 +434,7 @@ ReviewWeightTicket.propTypes = {
   weightTicket: WeightTicketShape,
   mtoShipment: ShipmentShape,
   tripNumber: number.isRequired,
-  ppmNumber: number.isRequired,
+  ppmNumber: string.isRequired,
   onSuccess: func,
   formRef: object,
   currentMtoShipments: PropTypes.arrayOf(ShipmentShape),

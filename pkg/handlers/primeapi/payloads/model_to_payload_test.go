@@ -278,6 +278,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			NonTemporaryStorage:            nil,
 			PrivatelyOwnedVehicle:          nil,
 			DBAuthorizedWeight:             nil,
+			UBAllowance:                    nil,
 			StorageInTransit:               nil,
 			RequiredMedicalEquipmentWeight: 0,
 			OrganizationalClothingAndIndividualEquipment: false,
@@ -306,6 +307,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(int64(0), payload.StorageInTransit)
 		suite.Equal(int64(0), payload.TotalDependents)
 		suite.Equal(int64(0), payload.TotalWeight)
+		suite.Equal(int64(0), *payload.UnaccompaniedBaggageAllowance)
 	})
 
 	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {
@@ -316,6 +318,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),
+			UBAllowance:                    handlers.FmtInt(400),
 			StorageInTransit:               handlers.FmtInt(45),
 			RequiredMedicalEquipmentWeight: 500,
 			OrganizationalClothingAndIndividualEquipment: true,
@@ -327,7 +330,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5))
+		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 		payload := Entitlement(&entitlement)
 
@@ -337,6 +340,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.True(*payload.NonTemporaryStorage)
 		suite.True(*payload.PrivatelyOwnedVehicle)
 		suite.Equal(int64(10000), *payload.AuthorizedWeight)
+		suite.Equal(int64(400), *payload.UnaccompaniedBaggageAllowance)
 		suite.Equal(int64(9000), payload.TotalWeight)
 		suite.Equal(int64(45), payload.StorageInTransit)
 		suite.Equal(int64(500), payload.RequiredMedicalEquipmentWeight)
@@ -355,6 +359,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),
+			UBAllowance:                    handlers.FmtInt(400),
 			StorageInTransit:               handlers.FmtInt(45),
 			RequiredMedicalEquipmentWeight: 500,
 			OrganizationalClothingAndIndividualEquipment: true,
@@ -366,7 +371,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5))
+		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 		payload := Entitlement(&entitlement)
 
@@ -376,6 +381,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.True(*payload.NonTemporaryStorage)
 		suite.True(*payload.PrivatelyOwnedVehicle)
 		suite.Equal(int64(10000), *payload.AuthorizedWeight)
+		suite.Equal(int64(400), *payload.UnaccompaniedBaggageAllowance)
 		suite.Equal(int64(7000), payload.TotalWeight)
 		suite.Equal(int64(45), payload.StorageInTransit)
 		suite.Equal(int64(500), payload.RequiredMedicalEquipmentWeight)
@@ -826,4 +832,64 @@ func (suite *PayloadsSuite) TestMarketCode() {
 		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
 		suite.Equal("i", result, "Expected result to be 'i' for international market code")
 	})
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemsPOEFSC() {
+	portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Port{
+				PortCode: "SEA",
+			},
+		},
+	}, nil)
+
+	poefscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodePOEFSC,
+				Priority: 1,
+			},
+		},
+		{
+			Model:    portLocation,
+			LinkOnly: true,
+			Type:     &factory.PortLocations.PortOfEmbarkation,
+		},
+	}, nil)
+	serviceItemPayload := MTOServiceItem(&poefscServiceItem)
+	suite.NotNil(serviceItemPayload)
+	internationalFuelSurchargeItem, ok := serviceItemPayload.(*primemessages.MTOServiceItemInternationalFuelSurcharge)
+	suite.True(ok)
+	suite.Equal(portLocation.Port.PortCode, internationalFuelSurchargeItem.PortCode)
+	suite.Equal(poefscServiceItem.ReService.Code.String(), internationalFuelSurchargeItem.ReServiceCode)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemsPODFSC() {
+	portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Port{
+				PortCode: "SEA",
+			},
+		},
+	}, nil)
+
+	podfscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodePODFSC,
+				Priority: 1,
+			},
+		},
+		{
+			Model:    portLocation,
+			LinkOnly: true,
+			Type:     &factory.PortLocations.PortOfDebarkation,
+		},
+	}, nil)
+	serviceItemPayload := MTOServiceItem(&podfscServiceItem)
+	suite.NotNil(serviceItemPayload)
+	internationalFuelSurchargeItem, ok := serviceItemPayload.(*primemessages.MTOServiceItemInternationalFuelSurcharge)
+	suite.True(ok)
+	suite.Equal(portLocation.Port.PortCode, internationalFuelSurchargeItem.PortCode)
+	suite.Equal(podfscServiceItem.ReService.Code.String(), internationalFuelSurchargeItem.ReServiceCode)
 }

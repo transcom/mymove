@@ -29,7 +29,27 @@ func TestMove(t *testing.T) {
 }
 
 func (suite *PayloadsSuite) TestPaymentRequestQueue() {
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Email: "officeuser1@example.com",
+			},
+		},
+		{
+			Model: models.User{
+				Privileges: []models.Privilege{
+					{
+						PrivilegeType: models.PrivilegeTypeSupervisor,
+					},
+				},
+				Roles: []roles.Role{
+					{
+						RoleType: roles.RoleTypeTIO,
+					},
+				},
+			},
+		},
+	}, nil)
 	officeUserTIO := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	gbloc := "LKNQ"
@@ -66,8 +86,9 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 		},
 	}, nil)
 	var officeUsers models.OfficeUsers
+	var officeUsersSafety models.OfficeUsers
 	officeUsers = append(officeUsers, officeUser)
-	var paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
+	var paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
 
 	suite.Run("Test Payment request is assignable due to not being assigend", func() {
 		paymentRequestCopy := *paymentRequestsQueue
@@ -86,7 +107,7 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUserTIO
 	paymentRequests[0].MoveTaskOrder.CounselingOffice = &transportationOffice
 
-	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
+	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
 
 	suite.Run("Test PaymentRequest has both Counseling Office and TIO AssignedUser ", func() {
 		PaymentRequestsCopy := *paymentRequestsQueue
@@ -100,13 +121,14 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	})
 
 	suite.Run("Test PaymentRequest is assignable due to user Supervisor role", func() {
-		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, true, false)
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
 		paymentRequestCopy := *paymentRequests
 		suite.Equal(paymentRequestCopy[0].Assignable, true)
 	})
 
+	officeUserHQ := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
 	suite.Run("Test PaymentRequest is not assignable due to user HQ role", func() {
-		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, true)
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUserHQ, officeUsersSafety)
 		paymentRequestCopy := *paymentRequests
 		suite.Equal(paymentRequestCopy[0].Assignable, false)
 	})
@@ -134,7 +156,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		State:          state,
 		PostalCode:     postalcode,
 		Country:        &country,
-		County:         county,
+		County:         &county,
 	}
 
 	isActualExpenseReimbursement := true
@@ -180,7 +202,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 			State:          state,
 			PostalCode:     postalcode,
 			Country:        &country,
-			County:         county,
+			County:         &county,
 		}
 
 		expectedPPMShipment2 := models.PPMShipment{
@@ -244,7 +266,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	oldAddress := models.Address{
@@ -252,7 +274,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	sitOriginalAddress := models.Address{
@@ -260,7 +282,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89501",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 	officeRemarks := "some office remarks"
 	newSitDistanceBetween := 0
@@ -372,7 +394,7 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	backupAddress := models.Address{
@@ -380,7 +402,7 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	phone := "444-555-6677"
@@ -410,6 +432,61 @@ func (suite *PayloadsSuite) TestCustomer() {
 	})
 }
 
+func (suite *PayloadsSuite) TestEntitlement() {
+	entitlementID, _ := uuid.NewV4()
+	dependentsAuthorized := true
+	nonTemporaryStorage := true
+	privatelyOwnedVehicle := true
+	proGearWeight := 1000
+	proGearWeightSpouse := 500
+	storageInTransit := 90
+	totalDependents := 2
+	requiredMedicalEquipmentWeight := 200
+	accompaniedTour := true
+	dependentsUnderTwelve := 1
+	dependentsTwelveAndOver := 1
+	authorizedWeight := 8000
+	ubAllowance := 300
+
+	entitlement := &models.Entitlement{
+		ID:                             entitlementID,
+		DBAuthorizedWeight:             &authorizedWeight,
+		DependentsAuthorized:           &dependentsAuthorized,
+		NonTemporaryStorage:            &nonTemporaryStorage,
+		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
+		ProGearWeight:                  proGearWeight,
+		ProGearWeightSpouse:            proGearWeightSpouse,
+		StorageInTransit:               &storageInTransit,
+		TotalDependents:                &totalDependents,
+		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
+		AccompaniedTour:                &accompaniedTour,
+		DependentsUnderTwelve:          &dependentsUnderTwelve,
+		DependentsTwelveAndOver:        &dependentsTwelveAndOver,
+		UpdatedAt:                      time.Now(),
+		UBAllowance:                    &ubAllowance,
+	}
+
+	returnedEntitlement := Entitlement(entitlement)
+	returnedUBAllowance := entitlement.UBAllowance
+
+	suite.IsType(&ghcmessages.Entitlements{}, returnedEntitlement)
+
+	suite.Equal(strfmt.UUID(entitlementID.String()), returnedEntitlement.ID)
+	suite.Equal(authorizedWeight, int(*returnedEntitlement.AuthorizedWeight))
+	suite.Equal(entitlement.DependentsAuthorized, returnedEntitlement.DependentsAuthorized)
+	suite.Equal(entitlement.NonTemporaryStorage, returnedEntitlement.NonTemporaryStorage)
+	suite.Equal(entitlement.PrivatelyOwnedVehicle, returnedEntitlement.PrivatelyOwnedVehicle)
+	suite.Equal(int(*returnedUBAllowance), int(*returnedEntitlement.UnaccompaniedBaggageAllowance))
+	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
+	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
+	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
+	suite.Equal(totalDependents, int(returnedEntitlement.TotalDependents))
+	suite.Equal(int64(requiredMedicalEquipmentWeight), returnedEntitlement.RequiredMedicalEquipmentWeight)
+	suite.Equal(models.BoolPointer(accompaniedTour), returnedEntitlement.AccompaniedTour)
+	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
+	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
+}
+
 func (suite *PayloadsSuite) TestCreateCustomer() {
 	id, _ := uuid.NewV4()
 	id2, _ := uuid.NewV4()
@@ -434,7 +511,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	backupAddress := models.Address{
@@ -442,7 +519,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	phone := "444-555-6677"
@@ -515,6 +592,94 @@ func (suite *PayloadsSuite) TestMarketCode() {
 		result := MarketCode(&marketCodeInternational)
 		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
 		suite.Equal("i", result, "Expected result to be 'i' for international market code")
+	})
+}
+
+func (suite *PayloadsSuite) TestReServiceItem() {
+	suite.Run("returns nil when reServiceItem is nil", func() {
+		var reServiceItem *models.ReServiceItem = nil
+		result := ReServiceItem(reServiceItem)
+		suite.Nil(result, "Expected result to be nil when reServiceItem is nil")
+	})
+
+	suite.Run("correctly maps ReServiceItem with all fields populated", func() {
+		isAutoApproved := true
+		marketCodeInternational := models.MarketCodeInternational
+		reServiceCode := models.ReServiceCodePOEFSC
+		poefscServiceName := "International POE Fuel Surcharge"
+		reService := models.ReService{
+			Code: reServiceCode,
+			Name: poefscServiceName,
+		}
+		ubShipmentType := models.MTOShipmentTypeUnaccompaniedBaggage
+		reServiceItem := &models.ReServiceItem{
+			IsAutoApproved: isAutoApproved,
+			MarketCode:     marketCodeInternational,
+			ReService:      reService,
+			ShipmentType:   ubShipmentType,
+		}
+		result := ReServiceItem(reServiceItem)
+
+		suite.NotNil(result, "Expected result to not be nil when reServiceItem has values")
+		suite.Equal(isAutoApproved, result.IsAutoApproved, "Expected IsAutoApproved to match")
+		suite.True(result.IsAutoApproved, "Expected IsAutoApproved to be true")
+		suite.Equal(string(marketCodeInternational), result.MarketCode, "Expected MarketCode to match")
+		suite.Equal(string(reServiceItem.ReService.Code), result.ServiceCode, "Expected ServiceCode to match")
+		suite.Equal(string(reServiceItem.ReService.Name), result.ServiceName, "Expected ServiceName to match")
+		suite.Equal(string(ubShipmentType), result.ShipmentType, "Expected ShipmentType to match")
+	})
+}
+
+func (suite *PayloadsSuite) TestReServiceItems() {
+	suite.Run("Correctly maps ReServiceItems with all fields populated", func() {
+		isAutoApprovedTrue := true
+		isAutoApprovedFalse := false
+		marketCodeInternational := models.MarketCodeInternational
+		marketCodeDomestic := models.MarketCodeDomestic
+		poefscReServiceCode := models.ReServiceCodePOEFSC
+		poedscReServiceCode := models.ReServiceCodePODFSC
+		poefscServiceName := "International POE Fuel Surcharge"
+		poedscServiceName := "International POD Fuel Surcharge"
+		poefscService := models.ReService{
+			Code: poefscReServiceCode,
+			Name: poefscServiceName,
+		}
+		podfscService := models.ReService{
+			Code: poedscReServiceCode,
+			Name: poedscServiceName,
+		}
+		hhgShipmentType := models.MTOShipmentTypeHHG
+		ubShipmentType := models.MTOShipmentTypeUnaccompaniedBaggage
+		poefscServiceItem := models.ReServiceItem{
+			IsAutoApproved: isAutoApprovedTrue,
+			MarketCode:     marketCodeInternational,
+			ReService:      poefscService,
+			ShipmentType:   ubShipmentType,
+		}
+		podfscServiceItem := models.ReServiceItem{
+			IsAutoApproved: isAutoApprovedFalse,
+			MarketCode:     marketCodeDomestic,
+			ReService:      podfscService,
+			ShipmentType:   hhgShipmentType,
+		}
+		reServiceItems := make(models.ReServiceItems, 2)
+		reServiceItems[0] = poefscServiceItem
+		reServiceItems[1] = podfscServiceItem
+		result := ReServiceItems(reServiceItems)
+
+		suite.NotNil(result, "Expected result to not be nil when reServiceItems has values")
+		suite.Equal(poefscServiceItem.IsAutoApproved, result[0].IsAutoApproved, "Expected IsAutoApproved to match")
+		suite.True(result[0].IsAutoApproved, "Expected IsAutoApproved to be true")
+		suite.Equal(string(marketCodeInternational), result[0].MarketCode, "Expected MarketCode to match")
+		suite.Equal(string(poefscServiceItem.ReService.Code), result[0].ServiceCode, "Expected ServiceCode to match")
+		suite.Equal(string(poefscServiceItem.ReService.Name), result[0].ServiceName, "Expected ServiceName to match")
+		suite.Equal(string(ubShipmentType), result[0].ShipmentType, "Expected ShipmentType to match")
+		suite.Equal(podfscServiceItem.IsAutoApproved, result[1].IsAutoApproved, "Expected IsAutoApproved to match")
+		suite.False(result[1].IsAutoApproved, "Expected IsAutoApproved to be false")
+		suite.Equal(string(marketCodeDomestic), result[1].MarketCode, "Expected MarketCode to match")
+		suite.Equal(string(podfscServiceItem.ReService.Code), result[1].ServiceCode, "Expected ServiceCode to match")
+		suite.Equal(string(podfscServiceItem.ReService.Name), result[1].ServiceName, "Expected ServiceName to match")
+		suite.Equal(string(hhgShipmentType), result[1].ShipmentType, "Expected ShipmentType to match")
 	})
 }
 
@@ -592,6 +757,33 @@ func (suite *PayloadsSuite) TestGsrAppeal() {
 		suite.Equal(remarks, result.Remarks, "Expected Remarks to match")
 		suite.Equal(strfmt.DateTime(createdAt), result.CreatedAt, "Expected CreatedAt to match")
 		suite.False(result.IsSeriousIncident, "Expected IsSeriousIncident to be false")
+	})
+}
+
+func (suite *PayloadsSuite) TestVLocation() {
+	suite.Run("correctly maps VLocation with all fields populated", func() {
+		city := "LOS ANGELES"
+		state := "CA"
+		postalCode := "90210"
+		county := "LOS ANGELES"
+		usPostRegionCityID := uuid.Must(uuid.NewV4())
+
+		vLocation := &models.VLocation{
+			CityName:             city,
+			StateName:            state,
+			UsprZipID:            postalCode,
+			UsprcCountyNm:        county,
+			UsPostRegionCitiesID: &usPostRegionCityID,
+		}
+
+		payload := VLocation(vLocation)
+
+		suite.IsType(payload, &ghcmessages.VLocation{})
+		suite.Equal(handlers.FmtUUID(usPostRegionCityID), &payload.UsPostRegionCitiesID, "Expected UsPostRegionCitiesID to match")
+		suite.Equal(city, payload.City, "Expected City to match")
+		suite.Equal(state, payload.State, "Expected State to match")
+		suite.Equal(postalCode, payload.PostalCode, "Expected PostalCode to match")
+		suite.Equal(county, *(payload.County), "Expected County to match")
 	})
 }
 

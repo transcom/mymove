@@ -262,6 +262,11 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        },
+        "usPostRegionCitiesID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -426,7 +431,7 @@ func init() {
           "example": "G"
         },
         "orderNumber": {
-          "description": "LoaDocID in lines of accounting table. Not to be confused with Orders Number.",
+          "description": "LoaDocID in lines of accounting table. Not to be confused with Orders Number",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
@@ -1151,6 +1156,11 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        },
+        "usPostRegionCitiesID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -1315,7 +1325,7 @@ func init() {
           "example": "G"
         },
         "orderNumber": {
-          "description": "LoaDocID in lines of accounting table. Not to be confused with Orders Number.",
+          "description": "LoaDocID in lines of accounting table. Not to be confused with Orders Number",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"

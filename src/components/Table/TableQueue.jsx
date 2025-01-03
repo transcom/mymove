@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react';
+import { connect } from 'react-redux';
 import { GridContainer } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
@@ -11,6 +12,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import { SortShape } from 'constants/queues';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
 import {
   setTableQueueFilterSessionStorageValue,
@@ -23,6 +25,7 @@ import {
   getTableQueueSortParamSessionStorageValue,
   getSelectionOptionLabel,
 } from 'components/Table/utils';
+import { roleTypes } from 'constants/userRoles';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -48,7 +51,8 @@ const TableQueue = ({
   csvExportQueueFetcher,
   csvExportQueueFetcherKey,
   sessionStorageKey,
-  isHeadquartersUser,
+  officeUser,
+  activeRole,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -88,7 +92,10 @@ const TableQueue = ({
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
   const gblocContext = useContext(SelectedGblocContext);
-  const { selectedGbloc } = isHeadquartersUser && gblocContext ? gblocContext : { selectedGbloc: undefined };
+  const { selectedGbloc } =
+    (activeRole === roleTypes.HQ || officeUser?.transportation_office_assignments?.length > 1) && gblocContext
+      ? gblocContext
+      : { selectedGbloc: undefined };
 
   const multiSelectValueDelimiter = ',';
 
@@ -314,7 +321,7 @@ const TableQueue = ({
             totalCount={totalCount}
             paramSort={paramSort}
             paramFilters={paramFilters}
-            isHeadquartersUser={isHeadquartersUser}
+            isHeadquartersUser={activeRole === roleTypes.HQ}
           />
         )}
       </div>
@@ -384,8 +391,6 @@ TableQueue.propTypes = {
   csvExportQueueFetcherKey: PropTypes.string,
   // session storage key to store search filters
   sessionStorageKey: PropTypes.string,
-  // isHeadquartersUser identifies if the active role is a headquarters user to allow switching GBLOCs
-  isHeadquartersUser: PropTypes.bool,
 };
 
 TableQueue.defaultProps = {
@@ -404,6 +409,15 @@ TableQueue.defaultProps = {
   csvExportQueueFetcher: null,
   csvExportQueueFetcherKey: null,
   sessionStorageKey: 'default',
-  isHeadquartersUser: false,
 };
-export default TableQueue;
+
+const mapStateToProps = (state) => {
+  const user = selectLoggedInUser(state);
+
+  return {
+    officeUser: user?.office_user || {},
+    activeRole: state.auth.activeRole,
+  };
+};
+
+export default connect(mapStateToProps)(TableQueue);
