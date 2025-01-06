@@ -635,7 +635,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		move2 := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					Status: models.MoveStatusAPPROVED,
+					Status: models.MoveStatusAPPROVALSREQUESTED,
 					Show:   models.BoolPointer(true),
 				},
 			}}, nil)
