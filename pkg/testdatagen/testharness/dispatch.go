@@ -20,6 +20,9 @@ var actionDispatcher = map[string]actionFunc{
 	"DefaultAdminUser": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return factory.BuildDefaultAdminUser(appCtx.DB())
 	},
+	"SuperAdminUser": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return factory.BuildDefaultSuperAdminUser(appCtx.DB())
+	},
 	"DefaultMove": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return factory.BuildMove(appCtx.DB(), nil, nil)
 	},
@@ -247,6 +250,18 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"BoatHaulAwayMoveNeedsTOOApproval": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeBoatHaulAwayMoveNeedsTOOApproval(appCtx)
+	},
+	"OfficeUserWithCustomer": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeOfficeUserWithCustomer(appCtx)
+	},
+	"OfficeUserWithContractingOfficer": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeOfficeUserWithContractingOfficer(appCtx)
+	},
+	"OfficeUserWithPrimeSimulator": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeOfficeUserWithPrimeSimulator(appCtx)
+	},
+	"OfficeUserWithGSR": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeOfficeUserWithGSR(appCtx)
 	},
 }
 
