@@ -1,12 +1,17 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
+import { Provider } from 'react-redux';
 
 import EditPPMHeaderSummaryModal from './EditPPMHeaderSummaryModal';
+
+import { configureStore } from 'shared/store';
 
 export default {
   title: 'Office Components/EditPPMHeaderSummaryModal',
   component: EditPPMHeaderSummaryModal,
 };
+
+const mockStore = configureStore({});
 
 // Mock data for the story
 const sectionInfo = {
@@ -36,7 +41,11 @@ const sectionInfo = {
 };
 
 export const Basic = (args) => {
-  return <EditPPMHeaderSummaryModal sectionInfo={sectionInfo} {...args} />;
+  return (
+    <Provider store={mockStore.store}>
+      <EditPPMHeaderSummaryModal sectionInfo={sectionInfo} {...args} />
+    </Provider>
+  );
 };
 
 export const EditShipmentInfo = Basic.bind({});
