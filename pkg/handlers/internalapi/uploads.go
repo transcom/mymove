@@ -14,11 +14,9 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/cli"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -318,11 +316,8 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 	}
 
 	// Start waiting for tag updates
-	v := viper.New()
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-	topicName := v.GetString(cli.AWSSNSObjectTagsAddedTopicFlag)
-	if topicName == "" {
+	topicName, err := o.receiver.GetDefaultTopic()
+	if err != nil {
 		o.appCtx.Logger().Error("aws_sns_object_tags_added_topic key not available.")
 		return
 	}

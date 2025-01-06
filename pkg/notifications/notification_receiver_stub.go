@@ -45,3 +45,7 @@ func (n StubNotificationReceiver) CloseoutQueue(appCtx appcontext.AppContext, qu
 	appCtx.Logger().Debug("Closing out the fake queue.")
 	return nil
 }
+
+func (n StubNotificationReceiver) GetDefaultTopic() (string, error) {
+	return "", nil
+}

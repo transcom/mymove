@@ -2,8 +2,10 @@ package notifications
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -32,6 +34,7 @@ type NotificationReceiver interface {
 	CreateQueueWithSubscription(appCtx appcontext.AppContext, params NotificationQueueParams) (string, error)
 	ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]types.Message, error)
 	CloseoutQueue(appCtx appcontext.AppContext, queueUrl string) error
+	GetDefaultTopic() (string, error)
 }
 
 // NotificationReceiverConext provides context to a notification Receiver. Maps use queueUrl for key
@@ -169,6 +172,19 @@ func (n NotificationReceiverContext) CloseoutQueue(appCtx appcontext.AppContext,
 	}
 
 	return nil
+}
+
+func (n NotificationReceiverContext) GetDefaultTopic() (string, error) {
+	// Start waiting for tag updates
+	v := viper.New()
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+	topicName := v.GetString(cli.AWSSNSObjectTagsAddedTopicFlag)
+	receiverBackend := v.GetString(cli.ReceiverBackendFlag)
+	if topicName == "" && receiverBackend == "sns&sqs" {
+		return "", errors.New("aws_sns_object_tags_added_topic key not available.")
+	}
+	return topicName, nil
 }
 
 // InitEmail initializes the email backend
