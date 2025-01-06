@@ -507,6 +507,7 @@ pre_test:
 
 server_test:
   stage: test
+  image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
   before_script:
@@ -559,8 +560,12 @@ server_test_coverage:
 client_test:
   stage: test
   image: $DOCKER_APP_IMAGE
-  needs:
-    - pre_deps_yarn
+  variables:
+    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_MEMORY_REQUEST: "8Gi"
+    KUBERNETES_MEMORY_LIMIT: "8Gi"
+  # needs:
+  #   - pre_deps_yarn
   before_script: *setup_milmove_env
   coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
   dependencies:
@@ -568,12 +573,12 @@ client_test:
   script:
     - *reinstall_yarn
     - echo "client test coverage"
-    - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage > coverage.output
+    - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false >> $CI_PROJECT_DIR/coverage.output
   artifacts:
     when: always
     reports:
       junit:
-        - junit.xml
+        - jest-junit-reports/junit.xml
     paths:
       - /builds/milmove/mymove/coverage
       - /builds/milmove/mymove/jest-junit-reports
@@ -589,6 +594,8 @@ client_test_coverage:
     - pre_deps_yarn
     - client_test
   before_script: *setup_milmove_env
+  # TODO: need to add cache for max coverage increase similar to this
+  # https://stackoverflow.com/questions/54542922/force-coverage-increase-in-gitlab-prs
   script:
     - echo "TODO understand recording stats and PR interaction"
     - |
