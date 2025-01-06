@@ -11,7 +11,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
-	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/gofrs/uuid"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -32,7 +31,7 @@ type NotificationQueueParams struct {
 //go:generate mockery --name NotificationReceiver
 type NotificationReceiver interface {
 	CreateQueueWithSubscription(appCtx appcontext.AppContext, params NotificationQueueParams) (string, error)
-	ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]types.Message, error)
+	ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]ReceivedMessage, error)
 	CloseoutQueue(appCtx appcontext.AppContext, queueUrl string) error
 	GetDefaultTopic() (string, error)
 }
@@ -45,6 +44,12 @@ type NotificationReceiverContext struct {
 	awsAccountId         string
 	queueSubscriptionMap map[string]string
 	receiverCancelMap    map[string]context.CancelFunc
+}
+
+// ReceivedMessage standardizes the format of the received message
+type ReceivedMessage struct {
+	MessageId string
+	Body      *string
 }
 
 // NewNotificationReceiver returns a new NotificationReceiverContext
@@ -67,8 +72,6 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 	queueName := fmt.Sprintf("%s_%s", params.NamePrefix, queueUUID)
 	queueArn := n.constructArn("sqs", queueName)
 	topicArn := n.constructArn("sns", params.SubscriptionTopicName)
-
-	// Create queue
 
 	accessPolicy := fmt.Sprintf(`{
 		"Version": "2012-10-17",
@@ -121,7 +124,7 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 }
 
 // ReceiveMessages polls given queue continuously for messages for up to 20 seconds
-func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]types.Message, error) {
+func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]ReceivedMessage, error) {
 	recCtx, cancelRecCtx := context.WithCancel(context.Background())
 	defer cancelRecCtx()
 	n.receiverCancelMap[queueUrl] = cancelRecCtx
@@ -132,7 +135,7 @@ func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContex
 		WaitTimeSeconds:     20,
 	})
 	if err != nil && recCtx.Err() != context.Canceled {
-		appCtx.Logger().Info("Couldn't get messages from queue. Here's why: %v\n", zap.Error(err))
+		appCtx.Logger().Info("Couldn't get messages from queue. Error: %v\n", zap.Error(err))
 		return nil, err
 	}
 
@@ -140,14 +143,20 @@ func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContex
 		return nil, recCtx.Err()
 	}
 
-	return result.Messages, recCtx.Err()
-}
+	receivedMessages := make([]ReceivedMessage, len(result.Messages))
+	for index, value := range result.Messages {
+		receivedMessages[index] = ReceivedMessage{
+			MessageId: *value.MessageId,
+			Body:      value.Body,
+		}
+	}
 
-// map of queueUrl to context
+	return receivedMessages, recCtx.Err()
+}
 
 // CloseoutQueue stops receiving messages and cleans up the queue and its subscriptions
 func (n NotificationReceiverContext) CloseoutQueue(appCtx appcontext.AppContext, queueUrl string) error {
-	appCtx.Logger().Info("CLOSING OUT QUEUE CONTEXT")
+	appCtx.Logger().Info("Closing out queue: %v", zap.String("queueUrl", queueUrl))
 
 	if cancelFunc, exists := n.receiverCancelMap[queueUrl]; exists {
 		cancelFunc()
@@ -167,40 +176,25 @@ func (n NotificationReceiverContext) CloseoutQueue(appCtx appcontext.AppContext,
 	_, err := n.sqsService.DeleteQueue(context.Background(), &sqs.DeleteQueueInput{
 		QueueUrl: &queueUrl,
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
+// GetDefaultTopic returns the topic value set within the environment
 func (n NotificationReceiverContext) GetDefaultTopic() (string, error) {
-	// Start waiting for tag updates
 	v := viper.New()
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 	topicName := v.GetString(cli.AWSSNSObjectTagsAddedTopicFlag)
 	receiverBackend := v.GetString(cli.ReceiverBackendFlag)
 	if topicName == "" && receiverBackend == "sns&sqs" {
-		return "", errors.New("aws_sns_object_tags_added_topic key not available.")
+		return "", errors.New("aws_sns_object_tags_added_topic key not available")
 	}
 	return topicName, nil
 }
 
-// InitEmail initializes the email backend
+// InitReceiver initializes the receiver backend
 func InitReceiver(v *viper.Viper, logger *zap.Logger) (NotificationReceiver, error) {
-
-	// 	result, err := sesService.GetAccountSendingEnabled(context.Background(), input)
-	// 	if err != nil || result == nil || !result.Enabled {
-	// 		logger.Error("email sending not enabled", zap.Error(err))
-	// 		return NewNotificationSender(nil, awsSESDomain, sysAdminEmail), err
-	// 	}
-	// 	return NewNotificationSender(sesService, awsSESDomain, sysAdminEmail), nil
-	// }
-
-	// domain := "milmovelocal"
-	// logger.Info("Using local email backend", zap.String("domain", domain))
-	// return NewStubNotificationSender(domain), nil
 
 	if v.GetString(cli.ReceiverBackendFlag) == "sns&sqs" {
 		// Setup notification receiver service with SNS & SQS backend dependencies

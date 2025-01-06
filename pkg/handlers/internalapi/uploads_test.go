@@ -24,6 +24,7 @@ import (
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services/upload"
 	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
@@ -109,6 +110,7 @@ func createPPMExpensePrereqs(suite *HandlerSuite, fixtureFile string) (models.Do
 
 func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, serviceMember models.ServiceMember, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
 	req := &http.Request{}
+
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	params.HTTPRequest = req
@@ -450,6 +452,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 // TODO: functioning test
 func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
+	localReceiver := notifications.StubNotificationReceiver{}
 
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	uploadUser1 := factory.BuildUserUpload(suite.DB(), []factory.Customization{
@@ -478,11 +481,11 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
 
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
+	handlerConfig.SetNotificationReceiver(localReceiver)
 	uploadInformationFetcher := upload.NewUploadInformationFetcher()
 	handler := GetUploadStatusHandler{handlerConfig, uploadInformationFetcher}
 
 	response := handler.Handle(params)
-
 	_, ok := response.(*CustomNewUploadStatusOK)
 	suite.True(ok)
 

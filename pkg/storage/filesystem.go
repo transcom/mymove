@@ -117,7 +117,7 @@ func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
 func (fs *Filesystem) Tags(_ string) (map[string]string, error) {
 	tags := make(map[string]string)
 	// Assume anti-virus complete
-	tags["av_status"] = "CLEAN"
+	tags["av-status"] = "CLEAN"
 	return tags, nil
 }
 

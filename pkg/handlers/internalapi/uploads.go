@@ -276,6 +276,10 @@ const (
 	AVStatusTypeINFECTED AVStatusType = "INFECTED"
 )
 
+func constructEventStreamMessage(id int, data string) []byte {
+	return []byte(fmt.Sprintf("id: %s\nevent: message\ndata: %s\n\n", strconv.Itoa(id), data))
+}
+
 func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	// TODO: add check for permissions to view upload
@@ -301,8 +305,7 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 	} else {
 		uploadStatus = AVStatusType(tags["av-status"])
 	}
-
-	resProcess := []byte("id: 0\nevent: message\ndata: " + string(uploadStatus) + "\n\n")
+	resProcess := constructEventStreamMessage(0, string(uploadStatus))
 	if produceErr := producer.Produce(rw, resProcess); produceErr != nil {
 		panic(produceErr)
 	}
@@ -373,11 +376,10 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 					uploadStatus = AVStatusType(tags["av-status"])
 				}
 
-				resProcess := []byte("id: " + strconv.Itoa(id_counter) + "\nevent: message\ndata: " + string(uploadStatus) + "\n\n")
+				resProcess := constructEventStreamMessage(id_counter, string(uploadStatus))
 				if produceErr := producer.Produce(rw, resProcess); produceErr != nil {
 					panic(produceErr) // let the recovery middleware deal with this
 				}
-
 				return nil
 			})
 
