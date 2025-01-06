@@ -697,7 +697,7 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 
 		var originDutyLocationGBLOC *string
 		if *originDutyLocation.Address.IsOconus {
-			originDutyLocationGBLOCOconus, err := models.FetchOconusDutyLocationGbloc(appCtx.DB(), originDutyLocation, order.ServiceMember)
+			originDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), originDutyLocation.Address, order.ServiceMember)
 			if err != nil {
 				return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
 			}
@@ -738,19 +738,29 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 			}
 		}
 
-		newDestinationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(order.NewDutyLocationID, "while looking for DestinationGBLOC")
-			default:
-				return nil, apperror.NewQueryError("DestinationGBLOC", err, "")
+		var newDestinationGBLOC *string
+		if *newDutyLocation.Address.IsOconus {
+			newDestinationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), newDutyLocation.Address, order.ServiceMember)
+			if err != nil {
+				return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for DestinationGBLOC Oconus")
 			}
+			newDestinationGBLOC = &newDestinationGBLOCOconus.Gbloc
+		} else {
+			newDestinationGBLOCConus, err2 := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
+			if err2 != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(order.NewDutyLocationID, "while looking for DestinationGBLOC")
+				default:
+					return nil, apperror.NewQueryError("DestinationGBLOC", err, "")
+				}
+			}
+			newDestinationGBLOC = &newDestinationGBLOCConus.GBLOC
 		}
 
 		order.NewDutyLocationID = newDutyLocation.ID
 		order.NewDutyLocation = newDutyLocation
-		order.DestinationGBLOC = &newDestinationGBLOC.GBLOC
+		order.DestinationGBLOC = newDestinationGBLOC
 	}
 
 	// Recalculate UB allowance of order entitlement

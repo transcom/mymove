@@ -169,7 +169,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 			var newDutyLocationGBLOC *string
 			if *newDutyLocation.Address.IsOconus {
-				newDutyLocationGBLOCOconus, err := models.FetchOconusDutyLocationGbloc(appCtx.DB(), newDutyLocation, serviceMember)
+				newDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), newDutyLocation.Address, serviceMember)
 				if err != nil {
 					return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
 				}
@@ -195,7 +195,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 			var originDutyLocationGBLOC *string
 			if *originDutyLocation.Address.IsOconus {
-				originDutyLocationGBLOCOconus, err := models.FetchOconusDutyLocationGbloc(appCtx.DB(), originDutyLocation, serviceMember)
+				originDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), originDutyLocation.Address, serviceMember)
 				if err != nil {
 					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
 				}
@@ -383,11 +383,21 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
-			if err != nil {
-				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
-				appCtx.Logger().Error(err.Error())
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+			var newDutyLocationGBLOC *string
+			if *dutyLocation.Address.IsOconus {
+				newDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), dutyLocation.Address, order.ServiceMember)
+				if err != nil {
+					return nil, apperror.NewNotFoundError(dutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
+				}
+				newDutyLocationGBLOC = &newDutyLocationGBLOCOconus.Gbloc
+			} else {
+				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
+				if err != nil {
+					err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+					appCtx.Logger().Error(err.Error())
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+				newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
 			}
 
 			if payload.OriginDutyLocationID != "" {
@@ -442,7 +452,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.SpouseHasProGear = *payload.SpouseHasProGear
 			order.NewDutyLocationID = dutyLocation.ID
 			order.NewDutyLocation = dutyLocation
-			order.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
+			order.DestinationGBLOC = newDutyLocationGBLOC
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
 

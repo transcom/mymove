@@ -2561,21 +2561,46 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		}
 
 		var destinationGBLOC ghcmessages.GBLOC
-		var PostalCodeToGBLOC models.PostalCodeToGBLOC
-		var err error
+		var postalCodeGBLOC string
 		if numShipments > 0 && move.MTOShipments[0].DestinationAddress != nil {
-			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.MTOShipments[0].DestinationAddress.PostalCode)
+			if *move.MTOShipments[0].DestinationAddress.IsOconus {
+				destAddrGBLOCOConus, err := models.FetchOconusAddressGbloc(appCtx.DB(), *move.MTOShipments[0].DestinationAddress, customer)
+				if err != nil {
+					postalCodeGBLOC = ""
+				} else {
+					postalCodeGBLOC = destAddrGBLOCOConus.Gbloc
+				}
+			} else {
+				destAddrGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), move.MTOShipments[0].DestinationAddress.PostalCode)
+				if err != nil {
+					postalCodeGBLOC = ""
+				} else {
+					postalCodeGBLOC = destAddrGBLOCConus.GBLOC
+				}
+			}
 		} else {
-			// If the move has no shipments or the shipment has no destination address fall back to the origin duty location GBLOC
-			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.NewDutyLocation.Address.PostalCode)
+			// If the move has no shipments or the shipment has no destination address fall back to the destination duty location GBLOC
+			if *move.Orders.NewDutyLocation.Address.IsOconus {
+				newDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), move.Orders.NewDutyLocation.Address, customer)
+				if err != nil {
+					postalCodeGBLOC = ""
+				} else {
+					postalCodeGBLOC = newDutyLocationGBLOCOconus.Gbloc
+				}
+			} else {
+				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.NewDutyLocation.Address.PostalCode)
+				if err != nil {
+					postalCodeGBLOC = ""
+				} else {
+					postalCodeGBLOC = newDutyLocationGBLOCConus.GBLOC
+				}
+			}
 		}
 
-		if err != nil {
-			destinationGBLOC = *ghcmessages.NewGBLOC("")
-		} else if customer.Affiliation.String() == "MARINES" {
-			destinationGBLOC = ghcmessages.GBLOC("USMC/" + PostalCodeToGBLOC.GBLOC)
+		if customer.Affiliation.String() == "MARINES" {
+			destinationGBLOC = ghcmessages.GBLOC("USMC/" + swag.StringValue(&postalCodeGBLOC))
 		} else {
-			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
+			destinationGBLOC = ghcmessages.GBLOC(swag.StringValue(&postalCodeGBLOC))
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{
