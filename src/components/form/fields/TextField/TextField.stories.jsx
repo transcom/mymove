@@ -80,3 +80,39 @@ export const TextFieldWithOptionalTag = () => (
     )}
   </Formik>
 );
+
+export const TextFieldMultiLine = () => (
+  <Formik initialValues={{}}>
+    {() => (
+      <Form>
+        <TextField
+          id="input-type-text"
+          label="Text input label"
+          name="input-type-text"
+          type="text"
+          display="textarea"
+        />
+      </Form>
+    )}
+  </Formik>
+);
+
+export const TextFieldReadOnly = () => (
+  <Formik
+    initialValues={{
+      'input-type-text': 'Text Value',
+    }}
+  >
+    {() => (
+      <Form>
+        <TextField
+          id="input-type-text"
+          label="Text input label"
+          name="input-type-text"
+          type="text"
+          display="readonly"
+        />
+      </Form>
+    )}
+  </Formik>
+);

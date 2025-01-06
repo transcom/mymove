@@ -13,7 +13,7 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "County",
+		County:         m.StringPointer("County"),
 	}
 
 	verrs, err := newAddress.Validate(nil)
@@ -30,7 +30,6 @@ func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 		"city":            {"City can not be blank."},
 		"state":           {"State can not be blank."},
 		"postal_code":     {"PostalCode can not be blank."},
-		"county":          {"County can not be blank."},
 	}
 	suite.verifyValidationErrors(&newAddress, expErrors)
 }
@@ -43,7 +42,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "county",
+		County:         m.StringPointer("county"),
 	}
 
 	var expected *string
@@ -74,7 +73,7 @@ func (suite *ModelSuite) TestIsAddressOconusNoCountry() {
 		City:           "city",
 		State:          "SC",
 		PostalCode:     "29229",
-		County:         "county",
+		County:         m.StringPointer("county"),
 	}
 
 	result, err := m.IsAddressOconus(suite.DB(), address)
@@ -92,7 +91,7 @@ func (suite *ModelSuite) TestIsAddressOconusForAKState() {
 		City:           "Anchorage",
 		State:          "AK",
 		PostalCode:     "99502",
-		County:         "county",
+		County:         m.StringPointer("county"),
 	}
 
 	result, err := m.IsAddressOconus(suite.DB(), address)
@@ -137,7 +136,7 @@ func (suite *ModelSuite) TestAddressFormat() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "County",
+		County:         m.StringPointer("County"),
 		Country:        &country,
 		CountryId:      &country.ID,
 	}
@@ -154,4 +153,40 @@ func (suite *ModelSuite) TestAddressFormat() {
 	formattedAddress = newAddress.LineFormat()
 
 	suite.Equal("street 1, street 2, street 3, city, state, 90210, UNITED STATES", formattedAddress)
+
+	formattedAddress = newAddress.LineDisplayFormat()
+
+	suite.Equal("street 1 street 2 street 3, city, state 90210", formattedAddress)
+}
+
+func (suite *ModelSuite) TestPartialAddressFormat() {
+	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	newAddress := &m.Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: nil,
+		StreetAddress3: nil,
+		City:           "city",
+		State:          "state",
+		PostalCode:     "90210",
+		County:         m.StringPointer("County"),
+		Country:        &country,
+		CountryId:      &country.ID,
+	}
+
+	verrs, err := newAddress.Validate(nil)
+
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
+
+	formattedAddress := newAddress.Format()
+
+	suite.Equal("street 1\ncity, state 90210", formattedAddress)
+
+	formattedAddress = newAddress.LineFormat()
+
+	suite.Equal("street 1, city, state, 90210, UNITED STATES", formattedAddress)
+
+	formattedAddress = newAddress.LineDisplayFormat()
+
+	suite.Equal("street 1, city, state 90210", formattedAddress)
 }
