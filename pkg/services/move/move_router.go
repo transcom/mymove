@@ -176,6 +176,7 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 // sendToServiceCounselor makes the move available for a Service Counselor to review
 func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, move *models.Move) error {
 	var orders models.Order
+	var originDutyLocation models.DutyLocation
 	err := appCtx.DB().Q().
 		Where("orders.id = ?", move.OrdersID).
 		First(&orders)
@@ -213,7 +214,20 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 	move.Status = models.MoveStatusNeedsServiceCounseling
 	now := time.Now()
 	move.SubmittedAt = &now
+	if orders.OriginDutyLocationID == nil || *orders.OriginDutyLocationID == uuid.Nil {
+		return apperror.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyLocation")
+	}
 
+	originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
+	if err != nil {
+		appCtx.Logger().Error("failure finding the origin duty location", zap.Error(err))
+		return apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
+	}
+	orders.OriginDutyLocation = &originDutyLocation
+	if err != nil {
+		appCtx.Logger().Error("failure finding the origin duty location", zap.Error(err))
+		return apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
+	}
 	for i := range move.MTOShipments {
 		// if it's a PPMShipment update both the mto and ppm shipment level statuses
 		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
