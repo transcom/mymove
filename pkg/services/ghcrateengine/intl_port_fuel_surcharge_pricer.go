@@ -96,7 +96,7 @@ func (p portFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, 
 		return unit.Cents(0), nil, err
 	}
 
-	_, err = getParamString(params, models.ServiceItemParamNamePortName)
+	_, err = getParamString(params, models.ServiceItemParamNamePortZip)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
