@@ -84,7 +84,7 @@ const OrdersDetailForm = ({
         name="ordersType"
         label="Orders type"
         options={
-          formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY || formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
+          formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY_NON_LABEL || formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
             ? dropdownInputOptions({ SAFETY: 'Safety', BLUEBARK: 'Bluebark' })
             : ordersTypeOptions
         }
@@ -94,7 +94,7 @@ const OrdersDetailForm = ({
         }}
         isDisabled={
           formIsDisabled ||
-          formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY ||
+          formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY_NON_LABEL ||
           formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
         }
       />
