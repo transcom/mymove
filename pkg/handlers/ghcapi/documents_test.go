@@ -53,6 +53,9 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 	}
 	documentPayload := showResponse.Payload
 
+	// Double quote the filename to be able to handle filenames with commas in them
+	quotedFilename := strconv.Quote(userUpload.Upload.Filename)
+
 	// Validate outgoing payload
 	suite.NoError(documentPayload.Validate(strfmt.Default))
 
@@ -68,7 +71,7 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 	uploadPayload := documentPayload.Uploads[0]
 	values := url.Values{}
 	values.Add("response-content-type", uploader.FileTypePDF)
-	values.Add("response-content-disposition", "attachment; filename="+userUpload.Upload.Filename)
+	values.Add("response-content-disposition", "attachment; filename="+quotedFilename)
 	values.Add("signed", "test")
 	expectedURL := fmt.Sprintf("https://example.com/dir/%s?", userUpload.Upload.StorageKey) + values.Encode()
 	if (uploadPayload.URL).String() != expectedURL {
