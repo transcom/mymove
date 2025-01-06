@@ -18,6 +18,7 @@ import (
 	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 )
 
 type paymentRequestCreator struct {
@@ -39,11 +40,11 @@ func NewPaymentRequestCreator(planner route.Planner, pricer services.ServiceItem
 	}
 }
 
-func (p *paymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error) {
-	return p.CreatePaymentRequest(appCtx, paymentRequest, p.checks...)
+func (p *paymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, featureFlagValues map[string]bool) (*models.PaymentRequest, error) {
+	return p.CreatePaymentRequest(appCtx, paymentRequest, featureFlagValues, p.checks...)
 }
 
-func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequestArg *models.PaymentRequest, checks ...paymentRequestValidator) (*models.PaymentRequest, error) {
+func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequestArg *models.PaymentRequest, featureFlagValues map[string]bool, checks ...paymentRequestValidator) (*models.PaymentRequest, error) {
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var err error
 		now := time.Now()
@@ -96,6 +97,35 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		// These incoming payment service items have not been created in the database yet
 		var newPaymentServiceItems models.PaymentServiceItems
 		for _, paymentServiceItem := range paymentRequestArg.PaymentServiceItems {
+
+			// Skip service item if this is a mobile home shipment and the toggle for this item type is turned off
+			switch paymentServiceItem.MTOServiceItem.ReService.Code {
+			case models.ReServiceCodeDMHDP:
+				if !featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] { // Do not apply at all to this request
+					continue
+				} else if !featureFlagValues[featureflag.DomesticMobileHomeDDPFactor] { // Downgrade to regular DDP service item (no mobile home factor applied)
+					paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDDP
+				}
+			case models.ReServiceCodeDMHOP:
+				if !featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] {
+					continue
+				} else if !featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
+					paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDOP
+				}
+			case models.ReServiceCodeDMHPK:
+				if !featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] {
+					continue
+				} else if !featureFlagValues[featureflag.DomesticMobileHomePackingFactor] {
+					paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDPK
+				}
+			case models.ReServiceCodeDMHUPK:
+				if !featureFlagValues[featureflag.DomesticMobileHomeUnpackingEnabled] {
+					continue
+				} else if !featureFlagValues[featureflag.DomesticMobileHomeUnpackingFactor] {
+					paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDUPK
+				}
+			default: // Other service item type, no mobile home specific type/factor to worry about.
+			}
 
 			// check if shipment is valid for creating a payment request
 			validShipmentError := p.validShipment(appCtx, paymentServiceItem.MTOServiceItem.MTOShipmentID, shipmentIDs)

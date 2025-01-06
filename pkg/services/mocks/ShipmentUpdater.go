@@ -14,9 +14,9 @@ type ShipmentUpdater struct {
 	mock.Mock
 }
 
-// UpdateShipment provides a mock function with given fields: appCtx, shipment, eTag, api
-func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCtx, shipment, eTag, api)
+// UpdateShipment provides a mock function with given fields: appCtx, shipment, eTag, api, featureFlagValues
+func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string, featureFlagValues map[string]bool) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, shipment, eTag, api, featureFlagValues)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateShipment")
@@ -24,19 +24,19 @@ func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment
 
 	var r0 *models.MTOShipment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string, string) (*models.MTOShipment, error)); ok {
-		return rf(appCtx, shipment, eTag, api)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string, string, map[string]bool) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipment, eTag, api, featureFlagValues)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string, string) *models.MTOShipment); ok {
-		r0 = rf(appCtx, shipment, eTag, api)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string, string, map[string]bool) *models.MTOShipment); ok {
+		r0 = rf(appCtx, shipment, eTag, api, featureFlagValues)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string, string) error); ok {
-		r1 = rf(appCtx, shipment, eTag, api)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string, string, map[string]bool) error); ok {
+		r1 = rf(appCtx, shipment, eTag, api, featureFlagValues)
 	} else {
 		r1 = ret.Error(1)
 	}

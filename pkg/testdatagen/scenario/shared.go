@@ -4383,7 +4383,7 @@ func createHHGWithOriginSITServiceItems(
 	}
 
 	paymentRequest.PaymentServiceItems = paymentServiceItems
-	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
+	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest, featureFlagValues)
 
 	if createErr != nil {
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
@@ -4663,7 +4663,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	}
 
 	paymentRequest.PaymentServiceItems = paymentServiceItems
-	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
+	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest, featureFlagValues)
 
 	if createErr != nil {
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
@@ -5344,7 +5344,7 @@ func createHHGWithPaymentServiceItems(
 
 	logger.Debug(serviceItemOrderString)
 	paymentRequest.PaymentServiceItems = paymentServiceItems
-	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
+	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest, featureFlagValues)
 
 	if createErr != nil {
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
@@ -5608,7 +5608,17 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		},
 	}
 
-	paymentRequest, paymentRequestErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
+	v := viper.New()
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if err != nil {
+		log.Panicf("Error setting up feature flag fetcher: %s", err)
+	}
+	featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error fetching mobile home feature flags: %s", err))
+	}
+
+	paymentRequest, paymentRequestErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest, featureFlagValues)
 
 	if paymentRequestErr != nil {
 		logger.Fatal("error while creating payment request:", zap.Error(paymentRequestErr))

@@ -30,13 +30,8 @@ func (h UpdateReweighHandler) Handle(params mtoshipmentops.UpdateReweighParams) 
 			// Get the new reweigh model
 			newReweigh := payloads.ReweighModelFromUpdate(payload, params.ReweighID, params.MtoShipmentID)
 
-			// Call the service object
-			updatedReweigh, err := h.ReweighUpdater.UpdateReweighCheck(appCtx, newReweigh, eTag)
-
-			// Convert the errors into error responses to return to caller
-			if err != nil {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("primeapi.UpdateReweighHandler", zap.Error(err))
-
 				switch e := err.(type) {
 				case apperror.PreconditionFailedError:
 					return mtoshipmentops.NewUpdateReweighPreconditionFailed().WithPayload(
@@ -65,7 +60,18 @@ func (h UpdateReweighHandler) Handle(params mtoshipmentops.UpdateReweighParams) 
 					return mtoshipmentops.NewUpdateReweighInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
+			}
+			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
+			if err != nil {
+				return handleError(err)
+			}
 
+			// Call the service object
+			updatedReweigh, err := h.ReweighUpdater.UpdateReweighCheck(appCtx, newReweigh, eTag, featureFlagValues)
+
+			// Convert the errors into error responses to return to caller
+			if err != nil {
+				return handleError(err)
 			}
 
 			// If no error, create a successful payload to return

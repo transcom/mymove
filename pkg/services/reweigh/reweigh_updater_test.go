@@ -15,6 +15,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -43,6 +44,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 
 	reweighUpdater := NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker(), paymentRequestShipmentRecalculator)
 	currentTime := time.Now()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 
 	// Test Success - Reweigh updated
 	suite.Run("Updated reweigh - Success", func() {
@@ -62,7 +64,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		newReweigh := oldReweigh
 		newWeight := unit.Pound(200)
 		newReweigh.Weight = &newWeight
-		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, eTag)
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, eTag, featureFlagValues)
 
 		suite.NoError(err)
 		suite.NotNil(updatedReweigh)
@@ -78,7 +80,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		})
 		eTag := etag.GenerateEtag(time.Now())
 
-		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &notFoundReweigh, eTag)
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &notFoundReweigh, eTag, featureFlagValues)
 
 		suite.Nil(updatedReweigh)
 		suite.Error(err)
@@ -102,7 +104,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		eTag := etag.GenerateEtag(time.Now())
 		newReweigh := oldReweigh
 
-		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, eTag) // base validation
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, eTag, featureFlagValues) // base validation
 
 		suite.Nil(updatedReweigh)
 		suite.Error(err)

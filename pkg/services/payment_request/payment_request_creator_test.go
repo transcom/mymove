@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -30,6 +31,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	serviceItemPricer := &mocks.ServiceItemPricer{}
 	planner := &routemocks.Planner{}
 	creator := NewPaymentRequestCreator(planner, serviceItemPricer)
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 
 	suite.PreloadData(func() {
 		// Create some records we'll need to link to
@@ -364,7 +366,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		paymentRequestReturn, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest)
+		paymentRequestReturn, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest, featureFlagValues)
 		suite.FatalNoError(err)
 
 		expectedSequenceNumber := 1
@@ -435,7 +437,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest, featureFlagValues)
 		suite.FatalNoError(err)
 
 		// Verify some of the data that came back
@@ -481,7 +483,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		paymentRequestResult, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest)
+		paymentRequestResult, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest, featureFlagValues)
 		suite.FatalNoError(err)
 
 		// Verify some of the data that came back
@@ -533,7 +535,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		paymentRequestResult, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest)
+		paymentRequestResult, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest, featureFlagValues)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), "paymentRequestCreator.validShipment: Shipment uses external vendor for MTOShipmentID")
@@ -575,7 +577,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		).Return(0, nil)
 		failingCreator := NewPaymentRequestCreator(planner, failingServiceItemPricer)
 
-		_, err := failingCreator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest)
+		_, err := failingCreator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest, featureFlagValues)
 		suite.Error(err)
 		wrappedErr := errors.Unwrap(err)
 		suite.Equal(errMsg, wrappedErr.Error())
@@ -623,7 +625,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest, featureFlagValues)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -711,7 +713,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2, featureFlagValues)
 
 		suite.NoError(err)
 	})
@@ -721,7 +723,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			MoveTaskOrderID: uuid.Nil,
 			IsFinal:         false,
 		}
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest, featureFlagValues)
 
 		suite.Error(err)
 		suite.IsType(apperror.InvalidCreateInputError{}, err)
@@ -808,7 +810,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			}
 
-			_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest)
+			_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest, featureFlagValues)
 
 			suite.Error(err)
 			suite.IsType(testData.ExpectedError, err)
@@ -974,7 +976,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 					},
 				},
 			}
-			_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest)
+			_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest, featureFlagValues)
 
 			suite.Error(err)
 			suite.IsType(testData.ExpectedError, err)
@@ -995,7 +997,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest, featureFlagValues)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), "not found for MTO Service Item")
@@ -1011,7 +1013,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest, featureFlagValues)
 		suite.Error(err)
 		suite.IsType(apperror.InvalidCreateInputError{}, err)
 	})
@@ -1025,7 +1027,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest, featureFlagValues)
 		suite.Error(err)
 		suite.IsType(apperror.InvalidCreateInputError{}, err)
 	})
@@ -1047,7 +1049,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest, featureFlagValues)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Equal(fmt.Sprintf("ID: %s not found Service Item Param Key ID", badID), err.Error())
@@ -1070,7 +1072,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &invalidPaymentRequest, featureFlagValues)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Equal("Not found Service Item Param Key bogus: FETCH_NOT_FOUND", err.Error())
@@ -1099,7 +1101,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err = creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest1)
+		_, err = creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest1, featureFlagValues)
 		suite.FatalNoError(err)
 
 		paymentRequest2 := models.PaymentRequest{
@@ -1118,7 +1120,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err = creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2)
+		_, err = creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2, featureFlagValues)
 		suite.FatalNoError(err)
 
 		// Verify expected payment request numbers
@@ -1156,7 +1158,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest1)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest1, featureFlagValues)
 		suite.Contains(err.Error(), "has missing ReferenceID")
 
 		moveTaskOrder.ReferenceID = &saveReferenceID
@@ -1195,7 +1197,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest1)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest1, featureFlagValues)
 		suite.FatalNoError(err)
 		paymentRequest2 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
@@ -1218,7 +1220,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		_, err = creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2)
+		_, err = creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2, featureFlagValues)
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Contains(err.Error(), "final PaymentRequest has already been submitted")
@@ -1250,7 +1252,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest1)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest1, featureFlagValues)
 		suite.FatalNoError(err)
 
 		paymentRequest1.Status = models.PaymentRequestStatusReviewedAllRejected
@@ -1277,7 +1279,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		_, err = creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2)
+		_, err = creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2, featureFlagValues)
 		suite.NoError(err)
 
 		paymentRequest1.IsFinal = false
@@ -1308,7 +1310,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest1)
+		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest1, featureFlagValues)
 		suite.Contains(err.Error(), "has missing ReferenceID")
 
 		moveTaskOrder.ReferenceID = &saveReferenceID
@@ -1327,7 +1329,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		paymentRequestReturn, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest)
+		paymentRequestReturn, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest, featureFlagValues)
 		suite.FatalNoError(err)
 		suite.NotEqual(paymentRequestReturn.ID, uuid.Nil)
 		suite.Equal(1, len(paymentRequestReturn.PaymentServiceItems), "PaymentServiceItems expect 1")
@@ -1469,7 +1471,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 
 	// Create an initial payment request.
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
-	paymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
+	paymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg, featureFlagValues)
 	suite.FatalNoError(err)
 
 	// Make sure we have just the DLH payment service item

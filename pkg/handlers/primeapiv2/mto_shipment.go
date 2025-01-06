@@ -202,8 +202,8 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			mtoShipment.ShipmentType = dbShipment.ShipmentType
 
 			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime-v2")
-			if err != nil {
+
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
@@ -222,6 +222,14 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 					return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
+			}
+			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
+			if err != nil {
+				return handleError(err)
+			}
+			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime-v2", featureFlagValues)
+			if err != nil {
+				return handleError(err)
 			}
 			mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
 			return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload), nil

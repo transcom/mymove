@@ -295,6 +295,11 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
+			if err != nil {
+				return mtoshipmentops.NewUpdateMTOShipmentInternalServerError(), err
+			}
+
 			payload := params.Body
 			if payload == nil {
 				appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
@@ -410,7 +415,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
 			}
 
-			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "ghc")
+			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "ghc", featureFlagValues)
 			if err != nil {
 				return handleError(err)
 			}
@@ -1129,6 +1134,11 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 				}
 			}
 
+			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
+			if err != nil {
+				return handleError(err)
+			}
+
 			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 				forbiddenError := apperror.NewForbiddenError("is not a TOO")
 				return handleError(forbiddenError)
@@ -1151,7 +1161,7 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 
 			existingETag := etag.GenerateEtag(updatedShipment.UpdatedAt)
 
-			updatedShipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
+			updatedShipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", featureFlagValues)
 			if err != nil {
 				return handleError(err)
 			}
@@ -1381,6 +1391,11 @@ func (h CreateApprovedSITDurationUpdateHandler) Handle(params shipmentops.Create
 				}
 			}
 
+			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
+			if err != nil {
+				return handleError(err)
+			}
+
 			sitExtension := payloads.ApprovedSITExtensionFromCreate(payload, shipmentID)
 			shipment, err := h.ApprovedSITDurationUpdateCreator.CreateApprovedSITDurationUpdate(appCtx, sitExtension, sitExtension.MTOShipmentID, params.IfMatch)
 			if err != nil {
@@ -1398,7 +1413,7 @@ func (h CreateApprovedSITDurationUpdateHandler) Handle(params shipmentops.Create
 
 			existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
-			shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
+			shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", featureFlagValues)
 			if err != nil {
 				return handleError(err)
 			}

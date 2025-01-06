@@ -64,6 +64,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	mockSender := setUpMockNotificationSender()
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 
 	mtoShipmentUpdaterOffice := NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
 	mtoShipmentUpdaterCustomer := NewCustomerMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
@@ -157,7 +158,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		eTag := etag.GenerateEtag(time.Now())
 
 		session := auth.Session{}
-		_, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment, eTag, "test")
+		_, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment, eTag, "test", featureFlagValues)
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 		// Verify that shipment recalculate was handled correctly
@@ -181,7 +182,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				LinkOnly: true,
 			},
 		}, nil)
-		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(session, &shipment, eTag, "test")
+		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(session, &shipment, eTag, "test", featureFlagValues)
 		suite.Error(err)
 		suite.Nil(updatedShipment)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -193,7 +194,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		eTag := etag.GenerateEtag(oldMTOShipment.UpdatedAt)
 
 		session := auth.Session{}
-		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment, eTag, "test")
+		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.Equal(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -220,7 +221,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		eTag := etag.GenerateEtag(oldMTOShipment2.UpdatedAt)
 		session := auth.Session{}
-		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment2, eTag, "test")
+		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment2, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.Equal(updatedMTOShipment.ID, oldMTOShipment2.ID)
@@ -259,7 +260,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		session := auth.Session{}
-		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.FatalNotNil(newShipment.HasSecondaryPickupAddress)
@@ -295,7 +296,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		session := auth.Session{}
-		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.FatalNotNil(newShipment.HasSecondaryDeliveryAddress)
@@ -337,7 +338,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		session := auth.Session{}
-		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.FatalNotNil(newShipment.HasTertiaryPickupAddress)
@@ -373,7 +374,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		session := auth.Session{}
-		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.FatalNotNil(newShipment.HasTertiaryDeliveryAddress)
@@ -410,7 +411,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			TertiaryDeliveryAddressID:   &tertiaryDeliveryAddress.ID,
 		}
 		session := auth.Session{}
-		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), updatedShipment, eTag, "test")
+		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.Equal(newDestinationAddress.ID, *updatedShipment.DestinationAddressID)
@@ -450,7 +451,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			PickupAddressID:      &newPickupAddress.ID,
 		}
 		session := auth.Session{}
-		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), updatedShipment, eTag, "test")
+		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.NoError(err)
 		suite.Equal(newDestinationAddress.ID, *updatedShipment.DestinationAddressID)
@@ -651,7 +652,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		session := auth.Session{}
-		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 		suite.NoError(err)
 
 		// checking the service item data
@@ -716,7 +717,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		session := auth.Session{}
-		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.True(requestedPickupDate.Equal(*newShipment.RequestedPickupDate))
@@ -784,7 +785,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			CounselorRemarks:         &counselorRemarks,
 		}
 		session := auth.Session{}
-		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.NotEmpty(newShipment.ApprovedDate)
@@ -840,7 +841,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			OfficeUserID:    too.ID,
 		}
 		session.Roles = append(session.Roles, too.User.Roles...)
-		newShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		newShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.Equal(destinationType, *newShipment.DestinationType)
@@ -857,7 +858,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 			{
 				Model: models.MTOAgent{
-					FirstName:    models.StringPointer("Test"),
+					FirstName:    models.StringPointer("test"),
 					LastName:     models.StringPointer("Agent"),
 					Email:        models.StringPointer("test@test.email.com"),
 					MTOAgentType: models.MTOAgentReleasing,
@@ -898,7 +899,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		session := auth.Session{}
-		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -922,7 +923,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 			{
 				Model: models.MTOAgent{
-					FirstName:    models.StringPointer("Test"),
+					FirstName:    models.StringPointer("test"),
 					LastName:     models.StringPointer("Agent"),
 					Email:        models.StringPointer("test@test.email.com"),
 					MTOAgentType: models.MTOAgentReleasing,
@@ -951,7 +952,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		session := auth.Session{}
-		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -985,7 +986,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 			{
 				Model: models.MTOAgent{
-					FirstName:    models.StringPointer("Test"),
+					FirstName:    models.StringPointer("test"),
 					LastName:     models.StringPointer("Agent"),
 					Email:        models.StringPointer("test@test.email.com"),
 					MTOAgentType: models.MTOAgentReleasing,
@@ -1011,7 +1012,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		session := auth.Session{}
-		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -1055,7 +1056,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			OfficeUserID:    too.ID,
 		}
 		session.Roles = append(session.Roles, too.User.Roles...)
-		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -1120,7 +1121,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			OfficeUserID:    too.ID,
 		}
 		session.Roles = append(session.Roles, too.User.Roles...)
-		updatedShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &newShipment, eTag, "test")
+		updatedShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &newShipment, eTag, "test", featureFlagValues)
 		suite.Require().NoError(err)
 		suite.NotEqual(uuid.Nil, updatedShipment.ID)
 		suite.Equal(&newEmail, updatedShipment.StorageFacility.Email)
@@ -1152,7 +1153,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			OfficeUserID:    too.ID,
 		}
 		session.Roles = append(session.Roles, too.User.Roles...)
-		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -1184,7 +1185,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			OfficeUserID:    too.ID,
 		}
 		session.Roles = append(session.Roles, too.User.Roles...)
-		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().Error(err)
 		suite.Nil(updatedMTOShipment)
@@ -1228,7 +1229,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			Diversion: true,
 		}
 		session := auth.Session{}
-		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &shipmentInput, eTag, "test")
+		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &shipmentInput, eTag, "test", featureFlagValues)
 
 		suite.Require().NotNil(updatedShipment)
 		suite.NoError(err)
@@ -1311,7 +1312,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.FatalNoError(err)
 
 		session := auth.Session{}
-		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.NotEmpty(newShipment.ApprovedDate)
@@ -1388,7 +1389,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.FatalNoError(err)
 
 		session := auth.Session{}
-		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "cannot be updated after initial estimation")
@@ -1421,7 +1422,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		session := auth.Session{}
-		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.NotEmpty(newShipment.Reweigh)
@@ -1490,7 +1491,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.FatalNoError(err)
 
 		session := auth.Session{}
-		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
@@ -1568,7 +1569,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.FatalNoError(err)
 
 		session := auth.Session{}
-		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "cannot add or update MTO agents to a shipment")
@@ -1636,7 +1637,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.FatalNoError(err)
 
 		session := auth.Session{}
-		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		_, err = mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "the pickup address already exists and cannot be updated with this endpoint")
@@ -1694,7 +1695,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		session := auth.Session{}
-		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "failed to find transit time for shipment of 9000 lbs weight and 1000 mile distance")
@@ -1762,7 +1763,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.FatalNoError(err)
 
 		session := auth.Session{}
-		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 
 		suite.Require().NoError(err)
 		suite.NotEmpty(newShipment.ApprovedDate)
@@ -1841,7 +1842,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.FatalNoError(err)
 
 		session := auth.Session{}
-		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test", featureFlagValues)
 		suite.Require().NoError(err)
 		suite.NotEmpty(newShipment.ApprovedDate)
 		suite.True(requestedPickupDate.Equal(*newShipment.RequestedPickupDate))
@@ -2689,6 +2690,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
 	mtoShipmentUpdaterPrime := NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 
 	suite.Run("Updates to estimated weight change max billable weight", func() {
 		now := time.Now()
@@ -2718,7 +2720,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		primeShipment.PrimeEstimatedWeight = &estimatedWeight
 
 		session := auth.Session{}
-		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
+		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test", featureFlagValues)
 		suite.NoError(err)
 
 		err = suite.DB().Reload(primeShipment.MoveTaskOrder.Orders.Entitlement)
@@ -2757,7 +2759,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		suite.Equal(models.MoveStatusAPPROVED, primeShipment.MoveTaskOrder.Status)
 
 		session := auth.Session{}
-		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
+		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test", featureFlagValues)
 		suite.NoError(err)
 
 		err = suite.DB().Reload(&primeShipment.MoveTaskOrder)
@@ -2804,7 +2806,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 
 		session := auth.Session{}
-		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
+		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test", featureFlagValues)
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(suite.T(), "CheckExcessWeight")
@@ -2846,7 +2848,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 
 		session := auth.Session{}
-		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
+		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test", featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "cannot be updated after initial estimation")
 
@@ -2872,6 +2874,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
 	mtoShipmentUpdaterPrime := NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 
 	suite.Run("Updating the shipment actual weight within weight allowance creates reweigh requests for", func() {
 		now := time.Now()
@@ -2899,7 +2902,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		primeShipment.PrimeActualWeight = &actualWeight
 
 		session := auth.Session{}
-		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
+		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test", featureFlagValues)
 		suite.NoError(err)
 
 		err = suite.DB().Eager("Reweigh").Reload(&primeShipment)
@@ -2946,7 +2949,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		moveWeights.On("CheckExcessWeight", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("models.MTOShipment")).Return(&primeShipment.MoveTaskOrder, nil, nil)
 
 		session := auth.Session{}
-		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
+		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test", featureFlagValues)
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(suite.T(), "CheckAutoReweigh")
@@ -2986,7 +2989,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		primeShipment.PrimeActualWeight = &actualWeight
 
 		session := auth.Session{}
-		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
+		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test", featureFlagValues)
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(suite.T(), "CheckAutoReweigh")
@@ -3006,6 +3009,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.PaymentRequests{}, nil)
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 
 	suite.Run("tacType and sacType are set to null when empty string is passed in", func() {
 		moveWeights := &mockservices.MoveWeights{}
@@ -3039,7 +3043,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 			OfficeUserID:    too.ID,
 		}
 		session.Roles = append(session.Roles, too.User.Roles...)
-		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), requestedUpdate, etag.GenerateEtag(ntsMove.MTOShipments[0].UpdatedAt), "test")
+		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), requestedUpdate, etag.GenerateEtag(ntsMove.MTOShipments[0].UpdatedAt), "test", featureFlagValues)
 		suite.NoError(err)
 		suite.Equal(nil, nil)
 		suite.Equal(nil, nil)
@@ -3079,7 +3083,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 			OfficeUserID:    too.ID,
 		}
 		session.Roles = append(session.Roles, too.User.Roles...)
-		updatedMtoShipment, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), requestedUpdate, etag.GenerateEtag(shipment.UpdatedAt), "test")
+		updatedMtoShipment, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), requestedUpdate, etag.GenerateEtag(shipment.UpdatedAt), "test", featureFlagValues)
 		suite.NoError(err)
 		suite.Equal(*requestedUpdate.TACType, *updatedMtoShipment.TACType)
 		suite.Equal(*shipment.SACType, *updatedMtoShipment.SACType)

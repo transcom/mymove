@@ -469,9 +469,7 @@ func (h RecalculatePaymentRequestHandler) Handle(params paymentrequestop.Recalcu
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
 
-			newPaymentRequest, err := h.PaymentRequestRecalculator.RecalculatePaymentRequest(appCtx, paymentRequestID)
-
-			if err != nil {
+			handleError := func(err error) (middleware.Responder, error) {
 				switch e := err.(type) {
 				case *apperror.BadDataError:
 					return paymentrequestop.NewRecalculatePaymentRequestBadRequest().WithPayload(
@@ -504,6 +502,15 @@ func (h RecalculatePaymentRequestHandler) Handle(params paymentrequestop.Recalcu
 					return paymentrequestop.NewRecalculatePaymentRequestInternalServerError().WithPayload(
 						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
+			}
+
+			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
+			if err != nil {
+				return handleError(err)
+			}
+			newPaymentRequest, err := h.PaymentRequestRecalculator.RecalculatePaymentRequest(appCtx, paymentRequestID, featureFlagValues)
+			if err != nil {
+				return handleError(err)
 			}
 
 			returnPayload := payloads.PaymentRequest(newPaymentRequest)

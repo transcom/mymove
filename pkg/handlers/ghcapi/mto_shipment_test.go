@@ -4674,6 +4674,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, err)
 
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{

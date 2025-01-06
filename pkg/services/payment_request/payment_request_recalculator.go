@@ -27,14 +27,14 @@ func NewPaymentRequestRecalculator(paymentRequestCreator services.PaymentRequest
 	}
 }
 
-func (p *paymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
+func (p *paymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, featureFlagValues map[string]bool) (*models.PaymentRequest, error) {
 	var newPaymentRequest *models.PaymentRequest
 
 	// Make sure we do this whole process in a transaction so partial changes do not get made committed
 	// in the event of an error.
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var err error
-		newPaymentRequest, err = p.doRecalculate(txnAppCtx, paymentRequestID)
+		newPaymentRequest, err = p.doRecalculate(txnAppCtx, paymentRequestID, featureFlagValues)
 		return err
 	})
 	if transactionError != nil {
@@ -45,7 +45,7 @@ func (p *paymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext
 }
 
 // doRecalculate handles the core recalculation process; put in separate method to make it easier to call from the transactional context.
-func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
+func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, featureFlagValues map[string]bool) (*models.PaymentRequest, error) {
 	// Fetch the payment request and payment service items from the old request.
 	var oldPaymentRequest models.PaymentRequest
 	err := appCtx.DB().
@@ -84,7 +84,7 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 	if err != nil {
 		return nil, err
 	}
-	newPaymentRequest, err := p.paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &inputPaymentRequest)
+	newPaymentRequest, err := p.paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &inputPaymentRequest, featureFlagValues)
 	if err != nil {
 		return nil, err // Just pass the error type from the PaymentRequestCreator.
 	}

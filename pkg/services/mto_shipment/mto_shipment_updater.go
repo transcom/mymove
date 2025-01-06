@@ -347,7 +347,7 @@ func (e StaleIdentifierError) Error() string {
 }
 
 // UpdateMTOShipment updates the mto shipment
-func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error) {
+func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string, featureFlagValues map[string]bool) (*models.MTOShipment, error) {
 	eagerAssociations := []string{"MoveTaskOrder",
 		"PickupAddress",
 		"DestinationAddress",
@@ -390,7 +390,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	setNewShipmentFields(appCtx, oldShipment, mtoShipment)
 	newShipment := oldShipment // old shipment has now been updated with requested changes
 	// db version is used to check if agents need creating or updating
-	err = f.updateShipmentRecord(appCtx, &dbShipment, newShipment, eTag)
+	err = f.updateShipmentRecord(appCtx, &dbShipment, newShipment, eTag, featureFlagValues)
 	if err != nil {
 		switch err.(type) {
 		case StaleIdentifierError:
@@ -428,7 +428,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 
 // Takes the validated shipment input and updates the database using a transaction. If any part of the
 // update fails, the entire transaction will be rolled back.
-func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
+func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string, featureFlagValues map[string]bool) error {
 	var autoReweighShipments models.MTOShipments
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
@@ -894,7 +894,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// Perform shipment recalculate payment request
 		//
 		if runShipmentRecalculate {
-			_, err := f.recalculator.ShipmentRecalculatePaymentRequest(txnAppCtx, dbShipment.ID)
+			_, err := f.recalculator.ShipmentRecalculatePaymentRequest(txnAppCtx, dbShipment.ID, featureFlagValues)
 			if err != nil {
 				return err
 			}

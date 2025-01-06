@@ -21,7 +21,7 @@ func NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator services.P
 
 // ShipmentRecalculatePaymentRequest recalculate all PENDING payment requests for shipmentID if
 // the payment request has any service items that allow for reweigh or weight adjustments
-func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.PaymentRequests, error) {
+func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(appCtx appcontext.AppContext, shipmentID uuid.UUID, featureFlagValues map[string]bool) (*models.PaymentRequests, error) {
 	var recalculatedPaymentRequests models.PaymentRequests
 	// Find all applicable payment request for the shipment
 	paymentRequestIDs, err := findPendingPaymentRequestsForShipment(appCtx, shipmentID)
@@ -36,7 +36,7 @@ func (p *paymentRequestShipmentRecalculator) ShipmentRecalculatePaymentRequest(a
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		for _, pr := range paymentRequestIDs {
 			var newPR *models.PaymentRequest
-			newPR, err = p.paymentRequestRecalculator.RecalculatePaymentRequest(txnAppCtx, pr)
+			newPR, err = p.paymentRequestRecalculator.RecalculatePaymentRequest(txnAppCtx, pr, featureFlagValues)
 			if err != nil {
 				return err
 			}

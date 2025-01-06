@@ -14,7 +14,7 @@ type ReweighCreator interface {
 
 // ReweighUpdater updates a reweigh
 type ReweighUpdater interface {
-	UpdateReweighCheck(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string) (*models.Reweigh, error)
+	UpdateReweighCheck(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, featureFlagValues map[string]bool) (*models.Reweigh, error)
 }
 
 // ReweighFetcher allows us to fetch reweights. This is primarily used during the reweigh update of a
