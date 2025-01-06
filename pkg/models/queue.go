@@ -19,7 +19,7 @@ type MoveQueueItem struct {
 	Locator                     string                          `json:"locator" db:"locator"`
 	Status                      string                          `json:"status" db:"status"`
 	PpmStatus                   *string                         `json:"ppm_status" db:"ppm_status"`
-	OrdersType                  string                          `json:"orders_type" db:"orders_type"`
+	OrdersType                  *internalmessages.OrdersType    `json:"orders_type" db:"orders_type"`
 	MoveDate                    *time.Time                      `json:"move_date" db:"move_date"`
 	SubmittedDate               *time.Time                      `json:"submitted_date" db:"submitted_date"`
 	LastModifiedDate            time.Time                       `json:"last_modified_date" db:"last_modified_date"`
