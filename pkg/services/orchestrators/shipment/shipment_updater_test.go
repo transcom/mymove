@@ -74,7 +74,8 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					mock.AnythingOfType("*appcontext.appContext"),
 					mock.AnythingOfType("*models.MTOShipment"),
 					mock.AnythingOfType("string"),
-					mock.AnythingOfType("string")).
+					mock.AnythingOfType("string"),
+					mock.AnythingOfType("map[string]bool")).
 				Return(nil, subtestData.fakeError)
 		} else {
 			subtestData.mockMTOShipmentUpdater.
@@ -83,7 +84,8 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					mock.AnythingOfType("*appcontext.appContext"),
 					mock.AnythingOfType("*models.MTOShipment"),
 					mock.AnythingOfType("string"),
-					mock.AnythingOfType("string")).
+					mock.AnythingOfType("string"),
+					mock.AnythingOfType("map[string]bool")).
 				Return(
 					&models.MTOShipment{
 						ID: uuid.Must(uuid.FromString("a5e95c1d-97c3-4f79-8097-c12dd2557ac7")),
@@ -260,6 +262,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					&shipment,
 					eTag,
 					"test",
+					featureFlagValues,
 				)
 
 				if isPPMShipment {
@@ -467,6 +470,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			&shipment,
 			eTag,
 			"test",
+			featureFlagValues,
 		)
 
 		subtestData.mockPPMShipmentUpdater.AssertNotCalled(
