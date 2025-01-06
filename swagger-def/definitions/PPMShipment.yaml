@@ -131,6 +131,13 @@ properties:
     example: 4200
     x-nullable: true
     x-omitempty: false
+  allowableWeight:
+    description: The allowable weight of the PPM shipment goods being moved.
+    type: integer
+    example: 4300
+    minimum: 0
+    x-nullable: true
+    x-omitempty: false
   hasProGear:
     description: >
       Indicates whether PPM shipment has pro gear for themselves or their spouse.
@@ -149,6 +156,12 @@ properties:
     x-omitempty: false
   estimatedIncentive:
     description: The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  maxIncentive:
+    description: The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
     type: integer
     format: cents
     x-nullable: true

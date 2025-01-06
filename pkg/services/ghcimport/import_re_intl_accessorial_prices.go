@@ -21,7 +21,6 @@ func (gre *GHCRateEngineImporter) importREIntlAccessorialPrices(appCtx appcontex
 		serviceProvided string
 	}{
 		{models.ReServiceCodeICRT, "Crating (per cubic ft.)"},
-		{models.ReServiceCodeICRTSA, "Crating (per cubic ft.)"},
 		{models.ReServiceCodeIUCRT, "Uncrating (per cubic ft.)"},
 		{models.ReServiceCodeIDSHUT, "Shuttle Service (per cwt)"},
 		{models.ReServiceCodeIOSHUT, "Shuttle Service (per cwt)"},

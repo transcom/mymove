@@ -66,7 +66,7 @@ const EvaluationReportShipmentDisplay = ({
         </div>
         {isExpanded && displayInfo.shipmentType === SHIPMENT_OPTIONS.NTS && (
           <div className={styles.ntsHeaderText}>
-            <h6 className={styles.ntsHeaderTextField}>Pickup address</h6>
+            <h6 className={styles.ntsHeaderTextField}>Pickup Address</h6>
             <h6 className={classnames(styles.ntsHeaderTextField, styles.ntsHeaderTextRight)}>
               {displayInfo?.storageFacility ? displayInfo.storageFacility.facilityName : ''}
             </h6>
@@ -77,7 +77,7 @@ const EvaluationReportShipmentDisplay = ({
             <h6 className={styles.ntsHeaderTextField}>
               {displayInfo?.storageFacility ? displayInfo.storageFacility.facilityName : ''}
             </h6>
-            <h6 className={classnames(styles.ntsHeaderTextField, styles.ntsHeaderTextRight)}>Delivery address</h6>
+            <h6 className={classnames(styles.ntsHeaderTextField, styles.ntsHeaderTextRight)}>Delivery Address</h6>
           </div>
         )}
         {isExpanded && (

@@ -35,14 +35,14 @@ func NewUpdateShipmentDestinationAddress(ctx *middleware.Context, handler Update
 updateShipmentDestinationAddress
 
 ### Functionality
-This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
-after the destination address has already been approved.
+This endpoint is used so the Prime can request an **update** for the delivery address on an MTO Shipment,
+after the delivery address has already been approved.
 
 This endpoint and operation only supports the following shipment types:
 - HHG
 - NTSR
 
-For HHG shipments, if automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.
+For HHG shipments, if automatically approved or TOO approves, this will update the final delivery address values for destination SIT service items to be the same as the changed delivery address that was approved.
 
 Address updates will be automatically approved unless they change:
   - The service area

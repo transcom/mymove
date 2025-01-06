@@ -48,11 +48,12 @@ func (ar AuthorizationResult) String() string {
 }
 
 // IsLoggedInMiddleware handles requests to is_logged_in endpoint by returning true if someone is logged in
-func IsLoggedInMiddleware(_ *zap.Logger) http.HandlerFunc {
+func IsLoggedInMiddleware(_ *zap.Logger, maintenanceFlag bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger := logging.FromContext(r.Context())
 		data := map[string]interface{}{
-			"isLoggedIn": false,
+			"isLoggedIn":       false,
+			"underMaintenance": maintenanceFlag,
 		}
 
 		session := auth.SessionFromRequestContext(r)

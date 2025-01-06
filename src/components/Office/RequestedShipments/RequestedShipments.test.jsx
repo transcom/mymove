@@ -2,6 +2,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { generatePath } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
@@ -54,17 +55,19 @@ const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
 const mockStore = configureStore({});
 
 const submittedRequestedShipmentsComponent = (
-  <Provider store={mockStore.store}>
-    <SubmittedRequestedShipments
-      allowancesInfo={allowancesInfo}
-      moveCode="TE5TC0DE"
-      mtoShipments={shipments}
-      closeoutOffice={closeoutOffice}
-      customerInfo={customerInfo}
-      ordersInfo={ordersInfo}
-      approveMTO={approveMTO}
-    />
-  </Provider>
+  <QueryClientProvider client={new QueryClient()}>
+    <Provider store={mockStore.store}>
+      <SubmittedRequestedShipments
+        allowancesInfo={allowancesInfo}
+        moveCode="TE5TC0DE"
+        mtoShipments={shipments}
+        closeoutOffice={closeoutOffice}
+        customerInfo={customerInfo}
+        ordersInfo={ordersInfo}
+        approveMTO={approveMTO}
+      />
+    </Provider>
+  </QueryClientProvider>
 );
 
 const submittedRequestedShipmentsComponentWithPermission = (
@@ -111,18 +114,20 @@ const submittedRequestedShipmentsComponentAvailableToPrimeAt = (
 );
 
 const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
-  <Provider store={mockStore.store}>
-    <SubmittedRequestedShipments
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      mtoShipments={shipments}
-      closeoutOffice={closeoutOffice}
-      approveMTO={approveMTO}
-      moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
-      moveCode="TE5TC0DE"
-    />
-  </Provider>
+  <QueryClientProvider client={new QueryClient()}>
+    <Provider store={mockStore.store}>
+      <SubmittedRequestedShipments
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        closeoutOffice={closeoutOffice}
+        approveMTO={approveMTO}
+        moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+        moveCode="TE5TC0DE"
+      />
+    </Provider>
+  </QueryClientProvider>
 );
 
 const submittedRequestedShipmentsComponentMissingRequiredInfo = (
@@ -211,7 +216,7 @@ describe('RequestedShipments', () => {
       expect(screen.getAllByTestId('checkbox').length).toEqual(5);
     });
 
-    it('uses the duty location postal code if there is no destination address', () => {
+    it('uses the duty location postal code if there is no delivery address', () => {
       render(submittedRequestedShipmentsComponent);
       const destination = shipments[0].destinationAddress;
       expect(screen.getAllByTestId('destinationAddress').at(0)).toHaveTextContent(
@@ -384,7 +389,28 @@ describe('RequestedShipments', () => {
         },
       ]);
     });
-
+    it('should disable the Approve selected button when order document upload is missing', async () => {
+      const { container } = render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <SubmittedRequestedShipments
+            mtoShipments={shipments}
+            ordersInfo={{ ...ordersInfo, ordersDocuments: ordersInfo.ordersDocuments[{}] }}
+            allowancesInfo={allowancesInfo}
+            customerInfo={customerInfo}
+            moveTaskOrder={moveTaskOrder}
+            moveCode="TE5TC0DE"
+          />
+        </MockProviders>,
+      );
+      await act(async () => {
+        await userEvent.type(
+          container.querySelector('input[name="shipments"]'),
+          'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+        );
+      });
+      expect(screen.getByLabelText('Move management').checked).toEqual(true);
+      expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
+    });
     it('displays approved basic service items for approved shipments', () => {
       render(
         <ApprovedRequestedShipments
@@ -437,9 +463,11 @@ describe('RequestedShipments', () => {
         const Component = statusComponents[status];
 
         render(
-          <Provider store={mockStore.store}>
-            <Component {...statusTestProps[status]} />
-          </Provider>,
+          <QueryClientProvider client={new QueryClient()}>
+            <Provider store={mockStore.store}>
+              <Component {...statusTestProps[status]} />
+            </Provider>
+          </QueryClientProvider>,
         );
 
         const customerRemarks = screen.getAllByTestId('customerRemarks');
@@ -495,6 +523,7 @@ describe('RequestedShipments', () => {
         SHIPMENT_OPTIONS_URL.NTSrelease,
         SHIPMENT_OPTIONS_URL.MOBILE_HOME,
         SHIPMENT_OPTIONS_URL.BOAT,
+        SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE,
       ],
     ])('selects the %s option and navigates to the matching form for that shipment type', async (shipmentType) => {
       render(

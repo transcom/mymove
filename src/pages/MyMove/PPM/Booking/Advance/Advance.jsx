@@ -34,12 +34,17 @@ const Advance = () => {
 
     const hasRequestedAdvance = values.hasRequestedAdvance === 'true';
 
+    let { advanceAmountRequested } = values;
+    if (hasRequestedAdvance && mtoShipment.ppmShipment.estimatedIncentive === 0) {
+      advanceAmountRequested = 0;
+    }
+
     const payload = {
       shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
         hasRequestedAdvance,
-        advanceAmountRequested: hasRequestedAdvance ? values.advanceAmountRequested * 100 : null,
+        advanceAmountRequested: hasRequestedAdvance ? advanceAmountRequested * 100 : null,
       },
     };
 

@@ -21,6 +21,7 @@ const (
 	mtoShipmentBuildBasic mtoShipmentBuildType = iota
 	mtoShipmentBuild
 	mtoShipmentNTS
+	mtoShipmentPPM
 	mtoShipmentNTSR
 )
 
@@ -65,6 +66,9 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		shipmentHasPickupDetails = false
 		shipmentHasDeliveryDetails = true
 	case mtoShipmentBuildBasic:
+		setupPickupAndDelivery = false
+	case mtoShipmentPPM:
+		defaultShipmentType = models.MTOShipmentTypePPM
 		setupPickupAndDelivery = false
 	default:
 		defaultShipmentType = models.MTOShipmentTypeHHG

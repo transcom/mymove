@@ -4,9 +4,11 @@ import { Alert, Grid, GridContainer, Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
+import { generatePath } from 'react-router';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { tooRoutes } from 'constants/routes';
@@ -28,7 +30,6 @@ import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MOVE_STATUSES } from 'shared/constants';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
@@ -36,6 +37,9 @@ import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS_URL, technicalHelpDeskURL } from 'shared/constants';
+import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const MoveDetails = ({
   setUnapprovedShipmentCount,
@@ -52,8 +56,13 @@ const MoveDetails = ({
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+  const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
+  const [enableUB, setEnableUB] = useState(false);
+  const [isOconusMove, setIsOconusMove] = useState(false);
 
   // RA Summary: eslint-disable-next-line react-hooks/exhaustive-deps
   // RA: This rule is used to enforce correct dependency arrays in hooks like useEffect, useCallback, and useMemo.
@@ -86,8 +95,19 @@ const MoveDetails = ({
 
   const navigate = useNavigate();
 
-  const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
-    useMoveDetailsQueries(moveCode);
+  const {
+    move,
+    customerData,
+    order,
+    orderDocuments,
+    closeoutOffice,
+    mtoShipments,
+    mtoServiceItems,
+    isLoading,
+    isError,
+  } = useMoveDetailsQueries(moveCode);
+
+  const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
@@ -103,7 +123,7 @@ const MoveDetails = ({
   }
 
   let sections = useMemo(() => {
-    return ['orders', 'allowances', 'customer-info'];
+    return ['shipments', 'orders', 'allowances', 'customer-info'];
   }, []);
 
   // use mutation calls
@@ -190,6 +210,17 @@ const MoveDetails = ({
 
   const handleCloseCancelMoveModal = () => {
     setIsCancelMoveModalVisible(false);
+  };
+
+  const handleButtonDropdownChange = (e) => {
+    const selectedOption = e.target.value;
+
+    const addShipmentPath = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
+      moveCode,
+      shipmentType: selectedOption,
+    })}`;
+
+    navigate(addShipmentPath);
   };
 
   const submittedShipments = mtoShipments?.filter(
@@ -296,16 +327,17 @@ const MoveDetails = ({
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
-  // so that it only recognizes the change when the orders object changes
+  // so that it only recognizes the change when the orders or validOrdersDocuments objects change
   const requiredOrdersInfo = useMemo(
     () => ({
       ordersNumber: order?.order_number || '',
       ordersType: order?.order_type || '',
       ordersTypeDetail: order?.order_type_detail || '',
+      ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
       tacMDC: order?.tac || '',
       departmentIndicator: order?.department_indicator || '',
     }),
-    [order],
+    [order, validOrdersDocuments],
   );
 
   // Keep num of missing orders info synced up
@@ -315,6 +347,26 @@ const MoveDetails = ({
     }, 0);
     setMissingOrdersInfoCount(ordersInfoCount);
   }, [order, requiredOrdersInfo, setMissingOrdersInfoCount]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+      setEnableUB(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE));
+    };
+    fetchData();
+  }, []);
+
+  const newDutyLocation = order?.destinationDutyLocation;
+  const currentDutyLocation = order?.originDutyLocation;
+  useEffect(() => {
+    // Check if duty locations on the orders qualify as OCONUS to conditionally render the UB shipment option
+    if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
+      setIsOconusMove(true);
+    } else {
+      setIsOconusMove(false);
+    }
+  }, [currentDutyLocation, newDutyLocation]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -338,6 +390,7 @@ const MoveDetails = ({
     ordersNumber: order.order_number,
     ordersType: order.order_type,
     ordersTypeDetail: order.order_type_detail,
+    ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
     tacMDC: order.tac,
@@ -357,6 +410,10 @@ const MoveDetails = ({
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
+    dependentsUnderTwelve: allowances.dependentsUnderTwelve,
+    dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
+    accompaniedTour: allowances.accompaniedTour,
+    ubAllowance: allowances.unaccompaniedBaggageAllowance,
   };
 
   const customerInfo = {
@@ -377,6 +434,22 @@ const MoveDetails = ({
   const hasDestinationAddressUpdate =
     shipmentWithDestinationAddressChangeRequest && shipmentWithDestinationAddressChangeRequest.length > 0;
   const tooCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
+
+  const allowedShipmentOptions = () => {
+    return (
+      <>
+        <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+          HHG
+        </option>
+        <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
+        {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
+      </>
+    );
+  };
 
   return (
     <div className={styles.tabContent}>
@@ -453,6 +526,18 @@ const MoveDetails = ({
               initialSelection={move?.financialReviewFlag}
             />
           )}
+          <NotificationScrollToTop dependency={errorMessage} />
+          {errorMessage && (
+            <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
+              <p>
+                {errorMessage} Please try again later, or contact the&nbsp;
+                <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                  Technical Help Desk
+                </Link>
+                .
+              </p>
+            </Alert>
+          )}
           <Grid row col={12}>
             <Restricted to={permissionTypes.cancelMoveFlag}>
               <div className={styles.tooCancelMoveContainer}>
@@ -487,6 +572,7 @@ const MoveDetails = ({
                 displayDestinationType={isRetirementOrSeparation}
                 mtoServiceItems={mtoServiceItems}
                 isMoveLocked={isMoveLocked}
+                setErrorMessage={setErrorMessage}
               />
             </div>
           )}
@@ -503,6 +589,33 @@ const MoveDetails = ({
               />
             </div>
           )}
+          {approvedOrCanceledShipments?.length === 0 && submittedShipments?.length === 0 && (
+            <div className={styles.section} id="shipments-no-requested-or-approved">
+              <DetailsPanel
+                id="shipments"
+                title="Shipments"
+                editButton={
+                  !isMoveLocked && (
+                    <Restricted to={permissionTypes.createTxoShipment}>
+                      <ButtonDropdown
+                        ariaLabel="Add a new shipment"
+                        data-testid="addShipmentButton"
+                        onChange={handleButtonDropdownChange}
+                      >
+                        <option value="" label="Add a new shipment">
+                          Add a new shipment
+                        </option>
+                        {allowedShipmentOptions()}
+                      </ButtonDropdown>
+                    </Restricted>
+                  )
+                }
+              >
+                {}
+              </DetailsPanel>
+            </div>
+          )}
+
           <div className={styles.section} id="orders">
             <DetailsPanel
               title="Orders"

@@ -676,6 +676,11 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				return fmt.Errorf("%#v %e", verrs, err)
 			}
 
+			// need isOconus information for InternationalCrates in model_to_payload
+			if requestedServiceItem.ReService.Code == models.ReServiceCodeICRT || requestedServiceItem.ReService.Code == models.ReServiceCodeIUCRT {
+				requestedServiceItem.MTOShipment = mtoShipment
+			}
+
 			createdServiceItems = append(createdServiceItems, *requestedServiceItem)
 
 			// create dimensions if any

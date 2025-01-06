@@ -7,9 +7,11 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	moveops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
@@ -295,9 +297,11 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 		mockSearcher := mocks.MoveSearcher{}
 
+		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := SearchMovesHandler{
 			HandlerConfig: suite.HandlerConfig(),
 			MoveSearcher:  &mockSearcher,
+			MoveUnlocker:  mockUnlocker,
 		}
 		mockSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -310,7 +314,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			HTTPRequest: req,
 			Body: moveops.SearchMovesBody{
 				Locator: &move.Locator,
-				DodID:   nil,
+				Edipi:   nil,
 			},
 		}
 
@@ -326,7 +330,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 		payloadMove := *(*payload).SearchMoves[0]
 		suite.Equal(move.ID.String(), payloadMove.ID.String())
-		suite.Equal(*move.Orders.ServiceMember.Edipi, *payloadMove.DodID)
+		suite.Equal(*move.Orders.ServiceMember.Edipi, *payloadMove.Edipi)
 		suite.Equal(move.Orders.NewDutyLocation.Address.PostalCode, payloadMove.DestinationDutyLocationPostalCode)
 		suite.Equal(move.Orders.OriginDutyLocation.Address.PostalCode, payloadMove.OriginDutyLocationPostalCode)
 		suite.Equal(ghcmessages.MoveStatusDRAFT, payloadMove.Status)
@@ -363,7 +367,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			HTTPRequest: req,
 			Body: moveops.SearchMovesBody{
 				Locator: nil,
-				DodID:   move.Orders.ServiceMember.Edipi,
+				Edipi:   move.Orders.ServiceMember.Edipi,
 			},
 		}
 
@@ -880,5 +884,87 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Nil(payload.TIOAssignedUser)
+	})
+}
+
+func (suite *HandlerSuite) TestCheckForLockedMovesAndUnlockHandler() {
+	var validOfficeUser models.OfficeUser
+	var move models.Move
+
+	mockLocker := movelocker.NewMoveLocker()
+	setupLockedMove := func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           validOfficeUser.User.Roles,
+			OfficeUserID:    validOfficeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+			UserID:          validOfficeUser.ID,
+		})
+
+		validOfficeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		move = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					ID: validOfficeUser.ID,
+				},
+			},
+		}, nil)
+
+		move, err := mockLocker.LockMove(appCtx, &move, validOfficeUser.ID)
+
+		suite.NoError(err)
+		suite.NotNil(move.LockedByOfficeUserID)
+	}
+
+	setupTestData := func() (*http.Request, CheckForLockedMovesAndUnlockHandler) {
+		req := httptest.NewRequest("GET", "/moves/{officeUserID}/CheckForLockedMovesAndUnlock", nil)
+
+		handler := CheckForLockedMovesAndUnlockHandler{
+			HandlerConfig: suite.HandlerConfig(),
+			MoveUnlocker:  movelocker.NewMoveUnlocker(),
+		}
+
+		return req, handler
+	}
+	suite.PreloadData(setupLockedMove)
+
+	suite.Run("Successful unlocking of move", func() {
+		req, handler := setupTestData()
+
+		expectedPayloadMessage := "Successfully unlocked all move(s) for current office user"
+
+		officeUserID := strfmt.UUID(validOfficeUser.ID.String())
+		params := moveops.CheckForLockedMovesAndUnlockParams{
+			HTTPRequest:  req,
+			OfficeUserID: officeUserID,
+		}
+
+		handler.Handle(params)
+		suite.NotNil(move)
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.CheckForLockedMovesAndUnlockOK{}, response)
+		payload := response.(*moveops.CheckForLockedMovesAndUnlockOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		actualMessage := payload.SuccessMessage
+		suite.Equal(expectedPayloadMessage, actualMessage)
+	})
+
+	suite.Run("Unsucceful unlocking of move - nil officerUserId", func() {
+		req, handler := setupTestData()
+
+		invalidOfficeUserID := strfmt.UUID(uuid.Nil.String())
+		params := moveops.CheckForLockedMovesAndUnlockParams{
+			HTTPRequest:  req,
+			OfficeUserID: invalidOfficeUserID,
+		}
+
+		handler.Handle(params)
+		response := handler.Handle(params)
+		suite.IsType(&moveops.CheckForLockedMovesAndUnlockInternalServerError{}, response)
+		payload := response.(*moveops.CheckForLockedMovesAndUnlockInternalServerError).Payload
+		suite.Nil(payload)
 	})
 }

@@ -10,6 +10,7 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 import { test, expect } from './servicesCounselingTestFixture';
 
 const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
+const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
 test.describe('Services counselor user', () => {
   test.describe('with basic HHG move', () => {
@@ -74,23 +75,21 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
       await page.locator('#requestedPickupDate').blur();
-      await page.getByText('Use current address').click();
+      await page.getByText('Use pickup address').click();
 
       await page.locator('#requestedDeliveryDate').clear();
       await page.locator('#requestedDeliveryDate').fill('16 May 2022');
       await page.locator('#requestedDeliveryDate').blur();
 
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').nth(1).click();
+      await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[name="delivery.address.city"]').clear();
-      await page.locator('input[name="delivery.address.city"]').fill('city');
-      await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
-      await page.locator('input[name="delivery.address.postalCode"]').clear();
-      await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
+      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+      await page.keyboard.press('Enter');
 
-      // Select that we do not know the destination address yet
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('No').nth(1).click();
+      // Select that we do not know the delivery address yet
+      await page.getByRole('group', { name: 'Delivery Address' }).getByText('No').nth(1).click();
       await expect(page.getByText('We can use the zip of their new duty location:')).toBeVisible();
 
       await page.locator('[data-testid="submitForm"]').click();
@@ -242,14 +241,14 @@ test.describe('Services counselor user', () => {
 
       await page.locator('#requestedPickupDate').fill(deliveryDate);
       await page.locator('#requestedPickupDate').blur();
-      await page.getByText('Use current address').click();
+      await page.getByText('Use pickup address').click();
       await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
       await page.locator('#requestedDeliveryDate').blur();
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').click();
+      await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').click();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[name="delivery.address.city"]').fill('city');
-      await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
-      await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
+      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+      await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of record (HOR)' });
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
@@ -340,19 +339,17 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
       await page.locator('#requestedPickupDate').blur();
-      await page.getByText('Use current address').click();
+      await page.getByText('Use pickup address').click();
 
       await page.locator('#requestedDeliveryDate').clear();
       await page.locator('#requestedDeliveryDate').fill('16 May 2022');
       await page.locator('#requestedDeliveryDate').blur();
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').nth(1).click();
+      await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[name="delivery.address.city"]').clear();
-      await page.locator('input[name="delivery.address.city"]').fill('city');
-      await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
-      await page.locator('input[name="delivery.address.postalCode"]').clear();
-      await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
+      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+      await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
@@ -360,19 +357,19 @@ test.describe('Services counselor user', () => {
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
     });
 
-    test('is able to update destination type if destination address is unknown', async ({ page, scPage }) => {
+    test('is able to update destination type if delivery address is unknown', async ({ page, scPage }) => {
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
       await page.locator('#requestedPickupDate').blur();
-      await page.getByText('Use current address').click();
+      await page.getByText('Use pickup address').click();
 
       await page.locator('#requestedDeliveryDate').clear();
       await page.locator('#requestedDeliveryDate').fill('16 May 2022');
       await page.locator('#requestedDeliveryDate').blur();
 
-      // Select that we do not know the destination address yet
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('No').nth(1).click();
+      // Select that we do not know the delivery address yet
+      await page.getByRole('group', { name: 'Delivery Address' }).getByText('No').nth(1).click();
 
       await expect(page.locator('select[name="destinationType"]')).toBeVisible();
       await expect(page.getByText('We can use the zip of their HOR, HOS or PLEAD:')).toBeVisible();
@@ -460,7 +457,6 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Actual Move Start Date
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('actualMoveDate').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
@@ -477,7 +473,6 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Starting Address
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('pickupAddress').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
@@ -487,14 +482,13 @@ test.describe('Services counselor user', () => {
       await page.getByRole('button', { name: 'Continue' }).click();
     });
 
-    test('is able to edit/save destination address', async ({ page, scPage }) => {
+    test('is able to edit/save delivery address', async ({ page, scPage }) => {
       // Navigate to the "Review documents" page
       await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
       await page.getByRole('button', { name: 'Review documents' }).click();
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Ending Address
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('destinationAddress').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
@@ -584,7 +578,7 @@ test.describe('Services counselor user', () => {
         await page.getByTestId('submitForm').click();
 
         await expect(page.getByTestId('payGrade')).toContainText('E-1');
-        await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText(
+        await expect(page.getByTestId('ShipmentContainer').getByTestId('actualReimbursementTag')).toContainText(
           'actual expense reimbursement',
         );
 
@@ -602,7 +596,6 @@ test.describe('Services counselor user', () => {
 
         await page.getByText('Review documents').click();
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
-        await page.getByTestId('shipmentInfo-showRequestDetailsButton').click();
 
         expect(await page.locator('[data-testid="tag"]').count()).toBe(0);
         await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
@@ -653,7 +646,6 @@ test.describe('Services counselor user', () => {
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
         await expect(page.getByTestId('tag')).toContainText('actual expense reimbursement');
 
-        await page.getByTestId('shipmentInfo-showRequestDetailsButton').click();
         await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
         expect(await page.getByTestId('isActualExpenseReimbursement').getByTestId('editTextButton').isDisabled()).toBe(
           true,

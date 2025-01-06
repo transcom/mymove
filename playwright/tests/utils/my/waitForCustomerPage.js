@@ -58,7 +58,7 @@ export class WaitForCustomerPage extends WaitForPage {
    */
   async onboardingCurrentAddress() {
     await this.runAccessibilityAudit();
-    await base.expect(this.page.getByRole('heading', { name: 'Current address' })).toBeVisible();
+    await base.expect(this.page.getByRole('heading', { name: 'Current Address' })).toBeVisible();
     await this.runAccessibilityAudit();
   }
 

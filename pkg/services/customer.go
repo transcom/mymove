@@ -27,7 +27,7 @@ type CustomerSearcher interface {
 }
 
 type SearchCustomersParams struct {
-	DodID         *string
+	Edipi         *string
 	Emplid        *string
 	Branch        *string
 	CustomerName  *string

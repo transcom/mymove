@@ -45,7 +45,7 @@ describe('CustomerInfoList', () => {
       });
   });
 
-  it('renders formatted current address', () => {
+  it('renders formatted pickup address', () => {
     render(<CustomerInfoList customerInfo={info} />);
     expect(screen.getByText('812 S 129th St, San Antonio, TX 78234')).toBeInTheDocument();
   });

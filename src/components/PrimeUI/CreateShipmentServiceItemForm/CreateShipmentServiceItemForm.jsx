@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dropdown, Label } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 
@@ -7,15 +7,33 @@ import DestinationSITServiceItemForm from './DestinationSITServiceItemForm';
 import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 import ShuttleSITServiceItemForm from './ShuttleSITServiceItemForm';
 import DomesticCratingForm from './DomesticCratingForm';
+import InternationalCratingForm from './InternationalCratingForm';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ShipmentShape } from 'types/shipment';
 import { createServiceItemModelTypes } from 'constants/prime';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) => {
-  const { MTOServiceItemOriginSIT, MTOServiceItemDestSIT, MTOServiceItemShuttle, MTOServiceItemDomesticCrating } =
-    createServiceItemModelTypes;
+  const {
+    MTOServiceItemOriginSIT,
+    MTOServiceItemDestSIT,
+    MTOServiceItemShuttle,
+    MTOServiceItemDomesticCrating,
+    MTOServiceItemInternationalCrating,
+  } = createServiceItemModelTypes;
   const [selectedServiceItemType, setSelectedServiceItemType] = useState(MTOServiceItemOriginSIT);
+  const [enableAlaskaFeatureFlag, setEnableAlaskaFeatureFlag] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA).then((res) => {
+        setEnableAlaskaFeatureFlag(res);
+      });
+    };
+    fetchData();
+  }, []);
 
   const handleServiceItemTypeChange = (event) => {
     setSelectedServiceItemType(event.target.value);
@@ -31,6 +49,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
           <option value={MTOServiceItemDestSIT}>Destination SIT</option>
           <option value={MTOServiceItemShuttle}>Shuttle</option>
           <option value={MTOServiceItemDomesticCrating}>Domestic Crating</option>
+          {enableAlaskaFeatureFlag && <option value={MTOServiceItemInternationalCrating}>International Crating</option>}
         </>
       </Dropdown>
       {selectedServiceItemType === MTOServiceItemOriginSIT && (
@@ -44,6 +63,9 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
       )}
       {selectedServiceItemType === MTOServiceItemDomesticCrating && (
         <DomesticCratingForm shipment={shipment} submission={createServiceItemMutation} />
+      )}
+      {enableAlaskaFeatureFlag && selectedServiceItemType === MTOServiceItemInternationalCrating && (
+        <InternationalCratingForm shipment={shipment} submission={createServiceItemMutation} />
       )}
     </div>
   );

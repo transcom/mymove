@@ -43,8 +43,8 @@ const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
     id: 'locator',
     isFilterable: false,
   }),
-  createHeader('DOD ID', 'dodID', {
-    id: 'dodID',
+  createHeader('DOD ID', 'edipi', {
+    id: 'edipi',
     isFilterable: false,
   }),
   createHeader('EMPLID', 'emplid', {
@@ -242,8 +242,8 @@ const customerSearchColumns = ({ setCanAddOrders }) => [
       isFilterable: false,
     },
   ),
-  createHeader('DOD ID', 'dodID', {
-    id: 'dodID',
+  createHeader('DOD ID', 'edipi', {
+    id: 'edipi',
     isFilterable: false,
   }),
   createHeader('EMPLID', 'emplid', {
@@ -383,7 +383,7 @@ const SearchResultsTable = (props) => {
       filtersToAdd.push({ id: 'locator', value: moveCode.trim() });
     }
     if (dodID) {
-      filtersToAdd.push({ id: 'dodID', value: dodID.trim() });
+      filtersToAdd.push({ id: 'edipi', value: dodID.trim() });
     }
     if (customerName) {
       filtersToAdd.push({ id: 'customerName', value: customerName });

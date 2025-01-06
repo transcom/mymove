@@ -31,7 +31,8 @@ func Address(address *models.Address) *internalmessages.Address {
 	if *address == (models.Address{}) {
 		return nil
 	}
-	return &internalmessages.Address{
+
+	payloadAddress := &internalmessages.Address{
 		ID:             strfmt.UUID(address.ID.String()),
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
@@ -40,9 +41,16 @@ func Address(address *models.Address) *internalmessages.Address {
 		State:          &address.State,
 		Country:        Country(address.Country),
 		PostalCode:     &address.PostalCode,
-		County:         &address.County,
+		County:         address.County,
 		IsOconus:       address.IsOconus,
 	}
+
+	if address.UsPostRegionCityID != nil {
+		usPostRegionCitiesID := *address.UsPostRegionCityID
+		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(usPostRegionCitiesID.String())
+	}
+
+	return payloadAddress
 }
 
 // PPM Destination Address payload
@@ -301,6 +309,32 @@ func TransportationOffices(transportationOffices models.TransportationOffices) i
 	return payload
 }
 
+// TransportationOffice internal payload
+func TransportationOfficeAssignment(toa models.TransportationOfficeAssignment) *internalmessages.TransportationOfficeAssignment {
+	if toa.ID == uuid.Nil || toa.TransportationOfficeID == uuid.Nil {
+		return nil
+	}
+	payload := &internalmessages.TransportationOfficeAssignment{
+		OfficeUserID:           handlers.FmtUUID(toa.ID),
+		TransportationOfficeID: handlers.FmtUUID(toa.TransportationOfficeID),
+		TransportationOffice:   TransportationOffice(toa.TransportationOffice),
+		PrimaryOffice:          toa.PrimaryOffice,
+		CreatedAt:              *handlers.FmtDateTime(toa.CreatedAt),
+		UpdatedAt:              *handlers.FmtDateTime(toa.UpdatedAt),
+	}
+	return payload
+}
+
+// TransportationOffice internal payload
+func TransportationOfficeAssignments(toas models.TransportationOfficeAssignments) []*internalmessages.TransportationOfficeAssignment {
+	payload := make([]*internalmessages.TransportationOfficeAssignment, len(toas))
+
+	for i, toa := range toas {
+		payload[i] = TransportationOfficeAssignment(toa)
+	}
+	return payload
+}
+
 func CounselingOffices(counselingOffices models.TransportationOffices) internalmessages.CounselingOffices {
 	payload := make(internalmessages.CounselingOffices, len(counselingOffices))
 
@@ -320,16 +354,17 @@ func OfficeUser(officeUser *models.OfficeUser) *internalmessages.OfficeUser {
 	}
 
 	payload := &internalmessages.OfficeUser{
-		ID:                   strfmt.UUID(officeUser.ID.String()),
-		UserID:               strfmt.UUID(officeUser.UserID.String()),
-		Email:                &officeUser.Email,
-		FirstName:            &officeUser.FirstName,
-		LastName:             &officeUser.LastName,
-		MiddleName:           officeUser.MiddleInitials,
-		Telephone:            &officeUser.Telephone,
-		TransportationOffice: TransportationOffice(officeUser.TransportationOffice),
-		CreatedAt:            strfmt.DateTime(officeUser.CreatedAt),
-		UpdatedAt:            strfmt.DateTime(officeUser.UpdatedAt),
+		ID:                              strfmt.UUID(officeUser.ID.String()),
+		UserID:                          strfmt.UUID(officeUser.UserID.String()),
+		Email:                           &officeUser.Email,
+		FirstName:                       &officeUser.FirstName,
+		LastName:                        &officeUser.LastName,
+		MiddleName:                      officeUser.MiddleInitials,
+		Telephone:                       &officeUser.Telephone,
+		TransportationOffice:            TransportationOffice(officeUser.TransportationOffice),
+		TransportationOfficeAssignments: TransportationOfficeAssignments(officeUser.TransportationOfficeAssignments),
+		CreatedAt:                       strfmt.DateTime(officeUser.CreatedAt),
+		UpdatedAt:                       strfmt.DateTime(officeUser.UpdatedAt),
 	}
 
 	return payload
@@ -656,4 +691,29 @@ func SignedCertification(signedCertification *models.SignedCertification) *inter
 	}
 
 	return model
+}
+
+// VLocation payload
+func VLocation(vLocation *models.VLocation) *internalmessages.VLocation {
+	if vLocation == nil || *vLocation == (models.VLocation{}) {
+		return nil
+	}
+
+	return &internalmessages.VLocation{
+		City:                 vLocation.CityName,
+		State:                vLocation.StateName,
+		PostalCode:           vLocation.UsprZipID,
+		County:               &vLocation.UsprcCountyNm,
+		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UsPostRegionCitiesID),
+	}
+}
+
+// VLocations payload
+func VLocations(vLocations models.VLocations) internalmessages.VLocations {
+	payload := make(internalmessages.VLocations, len(vLocations))
+	for i, vLocation := range vLocations {
+		copyOfVLocation := vLocation
+		payload[i] = VLocation(&copyOfVLocation)
+	}
+	return payload
 }

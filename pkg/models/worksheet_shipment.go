@@ -18,6 +18,7 @@ type WorkSheetShipments struct {
 // WorkSheetShipment is an object representing specific shipment items on Shipment Summary Worksheet
 type WorkSheetShipment struct {
 	EstimatedIncentive          string
+	MaxIncentive                string
 	MaxAdvance                  string
 	FinalIncentive              string
 	AdvanceAmountReceived       string

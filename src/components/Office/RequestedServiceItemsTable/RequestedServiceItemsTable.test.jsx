@@ -70,13 +70,13 @@ const testDetails = (wrapper) => {
   expect(detailTypes.at(1).text()).toBe('Item size:');
   expect(detailDefinitions.at(1).text()).toBe('7"x2"x3.5"');
 
-  expect(detailTypes.at(3).text()).toBe('Original pickup address:');
+  expect(detailTypes.at(3).text()).toBe('Original Pickup Address:');
   expect(detailDefinitions.at(3).text().includes('-')).toBe(true);
-  expect(detailTypes.at(4).text()).toBe('Actual pickup address:');
+  expect(detailTypes.at(4).text()).toBe('Actual Pickup Address:');
   expect(detailDefinitions.at(4).text().includes('-')).toBe(true);
   expect(detailTypes.at(5).text()).toBe('Delivery miles into SIT:');
   expect(detailDefinitions.at(5).text().includes('-')).toBe(true);
-  expect(detailTypes.at(6).text()).toBe('Original delivery address:');
+  expect(detailTypes.at(6).text()).toBe('Original Delivery Address:');
   expect(detailDefinitions.at(6).text().includes('-')).toBe(true);
   expect(detailTypes.at(7).text()).toBe('SIT entry date:');
   expect(detailDefinitions.at(7).text().includes('-')).toBe(true);

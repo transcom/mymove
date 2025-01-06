@@ -23,10 +23,11 @@ import (
 // THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS.
 // We will eventually remove this when all service items are added.
 var CreateableServiceItemMap = map[primev2messages.MTOServiceItemModelType]bool{
-	primev2messages.MTOServiceItemModelTypeMTOServiceItemOriginSIT:       true,
-	primev2messages.MTOServiceItemModelTypeMTOServiceItemDestSIT:         true,
-	primev2messages.MTOServiceItemModelTypeMTOServiceItemShuttle:         true,
-	primev2messages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating: true,
+	primev2messages.MTOServiceItemModelTypeMTOServiceItemOriginSIT:            true,
+	primev2messages.MTOServiceItemModelTypeMTOServiceItemDestSIT:              true,
+	primev2messages.MTOServiceItemModelTypeMTOServiceItemShuttle:              true,
+	primev2messages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:      true,
+	primev2messages.MTOServiceItemModelTypeMTOServiceItemInternationalCrating: true,
 }
 
 // CreateMTOServiceItemHandler is the handler to create MTO service items
@@ -40,6 +41,21 @@ type CreateMTOServiceItemHandler struct {
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOServiceItemParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			/** Feature Flag - Alaska **/
+			isAlaskaEnabled := false
+			featureFlagName := "enable_alaska"
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+			} else {
+				isAlaskaEnabled = flag.Match
+			}
+
+			/** Turn on/off international crating/uncrating service items **/
+			if !isAlaskaEnabled {
+				delete(CreateableServiceItemMap, primev2messages.MTOServiceItemModelTypeMTOServiceItemInternationalCrating)
+			}
 
 			// restrict creation to a list
 			if _, ok := primeapi.CreateableServiceItemMap[params.Body.ModelType()]; !ok {

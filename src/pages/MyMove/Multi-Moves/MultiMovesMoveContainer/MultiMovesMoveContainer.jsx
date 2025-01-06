@@ -20,7 +20,7 @@ import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/interna
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_TYPES } from 'shared/constants';
 
 const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -37,26 +37,29 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
 
   // handles the title of the shipment header below each move
   const generateShipmentTypeTitle = (shipmentType) => {
-    if (shipmentType === 'HHG') {
+    if (shipmentType === SHIPMENT_TYPES.HHG) {
       return 'Household Goods';
     }
-    if (shipmentType === 'PPM') {
+    if (shipmentType === SHIPMENT_TYPES.PPM) {
       return 'Personally Procured Move';
     }
-    if (shipmentType === 'HHG_INTO_NTS_DOMESTIC') {
+    if (shipmentType === SHIPMENT_TYPES.NTS) {
       return 'Household Goods NTS';
     }
-    if (shipmentType === 'HHG_OUTOF_NTS_DOMESTIC') {
+    if (shipmentType === SHIPMENT_TYPES.NTSR) {
       return 'Household Goods NTSR';
     }
-    if (shipmentType === 'MOBILE_HOME') {
+    if (shipmentType === SHIPMENT_TYPES.MOBILE_HOME) {
       return 'Mobile Home';
     }
-    if (shipmentType === 'BOAT_HAUL_AWAY') {
+    if (shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY) {
       return 'Boat Haul Away';
     }
-    if (shipmentType === 'BOAT_TOW_AWAY') {
+    if (shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY) {
       return 'Boat Tow Away';
+    }
+    if (shipmentType === SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE) {
+      return 'Unaccompanied Baggage';
     }
     return 'Shipment';
   };
@@ -178,7 +181,7 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
                       >
                         <div className={styles.innerWrapper}>
                           <div className={styles.shipmentTypeHeading}>
-                            <h4>{generateShipmentTypeTitle(s.shipmentType)}</h4>
+                            <h4 data-testid="shipment-type">{generateShipmentTypeTitle(s.shipmentType)}</h4>
                             {s?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue ||
                             s?.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ? (
                               <ButtonDropdownMenu

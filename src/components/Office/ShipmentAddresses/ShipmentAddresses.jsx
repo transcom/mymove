@@ -34,12 +34,12 @@ const ShipmentAddresses = ({
       destinationHeader = '';
       break;
     case SHIPMENT_OPTIONS.NTS:
-      pickupHeader = 'Pickup address';
+      pickupHeader = 'Pickup Address';
       destinationHeader = 'Facility address';
       break;
     case SHIPMENT_OPTIONS.NTSR:
       pickupHeader = 'Facility address';
-      destinationHeader = 'Delivery address';
+      destinationHeader = 'Delivery Address';
       break;
     default:
       pickupHeader = "Customer's addresses";

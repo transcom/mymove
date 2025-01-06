@@ -1,3 +1,4 @@
+import classnames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { GridContainer, Grid, Alert, Label, Radio, Fieldset } from '@trussworks/react-uswds';
 import { generatePath, useNavigate } from 'react-router-dom';
@@ -5,11 +6,10 @@ import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { connect } from 'react-redux';
 
-import { statesList } from '../../../constants/states';
-
 import styles from './CreateCustomerForm.module.scss';
 
 import { Form } from 'components/form/Form';
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import TextField from 'components/form/fields/TextField/TextField';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -62,7 +62,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
   const initialValues = {
     affiliation: '',
     edipi: '',
-    emplid: '',
+    emplid: null,
     first_name: '',
     middle_name: '',
     last_name: '',
@@ -110,7 +110,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
     const body = {
       affiliation: values.affiliation,
       edipi: values.edipi,
-      emplid: values.emplid || '',
+      emplid: values.emplid,
       firstName: values.first_name,
       middleName: values.middle_name,
       lastName: values.last_name,
@@ -196,6 +196,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
     is_safety_move: isSafetyMoveFF ? Yup.boolean().required('Required') : '',
   });
 
+  const sectionStyles = classnames(styles.noTopMargin, formStyles.formSection);
+
   return (
     <GridContainer>
       <NotificationScrollToTop dependency={serverError} />
@@ -213,7 +215,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
       <Grid className={styles.nameFormContainer}>
         <Grid col desktop={{ col: 8 }} className={styles.nameForm}>
           <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-            {({ isValid, handleSubmit, setValues, values, handleChange }) => {
+            {({ isValid, handleSubmit, setValues, values, handleChange, ...formikProps }) => {
               const handleIsSafetyMove = (e) => {
                 const { value } = e.target;
                 if (value === 'true') {
@@ -232,7 +234,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     ...values,
                     affiliation: '',
                     edipi: '',
-                    emplid: '',
+                    emplid: null,
                     is_safety_move: 'false',
                   });
                 }
@@ -253,7 +255,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     ...values,
                     affiliation: e.target.value,
                     edipi: '',
-                    emplid: '',
+                    emplid: null,
                   });
                 } else if (e.target.value !== departmentIndicators.COAST_GUARD && isSafetyMove) {
                   setShowEmplid(false);
@@ -261,7 +263,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     ...values,
                     affiliation: e.target.value,
                     edipi: uniqueDodid,
-                    emplid: '',
+                    emplid: null,
                   });
                 } else {
                   setShowEmplid(false);
@@ -269,14 +271,14 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     ...values,
                     affiliation: e.target.value,
                     edipi: '',
-                    emplid: '',
+                    emplid: null,
                   });
                 }
               };
               return (
-                <Form className={formStyles.form}>
+                <Form className={classnames(formStyles.form, styles.form)}>
                   <h1 className={styles.header}>Create Customer Profile</h1>
-                  <SectionWrapper className={formStyles.formSection}>
+                  <SectionWrapper className={sectionStyles}>
                     <h3>Customer Affiliation</h3>
                     {isSafetyPrivileged && (
                       <Fieldset className={styles.trailerOwnershipFieldset}>
@@ -342,14 +344,14 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                       </Hint>
                     )}
                   </SectionWrapper>
-                  <SectionWrapper className={formStyles.formSection}>
+                  <SectionWrapper className={sectionStyles}>
                     <h3>Customer Name</h3>
                     <TextField label="First name" name="first_name" id="firstName" required />
                     <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
                     <TextField label="Last name" name="last_name" id="lastName" required />
                     <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
                   </SectionWrapper>
-                  <SectionWrapper className={formStyles.formSection}>
+                  <SectionWrapper className={sectionStyles}>
                     <h3>Contact Info</h3>
                     <MaskedTextField
                       label="Best contact phone"
@@ -377,101 +379,24 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     </div>
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
-                    <h3>Current Address</h3>
-                    <TextField
-                      label="Address 1"
-                      id="mailingAddress1"
-                      name="residential_address.streetAddress1"
-                      data-testid="res-add-street1"
+                    <h3>Pickup Address</h3>
+                    <AddressFields
+                      name={residentialAddressName}
+                      labelHint="Required"
+                      locationLookup
+                      formikProps={formikProps}
                     />
-                    <TextField
-                      label="Address 2"
-                      labelHint="Optional"
-                      id="mailingAddress2"
-                      name="residential_address.streetAddress2"
-                      data-testid="res-add-street2"
-                    />
-                    <TextField
-                      label="Address 3"
-                      labelHint="Optional"
-                      id="mailingAddress3"
-                      name="residential_address.streetAddress3"
-                      data-testid="res-add-street3"
-                    />
-                    <TextField label="City" id="city" name="residential_address.city" data-testid="res-add-city" />
-
-                    <div className="grid-row grid-gap">
-                      <div className="mobile-lg:grid-col-6">
-                        <DropdownInput
-                          name="residential_address.state"
-                          id="state"
-                          label="State"
-                          options={statesList}
-                          data-testid="res-add-state"
-                        />
-                      </div>
-                      <div className="mobile-lg:grid-col-6">
-                        <TextField
-                          label="ZIP"
-                          id="zip"
-                          name="residential_address.postalCode"
-                          maxLength={10}
-                          data-testid="res-add-zip"
-                        />
-                      </div>
-                    </div>
                   </SectionWrapper>
-                  <SectionWrapper className={formStyles.formSection}>
+                  <SectionWrapper className={sectionStyles}>
                     <h3>Backup Address</h3>
-                    <TextField
-                      label="Address 1"
-                      id="backupMailingAddress1"
-                      name="backup_mailing_address.streetAddress1"
-                      data-testid="backup-add-street1"
+                    <AddressFields
+                      name={backupAddressName}
+                      labelHint="Required"
+                      locationLookup
+                      formikProps={formikProps}
                     />
-                    <TextField
-                      label="Address 2"
-                      labelHint="Optional"
-                      id="backupMailingAddress2"
-                      name="backup_mailing_address.streetAddress2"
-                      data-testid="backup-add-street2"
-                    />
-                    <TextField
-                      label="Address 3"
-                      labelHint="Optional"
-                      id="backupMailingAddress3"
-                      name="backup_mailing_address.streetAddress3"
-                      data-testid="backup-add-street3"
-                    />
-                    <TextField
-                      label="City"
-                      id="backupCity"
-                      name="backup_mailing_address.city"
-                      data-testid="backup-add-city"
-                    />
-
-                    <div className="grid-row grid-gap">
-                      <div className="mobile-lg:grid-col-6">
-                        <DropdownInput
-                          name="backup_mailing_address.state"
-                          id="backupState"
-                          label="State"
-                          options={statesList}
-                          data-testid="backup-add-state"
-                        />
-                      </div>
-                      <div className="mobile-lg:grid-col-6">
-                        <TextField
-                          label="ZIP"
-                          id="backupZip"
-                          name="backup_mailing_address.postalCode"
-                          maxLength={10}
-                          data-testid="backup-add-zip"
-                        />
-                      </div>
-                    </div>
                   </SectionWrapper>
-                  <SectionWrapper className={formStyles.formSection}>
+                  <SectionWrapper className={sectionStyles}>
                     <h3>Backup Contact</h3>
                     <TextField label="Name" id="backupContactName" name="backup_contact.name" required />
                     <TextField label="Email" id="backupContactEmail" name="backup_contact.email" required />
@@ -486,7 +411,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     />
                   </SectionWrapper>
                   {values.is_safety_move !== 'true' && (
-                    <SectionWrapper className={formStyles.formSection}>
+                    <SectionWrapper className={sectionStyles}>
                       <h3>Okta Account</h3>
                       <Fieldset className={styles.trailerOwnershipFieldset}>
                         <legend className="usa-label">Do you want to create an Okta account for this customer?</legend>
@@ -512,7 +437,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     </SectionWrapper>
                   )}
                   {values.is_safety_move !== 'true' && (
-                    <SectionWrapper className={formStyles.formSection}>
+                    <SectionWrapper className={sectionStyles}>
                       <h3>Non-CAC Users</h3>
                       <Fieldset className={styles.trailerOwnershipFieldset}>
                         <legend className="usa-label">Does the customer have a CAC?</legend>

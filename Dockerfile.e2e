@@ -21,6 +21,7 @@ COPY config /config
 COPY swagger /swagger
 COPY pkg/testdatagen/testdata /pkg/testdatagen/testdata
 COPY scripts /scripts
+COPY public/static/react-file-viewer /public/static/react-file-viewer
 
 # Install tools needed in container
 # hadolint ignore=DL3018

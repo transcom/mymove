@@ -11,6 +11,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
 import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
+import Inaccessible, { INACCESSIBLE_API_RESPONSE } from 'shared/Inaccessible';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
@@ -47,7 +48,7 @@ const TXOMoveInfo = () => {
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
-  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { move, order, customerData, isLoading, isError, errors } = useTXOMoveInfoQueries(moveCode);
   const { data } = useUserQueries();
   const officeUserID = data?.office_user?.id;
 
@@ -111,7 +112,13 @@ const TXOMoveInfo = () => {
     );
 
   if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  if (isError) {
+    return errors?.[0]?.response?.body?.message === INACCESSIBLE_API_RESPONSE ? (
+      <Inaccessible />
+    ) : (
+      <SomethingWentWrong />
+    );
+  }
 
   // this locked move banner will display if the current user is not the one who has it locked
   // if the current user is the one who has it locked, it will not display

@@ -18,6 +18,8 @@ import {
   loadPublicSchema as loadPublicSchemaAction,
 } from 'shared/Swagger/ducks';
 import withRouter from 'utils/routing';
+import { selectUnderMaintenance } from 'store/auth/selectors';
+import MaintenancePage from 'pages/Maintenance/MaintenancePage';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -68,6 +70,8 @@ class AdminWrapper extends Component {
   }
 
   render() {
+    const { props } = this;
+    const { underMaintenance } = props;
     const { oktaLoggedOut, oktaNeedsLoggedOut } = this.state;
     const script = document.createElement('script');
 
@@ -75,6 +79,11 @@ class AdminWrapper extends Component {
     script.async = true;
 
     document.body.appendChild(script);
+
+    if (underMaintenance) {
+      return <MaintenancePage />;
+    }
+
     return (
       <>
         <div id="app-root">
@@ -96,8 +105,10 @@ class AdminWrapper extends Component {
   }
 }
 
-const mapStateToProps = () => {
-  return {};
+const mapStateToProps = (state) => {
+  return {
+    underMaintenance: selectUnderMaintenance(state),
+  };
 };
 
 const mapDispatchToProps = {

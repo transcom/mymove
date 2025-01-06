@@ -31,3 +31,9 @@ export const WithoutEntitlementWeight = () => (
     <MovingInfo {...props} />
   </MockProviders>
 );
+
+export const WithUBAllowance = () => (
+  <MockProviders>
+    <MovingInfo {...props} entitlementWeight={1234} ubAllowance={2000} />
+  </MockProviders>
+);

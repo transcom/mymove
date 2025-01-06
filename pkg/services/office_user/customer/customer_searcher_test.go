@@ -55,7 +55,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 			},
 		}, nil)
 
-		customers, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{DodID: serviceMember1.Edipi})
+		customers, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{Edipi: serviceMember1.Edipi})
 		suite.NoError(err)
 		suite.Len(customers, 1)
 		suite.Equal(serviceMember1.Edipi, customers[0].Edipi)
@@ -108,7 +108,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		}, nil)
 
 		_, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{
-			DodID:        serviceMember1.Edipi,
+			Edipi:        serviceMember1.Edipi,
 			CustomerName: models.StringPointer("Page McConnel"),
 		})
 		suite.Error(err)
@@ -154,7 +154,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 			},
 		}, nil)
 
-		customers, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{DodID: serviceMember.Orders.ServiceMember.Edipi})
+		customers, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{Edipi: serviceMember.Orders.ServiceMember.Edipi})
 		suite.NoError(err)
 		suite.Len(customers, 0)
 	})
@@ -179,7 +179,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 			},
 		}, nil)
 
-		customers, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{DodID: serviceMember1.Edipi})
+		customers, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{Edipi: serviceMember1.Edipi})
 		suite.NoError(err)
 		suite.Len(customers, 1)
 		suite.Equal(serviceMember1.Edipi, customers[0].Edipi)

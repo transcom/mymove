@@ -64,7 +64,6 @@ const PrimeUIShipmentUpdateForm = ({
       {editableWeightEstimateField && (
         <MaskedTextField
           data-testid="estimatedWeightInput"
-          defaultValue="0"
           name="estimatedWeight"
           label="Estimated weight (lbs)"
           id="estimatedWeightInput"
@@ -86,7 +85,6 @@ const PrimeUIShipmentUpdateForm = ({
       {editableWeightActualField && (
         <MaskedTextField
           data-testid="actualWeightInput"
-          defaultValue="0"
           name="actualWeight"
           label="Actual weight (lbs)"
           id="actualWeightInput"
@@ -164,7 +162,7 @@ const PrimeUIShipmentUpdateForm = ({
           {!editableTertiaryPickupAddress && formatAddress(tertiaryPickupAddress)}
         </>
       )}
-      <h5 className={styles.sectionHeader}>Destination Address</h5>
+      <h5 className={styles.sectionHeader}>Delivery Address</h5>
       {editableDestinationAddress && <AddressFields name="destinationAddress" />}
       {!editableDestinationAddress && formatAddress(destinationAddress)}
       {!isNTS && (

@@ -63,7 +63,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					City:           "Washington",
 					State:          "DC",
 					PostalCode:     "20001",
-					County:         "my county",
+					County:         models.StringPointer("my county"),
 				},
 			},
 		},
@@ -102,7 +102,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(models.NAICS, returnedModel.Order.Naics)
 		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
 		suite.Require().NotEmpty(returnedModel.MtoShipments)
-		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, *returnedModel.MtoShipments[0].PickupAddress.County)
+		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, returnedModel.MtoShipments[0].PickupAddress.County)
 	})
 }
 func (suite *PayloadsSuite) TestReweigh() {
@@ -240,6 +240,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			NonTemporaryStorage:            nil,
 			PrivatelyOwnedVehicle:          nil,
 			DBAuthorizedWeight:             nil,
+			UBAllowance:                    nil,
 			StorageInTransit:               nil,
 			RequiredMedicalEquipmentWeight: 0,
 			OrganizationalClothingAndIndividualEquipment: false,
@@ -268,6 +269,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(int64(0), payload.StorageInTransit)
 		suite.Equal(int64(0), payload.TotalDependents)
 		suite.Equal(int64(0), payload.TotalWeight)
+		suite.Equal(int64(0), *payload.UnaccompaniedBaggageAllowance)
 	})
 
 	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {
@@ -278,6 +280,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),
+			UBAllowance:                    handlers.FmtInt(400),
 			StorageInTransit:               handlers.FmtInt(45),
 			RequiredMedicalEquipmentWeight: 500,
 			OrganizationalClothingAndIndividualEquipment: true,
@@ -289,7 +292,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5))
+		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 		payload := Entitlement(&entitlement)
 
@@ -299,6 +302,8 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.True(*payload.NonTemporaryStorage)
 		suite.True(*payload.PrivatelyOwnedVehicle)
 		suite.Equal(int64(10000), *payload.AuthorizedWeight)
+		suite.Equal(int64(400), *payload.UnaccompaniedBaggageAllowance)
+
 		suite.Equal(int64(9000), payload.TotalWeight)
 		suite.Equal(int64(45), payload.StorageInTransit)
 		suite.Equal(int64(500), payload.RequiredMedicalEquipmentWeight)
@@ -317,6 +322,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),
+			UBAllowance:                    handlers.FmtInt(400),
 			StorageInTransit:               handlers.FmtInt(45),
 			RequiredMedicalEquipmentWeight: 500,
 			OrganizationalClothingAndIndividualEquipment: true,
@@ -328,7 +334,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5))
+		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 		payload := Entitlement(&entitlement)
 
@@ -338,6 +344,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.True(*payload.NonTemporaryStorage)
 		suite.True(*payload.PrivatelyOwnedVehicle)
 		suite.Equal(int64(10000), *payload.AuthorizedWeight)
+		suite.Equal(int64(400), *payload.UnaccompaniedBaggageAllowance)
 		suite.Equal(int64(7000), payload.TotalWeight)
 		suite.Equal(int64(45), payload.StorageInTransit)
 		suite.Equal(int64(500), payload.RequiredMedicalEquipmentWeight)
@@ -541,7 +548,7 @@ func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1(
 			City:           "SomeCity",
 			State:          "CA",
 			PostalCode:     "90210",
-			County:         "SomeCounty",
+			County:         models.StringPointer("SomeCounty"),
 			UpdatedAt:      now,
 		},
 	}
@@ -558,7 +565,7 @@ func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1(
 	suite.Equal(*result.DestinationAddress.City, ppmShipment.DestinationAddress.City)
 	suite.Equal(*result.DestinationAddress.State, ppmShipment.DestinationAddress.State)
 	suite.Equal(*result.DestinationAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
-	suite.Equal(*result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
+	suite.Equal(result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
 	suite.Equal(result.DestinationAddress.ETag, eTag)
 }
 
@@ -733,6 +740,76 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 	suite.True(ok)
 }
 
+func (suite *PayloadsSuite) TestMTOServiceItemICRTandIUCRT() {
+	icrtReServiceCode := models.ReServiceCodeICRT
+	iucrtReServiceCode := models.ReServiceCodeIUCRT
+	reason := "reason"
+	standaloneCrate := false
+	externalCrate := false
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+
+	mtoServiceItemICRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: icrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	mtoServiceItemIUCRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: iucrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultICRT := MTOServiceItem(mtoServiceItemICRT)
+	resultIUCRT := MTOServiceItem(mtoServiceItemIUCRT)
+
+	suite.NotNil(resultICRT)
+	suite.NotNil(resultIUCRT)
+
+	_, ok := resultICRT.(*primev3messages.MTOServiceItemInternationalCrating)
+	suite.True(ok)
+
+	_, ok = resultIUCRT.(*primev3messages.MTOServiceItemInternationalCrating)
+	suite.True(ok)
+}
+
 func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 	reServiceCode := models.ReServiceCodeDDSHUT
 	reason := "reason"
@@ -886,4 +963,106 @@ func (suite *PayloadsSuite) TestMarketCode() {
 		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
 		suite.Equal("i", result, "Expected result to be 'i' for international market code")
 	})
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemPOEFSC() {
+
+	portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Port{
+				PortCode: "PDX",
+			},
+		},
+	}, nil)
+
+	poefscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodePOEFSC,
+				Priority: 1,
+			},
+		},
+		{
+			Model:    portLocation,
+			LinkOnly: true,
+			Type:     &factory.PortLocations.PortOfEmbarkation,
+		},
+	}, nil)
+	mtoServiceItems := [...]models.MTOServiceItem{poefscServiceItem}
+
+	mtoShipment := models.MTOShipment{
+		ID: *poefscServiceItem.MTOShipmentID,
+	}
+	mtoShipments := [...]models.MTOShipment{mtoShipment}
+
+	move := models.Move{
+		MTOShipments:    mtoShipments[:],
+		MTOServiceItems: mtoServiceItems[:],
+		ReferenceID:     poefscServiceItem.MoveTaskOrder.ReferenceID,
+		Contractor: &models.Contractor{
+			ContractNumber: factory.DefaultContractNumber,
+		},
+	}
+
+	mtoPayload := MoveTaskOrder(&move)
+	suite.NotNil(mtoPayload)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.PortType, portLocation.Port.PortType.String())
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.PortCode, portLocation.Port.PortCode)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.PortName, portLocation.Port.PortName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.City, portLocation.City.CityName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.County, portLocation.UsPostRegionCity.UsprcCountyNm)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.State, portLocation.UsPostRegionCity.UsPostRegion.State.StateName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.Zip, portLocation.UsPostRegionCity.UsprZipID)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.Country, portLocation.Country.CountryName)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemPODFSC() {
+
+	portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Port{
+				PortCode: "PDX",
+			},
+		},
+	}, nil)
+
+	podfscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodePODFSC,
+				Priority: 1,
+			},
+		},
+		{
+			Model:    portLocation,
+			LinkOnly: true,
+			Type:     &factory.PortLocations.PortOfDebarkation,
+		},
+	}, nil)
+	mtoServiceItems := [...]models.MTOServiceItem{podfscServiceItem}
+
+	mtoShipment := models.MTOShipment{
+		ID: *podfscServiceItem.MTOShipmentID,
+	}
+	mtoShipments := [...]models.MTOShipment{mtoShipment}
+
+	move := models.Move{
+		MTOShipments:    mtoShipments[:],
+		MTOServiceItems: mtoServiceItems[:],
+		ReferenceID:     podfscServiceItem.MoveTaskOrder.ReferenceID,
+		Contractor: &models.Contractor{
+			ContractNumber: factory.DefaultContractNumber,
+		},
+	}
+
+	mtoPayload := MoveTaskOrder(&move)
+	suite.NotNil(mtoPayload)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.PortType, portLocation.Port.PortType.String())
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.PortCode, portLocation.Port.PortCode)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.PortName, portLocation.Port.PortName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.City, portLocation.City.CityName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.County, portLocation.UsPostRegionCity.UsprcCountyNm)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.State, portLocation.UsPostRegionCity.UsPostRegion.State.StateName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.Zip, portLocation.UsPostRegionCity.UsprZipID)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.Country, portLocation.Country.CountryName)
 }

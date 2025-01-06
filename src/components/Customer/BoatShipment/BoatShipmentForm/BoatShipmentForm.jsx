@@ -337,7 +337,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                         their individual dimensions
                       </li>
 
-                      <li>Access info for your origin or destination address/marina</li>
+                      <li>Access info for your pickup or delivery address/marina</li>
                     </ul>
                   </Callout>
 

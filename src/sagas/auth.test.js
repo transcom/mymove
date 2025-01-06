@@ -157,3 +157,14 @@ describe('fetchUser saga', () => {
     });
   });
 });
+
+describe('fetch underMaintenance', () => {
+  const generator = fetchUser();
+
+  it('makes the GetIsLoggedIn API call', () => {
+    expect(generator.next().value).toEqual(put(getLoggedInUserStart()));
+    expect(generator.next().value).toEqual(call(GetIsLoggedIn));
+    expect(generator.next({ isLoggedIn: true, underMaintenance: false }).value).toEqual(call(GetLoggedInUser));
+    // expect(generator.next().value).toEqual(put(setUnderMaintenance));
+  });
+});

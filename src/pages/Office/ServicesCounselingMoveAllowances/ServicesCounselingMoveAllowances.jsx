@@ -86,6 +86,9 @@ const ServicesCounselingMoveAllowances = () => {
       organizationalClothingAndIndividualEquipment,
       storageInTransit,
       gunSafe,
+      accompaniedTour,
+      dependentsTwelveAndOver,
+      dependentsUnderTwelve,
     } = values;
     const body = {
       issueDate: order.date_issued,
@@ -103,6 +106,9 @@ const ServicesCounselingMoveAllowances = () => {
       storageInTransit: Number(storageInTransit),
       organizationalClothingAndIndividualEquipment,
       gunSafe,
+      accompaniedTour,
+      dependentsTwelveAndOver: Number(dependentsTwelveAndOver),
+      dependentsUnderTwelve: Number(dependentsUnderTwelve),
     };
     return mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
@@ -116,6 +122,9 @@ const ServicesCounselingMoveAllowances = () => {
     organizationalClothingAndIndividualEquipment,
     gunSafe,
     storageInTransit,
+    dependentsUnderTwelve,
+    dependentsTwelveAndOver,
+    accompaniedTour,
   } = entitlement;
 
   const initialValues = {
@@ -128,6 +137,9 @@ const ServicesCounselingMoveAllowances = () => {
     storageInTransit: `${storageInTransit}`,
     gunSafe,
     organizationalClothingAndIndividualEquipment,
+    accompaniedTour,
+    dependentsUnderTwelve: `${dependentsUnderTwelve}`,
+    dependentsTwelveAndOver: `${dependentsTwelveAndOver}`,
   };
 
   return (

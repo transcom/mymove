@@ -218,6 +218,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 		suite.Equal(body.BackupContact.Email, createdCustomerPayload.BackupContact.Email)
 		// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
 		suite.Equal(true, createdCustomerPayload.CacValidated)
+		suite.Nil(body.Emplid)
 	})
 
 	suite.Run("Unable to create customer when using an existing DODID", func() {
@@ -398,7 +399,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 		mockSearcher.On("SearchCustomers",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.MatchedBy(func(params *services.SearchCustomersParams) bool {
-				return *params.DodID == *customer.Edipi &&
+				return *params.Edipi == *customer.Edipi &&
 					params.CustomerName == nil
 			}),
 		).Return(customers, 1, nil)
@@ -406,7 +407,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 		params := customerops.SearchCustomersParams{
 			HTTPRequest: req,
 			Body: customerops.SearchCustomersBody{
-				DodID: customer.Edipi,
+				Edipi: customer.Edipi,
 			},
 		}
 
@@ -434,7 +435,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.MatchedBy(func(params *services.SearchCustomersParams) bool {
 				return *params.CustomerName == *customer.FirstName &&
-					params.DodID == nil
+					params.Edipi == nil
 			}),
 		).Return(customers, 1, nil)
 

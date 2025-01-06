@@ -101,6 +101,90 @@ describe('ServiceItemsTable', () => {
     expect(wrapper.find('dd').at(2).text()).toBe('10"x2.5"x5"');
   });
 
+  it('renders details for international crating (ICRT)', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        createdAt: '2020-11-20',
+        serviceItem: 'International Crating',
+        code: 'ICRT',
+        details: {
+          description: 'grandfather clock',
+          itemDimensions: { length: 7000, width: 2000, height: 3500 },
+          crateDimensions: { length: 10000, width: 2500, height: 5000 },
+          market: 'OCONUS',
+          externalCrate: true,
+          standaloneCrate: true,
+        },
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('td').at(0).text()).toContain('International Crating - Standalone');
+    expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
+    expect(wrapper.find('dt').at(0).text()).toBe('Description:');
+    expect(wrapper.find('dd').at(0).text()).toBe('grandfather clock');
+    expect(wrapper.find('dt').at(1).text()).toBe('Item size:');
+    expect(wrapper.find('dd').at(1).text()).toBe('7"x2"x3.5"');
+    expect(wrapper.find('dt').at(2).text()).toBe('Crate size:');
+    expect(wrapper.find('dd').at(2).text()).toBe('10"x2.5"x5"');
+    expect(wrapper.find('dt').at(3).text()).toBe('External crate:');
+    expect(wrapper.find('dd').at(3).text()).toBe('Yes');
+    expect(wrapper.find('dt').at(4).text()).toBe('Market:');
+    expect(wrapper.find('dd').at(4).text()).toBe('OCONUS');
+    expect(wrapper.find('dt').at(5).text()).toBe('Reason:');
+    expect(wrapper.find('dd').at(5).text()).toBe('-');
+  });
+
+  it('renders details for international crating (IUCRT)', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        createdAt: '2020-11-20',
+        serviceItem: 'International Crating',
+        code: 'ICRT',
+        details: {
+          description: 'grandfather clock',
+          itemDimensions: { length: 7000, width: 2000, height: 3500 },
+          crateDimensions: { length: 10000, width: 2500, height: 5000 },
+          market: 'OCONUS',
+          externalCrate: null,
+        },
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
+    expect(wrapper.find('dt').at(0).text()).toBe('Description:');
+    expect(wrapper.find('dd').at(0).text()).toBe('grandfather clock');
+    expect(wrapper.find('dt').at(1).text()).toBe('Item size:');
+    expect(wrapper.find('dd').at(1).text()).toBe('7"x2"x3.5"');
+    expect(wrapper.find('dt').at(2).text()).toBe('Crate size:');
+    expect(wrapper.find('dd').at(2).text()).toBe('10"x2.5"x5"');
+    expect(wrapper.find('dt').at(3).text()).toBe('Market:');
+    expect(wrapper.find('dd').at(3).text()).toBe('OCONUS');
+    expect(wrapper.find('dt').at(4).text()).toBe('Reason:');
+    expect(wrapper.find('dd').at(4).text()).toBe('-');
+  });
+
   it('renders with authorized price for MS item', () => {
     const serviceItems = [
       {
@@ -197,7 +281,7 @@ describe('ServiceItemsTable', () => {
     );
 
     expect(wrapper.find('table').exists()).toBe(true);
-    expect(wrapper.find('dt').at(0).text()).toBe('Original delivery address:');
+    expect(wrapper.find('dt').at(0).text()).toBe('Original Delivery Address:');
     expect(wrapper.find('dd').at(0).text()).toBe('Destination Original Tampa, FL 33621');
 
     expect(wrapper.find('dt').at(1).text()).toBe('SIT entry date:');
@@ -247,7 +331,7 @@ describe('ServiceItemsTable', () => {
         />
       </MockProviders>,
     );
-    expect(wrapper.find('dt').at(0).contains('Original pickup address')).toBe(true);
+    expect(wrapper.find('dt').at(0).contains('Original Pickup Address')).toBe(true);
     expect(wrapper.find('dd').at(0).contains('Origin Original Tampa, FL 33621')).toBe(true);
 
     expect(wrapper.find('dt').at(1).contains('SIT entry date')).toBe(true);
@@ -382,7 +466,7 @@ describe('ServiceItemsTable', () => {
     expect(wrapper.find('button[data-testid="rejectTextButton"]').length).toBeFalsy();
   });
 
-  it('does not show accept button when DSH is rejected as a result of destination address change', () => {
+  it('does not show accept button when DSH is rejected as a result of delivery address change', () => {
     const serviceItems = [
       {
         id: 'dsh123',
@@ -392,7 +476,7 @@ describe('ServiceItemsTable', () => {
         code: 'DSH',
         details: {
           rejectionReason:
-            'Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul.',
+            'Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul.',
         },
       },
     ];
@@ -415,7 +499,7 @@ describe('ServiceItemsTable', () => {
     expect(approveTextButton.at(0).contains('Approve')).toBe(false);
   });
 
-  it('does not show accept button when DLH is rejected as a result of destination address change', () => {
+  it('does not show accept button when DLH is rejected as a result of delivery address change', () => {
     const serviceItems = [
       {
         id: 'dlh123',
@@ -425,7 +509,7 @@ describe('ServiceItemsTable', () => {
         code: 'DLH',
         details: {
           rejectionReason:
-            'Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul.',
+            'Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul.',
         },
       },
     ];
@@ -448,7 +532,7 @@ describe('ServiceItemsTable', () => {
     expect(approveTextButton.at(0).contains('Approve')).toBe(false);
   });
 
-  it('shows accept button when DSH is rejected but NOT as a result of destination address change', () => {
+  it('shows accept button when DSH is rejected but NOT as a result of delivery address change', () => {
     const serviceItems = [
       {
         id: 'dsh123',
@@ -458,7 +542,7 @@ describe('ServiceItemsTable', () => {
         code: 'DSH',
         details: {
           rejectionReason:
-            'Any reason other than "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."',
+            'Any reason other than "Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul."',
         },
       },
     ];
@@ -481,7 +565,7 @@ describe('ServiceItemsTable', () => {
     expect(approveTextButton.at(0).contains('Approve')).toBe(true);
   });
 
-  it('shows accept button when DLH is rejected but NOT as a result of destination address change', () => {
+  it('shows accept button when DLH is rejected but NOT as a result of delivery address change', () => {
     const serviceItems = [
       {
         id: 'dlh123',
@@ -491,7 +575,7 @@ describe('ServiceItemsTable', () => {
         code: 'DLH',
         details: {
           rejectionReason:
-            'Any reason other than "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."',
+            'Any reason other than "Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul."',
         },
       },
     ];
@@ -715,7 +799,7 @@ describe('ServiceItemsTable', () => {
         code: 'DLH',
         details: {
           rejectionReason:
-            'Any reason other than "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."',
+            'Any reason other than "Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul."',
         },
       },
     ];

@@ -232,4 +232,23 @@ describe('CustomerApp tests', () => {
       expect(wrapper.find(OktaErrorBanner)).toHaveLength(1);
     });
   });
+
+  it('renders the Maintenance page flag is true', async () => {
+    const minPropsWithMaintenance = {
+      initOnboarding: jest.fn(),
+      loadInternalSchema: jest.fn(),
+      loadUser: jest.fn(),
+      underMaintenance: true,
+      context: {
+        flags: {
+          hhgFlow: false,
+        },
+      },
+    };
+
+    const wrapper = shallow(<CustomerApp {...minPropsWithMaintenance} />);
+
+    // maintenance page should be rendered
+    expect(wrapper.find('MaintenancePage')).toHaveLength(1);
+  });
 });

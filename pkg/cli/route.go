@@ -27,6 +27,9 @@ const (
 
 	// DTODUseMockFlag is the DTOD Use Mock Flag
 	DTODUseMockFlag string = "dtod-use-mock"
+
+	// DTODSimulateOutage is the DTOD Use Mock Flag
+	DTODSimulateOutageFlag string = "dtod-simulate-outage"
 )
 
 // InitRouteFlags initializes Route command line flags
@@ -42,6 +45,8 @@ func InitRouteFlags(flag *pflag.FlagSet) {
 	flag.String(DTODApiWSDLFlag, "", "WSDL for sending a SOAP request to DTOD")
 
 	flag.Bool(DTODUseMockFlag, false, "Whether to use a mocked version of DTOD")
+
+	flag.Bool(DTODSimulateOutageFlag, false, "Simulates the DTOD service being unnavailable")
 }
 
 // CheckRoute validates Route command line flags

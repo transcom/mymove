@@ -1026,4 +1026,55 @@ describe('Home component', () => {
       );
     });
   });
+  describe('if the user has a ppm closeout', () => {
+    const props = {
+      ...defaultProps,
+      move: { ...defaultProps.move, status: MOVE_STATUSES.APPROVED, submitted_at: new Date().toISOString() },
+      orders,
+      uploadedOrderDocuments,
+    };
+    it('is submitted and currently in review', () => {
+      const propsForCloseoutCompleteShipment = {
+        ...props,
+        mtoShipments: [
+          createPPMShipmentWithFinalIncentive({
+            ppmShipment: {
+              status: ppmShipmentStatuses.NEEDS_CLOSEOUT,
+              pickupAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Pickup Test City',
+                state: 'NY',
+                postalCode: '10001',
+              },
+              destinationAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Destination Test City',
+                state: 'NY',
+                postalCode: '11111',
+              },
+            },
+          }),
+        ],
+      };
+      render(
+        <MockProviders>
+          <Home {...propsForCloseoutCompleteShipment} />
+        </MockProviders>,
+      );
+      expect(
+        screen.getByText(
+          'If your documentation is clear and valid, you’ll be able to download a payment packet. You can submit that packet to your Finance office to finalize your acutal incentive amount and request payment.',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'If any documentation is unclear or inaccurate, the counselor will reach out to you to request clarification or documentation updates.',
+        ),
+      ).toBeInTheDocument();
+    });
+  });
 });

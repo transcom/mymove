@@ -44,7 +44,6 @@ describe('MultiMovesMoveContainer', () => {
 
     // Initially, the move details should not be visible
     expect(screen.queryByText('Shipment')).not.toBeInTheDocument();
-
     fireEvent.click(screen.getByTestId('expand-icon'));
 
     // Now, the move details should be visible
@@ -81,6 +80,29 @@ describe('MultiMovesMoveContainer', () => {
     // Check for Go to Move buttons - there should be 2
     const goToMoveButtons = screen.getAllByRole('button', { name: 'Go to Move' });
     expect(goToMoveButtons).toHaveLength(2);
+  });
+
+  it('renders correct shipment type headings for all shipment types when expanded', async () => {
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={mockCurrentMoves} />
+      </MockProviders>,
+    );
+
+    // expand the shipments
+    fireEvent.click(screen.getByTestId('expand-icon'));
+    await waitFor(() => expect(screen.getByText('Shipments')).toBeInTheDocument());
+
+    const headings = screen.queryAllByRole('heading', { level: 4 });
+    expect(headings).toHaveLength(8);
+    expect(headings[0]).toHaveTextContent('Household Goods');
+    expect(headings[1]).toHaveTextContent('Personally Procured Move');
+    expect(headings[2]).toHaveTextContent('Household Goods NTS');
+    expect(headings[3]).toHaveTextContent('Household Goods NTSR');
+    expect(headings[4]).toHaveTextContent('Mobile Home');
+    expect(headings[5]).toHaveTextContent('Boat Haul Away');
+    expect(headings[6]).toHaveTextContent('Boat Tow Away');
+    expect(headings[7]).toHaveTextContent('Unaccompanied Baggage');
   });
 
   it('renders appropriate ppm download options', async () => {
@@ -129,6 +151,26 @@ describe('MultiMovesMoveContainer', () => {
     fireEvent.click(downloadButtons[2]);
     expect(screen.queryByText('AOA Packet')).not.toBeInTheDocument();
     expect(screen.queryByText('PPM Packet')).not.toBeInTheDocument();
+  });
+
+  it('renders correct shipment type headings for PPMs', async () => {
+    const { currentMove } = mockMovesPPMWithAdvanceOptions;
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={currentMove} />
+      </MockProviders>,
+    );
+
+    // expand the shipments
+    fireEvent.click(screen.getByTestId('expand-icon'));
+    await waitFor(() => expect(screen.getByText('Shipments')).toBeInTheDocument());
+
+    const headings = screen.queryAllByRole('heading', { level: 4 });
+    expect(headings).toHaveLength(4);
+    expect(headings[0]).toHaveTextContent('Personally Procured Move');
+    expect(headings[1]).toHaveTextContent('Personally Procured Move');
+    expect(headings[2]).toHaveTextContent('Personally Procured Move');
+    expect(headings[3]).toHaveTextContent('Personally Procured Move');
   });
 
   it('renders Canceled move label', () => {

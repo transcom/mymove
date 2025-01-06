@@ -604,14 +604,14 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   TransportationOffices:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  VLocations:
+    type: array
+    items:
+      $ref: '#/definitions/VLocation'
   OfficeUser:
     type: object
     properties:
@@ -654,6 +654,10 @@ definitions:
         title: Best contact phone
       transportation_office:
         $ref: '#/definitions/TransportationOffice'
+      transportation_office_assignments:
+        type: array
+        items:
+          $ref: '#/definitions/TransportationOfficeAssignment'
       created_at:
         type: string
         format: date-time
@@ -1456,6 +1460,35 @@ definitions:
         description: >
           Spouse's pro-gear weight limit as set by an Office user, distinct from
           the service member's default weight allotment determined by pay grade
+      accompanied_tour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependents_under_twelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependents_twelve_and_over:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
+      ub_allowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The amount of weight in pounds that the move is entitled for shipment
+          types of Unaccompanied Baggage.
   CreateUpdateOrders:
     type: object
     properties:
@@ -1523,6 +1556,28 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accompanied_tour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependents_under_twelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependents_twelve_and_over:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
     required:
       - service_member_id
       - issue_date
@@ -1579,13 +1634,7 @@ definitions:
       grade:
         $ref: '#/definitions/OrderPayGrade'
       orders_type:
-        type: string
-        title: Move Type
-        enum:
-          - PCS - OCONUS
-          - PCS - CONUS
-          - PCS + TDY - OCONUS
-          - PCS + TDY - CONUS
+        $ref: '#/definitions/OrdersType'
       move_date:
         type: string
         format: date
@@ -2532,6 +2581,8 @@ definitions:
       - BLUEBARK
       - SAFETY
       - TEMPORARY_DUTY
+      - EARLY_RETURN_OF_DEPENDENTS
+      - STUDENT_TRAVEL
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -2541,6 +2592,8 @@ definitions:
       BLUEBARK: BLUEBARK
       SAFETY: Safety
       TEMPORARY_DUTY: Temporary Duty (TDY)
+      EARLY_RETURN_OF_DEPENDENTS: Early Return of Dependents
+      STUDENT_TRAVEL: Student Travel
   Address:
     description: A postal address
     type: object
@@ -2701,6 +2754,10 @@ definitions:
         title: isOconus
         x-nullable: true
         example: false
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - streetAddress1
       - city
@@ -3109,12 +3166,6 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
-      allowableWeight:
-        description: Maximum reimbursable weight.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -3672,6 +3723,13 @@ definitions:
         example: 4200
         x-nullable: true
         x-omitempty: false
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4300
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
       hasProGear:
         description: >
           Indicates whether PPM shipment has pro gear for themselves or their
@@ -3698,6 +3756,15 @@ definitions:
           The estimated amount the government will pay the service member to
           move their belongings based on the moving date, locations, and
           shipment weight.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      maxIncentive:
+        description: >-
+          The max amount the government will pay the service member to move
+          their belongings based on the moving date, locations, and shipment
+          weight.
         type: integer
         format: cents
         x-nullable: true
@@ -3931,6 +3998,34 @@ definitions:
           header for any updates.
         type: string
         readOnly: true
+  TransportationOfficeAssignment:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: d67a4780-65aa-42ec-a945-5fd87dec0549
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
+      primaryOffice:
+        type: boolean
+        x-omitempty: false
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - officeUserId
+      - transportationOfficeId
+      - primaryOffice
   PpmID:
     description: |
       The PPM Shipment ID to associate with the assigned certificate.
@@ -3961,6 +4056,136 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEE: Weighing fee
+  VLocation:
+    description: A postal code, city, and state lookup
+    type: object
+    properties:
+      city:
+        type: string
+        example: Anytown
+        title: City
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postalCode:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5}?)$
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
   PPMDestinationAddress:
     description: A postal address
     type: object
@@ -4115,6 +4340,10 @@ definitions:
         title: County
         x-nullable: true
         example: LOS ANGELES
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - city
       - state
@@ -6147,6 +6376,36 @@ paths:
           description: not found
         '500':
           description: server error
+  /addresses/zip-city-lookup/{search}:
+    get:
+      summary: >-
+        Returns city, state, postal code, and county associated with the
+        specified full/partial postal code or city state string
+      description: >-
+        Find by API using full/partial postal code or city name that returns an
+        us_post_region_cities json object containing city, state, county and
+        postal code.
+      operationId: getLocationByZipCityState
+      tags:
+        - addresses
+      parameters:
+        - in: path
+          name: search
+          type: string
+          required: true
+      responses:
+        '200':
+          description: the requested list of city, state, county, and postal code matches
+          schema:
+            $ref: '#/definitions/VLocations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /mto_shipments:
     post:
       summary: createMTOShipment

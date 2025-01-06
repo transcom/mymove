@@ -364,6 +364,16 @@ WITH move AS (
 		UNION
 		SELECT
 			audit_history.object_id,
+			'tertiaryDestinationAddress',
+			move_shipments.shipment_type,
+			move_shipments.id::TEXT,
+			NULL,
+			move_shipments.shipment_locator
+		FROM audit_history
+			JOIN move_shipments ON move_shipments.tertiary_delivery_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+		UNION
+		SELECT
+			audit_history.object_id,
 			'pickupAddress',
 			move_shipments.shipment_type,
 			move_shipments.id::TEXT,
@@ -381,6 +391,16 @@ WITH move AS (
 			move_shipments.shipment_locator
 		FROM audit_history
 			JOIN move_shipments ON move_shipments.secondary_pickup_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+		UNION
+		SELECT
+			audit_history.object_id,
+			'tertiaryPickupAddress',
+			move_shipments.shipment_type,
+			move_shipments.id::TEXT,
+			NULL,
+			move_shipments.shipment_locator
+		FROM audit_history
+			JOIN move_shipments ON move_shipments.tertiary_pickup_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
 		UNION
 		SELECT
 			audit_history.object_id,

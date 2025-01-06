@@ -414,7 +414,7 @@ describe('PrimeUIShipmentCreateForm', () => {
       expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
 
-      expect(await screen.findByText('Destination Address')).toBeInTheDocument();
+      expect(await screen.findByText('Delivery Address')).toBeInTheDocument();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
     },
   );
@@ -452,7 +452,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     await userEvent.click(hasTertiaryPickup);
     expect(screen.getAllByLabelText('Address 1')[2]).toHaveValue('');
 
-    expect(await screen.findByText('Destination Address')).toBeInTheDocument();
+    expect(await screen.findByText('Delivery Address')).toBeInTheDocument();
     expect(screen.getAllByLabelText('Address 1')[3]).toHaveValue('');
 
     const hasSecondaryDestination = await screen.findByTestId('has-secondary-destination');

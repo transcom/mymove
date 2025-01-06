@@ -32,7 +32,15 @@ test.describe('Office Users List Page', () => {
     expect(page.url()).toContain('/system/office-users');
     await expect(page.locator('header')).toContainText('Office Users');
 
-    const columnLabels = ['Id', 'Email', 'First name', 'Last name', 'Transportation Office', 'User Id', 'Active'];
+    const columnLabels = [
+      'Id',
+      'Email',
+      'First name',
+      'Last name',
+      'Primary Transportation Office',
+      'User Id',
+      'Active',
+    ];
 
     await adminPage.expectRoleLabelsByText('columnheader', columnLabels);
   });
@@ -75,11 +83,12 @@ test.describe('Office User Create Page', () => {
     await phone.focus();
     await phone.fill('222-555-1234');
 
-    await page.getByText('Services Counselor').click();
-    await page.getByText('Supervisor').click();
+    await page.getByLabel('Services Counselor').click();
+    await page.getByLabel('Supervisor').click();
+
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await page.getByLabel('Transportation Office').fill('JPPSO Testy McTest');
+    await page.getByLabel('Transportation Office').nth(0).fill('JPPSO Testy McTest');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
     await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
@@ -135,7 +144,7 @@ test.describe('Office Users Show Page', () => {
       'Last name',
       'Telephone',
       'Active',
-      'Transportation Office',
+      'Transportation Offices',
       'Created at',
       'Updated at',
     ];
@@ -177,7 +186,20 @@ test.describe('Office Users Edit Page', () => {
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await expect(page.getByLabel('Transportation Office')).toBeEditable();
+    await expect(page.getByLabel('Transportation Office').nth(0)).toBeEditable();
+
+    // Add a Transportation Office Assignment
+    await page.getByTestId('addTransportationOfficeButton').click();
+    // n = 2 because of the disabled GBLOC input
+    await expect(page.getByLabel('Transportation Office').nth(2)).toBeEditable();
+    await page.getByLabel('Transportation Office').nth(2).fill('AGFM');
+    // the autocomplete might return multiples because of concurrent
+    // tests running that are adding offices
+    await page.getByRole('option', { name: 'JPPSO - North East (AGFM) - USAF' }).first().click();
+    // Set as primary transportation office
+    await page.getByLabel('Primary Office').nth(1).click();
+    await page.getByText('You cannot designate more than one primary transportation office.');
+    await page.getByLabel('Primary Office').nth(1).click();
 
     // set the user to the active status they did NOT have before
     const activeStatus = await page.locator('div:has(label :text-is("Active")) >> input[name="active"]').inputValue();
@@ -204,5 +226,116 @@ test.describe('Office Users Edit Page', () => {
 
     await expect(page.locator(`tr:has(:text("${email}")) >> td.column-firstName`)).toHaveText('NewFirst');
     await expect(page.locator(`tr:has(:text("${email}")) >> td.column-lastName`)).toHaveText('NewLast');
+  });
+
+  test('prevents safety move priv selection with Customer role', async ({ page, adminPage }) => {
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithCustomer();
+    const email = officeUser.okta_email;
+
+    // create a new admin user to edit
+    // using an existing one may stop on a concurrent playwright session
+    const adminUser = await adminPage.testHarness.buildDefaultSuperAdminUser();
+    await adminPage.signInAsExistingAdminUser(adminUser.user_id);
+
+    expect(page.url()).toContain('/system/requested-office-users');
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
+    expect(page.url()).toContain('/system/office-users');
+    await searchForOfficeUser(page, email);
+    await page.getByText(email).click();
+    await adminPage.waitForPage.adminPage();
+
+    await page.getByRole('link', { name: 'Edit' }).click();
+    await adminPage.waitForPage.adminPage();
+
+    const safetyMoveCheckbox = page.getByLabel('Safety Moves');
+    const customerCheckbox = page.getByLabel('Customer', { exact: true });
+
+    await expect(customerCheckbox).toBeChecked();
+    await safetyMoveCheckbox.click();
+    await expect(safetyMoveCheckbox).not.toBeChecked();
+  });
+
+  test('prevents safety move priv selection with Contracting Officer role', async ({ page, adminPage }) => {
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithContractingOfficer();
+    const email = officeUser.okta_email;
+
+    // create a new admin user to edit
+    // using an existing one may stop on a concurrent playwright session
+    const adminUser = await adminPage.testHarness.buildDefaultSuperAdminUser();
+    await adminPage.signInAsExistingAdminUser(adminUser.user_id);
+
+    expect(page.url()).toContain('/system/requested-office-users');
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
+    expect(page.url()).toContain('/system/office-users');
+    await searchForOfficeUser(page, email);
+    await page.getByText(email).click();
+    await adminPage.waitForPage.adminPage();
+
+    await page.getByRole('link', { name: 'Edit' }).click();
+    await adminPage.waitForPage.adminPage();
+
+    const safetyMoveCheckbox = page.getByLabel('Safety Moves');
+    const customerCheckbox = page.getByLabel('Contracting Officer', { exact: true });
+
+    await expect(customerCheckbox).toBeChecked();
+    await safetyMoveCheckbox.click();
+    await expect(safetyMoveCheckbox).not.toBeChecked();
+  });
+
+  test('prevents safety move priv selection with Prime Simulator role', async ({ page, adminPage }) => {
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithPrimeSimulator();
+    const email = officeUser.okta_email;
+
+    // create a new admin user to edit
+    // using an existing one may stop on a concurrent playwright session
+    const adminUser = await adminPage.testHarness.buildDefaultSuperAdminUser();
+    await adminPage.signInAsExistingAdminUser(adminUser.user_id);
+
+    expect(page.url()).toContain('/system/requested-office-users');
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
+    expect(page.url()).toContain('/system/office-users');
+    await searchForOfficeUser(page, email);
+    await page.getByText(email).click();
+    await adminPage.waitForPage.adminPage();
+
+    await page.getByRole('link', { name: 'Edit' }).click();
+    await adminPage.waitForPage.adminPage();
+
+    const safetyMoveCheckbox = page.getByLabel('Safety Moves');
+    const customerCheckbox = page.getByLabel('Prime Simulator', { exact: true });
+
+    await expect(customerCheckbox).toBeChecked();
+    await safetyMoveCheckbox.click();
+    await expect(safetyMoveCheckbox).not.toBeChecked();
+  });
+
+  test('prevents safety move priv selection with Government Surveillance Representative role', async ({
+    page,
+    adminPage,
+  }) => {
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithGSR();
+    const email = officeUser.okta_email;
+
+    // create a new admin user to edit
+    // using an existing one may stop on a concurrent playwright session
+    const adminUser = await adminPage.testHarness.buildDefaultSuperAdminUser();
+    await adminPage.signInAsExistingAdminUser(adminUser.user_id);
+
+    expect(page.url()).toContain('/system/requested-office-users');
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
+    expect(page.url()).toContain('/system/office-users');
+    await searchForOfficeUser(page, email);
+    await page.getByText(email).click();
+    await adminPage.waitForPage.adminPage();
+
+    await page.getByRole('link', { name: 'Edit' }).click();
+    await adminPage.waitForPage.adminPage();
+
+    const safetyMoveCheckbox = page.getByLabel('Safety Moves');
+    const customerCheckbox = page.getByLabel('Government Surveillance Representative', { exact: true });
+
+    await expect(customerCheckbox).toBeChecked();
+    await safetyMoveCheckbox.click();
+    await expect(safetyMoveCheckbox).not.toBeChecked();
   });
 });

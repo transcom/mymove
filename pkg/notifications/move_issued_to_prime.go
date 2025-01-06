@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -65,7 +66,18 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 	if originDSTransportInfo != nil {
 		originDutyLocation = &originDSTransportInfo.Name
 	}
-
+	destinationAddress := orders.NewDutyLocation.Name
+	isSeparateeOrRetireeOrder := orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || orders.OrdersType == internalmessages.OrdersTypeSEPARATION
+	if isSeparateeOrRetireeOrder && len(move.MTOShipments) > 0 && move.MTOShipments[0].DestinationAddress != nil {
+		mtoShipDestinationAddress, streetAddr2, streetAddr3 := *move.MTOShipments[0].DestinationAddress, "", ""
+		if mtoShipDestinationAddress.StreetAddress2 != nil {
+			streetAddr2 = " " + *mtoShipDestinationAddress.StreetAddress2
+		}
+		if mtoShipDestinationAddress.StreetAddress3 != nil {
+			streetAddr3 = " " + *mtoShipDestinationAddress.StreetAddress3
+		}
+		destinationAddress = fmt.Sprintf("%s%s%s, %s, %s %s", mtoShipDestinationAddress.StreetAddress1, streetAddr2, streetAddr3, mtoShipDestinationAddress.City, mtoShipDestinationAddress.State, mtoShipDestinationAddress.PostalCode)
+	}
 	var providesGovernmentCounseling bool
 	if orders.OriginDutyLocation != nil {
 		providesGovernmentCounseling = orders.OriginDutyLocation.ProvidesServicesCounseling
@@ -78,7 +90,7 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveIssuedToPrimeEmailData{
 		MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 		OriginDutyLocation:           originDutyLocation,
-		DestinationDutyLocation:      orders.NewDutyLocation.Name,
+		DestinationLocation:          destinationAddress,
 		ProvidesGovernmentCounseling: providesGovernmentCounseling,
 		Locator:                      move.Locator,
 	})
@@ -116,7 +128,7 @@ func (m MoveIssuedToPrime) renderTemplates(appCtx appcontext.AppContext, data mo
 type moveIssuedToPrimeEmailData struct {
 	MilitaryOneSourceLink        string
 	OriginDutyLocation           *string
-	DestinationDutyLocation      string
+	DestinationLocation          string
 	ProvidesGovernmentCounseling bool
 	Locator                      string
 }

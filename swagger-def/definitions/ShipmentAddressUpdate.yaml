@@ -1,5 +1,5 @@
 description: >
-  This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.
+  This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.
 type: object
 properties:
   id:
@@ -33,12 +33,12 @@ properties:
   sitOriginalAddress:
     $ref: 'Address.yaml'
   oldSitDistanceBetween:
-    description: The distance between the original SIT address and the previous/old destination address of shipment
+    description: The distance between the original SIT address and the previous/old delivery address of shipment
     example: 50
     minimum: 0
     type: integer
   newSitDistanceBetween:
-    description: The distance between the original SIT address and requested new destination address of shipment
+    description: The distance between the original SIT address and requested new delivery address of shipment
     example: 88
     minimum: 0
     type: integer

@@ -12,12 +12,16 @@ func (suite *ModelSuite) TestMTOServiceItemValidation() {
 		moveTaskOrderID := uuid.Must(uuid.NewV4())
 		mtoShipmentID := uuid.Must(uuid.NewV4())
 		reServiceID := uuid.Must(uuid.NewV4())
+		poeLocationID := uuid.Must(uuid.NewV4())
+		podLocationID := uuid.Must(uuid.NewV4())
 
 		validMTOServiceItem := models.MTOServiceItem{
 			MoveTaskOrderID: moveTaskOrderID,
 			MTOShipmentID:   &mtoShipmentID,
 			ReServiceID:     reServiceID,
 			Status:          models.MTOServiceItemStatusSubmitted,
+			POELocationID:   &poeLocationID,
+			PODLocationID:   &podLocationID,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMTOServiceItem, expErrors)

@@ -1,3 +1,8 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
 .nameFormContainer {
     width: 40vw;
     display: flex;
@@ -10,4 +15,22 @@
 
 .header {
     text-align: center;
+}
+
+.noTopMargin {
+  @media (max-width: $tablet) {
+      margin-top: 0;
+  }
+}
+
+.noBottomMargin {
+  @media (max-width: $tablet) {
+      margin-bottom: 0;
+  }
+}
+
+:global(.usa-form-group:first-child){
+  @media (max-width: $tablet) {
+      margin-top: 0;
+  }
 }

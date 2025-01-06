@@ -12,6 +12,7 @@ import { tooRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { ERROR_RETURN_VALUE, LOADING_RETURN_VALUE, INACCESSIBLE_RETURN_VALUE } from 'utils/test/api';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -99,18 +100,6 @@ const basicUseTXOMoveInfoQueriesValue = {
   isSuccess: true,
 };
 
-const loadingReturnValue = {
-  isLoading: true,
-  isError: false,
-  isSuccess: false,
-};
-
-const errorReturnValue = {
-  isLoading: false,
-  isError: true,
-  isSuccess: false,
-};
-
 const user = {
   isLoading: false,
   isError: false,
@@ -146,7 +135,7 @@ beforeEach(() => {
 describe('TXO Move Info Container', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
-      useTXOMoveInfoQueries.mockReturnValue(loadingReturnValue);
+      useTXOMoveInfoQueries.mockReturnValue(LOADING_RETURN_VALUE);
 
       render(
         <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
@@ -159,7 +148,7 @@ describe('TXO Move Info Container', () => {
     });
 
     it('renders the Something Went Wrong component when the query errors', async () => {
-      useTXOMoveInfoQueries.mockReturnValue(errorReturnValue);
+      useTXOMoveInfoQueries.mockReturnValue(ERROR_RETURN_VALUE);
 
       render(
         <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
@@ -168,6 +157,19 @@ describe('TXO Move Info Container', () => {
       );
 
       const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
+
+    it('renders the Inaccessible component when the query returns an inaccessible response', async () => {
+      useTXOMoveInfoQueries.mockReturnValue(INACCESSIBLE_RETURN_VALUE);
+
+      render(
+        <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const errorMessage = await screen.getByText(/Page is not accessible./);
       expect(errorMessage).toBeInTheDocument();
     });
   });

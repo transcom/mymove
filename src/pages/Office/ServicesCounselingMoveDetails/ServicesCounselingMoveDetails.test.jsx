@@ -7,14 +7,16 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 
 import MOVE_STATUSES from 'constants/moves';
+import { ERROR_RETURN_VALUE, LOADING_RETURN_VALUE, INACCESSIBLE_RETURN_VALUE } from 'utils/test/api';
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { permissionTypes } from 'constants/permissions';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
-import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
+import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDateWithUTC } from 'shared/dates';
 import { MockProviders } from 'testUtils';
-import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
+import { updateMTOShipment, updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockRequestedMoveCode = 'LR4T8V';
 const mockRoutingParams = { moveCode: mockRequestedMoveCode };
@@ -28,12 +30,17 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
-  useOrdersDocumentQueries: jest.fn(),
 }));
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
+  updateMTOShipment: jest.fn(),
   updateMoveStatusServiceCounselingCompleted: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const mtoShipments = [
@@ -218,6 +225,7 @@ const orderMissingRequiredInfo = {
     totalDependents: 1,
     totalWeight: 8000,
   },
+  orderDocuments: undefined,
   order_number: '',
   order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   order_type_detail: '',
@@ -253,6 +261,7 @@ const newMoveDetailsQuery = {
         city: 'Fort Knox',
         state: 'KY',
         postalCode: '40121',
+        isOconus: true,
       },
     },
     destinationDutyLocation: {
@@ -308,20 +317,115 @@ const newMoveDetailsQuery = {
     department_indicator: 'ARMY',
     tac: '9999',
   },
+  orderDocuments: {
+    z: {
+      bytes: 2202009,
+      contentType: 'application/pdf',
+      createdAt: '2024-10-23T16:31:21.085Z',
+      filename: 'testFile.pdf',
+      id: 'z',
+      status: 'PROCESSING',
+      updatedAt: '2024-10-23T16:31:21.085Z',
+      uploadType: 'USER',
+      url: '/storage/USER/uploads/z?contentType=application%2Fpdf',
+    },
+  },
   mtoShipments,
   mtoServiceItems: [],
   mtoAgents: [],
   isLoading: false,
   isError: false,
   isSuccess: true,
-  upload: {
-    z: {
-      id: 'z',
-      filename: 'test.pdf',
-      contentType: 'application/pdf',
-      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-    },
+};
+
+const zeroIncentiveMoveDetailsQuery = {
+  ...newMoveDetailsQuery,
+  move: {
+    id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    ordersId: '1',
+    status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
   },
+  mtoShipments: [
+    {
+      customerRemarks: 'Please treat gently',
+      eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMTc4MVo=',
+      id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+      moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
+      ppmShipment: {
+        actualDestinationPostalCode: null,
+        actualMoveDate: null,
+        actualPickupPostalCode: null,
+        advanceAmountReceived: null,
+        advanceAmountRequested: null,
+        approvedAt: null,
+        createdAt: '2022-11-08T23:44:58.226Z',
+        eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
+        estimatedIncentive: 0,
+        estimatedWeight: 400,
+        expectedDepartureDate: '2020-03-15',
+        finalIncentive: null,
+        hasProGear: false,
+        hasReceivedAdvance: null,
+        hasRequestedAdvance: false,
+        id: '79b98a71-158d-4b04-9a6c-25543c52183d',
+        movingExpenses: null,
+        proGearWeight: null,
+        proGearWeightTickets: null,
+        reviewedAt: null,
+        hasSecondaryPickupAddress: false,
+        hasSecondaryDestinationAddress: false,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+        sitEstimatedCost: null,
+        sitEstimatedDepartureDate: null,
+        sitEstimatedEntryDate: null,
+        sitEstimatedWeight: null,
+        sitExpected: false,
+        spouseProGearWeight: null,
+        status: 'SUBMITTED',
+        submittedAt: null,
+        updatedAt: '2022-11-08T23:44:58.226Z',
+        weightTickets: [{ emptyWeight: 0, fullWeight: 200 }],
+      },
+      primeActualWeight: 980,
+      requestedDeliveryDate: '2023-01-10',
+      requestedPickupDate: '2023-01-10',
+      shipmentType: 'PPM',
+      status: 'SUBMITTED',
+      updatedAt: '2022-11-08T23:44:58.217Z',
+    },
+  ],
 };
 
 const counselingCompletedMoveDetailsQuery = {
@@ -548,25 +652,10 @@ const renderComponent = (props, permissions = [permissionTypes.updateShipment, p
   );
 };
 
-const loadingReturnValue = {
-  ...newMoveDetailsQuery,
-  isLoading: true,
-  isError: false,
-  isSuccess: false,
-};
-
-const errorReturnValue = {
-  ...newMoveDetailsQuery,
-  isLoading: false,
-  isError: true,
-  isSuccess: false,
-};
-
 describe('MoveDetails page', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
-      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
-      useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
+      useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, ...LOADING_RETURN_VALUE });
 
       renderComponent();
 
@@ -575,12 +664,20 @@ describe('MoveDetails page', () => {
     });
 
     it('renders the Something Went Wrong component when the query errors', async () => {
-      useMoveDetailsQueries.mockReturnValue(errorReturnValue);
-      useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
+      useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, ...ERROR_RETURN_VALUE });
 
       renderComponent();
 
       const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
+
+    it('renders the Inaccessible component when the query returns an inaccessible response', async () => {
+      useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, ...INACCESSIBLE_RETURN_VALUE });
+
+      renderComponent();
+
+      const errorMessage = await screen.getByText(/Page is not accessible./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
@@ -588,7 +685,6 @@ describe('MoveDetails page', () => {
   describe('Basic rendering', () => {
     it('renders the h1', async () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
 
       renderComponent();
 
@@ -599,7 +695,6 @@ describe('MoveDetails page', () => {
       'renders side navigation for section %s',
       async (sectionName) => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
 
         renderComponent();
 
@@ -614,7 +709,6 @@ describe('MoveDetails page', () => {
       };
 
       useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
 
       renderComponent();
 
@@ -629,24 +723,6 @@ describe('MoveDetails page', () => {
       };
 
       useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
-
-      const mockSetMissingOrdersInfoCount = jest.fn();
-      renderComponent({ setMissingOrdersInfoCount: mockSetMissingOrdersInfoCount });
-
-      // Should have called `setMissingOrdersInfoCount` with 4 missing fields
-      expect(mockSetMissingOrdersInfoCount).toHaveBeenCalledTimes(1);
-      expect(mockSetMissingOrdersInfoCount).toHaveBeenCalledWith(4);
-    });
-
-    it('shares the number of missing orders information', () => {
-      const moveDetailsQuery = {
-        ...newMoveDetailsQuery,
-        order: orderMissingRequiredInfo,
-      };
-
-      useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
 
       const mockSetMissingOrdersInfoCount = jest.fn();
       renderComponent({ setMissingOrdersInfoCount: mockSetMissingOrdersInfoCount });
@@ -659,7 +735,6 @@ describe('MoveDetails page', () => {
     /* eslint-disable camelcase */
     it('renders shipments info', async () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
 
       renderComponent();
 
@@ -677,9 +752,9 @@ describe('MoveDetails page', () => {
         );
       }
 
-      const originAddressTerms = screen.getAllByText('Origin address');
+      const originAddressTerms = screen.getAllByText('Pickup Address');
 
-      expect(originAddressTerms.length).toBe(2);
+      expect(originAddressTerms.length).toBe(3);
 
       for (let i = 0; i < 2; i += 1) {
         const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
@@ -692,7 +767,7 @@ describe('MoveDetails page', () => {
         expect(addressText).toContain(postalCode);
       }
 
-      const destinationAddressTerms = screen.getAllByText('Destination address');
+      const destinationAddressTerms = screen.getAllByText('Delivery Address');
 
       expect(destinationAddressTerms.length).toBe(2);
 
@@ -720,14 +795,12 @@ describe('MoveDetails page', () => {
 
     it('renders review documents button', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      useOrdersDocumentQueries.mockReturnValue(ppmShipmentQuery);
       renderComponent();
       expect(screen.getAllByRole('button', { name: 'Review documents' }).length).toBe(2);
     });
 
     it('renders review shipment weights button with correct path', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      useOrdersDocumentQueries.mockReturnValue(ppmShipmentQuery);
       const path = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, {
         moveCode: mockRequestedMoveCode,
       });
@@ -741,7 +814,6 @@ describe('MoveDetails page', () => {
 
     it('shows an error if there is an advance requested and no advance status for a PPM shipment', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      useOrdersDocumentQueries.mockReturnValue(ppmShipmentQuery);
       renderComponent();
 
       const advanceStatusElement = screen.getAllByTestId('advanceRequestStatus')[0];
@@ -750,7 +822,6 @@ describe('MoveDetails page', () => {
 
     it('renders the excess weight alert and additional shipment concern if there is excess weight', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      useOrdersDocumentQueries.mockReturnValue(ppmShipmentQuery);
       renderComponent();
       const excessWeightAlert = screen.getByText(
         'This move has excess weight. Review PPM weight ticket documents to resolve.',
@@ -762,13 +833,12 @@ describe('MoveDetails page', () => {
 
     it('renders the allowances error message when allowances are less than moves values', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      useOrdersDocumentQueries.mockReturnValue(ppmShipmentQuery);
       renderComponent();
       const allowanceError = screen.getByTestId('allowanceError');
       expect(allowanceError).toBeInTheDocument();
     });
 
-    it('renders shipments info even if destination address is missing', async () => {
+    it('renders shipments info even if delivery address is missing', async () => {
       const moveDetailsQuery = {
         ...newMoveDetailsQuery,
         mtoShipments: [
@@ -781,11 +851,10 @@ describe('MoveDetails page', () => {
       delete moveDetailsQuery.mtoShipments[0].destinationAddress;
 
       useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
 
       renderComponent();
 
-      const destinationAddressTerms = screen.getAllByText('Destination address');
+      const destinationAddressTerms = screen.getAllByText('Delivery Address');
 
       expect(destinationAddressTerms.length).toBe(2);
 
@@ -806,7 +875,6 @@ describe('MoveDetails page', () => {
 
     it('renders customer info', async () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
 
       renderComponent();
 
@@ -824,7 +892,6 @@ describe('MoveDetails page', () => {
     describe('new move - needs service counseling', () => {
       it('submit move details button is on page', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
 
         renderComponent();
 
@@ -833,7 +900,6 @@ describe('MoveDetails page', () => {
 
       it('submit move details button is disabled when there are no shipments', async () => {
         useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, mtoShipments: [] });
-        useOrdersDocumentQueries.mockReturnValue({ ...newMoveDetailsQuery, mtoShipments: [] });
 
         renderComponent();
 
@@ -862,20 +928,21 @@ describe('MoveDetails page', () => {
             department_indicator: undefined,
           },
         });
-        useOrdersDocumentQueries.mockReturnValue({
-          ...newMoveDetailsQuery,
-          order: {
-            ...newMoveDetailsQuery.order,
-            department_indicator: undefined,
-          },
-        });
 
         renderComponent();
 
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
       });
-
+      it('should disable submit move details button when order documents is missing', async () => {
+        useMoveDetailsQueries.mockReturnValue({
+          ...newMoveDetailsQuery,
+          orderDocuments: undefined,
+        });
+        renderComponent();
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).not.toBeEnabled();
+      });
       it('submit move details button is not disabled when some shipments are deleted', async () => {
         const deletedMtoShipments = mtoShipments.map((shipment, index) => {
           if (index > 0) {
@@ -884,10 +951,6 @@ describe('MoveDetails page', () => {
           return shipment;
         });
         useMoveDetailsQueries.mockReturnValue({
-          ...newMoveDetailsQuery,
-          mtoShipments: deletedMtoShipments,
-        });
-        useOrdersDocumentQueries.mockReturnValue({
           ...newMoveDetailsQuery,
           mtoShipments: deletedMtoShipments,
         });
@@ -907,10 +970,6 @@ describe('MoveDetails page', () => {
         });
         const isMoveLocked = true;
         useMoveDetailsQueries.mockReturnValue({
-          ...newMoveDetailsQuery,
-          mtoShipments: deletedMtoShipments,
-        });
-        useOrdersDocumentQueries.mockReturnValue({
           ...newMoveDetailsQuery,
           mtoShipments: deletedMtoShipments,
         });
@@ -945,7 +1004,6 @@ describe('MoveDetails page', () => {
           mtoShipments: [ntsrShipmentMissingRequiredInfo],
         };
         useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
 
         renderComponent();
 
@@ -955,7 +1013,6 @@ describe('MoveDetails page', () => {
 
       it('renders the Orders Definition List', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
 
         renderComponent();
 
@@ -965,7 +1022,6 @@ describe('MoveDetails page', () => {
 
       it('renders the Allowances Table', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
 
         renderComponent();
 
@@ -975,7 +1031,28 @@ describe('MoveDetails page', () => {
 
       it('allows the service counselor to use the modal as expected', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+        updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
+
+        renderComponent();
+
+        const submitButton = await screen.findByRole('button', { name: 'Submit move details' });
+
+        await userEvent.click(submitButton);
+
+        expect(await screen.findByRole('heading', { name: 'Are you sure?', level: 2 })).toBeInTheDocument();
+
+        const modalSubmitButton = screen.getByRole('button', { name: 'Yes, submit' });
+
+        await userEvent.click(modalSubmitButton);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 })).not.toBeInTheDocument();
+        });
+      });
+
+      it('allows the service counselor to submit details for ppm with zero incentive', async () => {
+        useMoveDetailsQueries.mockReturnValue(zeroIncentiveMoveDetailsQuery);
+        updateMTOShipment.mockImplementation(() => Promise.resolve({}));
         updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
 
         renderComponent();
@@ -1001,7 +1078,6 @@ describe('MoveDetails page', () => {
         ['Edit customer info', servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH],
       ])('shows the "%s" link as expected: %s', async (linkText, route) => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
 
         renderComponent();
 
@@ -1015,45 +1091,46 @@ describe('MoveDetails page', () => {
       });
 
       describe('shows the dropdown and navigates to each option', () => {
-        it.each([[SHIPMENT_OPTIONS_URL.HHG], [SHIPMENT_OPTIONS_URL.NTS], [SHIPMENT_OPTIONS_URL.NTSrelease]])(
-          'selects the %s option and navigates to the matching form for that shipment type',
-          async (shipmentType) => {
-            render(
-              <MockProviders
-                path={servicesCounselingRoutes.BASE_SHIPMENT_ADD_PATH}
-                params={{ moveCode: mockRequestedMoveCode, shipmentType }}
-              >
-                <ServicesCounselingMoveDetails
-                  setUnapprovedShipmentCount={jest.fn()}
-                  setMissingOrdersInfoCount={jest.fn()}
-                  setShipmentWarnConcernCount={jest.fn()}
-                  setShipmentErrorConcernCount={jest.fn()}
-                />
-                ,
-              </MockProviders>,
-            );
+        it.each([
+          [SHIPMENT_OPTIONS_URL.HHG],
+          [SHIPMENT_OPTIONS_URL.NTS],
+          [SHIPMENT_OPTIONS_URL.NTSrelease],
+          [SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE],
+        ])('selects the %s option and navigates to the matching form for that shipment type', async (shipmentType) => {
+          isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+          render(
+            <MockProviders
+              path={servicesCounselingRoutes.BASE_SHIPMENT_ADD_PATH}
+              params={{ moveCode: mockRequestedMoveCode, shipmentType }}
+            >
+              <ServicesCounselingMoveDetails
+                setUnapprovedShipmentCount={jest.fn()}
+                setMissingOrdersInfoCount={jest.fn()}
+                setShipmentWarnConcernCount={jest.fn()}
+                setShipmentErrorConcernCount={jest.fn()}
+              />
+            </MockProviders>,
+          );
 
-            const path = `../${generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
-              moveCode: mockRequestedMoveCode,
-              shipmentType,
-            })}`;
+          const path = `../${generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
+            moveCode: mockRequestedMoveCode,
+            shipmentType,
+          })}`;
 
-            const buttonDropdown = await screen.findByRole('combobox');
+          const buttonDropdown = await screen.findByRole('combobox');
 
-            expect(buttonDropdown).toBeInTheDocument();
+          expect(buttonDropdown).toBeInTheDocument();
 
-            await userEvent.selectOptions(buttonDropdown, shipmentType);
+          await userEvent.selectOptions(buttonDropdown, shipmentType);
 
-            await waitFor(() => {
-              expect(mockNavigate).toHaveBeenCalledWith(path);
-            });
-          },
-        );
+          await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith(path);
+          });
+        });
       });
 
       it('shows the edit shipment buttons', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
 
         renderComponent();
 
@@ -1073,7 +1150,6 @@ describe('MoveDetails page', () => {
 
       it('shows the customer and counselor remarks', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
 
         renderComponent();
 
@@ -1093,7 +1169,6 @@ describe('MoveDetails page', () => {
     describe('service counseling completed', () => {
       it('hides submit and view/edit buttons/links', async () => {
         useMoveDetailsQueries.mockReturnValue(counselingCompletedMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(counselingCompletedMoveDetailsQuery);
 
         renderComponent();
 
@@ -1108,7 +1183,6 @@ describe('MoveDetails page', () => {
 
     describe('permission dependent rendering', () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
 
       it('renders the financial review flag button when user has permission', async () => {
         render(

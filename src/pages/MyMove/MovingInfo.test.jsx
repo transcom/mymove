@@ -15,6 +15,11 @@ jest.mock('../../utils/featureFlags', () => ({
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
+jest.mock('store/entities/selectors', () => ({
+  ...jest.requireActual('store/entities/selectors'),
+  selectUbAllowance: jest.fn(),
+}));
+
 describe('MovingInfo component', () => {
   const testProps = {
     entitlementWeight: 7000,
@@ -70,5 +75,15 @@ describe('MovingInfo component', () => {
     expect(screen.queryByText('You can get paid for any household goods you move yourself.')).toBeNull();
 
     expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+  });
+
+  it('when allowed UB allowance, they see the UB allowance section', async () => {
+    const wrapper = renderWithRouterProp(
+      <MovingInfo {...testProps} entitlementWeight={8000} ubAllowance={500} />,
+      routingOptions,
+    );
+    await wrapper;
+
+    expect(screen.queryByText('You can move up to 500 lbs of unaccompanied baggage in this move.')).toBeInTheDocument();
   });
 });

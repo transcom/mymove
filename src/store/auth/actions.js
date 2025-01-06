@@ -36,3 +36,9 @@ export const getLoggedInUserFailure = (error) => ({
   type: GET_LOGGED_IN_USER_FAILURE,
   error,
 });
+
+export const SET_UNDER_MAINTENANCE = 'SET_UNDER_MAINTENANCE';
+
+export const setUnderMaintenance = () => ({
+  type: SET_UNDER_MAINTENANCE,
+});

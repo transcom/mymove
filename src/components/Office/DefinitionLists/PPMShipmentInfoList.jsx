@@ -36,6 +36,7 @@ const PPMShipmentInfoList = ({
     status,
     destinationAddress,
     estimatedIncentive,
+    maxIncentive,
     estimatedWeight,
     expectedDepartureDate,
     actualMoveDate,
@@ -107,7 +108,7 @@ const PPMShipmentInfoList = ({
   const pickupAddressElementFlags = getDisplayFlags('pickupAddress');
   const pickupAddressElement = (
     <div className={pickupAddressElementFlags.classes}>
-      <dt>Pickup address</dt>
+      <dt>Pickup Address</dt>
       <dd data-testid="pickupAddress">{pickupAddress ? formatAddress(pickupAddress) : '-'}</dd>
     </div>
   );
@@ -115,7 +116,7 @@ const PPMShipmentInfoList = ({
   const secondaryPickupAddressElementFlags = getDisplayFlags('secondaryPickupAddress');
   const secondaryPickupAddressElement = (
     <div className={secondaryPickupAddressElementFlags.classes}>
-      <dt>Second pickup address</dt>
+      <dt>Second Pickup Address</dt>
       <dd data-testid="secondaryPickupAddress">
         {secondaryPickupAddress ? formatAddress(secondaryPickupAddress) : '—'}
       </dd>
@@ -125,7 +126,7 @@ const PPMShipmentInfoList = ({
   const tertiaryPickupAddressElementFlags = getDisplayFlags('tertiaryPickupAddress');
   const tertiaryPickupAddressElement = (
     <div className={tertiaryPickupAddressElementFlags.classes}>
-      <dt>Third pickup address</dt>
+      <dt>Third Pickup Address</dt>
       <dd data-testid="tertiaryPickupAddress">{tertiaryPickupAddress ? formatAddress(tertiaryPickupAddress) : '—'}</dd>
     </div>
   );
@@ -133,7 +134,7 @@ const PPMShipmentInfoList = ({
   const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
-      <dt>Destination address</dt>
+      <dt>Delivery Address</dt>
       <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '-'}</dd>
     </div>
   );
@@ -141,7 +142,7 @@ const PPMShipmentInfoList = ({
   const secondaryDestinationAddressElementFlags = getDisplayFlags('secondaryDestinationAddress');
   const secondaryDestinationAddressElement = (
     <div className={secondaryDestinationAddressElementFlags.classes}>
-      <dt>Second destination address</dt>
+      <dt>Second Delivery Address</dt>
       <dd data-testid="secondaryDestinationAddress">
         {secondaryDestinationAddress ? formatAddress(secondaryDestinationAddress) : '—'}
       </dd>
@@ -151,7 +152,7 @@ const PPMShipmentInfoList = ({
   const tertiaryDestinationAddressElementFlags = getDisplayFlags('tertiaryDestinationAddress');
   const tertiaryDestinationAddressElement = (
     <div className={tertiaryDestinationAddressElementFlags.classes}>
-      <dt>Third destination address</dt>
+      <dt>Third Delivery Address</dt>
       <dd data-testid="tertiaryDestinationAddress">
         {tertiaryDestinationAddress ? formatAddress(tertiaryDestinationAddress) : '—'}
       </dd>
@@ -205,6 +206,14 @@ const PPMShipmentInfoList = ({
       <dd data-testid="estimatedIncentive">
         ${estimatedIncentive ? formatCentsTruncateWhole(estimatedIncentive) : '0'}
       </dd>
+    </div>
+  );
+
+  const maxIncentiveElementFlags = getDisplayFlags('estimatedIncentive');
+  const maxIncentiveElement = (
+    <div className={maxIncentiveElementFlags.classes}>
+      <dt>Max Incentive</dt>
+      <dd data-testid="maxIncentive">{maxIncentive ? `$${formatCentsTruncateWhole(maxIncentive)}` : '-'}</dd>
     </div>
   );
 
@@ -292,6 +301,7 @@ const PPMShipmentInfoList = ({
       {showElement(proGearWeightElementFlags) && proGearWeightElement}
       {showElement(spouseProGearElementFlags) && spouseProGearElement}
       {showElement(estimatedIncentiveElementFlags) && estimatedIncentiveElement}
+      {showElement(maxIncentiveElementFlags) && maxIncentiveElement}
       {hasRequestedAdvanceElement}
       {hasRequestedAdvance === true && advanceStatusElement}
       {(advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue || advanceStatus === ADVANCE_STATUSES.EDITED.apiValue) &&

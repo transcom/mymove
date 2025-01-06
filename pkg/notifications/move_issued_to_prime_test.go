@@ -3,6 +3,8 @@ package notifications
 import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *NotificationSuite) TestMoveIssuedToPrime() {
@@ -36,7 +38,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 		s := moveIssuedToPrimeEmailData{
 			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 			OriginDutyLocation:           &originDutyLocation,
-			DestinationDutyLocation:      "destDutyLocation",
+			DestinationLocation:          "destDutyLocation",
 			Locator:                      "abc123",
 			ProvidesGovernmentCounseling: true,
 		}
@@ -124,7 +126,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 
 		s := moveIssuedToPrimeEmailData{
 			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
-			DestinationDutyLocation:      "destDutyLocation",
+			DestinationLocation:          "destDutyLocation",
 			Locator:                      "abc123",
 			ProvidesGovernmentCounseling: true,
 		}
@@ -214,7 +216,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 		s := moveIssuedToPrimeEmailData{
 			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 			OriginDutyLocation:           &originDutyLocation,
-			DestinationDutyLocation:      "destDutyLocation",
+			DestinationLocation:          "destDutyLocation",
 			Locator:                      "abc123",
 			ProvidesGovernmentCounseling: false,
 		}
@@ -311,7 +313,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeTextTemplateRender() {
 		s := moveIssuedToPrimeEmailData{
 			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 			OriginDutyLocation:           &originDutyLocation,
-			DestinationDutyLocation:      "destDutyLocation",
+			DestinationLocation:          "destDutyLocation",
 			Locator:                      "abc123",
 			ProvidesGovernmentCounseling: true,
 		}
@@ -372,7 +374,7 @@ under the Privacy Act of 1974. Failure to protect Privacy Act information could 
 
 		s := moveIssuedToPrimeEmailData{
 			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
-			DestinationDutyLocation:      "destDutyLocation",
+			DestinationLocation:          "destDutyLocation",
 			Locator:                      "abc123",
 			ProvidesGovernmentCounseling: true,
 		}
@@ -435,7 +437,7 @@ under the Privacy Act of 1974. Failure to protect Privacy Act information could 
 		s := moveIssuedToPrimeEmailData{
 			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 			OriginDutyLocation:           &originDutyLocation,
-			DestinationDutyLocation:      "destDutyLocation",
+			DestinationLocation:          "destDutyLocation",
 			Locator:                      "abc123",
 			ProvidesGovernmentCounseling: false,
 		}
@@ -491,4 +493,70 @@ under the Privacy Act of 1974. Failure to protect Privacy Act information could 
 		suite.NoError(err)
 		suite.Equal(expectedTextContent, textContent)
 	})
+}
+
+func (suite *NotificationSuite) TestMoveIssuedToPrimeTOOApprovedMoveDetailsForSeparatee() {
+	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypeSEPARATION,
+			},
+		},
+	}, nil)
+	notification := NewMoveIssuedToPrime(move.ID)
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+	subject := "Your personal property move has been ordered."
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.StreetAddress1)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress2)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress3)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.City)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.State)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
+}
+
+func (suite *NotificationSuite) TestMoveIssuedToPrimeTOOApprovedMoveDetailsForRetiree() {
+	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypeRETIREMENT,
+			},
+		},
+	}, nil)
+	notification := NewMoveIssuedToPrime(move.ID)
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+	subject := "Your personal property move has been ordered."
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.StreetAddress1)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress2)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress3)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.City)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.State)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
 }

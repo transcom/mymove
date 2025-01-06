@@ -33,14 +33,14 @@ export const Blank = Template.bind({});
 Blank.args = {
   ppmShipmentInfo: PPMShipmentInfo,
   tripNumber: 1,
-  ppmNumber: 1,
+  ppmNumber: '1',
 };
 
 export const FilledIn = Template.bind({});
 FilledIn.args = {
   ppmShipmentInfo: PPMShipmentInfo,
   tripNumber: 1,
-  ppmNumber: 1,
+  ppmNumber: '1',
   proGear: {
     belongsToSelf: true,
     proGearDocument: [],

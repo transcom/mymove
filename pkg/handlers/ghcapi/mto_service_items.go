@@ -371,6 +371,12 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 					if loadErr != nil {
 						return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), loadErr
 					}
+				} else if serviceItem.ReService.Code == models.ReServiceCodeICRT || // use address.isOconus to get 'market' value for intl crating
+					serviceItem.ReService.Code == models.ReServiceCodeIUCRT {
+					loadErr := appCtx.DB().Load(&serviceItems[i], "MTOShipment.PickupAddress", "MTOShipment.DestinationAddress")
+					if loadErr != nil {
+						return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), loadErr
+					}
 				}
 			}
 

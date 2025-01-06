@@ -19,6 +19,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
@@ -38,6 +39,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/pws_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/re_service_items"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
@@ -92,6 +94,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PaymentRequestsBulkDownloadHandler: payment_requests.BulkDownloadHandlerFunc(func(params payment_requests.BulkDownloadParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.BulkDownload has not yet been implemented")
+		}),
+		MoveCheckForLockedMovesAndUnlockHandler: move.CheckForLockedMovesAndUnlockHandlerFunc(func(params move.CheckForLockedMovesAndUnlockParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.CheckForLockedMovesAndUnlock has not yet been implemented")
 		}),
 		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
@@ -153,6 +158,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmFinishDocumentReviewHandler: ppm.FinishDocumentReviewHandlerFunc(func(params ppm.FinishDocumentReviewParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.FinishDocumentReview has not yet been implemented")
 		}),
+		ReServiceItemsGetAllReServiceItemsHandler: re_service_items.GetAllReServiceItemsHandlerFunc(func(params re_service_items.GetAllReServiceItemsParams) middleware.Responder {
+			return middleware.NotImplemented("operation re_service_items.GetAllReServiceItems has not yet been implemented")
+		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
 		}),
@@ -167,6 +175,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		EvaluationReportsGetEvaluationReportHandler: evaluation_reports.GetEvaluationReportHandlerFunc(func(params evaluation_reports.GetEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.GetEvaluationReport has not yet been implemented")
+		}),
+		AddressesGetLocationByZipCityStateHandler: addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		}),
 		MtoServiceItemGetMTOServiceItemHandler: mto_service_item.GetMTOServiceItemHandlerFunc(func(params mto_service_item.GetMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.GetMTOServiceItem has not yet been implemented")
@@ -440,6 +451,8 @@ type MymoveAPI struct {
 	ReportViolationsAssociateReportViolationsHandler report_violations.AssociateReportViolationsHandler
 	// PaymentRequestsBulkDownloadHandler sets the operation handler for the bulk download operation
 	PaymentRequestsBulkDownloadHandler payment_requests.BulkDownloadHandler
+	// MoveCheckForLockedMovesAndUnlockHandler sets the operation handler for the check for locked moves and unlock operation
+	MoveCheckForLockedMovesAndUnlockHandler move.CheckForLockedMovesAndUnlockHandler
 	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
 	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
 	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
@@ -480,6 +493,8 @@ type MymoveAPI struct {
 	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
 	// PpmFinishDocumentReviewHandler sets the operation handler for the finish document review operation
 	PpmFinishDocumentReviewHandler ppm.FinishDocumentReviewHandler
+	// ReServiceItemsGetAllReServiceItemsHandler sets the operation handler for the get all re service items operation
+	ReServiceItemsGetAllReServiceItemsHandler re_service_items.GetAllReServiceItemsHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler sets the operation handler for the get customer support remarks for move operation
@@ -490,6 +505,8 @@ type MymoveAPI struct {
 	MoveTaskOrderGetEntitlementsHandler move_task_order.GetEntitlementsHandler
 	// EvaluationReportsGetEvaluationReportHandler sets the operation handler for the get evaluation report operation
 	EvaluationReportsGetEvaluationReportHandler evaluation_reports.GetEvaluationReportHandler
+	// AddressesGetLocationByZipCityStateHandler sets the operation handler for the get location by zip city state operation
+	AddressesGetLocationByZipCityStateHandler addresses.GetLocationByZipCityStateHandler
 	// MtoServiceItemGetMTOServiceItemHandler sets the operation handler for the get m t o service item operation
 	MtoServiceItemGetMTOServiceItemHandler mto_service_item.GetMTOServiceItemHandler
 	// MoveGetMoveHandler sets the operation handler for the get move operation
@@ -737,6 +754,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.PaymentRequestsBulkDownloadHandler == nil {
 		unregistered = append(unregistered, "payment_requests.BulkDownloadHandler")
 	}
+	if o.MoveCheckForLockedMovesAndUnlockHandler == nil {
+		unregistered = append(unregistered, "move.CheckForLockedMovesAndUnlockHandler")
+	}
 	if o.OrderCounselingUpdateAllowanceHandler == nil {
 		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
 	}
@@ -797,6 +817,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.PpmFinishDocumentReviewHandler == nil {
 		unregistered = append(unregistered, "ppm.FinishDocumentReviewHandler")
 	}
+	if o.ReServiceItemsGetAllReServiceItemsHandler == nil {
+		unregistered = append(unregistered, "re_service_items.GetAllReServiceItemsHandler")
+	}
 	if o.CustomerGetCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.GetCustomerHandler")
 	}
@@ -811,6 +834,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.EvaluationReportsGetEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.GetEvaluationReportHandler")
+	}
+	if o.AddressesGetLocationByZipCityStateHandler == nil {
+		unregistered = append(unregistered, "addresses.GetLocationByZipCityStateHandler")
 	}
 	if o.MtoServiceItemGetMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.GetMTOServiceItemHandler")
@@ -1149,6 +1175,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
+	o.handlers["PATCH"]["/moves/{officeUserID}/CheckForLockedMovesAndUnlock"] = move.NewCheckForLockedMovesAndUnlock(o.context, o.MoveCheckForLockedMovesAndUnlockHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
 	o.handlers["PATCH"]["/counseling/orders/{orderID}/allowances"] = order.NewCounselingUpdateAllowance(o.context, o.OrderCounselingUpdateAllowanceHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
@@ -1229,6 +1259,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/re-service-items"] = re_service_items.NewGetAllReServiceItems(o.context, o.ReServiceItemsGetAllReServiceItemsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/customer/{customerID}"] = customer.NewGetCustomer(o.context, o.CustomerGetCustomerHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1246,6 +1280,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewGetEvaluationReport(o.context, o.EvaluationReportsGetEvaluationReportHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/addresses/zip-city-lookup/{search}"] = addresses.NewGetLocationByZipCityState(o.context, o.AddressesGetLocationByZipCityStateHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

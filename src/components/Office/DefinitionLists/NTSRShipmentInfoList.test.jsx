@@ -224,8 +224,8 @@ describe('NTSR Shipment Info', () => {
     });
   });
 
-  describe('NTSR Shipment Info List Destination Address Request', () => {
-    it('renders Review required instead of destination address when the Prime has submitted a destination address change', async () => {
+  describe('NTSR Shipment Info List Delivery Address Request', () => {
+    it('renders Review required instead of delivery address when the Prime has submitted a delivery address change', async () => {
       render(
         <NTSRShipmentInfoList
           isExpanded

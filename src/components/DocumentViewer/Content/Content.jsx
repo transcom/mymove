@@ -13,12 +13,21 @@ import { ReactComponent as ArrowLeft } from 'shared/icon/arrow-left.svg';
 import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
 */
 
-const DocViewerContent = ({ fileType, filePath, saveRotation, setRotationValue, rotationValue, disableSaveButton }) => (
+const DocViewerContent = ({
+  fileType,
+  filePath,
+  saveRotation,
+  setRotationValue,
+  rotationValue,
+  disableSaveButton,
+  onError,
+}) => (
   <div data-testid="DocViewerContent" className={styles.DocViewerContent}>
     <FileViewer
       key={`fileViewer_${filePath}`}
       fileType={fileType}
       filePath={filePath}
+      onError={onError}
       saveRotation={saveRotation}
       rotationValue={rotationValue}
       setRotationValue={setRotationValue}
@@ -33,7 +42,7 @@ const DocViewerContent = ({ fileType, filePath, saveRotation, setRotationValue, 
               <FontAwesomeIcon icon="search-plus" title="Zoom in" aria-label="Zoom in" />
               Zoom in
             </Button>
-            {['jpg', 'jpeg', 'gif', 'png'].includes(fileType) && (
+            {['jpg', 'jpeg', 'gif', 'png', 'pdf'].includes(fileType) && (
               <>
                 <Button type="button" unstyled onClick={handleRotateLeft}>
                   <FontAwesomeIcon icon="rotate-left" title="Rotate left" aria-label="Rotate left" />
@@ -43,21 +52,23 @@ const DocViewerContent = ({ fileType, filePath, saveRotation, setRotationValue, 
                   <FontAwesomeIcon icon="rotate-right" title="Rotate right" aria-label="Rotate right" />
                   Rotate right
                 </Button>
-                <Button type="button" unstyled disabled={disableSaveButton} onClick={saveRotation}>
-                  <svg
-                    height="24"
-                    viewBox="0 0 24 24"
-                    style={{
-                      textDecoration: 'none',
-                      color: disableSaveButton ? 'transparent' : 'inherit',
-                      visibility: disableSaveButton ? 'hidden' : 'visible',
-                    }}
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M21 12.5L16.5 17L11 12.5L16.5 8L21 12.5Z" />
-                  </svg>
-                  <span style={{ textDecoration: 'none' }}>Save</span>
-                </Button>
+                {fileType !== 'pdf' && (
+                  <Button type="button" unstyled disabled={disableSaveButton} onClick={saveRotation}>
+                    <svg
+                      height="24"
+                      viewBox="0 0 24 24"
+                      style={{
+                        textDecoration: 'none',
+                        color: disableSaveButton ? 'transparent' : 'inherit',
+                        visibility: disableSaveButton ? 'hidden' : 'visible',
+                      }}
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M21 12.5L16.5 17L11 12.5L16.5 8L21 12.5Z" />
+                    </svg>
+                    <span style={{ textDecoration: 'none' }}>Save</span>
+                  </Button>
+                )}
               </>
             )}
           </div>

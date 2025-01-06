@@ -509,6 +509,63 @@ definitions:
           - item
           - crate
           - description
+  MTOServiceItemInternationalCrating:
+    description: >-
+      Describes a international crating/uncrating service item subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >-
+              A unique code for the service item. Indicates if the service is
+              for crating (ICRT) or uncrating (IUCRT).
+            enum:
+              - ICRT
+              - IUCRT
+          item:
+            description: The dimensions of the item being crated.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            description: The dimensions for the crate the item will be shipped in.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: Decorated horse head to be crated.
+            description: A description of the item being crated.
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: >
+              The contractor's explanation for why an item needed to be crated
+              or uncrated. Used by the TOO while deciding to approve or reject
+              the service item.
+            x-nullable: true
+            x-omitempty: false
+          standaloneCrate:
+            type: boolean
+            x-nullable: true
+          externalCrate:
+            type: boolean
+            x-nullable: true
+          market:
+            type: string
+            enum:
+              - CONUS
+              - OCONUS
+            example: CONUS
+            description: >-
+              To identify whether the service was provided within (CONUS) or
+              (OCONUS)
+        required:
+          - reServiceCode
+          - item
+          - crate
+          - description
   MTOServiceItemOriginSIT:
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
@@ -654,11 +711,7 @@ definitions:
         items:
           $ref: '#/definitions/MTOServiceItem'
       pickupAddress:
-        description: The address where the movers should pick up this shipment.
-        allOf:
-          - $ref: '#/definitions/Address'
-      destinationAddress:
-        description: Where the movers should deliver this shipment.
+        description: The primary address where the movers should pick up this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       secondaryPickupAddress:
@@ -669,12 +722,16 @@ definitions:
         description: The third address where the movers should pick up this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      destinationAddress:
+        description: primary location the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
       secondaryDestinationAddress:
-        description: The second address where the movers should deliver this shipment.
+        description: second location where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       tertiaryDestinationAddress:
-        description: The third address where the movers should deliver this shipment.
+        description: third location where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       shipmentType:
@@ -732,13 +789,13 @@ definitions:
           - $ref: '#/definitions/Address'
       secondaryPickupAddress:
         description: >-
-          An optional secondary pickup location address near the origin where
+          An optional secondary Pickup Address address near the origin where
           additional goods exist.
         allOf:
           - $ref: '#/definitions/Address'
       tertiaryPickupAddress:
         description: >-
-          An optional tertiary pickup location address near the origin where
+          An optional tertiary Pickup Address address near the origin where
           additional goods exist.
         allOf:
           - $ref: '#/definitions/Address'
@@ -1004,7 +1061,7 @@ definitions:
         x-nullable: true
       secondaryPickupAddress:
         description: >
-          An optional secondary pickup location near the origin where additional
+          An optional secondary Pickup Address near the origin where additional
           goods exist.
         allOf:
           - $ref: '#/definitions/Address'
@@ -1014,7 +1071,7 @@ definitions:
         x-nullable: true
       tertiaryPickupAddress:
         description: >
-          An optional third pickup location near the origin where additional
+          An optional third Pickup Address near the origin where additional
           goods exist.
         allOf:
           - $ref: '#/definitions/Address'
@@ -1191,6 +1248,18 @@ definitions:
           the customer during onboarding when they enter shipment details.
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        description: >-
+          A second pickup address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: >-
+          A third pickup address for this shipment, if the customer entered one.
+          An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: >
           Where the movers should deliver this shipment. Often provided by the
@@ -1205,24 +1274,10 @@ definitions:
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: '#/definitions/Address'
-      destinationType:
-        $ref: '#/definitions/DestinationType'
-      secondaryPickupAddress:
-        description: >-
-          A second pickup address for this shipment, if the customer entered
-          one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
-      tertiaryPickupAddress:
-        description: >-
-          A third pickup address for this shipment, if the customer entered one.
-          An optional field.
         allOf:
           - $ref: '#/definitions/Address'
       tertiaryDeliveryAddress:
@@ -1231,6 +1286,8 @@ definitions:
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
+      destinationType:
+        $ref: '#/definitions/DestinationType'
       storageFacility:
         allOf:
           - x-nullable: true
@@ -1255,6 +1312,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
+      portOfEmbarkation:
+        $ref: '#/definitions/Port'
+      portOfDebarkation:
+        $ref: '#/definitions/Port'
   UpdateMTOShipmentStatus:
     description: >-
       Contains the statuses available to the Prime when updating the state of a
@@ -1290,7 +1351,7 @@ definitions:
   UpdateShipmentDestinationAddress:
     description: >-
       UpdateShipmentDestinationAddress contains the fields required for the
-      prime to request an update for the destination address on an MTO Shipment.
+      prime to request an update for the delivery address on an MTO Shipment.
     type: object
     properties:
       newAddress:
@@ -1589,6 +1650,10 @@ definitions:
         title: isOconus
         x-nullable: true
         example: false
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - streetAddress1
       - city
@@ -1643,6 +1708,13 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
+      unaccompaniedBaggageAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The amount of weight in pounds that the move is entitled for shipment
+          types of Unaccompanied Baggage.
       dependentsAuthorized:
         example: true
         type: boolean
@@ -1717,6 +1789,8 @@ definitions:
       - BLUEBARK
       - SAFETY
       - TEMPORARY_DUTY
+      - EARLY_RETURN_OF_DEPENDENTS
+      - STUDENT_TRAVEL
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -1726,6 +1800,8 @@ definitions:
       BLUEBARK: BLUEBARK
       SAFETY: Safety
       TEMPORARY_DUTY: Temporary Duty (TDY)
+      EARLY_RETURN_OF_DEPENDENTS: Early Return of Dependents
+      STUDENT_TRAVEL: Student Travel
   Order:
     type: object
     required:
@@ -2077,6 +2153,8 @@ definitions:
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
+        * ICRT, IUCRT - MTOServiceItemInternationalCrating
+        * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge
 
       The documentation will then update with the supported fields.
     type: string
@@ -2086,6 +2164,8 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+      - MTOServiceItemInternationalCrating
+      - MTOSerivceItemInternationalFuelSurcharge
   ServiceRequestDocument:
     properties:
       uploads:
@@ -2573,6 +2653,10 @@ definitions:
         title: County
         x-nullable: true
         example: LOS ANGELES
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - city
       - state
@@ -2741,6 +2825,15 @@ definitions:
           The estimated amount the government will pay the service member to
           move their belongings based on the moving date, locations, and
           shipment weight.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      maxIncentive:
+        description: >-
+          The max amount the government will pay the service member to move
+          their belongings based on the moving date, locations, and shipment
+          weight.
         type: integer
         format: cents
         x-nullable: true
@@ -2965,10 +3058,10 @@ definitions:
       - APPROVED
   ShipmentAddressUpdate:
     description: >
-      This represents a destination address change request made by the Prime
-      that is either auto-approved or requires review if the pricing criteria
-      has changed. If criteria has changed, then it must be approved or rejected
-      by a TOO.
+      This represents a delivery address change request made by the Prime that
+      is either auto-approved or requires review if the pricing criteria has
+      changed. If criteria has changed, then it must be approved or rejected by
+      a TOO.
     type: object
     properties:
       id:
@@ -3004,14 +3097,14 @@ definitions:
       oldSitDistanceBetween:
         description: >-
           The distance between the original SIT address and the previous/old
-          destination address of shipment
+          delivery address of shipment
         example: 50
         minimum: 0
         type: integer
       newSitDistanceBetween:
         description: >-
           The distance between the original SIT address and requested new
-          destination address of shipment
+          delivery address of shipment
         example: 88
         minimum: 0
         type: integer
@@ -3022,6 +3115,102 @@ definitions:
       - originalAddress
       - newAddress
       - contractorRemarks
+  Port:
+    description: A port that is used to move an international shipment.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      portType:
+        type: string
+        description: Port type A (Air), B (Border Crossing), S (Sea)
+        enum:
+          - A
+          - B
+          - S
+      portCode:
+        type: string
+        description: 3 or 4 digit port code
+        example: '0431'
+      portName:
+        type: string
+        description: Name of the port
+        example: PORTLAND INTL
+      city:
+        type: string
+        example: PORTLAND
+      county:
+        type: string
+        example: MULTNOMAH
+      state:
+        type: string
+        description: US state
+        example: OR
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      zip:
+        type: string
+        format: zip
+        title: ZIP
+        example: '99501'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        example: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
   MTOShipmentWithoutServiceItems:
     type: object
     properties:
@@ -3308,6 +3497,10 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
+      portOfDebarkation:
+        $ref: '#/definitions/Port'
+      portOfEmbarkation:
+        $ref: '#/definitions/Port'
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
@@ -3465,7 +3658,6 @@ definitions:
       - ICOLH
       - ICOUB
       - ICRT
-      - ICRTSA
       - IDASIT
       - IDDSIT
       - IDFSIT

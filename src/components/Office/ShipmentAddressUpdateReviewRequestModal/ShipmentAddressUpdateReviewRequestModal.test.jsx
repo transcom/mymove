@@ -147,7 +147,7 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
       expect(screen.getByRole('heading', { level: 2, name: 'Review request' })).toBeInTheDocument();
 
       // Address update preview component
-      expect(screen.getByRole('heading', { level: 3, name: 'Delivery location' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 3, name: 'Delivery Address' })).toBeInTheDocument();
 
       // Form
       expect(screen.getByRole('heading', { level: 4, name: 'Review Request' })).toBeInTheDocument();

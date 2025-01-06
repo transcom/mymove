@@ -1,11 +1,17 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import CreateShipmentServiceItemForm from './CreateShipmentServiceItemForm';
 
 import { createServiceItemModelTypes } from 'constants/prime';
 import { MockProviders } from 'testUtils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const approvedMoveTaskOrder = {
   moveTaskOrder: {
@@ -84,15 +90,19 @@ describe('CreateShipmentServiceItemForm component', () => {
     ['destinationSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemDestSIT],
     ['shuttleSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemShuttle],
     ['DomesticCratingForm', createServiceItemModelTypes.MTOServiceItemDomesticCrating],
+    ['InternationalCratingForm', createServiceItemModelTypes.MTOServiceItemInternationalCrating],
   ])('renders %s after selecting %s type', async (formName, serviceItemType) => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
-    render(
-      <MockProviders>
-        <CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={jest.fn()} />
-      </MockProviders>,
-    );
+    await act(async () => {
+      render(
+        <MockProviders>
+          <CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={jest.fn()} />
+        </MockProviders>,
+      );
+    });
 
-    const dropdown = screen.getByRole('combobox', { name: 'Service item type' });
+    const dropdown = await screen.getByRole('combobox', { name: 'Service item type' });
     await userEvent.selectOptions(dropdown, [serviceItemType]);
 
     expect(screen.getByRole('form', { testid: formName })).toBeInTheDocument();
