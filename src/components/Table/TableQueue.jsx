@@ -54,6 +54,7 @@ const TableQueue = ({
   sessionStorageKey,
   isSupervisor,
   isBulkAssignmentFFEnabled,
+  bulkAssignmentData,
   officeUser,
   activeRole,
 }) => {
@@ -233,6 +234,8 @@ const TableQueue = ({
     }
     setAllFilters(filters);
   };
+  // const bulkAssignmentRows = bulkAssignmentData.map((item) => Object.values(item));
+  // console.log('bulkAssignmentData: ', bulkAssignmentData);
 
   const renderFilterPillButton = (index, value, buttonTitle, label, dataTestId) => {
     return (
@@ -320,7 +323,11 @@ const TableQueue = ({
     <div className={styles.tabContent}>
       <div className={styles.container}>
         {isBulkAssignModalVisible && (
-          <BulkAssignmentModal isOpen={isBulkAssignModalVisible} onClose={handleCloseBulkAssignModal} />
+          <BulkAssignmentModal
+            isOpen={isBulkAssignModalVisible}
+            onClose={handleCloseBulkAssignModal}
+            bulkAssignmentData={bulkAssignmentData} // drill in the arguments to show in modal
+          />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
           <div className={styles.queueHeader}>

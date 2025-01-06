@@ -4,7 +4,15 @@ import { Button } from '@trussworks/react-uswds';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
-export const BulkAssignmentModal = ({ onClose, onSubmit, title, content, submitText, closeText }) => (
+export const BulkAssignmentModal = ({
+  onClose,
+  onSubmit,
+  title,
+  content,
+  submitText,
+  closeText,
+  //  bulkAssignmentData,
+}) => (
   <Modal>
     <ModalClose handleClick={() => onClose()} />
     <ModalTitle>
@@ -16,7 +24,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, content, submitT
           <th>Select/Deselect All </th>
           <th>User</th>
           <th>Equal Assignment</th>
-          <th>Re-assignment</th>
         </tr>
       </table>
     </div>

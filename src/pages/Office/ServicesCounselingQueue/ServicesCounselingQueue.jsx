@@ -26,6 +26,7 @@ import {
   useUserQueries,
   useMoveSearchQueries,
   useCustomerSearchQueries,
+  useBulkAssignmentQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingOriginLocations,
@@ -516,6 +517,7 @@ const ServicesCounselingQueue = ({
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
+  const { bulkAssignmentData } = useBulkAssignmentQueries('COUNSELING');
 
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -693,6 +695,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          bulkAssignmentData={bulkAssignmentData} // do we want to pass it everytime?
         />
       </div>
     );
