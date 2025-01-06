@@ -954,8 +954,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 func (suite *PayloadsSuite) TestPort() {
 
 	suite.Run("returns nil when PortLocation is nil", func() {
-		var portLocation *models.PortLocation = nil
-		result := Port(portLocation)
+		var mtoServiceItems models.MTOServiceItems = nil
+		result := Port(mtoServiceItems, "POE")
 		suite.Nil(result, "Expected result to be nil when Port Location is nil")
 	})
 
@@ -969,8 +969,22 @@ func (suite *PayloadsSuite) TestPort() {
 			},
 		}, nil)
 
+		mtoServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
 		// Actual
-		result := Port(&portLocation)
+		mtoServiceItems := models.MTOServiceItems{mtoServiceItem}
+		result := Port(mtoServiceItems, "POE")
 
 		// Assert
 		suite.IsType(&ghcmessages.Port{}, result)

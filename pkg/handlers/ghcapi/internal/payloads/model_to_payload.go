@@ -1521,8 +1521,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
-		PoeLocation:                 getPortLocation(mtoShipment.MTOServiceItems, "POE"),
-		PodLocation:                 getPortLocation(mtoShipment.MTOServiceItems, "POD"),
+		PoeLocation:                 Port(mtoShipment.MTOServiceItems, "POE"),
+		PodLocation:                 Port(mtoShipment.MTOServiceItems, "POD"),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -2709,37 +2709,33 @@ func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceI
 	return payload
 }
 
-// Port payload
-func Port(portLocation *models.PortLocation) *ghcmessages.Port {
-	if portLocation == nil {
-		return nil
-	}
-	return &ghcmessages.Port{
-		ID:       strfmt.UUID(portLocation.ID.String()),
-		PortType: portLocation.Port.PortType.String(),
-		PortCode: portLocation.Port.PortCode,
-		PortName: portLocation.Port.PortName,
-		City:     portLocation.City.CityName,
-		County:   portLocation.UsPostRegionCity.UsprcCountyNm,
-		State:    portLocation.UsPostRegionCity.UsPostRegion.State.StateName,
-		Zip:      portLocation.UsPostRegionCity.UsprZipID,
-		Country:  portLocation.Country.CountryName,
-	}
-}
-
-// Get POD/POE info from MTO shipment's service items
-func getPortLocation(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.Port {
+func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.Port {
 	if mtoServiceItems == nil {
 		return nil
 	}
-	var portLocation *ghcmessages.Port
+
 	for _, mtoServiceItem := range mtoServiceItems {
-		if mtoServiceItem.POELocation != nil && portType == "POE" {
-			portLocation = Port(mtoServiceItem.POELocation)
+		var portLocation *models.PortLocation
+		if portType == "POE" && mtoServiceItem.POELocation != nil {
+			portLocation = mtoServiceItem.POELocation
 		}
-		if mtoServiceItem.PODLocation != nil && portType == "POD" {
-			portLocation = Port(mtoServiceItem.PODLocation)
+		if portType == "POD" && mtoServiceItem.PODLocation != nil {
+			portLocation = mtoServiceItem.PODLocation
+		}
+
+		if portLocation != nil {
+			return &ghcmessages.Port{
+				ID:       strfmt.UUID(portLocation.ID.String()),
+				PortType: portLocation.Port.PortType.String(),
+				PortCode: portLocation.Port.PortCode,
+				PortName: portLocation.Port.PortName,
+				City:     portLocation.City.CityName,
+				County:   portLocation.UsPostRegionCity.UsprcCountyNm,
+				State:    portLocation.UsPostRegionCity.UsPostRegion.State.StateName,
+				Zip:      portLocation.UsPostRegionCity.UsprZipID,
+				Country:  portLocation.Country.CountryName,
+			}
 		}
 	}
-	return portLocation
+	return nil
 }
