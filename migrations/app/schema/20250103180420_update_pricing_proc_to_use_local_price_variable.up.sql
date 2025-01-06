@@ -97,10 +97,6 @@ BEGIN
             WHEN service_code IN (''POEFSC'', ''PODFSC'') THEN
                 -- use the passed mileage parameter
                 distance = mileage;
-                -- if we do not have the distance, then we cannot price
-                IF distance IS NULL THEN
-                    RETURN;
-                END IF;
 
                 -- getting FSC multiplier from re_fsc_multipliers
                 estimated_fsc_multiplier := get_fsc_multiplier(shipment.prime_estimated_weight);
