@@ -473,6 +473,10 @@ pre_test:
     - pre_deps_yarn
     - check_tls_certificate_stg
     - check_tls_certificate_prd
+  variables:
+    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_MEMORY_REQUEST: "6Gi"
+    KUBERNETES_MEMORY_LIMIT: "6Gi"
   before_script: *setup_milmove_env
   script:
     - export GODEBUG=asyncpreemptoff=1
@@ -486,7 +490,13 @@ pre_test:
     - SKIP=golangci-lint,eslint,prettier,ato-go-linter,gomod,appcontext-linter pre-commit run --all-files
     - |
         echo "Run pre-commit tests with ato-go-linter only"
-        pre-commit run -v --all-files ato-go-linter,gomod,appcontext-linter
+        pre-commit run -v --all-files ato-go-linter
+    - |
+        echo "Run pre-commit tests with gomod only"
+        pre-commit run -v --all-files gomod,appcontext-linter
+    - |
+        echo "Run pre-commit tests with appcontext-linter only"
+        pre-commit run -v --all-files appcontext-linter
     - echo "Run pre-commit tests with golangci-lint only"
     - |
         echo 'export GOLANGCI_LINT_CONCURRENCY=4' >> $BASH_ENV
@@ -519,10 +529,11 @@ server_test:
     # - make -j 2 bin/milmove bin/gotestsum
     # - make server_test
     - go install gotest.tools/gotestsum@latest
+    - go mod tidy
     - gotestsum --junitfile report.xml --format testname
   artifacts:
     paths:
-      - /builds/milmove/mymove/bin/gotestsum
+      - /builds/milmove/mymove/gotestsum
     when: always
     reports:
       junit: report.xml
