@@ -304,7 +304,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.SITEndDates = formattedSIT.EndDates
 	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.EstimatedIncentive
+	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.MaxIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
 	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
@@ -460,7 +460,7 @@ func formatAdditionalShipments(ssfd models.ShipmentSummaryFormData) (map[string]
 			page3Map[fmt.Sprintf("AddShipmentStatus%d", i)] = FormatCurrentPPMStatus(*shipment.PPMShipment)
 		case shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS Release"
-		case shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom:
+		case shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS"
 		case shipment.ShipmentType == models.MTOShipmentTypeMobileHome:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Mobile Home"
@@ -707,6 +707,11 @@ func (s SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment m
 	} else {
 		formattedShipment.MaxAdvance = "Advance not available."
 		formattedShipment.EstimatedIncentive = "No estimated incentive."
+	}
+	if ppm.MaxIncentive != nil {
+		formattedShipment.MaxIncentive = FormatDollarFromCents(*ppm.MaxIncentive)
+	} else {
+		formattedShipment.MaxIncentive = "No max incentive."
 	}
 	formattedShipmentTotalWeights := unit.Pound(0)
 	formattedNumberAndTypes := *ppm.Shipment.ShipmentLocator + " PPM"

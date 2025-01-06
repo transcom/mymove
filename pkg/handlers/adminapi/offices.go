@@ -41,7 +41,7 @@ var officesFilterConverters = map[string]func(string) []services.QueryFilter{
 	},
 }
 
-// Handle retrieves a list of office users
+// Handle retrieves a list of transportation offices
 func (h IndexOfficesHandler) Handle(params transportation_officesop.IndexOfficesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -80,7 +80,7 @@ type GetOfficeByIdHandler struct {
 	services.NewQueryFilter
 }
 
-// Handle retrieves a list of office users
+// Handle retrieves a individual transporation office by ID
 func (h GetOfficeByIdHandler) Handle(params transportation_officesop.GetOfficeByIDParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {

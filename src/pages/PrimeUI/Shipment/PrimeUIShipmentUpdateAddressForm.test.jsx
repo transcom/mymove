@@ -23,9 +23,10 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
     streetAddress1: '444 Main Ave',
     streetAddress2: 'Apartment 9000',
-    streetAddress3: '',
+    streetAddress3: 'c/o Anyone',
     city: 'Anytown',
     state: 'AL',
+    county: 'Los Angeles',
     postalCode: '90210',
     country: 'USA',
     eTag: '1234567890',
@@ -41,7 +42,15 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     eTag: shipmentAddress.eTag,
   };
 
-  const updatePickupAddressSchema = Yup.object().shape({
+  const initialValuesDestinationAddress = {
+    addressID: shipmentAddress.id,
+    destinationAddress: {
+      address: reformatPrimeApiShipmentAddress,
+    },
+    eTag: shipmentAddress.eTag,
+  };
+
+  const updateAddressSchema = Yup.object().shape({
     addressID: Yup.string(),
     pickupAddress: Yup.object().shape({
       address: requiredAddressSchema,
@@ -63,7 +72,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     renderWithProviders(
       <PrimeUIShipmentUpdateAddressForm
         initialValues={initialValuesPickupAddress}
-        updateShipmentAddressSchema={updatePickupAddressSchema}
+        updateShipmentAddressSchema={updateAddressSchema}
         addressLocation="Pickup address"
         onSubmit={jest.fn()}
         name="pickupAddress.address"
@@ -72,9 +81,16 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     expect(screen.getByRole('heading', { name: 'Pickup address', level: 2 })).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 1/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
-    expect(screen.getByLabelText('City')).toBeInTheDocument();
-    expect(screen.getByLabelText('State')).toBeInTheDocument();
-    expect(screen.getByLabelText('ZIP')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Address 3/)).toBeInTheDocument();
+    expect(screen.getByText('City')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.city)).toBeInTheDocument();
+    expect(screen.getByText('State')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.state)).toBeInTheDocument();
+    expect(screen.getByText('County')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.county)).toBeInTheDocument();
+    expect(screen.getByText('ZIP')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.postalCode)).toBeInTheDocument();
+
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 
@@ -82,7 +98,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     renderWithProviders(
       <PrimeUIShipmentUpdateAddressForm
         initialValues={initialValuesPickupAddress}
-        updateShipmentAddressSchema={updatePickupAddressSchema}
+        updateShipmentAddressSchema={updateAddressSchema}
         addressLocation="Pickup address"
         onSubmit={jest.fn()}
         name="pickupAddress.address"
@@ -90,10 +106,8 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     );
 
     await userEvent.type(screen.getByLabelText(/Address 1/), '23 City Str');
-    await userEvent.type(screen.getByLabelText('City'), 'City');
-    await userEvent.clear(screen.getByLabelText('ZIP'));
-    await userEvent.type(screen.getByLabelText('ZIP'), '90210');
-    await userEvent.selectOptions(screen.getByLabelText('State'), ['CA']);
+    await userEvent.type(screen.getByLabelText(/Address 2/), 'Apt 23');
+    await userEvent.type(screen.getByLabelText(/Address 3/), 'C/O Twenty Three');
 
     const submitBtn = screen.getByRole('button', { name: 'Save' });
     await waitFor(() => {
@@ -102,30 +116,35 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     await userEvent.click(submitBtn);
   });
 
-  it('disables the submit button when the zip is bad', async () => {
+  it('does not disable the submit button when address lines 2 or 3 are blank', async () => {
     renderWithProviders(
       <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValuesPickupAddress}
-        updateShipmentAddressSchema={updatePickupAddressSchema}
-        addressLocation="Pickup address"
+        initialValues={initialValuesDestinationAddress}
+        updateShipmentAddressSchema={updateAddressSchema}
+        addressLocation="Destination address"
         onSubmit={jest.fn()}
-        name="pickupAddress.address"
+        name="destinationAddress.address"
       />,
     );
-    await userEvent.clear(screen.getByLabelText('ZIP'));
-    await userEvent.type(screen.getByLabelText('ZIP'), '1');
-    (await screen.getByLabelText('ZIP')).blur();
+
+    await userEvent.clear(screen.getByLabelText(/Address 3/));
+    (await screen.getByLabelText(/Address 3/)).blur();
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByText('Must be valid zip code')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' }).getAttribute('disabled')).toBeFalsy();
+    });
+
+    await userEvent.clear(screen.getByLabelText(/Address 2/));
+    (await screen.getByLabelText(/Address 2/)).blur();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Save' }).getAttribute('disabled')).toBeFalsy();
     });
   });
 
-  it('disables the submit button when the address 1 is missing', async () => {
+  it('disables the submit button when the address 1 is missing - pickup', async () => {
     renderWithProviders(
       <PrimeUIShipmentUpdateAddressForm
         initialValues={initialValuesPickupAddress}
-        updateShipmentAddressSchema={updatePickupAddressSchema}
+        updateShipmentAddressSchema={updateAddressSchema}
         addressLocation="Pickup address"
         onSubmit={jest.fn()}
         name="pickupAddress.address"
@@ -139,21 +158,20 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     });
   });
 
-  it('disables the submit button when city is missing', async () => {
+  it('disables the submit button when the address 1 is missing - desination', async () => {
     renderWithProviders(
       <PrimeUIShipmentUpdateAddressForm
-        initialValues={initialValuesPickupAddress}
-        updateShipmentAddressSchema={updatePickupAddressSchema}
-        addressLocation="Pickup address"
+        initialValues={initialValuesDestinationAddress}
+        updateShipmentAddressSchema={updateAddressSchema}
+        addressLocation="Destination address"
         onSubmit={jest.fn()}
-        name="pickupAddress.address"
+        name="destinationAddress.address"
       />,
     );
-    await userEvent.clear(screen.getByLabelText('City'));
-    (await screen.getByLabelText('City')).blur();
+    await userEvent.clear(screen.getByLabelText(/Address 1/));
+    (await screen.getByLabelText(/Address 1/)).blur();
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByText('Required')).toBeInTheDocument();
     });
   });
 });

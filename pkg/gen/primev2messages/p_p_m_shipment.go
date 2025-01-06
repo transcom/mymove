@@ -98,6 +98,9 @@ type PPMShipment struct {
 	// Example: false
 	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
 
+	// The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
+	MaxIncentive *int64 `json:"maxIncentive"`
+
 	// The estimated weight of the pro-gear being moved belonging to the service member in pounds.
 	ProGearWeight *int64 `json:"proGearWeight"`
 

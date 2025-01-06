@@ -1,15 +1,35 @@
 import React from 'react';
-import { render, fireEvent, waitFor, screen } from '@testing-library/react';
+import { render, fireEvent, waitFor, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 
 import { CreateCustomerForm } from './CreateCustomerForm';
 
 import { MockProviders } from 'testUtils';
-import { createCustomerWithOktaOption } from 'services/ghcApi';
+import { createCustomerWithOktaOption, searchLocationByZipCityState } from 'services/ghcApi';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
+import { roleTypes } from 'constants/userRoles';
+
+const mockPickupLocation = [
+  {
+    city: 'BEVERLY HILLS',
+    usPostRegionCitiesId: 'a13806fc-0e7d-4dc3-91ca-b802d9da50f1',
+    postalCode: '90210',
+    state: 'CA',
+    county: 'LOS ANGELES',
+  },
+  {
+    city: 'DRYDEN',
+    usPostRegionCitiesId: 'a13806fc-0e7d-4dc3-91ca-b802d9da50f1',
+    postalCode: '04225',
+    state: 'ME',
+    county: 'FRANKLIN',
+  },
+];
+
+const mockSearchPickupLocation = () => Promise.resolve(mockPickupLocation);
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -20,6 +40,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   createCustomerWithOktaOption: jest.fn(),
+  searchLocationByZipCityState: jest.fn(),
 }));
 
 jest.mock('store/flash/actions', () => ({
@@ -35,7 +56,33 @@ jest.mock('store/general/actions', () => ({
   setCanAddOrders: jest.fn(),
 }));
 
-beforeEach(jest.resetAllMocks);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+const serviceCounselorState = {
+  auth: {
+    activeRole: roleTypes.SERVICES_COUNSELOR,
+    isLoading: false,
+    isLoggedIn: true,
+  },
+  entities: {
+    user: {
+      userId123: {
+        id: 'userId123',
+        roles: [{ roleType: roleTypes.SERVICES_COUNSELOR }],
+        office_user: {
+          id: 'officeId123',
+          first_name: 'Amanda',
+          last_name: 'Gorman',
+          transportation_office: {
+            gbloc: 'ABCD',
+          },
+        },
+      },
+    },
+  },
+};
 
 const fakePayload = {
   affiliation: 'ARMY',
@@ -72,7 +119,8 @@ const fakePayload = {
   },
   create_okta_account: 'true',
   cac_user: 'false',
-  is_safety_move: false,
+  is_safety_move: 'false',
+  is_bluebark: 'false',
 };
 
 const fakeResponse = {
@@ -160,6 +208,12 @@ const safetyPayload = {
   create_okta_account: 'true',
   cac_user: 'false',
   is_safety_move: 'true',
+  is_bluebark: 'false',
+};
+
+const bluebarkPayload = {
+  is_safety_move: 'false',
+  is_bluebark: 'true',
 };
 
 const mockUserPrivileges = [
@@ -183,7 +237,7 @@ const ordersPath = generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_A
 describe('CreateCustomerForm', () => {
   it('renders without crashing', async () => {
     render(
-      <MockProviders>
+      <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
@@ -208,7 +262,7 @@ describe('CreateCustomerForm', () => {
 
   it('renders emplid input if branch is coast guard', async () => {
     const { getByLabelText } = render(
-      <MockProviders>
+      <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
@@ -221,9 +275,10 @@ describe('CreateCustomerForm', () => {
 
   it('payload can have an empty secondary phone number', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
 
     const { getByLabelText, getByTestId, getByRole } = render(
-      <MockProviders>
+      <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
@@ -242,15 +297,25 @@ describe('CreateCustomerForm', () => {
     await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
     await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
-    await user.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
-    await user.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
-    await user.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
-    await user.type(getByTestId('res-add-zip'), fakePayload.residential_address.postalCode);
+    await user.type(getByTestId('residential_address.streetAddress1'), fakePayload.residential_address.streetAddress1);
 
-    await user.type(getByTestId('backup-add-street1'), fakePayload.backup_mailing_address.streetAddress1);
-    await user.type(getByTestId('backup-add-city'), fakePayload.backup_mailing_address.city);
-    await user.selectOptions(getByTestId('backup-add-state'), [fakePayload.backup_mailing_address.state]);
-    await user.type(getByTestId('backup-add-zip'), fakePayload.backup_mailing_address.postalCode);
+    const locationBox = screen.getAllByRole('combobox');
+    await act(async () => {
+      await userEvent.type(locationBox[1], 'BEVERLY HILLS');
+      const selectedResidentialLocation = await screen.findByText(/90210/);
+      await userEvent.click(selectedResidentialLocation);
+    });
+
+    await userEvent.type(
+      getByTestId('backup_mailing_address.streetAddress1'),
+      safetyPayload.backup_mailing_address.streetAddress1,
+    );
+
+    await act(async () => {
+      await userEvent.type(locationBox[2], 'DRYDEN');
+      const selectedBackupLocation = await screen.findByText(/04225/);
+      await userEvent.click(selectedBackupLocation);
+    });
 
     await user.type(getByLabelText('Name'), fakePayload.backup_contact.name);
     await user.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
@@ -269,6 +334,7 @@ describe('CreateCustomerForm', () => {
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: false,
+          isBluebarkMoveSelected: false,
         },
       });
     });
@@ -278,11 +344,11 @@ describe('CreateCustomerForm', () => {
     expect(mockNavigate).toHaveBeenCalled();
 
     expect(createCustomerWithOktaOption.mock.calls[0][0]).not.toHaveProperty('secondary_number');
-  }, 10000);
+  }, 20000);
 
   it('navigates the user on cancel click', async () => {
     const { getByText } = render(
-      <MockProviders>
+      <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
@@ -294,9 +360,10 @@ describe('CreateCustomerForm', () => {
 
   it('submits the form and navigates the user once all required fields are filled out', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
 
     const { getByLabelText, getByTestId, getByRole } = render(
-      <MockProviders>
+      <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
@@ -316,15 +383,29 @@ describe('CreateCustomerForm', () => {
 
     await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
-    await userEvent.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
-    await userEvent.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
-    await userEvent.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
-    await userEvent.type(getByTestId('res-add-zip'), fakePayload.residential_address.postalCode);
+    await userEvent.type(
+      getByTestId('residential_address.streetAddress1'),
+      fakePayload.residential_address.streetAddress1,
+    );
 
-    await userEvent.type(getByTestId('backup-add-street1'), fakePayload.backup_mailing_address.streetAddress1);
-    await userEvent.type(getByTestId('backup-add-city'), fakePayload.backup_mailing_address.city);
-    await userEvent.selectOptions(getByTestId('backup-add-state'), [fakePayload.backup_mailing_address.state]);
-    await userEvent.type(getByTestId('backup-add-zip'), fakePayload.backup_mailing_address.postalCode);
+    const locationBox = screen.getAllByRole('combobox');
+
+    await act(async () => {
+      await userEvent.type(locationBox[1], 'BEVERLY HILLS');
+      const selectedResidentialLocation = await screen.findByText(/90210/);
+      await userEvent.click(selectedResidentialLocation);
+    });
+
+    await userEvent.type(
+      getByTestId('backup_mailing_address.streetAddress1'),
+      safetyPayload.backup_mailing_address.streetAddress1,
+    );
+
+    await act(async () => {
+      await userEvent.type(locationBox[2], 'DRYDEN');
+      const selectedBackupLocation = await screen.findByText(/04225/);
+      await userEvent.click(selectedBackupLocation);
+    });
 
     await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
@@ -340,21 +421,27 @@ describe('CreateCustomerForm', () => {
     await userEvent.click(saveBtn);
 
     await waitFor(() => {
-      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(createCustomerWithOktaOption).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ emplid: null }),
+        }),
+      );
       expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: false,
+          isBluebarkMoveSelected: false,
         },
       });
     });
-  }, 10000);
+  }, 20000);
 
   it('validates emplid against a coast guard member', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
 
     const { getByLabelText, getByTestId, getByRole } = render(
-      <MockProviders>
+      <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm />
       </MockProviders>,
     );
@@ -374,15 +461,29 @@ describe('CreateCustomerForm', () => {
 
     await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
-    await userEvent.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
-    await userEvent.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
-    await userEvent.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
-    await userEvent.type(getByTestId('res-add-zip'), fakePayload.residential_address.postalCode);
+    await userEvent.type(
+      getByTestId('residential_address.streetAddress1'),
+      fakePayload.residential_address.streetAddress1,
+    );
 
-    await userEvent.type(getByTestId('backup-add-street1'), fakePayload.backup_mailing_address.streetAddress1);
-    await userEvent.type(getByTestId('backup-add-city'), fakePayload.backup_mailing_address.city);
-    await userEvent.selectOptions(getByTestId('backup-add-state'), [fakePayload.backup_mailing_address.state]);
-    await userEvent.type(getByTestId('backup-add-zip'), fakePayload.backup_mailing_address.postalCode);
+    const locationBox = screen.getAllByRole('combobox');
+
+    await act(async () => {
+      await userEvent.type(locationBox[1], 'BEVERLY HILLS');
+      const selectedResidentialLocation = await screen.findByText(/90210/);
+      await userEvent.click(selectedResidentialLocation);
+    });
+
+    await userEvent.type(
+      getByTestId('backup_mailing_address.streetAddress1'),
+      safetyPayload.backup_mailing_address.streetAddress1,
+    );
+
+    await act(async () => {
+      await userEvent.type(locationBox[2], 'DRYDEN');
+      const selectedBackupLocation = await screen.findByText(/04225/);
+      await userEvent.click(selectedBackupLocation);
+    });
 
     await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
@@ -399,14 +500,24 @@ describe('CreateCustomerForm', () => {
     await waitFor(() => {
       expect(saveBtn).toBeEnabled(); // EMPLID is set now, all validations true
     });
-  }, 10000);
+    await userEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ emplid: '1234567' }),
+        }),
+      );
+    });
+  }, 20000);
 
   it('allows safety privileged users to pass safety move status to orders screen', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
 
     const { getByLabelText, getByTestId, getByRole } = render(
-      <MockProviders>
+      <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
@@ -417,6 +528,7 @@ describe('CreateCustomerForm', () => {
     expect(saveBtn).toBeInTheDocument();
 
     await userEvent.type(getByTestId('is-safety-move-yes'), safetyPayload.is_safety_move);
+    await userEvent.type(getByTestId('is-bluebark-no'), safetyPayload.is_bluebark);
     await user.selectOptions(getByLabelText('Branch of service'), [safetyPayload.affiliation]);
 
     await user.type(getByLabelText('First name'), safetyPayload.first_name);
@@ -425,15 +537,29 @@ describe('CreateCustomerForm', () => {
     await user.type(getByLabelText('Best contact phone'), safetyPayload.telephone);
     await user.type(getByLabelText('Personal email'), safetyPayload.personal_email);
 
-    await userEvent.type(getByTestId('res-add-street1'), safetyPayload.residential_address.streetAddress1);
-    await userEvent.type(getByTestId('res-add-city'), safetyPayload.residential_address.city);
-    await userEvent.selectOptions(getByTestId('res-add-state'), [safetyPayload.residential_address.state]);
-    await userEvent.type(getByTestId('res-add-zip'), safetyPayload.residential_address.postalCode);
+    await userEvent.type(
+      getByTestId('residential_address.streetAddress1'),
+      safetyPayload.residential_address.streetAddress1,
+    );
 
-    await userEvent.type(getByTestId('backup-add-street1'), safetyPayload.backup_mailing_address.streetAddress1);
-    await userEvent.type(getByTestId('backup-add-city'), safetyPayload.backup_mailing_address.city);
-    await userEvent.selectOptions(getByTestId('backup-add-state'), [safetyPayload.backup_mailing_address.state]);
-    await userEvent.type(getByTestId('backup-add-zip'), safetyPayload.backup_mailing_address.postalCode);
+    const locationBox = screen.getAllByRole('combobox');
+
+    await act(async () => {
+      await userEvent.type(locationBox[1], 'BEVERLY HILLS');
+      const selectedResidentialLocation = await screen.findByText(/90210/);
+      await userEvent.click(selectedResidentialLocation);
+    });
+
+    await userEvent.type(
+      getByTestId('backup_mailing_address.streetAddress1'),
+      safetyPayload.backup_mailing_address.streetAddress1,
+    );
+
+    await act(async () => {
+      await userEvent.type(locationBox[2], 'DRYDEN');
+      const selectedBackupLocation = await screen.findByText(/04225/);
+      await userEvent.click(selectedBackupLocation);
+    });
 
     await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
@@ -449,17 +575,19 @@ describe('CreateCustomerForm', () => {
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: true,
+          isBluebarkMoveSelected: false,
         },
       });
     });
-  }, 10000);
+  }, 20000);
 
   it('disables and populates DODID and EMPLID inputs when safety move is selected', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
 
     const { getByLabelText, getByTestId, getByRole } = render(
-      <MockProviders>
+      <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
@@ -471,7 +599,7 @@ describe('CreateCustomerForm', () => {
 
     // check the safety move box
     await userEvent.type(getByTestId('is-safety-move-yes'), safetyPayload.is_safety_move);
-
+    await userEvent.type(getByTestId('is-bluebark-no'), safetyPayload.is_bluebark);
     expect(await screen.findByTestId('safetyMoveHint')).toBeInTheDocument();
 
     await user.selectOptions(getByLabelText('Branch of service'), ['COAST_GUARD']);
@@ -487,15 +615,29 @@ describe('CreateCustomerForm', () => {
     await user.type(getByLabelText('Best contact phone'), safetyPayload.telephone);
     await user.type(getByLabelText('Personal email'), safetyPayload.personal_email);
 
-    await userEvent.type(getByTestId('res-add-street1'), safetyPayload.residential_address.streetAddress1);
-    await userEvent.type(getByTestId('res-add-city'), safetyPayload.residential_address.city);
-    await userEvent.selectOptions(getByTestId('res-add-state'), [safetyPayload.residential_address.state]);
-    await userEvent.type(getByTestId('res-add-zip'), safetyPayload.residential_address.postalCode);
+    await userEvent.type(
+      getByTestId('residential_address.streetAddress1'),
+      safetyPayload.residential_address.streetAddress1,
+    );
 
-    await userEvent.type(getByTestId('backup-add-street1'), safetyPayload.backup_mailing_address.streetAddress1);
-    await userEvent.type(getByTestId('backup-add-city'), safetyPayload.backup_mailing_address.city);
-    await userEvent.selectOptions(getByTestId('backup-add-state'), [safetyPayload.backup_mailing_address.state]);
-    await userEvent.type(getByTestId('backup-add-zip'), safetyPayload.backup_mailing_address.postalCode);
+    const locationBox = screen.getAllByRole('combobox');
+
+    await act(async () => {
+      await userEvent.type(locationBox[1], 'BEVERLY HILLS');
+      const selectedResidentialLocation = await screen.findByText(/90210/);
+      await userEvent.click(selectedResidentialLocation);
+    });
+
+    await userEvent.type(
+      getByTestId('backup_mailing_address.streetAddress1'),
+      safetyPayload.backup_mailing_address.streetAddress1,
+    );
+
+    await act(async () => {
+      await userEvent.type(locationBox[2], 'DRYDEN');
+      const selectedBackupLocation = await screen.findByText(/04225/);
+      await userEvent.click(selectedBackupLocation);
+    });
 
     await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
@@ -514,16 +656,19 @@ describe('CreateCustomerForm', () => {
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: true,
+          isBluebarkMoveSelected: false,
         },
       });
     });
-  }, 10000);
+  }, 50000);
 
-  it('submits the form and tests for unsupported state validation', async () => {
+  it('disables okta and non cac user inputs when bluebark move is selected', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
 
     const { getByLabelText, getByTestId, getByRole } = render(
-      <MockProviders>
+      <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
@@ -533,51 +678,50 @@ describe('CreateCustomerForm', () => {
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
 
-    await user.selectOptions(getByLabelText('Branch of service'), [fakePayload.affiliation]);
-    await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
+    await userEvent.type(getByTestId('is-bluebark-yes'), bluebarkPayload.is_bluebark);
 
-    await user.type(getByLabelText('First name'), fakePayload.first_name);
-    await user.type(getByLabelText('Last name'), fakePayload.last_name);
+    await userEvent.selectOptions(getByLabelText('Branch of service'), ['ARMY']);
+    await user.type(getByTestId('edipiInput'), safetyPayload.edipi);
 
-    await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
-    await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
+    await user.type(getByLabelText('First name'), safetyPayload.first_name);
+    await user.type(getByLabelText('Last name'), safetyPayload.last_name);
 
-    await userEvent.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
-    await userEvent.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
-    await userEvent.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
-    await userEvent.type(getByTestId('res-add-zip'), fakePayload.residential_address.postalCode);
+    await user.type(getByLabelText('Best contact phone'), safetyPayload.telephone);
+    await user.type(getByLabelText('Personal email'), safetyPayload.personal_email);
 
-    await userEvent.type(getByTestId('backup-add-street1'), fakePayload.backup_mailing_address.streetAddress1);
-    await userEvent.type(getByTestId('backup-add-city'), fakePayload.backup_mailing_address.city);
-    await userEvent.selectOptions(getByTestId('backup-add-state'), [fakePayload.backup_mailing_address.state]);
-    await userEvent.type(getByTestId('backup-add-zip'), fakePayload.backup_mailing_address.postalCode);
+    await userEvent.type(
+      getByTestId('residential_address.streetAddress1'),
+      safetyPayload.residential_address.streetAddress1,
+    );
 
-    await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
-    await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
-    await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
+    const locationBox = screen.getAllByRole('combobox');
 
-    await userEvent.type(getByTestId('create-okta-account-yes'), fakePayload.create_okta_account);
+    await act(async () => {
+      await userEvent.type(locationBox[1], 'BEVERLY HILLS');
+      const selectedResidentialLocation = await screen.findByText(/90210/);
+      await userEvent.click(selectedResidentialLocation);
+    });
 
-    await userEvent.type(getByTestId('cac-user-no'), fakePayload.cac_user);
+    await userEvent.type(
+      getByTestId('backup_mailing_address.streetAddress1'),
+      safetyPayload.backup_mailing_address.streetAddress1,
+    );
+
+    await act(async () => {
+      await userEvent.type(locationBox[2], 'DRYDEN');
+      const selectedBackupLocation = await screen.findByText(/04225/);
+      await userEvent.click(selectedBackupLocation);
+    });
+
+    await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
+    await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
+    await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
+
+    expect(saveBtn).toBeInTheDocument();
 
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();
     });
-
-    await userEvent.selectOptions(getByTestId('backup-add-state'), 'HI');
-    await userEvent.tab();
-
-    const msg = screen.getByText('Moves to this state are not supported at this time.');
-    expect(msg).toBeVisible();
-
-    await userEvent.selectOptions(getByTestId('backup-add-state'), [fakePayload.residential_address.state]);
-    await userEvent.tab();
-    expect(msg).not.toBeVisible();
-
-    await waitFor(() => {
-      expect(saveBtn).toBeEnabled();
-    });
-
     await userEvent.click(saveBtn);
 
     await waitFor(() => {
@@ -585,8 +729,9 @@ describe('CreateCustomerForm', () => {
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: false,
+          isBluebarkMoveSelected: true,
         },
       });
     });
-  }, 10000);
-});
+  }, 50000);
+}, 60000);

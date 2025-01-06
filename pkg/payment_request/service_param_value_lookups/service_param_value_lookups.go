@@ -21,6 +21,7 @@ type ServiceItemParamKeyData struct {
 	MTOServiceItem   models.MTOServiceItem
 	PaymentRequestID uuid.UUID
 	MoveTaskOrderID  uuid.UUID
+	ContractID       uuid.UUID
 	ContractCode     string
 	mtoShipmentID    *uuid.UUID
 	paramCache       *ServiceParamsCache
@@ -85,6 +86,8 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameStandaloneCrate,
 	models.ServiceItemParamNameStandaloneCrateCap,
 	models.ServiceItemParamNameLockedPriceCents,
+	models.ServiceItemParamNamePerUnitCents,
+	models.ServiceItemParamNamePortZip,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
@@ -120,6 +123,7 @@ func ServiceParamLookupInitialize(
 			to this query. Otherwise the contract_code field could be added to the MTO.
 		*/
 		ContractCode: contract.Code,
+		ContractID:   contract.ID,
 	}
 
 	//
@@ -134,7 +138,7 @@ func ServiceParamLookupInitialize(
 	var serviceItemDimensions models.MTOServiceItemDimensions
 
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA, models.ReServiceCodeICRT, models.ReServiceCodeIUCRT:
 		err := appCtx.DB().Load(&mtoServiceItem, "Dimensions")
 		if err != nil {
 			return nil, err
@@ -430,6 +434,15 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 		ServiceItem: serviceItem,
 	}
 
+	lookups[models.ServiceItemParamNamePerUnitCents] = PerUnitCentsLookup{
+		ServiceItem: serviceItem,
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNamePortZip] = PortZipLookup{
+		ServiceItem: serviceItem,
+	}
+
 	return lookups
 }
 
@@ -559,7 +572,7 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 	var ptrDestinationAddress *models.Address
 	var addressType string
 	switch mtoShipment.ShipmentType {
-	case models.MTOShipmentTypeHHGIntoNTSDom:
+	case models.MTOShipmentTypeHHGIntoNTS:
 		addressType = "storage facility"
 		if mtoShipment.StorageFacility != nil {
 			ptrDestinationAddress = &mtoShipment.StorageFacility.Address

@@ -58,6 +58,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -84,11 +86,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		return mockUpdater
 	}
-
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+		mtoServiceItemCreator,
+		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 	mockCreator := mocks.ShipmentCreator{}
@@ -109,7 +111,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 
 	setupTestData := func(boatFeatureFlag bool, ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
 
@@ -479,6 +481,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
@@ -527,6 +535,18 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Times(4)
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
@@ -536,6 +556,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -766,6 +787,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
@@ -796,6 +823,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Times(2)
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
@@ -805,6 +838,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -1455,8 +1489,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
 
-		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the PPM shipment.")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "Shipment cannot have a third address without a second address present")
+		suite.Contains(*errResponse.Payload.Detail, "The MTO shipment object is invalid. Shipment cannot have a third pickup address without a second pickup address present")
 	})
 
 	suite.Run("POST failure - Error creating mto shipment containing a ppm shipment contains tertiary destination address no secondary destination address.", func() {
@@ -1514,18 +1547,18 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
 
-		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the PPM shipment.")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "Shipment cannot have a third address without a second address present")
+		suite.Contains(*errResponse.Payload.Detail, "The MTO shipment object is invalid. Shipment cannot have a third destination address without a second destination address present")
 	})
 	suite.Run("PATCH failure - Error updating an mto shipment contains tertiary pickup address no secondary pickup address.", func() {
 		// Under Test: UpdateMTOShipmentHandler
 		// Setup:   If underlying CreateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		now := time.Now()
@@ -1597,10 +1630,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   If underlying UpdateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{}, nil)
@@ -1645,10 +1679,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   If underlying CreateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		now := time.Now()

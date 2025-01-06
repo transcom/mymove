@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi"
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	paymentrequest "github.com/transcom/mymove/pkg/payment_request"
 	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
 	"github.com/transcom/mymove/pkg/services/clientcert"
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
@@ -21,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/organization"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	prsff "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 	"github.com/transcom/mymove/pkg/services/roles"
@@ -47,6 +49,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequest.RequestPaymentHelper{})
 
 	adminAPI.ServeError = handlers.ServeCustomError
 
@@ -214,7 +217,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
 			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveRouter, signedCertificationCreator, signedCertificationUpdater,
+			moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator,
 		),
 	}
 

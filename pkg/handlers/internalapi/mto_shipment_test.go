@@ -77,6 +77,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -108,7 +110,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		testMTOShipmentObjects.builder,
 		mtoserviceitem.NewMTOServiceItemCreator(planner, testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		testMTOShipmentObjects.moveRouter,
-		setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+		setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 
@@ -366,6 +368,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(nil, nil, nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		suite.Nil(params.Body.Validate(strfmt.Default))
 
 		response := subtestData.handler.Handle(params)
@@ -448,6 +456,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(nil, nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		suite.Nil(params.Body.Validate(strfmt.Default))
 
@@ -748,7 +762,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 
 	authRequestAndSetUpHandlerAndParams := func(originalShipment models.MTOShipment, mockShipmentUpdater *mocks.ShipmentUpdater) (UpdateMTOShipmentHandler, mtoshipmentops.UpdateMTOShipmentParams) {
 		endpoint := fmt.Sprintf("/mto-shipments/%s", originalShipment.ID.String())
@@ -1322,6 +1336,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					mock.AnythingOfType("*models.PPMShipment")).
 					Return(tc.estimatedIncentive, nil, nil).Once()
 
+				ppmEstimator.On("MaxIncentive",
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("models.PPMShipment"),
+					mock.AnythingOfType("*models.PPMShipment")).
+					Return(nil, nil)
+
 				ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 					mock.AnythingOfType("*appcontext.appContext"),
 					mock.AnythingOfType("models.PPMShipment"),
@@ -1466,6 +1486,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.MTOShipment"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
+			nil,
 		).Return(nil, err)
 
 		subtestData := getDefaultMTOShipmentAndParams(&mockUpdater)

@@ -6,7 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *FactorySuite) TestBuildPrimaryTransportationOfficeAssignment() {
+func (suite *FactorySuite) TestBuildTransportationOfficeAssignment() {
 	suite.Run("Successful creation of default Primary TransportationOfficeAssignment", func() {
 		// Under test:      BuildPrimaryTransportationOfficeAssignment
 		// Mocked:          None
@@ -167,5 +167,57 @@ func (suite *FactorySuite) TestBuildPrimaryTransportationOfficeAssignment() {
 		suite.Equal(customOfficeUser.ID, secondaryTransportationOfficeAssignment.ID)
 		suite.Equal(models.BoolPointer(false), secondaryTransportationOfficeAssignment.PrimaryOffice)
 
+	})
+
+	suite.Run("Successful return of primary linkOnly TransportationOffice", func() {
+		// Under test:       BuildPrimaryTransportationOfficeAssignment
+		// Set up:           Pass in a linkOnly transportationOfficeAssignment
+		// Expected outcome: No new TransportationOfficeAssignment should be persisted.
+
+		precount, err := suite.DB().Count(&models.TransportationOfficeAssignment{})
+		suite.NoError(err)
+
+		officeUser := BuildOfficeUserWithoutTransportationOfficeAssignment(suite.DB(), nil, nil)
+
+		officeId := uuid.Must(uuid.NewV4())
+		assignment := BuildPrimaryTransportationOfficeAssignment(suite.DB(), []Customization{
+			{
+				Model: models.TransportationOfficeAssignment{
+					ID:                     officeUser.ID,
+					TransportationOfficeID: officeId,
+				},
+				LinkOnly: true,
+			},
+		}, nil)
+		count, err := suite.DB().Count(&models.TransportationOfficeAssignment{})
+		suite.Equal(precount, count)
+		suite.NoError(err)
+		suite.Equal(officeUser.ID, assignment.ID)
+	})
+
+	suite.Run("Successful return of secondary linkOnly TransportationOffice", func() {
+		// Under test:       BuildPrimaryTransportationOfficeAssignment
+		// Set up:           Pass in a linkOnly transportationOfficeAssignment
+		// Expected outcome: No new TransportationOfficeAssignment should be persisted.
+
+		officeUser := BuildOfficeUser(suite.DB(), nil, nil)
+
+		precount, err := suite.DB().Count(&models.TransportationOfficeAssignment{})
+		suite.NoError(err)
+
+		officeId := uuid.Must(uuid.NewV4())
+		assignment := BuildAlternateTransportationOfficeAssignment(suite.DB(), []Customization{
+			{
+				Model: models.TransportationOfficeAssignment{
+					ID:                     officeUser.ID,
+					TransportationOfficeID: officeId,
+				},
+				LinkOnly: true,
+			},
+		}, nil)
+		count, err := suite.DB().Count(&models.TransportationOfficeAssignment{})
+		suite.Equal(precount, count)
+		suite.NoError(err)
+		suite.Equal(officeUser.ID, assignment.ID)
 	})
 }

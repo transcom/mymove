@@ -382,6 +382,12 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.OriginDutyLocation = &originDutyLocation
 				order.OriginDutyLocationID = &originDutyLocationID
 
+				originGBLOC, originGBLOCerr := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+				if originGBLOCerr != nil {
+					return handlers.ResponseForError(appCtx.Logger(), originGBLOCerr), originGBLOCerr
+				}
+				order.OriginDutyLocationGBLOC = &originGBLOC.GBLOC
+
 				if payload.MoveID != "" {
 					moveID, err := uuid.FromString(payload.MoveID.String())
 					if err != nil {

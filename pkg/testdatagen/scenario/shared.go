@@ -17,8 +17,10 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/random"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
@@ -28,6 +30,8 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	portlocation "github.com/transcom/mymove/pkg/services/port_location"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -4094,7 +4098,7 @@ func createNTSMove(appCtx appcontext.AppContext) {
 		},
 		{
 			Model: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 			},
 		},
 	}, nil)
@@ -4207,6 +4211,8 @@ func createHHGWithOriginSITServiceItems(
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 
 	queryBuilder := query.NewQueryBuilder()
@@ -4214,7 +4220,9 @@ func createHHGWithOriginSITServiceItems(
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
+	handlerConfig := handlers.Config{}
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	if approveErr != nil {
@@ -4232,7 +4240,7 @@ func createHHGWithOriginSITServiceItems(
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		"90210", "30813").Return(2361, nil)
+		"90210", "30813", false, false).Return(2361, nil)
 
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
@@ -4278,12 +4286,15 @@ func createHHGWithOriginSITServiceItems(
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 	addressCreator := address.NewAddressCreator()
+	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -4473,6 +4484,8 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
@@ -4480,7 +4493,9 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	//////////////////////////////////////////////////
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
+	handlerConfig := handlers.Config{}
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
@@ -4498,7 +4513,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		"90210", "30813").Return(2361, nil)
+		"90210", "30813", false, false).Return(2361, nil)
 
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
@@ -4539,12 +4554,15 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	}
 
 	addressCreator := address.NewAddressCreator()
+	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
 
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
@@ -4879,14 +4897,16 @@ func createHHGWithPaymentServiceItems(
 
 	queryBuilder := query.NewQueryBuilder()
 	planner := &routemocks.Planner{}
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(123, nil).Once()
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything, false, false).Return(123, nil).Once()
 
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	//////////////////////////////////////////////////
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
+	handlerConfig := handlers.Config{}
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
@@ -4902,33 +4922,33 @@ func createHHGWithPaymentServiceItems(
 		logger.Fatal("Error approving move")
 	}
 	// called using the addresses with origin zip of 90210 and destination zip of 94535
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(348, nil).Times(2)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything, false, false).Return(348, nil).Times(2)
 
 	// called using the addresses with origin zip of 90210 and destination zip of 90211
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(3, nil).Times(5)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything, false, false).Return(3, nil).Times(5)
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-		"94535", "94535").Return(348, nil).Times(2)
+		"94535", "94535", false).Return(348, nil).Times(2)
 
 	// called for zip 5 domestic linehaul service item
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535").Return(348, nil).Once()
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535", false, false).Return(348, nil).Times(2)
 
 	// called for domestic shorthaul service item
 	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"90210", "90211").Return(3, nil).Times(7)
 
 	// called for domestic shorthaul service item
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211").Return(348, nil).Times(10)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211", false, false).Return(348, nil).Times(10)
 
 	// called for domestic origin SIT pickup service item
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535", false, false).Return(348, nil).Once()
 
 	// called for domestic destination SIT delivery service item
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "90210").Return(348, nil).Times(2)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "90210", false, false).Return(348, nil).Times(2)
 
 	// called for DLH, DSH, FSC service item estimated price calculations
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(400, nil).Times(3)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything, false, false).Return(400, nil).Times(3)
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
@@ -5018,12 +5038,15 @@ func createHHGWithPaymentServiceItems(
 	}
 
 	addressCreator := address.NewAddressCreator()
+	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -5509,6 +5532,8 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(910, nil)
 
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
@@ -7236,7 +7261,7 @@ func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter
 			Model: models.MTOShipment{
 				ID:                   uuid.Must(uuid.NewV4()),
 				PrimeEstimatedWeight: &estimatedWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				Status:               models.MTOShipmentStatusSubmitted,
 			},
@@ -10465,6 +10490,60 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 		{
 			Model: models.CustomerSupportRemark{
 				Content: "The customer mentioned that they need to provide some more complex instructions for pickup and drop off.",
+			},
+		},
+	}, nil)
+
+	return move
+}
+
+/*
+Create Needs Service Counseling in a non-default GBLOC - pass in orders with all required information, shipment type, destination type, locator
+*/
+func CreateNeedsServicesCounselingInOtherGBLOC(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) models.Move {
+	db := appCtx.DB()
+	originDutyLocationAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "35023",
+			},
+		},
+	}, nil)
+	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:      "Test Location",
+				AddressID: originDutyLocationAddress.ID,
+			},
+		},
+	}, nil)
+	order := factory.BuildOrder(db, []factory.Customization{
+		{
+			Model: originDutyLocation,
+		},
+	}, nil)
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    order,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Locator: locator,
+				Status:  models.MoveStatusNeedsServiceCounseling,
+			},
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: shipmentType,
+				Status:       models.MTOShipmentStatusSubmitted,
 			},
 		},
 	}, nil)

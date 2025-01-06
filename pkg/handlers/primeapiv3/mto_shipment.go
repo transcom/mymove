@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv3/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
@@ -109,7 +110,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				appCtx.Logger().Error("Error validating mto shipment object: ", zap.Error(verrs))
 
 				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
-					"The MTO shipment object is invalid.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
+					"The MTO shipment object is invalid. "+verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
 			}
 
 			mtoShipment.Status = models.MTOShipmentStatusSubmitted
@@ -169,6 +170,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentUpdater
+	planner route.Planner
 }
 
 // Handle handler that updates a mto shipment
@@ -184,7 +186,10 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				"TertiaryPickupAddress",
 				"TertiaryDeliveryAddress",
 				"StorageFacility",
-				"PPMShipment")
+				"PPMShipment",
+				"MTOServiceItems.PODLocation",
+				"MTOServiceItems.POELocation",
+			)
 			if err != nil {
 				return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
 					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
@@ -202,7 +207,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			mtoShipment.ShipmentType = dbShipment.ShipmentType
 
 			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime-v3")
+			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime-v3", h.planner)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 				switch e := err.(type) {

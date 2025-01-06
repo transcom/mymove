@@ -19,6 +19,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
@@ -70,6 +71,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
 
+		OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler: order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandlerFunc(func(params order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.AcknowledgeExcessUnaccompaniedBaggageWeightRisk has not yet been implemented")
+		}),
 		OrderAcknowledgeExcessWeightRiskHandler: order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
 		}),
@@ -160,11 +164,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ReServiceItemsGetAllReServiceItemsHandler: re_service_items.GetAllReServiceItemsHandlerFunc(func(params re_service_items.GetAllReServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation re_service_items.GetAllReServiceItems has not yet been implemented")
 		}),
+		QueuesGetBulkAssignmentDataHandler: queues.GetBulkAssignmentDataHandlerFunc(func(params queues.GetBulkAssignmentDataParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetBulkAssignmentData has not yet been implemented")
+		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
 		}),
 		CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler: customer_support_remarks.GetCustomerSupportRemarksForMoveHandlerFunc(func(params customer_support_remarks.GetCustomerSupportRemarksForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.GetCustomerSupportRemarksForMove has not yet been implemented")
+		}),
+		QueuesGetDestinationRequestsQueueHandler: queues.GetDestinationRequestsQueueHandlerFunc(func(params queues.GetDestinationRequestsQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetDestinationRequestsQueue has not yet been implemented")
 		}),
 		GhcDocumentsGetDocumentHandler: ghc_documents.GetDocumentHandlerFunc(func(params ghc_documents.GetDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation ghc_documents.GetDocument has not yet been implemented")
@@ -174,6 +184,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		EvaluationReportsGetEvaluationReportHandler: evaluation_reports.GetEvaluationReportHandlerFunc(func(params evaluation_reports.GetEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.GetEvaluationReport has not yet been implemented")
+		}),
+		AddressesGetLocationByZipCityStateHandler: addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		}),
 		MtoServiceItemGetMTOServiceItemHandler: mto_service_item.GetMTOServiceItemHandlerFunc(func(params mto_service_item.GetMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.GetMTOServiceItem has not yet been implemented")
@@ -431,6 +444,8 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler sets the operation handler for the acknowledge excess unaccompanied baggage weight risk operation
+	OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler
 	// OrderAcknowledgeExcessWeightRiskHandler sets the operation handler for the acknowledge excess weight risk operation
 	OrderAcknowledgeExcessWeightRiskHandler order.AcknowledgeExcessWeightRiskHandler
 	// EvaluationReportsAddAppealToSeriousIncidentHandler sets the operation handler for the add appeal to serious incident operation
@@ -491,16 +506,22 @@ type MymoveAPI struct {
 	PpmFinishDocumentReviewHandler ppm.FinishDocumentReviewHandler
 	// ReServiceItemsGetAllReServiceItemsHandler sets the operation handler for the get all re service items operation
 	ReServiceItemsGetAllReServiceItemsHandler re_service_items.GetAllReServiceItemsHandler
+	// QueuesGetBulkAssignmentDataHandler sets the operation handler for the get bulk assignment data operation
+	QueuesGetBulkAssignmentDataHandler queues.GetBulkAssignmentDataHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler sets the operation handler for the get customer support remarks for move operation
 	CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler customer_support_remarks.GetCustomerSupportRemarksForMoveHandler
+	// QueuesGetDestinationRequestsQueueHandler sets the operation handler for the get destination requests queue operation
+	QueuesGetDestinationRequestsQueueHandler queues.GetDestinationRequestsQueueHandler
 	// GhcDocumentsGetDocumentHandler sets the operation handler for the get document operation
 	GhcDocumentsGetDocumentHandler ghc_documents.GetDocumentHandler
 	// MoveTaskOrderGetEntitlementsHandler sets the operation handler for the get entitlements operation
 	MoveTaskOrderGetEntitlementsHandler move_task_order.GetEntitlementsHandler
 	// EvaluationReportsGetEvaluationReportHandler sets the operation handler for the get evaluation report operation
 	EvaluationReportsGetEvaluationReportHandler evaluation_reports.GetEvaluationReportHandler
+	// AddressesGetLocationByZipCityStateHandler sets the operation handler for the get location by zip city state operation
+	AddressesGetLocationByZipCityStateHandler addresses.GetLocationByZipCityStateHandler
 	// MtoServiceItemGetMTOServiceItemHandler sets the operation handler for the get m t o service item operation
 	MtoServiceItemGetMTOServiceItemHandler mto_service_item.GetMTOServiceItemHandler
 	// MoveGetMoveHandler sets the operation handler for the get move operation
@@ -724,6 +745,9 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler == nil {
+		unregistered = append(unregistered, "order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler")
+	}
 	if o.OrderAcknowledgeExcessWeightRiskHandler == nil {
 		unregistered = append(unregistered, "order.AcknowledgeExcessWeightRiskHandler")
 	}
@@ -814,11 +838,17 @@ func (o *MymoveAPI) Validate() error {
 	if o.ReServiceItemsGetAllReServiceItemsHandler == nil {
 		unregistered = append(unregistered, "re_service_items.GetAllReServiceItemsHandler")
 	}
+	if o.QueuesGetBulkAssignmentDataHandler == nil {
+		unregistered = append(unregistered, "queues.GetBulkAssignmentDataHandler")
+	}
 	if o.CustomerGetCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.GetCustomerHandler")
 	}
 	if o.CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.GetCustomerSupportRemarksForMoveHandler")
+	}
+	if o.QueuesGetDestinationRequestsQueueHandler == nil {
+		unregistered = append(unregistered, "queues.GetDestinationRequestsQueueHandler")
 	}
 	if o.GhcDocumentsGetDocumentHandler == nil {
 		unregistered = append(unregistered, "ghc_documents.GetDocumentHandler")
@@ -828,6 +858,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.EvaluationReportsGetEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.GetEvaluationReportHandler")
+	}
+	if o.AddressesGetLocationByZipCityStateHandler == nil {
+		unregistered = append(unregistered, "addresses.GetLocationByZipCityStateHandler")
 	}
 	if o.MtoServiceItemGetMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.GetMTOServiceItemHandler")
@@ -1134,6 +1167,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk"] = order.NewAcknowledgeExcessUnaccompaniedBaggageWeightRisk(o.context, o.OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/orders/{orderID}/acknowledge-excess-weight-risk"] = order.NewAcknowledgeExcessWeightRisk(o.context, o.OrderAcknowledgeExcessWeightRiskHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1254,11 +1291,19 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/queues/bulk-assignment"] = queues.NewGetBulkAssignmentData(o.context, o.QueuesGetBulkAssignmentDataHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/customer/{customerID}"] = customer.NewGetCustomer(o.context, o.CustomerGetCustomerHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{locator}/customer-support-remarks"] = customer_support_remarks.NewGetCustomerSupportRemarksForMove(o.context, o.CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/queues/destination-requests"] = queues.NewGetDestinationRequestsQueue(o.context, o.QueuesGetDestinationRequestsQueueHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1271,6 +1316,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewGetEvaluationReport(o.context, o.EvaluationReportsGetEvaluationReportHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/addresses/zip-city-lookup/{search}"] = addresses.NewGetLocationByZipCityState(o.context, o.AddressesGetLocationByZipCityStateHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

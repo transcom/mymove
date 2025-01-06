@@ -586,7 +586,11 @@ definitions:
   TransportationOffices:
     type: array
     items:
-      $ref: 'definitions/TransportationOffice.yaml'
+      $ref: "definitions/TransportationOffice.yaml"
+  VLocations:
+    type: array
+    items:
+      $ref: "definitions/VLocation.yaml"
   OfficeUser:
     type: object
     properties:
@@ -1802,7 +1806,7 @@ definitions:
     example: HHG
     enum:
       - HHG
-      - HHG_INTO_NTS_DOMESTIC
+      - HHG_INTO_NTS
       - HHG_OUTOF_NTS_DOMESTIC
       - PPM
       - BOAT_HAUL_AWAY
@@ -1811,7 +1815,7 @@ definitions:
       - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
-      HHG_INTO_NTS_DOMESTIC: NTS
+      HHG_INTO_NTS: NTS
       HHG_OUTOF_NTS_DOMESTIC: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
@@ -4423,7 +4427,32 @@ paths:
           description: not found
         '500':
           description: server error
-  '/mto_shipments':
+  /addresses/zip-city-lookup/{search}:
+    get:
+      summary: Returns city, state, postal code, and county associated with the specified full/partial postal code or city state string
+      description: Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.
+      operationId: getLocationByZipCityState
+      tags:
+        - addresses
+      parameters:
+      - in: path
+        name: search
+        type: string
+        required: true
+      responses:
+        '200':
+          description: the requested list of city, state, county, and postal code matches
+          schema:
+            $ref: "#/definitions/VLocations"
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  "/mto_shipments":
     post:
       summary: createMTOShipment
       description: |

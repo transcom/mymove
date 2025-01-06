@@ -23,8 +23,9 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
     streetAddress1: '444 Main Ave',
     streetAddress2: 'Apartment 9000',
-    streetAddress3: '',
+    streetAddress3: 'J. Jonah Jameson',
     city: 'Anytown',
+    county: 'SOLANO',
     state: 'AL',
     postalCode: '90210',
     country: 'USA',
@@ -72,9 +73,15 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     );
     expect(screen.getByLabelText(/Address 1/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
-    expect(screen.getByLabelText('City')).toBeInTheDocument();
-    expect(screen.getByLabelText('State')).toBeInTheDocument();
-    expect(screen.getByLabelText('ZIP')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Address 3/)).toBeInTheDocument();
+    expect(screen.getByText('City')).toBeInTheDocument();
+    expect(screen.getByText(initialValuesDestinationAddress.newAddress.address.city)).toBeInTheDocument();
+    expect(screen.getByText('State')).toBeInTheDocument();
+    expect(screen.getByText(initialValuesDestinationAddress.newAddress.address.state)).toBeInTheDocument();
+    expect(screen.getByText('County')).toBeInTheDocument();
+    expect(screen.getByText(initialValuesDestinationAddress.newAddress.address.county)).toBeInTheDocument();
+    expect(screen.getByText('ZIP')).toBeInTheDocument();
+    expect(screen.getByText(initialValuesDestinationAddress.newAddress.address.postalCode)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 
@@ -89,10 +96,8 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     );
 
     await userEvent.type(screen.getByLabelText(/Address 1/), '23 City Str');
-    await userEvent.type(screen.getByLabelText('City'), 'City');
-    await userEvent.clear(screen.getByLabelText('ZIP'));
-    await userEvent.type(screen.getByLabelText('ZIP'), '90210');
-    await userEvent.selectOptions(screen.getByLabelText('State'), ['CA']);
+    await userEvent.type(screen.getByLabelText(/Address 2/), 'Apt 23');
+    await userEvent.type(screen.getByLabelText(/Address 3/), 'C/O Twenty Three');
     await userEvent.type(screen.getByLabelText('Contractor Remarks'), 'Test remarks');
 
     const submitBtn = screen.getByRole('button', { name: 'Save' });
@@ -100,24 +105,6 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
       expect(submitBtn).toBeEnabled();
     });
     await userEvent.click(submitBtn);
-  });
-
-  it('disables the submit button when the zip is bad', async () => {
-    renderWithProviders(
-      <PrimeUIShipmentUpdateDestinationAddressForm
-        initialValues={initialValuesDestinationAddress}
-        updateDestinationAddressSchema={updateDestinationAddressSchema}
-        onSubmit={jest.fn()}
-        name="newAddress.address"
-      />,
-    );
-    await userEvent.clear(screen.getByLabelText('ZIP'));
-    await userEvent.type(screen.getByLabelText('ZIP'), '1');
-    (await screen.getByLabelText('ZIP')).blur();
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByText('Must be valid zip code')).toBeInTheDocument();
-    });
   });
 
   it('disables the submit button when the address 1 is missing', async () => {
@@ -137,7 +124,7 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     });
   });
 
-  it('disables the submit button when city is missing', async () => {
+  it('does not disable the submit button when address lines 2 or 3 are blank', async () => {
     renderWithProviders(
       <PrimeUIShipmentUpdateDestinationAddressForm
         initialValues={initialValuesDestinationAddress}
@@ -147,11 +134,17 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
         name="newAddress.address"
       />,
     );
-    await userEvent.clear(screen.getByLabelText('City'));
-    (await screen.getByLabelText('City')).blur();
+
+    await userEvent.clear(screen.getByLabelText(/Address 3/));
+    (await screen.getByLabelText(/Address 3/)).blur();
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByText('Required')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' }).getAttribute('disabled')).toBeFalsy();
+    });
+
+    await userEvent.clear(screen.getByLabelText(/Address 2/));
+    (await screen.getByLabelText(/Address 2/)).blur();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Save' }).getAttribute('disabled')).toBeFalsy();
     });
   });
 });

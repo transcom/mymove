@@ -20,6 +20,7 @@ import (
 type OrderFetcher interface {
 	FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error)
 	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *ListOrderParams) ([]models.Move, int, error)
+	ListDestinationRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *ListOrderParams) ([]models.Move, int, error)
 	ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, error)
 }
 
@@ -40,6 +41,7 @@ type OrderUpdater interface {
 //go:generate mockery --name ExcessWeightRiskManager
 type ExcessWeightRiskManager interface {
 	AcknowledgeExcessWeightRisk(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string) (*models.Move, error)
+	AcknowledgeExcessUnaccompaniedBaggageWeightRisk(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string) (*models.Move, error)
 	UpdateBillableWeightAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, weight *int, eTag string) (*models.Order, uuid.UUID, error)
 	UpdateMaxBillableWeightAsTIO(appCtx appcontext.AppContext, orderID uuid.UUID, weight *int, remarks *string, eTag string) (*models.Order, uuid.UUID, error)
 }

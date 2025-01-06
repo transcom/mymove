@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { Provider } from 'react-redux';
 
 import { createHeader } from './utils';
 import TableQueue from './TableQueue';
@@ -8,14 +9,17 @@ import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheck
 import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
+import { store } from 'shared/store';
 
 export default {
   title: 'Office Components/Table',
   decorators: [
     (storyFn) => (
-      <div style={{ margin: '10px', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-        {storyFn()}
-      </div>
+      <Provider store={store}>
+        <div style={{ margin: '10px', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+          {storyFn()}
+        </div>
+      </Provider>
     ),
   ],
 };

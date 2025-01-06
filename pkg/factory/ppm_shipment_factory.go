@@ -71,6 +71,7 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		ppmShipment.ProGearWeight = models.PoundPointer(unit.Pound(1987))
 		ppmShipment.SpouseProGearWeight = models.PoundPointer(unit.Pound(498))
 		ppmShipment.EstimatedIncentive = models.CentPointer(unit.Cents(1000000))
+		ppmShipment.MaxIncentive = models.CentPointer(unit.Cents(2000000))
 		ppmShipment.HasRequestedAdvance = models.BoolPointer(true)
 		ppmShipment.AdvanceAmountRequested = models.CentPointer(unit.Cents(598700))
 	}
@@ -869,12 +870,14 @@ func AddSignedCertificationToPPMShipment(db *pop.Connection, ppmShipment *models
 func GetTraitPPMShipmentReadyForPaymentRequest() []Customization {
 	estimatedWeight := unit.Pound(200)
 	estimateIncentive := unit.Cents(1000)
+	maxIncentive := unit.Cents(2000)
 	return []Customization{
 		{
 			Model: models.PPMShipment{
 				Status:             models.PPMShipmentStatusWaitingOnCustomer,
 				EstimatedWeight:    &estimatedWeight,
 				EstimatedIncentive: &estimateIncentive,
+				MaxIncentive:       &maxIncentive,
 			},
 		},
 		{

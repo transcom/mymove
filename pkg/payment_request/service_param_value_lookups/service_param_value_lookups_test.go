@@ -29,6 +29,7 @@ import (
 )
 
 const defaultZipDistance = 1234
+const defaultInternationalZipDistance = 1800
 
 type ServiceParamValueLookupsSuite struct {
 	*testingsuite.PopTestSuite
@@ -46,7 +47,16 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(defaultZipDistance, nil)
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+		false,
+		true,
+	).Return(defaultInternationalZipDistance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
@@ -766,7 +776,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 				},
 			},
 		}, nil)

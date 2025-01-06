@@ -24,7 +24,7 @@ afterEach(() => {
 const renderWithPermissions = (shipment) => {
   render(
     <MockProviders permissions={[permissionTypes.viewCloseoutOffice]}>
-      <PPMShipmentInfoList shipment={shipment} />
+      <PPMShipmentInfoList isExpanded shipment={shipment} />
     </MockProviders>,
   );
 };
@@ -63,6 +63,15 @@ describe('PPMShipmentInfoList', () => {
     expect(screen.getByTestId('closeout')).toBeInTheDocument();
     expect(screen.getByTestId('closeout').textContent).toEqual('—');
     expect(screen.getByText('Closeout office')).toBeInTheDocument();
+  });
+
+  it('renders estimated and max incentives', () => {
+    renderWithPermissions({ ppmShipment: { estimatedIncentive: 100000, maxIncentive: 200000 } });
+    expect(screen.getByTestId('estimatedIncentive')).toBeInTheDocument();
+    expect(screen.getByText('Estimated Incentive')).toBeInTheDocument();
+
+    expect(screen.getByTestId('maxIncentive')).toBeInTheDocument();
+    expect(screen.getByText('Max Incentive')).toBeInTheDocument();
   });
 
   it('PPM Download AOA Paperwork - success with Approved', async () => {

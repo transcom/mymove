@@ -94,7 +94,9 @@ type MTOServiceItemSingle struct {
 	SITEntryDate                    *time.Time           `db:"sit_entry_date"`
 	SITDepartureDate                *time.Time           `db:"sit_departure_date"`
 	SITDestinationFinalAddressID    *uuid.UUID           `db:"sit_destination_final_address_id"`
+	SITDestinationFinalAddress      *Address             `belongs_to:"addresses" fk_id:"sit_destination_final_address_id"`
 	SITOriginHHGOriginalAddressID   *uuid.UUID           `db:"sit_origin_hhg_original_address_id"`
+	SITDestinationOriginalAddress   *Address             `belongs_to:"addresses" fk_id:"sit_destination_original_address_id"`
 	SITOriginHHGActualAddressID     *uuid.UUID           `db:"sit_origin_hhg_actual_address_id"`
 	EstimatedWeight                 *unit.Pound          `db:"estimated_weight"`
 	ActualWeight                    *unit.Pound          `db:"actual_weight"`
@@ -154,7 +156,9 @@ func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceIt
 	err := db.Eager("SITDestinationOriginalAddress",
 		"SITDestinationFinalAddress",
 		"ReService",
-		"CustomerContacts").Where("id = ?", serviceItemID).First(&serviceItem)
+		"CustomerContacts",
+		"MTOShipment.PickupAddress",
+		"MTOShipment.DestinationAddress").Where("id = ?", serviceItemID).First(&serviceItem)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

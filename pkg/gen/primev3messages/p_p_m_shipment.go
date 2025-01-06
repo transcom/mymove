@@ -117,6 +117,9 @@ type PPMShipment struct {
 	// Example: false
 	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
 
+	// The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
+	MaxIncentive *int64 `json:"maxIncentive"`
+
 	// origin rate area
 	OriginRateArea *RateArea `json:"originRateArea,omitempty"`
 

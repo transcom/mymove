@@ -16,4 +16,8 @@ export default {
   phone_is_preferred: 'phone_is_preferred',
   uses_external_vendor: 'uses_external_vendor',
   diversion: 'diversion',
+  has_secondary_pickup_address: 'has_secondary_pickup_address',
+  has_secondary_delivery_address: 'has_secondary_delivery_address',
+  has_tertiary_pickup_address: 'has_tertiary_pickup_address',
+  has_tertiary_delivery_address: 'has_tertiary_delivery_address',
 };

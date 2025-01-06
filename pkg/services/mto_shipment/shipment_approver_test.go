@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"math"
+	"slices"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -89,6 +90,8 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	subtestData.planner = &mocks.Planner{}
@@ -188,6 +191,123 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
+	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems and should NOT update pricing without port data", func() {
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			}}, nil)
+
+		// we need to get the usPostRegionCityIDs based off of the ZIP for the addresses
+		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "50314")
+		suite.FatalNoError(err)
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "Tester Address",
+					City:               "Des Moines",
+					State:              "IA",
+					PostalCode:         "50314",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &pickupUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		suite.FatalNoError(err)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "JBER",
+					City:               "Anchorage",
+					State:              "AK",
+					PostalCode:         "99505",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &destUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		pickupDate := time.Now()
+		internationalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusSubmitted,
+					MarketCode:           models.MarketCodeInternational,
+					PrimeEstimatedWeight: models.PoundPointer(unit.Pound(4000)),
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+					RequestedPickupDate:  &pickupDate,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		internationalShipmentEtag := etag.GenerateEtag(internationalShipment.UpdatedAt)
+
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+
+		shipmentRouter := NewShipmentRouter()
+		moveWeights := moverouter.NewMoveWeights(NewShipmentReweighRequester())
+		var serviceItemCreator services.MTOServiceItemCreator
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			false,
+			true,
+		).Return(500, nil)
+
+		// Approve international shipment
+		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
+		_, err = shipmentApprover.ApproveShipment(appCtx, internationalShipment.ID, internationalShipmentEtag)
+		suite.NoError(err)
+
+		// Get created pre approved service items
+		var serviceItems []models.MTOServiceItem
+		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err2)
+
+		expectedReserviceCodes := []models.ReServiceCode{
+			models.ReServiceCodePOEFSC,
+			models.ReServiceCodeISLH,
+			models.ReServiceCodeIHPK,
+			models.ReServiceCodeIHUPK,
+		}
+
+		suite.Equal(4, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			actualReServiceCode := serviceItems[i].ReService.Code
+			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode))
+			// because the estimated weight is provided, estimated pricing should be updated
+			suite.Nil(serviceItems[i].PricingEstimate)
+		}
+	})
+
 	suite.Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func() {
 		subtestData := suite.createApproveShipmentSubtestData()
 		appCtx := subtestData.appCtx
@@ -220,6 +340,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(500, nil)
 
 		preApprovalTime := time.Now()
@@ -339,6 +461,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			createdShipment.PickupAddress.PostalCode,
 			createdShipment.DestinationAddress.PostalCode,
+			false,
+			false,
 		).Return(500, nil)
 
 		shipmentHeavyEtag := etag.GenerateEtag(shipmentHeavy.UpdatedAt)
@@ -523,7 +647,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		// 1. The shipment is moving to the APPROVED status
 		// 2. The shipment must already have the following fields present:
 		// MTOShipmentTypeHHG: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, DestinationAddress
-		// MTOShipmentTypeHHGIntoNTSDom: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, StorageFacility
+		// MTOShipmentTypeHHGIntoNTS: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, StorageFacility
 		// MTOShipmentTypeHHGOutOfNTSDom: ScheduledPickupDate, NTSRecordedWeight, StorageFacility, DestinationAddress
 		// 3. The shipment must not already have a Required Delivery Date
 		// Note that MakeMTOShipment will automatically add a Required Delivery Date if the ScheduledPickupDate
@@ -566,7 +690,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
 					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 					PrimeEstimatedWeight: &estimatedWeight,
 					Status:               models.MTOShipmentStatusSubmitted,
@@ -614,6 +738,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
+			false,
+			false,
 		).Return(500, nil).Run(func(args mock.Arguments) {
 			TransitDistancePickupArg = args.Get(1).(string)
 			TransitDistanceDestinationArg = args.Get(2).(string)
@@ -668,6 +794,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
+			false,
+			false,
 		).Return(500, nil)
 
 		suite.Equal(8000, *shipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
@@ -708,6 +836,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
+			false,
+			false,
 		).Return(500, nil)
 
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
