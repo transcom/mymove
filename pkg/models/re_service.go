@@ -48,7 +48,7 @@ const (
 	// ReServiceCodeDMHUPK Domestic Mobile Home Unpacking
 	ReServiceCodeDMHUPK ReServiceCode = "DMHUPK"
 	// ReServiceCodeDMHUPK Domestic Mobile Home Origin Price
-	ReServiceCodeDMHOP ReServiceCode = "DMHDOP"
+	ReServiceCodeDMHOP ReServiceCode = "DMHOP"
 	// ReServiceCodeDMHUPK Domestic Mobile Home Destination Price
 	ReServiceCodeDMHDP ReServiceCode = "DMHDP"
 	// ReServiceCodeDNPK Domestic NTS packing

@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/query"
 )
@@ -1011,7 +1012,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.App
 
 // createShipmentServiceItems creates shipment level service items
 func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment, featureFlagValues map[string]bool) error {
-	reServiceCodes := reServiceCodesForShipment(*shipment)
+	reServiceCodes := reServiceCodesForShipment(*shipment, featureFlagValues)
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
 		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
@@ -1098,7 +1099,7 @@ func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder U
 	return &shipment, nil
 }
 
-func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCode {
+func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues map[string]bool) []models.ReServiceCode {
 	// We will detect the type of shipment we're working with and then call a helper with the correct
 	// default service items that we want created as a side effect.
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
@@ -1155,12 +1156,27 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 		// Check flags to determine if service items have been toggled on or off.
 		// if DOPFeatureFlag, err := flagFetcher.GetBooleanFlagForUser(appCtx.DB().Context(), appCtx, "domestic_mobile_home_origin_price_enabled", map[string]string{}); err != nil{
 
-		// }
+		var originCode, destinationCode models.ReServiceCode
+
+		// TODO: also need to handle checking for toggle and completely omitting items from returned array
+
+		// Skip service item if this is a mobile home shipment and the toggle for this item type is turned off
+		if !featureFlagValues[featureflag.DomesticMobileHomeDDPFactor] { // Downgrade to regular DDP service item (no mobile home factor applied)
+			destinationCode = models.ReServiceCodeDDP
+		} else {
+			destinationCode = models.ReServiceCodeDMHDP
+		}
+		if !featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
+			originCode = models.ReServiceCodeDOP
+		} else {
+			originCode = models.ReServiceCodeDMHOP
+		}
+
 		return []models.ReServiceCode{
 			models.ReServiceCodeDLH,
 			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
+			originCode,
+			destinationCode,
 			models.ReServiceCodeDMHF,
 		}
 	case models.MTOShipmentTypeBoatHaulAway:

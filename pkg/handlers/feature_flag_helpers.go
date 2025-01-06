@@ -24,35 +24,63 @@ func GetFeatureFlagValue(appCtx appcontext.AppContext, featureFlagFetcher servic
 func GetAllDomesticMHFlags(appCtx appcontext.AppContext, featureFlagFetcher services.FeatureFlagFetcher) (map[string]bool, error) {
 	featureFlagValues := make(map[string]bool)
 
+	// Flags to determine if these service item types should be included at all with mobile home shipments
 	flagMH, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHome, map[string]string{})
 	if err != nil {
 		appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureflag.DomesticMobileHome), zap.Error(err))
 	}
 
-	flagDOP, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomeDOPEnabled, map[string]string{})
+	flagDOPEnabled, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomeDOPEnabled, map[string]string{})
 	if err != nil {
 		appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureflag.DomesticMobileHomeDOPEnabled), zap.Error(err))
 	}
 
-	flagDDP, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomeDDPEnabled, map[string]string{})
+	flagDDPEnabled, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomeDDPEnabled, map[string]string{})
 	if err != nil {
 		appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureflag.DomesticMobileHomeDDPEnabled), zap.Error(err))
 	}
 
-	flagDPK, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomePackingEnabled, map[string]string{})
+	flagDPKEnabled, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomePackingEnabled, map[string]string{})
 	if err != nil {
 		appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureflag.DomesticMobileHomePackingEnabled), zap.Error(err))
 	}
 
-	flagDUPK, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomeUnpackingEnabled, map[string]string{})
+	flagDUPKEnabled, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomeUnpackingEnabled, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureflag.DomesticMobileHomeUnpackingEnabled), zap.Error(err))
+	}
+
+	// Flags for whether or not the item type is affected by the mobile home factor
+	flagDOPFactor, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomeDOPFactor, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureflag.DomesticMobileHomeDOPEnabled), zap.Error(err))
+	}
+
+	flagDDPFactor, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomeDDPFactor, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureflag.DomesticMobileHomeDDPEnabled), zap.Error(err))
+	}
+
+	flagDPKFactor, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomePackingFactor, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureflag.DomesticMobileHomePackingEnabled), zap.Error(err))
+	}
+
+	flagDUPKFactor, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureflag.DomesticMobileHomeUnpackingFactor, map[string]string{})
 	if err != nil {
 		appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureflag.DomesticMobileHomeUnpackingEnabled), zap.Error(err))
 	}
 
 	featureFlagValues[featureflag.DomesticMobileHome] = flagMH.Match
-	featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] = flagDOP.Match
-	featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] = flagDDP.Match
-	featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] = flagDPK.Match
-	featureFlagValues[featureflag.DomesticMobileHomeUnpackingEnabled] = flagDUPK.Match
+	featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] = flagDOPEnabled.Match
+	featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] = flagDDPEnabled.Match
+	featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] = flagDPKEnabled.Match
+	featureFlagValues[featureflag.DomesticMobileHomeUnpackingEnabled] = flagDUPKEnabled.Match
+
+	featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] = flagDOPFactor.Match
+	featureFlagValues[featureflag.DomesticMobileHomeDDPFactor] = flagDDPFactor.Match
+	featureFlagValues[featureflag.DomesticMobileHomePackingFactor] = flagDPKFactor.Match
+	featureFlagValues[featureflag.DomesticMobileHomeUnpackingFactor] = flagDUPKFactor.Match
+
 	return featureFlagValues, nil
 }
