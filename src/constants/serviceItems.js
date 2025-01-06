@@ -24,6 +24,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   NTSPackingFactor: 'NTSPackingFactor',
   NumberDaysSIT: 'NumberDaysSIT',
   OriginPrice: 'OriginPrice',
+  PerUnitCents: 'PerUnitCents',
   PriceRateOrFactor: 'PriceRateOrFactor',
   ReferenceDate: 'ReferenceDate',
   RequestedDeliveryDate: 'RequestedDeliveryDate',
@@ -104,6 +105,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   NTSPackingFactor: 'NTS packing factor',
   NTSReleaseReferenceDate: 'Actual pickup',
   PackPrice: 'Pack price',
+  PackPriceInternational: 'International Pack price',
   PickupDate: 'Pickup date',
   PickupSITPrice: 'SIT pickup price',
   PriceEscalationFactor: 'Price escalation factor',
@@ -112,6 +114,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   SITDeliveryPrice: 'SIT delivery price',
   FuelRateAdjustment: 'Fuel rate adjustment',
   UnpackPrice: 'Unpack price',
+  UnpackPriceInternational: 'International Unpack price',
   UncratingDate: 'Uncrating date',
   UncratingPrice: 'Uncrating price (per cu ft)',
   SITFuelSurchargePrice: 'SIT mileage factor',
@@ -219,6 +222,11 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DUCRT,
   SERVICE_ITEM_CODES.DOSFSC,
   SERVICE_ITEM_CODES.DDSFSC,
+  SERVICE_ITEM_CODES.IHPK,
+  SERVICE_ITEM_CODES.IHUPK,
+  SERVICE_ITEM_CODES.ISLH,
+  SERVICE_ITEM_CODES.POEFSC,
+  SERVICE_ITEM_CODES.PODFSC,
 ];
 
 export default SERVICE_ITEM_STATUSES;

@@ -457,6 +457,12 @@ const packPrice = (params, shipmentType) => {
   );
 };
 
+const internationalPackPrice = (params, shipmentType) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.PackPriceInternational;
+  return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
+};
+
 const ntsPackingFactor = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.NTSPackingFactor, params) || '';
   const label = SERVICE_ITEM_CALCULATION_LABELS.NTSPackingFactor;
@@ -478,6 +484,12 @@ const unpackPrice = (params, shipmentType) => {
     formatDetail(referenceDate(params, shipmentType)),
     formatDetail(peak(params)),
   );
+};
+
+const internationalUnpackPrice = (params, shipmentType) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.UnpackPriceInternational;
+  return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
 };
 
 const additionalDayOriginSITPrice = (params, shipmentType) => {
@@ -857,6 +869,41 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         cratingSize(params, mtoParams),
         unCratingPrice(params),
         priceEscalationFactorWithoutContractYear(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    case SERVICE_ITEM_CODES.ISLH:
+      result = [
+        billableWeight(params),
+        internationalPackPrice(params, shipmentType),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // International packing
+    case SERVICE_ITEM_CODES.IHPK:
+      result = [
+        billableWeight(params),
+        internationalPackPrice(params, shipmentType),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // International unpacking
+    case SERVICE_ITEM_CODES.IHUPK:
+      result = [
+        billableWeight(params),
+        internationalUnpackPrice(params, shipmentType),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Port of Debarkation/Embarkation Fuel surcharge
+    case (SERVICE_ITEM_CODES.PODFSC, SERVICE_ITEM_CODES.POEFSC):
+      result = [
+        billableWeight(params),
+        mileageZip(params),
+        mileageFactor(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;
