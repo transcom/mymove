@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -15,6 +16,12 @@ import (
 // HandlerSuite is an abstraction of our original suite
 type HandlerSuite struct {
 	handlers.BaseHandlerTestSuite
+}
+
+func (suite *HandlerSuite) SetupSuite() {
+	suite.PreloadData(func() {
+		factory.SetupDefaultAllotments(suite.DB())
+	})
 }
 
 // AfterTest completes tests by trying to close open files

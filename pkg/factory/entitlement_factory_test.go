@@ -300,3 +300,30 @@ func (suite *FactorySuite) TestBuildHHGAllowance() {
 		suite.Equal(3000, newHhg.ProGearWeight)
 	})
 }
+
+func (suite *FactorySuite) TestSetupAllAllotments() {
+	suite.Run("Successful creation of allotments for all known grades", func() {
+		err := suite.DB().TruncateAll()
+		suite.NoError(err)
+
+		SetupDefaultAllotments(suite.DB())
+
+		// Validate the allotments
+		for grade, allowance := range knownAllowances {
+			// Ensure pay grade exists
+			pg := &models.PayGrade{}
+			err := suite.DB().Where("grade = ?", grade).First(pg)
+			suite.NoError(err, grade)
+			suite.NotNil(pg.ID, grade)
+
+			// Ensure HHGAllowance was created and matches the expected values
+			hhgAllowance := &models.HHGAllowance{}
+			err = suite.DB().Where("pay_grade_id = ?", pg.ID).First(hhgAllowance)
+			suite.NoError(err, grade)
+			suite.Equal(allowance.TotalWeightSelf, hhgAllowance.TotalWeightSelf, grade)
+			suite.Equal(allowance.TotalWeightSelfPlusDependents, hhgAllowance.TotalWeightSelfPlusDependents, grade)
+			suite.Equal(allowance.ProGearWeight, hhgAllowance.ProGearWeight, grade)
+			suite.Equal(allowance.ProGearWeightSpouse, hhgAllowance.ProGearWeightSpouse, grade)
+		}
+	})
+}

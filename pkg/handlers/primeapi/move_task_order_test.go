@@ -794,7 +794,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(ordersPayload.OriginDutyLocation.ETag)
 	})
 
-	suite.Run("Success - return all PaymentRequests fields assoicated with the getMoveTaskOrder", func() {
+	suite.Run("Success - return all PaymentRequests fields associated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
@@ -938,10 +938,20 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NoError(movePayload.Validate(strfmt.Default))
 
 		suite.Len(movePayload.PaymentRequests, 2)
-		paymentRequestPayload := movePayload.PaymentRequests[0]
+		var paymentRequestPayload *primemessages.PaymentRequest
+		// Correctly grab the payment request by id
+		for _, pr := range movePayload.PaymentRequests {
+			if pr.ID.String() == paymentRequest.ID.String() {
+				paymentRequestPayload = pr
+				break
+			}
+		}
+		suite.NotNil(paymentRequestPayload)
 		suite.Equal(paymentRequest.ID.String(), paymentRequestPayload.ID.String())
 		suite.Equal(successMove.ID.String(), paymentRequestPayload.MoveTaskOrderID.String())
 		suite.Equal(paymentRequest.IsFinal, *paymentRequestPayload.IsFinal)
+		suite.NotNil(paymentRequest.RejectionReason)
+		suite.NotNil(paymentRequestPayload.RejectionReason)
 		suite.Equal(*paymentRequest.RejectionReason, *paymentRequestPayload.RejectionReason)
 		suite.Equal(paymentRequest.Status.String(), string(paymentRequestPayload.Status))
 		suite.Equal(paymentRequest.PaymentRequestNumber, paymentRequestPayload.PaymentRequestNumber)

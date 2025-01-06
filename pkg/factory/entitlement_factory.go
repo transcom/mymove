@@ -175,6 +175,39 @@ func getDefaultWeightData(grade string) struct {
 	return knownAllowances["EMPTY"] // Default to EMPTY if grade not found. This is just dummy default data
 }
 
+// Make the life easier for test suites by creating all
+// known allotments and their expected outcomes
+func SetupDefaultAllotments(db *pop.Connection) {
+	// Wrap in case of stub
+	if db != nil {
+		// Iterate over all known allowances
+		for grade, allowance := range knownAllowances {
+			// Build the pay grade and HHG allowance
+			pg := BuildPayGrade(db, []Customization{
+				{
+					Model: models.PayGrade{
+						Grade: grade,
+					},
+				},
+			}, nil)
+			BuildHHGAllowance(db, []Customization{
+				{
+					Model:    pg,
+					LinkOnly: true,
+				},
+				{
+					Model: models.HHGAllowance{
+						TotalWeightSelf:               allowance.TotalWeightSelf,
+						TotalWeightSelfPlusDependents: allowance.TotalWeightSelfPlusDependents,
+						ProGearWeight:                 allowance.ProGearWeight,
+						ProGearWeightSpouse:           allowance.ProGearWeightSpouse,
+					},
+				},
+			}, nil)
+		}
+	}
+}
+
 // Default allowances CAO December 2024
 // Note that the testdatagen package has its own default allowance
 var knownAllowances = map[string]struct {
