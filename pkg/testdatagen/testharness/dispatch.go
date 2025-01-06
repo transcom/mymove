@@ -263,6 +263,9 @@ var actionDispatcher = map[string]actionFunc{
 	"OfficeUserWithGSR": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithGSR(appCtx)
 	},
+	"InternationalAlaskaHHGMoveForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeInternationalAlaskaHHGMoveForTOO(appCtx)
+	},
 }
 
 func Actions() []string {

@@ -7,15 +7,15 @@ const alaskaFF = process.env.FEATURE_FLAG_ENABLE_ALASKA;
 const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
 test.describe('Services counselor user', () => {
-  test.skip(
-    createCustomerFF === 'false' && alaskaFF === 'false',
-    'Skip if the create customer & AK FFs are not enabled.',
-  );
   test.describe('Can create a customer with an international Alaska move', () => {
     test.beforeEach(async ({ scPage }) => {
       await scPage.signInAsNewServicesCounselorUser();
     });
 
+    test.skip(
+      createCustomerFF === 'false' && alaskaFF === 'false',
+      'Skip if the create customer & AK FFs are not enabled.',
+    );
     test('create a customer and add a basic iHHG shipment with Alaska address', async ({ page, officePage }) => {
       // make sure we see the queue
       await expect(page.getByText('Moves')).toBeVisible();

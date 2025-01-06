@@ -2,6 +2,7 @@
 import { test, expect } from '../../utils/my/customerTest';
 
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
+const alaskaFF = process.env.FEATURE_FLAG_ENABLE_ALASKA;
 
 test.describe('HHG', () => {
   test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
@@ -111,7 +112,6 @@ test.describe('HHG', () => {
 
 test.describe('(MultiMove) HHG', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-
   test('A customer can create, edit, and delete an HHG shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
@@ -218,6 +218,7 @@ test.describe('(MultiMove) HHG', () => {
     await expect(page.getByTestId('stepContainer3').getByText('Set up shipments')).toBeVisible();
   });
 
+  test.skip(alaskaFF === 'false', 'Skip if the create customer & AK FFs are not enabled.');
   test('A customer can create, edit, and submit an international Alaska HHG shipment', async ({
     page,
     customerPage,
