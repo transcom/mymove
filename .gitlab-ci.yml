@@ -359,7 +359,7 @@ build_storybook:
   stage: build
   image: $DOCKER_APP_IMAGE
   variables:
-    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_CPU_REQUEST: "4"
     KUBERNETES_MEMORY_REQUEST: "8Gi"
     KUBERNETES_MEMORY_LIMIT: "8Gi"
   needs:
@@ -431,8 +431,8 @@ compile_app_server:
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "6"
-    KUBERNETES_MEMORY_REQUEST: "4Gi"
-    KUBERNETES_MEMORY_LIMIT: "4Gi"
+    KUBERNETES_MEMORY_REQUEST: "6Gi"
+    KUBERNETES_MEMORY_LIMIT: "8Gi"
   needs:
     - pre_deps_golang
     - pre_deps_yarn
@@ -562,14 +562,18 @@ client_test:
   needs:
     - pre_deps_yarn
   before_script: *setup_milmove_env
+  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
+  dependencies:
+    - pre_deps_yarn
   script:
-    - echo "TODO Add steps need to potentially pass job id to file and persist"
-    - echo "client test"
     - *reinstall_yarn
-    - |
-      echo "client test coverage"
-      JEST_JUNIT_OUTPUT_DIR=jest-junit-reports make client_test_coverage >> /builds/milmove/mymove/jest-junit-reports
+    - echo "client test coverage"
+    - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage > coverage.output
   artifacts:
+    when: always
+    reports:
+      junit:
+        - junit.xml
     paths:
       - /builds/milmove/mymove/coverage
       - /builds/milmove/mymove/jest-junit-reports
