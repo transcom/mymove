@@ -217,4 +217,81 @@ test.describe('(MultiMove) HHG', () => {
     await expect(page.getByText('The shipment was deleted.')).toBeVisible();
     await expect(page.getByTestId('stepContainer3').getByText('Set up shipments')).toBeVisible();
   });
+
+  test('A customer can create, edit, and submit an international Alaska HHG shipment', async ({
+    page,
+    customerPage,
+  }) => {
+    // Generate a new onboarded user with orders and log in
+    const move = await customerPage.testHarness.buildMoveWithOrders();
+    const userId = move.Orders.ServiceMember.user_id;
+    await customerPage.signInAsExistingCustomer(userId);
+
+    // Navigate from MM Dashboard to Move
+    await customerPage.navigateFromMMDashboardToMove(move);
+
+    // Navigate to create a new shipment
+    await customerPage.waitForPage.home();
+    await page.getByTestId('shipment-selection-btn').click();
+    await customerPage.waitForPage.aboutShipments();
+    await customerPage.navigateForward();
+    await customerPage.waitForPage.selectShipmentType();
+
+    // Create an HHG shipment
+    await page.getByText('Movers pack and ship it, paid by the government').click();
+    await customerPage.navigateForward();
+
+    // Fill in form to create HHG shipment
+    await customerPage.waitForPage.hhgShipment();
+    await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
+    await page.getByLabel('Preferred pickup date').blur();
+    await page.getByText('Use my current address').click();
+    await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
+    await page.getByLabel('Preferred delivery date').blur();
+    await page.getByTestId('remarks').fill('Going to Alaska');
+    await customerPage.navigateForward();
+
+    // Verify that form submitted, initial setup has it being a domestic HHG shipment (dHHG)
+    await customerPage.waitForPage.reviewShipments();
+    await expect(page.getByText('dHHG')).toBeVisible();
+    await expect(page.getByText('Going to Alaska')).toBeVisible();
+    await expect(page.getByTestId('ShipmentContainer').getByText('123 Any Street')).toBeVisible();
+
+    // Navigate to edit shipment from the review page
+    await page.getByTestId('edit-shipment-btn').click();
+    await customerPage.waitForPage.hhgShipment();
+
+    // Update form (adding pickup and delivery address)
+    const pickupLocation = 'LAWTON, OK 73505 (COMANCHE)';
+    const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
+    await pickupAddress.getByLabel('Address 1').fill('123 Warm St.');
+    await page.locator('input[id="pickup.address-location-input"]').fill('73505');
+    await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
+
+    // Delivery address
+    const deliveryLocation = 'JBER, AK 99505 (ANCHORAGE)';
+    const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
+    await deliveryAddress.getByText('Yes').nth(0).click();
+    await deliveryAddress.getByLabel('Address 1').nth(0).fill('123 Cold Ave.');
+    await page.locator('input[id="delivery.address-location-input"]').fill('99505');
+    await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
+    await customerPage.navigateForward();
+
+    // Verify that shipment updated - should now be an iHHG shipment
+    await customerPage.waitForPage.reviewShipments();
+    await expect(page.getByText('iHHG')).toBeVisible();
+    await expect(page.getByTestId('ShipmentContainer').getByText('123 Warm St.')).toBeVisible();
+    await expect(page.getByTestId('ShipmentContainer').getByText('123 Cold Ave.')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Next' }).click();
+    await expect(page).toHaveURL(/\/moves\/[^/]+\/agreement/);
+    await expect(page.getByRole('heading', { name: 'Now for the official part…' })).toBeVisible();
+
+    await page.locator('input[name="signature"]').fill('Mister Alaska');
+    await expect(page.getByRole('button', { name: 'Complete' })).toBeEnabled();
+    await page.getByRole('button', { name: 'Complete' }).click();
+    await expect(page.getByText('submitted your move request.')).toBeVisible();
+  });
 });
