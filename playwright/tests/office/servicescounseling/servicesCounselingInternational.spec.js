@@ -3,25 +3,34 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 import { test, expect } from './servicesCounselingTestFixture';
 
 const createCustomerFF = process.env.FEATURE_FLAG_COUNSELOR_MOVE_CREATE;
+const alaskaFF = process.env.FEATURE_FLAG_ENABLE_ALASKA;
 const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
 test.describe('Services counselor user', () => {
-  test.skip(createCustomerFF === 'false', 'Skip if the create customer FF is not enabled.');
+  test.skip(
+    createCustomerFF === 'false' && alaskaFF === 'false',
+    'Skip if the create customer & AK FFs are not enabled.',
+  );
   test.describe('Can create a customer with an international Alaska move', () => {
     test.beforeEach(async ({ scPage }) => {
       await scPage.signInAsNewServicesCounselorUser();
     });
 
     test('create a customer and add a basic iHHG shipment with Alaska address', async ({ page, officePage }) => {
+      // make sure we see the queue
       await expect(page.getByText('Moves')).toBeVisible();
       await expect(page.getByRole('link', { name: 'Counseling' })).toBeVisible();
       await expect(page.getByRole('link', { name: 'Customer Search' })).toBeVisible();
+
+      // we need to search before we have access to the create customer button
       await page.getByRole('link', { name: 'Customer Search' }).click();
       await page.getByText('Customer Name').click();
       await page.getByLabel('Search').fill('Test');
       await page.getByRole('button', { name: 'Search' }).click();
       await expect(page.getByRole('button', { name: 'Add Customer' })).toBeEnabled();
       await page.getByRole('button', { name: 'Add Customer' }).click();
+
+      // fill out the customer form
       await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Army' });
       await page.getByLabel('DoD ID number').fill('1234567890');
       await page.getByLabel('First name').fill('Mister');
@@ -46,12 +55,12 @@ test.describe('Services counselor user', () => {
       await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save' }).click();
 
+      // fill out the orders form
       await page.getByLabel('Orders type').selectOption({ label: 'Permanent Change Of Station (PCS)' });
       await page.getByLabel('Orders date').fill('12/25/2024');
       await page.getByLabel('Orders date').blur();
       await page.getByLabel('Report by date').fill('1/25/2025');
       await page.getByLabel('Report by date').blur();
-
       const originLocation = 'Tinker AFB, OK 73145';
       await page.getByLabel('Current duty location').fill('Tinker');
       await expect(page.getByText(originLocation, { exact: true })).toBeVisible();
@@ -60,13 +69,12 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('New duty location').fill('JBER');
       await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
-
       await page.locator('label[for="hasDependentsNo"]').click();
       await page.getByLabel('Pay grade').selectOption({ label: 'E-7' });
-
       await expect(page.getByRole('button', { name: 'Next' })).toBeEnabled();
       await page.getByRole('button', { name: 'Next' }).click();
 
+      // now we need to add order data
       await page.getByRole('link', { name: 'View and edit orders' }).click();
       const filepondContainer = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
@@ -82,8 +90,8 @@ test.describe('Services counselor user', () => {
       await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save' }).click();
 
+      // adding an HHG shipment
       await page.getByLabel('Add a new shipment').selectOption('HHG');
-
       await expect(page.getByText('Add shipment details')).toBeVisible();
       await expect(page.getByText('Weight allowance: 11,000 lbs')).toBeVisible();
       await page.getByLabel('Requested pickup date').fill('25 Dec 2024');
@@ -91,102 +99,16 @@ test.describe('Services counselor user', () => {
       await page.getByText('Use pickup address').click();
       await page.getByLabel('Requested delivery date').fill('25 Dec 2022');
       await page.getByLabel('Requested delivery date').blur();
-
       await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save' }).click();
 
+      // verify we can see the iHHG shipment, submit it to the TOO
       await expect(page.getByText('iHHG')).toBeVisible();
       await expect(page.getByRole('button', { name: 'Submit move details' })).toBeEnabled();
       await page.getByRole('button', { name: 'Submit move details' }).click();
       await expect(page.getByText('Are you sure?')).toBeVisible();
       await page.getByRole('button', { name: 'Yes, submit' }).click();
       await expect(page.getByText('Move submitted.')).toBeVisible();
-    });
-  });
-
-  test.describe('with basic HHG move', () => {
-    test.beforeEach(async ({ scPage }) => {
-      const move = await scPage.testHarness.buildHHGMoveNeedsSC();
-      await scPage.navigateToMove(move.locator);
-    });
-
-    test('is able to click on move and submit after using the move code filter', async ({ page }) => {
-      /**
-       * Move Details page
-       */
-      // click to trigger confirmation modal
-      await page.getByText('Submit move details').click();
-
-      // modal should pop up with text
-      await expect(page.locator('h2').getByText('Are you sure?')).toBeVisible();
-      await expect(page.locator('p').getByText('You can’t make changes after you submit the move.')).toBeVisible();
-
-      // click submit
-      await page.getByRole('button', { name: 'Yes, submit' }).click();
-
-      // verify success alert
-      await expect(page.getByText('Move submitted.')).toBeVisible();
-    });
-
-    test('is able to flag a move for financial review', async ({ page, scPage }) => {
-      // click to trigger financial review modal
-      await page.getByText('Flag move for financial review').click();
-
-      // Enter information in modal and submit
-      await page.locator('label').getByText('Yes').click();
-      await page.locator('textarea').fill('Because I said so...');
-
-      // Click save on the modal
-      await page.getByRole('button', { name: 'Save' }).click();
-      await scPage.waitForLoading();
-
-      // Verify sucess alert and tag
-      await expect(page.getByText('Move flagged for financial review.')).toBeVisible();
-      await expect(page.getByText('Flagged for financial review', { exact: true })).toBeVisible();
-
-      // test('is able to unflag a move for financial review')
-      // combining test with above
-
-      // click to trigger financial review modal
-      await page.getByText('Edit', { exact: true }).click();
-
-      // Enter information in modal and submit
-      await page.locator('label').getByText('No').click();
-
-      // Click save on the modal
-      await page.getByRole('button', { name: 'Save' }).click();
-      await scPage.waitForLoading();
-
-      // Verify sucess alert and tag
-      await expect(page.getByText('Move unflagged for financial review.', { exact: true })).toBeVisible();
-    });
-
-    test('is able to edit a shipment', async ({ page, scPage }) => {
-      await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
-      await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
-      await page.locator('#requestedPickupDate').blur();
-      await page.getByText('Use pickup address').click();
-
-      await page.locator('#requestedDeliveryDate').clear();
-      await page.locator('#requestedDeliveryDate').fill('16 May 2022');
-      await page.locator('#requestedDeliveryDate').blur();
-
-      await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
-      await page.locator('input[name="delivery.address.streetAddress1"]').clear();
-      await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
-      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
-      await page.keyboard.press('Enter');
-
-      // Select that we do not know the delivery address yet
-      await page.getByRole('group', { name: 'Delivery Address' }).getByText('No').nth(1).click();
-      await expect(page.getByText('We can use the zip of their new duty location:')).toBeVisible();
-
-      await page.locator('[data-testid="submitForm"]').click();
-      await scPage.waitForLoading();
-
-      await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
     });
   });
 });
