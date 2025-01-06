@@ -19,11 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
-const (
-	// ProcessTPPSLastReadTimeFlag is the ENV var for the last read time
-	ProcessTPPSLastReadTimeFlag string = "process-tpps-last-read-time"
-)
-
 // Call this from the command line with go run ./cmd/milmove-tasks process-tpps
 func checkProcessTPPSConfig(v *viper.Viper, logger *zap.Logger) error {
 	logger.Debug("checking config for process-tpps")
@@ -45,7 +40,9 @@ func checkProcessTPPSConfig(v *viper.Viper, logger *zap.Logger) error {
 	return cli.CheckEntrustCert(v)
 }
 
+// initProcessTPPSFlags initializes TPPS processing flags
 func initProcessTPPSFlags(flag *pflag.FlagSet) {
+
 	// Logging Levels
 	cli.InitLoggingFlags(flag)
 
@@ -58,7 +55,7 @@ func initProcessTPPSFlags(flag *pflag.FlagSet) {
 	// Entrust Certificates
 	cli.InitEntrustCertFlags(flag)
 
-	cli.InitTPPSSFTPFlags(flag)
+	cli.InitTPPSFlags(flag)
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -128,7 +125,7 @@ func processTPPS(_ *cobra.Command, _ []string) error {
 	tppsInvoiceProcessor := invoice.NewTPPSPaidInvoiceReportProcessor()
 
 	// Process TPPS paid invoice report
-	pathTPPSPaidInvoiceReport := v.GetString(cli.SFTPTPPSPaidInvoiceReportPickupDirectory)
+	pathTPPSPaidInvoiceReport := v.GetString(cli.ProcessTPPSInvoiceReportPickupDirectory)
 	err = tppsInvoiceProcessor.ProcessFile(appCtx, pathTPPSPaidInvoiceReport, "")
 
 	if err != nil {
