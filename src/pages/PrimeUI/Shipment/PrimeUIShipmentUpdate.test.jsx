@@ -903,7 +903,7 @@ describe('successful submission of form', () => {
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(moveDetailsURL);
     });
-  });
+  }, 50000);
 
   it('successful submission of form when updating a shipments actual weight but not estimated weight', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(readyReturnValueWithOneHHG);

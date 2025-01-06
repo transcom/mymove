@@ -1214,6 +1214,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -6157,6 +6162,11 @@ func init() {
           "title": "County",
           "x-nullable": true,
           "example": "LOS ANGELES"
+        },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
         },
         "eTag": {
           "type": "string",
