@@ -307,6 +307,7 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 		EagerPreload(
 			"Shipment",
+			"Shipment.MoveTaskOrder",
 			"WeightTickets",
 			"MovingExpenses",
 			"ProgearWeightTickets",
