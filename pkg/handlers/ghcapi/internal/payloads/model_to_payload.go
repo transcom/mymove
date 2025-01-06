@@ -2718,8 +2718,7 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 		var portLocation *models.PortLocation
 		if portType == "POE" && mtoServiceItem.POELocation != nil {
 			portLocation = mtoServiceItem.POELocation
-		}
-		if portType == "POD" && mtoServiceItem.PODLocation != nil {
+		} else if portType == "POD" && mtoServiceItem.PODLocation != nil {
 			portLocation = mtoServiceItem.PODLocation
 		}
 
