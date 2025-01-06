@@ -103,10 +103,12 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	}
 
 	miles := unit.Miles(totalDistanceMiles)
-	mtoShipment.Distance = &miles
-	err = db.Save(&mtoShipment)
-	if err != nil {
-		return "", err
+	if mtoShipment.Distance == nil || mtoShipment.Distance.Int() != totalDistanceMiles {
+		mtoShipment.Distance = &miles
+		err = db.Save(&mtoShipment)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	return strconv.Itoa(distanceMiles), nil
