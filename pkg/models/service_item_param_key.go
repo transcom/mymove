@@ -63,8 +63,8 @@ const (
 	ServiceItemParamNameNumberDaysSIT ServiceItemParamName = "NumberDaysSIT"
 	// ServiceItemParamNamePerUnitCents is the param key name PerUnitCents
 	ServiceItemParamNamePerUnitCents ServiceItemParamName = "PerUnitCents"
-	// ServiceItemParamNamePortName is the param key name PortName
-	ServiceItemParamNamePortName ServiceItemParamName = "PortName"
+	// ServiceItemParamNamePortZip is the param key name PortZip
+	ServiceItemParamNamePortZip ServiceItemParamName = "PortZip"
 	// ServiceItemParamNamePriceAreaDest is the param key name PriceAreaDest
 	ServiceItemParamNamePriceAreaDest ServiceItemParamName = "PriceAreaDest"
 	// ServiceItemParamNamePriceAreaIntlDest is the param key name PriceAreaIntlDest
@@ -280,7 +280,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameUncappedRequestTotal,
 	ServiceItemParamNameLockedPriceCents,
 	ServiceItemParamNamePerUnitCents,
-	ServiceItemParamNamePortName,
+	ServiceItemParamNamePortZip,
 }
 
 // ValidServiceItemParamNameStrings lists all valid service item param key names
@@ -356,7 +356,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameUncappedRequestTotal),
 	string(ServiceItemParamNameLockedPriceCents),
 	string(ServiceItemParamNamePerUnitCents),
-	string(ServiceItemParamNamePortName),
+	string(ServiceItemParamNamePortZip),
 }
 
 // ValidServiceItemParamTypes lists all valid service item param types

@@ -10,8 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ServiceParamValueLookupsSuite) TestPortNameLookup() {
-	key := models.ServiceItemParamNamePortName
+func (suite *ServiceParamValueLookupsSuite) TestPortZipLookup() {
+	key := models.ServiceItemParamNamePortZip
 	var mtoServiceItem models.MTOServiceItem
 	setupTestData := func(serviceCode models.ReServiceCode, portID uuid.UUID) {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
@@ -49,7 +49,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPortNameLookup() {
 		}
 	}
 
-	suite.Run("success - returns PortName value for POEFSC", func() {
+	suite.Run("success - returns PortZip value for POEFSC", func() {
 		port := factory.FetchPortLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.Port{
@@ -62,12 +62,12 @@ func (suite *ServiceParamValueLookupsSuite) TestPortNameLookup() {
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		portName, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		portZip, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(portName, port.Port.PortName)
+		suite.Equal(portZip, port.UsPostRegionCity.UsprZipID)
 	})
 
-	suite.Run("success - returns PortName value for PODFSC", func() {
+	suite.Run("success - returns PortZip value for PODFSC", func() {
 		port := factory.FetchPortLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.Port{
@@ -80,12 +80,12 @@ func (suite *ServiceParamValueLookupsSuite) TestPortNameLookup() {
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		portName, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		portZip, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(portName, port.Port.PortName)
+		suite.Equal(portZip, port.UsPostRegionCity.UsprZipID)
 	})
 
-	suite.Run("failure - no port value on service item", func() {
+	suite.Run("failure - no port zip on service item", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
