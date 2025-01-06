@@ -1,6 +1,9 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 
 import EditContactInfoForm from './EditContactInfoForm';
+
+import { configureStore } from 'shared/store';
 
 export default {
   title: 'Customer Components / Forms / EditContactInfoForm',
@@ -42,37 +45,43 @@ const fakeData = {
   },
 };
 
+const mockStore = configureStore({});
+
 export const DefaultState = (argTypes) => (
-  <EditContactInfoForm
-    initialValues={{
-      telephone: '',
-      secondary_telephone: '',
-      personal_email: '',
-      residential_address: {
-        streetAddress1: '',
-        streetAddress2: '',
-        city: '',
-        state: '',
-        postalCode: '',
-      },
-      backup_mailing_address: {
-        streetAddress1: '',
-        streetAddress2: '',
-        city: '',
-        state: '',
-        postalCode: '',
-      },
-      backup_contact: {
-        name: '',
-        email: '',
+  <Provider store={mockStore.store}>
+    <EditContactInfoForm
+      initialValues={{
         telephone: '',
-      },
-    }}
-    onCancel={argTypes.onCancel}
-    onSubmit={argTypes.onSubmit}
-  />
+        secondary_telephone: '',
+        personal_email: '',
+        residential_address: {
+          streetAddress1: '',
+          streetAddress2: '',
+          city: '',
+          state: '',
+          postalCode: '',
+        },
+        backup_mailing_address: {
+          streetAddress1: '',
+          streetAddress2: '',
+          city: '',
+          state: '',
+          postalCode: '',
+        },
+        backup_contact: {
+          name: '',
+          email: '',
+          telephone: '',
+        },
+      }}
+      onCancel={argTypes.onCancel}
+      onSubmit={argTypes.onSubmit}
+    />
+  </Provider>
 );
 
 export const WithInitialValues = (argTypes) => (
-  <EditContactInfoForm initialValues={fakeData} onCancel={argTypes.onCancel} onSubmit={argTypes.onSubmit} />
+  <Provider store={mockStore.store}>
+    <EditContactInfoForm initialValues={fakeData} onCancel={argTypes.onCancel} onSubmit={argTypes.onSubmit} />
+  </Provider>
 );

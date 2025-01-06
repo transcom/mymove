@@ -17,9 +17,10 @@ const deliveryDateString = deliveryDate.toLocaleDateString('en-US');
 
 const pickupAddress = {
   Address1: '7 Q St',
-  City: 'Atco',
+  City: 'ATCO',
   State: 'NJ',
   ZIP: '08004',
+  County: 'CAMDEN',
 };
 
 const secondaryPickupAddress = {
@@ -36,16 +37,18 @@ const addressToString = (address) => {
 const deliveryAddress = {
   Address1: '9 W 2nd Ave',
   Address2: 'P.O. Box 456',
-  City: 'Hollywood',
+  City: 'HOLLYWOOD',
   State: 'MD',
   ZIP: '20636',
+  County: 'SAINT MARYS',
 };
 
 const secondaryDeliveryAddress = {
   Address1: '9 Q St',
-  City: 'Atco',
+  City: 'ATCO',
   State: 'NJ',
   ZIP: '08004',
+  County: 'CAMDEN',
 };
 
 const releasingAgent = {
@@ -177,23 +180,24 @@ test.describe('TOO user', () => {
     await page.locator('#requestedDeliveryDate').blur();
 
     // Update form (adding pickup and delivery address)
-    const pickupAddressGroup = await page.getByRole('group', { name: 'Pickup Address' });
+    const location = 'ATCO, NJ 08004 (CAMDEN)';
+    const pickupAddressGroup = page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddressGroup.getByText('Yes').click();
     await pickupAddressGroup.getByLabel('Address 1').nth(0).fill(pickupAddress.Address1);
     await pickupAddressGroup.getByLabel('Address 2').nth(0).clear();
     await pickupAddressGroup.getByLabel('Address 3').nth(0).clear();
-    await pickupAddressGroup.getByLabel('City').nth(0).fill(pickupAddress.City);
-    await pickupAddressGroup.getByLabel('State').nth(0).selectOption({ label: pickupAddress.State });
-    await pickupAddressGroup.getByLabel('ZIP').nth(0).fill(pickupAddress.ZIP);
+    await page.locator('input[id="pickup.address-location-input"]').fill(pickupAddress.ZIP);
+    await expect(page.getByText(location, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
 
     // Secondary pickup address
     await pickupAddressGroup.getByText('Yes').click();
     await pickupAddressGroup.getByLabel('Address 1').nth(1).fill(secondaryPickupAddress.Address1);
     await pickupAddressGroup.getByLabel('Address 2').nth(1).clear();
     await pickupAddressGroup.getByLabel('Address 3').nth(1).clear();
-    await pickupAddressGroup.getByLabel('City').nth(1).fill(secondaryPickupAddress.City);
-    await pickupAddressGroup.getByLabel('State').nth(1).selectOption({ label: secondaryPickupAddress.State });
-    await pickupAddressGroup.getByLabel('ZIP').nth(1).fill(secondaryPickupAddress.ZIP);
+    await page.locator('input[id="secondaryPickup.address-location-input"]').fill(secondaryPickupAddress.ZIP);
+    await expect(page.getByText(location, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
 
     // Releasing agent
     await page.locator(`[name='pickup.agent.firstName']`).fill(releasingAgent.firstName);
@@ -201,23 +205,24 @@ test.describe('TOO user', () => {
     await page.locator(`[name='pickup.agent.phone']`).fill(releasingAgent.phone);
     await page.locator(`[name='pickup.agent.email']`).fill(releasingAgent.email);
 
-    const deliveryAddressGroup = await page.getByRole('group', { name: 'Delivery Address' });
+    const deliveryLocation = 'HOLLYWOOD, MD 20636 (SAINT MARYS)';
+    const deliveryAddressGroup = page.getByRole('group', { name: 'Delivery Address' });
     await deliveryAddressGroup.getByText('Yes').nth(0).click();
     await deliveryAddressGroup.getByLabel('Address 1').nth(0).fill(deliveryAddress.Address1);
     await deliveryAddressGroup.getByLabel('Address 2').nth(0).fill(deliveryAddress.Address2);
     await deliveryAddressGroup.getByLabel('Address 3').nth(0).clear();
-    await deliveryAddressGroup.getByLabel('City').nth(0).fill(deliveryAddress.City);
-    await deliveryAddressGroup.getByLabel('State').nth(0).selectOption({ label: deliveryAddress.State });
-    await deliveryAddressGroup.getByLabel('ZIP').nth(0).fill(deliveryAddress.ZIP);
+    await page.locator('input[id="delivery.address-location-input"]').fill(deliveryAddress.ZIP);
+    await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
 
     // Secondary delivery address
     await deliveryAddressGroup.getByText('Yes').nth(1).click();
     await deliveryAddressGroup.getByLabel('Address 1').nth(1).fill(secondaryDeliveryAddress.Address1);
     await deliveryAddressGroup.getByLabel('Address 2').nth(1).clear();
     await deliveryAddressGroup.getByLabel('Address 3').nth(1).clear();
-    await deliveryAddressGroup.getByLabel('City').nth(1).fill(secondaryDeliveryAddress.City);
-    await deliveryAddressGroup.getByLabel('State').nth(1).selectOption({ label: secondaryDeliveryAddress.State });
-    await deliveryAddressGroup.getByLabel('ZIP').nth(1).fill(secondaryDeliveryAddress.ZIP);
+    await page.locator('input[id="secondaryDelivery.address-location-input"]').fill(secondaryDeliveryAddress.ZIP);
+    await expect(page.getByText(location, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
 
     // Receiving agent
     await page.locator(`[name='delivery.agent.firstName']`).fill(receivingAgent.firstName);
