@@ -22,12 +22,13 @@ type pptasReportListFetcher struct {
 	waf         services.WeightAllotmentFetcher
 }
 
-func NewPPTASReportListFetcher(estimator services.PPMEstimator, moveFetcher services.MoveFetcher, tacFetcher services.TransportationAccountingCodeFetcher, loaFetcher services.LineOfAccountingFetcher) services.PPTASReportListFetcher {
+func NewPPTASReportListFetcher(estimator services.PPMEstimator, moveFetcher services.MoveFetcher, tacFetcher services.TransportationAccountingCodeFetcher, loaFetcher services.LineOfAccountingFetcher, weightAllotmentFetcher services.WeightAllotmentFetcher) services.PPTASReportListFetcher {
 	return &pptasReportListFetcher{
 		estimator:   estimator,
 		moveFetcher: moveFetcher,
 		tacFetcher:  tacFetcher,
 		loaFetcher:  loaFetcher,
+		waf:         weightAllotmentFetcher,
 	}
 }
 

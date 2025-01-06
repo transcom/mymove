@@ -2045,7 +2045,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 05, 20, 0, 0, 0, 0, time.UTC)
 	requestedMoveDate2 := time.Date(testdatagen.GHCTestYear, 07, 03, 0, 0, 0, 0, time.UTC)
 
-	suite.PreloadData(func() {
+	setupData := func() {
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -2092,11 +2092,12 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
 		}
-	})
+	}
 
 	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("list moves by customer name - full name (last, first)", func() {
+		setupData()
 		// Search "Spacemen, Margaret"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("Spacemen, Margaret"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2106,6 +2107,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - full name (first last)", func() {
+		setupData()
 		// Search "Margaret Spacemen"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("Margaret Spacemen"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2115,6 +2117,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - partial last (multiple)", func() {
+		setupData()
 		// Search "space"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("space"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2125,6 +2128,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - partial last (single)", func() {
+		setupData()
 		// Search "Light"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("Light"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2134,6 +2138,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - partial first", func() {
+		setupData()
 		// Search "leo"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("leo"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2144,6 +2149,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - partial matching within first or last", func() {
+		setupData()
 		// Search "ar"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("ar"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2154,6 +2160,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - empty", func() {
+		setupData()
 		// Search "johnny"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("johnny"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2267,23 +2274,22 @@ func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
 	var expectedMove models.Move
 	var officeUser models.OfficeUser
 	orderFetcher := NewOrderFetcher(waf)
-	suite.PreloadData(func() {
-		setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
-			officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-			session := auth.Session{
-				ApplicationName: auth.OfficeApp,
-				Roles:           officeUser.User.Roles,
-				OfficeUserID:    officeUser.ID,
-				IDToken:         "fake_token",
-				AccessToken:     "fakeAccessToken",
-			}
-			move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
-			return officeUser, move, session
+	setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
 		}
-		officeUser, expectedMove, session = setupTestData()
-	})
-	locationName := expectedMove.Orders.OriginDutyLocation.Name
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		return officeUser, move, session
+	}
+
 	suite.Run("Returns orders matching full originDutyLocation name filter", func() {
+		officeUser, expectedMove, session = setupTestData()
+		locationName := expectedMove.Orders.OriginDutyLocation.Name
 		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(locationName, " ")})
 		suite.NoError(err)
 		suite.Equal(1, len(expectedMoves))
@@ -2291,6 +2297,8 @@ func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
 	})
 
 	suite.Run("Returns orders matching partial originDutyLocation name filter", func() {
+		officeUser, expectedMove, session = setupTestData()
+		locationName := expectedMove.Orders.OriginDutyLocation.Name
 		//Split the location name and retrieve a substring (first string) for the search param
 		partialParamSearch := strings.Split(locationName, " ")[0]
 		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(partialParamSearch, " ")})

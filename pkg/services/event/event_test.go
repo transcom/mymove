@@ -20,6 +20,12 @@ type EventServiceSuite struct {
 	*testingsuite.PopTestSuite
 }
 
+func (suite *EventServiceSuite) SetupSuite() {
+	suite.PreloadData(func() {
+		factory.SetupDefaultAllotments(suite.DB())
+	})
+}
+
 func TestEventServiceSuite(t *testing.T) {
 	ts := &EventServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),

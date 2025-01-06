@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	mocks "github.com/transcom/mymove/pkg/services/mocks"
 )
 
@@ -16,8 +17,9 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 	moveFetcher := mocks.MoveFetcher{}
 	tacFetcher := mocks.TransportationAccountingCodeFetcher{}
 	loaFetcher := mocks.LineOfAccountingFetcher{}
+	waf := entitlements.NewWeightAllotmentFetcher()
 
-	reportListFetcher := NewPPTASReportListFetcher(&ppmEstimator, &moveFetcher, &tacFetcher, &loaFetcher)
+	reportListFetcher := NewPPTASReportListFetcher(&ppmEstimator, &moveFetcher, &tacFetcher, &loaFetcher, waf)
 	// defaultSearchParams := services.MoveTaskOrderFetcherParams{}
 
 	appCtx := suite.AppContextForTest()
