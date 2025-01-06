@@ -8766,3 +8766,142 @@ func MakeHHGMoveInSITNoDestinationSITOutDate(appCtx appcontext.AppContext) model
 	}
 	return move
 }
+
+// MakeInternationalAlaskaHHGMoveForTOO is a function
+// that creates an iHHG move with an Alaska destination address
+func MakeInternationalAlaskaHHGMoveForTOO(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	// user setup
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// address setup
+	addressAK := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 Cold St",
+				City:           "Anchorage",
+				State:          "AK",
+				PostalCode:     "99505",
+			},
+		},
+	}, nil)
+	destDutyLocationAK := factory.BuildDutyLocation(appCtx.DB(), []factory.Customization{
+		{
+			Model:    addressAK,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// orders setup using AK destination duty location
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+		{
+			Model: models.Order{
+				NewDutyLocationID: destDutyLocationAK.ID,
+			},
+		},
+	}, nil)
+
+	// build a move with an associated shipment containing an AK destination address
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status: models.MoveStatusServiceCounselingCompleted,
+			},
+		},
+	}, nil)
+	sitDaysAllowance := 270
+	estimatedWeight := unit.Pound(2000)
+	actualWeight := unit.Pound(2000)
+	actualPickupDate := time.Now().AddDate(0, 0, 1)
+	alaskaDestAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 Cold St",
+				City:           "Anchorage",
+				State:          "AK",
+				PostalCode:     "99505",
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				Status:               models.MTOShipmentStatusSubmitted,
+				SITDaysAllowance:     &sitDaysAllowance,
+				ActualPickupDate:     &actualPickupDate,
+				DestinationAddressID: &alaskaDestAddress.ID,
+				MarketCode:           models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	// re-fetch the move so we send back all relevant data
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
