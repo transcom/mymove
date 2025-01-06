@@ -99,6 +99,10 @@ func PPMDestinationAddressModel(address *primev3messages.PPMDestinationAddress) 
 	if address.Country != nil {
 		modelAddress.Country = CountryModel(address.Country)
 	}
+	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+	if usPostRegionCitiesID != uuid.Nil {
+		modelAddress.UsPostRegionCityID = &usPostRegionCitiesID
+	}
 	return modelAddress
 }
 
@@ -208,6 +212,8 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		CounselorRemarks:            mtoShipment.CounselorRemarks,
 		HasSecondaryPickupAddress:   handlers.FmtBool(false),
 		HasSecondaryDeliveryAddress: handlers.FmtBool(false),
+		HasTertiaryPickupAddress:    handlers.FmtBool(false),
+		HasTertiaryDeliveryAddress:  handlers.FmtBool(false),
 	}
 
 	if mtoShipment.ShipmentType != nil {
