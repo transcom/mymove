@@ -174,7 +174,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		HandlerConfig:           handlerConfig,
 		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
 		MTOShipmentFetcher:      mtoshipment.NewMTOShipmentFetcher(),
-		OrderFetcher:            order.NewOrderFetcher(),
+		OrderFetcher:            order.NewOrderFetcher(waf),
 		ReportViolationFetcher:  reportviolation.NewReportViolationFetcher(),
 	}
 
@@ -304,7 +304,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 	ghcAPI.OrderGetOrderHandler = GetOrdersHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 	}
 	ghcAPI.OrderCounselingUpdateOrderHandler = CounselingUpdateOrderHandler{
 		handlerConfig,
@@ -535,7 +535,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		movelocker.NewMoveUnlocker(),
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -554,14 +554,14 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.QueuesGetServicesCounselingQueueHandler = GetServicesCounselingQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		movelocker.NewMoveUnlocker(),
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
 
 	ghcAPI.QueuesGetServicesCounselingOriginListHandler = GetServicesCounselingOriginListHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
 

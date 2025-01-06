@@ -220,7 +220,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	order := move.Orders
 	request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
@@ -233,7 +233,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	handlerConfig := suite.HandlerConfig()
 	handler := GetOrdersHandler{
 		handlerConfig,
-		orderservice.NewOrderFetcher(),
+		orderservice.NewOrderFetcher(waf),
 	}
 
 	// Validate incoming payload: no body to validate

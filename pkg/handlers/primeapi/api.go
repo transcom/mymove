@@ -190,7 +190,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	primeAPI.MoveTaskOrderDownloadMoveOrderHandler = DownloadMoveOrderHandler{
 		handlerConfig,
 		move.NewMoveSearcher(),
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		primeDownloadMoveUploadPDFGenerator,
 	}
 
