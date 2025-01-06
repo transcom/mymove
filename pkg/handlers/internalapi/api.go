@@ -224,7 +224,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 			fetcher,
 			handlerConfig.DTODPlanner(),
 			moveRouter,
-			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf),
 			handlerConfig.NotificationSender(),
 			paymentRequestShipmentRecalculator,
 			addressUpdater,

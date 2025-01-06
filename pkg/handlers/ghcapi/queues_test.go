@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -110,6 +111,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 func (suite *HandlerSuite) TestListPrimeMovesHandler() {
 	// Default Origin Duty Location GBLOC is KKFA
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	request := httptest.NewRequest("GET", "/queues/listPrimeMoves", nil)
 	params := queues.ListPrimeMovesParams{
@@ -118,7 +120,7 @@ func (suite *HandlerSuite) TestListPrimeMovesHandler() {
 	handlerConfig := suite.HandlerConfig()
 	handler := ListPrimeMovesHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	// Validate incoming payload: no body to validate

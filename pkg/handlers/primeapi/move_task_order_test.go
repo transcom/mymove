@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -36,6 +37,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestListMovesHandler() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Test returns updated with no amendments count", func() {
 		now := time.Now()
 		lastFetch := now.Add(-time.Second)
@@ -59,7 +62,7 @@ func (suite *HandlerSuite) TestListMovesHandler() {
 		// Validate incoming payload: no body to validate
 
 		// make the request
-		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
+		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
@@ -131,7 +134,7 @@ func (suite *HandlerSuite) TestListMovesHandler() {
 		// Validate incoming payload: no body to validate
 
 		// make the request
-		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
+		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
@@ -150,6 +153,7 @@ func (suite *HandlerSuite) TestListMovesHandler() {
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	verifyAddressFields := func(address *models.Address, payload *primemessages.Address) {
 		suite.Equal(address.ID.String(), payload.ID.String())
@@ -169,7 +173,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success with Prime-available move by ID", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -200,7 +204,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success with Prime-available move by Locator", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -230,7 +234,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success returns reweighs on shipments if they exist", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -284,7 +288,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - returns sit extensions on shipments if they exist", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -342,7 +346,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - filters shipments handled by an external vendor", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -397,7 +401,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - returns shipment with attached PpmShipment", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
@@ -433,7 +437,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		// This tests fields that aren't other structs and Addresses
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
@@ -548,7 +552,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - returns all the fields associated with StorageFacility within MtoShipments", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -604,7 +608,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - returns all the fields associated with Agents within MtoShipments", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -655,7 +659,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all base fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		now := time.Now()
 		aWeekAgo := now.AddDate(0, 0, -7)
@@ -707,7 +711,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all Order fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		currentAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
@@ -797,7 +801,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all PaymentRequests fields associated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -999,7 +1003,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all MTOServiceItemBasic fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1078,7 +1082,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all MTOServiceItemOriginSIT fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1192,7 +1196,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all MTOServiceItemDestSIT fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1317,7 +1321,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all MTOServiceItemShuttle fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1403,7 +1407,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all MTOServiceItemDomesticCrating fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1531,7 +1535,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Failure 'Not Found' for non-available move", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		failureMove := factory.BuildMove(suite.DB(), nil, nil) // default is not available to Prime
 		params := movetaskorderops.GetMoveTaskOrderParams{

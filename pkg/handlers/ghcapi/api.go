@@ -229,7 +229,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		fetch.NewFetcher(queryBuilder),
 		handlerConfig.HHGPlanner(),
 		moveRouter,
-		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
+		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf),
 		handlerConfig.NotificationSender(),
 		paymentRequestShipmentRecalculator,
 		addressUpdater,
@@ -284,7 +284,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 	ghcAPI.MoveSetFinancialReviewFlagHandler = SetFinancialReviewFlagHandler{
 		handlerConfig,
@@ -411,7 +411,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 			mtoshipment.NewShipmentRouter(),
 			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			handlerConfig.HHGPlanner(),
-			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf),
 		),
 		shipmentSITStatus,
 	}
@@ -458,7 +458,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 			fetch.NewFetcher(queryBuilder),
 			handlerConfig.HHGPlanner(),
 			moveRouter,
-			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf),
 			handlerConfig.NotificationSender(),
 			paymentRequestShipmentRecalculator,
 			addressUpdater,
@@ -470,7 +470,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		fetch.NewFetcher(queryBuilder),
 		handlerConfig.HHGPlanner(),
 		moveRouter,
-		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
+		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf),
 		handlerConfig.NotificationSender(),
 		paymentRequestShipmentRecalculator,
 		addressUpdater,
@@ -542,7 +542,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.QueuesListPrimeMovesHandler = ListPrimeMovesHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	ghcAPI.QueuesGetPaymentRequestsQueueHandler = GetPaymentRequestsQueueHandler{

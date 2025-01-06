@@ -28,8 +28,8 @@ type moveWeights struct {
 }
 
 // NewMoveWeights creates a new moveWeights service
-func NewMoveWeights(reweighRequestor services.ShipmentReweighRequester) services.MoveWeights {
-	return &moveWeights{ReweighRequestor: reweighRequestor}
+func NewMoveWeights(reweighRequestor services.ShipmentReweighRequester, weightAllotmentFetcher services.WeightAllotmentFetcher) services.MoveWeights {
+	return &moveWeights{ReweighRequestor: reweighRequestor, WeightAllotmentFetcher: weightAllotmentFetcher}
 }
 
 func validateAndSave(appCtx appcontext.AppContext, move *models.Move) (*validate.Errors, error) {

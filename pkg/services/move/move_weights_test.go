@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -15,7 +16,9 @@ import (
 )
 
 func (suite *MoveServiceSuite) TestExcessWeight() {
-	moveWeights := NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	waf := entitlements.NewWeightAllotmentFetcher()
+
+	moveWeights := NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 	suite.Run("qualifies move for excess weight when an approved shipment estimated weight is updated within threshold", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
@@ -363,9 +366,10 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 }
 
 func (suite *MoveServiceSuite) TestAutoReweigh() {
-	moveWeights := NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	waf := entitlements.NewWeightAllotmentFetcher()
+	moveWeights := NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
-	suite.Run("requests reweigh on shipment if the acutal weight is 90% of the weight allowance", func() {
+	suite.Run("requests reweigh on shipment if the actual weight is 90% of the weight allowance", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
@@ -403,7 +407,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 	suite.Run("does not request reweigh on shipments when below 90% of weight allowance threshold", func() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
-		mockedWeightService := NewMoveWeights(&mockedReweighRequestor)
+		mockedWeightService := NewMoveWeights(&mockedReweighRequestor, waf)
 
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -494,7 +498,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 	suite.Run("does not request reweigh when shipments aren't in approved statuses", func() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
-		mockedWeightService := NewMoveWeights(&mockedReweighRequestor)
+		mockedWeightService := NewMoveWeights(&mockedReweighRequestor, waf)
 
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
@@ -543,7 +547,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 	suite.Run("uses lower reweigh weight on shipments that already have reweighs", func() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
-		mockedWeightService := NewMoveWeights(&mockedReweighRequestor)
+		mockedWeightService := NewMoveWeights(&mockedReweighRequestor, waf)
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		now := time.Now()

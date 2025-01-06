@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/featureflag"
 )
 
@@ -25,10 +24,9 @@ type moveTaskOrderFetcher struct {
 }
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
-func NewMoveTaskOrderFetcher() services.MoveTaskOrderFetcher {
-	waf := entitlements.NewWeightAllotmentFetcher()
+func NewMoveTaskOrderFetcher(weightAllotmentFetcher services.WeightAllotmentFetcher) services.MoveTaskOrderFetcher {
 	return &moveTaskOrderFetcher{
-		waf: waf,
+		waf: weightAllotmentFetcher,
 	}
 }
 
