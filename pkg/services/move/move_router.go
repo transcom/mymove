@@ -224,10 +224,6 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 		return apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
 	}
 	orders.OriginDutyLocation = &originDutyLocation
-	if err != nil {
-		appCtx.Logger().Error("failure finding the origin duty location", zap.Error(err))
-		return apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
-	}
 	for i := range move.MTOShipments {
 		// if it's a PPMShipment update both the mto and ppm shipment level statuses
 		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
