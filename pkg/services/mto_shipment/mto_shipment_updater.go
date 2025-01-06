@@ -1156,29 +1156,35 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 		// Check flags to determine if service items have been toggled on or off.
 		// if DOPFeatureFlag, err := flagFetcher.GetBooleanFlagForUser(appCtx.DB().Context(), appCtx, "domestic_mobile_home_origin_price_enabled", map[string]string{}); err != nil{
 
+		serviceCodes := []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+		}
 		var originCode, destinationCode models.ReServiceCode
 
 		// TODO: also need to handle checking for toggle and completely omitting items from returned array
 
 		// Skip service item if this is a mobile home shipment and the toggle for this item type is turned off
-		if !featureFlagValues[featureflag.DomesticMobileHomeDDPFactor] { // Downgrade to regular DDP service item (no mobile home factor applied)
-			destinationCode = models.ReServiceCodeDDP
-		} else {
-			destinationCode = models.ReServiceCodeDMHDP
-		}
-		if !featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
-			originCode = models.ReServiceCodeDOP
-		} else {
-			originCode = models.ReServiceCodeDMHOP
+		if featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] {
+			if !featureFlagValues[featureflag.DomesticMobileHomeDDPFactor] { // Downgrade to regular DDP service item (no mobile home factor applied)
+				destinationCode = models.ReServiceCodeDDP
+			} else {
+				serviceCodes = append(serviceCodes, models.ReServiceCodeDMHF) // Also add the DMHF code if the factor toggle is enabled
+				destinationCode = models.ReServiceCodeDMHDP
+			}
+			serviceCodes = append(serviceCodes, destinationCode)
 		}
 
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			originCode,
-			destinationCode,
-			models.ReServiceCodeDMHF,
+		if featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] {
+			if !featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
+				originCode = models.ReServiceCodeDOP
+			} else {
+				originCode = models.ReServiceCodeDMHOP
+			}
+			serviceCodes = append(serviceCodes, originCode)
 		}
+
+		return serviceCodes
 	case models.MTOShipmentTypeBoatHaulAway:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
 		return []models.ReServiceCode{
