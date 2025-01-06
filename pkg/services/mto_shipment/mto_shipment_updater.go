@@ -1160,28 +1160,44 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 			models.ReServiceCodeDLH,
 			models.ReServiceCodeFSC,
 		}
-		var originCode, destinationCode models.ReServiceCode
-
-		// TODO: also need to handle checking for toggle and completely omitting items from returned array
+		var currentCode models.ReServiceCode
 
 		// Skip service item if this is a mobile home shipment and the toggle for this item type is turned off
 		if featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] {
 			if !featureFlagValues[featureflag.DomesticMobileHomeDDPFactor] { // Downgrade to regular DDP service item (no mobile home factor applied)
-				destinationCode = models.ReServiceCodeDDP
+				currentCode = models.ReServiceCodeDDP
 			} else {
 				serviceCodes = append(serviceCodes, models.ReServiceCodeDMHF) // Also add the DMHF code if the factor toggle is enabled
-				destinationCode = models.ReServiceCodeDMHDP
+				currentCode = models.ReServiceCodeDMHDP
 			}
-			serviceCodes = append(serviceCodes, destinationCode)
+			serviceCodes = append(serviceCodes, currentCode)
 		}
 
 		if featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] {
 			if !featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
-				originCode = models.ReServiceCodeDOP
+				currentCode = models.ReServiceCodeDOP
 			} else {
-				originCode = models.ReServiceCodeDMHOP
+				currentCode = models.ReServiceCodeDMHOP
 			}
-			serviceCodes = append(serviceCodes, originCode)
+			serviceCodes = append(serviceCodes, currentCode)
+		}
+
+		if featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] {
+			if !featureFlagValues[featureflag.DomesticMobileHomePackingFactor] {
+				currentCode = models.ReServiceCodeDPK
+			} else {
+				currentCode = models.ReServiceCodeDMHPK
+			}
+			serviceCodes = append(serviceCodes, currentCode)
+		}
+
+		if featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] {
+			if !featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
+				currentCode = models.ReServiceCodeDUPK
+			} else {
+				currentCode = models.ReServiceCodeDMHUPK
+			}
+			serviceCodes = append(serviceCodes, currentCode)
 		}
 
 		return serviceCodes
