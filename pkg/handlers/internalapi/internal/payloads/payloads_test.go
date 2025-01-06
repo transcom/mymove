@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/storage"
@@ -16,6 +17,12 @@ import (
 type PayloadsSuite struct {
 	handlers.BaseHandlerTestSuite
 	storer storage.FileStorer
+}
+
+func (suite *PayloadsSuite) SetupSuite() {
+	suite.PreloadData(func() {
+		factory.SetupDefaultAllotments(suite.DB())
+	})
 }
 
 // TestHandlerSuite creates our test suite

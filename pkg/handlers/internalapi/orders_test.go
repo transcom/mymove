@@ -26,35 +26,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
-	setupGrade := func(grade string) {
-		pg := factory.BuildPayGrade(suite.DB(), []factory.Customization{
-			{
-				Model: models.PayGrade{
-					Grade: grade,
-				},
-			},
-		}, nil)
-		factory.BuildHHGAllowance(suite.DB(), []factory.Customization{
-			{
-				Model:    pg,
-				LinkOnly: true,
-			},
-		}, nil)
-	}
-
-	suite.PreloadData(func() {
-		factory.FetchOrBuildCountry(suite.DB(), []factory.Customization{
-			{
-				Model: models.Country{
-					Country:     "US",
-					CountryName: "UNITED STATES",
-				},
-			},
-		}, nil)
-	})
 	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 	suite.Run("can create conus and oconus orders", func() {
-		setupGrade("E_1")
 		testCases := []struct {
 			test     string
 			isOconus bool
@@ -604,23 +577,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
-	setupGrade := func(grade string) {
-		pg := factory.BuildPayGrade(suite.DB(), []factory.Customization{
-			{
-				Model: models.PayGrade{
-					Grade: grade,
-				},
-			},
-		}, nil)
-		factory.BuildHHGAllowance(suite.DB(), []factory.Customization{
-			{
-				Model:    pg,
-				LinkOnly: true,
-			},
-		}, nil)
-	}
 	suite.Run("Can update CONUS and OCONUS orders", func() {
-		setupGrade("E_4")
 		testCases := []struct {
 			isOconus bool
 		}{
@@ -819,22 +776,6 @@ func (suite *HandlerSuite) TestEntitlementHelperFunc() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
-	setupGrade := func(grade string) {
-		pg := factory.BuildPayGrade(suite.DB(), []factory.Customization{
-			{
-				Model: models.PayGrade{
-					Grade: grade,
-				},
-			},
-		}, nil)
-		factory.BuildHHGAllowance(suite.DB(), []factory.Customization{
-			{
-				Model:    pg,
-				LinkOnly: true,
-			},
-		}, nil)
-	}
-	setupGrade("E_4")
 	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{
