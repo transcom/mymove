@@ -20,11 +20,12 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
     <Formik
       initialValues={initialValues}
       onSubmit={onSubmit}
-      validateOnChange={false}
+      validateOnChange
+      validateOnBlur
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched }) => {
+      {({ isValid, isSubmitting, handleSubmit, ...formikProps }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Backup address</h1>
@@ -35,11 +36,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
             </p>
 
             <SectionWrapper className={formStyles.formSection}>
-              <AddressFields
-                labelHint="Required"
-                name={formFieldsName}
-                formikFunctionsToValidatePostalCodeOnChange={{ setFieldTouched, handleChange }}
-              />
+              <AddressFields labelHint="Required" name={formFieldsName} locationLookup formikProps={formikProps} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
