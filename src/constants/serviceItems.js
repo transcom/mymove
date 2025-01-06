@@ -25,6 +25,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   NumberDaysSIT: 'NumberDaysSIT',
   OriginPrice: 'OriginPrice',
   PerUnitCents: 'PerUnitCents',
+  PortZip: 'PortZip',
   PriceRateOrFactor: 'PriceRateOrFactor',
   ReferenceDate: 'ReferenceDate',
   RequestedDeliveryDate: 'RequestedDeliveryDate',
@@ -65,6 +66,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   // Domestic non-peak or Domestic peak
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
   [SERVICE_ITEM_PARAM_KEYS.OriginPrice]: 'Origin price',
+  [SERVICE_ITEM_PARAM_KEYS.PortZip]: 'Port ZIP',
   [SERVICE_ITEM_PARAM_KEYS.ReferenceDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]: 'Origin service area',
@@ -99,6 +101,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   Dimensions: 'Dimensions',
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Mileage factor',
+  InternationalShippingAndLinehaul: 'ISLH price',
   Mileage: 'Mileage',
   MileageIntoSIT: 'Mileage into SIT',
   MileageOutOfSIT: 'Mileage out of SIT',
