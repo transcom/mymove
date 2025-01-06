@@ -20,7 +20,7 @@ const (
 	intlPortFscWeightDistanceMultiplier = float64(0.000417)
 	intlPortFscFuelPrice                = unit.Millicents(281400)
 	intlPortFscPriceCents               = unit.Cents(2980)
-	intlPortFscPortName                 = "PORTLAND INTL"
+	intlPortFscPortZip                  = "99505"
 )
 
 var intlPortFscActualPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -186,9 +186,9 @@ func (suite *GHCRateEngineServiceSuite) setupPortFuelSurchargeServiceItem() mode
 				Value:   fmt.Sprintf("%d", int(intlPortFscFuelPrice)),
 			},
 			{
-				Key:     models.ServiceItemParamNamePortName,
+				Key:     models.ServiceItemParamNamePortZip,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   intlPortFscPortName,
+				Value:   intlPortFscPortZip,
 			},
 		}, nil, nil,
 	)
