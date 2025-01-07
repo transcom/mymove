@@ -241,12 +241,14 @@ export class Home extends Component {
   };
 
   renderHelper = () => {
+    const { orders } = this.props;
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
     if (this.hasSubmittedPPMCloseout) return <HelperPPMCloseoutSubmitted />;
     if (this.hasUnapprovedAmendedOrders) return <HelperAmendedOrders />;
-    if (this.isMoveApproved) return <HelperApprovedMove />;
+    if (this.isMoveApproved) return <HelperApprovedMove orderId={orders.id} />;
+
     return <HelperSubmittedMove />;
   };
 
