@@ -874,9 +874,9 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   "i",
+					MarketCode:   models.MarketCodeInternational,
 					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: "UNACCOMPANIED_BAGGAGE",
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
 				},
 			},
 			{
@@ -934,9 +934,9 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   "i",
+					MarketCode:   models.MarketCodeInternational,
 					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: "UNACCOMPANIED_BAGGAGE",
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
 				},
 			},
 			{
@@ -994,9 +994,9 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   "i",
+					MarketCode:   models.MarketCodeInternational,
 					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: "UNACCOMPANIED_BAGGAGE",
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
 				},
 			},
 			{
