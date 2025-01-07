@@ -354,7 +354,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		}, nil)
 
-		internationalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		internationalShipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
 					Status: models.MoveStatusAPPROVED,
