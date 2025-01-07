@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import bytes from 'bytes';
 import moment from 'moment';
@@ -12,6 +12,10 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ExistingUploadsShape } from 'types/uploads';
 
 const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDownloadLink = false }) => {
+  const [fileAvailable, setFileAvailable] = useState({});
+  const pollingInterval = 5000; // Poll every 5 seconds
+  const intervalIds = useRef({}); // Use a ref to persist interval IDs
+
   const getIcon = (fileType) => {
     switch (fileType) {
       case 'application/pdf':
@@ -27,6 +31,71 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
     }
   };
 
+  const testLinkWithIframe = (fileUrl) => {
+    return new Promise((resolve) => {
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+
+      iframe.onload = () => {
+        resolve(true);
+        document.body.removeChild(iframe);
+      };
+
+      iframe.onerror = () => {
+        resolve(false);
+        document.body.removeChild(iframe);
+      };
+
+      iframe.src = fileUrl;
+      document.body.appendChild(iframe);
+    });
+  };
+
+  const pollForValidLink = useCallback(
+    async (fileUrl, fileId) => {
+      const checkLink = async () => {
+        const isValid = await testLinkWithIframe(fileUrl);
+        if (isValid) {
+          setFileAvailable((prev) => ({ ...prev, [fileId]: true }));
+          clearInterval(intervalIds.current[fileId]); // Stop polling
+        } else {
+          setFileAvailable((prev) => ({ ...prev, [fileId]: false }));
+        }
+      };
+
+      intervalIds.current[fileId] = setInterval(checkLink, pollingInterval);
+    },
+    [pollingInterval],
+  );
+
+  useEffect(() => {
+    const localIntervalIds = intervalIds.current; // Capture the current ref value
+
+    uploads.forEach((upload) => {
+      if (upload.url && !Object.hasOwn(fileAvailable, upload.id)) {
+        pollForValidLink(upload.url, upload.id);
+      }
+    });
+
+    return () => {
+      Object.values(localIntervalIds).forEach(clearInterval);
+    };
+  }, [uploads, fileAvailable, pollForValidLink]);
+
+  const renderFileContent = (upload) => {
+    if (showDownloadLink && upload.url) {
+      return fileAvailable[upload.id] ? (
+        <a href={upload.url} download>
+          {upload.filename}
+        </a>
+      ) : (
+        upload.filename
+      );
+    }
+
+    return upload.filename;
+  };
+
   return (
     uploads?.length > 0 && (
       <SectionWrapper className={classnames(styles.uploadsTableContainer, className)} data-testid="uploads-table">
@@ -37,15 +106,7 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
               <div className={styles.fileInfoContainer}>
                 <FontAwesomeIcon size="lg" icon={getIcon(upload.contentType)} className={styles.faIcon} />
                 <div className={styles.fileInfo}>
-                  <p>
-                    {showDownloadLink ? (
-                      <a href={upload.url} download>
-                        {upload.filename}
-                      </a>
-                    ) : (
-                      upload.filename
-                    )}
-                  </p>
+                  <p>{renderFileContent(upload)}</p>
                   <p className={styles.fileSizeAndTime}>
                     <span className={styles.uploadFileSize}>{bytes(upload.bytes)}</span>
                     <span>Uploaded {moment(upload.createdAt).format('DD MMM YYYY h:mm A')}</span>
