@@ -3023,6 +3023,9 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      adminRestrictedWeightLocation:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean

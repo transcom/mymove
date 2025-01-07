@@ -456,6 +456,10 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 		order.Entitlement.GunSafe = *payload.GunSafe
 	}
 
+	if payload.AdminRestrictedWeightLocation != nil {
+		order.Entitlement.AdminRestrictedWeightLocation = *payload.AdminRestrictedWeightLocation
+	}
+
 	if payload.AccompaniedTour != nil {
 		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
 	}
@@ -554,6 +558,10 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 
 	if payload.GunSafe != nil {
 		order.Entitlement.GunSafe = *payload.GunSafe
+	}
+
+	if payload.AdminRestrictedWeightLocation != nil {
+		order.Entitlement.AdminRestrictedWeightLocation = *payload.AdminRestrictedWeightLocation
 	}
 
 	if payload.AccompaniedTour != nil {
