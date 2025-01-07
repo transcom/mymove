@@ -13,7 +13,6 @@ import {
   getShipmentModificationType,
   retrieveSAC,
   retrieveTAC,
-  formatPortInfo,
 } from './shipmentDisplay';
 
 import { LOA_TYPE } from 'shared/constants';
@@ -347,25 +346,6 @@ describe('shipmentDisplay utils', () => {
     it('returns diversion when the shipment has been marked as a diversion', () => {
       const shipmentType = getShipmentModificationType(divertedShipment);
       expect(shipmentType).toEqual(shipmentModificationTypes.DIVERSION);
-    });
-  });
-
-  describe('formatPortInfo', () => {
-    it('formats port information correctly when all fields are provided', () => {
-      const port = {
-        portCode: 'PDX',
-        portName: 'PORTLAND INTL',
-        city: 'PORTLAND',
-        state: 'OREGON',
-        zip: '97220',
-      };
-      const formattedPortInfo = formatPortInfo(port);
-      expect(formattedPortInfo).toEqual('PDX - PORTLAND INTL\nPORTLAND, OREGON 97220');
-    });
-
-    it('returns a dash when no port is provided', () => {
-      const formattedPortInfo = formatPortInfo(null);
-      expect(formattedPortInfo).toEqual('-');
     });
   });
 });
