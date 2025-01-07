@@ -8896,10 +8896,10 @@ func MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx appcontext.AppContext) mod
 func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 
-	islhCost := unit.Cents(10000)
-	ihpkCost := unit.Cents(10000)
-	ihupkCost := unit.Cents(10000)
-	poefscCost := unit.Cents(10000)
+	islhCost := unit.Cents(71068)
+	ihpkCost := unit.Cents(298800)
+	ihupkCost := unit.Cents(33280)
+	poefscCost := unit.Cents(25000)
 
 	// Create Customer
 	userInfo := newUserInfo("customer")
@@ -9052,6 +9052,56 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 		},
 	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
 
+	currentTime := time.Now()
+
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-0=2"),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "3500",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "4000",
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(1000)),
+		},
+		{
+			Key:     models.ServiceItemParamNameEscalationCompounded,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.FormatFloat(1.125, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameContractYearName,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "Award Year 1",
+		},
+	}
+
 	islh := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
@@ -9073,19 +9123,28 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 		},
 	}, nil)
 
-	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.PaymentServiceItem{
-				PriceCents: &islhCost,
+	factory.BuildPaymentServiceItemWithParams(appCtx.DB(), models.ReServiceCodeISLH,
+		basicPaymentServiceItemParams, []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		}, {
-			Model:    paymentRequestHHG,
-			LinkOnly: true,
-		}, {
-			Model:    islh,
-			LinkOnly: true,
-		},
-	}, nil)
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &islhCost,
+				},
+			}, {
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			}, {
+				Model:    islh,
+				LinkOnly: true,
+			},
+		}, nil)
 
 	ihpk := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
@@ -9108,19 +9167,28 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 		},
 	}, nil)
 
-	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.PaymentServiceItem{
-				PriceCents: &ihpkCost,
+	factory.BuildPaymentServiceItemWithParams(appCtx.DB(), models.ReServiceCodeIHPK,
+		basicPaymentServiceItemParams, []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		}, {
-			Model:    paymentRequestHHG,
-			LinkOnly: true,
-		}, {
-			Model:    ihpk,
-			LinkOnly: true,
-		},
-	}, nil)
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &ihpkCost,
+				},
+			}, {
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			}, {
+				Model:    ihpk,
+				LinkOnly: true,
+			},
+		}, nil)
 
 	ihupk := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
@@ -9138,24 +9206,91 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 		},
 		{
 			Model: models.ReService{
-				Code: models.ReServiceCodeIHPK,
+				Code: models.ReServiceCodeIHUPK,
 			},
 		},
 	}, nil)
 
-	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.PaymentServiceItem{
-				PriceCents: &ihupkCost,
+	factory.BuildPaymentServiceItemWithParams(appCtx.DB(), models.ReServiceCodeIHUPK,
+		basicPaymentServiceItemParams, []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
 			},
-		}, {
-			Model:    paymentRequestHHG,
-			LinkOnly: true,
-		}, {
-			Model:    ihupk,
-			LinkOnly: true,
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &ihupkCost,
+				},
+			}, {
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			}, {
+				Model:    ihupk,
+				LinkOnly: true,
+			},
+		}, nil)
+
+	basicPortFuelSurchargePaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
 		},
-	}, nil)
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   strconv.FormatFloat(0.000417, 'f', 7, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameEIAFuelPrice,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Millicents(281400))),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "3500",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "4000",
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(1000)),
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(1500)),
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "74133",
+		},
+		{
+			Key:     models.ServiceItemParamNamePortZip,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "98424",
+		},
+	}
 
 	portLocation := factory.FetchPortLocation(appCtx.DB(), []factory.Customization{
 		{
@@ -9164,6 +9299,7 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 			},
 		},
 	}, nil)
+
 	poefsc := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
@@ -9190,65 +9326,8 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 		},
 	}, nil)
 
-	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.PaymentServiceItem{
-				PriceCents: &poefscCost,
-			},
-		}, {
-			Model:    paymentRequestHHG,
-			LinkOnly: true,
-		}, {
-			Model:    poefsc,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	currentTime := time.Now()
-
-	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameContractCode,
-			KeyType: models.ServiceItemParamTypeString,
-			Value:   factory.DefaultContractCode,
-		},
-		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format("2025-01-01"),
-		},
-		{
-			Key:     models.ServiceItemParamNameReferenceDate,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format("2025-01-01"),
-		},
-		{
-			Key:     models.ServiceItemParamNameWeightOriginal,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "3500",
-		},
-		{
-			Key:     models.ServiceItemParamNameWeightBilled,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
-		},
-		{
-			Key:     models.ServiceItemParamNameWeightEstimated,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "4000",
-		},
-		{
-			Key:     models.ServiceItemParamNamePerUnitCents,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   fmt.Sprintf("%d", int(1000)),
-		},
-	}
-
-	factory.BuildPaymentServiceItemWithParams(
-		appCtx.DB(),
-		models.ReServiceCodeISLH,
-		basicPaymentServiceItemParams,
-		[]factory.Customization{
+	factory.BuildPaymentServiceItemWithParams(appCtx.DB(), models.ReServiceCodePOEFSC,
+		basicPortFuelSurchargePaymentServiceItemParams, []factory.Customization{
 			{
 				Model:    mto,
 				LinkOnly: true,
@@ -9258,119 +9337,17 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 				LinkOnly: true,
 			},
 			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &poefscCost,
+				},
+			}, {
 				Model:    paymentRequestHHG,
 				LinkOnly: true,
-			},
-		}, nil,
-	)
-
-	factory.BuildPaymentServiceItemWithParams(
-		appCtx.DB(),
-		models.ReServiceCodeIHPK,
-		basicPaymentServiceItemParams,
-		[]factory.Customization{
-			{
-				Model:    mto,
+			}, {
+				Model:    poefsc,
 				LinkOnly: true,
 			},
-			{
-				Model:    mtoShipmentHHG,
-				LinkOnly: true,
-			},
-			{
-				Model:    paymentRequestHHG,
-				LinkOnly: true,
-			},
-		}, nil,
-	)
-
-	factory.BuildPaymentServiceItemWithParams(
-		appCtx.DB(),
-		models.ReServiceCodeIHUPK,
-		basicPaymentServiceItemParams,
-		[]factory.Customization{
-			{
-				Model:    mto,
-				LinkOnly: true,
-			},
-			{
-				Model:    mtoShipmentHHG,
-				LinkOnly: true,
-			},
-			{
-				Model:    paymentRequestHHG,
-				LinkOnly: true,
-			},
-		}, nil,
-	)
-
-	basicPortFuelSurchargePaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameContractCode,
-			KeyType: models.ServiceItemParamTypeString,
-			Value:   factory.DefaultContractCode,
-		},
-		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format("2025-01-01"),
-		},
-		{
-			Key:     models.ServiceItemParamNameReferenceDate,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format("2025-01-01"),
-		},
-		{
-			Key:     models.ServiceItemParamNameWeightOriginal,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "3500",
-		},
-		{
-			Key:     models.ServiceItemParamNameWeightBilled,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
-		},
-		{
-			Key:     models.ServiceItemParamNameWeightEstimated,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "4000",
-		},
-		{
-			Key:     models.ServiceItemParamNamePerUnitCents,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   fmt.Sprintf("%d", int(1000)),
-		},
-		{
-			Key:     models.ServiceItemParamNameDistanceZip,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   fmt.Sprintf("%d", int(1500)),
-		},
-		{
-			Key:     models.ServiceItemParamNamePortZip,
-			KeyType: models.ServiceItemParamTypeString,
-			Value:   "98424",
-		},
-	}
-
-	factory.BuildPaymentServiceItemWithParams(
-		appCtx.DB(),
-		models.ReServiceCodePOEFSC,
-		basicPortFuelSurchargePaymentServiceItemParams,
-		[]factory.Customization{
-			{
-				Model:    mto,
-				LinkOnly: true,
-			},
-			{
-				Model:    mtoShipmentHHG,
-				LinkOnly: true,
-			},
-			{
-				Model:    paymentRequestHHG,
-				LinkOnly: true,
-			},
-		}, nil,
-	)
+		}, nil)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
