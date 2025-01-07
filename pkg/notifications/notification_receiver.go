@@ -12,7 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/gofrs/uuid"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -38,12 +37,26 @@ type NotificationReceiver interface {
 
 // NotificationReceiverConext provides context to a notification Receiver. Maps use queueUrl for key
 type NotificationReceiverContext struct {
+	viper                ViperType
 	snsService           *sns.Client
 	sqsService           *sqs.Client
 	awsRegion            string
 	awsAccountId         string
 	queueSubscriptionMap map[string]string
 	receiverCancelMap    map[string]context.CancelFunc
+}
+
+type SnsClient interface {
+	*sns.Client
+}
+
+type SqsClient interface {
+	*sqs.Client
+}
+
+type ViperType interface {
+	GetString(string) string
+	SetEnvKeyReplacer(*strings.Replacer)
 }
 
 // ReceivedMessage standardizes the format of the received message
@@ -53,8 +66,9 @@ type ReceivedMessage struct {
 }
 
 // NewNotificationReceiver returns a new NotificationReceiverContext
-func NewNotificationReceiver(snsService *sns.Client, sqsService *sqs.Client, awsRegion string, awsAccountId string) NotificationReceiverContext {
+func NewNotificationReceiver(v ViperType, snsService *sns.Client, sqsService *sqs.Client, awsRegion string, awsAccountId string) NotificationReceiverContext {
 	return NotificationReceiverContext{
+		viper:                v,
 		snsService:           snsService,
 		sqsService:           sqsService,
 		awsRegion:            awsRegion,
@@ -182,11 +196,11 @@ func (n NotificationReceiverContext) CloseoutQueue(appCtx appcontext.AppContext,
 
 // GetDefaultTopic returns the topic value set within the environment
 func (n NotificationReceiverContext) GetDefaultTopic() (string, error) {
-	v := viper.New()
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-	topicName := v.GetString(cli.AWSSNSObjectTagsAddedTopicFlag)
-	receiverBackend := v.GetString(cli.ReceiverBackendFlag)
+	// v := viper.New()
+	n.viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	// v.AutomaticEnv()
+	topicName := n.viper.GetString(cli.AWSSNSObjectTagsAddedTopicFlag)
+	receiverBackend := n.viper.GetString(cli.ReceiverBackendFlag)
 	if topicName == "" && receiverBackend == "sns&sqs" {
 		return "", errors.New("aws_sns_object_tags_added_topic key not available")
 	}
@@ -194,7 +208,11 @@ func (n NotificationReceiverContext) GetDefaultTopic() (string, error) {
 }
 
 // InitReceiver initializes the receiver backend
-func InitReceiver(v *viper.Viper, logger *zap.Logger) (NotificationReceiver, error) {
+func InitReceiver(v ViperType, logger *zap.Logger) (NotificationReceiver, error) {
+
+	// v := viper.New()
+	// v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	// v.AutomaticEnv()
 
 	if v.GetString(cli.ReceiverBackendFlag) == "sns&sqs" {
 		// Setup notification receiver service with SNS & SQS backend dependencies
@@ -208,12 +226,13 @@ func InitReceiver(v *viper.Viper, logger *zap.Logger) (NotificationReceiver, err
 		)
 		if err != nil {
 			logger.Fatal("error loading sns aws config", zap.Error(err))
+			return nil, err
 		}
 
 		snsService := sns.NewFromConfig(cfg)
 		sqsService := sqs.NewFromConfig(cfg)
 
-		return NewNotificationReceiver(snsService, sqsService, awsSNSRegion, awsAccountId), nil
+		return NewNotificationReceiver(v, snsService, sqsService, awsSNSRegion, awsAccountId), nil
 	}
 
 	return NewStubNotificationReceiver(), nil
