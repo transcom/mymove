@@ -13,7 +13,7 @@ test.describe('Services counselor user', () => {
     });
 
     test.skip(
-      createCustomerFF === 'false' && alaskaFF === 'false',
+      createCustomerFF === 'false' || alaskaFF === 'false',
       'Skip if the create customer & AK FFs are not enabled.',
     );
     test('create a customer and add a basic iHHG shipment with Alaska address', async ({ page, officePage }) => {

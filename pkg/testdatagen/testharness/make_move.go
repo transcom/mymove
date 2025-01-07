@@ -8753,7 +8753,7 @@ func MakeHHGMoveInSITNoDestinationSITOutDate(appCtx appcontext.AppContext) model
 
 // MakeInternationalAlaskaHHGMoveForTOO is a function
 // that creates an iHHG move with an Alaska destination address
-func MakeInternationalAlaskaHHGMoveForTOO(appCtx appcontext.AppContext) models.Move {
+func MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -8885,6 +8885,504 @@ func MakeInternationalAlaskaHHGMoveForTOO(appCtx appcontext.AppContext) models.M
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+// MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO creates an iHHG move
+// that has been approved by TOO & updated by Prime that has now requested payment for
+// four basic international service items
+func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	islhCost := unit.Cents(10000)
+	ihpkCost := unit.Cents(10000)
+	ihupkCost := unit.Cents(10000)
+	poefscCost := unit.Cents(10000)
+
+	// Create Customer
+	userInfo := newUserInfo("customer")
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+	}, nil)
+
+	// address setup
+	addressAK := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 Cold St",
+				City:           "Anchorage",
+				State:          "AK",
+				PostalCode:     "99505",
+			},
+		},
+	}, nil)
+	destDutyLocationAK := factory.BuildDutyLocation(appCtx.DB(), []factory.Customization{
+		{
+			Model:    addressAK,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// orders setup using AK destination duty location
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+		{
+			Model: models.Order{
+				NewDutyLocationID: destDutyLocationAK.ID,
+			},
+		},
+	}, nil)
+
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
+
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
+				PostalCode: "85004",
+			},
+		},
+	}, nil)
+	alaskaDestAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 Cold St",
+				City:           "Anchorage",
+				State:          "AK",
+				PostalCode:     "99505",
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(2000)
+	actualWeight := unit.Pound(2000)
+	mtoShipmentHHG := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				MarketCode:           models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model:    alaskaDestAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create Releasing Agent
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	paymentRequestHHG := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// for soft deleted proof of service docs
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		},
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
+
+	islh := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeISLH,
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &islhCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    islh,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	ihpk := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeIHPK,
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &ihpkCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    ihpk,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	ihupk := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeIHPK,
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &ihupkCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    ihupk,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	portLocation := factory.FetchPortLocation(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Port{
+				PortCode: "PDX",
+			},
+		},
+	}, nil)
+	poefsc := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    portLocation,
+			LinkOnly: true,
+			Type:     &factory.PortLocations.PortOfEmbarkation,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodePOEFSC,
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &poefscCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    poefsc,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	currentTime := time.Now()
+
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2025-01-01"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2025-01-01"),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "3500",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "4000",
+		},
+		{
+			Key:     models.ServiceItemParamNamePerUnitCents,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(1000)),
+		},
+	}
+
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeISLH,
+		basicPaymentServiceItemParams,
+		[]factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeIHPK,
+		basicPaymentServiceItemParams,
+		[]factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeIHUPK,
+		basicPaymentServiceItemParams,
+		[]factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	basicPortFuelSurchargePaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2025-01-01"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2025-01-01"),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "3500",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "4000",
+		},
+		{
+			Key:     models.ServiceItemParamNamePerUnitCents,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(1000)),
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(1500)),
+		},
+		{
+			Key:     models.ServiceItemParamNamePortZip,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "98424",
+		},
+	}
+
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodePOEFSC,
+		basicPortFuelSurchargePaymentServiceItemParams,
+		[]factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	// load payment requests so tests can confirm
+	err = appCtx.DB().Load(newmove, "PaymentRequests")
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
