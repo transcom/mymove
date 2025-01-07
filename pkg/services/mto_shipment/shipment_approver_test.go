@@ -300,7 +300,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			models.ReServiceCodeIHUPK,
 		}
 
-		suite.Equal(4, len(serviceItems))
+		suite.Equal(len(expectedReserviceCodes), len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
 			actualReServiceCode := serviceItems[i].ReService.Code
 			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode))
