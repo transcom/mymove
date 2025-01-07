@@ -405,6 +405,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -1631,6 +1636,31 @@ func init() {
             "standaloneCrate": {
               "type": "boolean",
               "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemInternationalFuelSurcharge": {
+      "description": "Describes a international Port of Embarkation/Debarkation fuel surcharge service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "portCode": {
+              "description": "A unique code for a Port",
+              "type": "string"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for Port of Embarkation (POEFSC) or Port of Debarkation (PODFSC).",
+              "type": "string",
+              "enum": [
+                "PODFSC",
+                "POEFSC"
+              ]
             }
           }
         }
@@ -4721,6 +4751,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -5947,6 +5982,31 @@ func init() {
             "standaloneCrate": {
               "type": "boolean",
               "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemInternationalFuelSurcharge": {
+      "description": "Describes a international Port of Embarkation/Debarkation fuel surcharge service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "portCode": {
+              "description": "A unique code for a Port",
+              "type": "string"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for Port of Embarkation (POEFSC) or Port of Debarkation (PODFSC).",
+              "type": "string",
+              "enum": [
+                "PODFSC",
+                "POEFSC"
+              ]
             }
           }
         }

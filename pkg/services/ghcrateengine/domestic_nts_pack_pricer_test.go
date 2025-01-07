@@ -18,9 +18,9 @@ const (
 	dnpkTestWeight                 = unit.Pound(2100)
 	dnpkTestServicesScheduleOrigin = 1
 	dnpkTestContractYearName       = "DNPK Test Year"
-	dnpkTestBasePriceCents         = unit.Cents(6333)
+	dnpkTestBasePriceCents         = unit.Cents(6544)
 	dnpkTestFactor                 = 1.35
-	dnpkTestPriceCents             = unit.Cents(186855)
+	dnpkTestPriceCents             = unit.Cents(193064)
 )
 
 var dnpkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 5, 5, 5, 5, time.UTC)
@@ -116,15 +116,18 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int,
 		})
 
 	packService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
-	otherPrice := models.ReDomesticOtherPrice{
-		ContractID:   contractYear.Contract.ID,
-		ServiceID:    packService.ID,
-		IsPeakPeriod: isPeakPeriod,
-		Schedule:     schedule,
-		PriceCents:   priceCents,
-	}
 
-	suite.MustSave(&otherPrice)
+	factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReDomesticOtherPrice{
+				ContractID:   contractYear.Contract.ID,
+				ServiceID:    packService.ID,
+				IsPeakPeriod: isPeakPeriod,
+				Schedule:     schedule,
+				PriceCents:   priceCents,
+			},
+		},
+	}, nil)
 
 	ntsPackService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDNPK)
 	shipmentTypePrice := models.ReShipmentTypePrice{
