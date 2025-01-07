@@ -12,6 +12,7 @@ export const SPECIAL_ORDERS_TYPES = {
   WOUNDED_WARRIOR: 'Wounded Warrior',
   BLUEBARK: 'BLUEBARK',
   SAFETY: 'Safety',
+  SAFETY_NON_LABEL: 'SAFETY',
 };
 
 export const CHECK_SPECIAL_ORDERS_TYPES = (ordersType) => {
@@ -24,6 +25,7 @@ export const ORDERS_TYPE_OPTIONS = {
   RETIREMENT: 'Retirement',
   SEPARATION: 'Separation',
   WOUNDED_WARRIOR: 'Wounded Warrior',
+  BLUEBARK: 'BLUEBARK',
   TEMPORARY_DUTY: 'Temporary Duty (TDY)',
   EARLY_RETURN_OF_DEPENDENTS: 'Early Return of Dependents',
   STUDENT_TRAVEL: 'Student Travel',
