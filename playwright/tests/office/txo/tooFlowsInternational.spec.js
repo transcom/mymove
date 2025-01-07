@@ -14,7 +14,7 @@ test.describe('TOO user', () => {
       page,
       officePage,
     }) => {
-      const move = await officePage.testHarness.buildInternationalAlaskaHHGMoveForTOO();
+      const move = await officePage.testHarness.buildInternationalAlaskaBasicHHGMoveForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
