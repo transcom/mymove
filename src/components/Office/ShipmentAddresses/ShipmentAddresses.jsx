@@ -87,10 +87,12 @@ const ShipmentAddresses = ({
         icon={<FontAwesomeIcon icon="arrow-right" />}
         data-testid="pickupDestinationAddress"
       />
-      <DataTable
-        columnHeaders={['Port of Embarkation', 'Port of Debarkation']}
-        dataRow={[formatPortInfo(poeLocation), formatPortInfo(podLocation)]}
-      />
+      {(poeLocation || podLocation) && (
+        <DataTable
+          columnHeaders={['Port of Embarkation', 'Port of Debarkation']}
+          dataRow={[formatPortInfo(poeLocation), formatPortInfo(podLocation)]}
+        />
+      )}
     </DataTableWrapper>
   );
 };
