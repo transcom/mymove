@@ -6999,6 +6999,11 @@ func init() {
           "x-nullable": true,
           "example": true
         },
+        "adminRestrictedWeightLocation": {
+          "description": "Indicates if the customer is restricted to a specific location for their admin restricted weight.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
@@ -8179,6 +8184,10 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "adminRestrictedWeightLocation": {
+          "type": "boolean",
+          "example": false
         },
         "authorizedWeight": {
           "type": "integer",
@@ -14061,6 +14070,11 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "adminRestrictedWeightLocation": {
+          "description": "Indicates if the customer is restricted to a specific location for their admin restricted weight.",
+          "type": "boolean",
+          "x-nullable": true
         },
         "agency": {
           "$ref": "#/definitions/Affiliation"
@@ -24035,6 +24049,11 @@ func init() {
           "x-nullable": true,
           "example": true
         },
+        "adminRestrictedWeightLocation": {
+          "description": "Indicates if the customer is restricted to a specific location for their admin restricted weight.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
@@ -25219,6 +25238,10 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "adminRestrictedWeightLocation": {
+          "type": "boolean",
+          "example": false
         },
         "authorizedWeight": {
           "type": "integer",
@@ -31229,6 +31252,11 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "adminRestrictedWeightLocation": {
+          "description": "Indicates if the customer is restricted to a specific location for their admin restricted weight.",
+          "type": "boolean",
+          "x-nullable": true
         },
         "agency": {
           "$ref": "#/definitions/Affiliation"

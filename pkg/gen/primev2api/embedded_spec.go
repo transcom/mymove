@@ -971,6 +971,10 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "adminRestrictedWeightLocation": {
+          "type": "boolean",
+          "example": false
+        },
         "authorizedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -4607,6 +4611,10 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "adminRestrictedWeightLocation": {
+          "type": "boolean",
+          "example": false
+        },
         "authorizedWeight": {
           "type": "integer",
           "x-formatting": "weight",

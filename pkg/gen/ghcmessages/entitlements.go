@@ -23,6 +23,10 @@ type Entitlements struct {
 	// Example: true
 	AccompaniedTour *bool `json:"accompaniedTour,omitempty"`
 
+	// admin restricted weight location
+	// Example: false
+	AdminRestrictedWeightLocation bool `json:"adminRestrictedWeightLocation,omitempty"`
+
 	// authorized weight
 	// Example: 2000
 	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`

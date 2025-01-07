@@ -5244,6 +5244,9 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      adminRestrictedWeightLocation:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -6145,6 +6148,12 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      adminRestrictedWeightLocation:
+        description: >-
+          Indicates if the customer is restricted to a specific location for
+          their admin restricted weight.
+        type: boolean
+        x-nullable: true
       accompaniedTour:
         type: boolean
         example: true
@@ -6246,6 +6255,12 @@ definitions:
         description: >-
           True if user is entitled to move a gun safe (up to 500 lbs) as part of
           their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
+      adminRestrictedWeightLocation:
+        description: >-
+          Indicates if the customer is restricted to a specific location for
+          their admin restricted weight.
         type: boolean
         x-nullable: true
       accompaniedTour:
