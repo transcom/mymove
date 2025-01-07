@@ -516,27 +516,31 @@ pre_test:
   # - *check_main
 
 server_test:
-  stage: test
+  stage: pre_checks
   image: $DOCKER_APP_IMAGE
-  needs:
-    - pre_deps_golang
+  # needs:
+  #   - pre_deps_golang
   before_script:
   - *setup_milmove_env
   - *setup_generic_app_env_variables
   - *setup_server_env_variables
   script:
+    - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
+    - scripts/check-generated-code go.sum
+    - make bin/swagger
     - echo "server test -- TODO Add steps need to potentially pass job id to file and persist"
-    # - make -j 2 bin/milmove bin/gotestsum
-    # - make server_test
-    - go install gotest.tools/gotestsum@latest
-    - go mod tidy
-    - gotestsum --junitfile report.xml --format testname
+    - make -j 2 bin/milmove bin/gotestsum
+    - make server_test_build for app
+    # - go install gotest.tools/gotestsum@latest
+    # - go mod tidy
+    #- bin/gotestsum --junitfile server_test_report.xml --format server_test
   artifacts:
     paths:
-      - /builds/milmove/mymove/gotestsum
+      - /builds/milmove/mymove/bin/gotestsum
+      - /builds/milmove/mymove/tmp/test-results
     when: always
     reports:
-      junit: report.xml
+      junit: /builds/milmove/mymove/tmp/test-results/gotest/app/go-test-report.xml
   after_script:
     - *announce_failure
   # rules:
