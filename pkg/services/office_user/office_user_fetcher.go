@@ -135,27 +135,27 @@ func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx 
 func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUserWithWorkload, error) {
 	var officeUsers []models.OfficeUserWithWorkload
 
-	query := `SELECT ou.id,
-				ou.first_name,
-				ou.last_name,
-				COUNT(DISTINCT m.id) AS workload
-			FROM office_users AS ou
-			JOIN users AS u on ou.user_id = u.id
-			JOIN users_roles AS ur on u.id = ur.user_id
-			JOIN roles as R on ur.role_id = r.id
-			JOIN transportation_offices on ou.transportation_office_id = transportation_offices.id
-			LEFT JOIN moves AS m
-				ON (
-					(r.role_type = 'services_counselor' AND m.sc_assigned_id = ou.id) OR
-					(r.role_type = 'task_ordering_officer' AND m.too_assigned_id = ou.id) OR
-					(r.role_type = 'task_invoicing_officer' and m.tio_assigned_id = ou.id)
-				)
-			WHERE r.role_type = $1
-				AND transportation_offices.id = $2
-				AND ou.active = TRUE
-			GROUP BY ou.id, ou.first_name, ou.last_name`
-	err := appCtx.DB().RawQuery(query, role, officeID).All(&officeUsers)
+	query :=
+		`SELECT office_users.id,
+			office_users.first_name,
+			office_users.last_name,
+			COUNT(DISTINCT moves.id) AS workload
+		FROM office_users
+		JOIN users_roles ON office_users.user_id = users_roles.user_id
+		JOIN roles ON users_roles.role_id = roles.id
+		JOIN transportation_offices ON office_users.transportation_office_id = transportation_offices.id
+		LEFT JOIN moves
+			ON (
+				(roles.role_type = 'services_counselor' AND moves.sc_assigned_id = office_users.id) OR
+				(roles.role_type = 'task_ordering_officer' AND moves.too_assigned_id = office_users.id) OR
+				(roles.role_type = 'task_invoicing_officer' and moves.tio_assigned_id = office_users.id)
+			)
+		WHERE roles.role_type = $1
+			AND transportation_offices.id = $2
+			AND office_users.active = TRUE
+		GROUP BY office_users.id, office_users.first_name, office_users.last_name`
 
+	err := appCtx.DB().RawQuery(query, role, officeID).All(&officeUsers)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching moves for office: %s with error %w", officeID, err)
 	}
