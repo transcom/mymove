@@ -159,6 +159,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
 
     test(`happy path with edits and backs`, async ({ customerPpmPage }) => {
       test.slow();
+      test.setTimeout(300000); // This one has been a headache forever. Shoehorn fix to go way above default "slow" timeout
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);

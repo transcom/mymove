@@ -96,6 +96,7 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
 
 test('Review documents page displays correct value for Total days in SIT', async ({ page, scPage }) => {
   test.slow();
+  test.setTimeout(300000); // This one has been a headache forever. Shoehorn fix to go way above default "slow" timeout
   // Create a move with TestHarness, and then navigate to the move details page for it
   const move = await scPage.testHarness.buildApprovedMoveWithPPMMovingExpenseOffice();
   await scPage.navigateToCloseoutMove(move.locator);

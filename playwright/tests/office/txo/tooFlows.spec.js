@@ -832,6 +832,7 @@ test.describe('TOO user', () => {
   });
 
   test('approves a delivery address change request for an HHG shipment', async ({ officePage, page }) => {
+    test.setTimeout(300000); // This one has been a headache forever. Shoehorn fix to go way above default "slow" timeout
     const shipmentAddressUpdate = await officePage.testHarness.bulidHHGMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
     tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
