@@ -104,6 +104,14 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dt>Gun Safe</dt>
           <dd data-testid="gunSafe"> {info.gunSafe ? 'Authorized' : 'Unauthorized'} </dd>
         </div>
+        <div className={visualCuesStyle}>
+          <dt>Admin Restricted Weight Location</dt>
+          <dd data-testid="adminRestrictedWtLoc">{info.adminRestrictedWeightLocation ? 'Yes' : 'No'}</dd>
+        </div>
+        <div className={visualCuesStyle}>
+          <dt>Weight Restriction</dt>
+          <dd data-testid="weightRestriction">-</dd>
+        </div>
       </dl>
     </div>
   );

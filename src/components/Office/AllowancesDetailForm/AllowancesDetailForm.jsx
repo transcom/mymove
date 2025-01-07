@@ -20,6 +20,8 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     entitlements?.dependentsTwelveAndOver ||
     entitlements?.dependentsUnderTwelve
   );
+  const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(false);
+
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
@@ -164,8 +166,26 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           isDisabled={formIsDisabled}
         />
       </div>
+      <div className={styles.wrappedCheckbox}>
+        <CheckboxField
+          data-testid="adminWeightLocation"
+          id="adminWeightLocation"
+          name="adminRestrictedWeightLocation"
+          label="Admin Restricted Weight Location"
+          isDisabled={formIsDisabled}
+          onChange={(e) => setIsAdminWeightLocationChecked(e.target.checked)}
+        />
+        {isAdminWeightLocationChecked && (
+          <MaskedTextField
+            data-testid="weightRestrictionInput"
+            name="weightRestriction"
+            label="Weight Restriction"
+            isDisabled={formIsDisabled}
+          />
+        )}
+      </div>
       <dl>
-        <dt>Weight allowance</dt>
+        <dt>Standard Weight allowance</dt>
         <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
       </dl>
       <div className={styles.wrappedCheckbox}>
