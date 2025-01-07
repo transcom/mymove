@@ -408,7 +408,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                       name="hasSecondaryPickupAddress"
                       value="false"
                       title="No, there is not a second pickup address"
-                      checked={hasSecondaryPickupAddress !== 'true'}
+                      checked={hasSecondaryPickupAddress !== 'true' && hasTertiaryPickupAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>
@@ -491,7 +491,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                       name="hasSecondaryDestinationAddress"
                       value="false"
                       title="No, there is not a second delivery address"
-                      checked={hasSecondaryDestinationAddress !== 'true'}
+                      checked={hasSecondaryDestinationAddress !== 'true' && hasTertiaryDestinationAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>

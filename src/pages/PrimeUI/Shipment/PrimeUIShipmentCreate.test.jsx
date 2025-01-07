@@ -32,7 +32,7 @@ jest.mock('services/primeApi', () => ({
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(true)),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const moveDetailsURL = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID: moveId });
@@ -462,8 +462,6 @@ describe('Create Mobile Home and Boat', () => {
         const saveButton = screen.getByRole('button', { name: 'Save' });
         expect(saveButton).not.toBeDisabled();
         await userEvent.click(saveButton);
-
-        // Verify that API call resets addresses when flags are not 'true'
       });
 
       expect(createPrimeMTOShipmentV3).toHaveBeenCalledWith({
