@@ -11,10 +11,10 @@ import (
 
 func (suite *InternalAPISuite) TestUploads() {
 	suite.Run("Received message for upload", func() {
-		move := factory.BuildMove(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+		orders := factory.BuildOrder(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
 		uploadUser1 := factory.BuildUserUpload(suite.DB(), []factory.Customization{
 			{
-				Model:    move.Orders.UploadedOrders,
+				Model:    orders.UploadedOrders,
 				LinkOnly: true,
 			},
 			{
@@ -29,13 +29,13 @@ func (suite *InternalAPISuite) TestUploads() {
 		_, err := suite.HandlerConfig().FileStorer().Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
 		suite.NoError(err)
 
-		req := suite.NewAuthenticatedMilRequest("GET", "/internal/uploads/"+uploadUser1.ID.String()+"/status", nil, move.Orders.ServiceMember)
+		req := suite.NewAuthenticatedMilRequest("GET", "/internal/uploads/"+uploadUser1.Upload.ID.String()+"/status", nil, orders.ServiceMember)
 		rr := httptest.NewRecorder()
 
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
 		suite.Equal(http.StatusOK, rr.Code)
-
-		// suite.Equal("text/eventstream", rr.Header().Get("content-type"))
+		suite.Equal("text/event-stream", rr.Header().Get("content-type"))
+		suite.Equal("id: 0\nevent: message\ndata: CLEAN\n\n", rr.Body.String())
 	})
 }
