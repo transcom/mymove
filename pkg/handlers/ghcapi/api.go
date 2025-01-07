@@ -33,6 +33,7 @@ import (
 	paperwork_service "github.com/transcom/mymove/pkg/services/paperwork"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
+	portlocation "github.com/transcom/mymove/pkg/services/port_location"
 	ppmcloseout "github.com/transcom/mymove/pkg/services/ppm_closeout"
 	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
@@ -67,6 +68,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	moveRouter := move.NewMoveRouter()
 	moveLocker := movelocker.NewMoveLocker()
 	addressCreator := address.NewAddressCreator()
+	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	officerUserCreator := officeusercreator.NewOfficeUserCreator(
 		queryBuilder,
@@ -109,6 +111,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
 	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
 	assignedOfficeUserUpdater := move.NewAssignedOfficeUserUpdater(move.NewMoveFetcher())
+	vLocation := address.NewVLocation()
 
 	shipmentSITStatus := sitstatus.NewShipmentSITStatus()
 
@@ -241,7 +244,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
 		HandlerConfig:         handlerConfig,
-		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator),
+		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher),
 		Fetcher:               fetch.NewFetcher(queryBuilder),
 		ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
 		MTOShipmentFetcher:    mtoshipment.NewMTOShipmentFetcher(),
@@ -512,7 +515,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.ShipmentUpdateSITServiceItemCustomerExpenseHandler = UpdateSITServiceItemCustomerExpenseHandler{
 		handlerConfig,
-		mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator),
+		mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher),
 		mtoshipment.NewMTOShipmentFetcher(),
 		shipmentSITStatus,
 	}
@@ -650,6 +653,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveUpdateCloseoutOfficeHandler = UpdateMoveCloseoutOfficeHandler{
 		handlerConfig,
 		closeoutOfficeUpdater,
+	}
+
+	ghcAPI.AddressesGetLocationByZipCityStateHandler = GetLocationByZipCityStateHandler{
+		handlerConfig,
+		vLocation,
 	}
 
 	ghcAPI.OfficeUsersCreateRequestedOfficeUserHandler = RequestOfficeUserHandler{

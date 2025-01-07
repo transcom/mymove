@@ -346,4 +346,50 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		suite.Equal(expectedCodes, reServiceCodes)
 	})
 
+	suite.Run("Port Locations not populated by default", func() {
+
+		serviceItem := BuildMTOServiceItem(suite.DB(), nil, nil)
+		suite.Nil(serviceItem.POELocation, nil)
+		suite.Nil(serviceItem.PODLocation, nil)
+	})
+
+	suite.Run("PODLocation populated for PortOfDebarkation type", func() {
+
+		portLocation := FetchPortLocation(suite.DB(), []Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+		serviceItem := BuildMTOServiceItem(suite.DB(), []Customization{
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &PortLocations.PortOfDebarkation,
+			},
+		}, nil)
+		suite.Equal(portLocation.Port.PortCode, serviceItem.PODLocation.Port.PortCode)
+		suite.Nil(serviceItem.POELocation)
+	})
+
+	suite.Run("POELocation populated for PortOfEmbarkation type", func() {
+
+		portLocation := FetchPortLocation(suite.DB(), []Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+		serviceItem := BuildMTOServiceItem(suite.DB(), []Customization{
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+		suite.Nil(serviceItem.PODLocation)
+		suite.Equal(portLocation.Port.PortCode, serviceItem.POELocation.Port.PortCode)
+	})
 }
