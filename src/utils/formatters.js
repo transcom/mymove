@@ -593,3 +593,17 @@ export const constructSCOrderOconusFields = (values) => {
           null,
   };
 };
+
+export const formatAssignedOfficeUserFromContext = (historyRecord) => {
+  const { changedValues, context } = historyRecord;
+  const newValues = {};
+  if (!context) return newValues;
+
+  const name = `${context[0].assigned_office_user_last_name}, ${context[0].assigned_office_user_first_name}`;
+
+  if (changedValues.sc_assigned_id) newValues.assigned_sc = name;
+  if (changedValues.too_assigned_id) newValues.assigned_too = name;
+  if (changedValues.tio_assigned_id) newValues.assigned_tio = name;
+
+  return newValues;
+};
