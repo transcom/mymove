@@ -138,7 +138,7 @@ func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCt
 	query := `SELECT ou.id,
 				ou.first_name,
 				ou.last_name,
-				COUNT(m.id) AS workload
+				COUNT(DISTINCT m.id) AS workload
 			FROM office_users AS ou
 			JOIN users AS u on ou.user_id = u.id
 			JOIN users_roles AS ur on u.id = ur.user_id
