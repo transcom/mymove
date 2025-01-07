@@ -303,8 +303,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		for i := 0; i < len(serviceItems); i++ {
 			actualReServiceCode := serviceItems[i].ReService.Code
 			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode))
-			// because the estimated weight is provided, estimated pricing should be updated
-			suite.Nil(serviceItems[i].PricingEstimate)
+			// we should have pricing data on all but the POEFSC since we don't have the port data yet
+			if serviceItems[i].ReService.Code != models.ReServiceCodePOEFSC {
+				suite.NotNil(serviceItems[i].PricingEstimate)
+			} else if serviceItems[i].ReService.Code == models.ReServiceCodePOEFSC {
+				suite.Nil(serviceItems[i].PricingEstimate)
+			}
 		}
 	})
 
