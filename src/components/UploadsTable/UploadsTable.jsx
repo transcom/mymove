@@ -31,10 +31,11 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
     }
   };
 
-  const testLinkWithIframe = (fileUrl) => {
+  const testLinkWithoutDownload = (fileUrl) => {
     return new Promise((resolve) => {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
+      iframe.sandbox = 'allow-scripts'; // Restrict iframe to prevent download
 
       iframe.onload = () => {
         resolve(true);
@@ -54,7 +55,7 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
   const pollForValidLink = useCallback(
     async (fileUrl, fileId) => {
       const checkLink = async () => {
-        const isValid = await testLinkWithIframe(fileUrl);
+        const isValid = await testLinkWithoutDownload(fileUrl);
         if (isValid) {
           setFileAvailable((prev) => ({ ...prev, [fileId]: true }));
           clearInterval(intervalIds.current[fileId]); // Stop polling
@@ -63,7 +64,10 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
         }
       };
 
-      intervalIds.current[fileId] = setInterval(checkLink, pollingInterval);
+      if (!intervalIds.current[fileId]) {
+        intervalIds.current[fileId] = setInterval(checkLink, pollingInterval);
+        await checkLink(); // Run immediately on start
+      }
     },
     [pollingInterval],
   );
