@@ -45,5 +45,5 @@ func (n StubNotificationReceiver) CloseoutQueue(appCtx appcontext.AppContext, qu
 }
 
 func (n StubNotificationReceiver) GetDefaultTopic() (string, error) {
-	return "", nil
+	return "stubDefaultTopic", nil
 }

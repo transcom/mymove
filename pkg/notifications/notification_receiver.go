@@ -38,8 +38,8 @@ type NotificationReceiver interface {
 // NotificationReceiverConext provides context to a notification Receiver. Maps use queueUrl for key
 type NotificationReceiverContext struct {
 	viper                ViperType
-	snsService           *sns.Client
-	sqsService           *sqs.Client
+	snsService           SnsClient
+	sqsService           SqsClient
 	awsRegion            string
 	awsAccountId         string
 	queueSubscriptionMap map[string]string
@@ -47,11 +47,14 @@ type NotificationReceiverContext struct {
 }
 
 type SnsClient interface {
-	*sns.Client
+	Subscribe(ctx context.Context, params *sns.SubscribeInput, optFns ...func(*sns.Options)) (*sns.SubscribeOutput, error)
+	Unsubscribe(ctx context.Context, params *sns.UnsubscribeInput, optFns ...func(*sns.Options)) (*sns.UnsubscribeOutput, error)
 }
 
 type SqsClient interface {
-	*sqs.Client
+	CreateQueue(ctx context.Context, params *sqs.CreateQueueInput, optFns ...func(*sqs.Options)) (*sqs.CreateQueueOutput, error)
+	ReceiveMessage(ctx context.Context, params *sqs.ReceiveMessageInput, optFns ...func(*sqs.Options)) (*sqs.ReceiveMessageOutput, error)
+	DeleteQueue(ctx context.Context, params *sqs.DeleteQueueInput, optFns ...func(*sqs.Options)) (*sqs.DeleteQueueOutput, error)
 }
 
 type ViperType interface {
@@ -66,7 +69,7 @@ type ReceivedMessage struct {
 }
 
 // NewNotificationReceiver returns a new NotificationReceiverContext
-func NewNotificationReceiver(v ViperType, snsService *sns.Client, sqsService *sqs.Client, awsRegion string, awsAccountId string) NotificationReceiverContext {
+func NewNotificationReceiver(v ViperType, snsService SnsClient, sqsService SqsClient, awsRegion string, awsAccountId string) NotificationReceiverContext {
 	return NotificationReceiverContext{
 		viper:                v,
 		snsService:           snsService,
