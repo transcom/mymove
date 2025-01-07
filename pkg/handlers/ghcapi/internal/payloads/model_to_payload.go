@@ -122,6 +122,8 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		SCAssignedUser:                                 AssignedOfficeUser(move.SCAssignedUser),
 		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
+		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
+		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
 	}
 
 	return payload, nil
@@ -433,6 +435,18 @@ func GBLOCs(gblocs []string) ghcmessages.GBLOCs {
 
 	for i, gbloc := range gblocs {
 		payload[i] = string(gbloc)
+	}
+	return payload
+}
+
+func CounselingOffices(counselingOffices models.TransportationOffices) ghcmessages.CounselingOffices {
+	payload := make(ghcmessages.CounselingOffices, len(counselingOffices))
+
+	for i, counselingOffice := range counselingOffices {
+		payload[i] = &ghcmessages.CounselingOffice{
+			ID:   handlers.FmtUUID(counselingOffice.ID),
+			Name: models.StringPointer(counselingOffice.Name),
+		}
 	}
 	return payload
 }

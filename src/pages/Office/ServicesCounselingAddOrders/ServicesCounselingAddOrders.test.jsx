@@ -23,6 +23,20 @@ jest.mock('utils/featureFlags', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   counselingCreateOrder: jest.fn().mockImplementation(() => Promise.resolve()),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -79,6 +93,7 @@ jest.mock('components/LocationSearchBox/api', () => ({
         id: '7d123884-7c1b-4611-92ae-e8d43ca03ad9',
         name: 'Hill AFB',
         updated_at: '2021-02-11T16:48:04.117Z',
+        provides_services_counseling: true,
       },
       {
         address: {
@@ -353,6 +368,9 @@ describe('ServicesCounselingAddOrders component', () => {
     const selectedOptionCurrent = await screen.findByText(/Altus/);
     await user.click(selectedOptionCurrent);
 
+    const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
+    expect(counselingOfficeLabel).toBeFalsy();
+
     await user.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 500 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await user.click(selectedOptionNew);
@@ -368,6 +386,32 @@ describe('ServicesCounselingAddOrders component', () => {
       expect(setCanAddOrders).toHaveBeenCalledWith(false);
       expect(mockNavigate).toHaveBeenCalledWith('/counseling/moves/MM8CXJ/details');
     });
+  });
+
+  it('Displays the counseling office dropdown', async () => {
+    renderWithMocks();
+
+    counselingCreateOrder.mockImplementation(() => Promise.resolve(fakeResponse));
+
+    const user = userEvent.setup();
+
+    await user.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+    await user.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+    await user.type(screen.getByLabelText('Report by date'), '29 Nov 2020');
+    await user.click(screen.getByLabelText('No'));
+    await user.selectOptions(screen.getByLabelText('Pay grade'), ['E-5']);
+
+    // Test Current Duty Location Search Box interaction
+    await user.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 500 });
+    const selectedOptionCurrent = await screen.findByText(/Hill/);
+    await user.click(selectedOptionCurrent);
+
+    const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
+    expect(counselingOfficeLabel).toBeTruthy();
+
+    await user.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 500 });
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await user.click(selectedOptionNew);
   });
 
   it('routes to the move details page when the next button is clicked for OCONUS orders', async () => {
