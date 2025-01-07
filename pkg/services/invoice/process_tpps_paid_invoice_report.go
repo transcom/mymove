@@ -57,6 +57,7 @@ func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 
 	if TPPSPaidInvoiceReportFilePath == "" {
 		appCtx.Logger().Info("No valid filepath found to process TPPS Paid Invoice Report", zap.String("TPPSPaidInvoiceReportFilePath", TPPSPaidInvoiceReportFilePath))
+		return nil
 	}
 	tppsPaidInvoiceReport := tppsReponse.TPPSData{}
 
