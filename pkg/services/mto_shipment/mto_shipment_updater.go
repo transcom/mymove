@@ -863,7 +863,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			if err != nil {
 				return err
 			}
-			// if we don't have the port data, then we won't worry about pricing because we need the distance from/to the ports
+			// if we don't have the port data, then we won't worry about pricing POEFSC/PODFSC because we need the distance from/to the ports
 			if portZip != nil && portType != nil {
 				var pickupZip string
 				var destZip string
@@ -883,7 +883,13 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				}
 
 				// update the service item pricing if relevant fields have changed
-				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), newShipment, mileage)
+				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), newShipment, &mileage)
+				if err != nil {
+					return err
+				}
+			} else {
+				// if we don't have the port data, that's okay - we can update the other service items except for PODFSC/POEFSC
+				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), newShipment, nil)
 				if err != nil {
 					return err
 				}
