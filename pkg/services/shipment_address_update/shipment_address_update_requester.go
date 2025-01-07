@@ -52,32 +52,49 @@ func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx ap
 	return true, nil
 }
 
-func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
-	var existingServiceArea models.ReZip3
-	var actualServiceArea models.ReZip3
+func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceOrRateArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address, shipment models.MTOShipment) (bool, error) {
+	if shipment.MarketCode == models.MarketCodeInternational {
+		// we need to make sure we didn't change rate areas
+		originalRateArea, err := models.FetchRateAreaID(appCtx.DB(), originalDeliveryAddress.ID, nil, contractID)
+		if err != nil || originalRateArea == uuid.Nil {
+			return false, err
+		}
+		newRateArea, err := models.FetchRateAreaID(appCtx.DB(), newDeliveryAddress.ID, nil, contractID)
+		if err != nil || newRateArea == uuid.Nil {
+			return false, err
+		}
+		if originalRateArea != newRateArea {
+			return true, nil
+		} else {
+			return false, nil
+		}
+	} else {
+		var existingServiceArea models.ReZip3
+		var actualServiceArea models.ReZip3
 
-	originalZip := originalDeliveryAddress.PostalCode[0:3]
-	destinationZip := newDeliveryAddress.PostalCode[0:3]
+		originalZip := originalDeliveryAddress.PostalCode[0:3]
+		destinationZip := newDeliveryAddress.PostalCode[0:3]
 
-	if originalZip == destinationZip {
-		// If the ZIP hasn't changed, we must be in the same service area
+		if originalZip == destinationZip {
+			// If the ZIP hasn't changed, we must be in the same service area
+			return false, nil
+		}
+
+		err := appCtx.DB().Where("zip3 = ?", originalZip).Where("contract_id = ?", contractID).First(&existingServiceArea)
+		if err != nil {
+			return false, err
+		}
+
+		err = appCtx.DB().Where("zip3 = ?", destinationZip).Where("contract_id = ?", contractID).First(&actualServiceArea)
+		if err != nil {
+			return false, err
+		}
+
+		if existingServiceArea.DomesticServiceAreaID != actualServiceArea.DomesticServiceAreaID {
+			return true, nil
+		}
 		return false, nil
 	}
-
-	err := appCtx.DB().Where("zip3 = ?", originalZip).Where("contract_id = ?", contractID).First(&existingServiceArea)
-	if err != nil {
-		return false, err
-	}
-
-	err = appCtx.DB().Where("zip3 = ?", destinationZip).Where("contract_id = ?", contractID).First(&actualServiceArea)
-	if err != nil {
-		return false, err
-	}
-
-	if existingServiceArea.DomesticServiceAreaID != actualServiceArea.DomesticServiceAreaID {
-		return true, nil
-	}
-	return false, nil
 }
 
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageBracket(appCtx appcontext.AppContext, originalPickupAddress models.Address, originalDeliveryAddress, newDeliveryAddress models.Address) (bool, error) {
@@ -333,7 +350,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 
-	updateNeedsTOOReview, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress)
+	updateNeedsTOOReview, err := f.doesDeliveryAddressUpdateChangeServiceOrRateArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress, shipment)
 	if err != nil {
 		return nil, err
 	}
