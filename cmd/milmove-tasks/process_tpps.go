@@ -126,6 +126,8 @@ func processTPPS(_ *cobra.Command, _ []string) error {
 
 	// Process TPPS paid invoice report
 	pathTPPSPaidInvoiceReport := v.GetString(cli.ProcessTPPSInvoiceReportPickupDirectory)
+	// temporarily adding logging here to see that s3 path was found
+	logger.Info(fmt.Sprintf("pathTPPSPaidInvoiceReport: %s", pathTPPSPaidInvoiceReport))
 	err = tppsInvoiceProcessor.ProcessFile(appCtx, pathTPPSPaidInvoiceReport, "")
 
 	if err != nil {
