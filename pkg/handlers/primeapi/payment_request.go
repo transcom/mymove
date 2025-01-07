@@ -147,6 +147,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 			createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest, featureFlagValues)
 			if err != nil {
+				appCtx.Logger().Error("Error creating payment request: ", zap.Error(err))
 				return handleError(err)
 			}
 

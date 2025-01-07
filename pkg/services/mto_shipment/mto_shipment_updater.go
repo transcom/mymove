@@ -1156,9 +1156,19 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 		// Check flags to determine if service items have been toggled on or off.
 		// if DOPFeatureFlag, err := flagFetcher.GetBooleanFlagForUser(appCtx.DB().Context(), appCtx, "domestic_mobile_home_origin_price_enabled", map[string]string{}); err != nil{
 
-		serviceCodes := []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
+		originZIP3 := shipment.PickupAddress.PostalCode[0:3]
+		destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
+		var serviceCodes []models.ReServiceCode
+		if originZIP3 == destinationZIP3 {
+			serviceCodes = []models.ReServiceCode{
+				models.ReServiceCodeDMHSH,
+				models.ReServiceCodeFSC,
+			}
+		} else {
+			serviceCodes = []models.ReServiceCode{
+				models.ReServiceCodeDMHLH,
+				models.ReServiceCodeFSC,
+			}
 		}
 		var currentCode models.ReServiceCode
 
@@ -1204,7 +1214,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 	case models.MTOShipmentTypeBoatHaulAway:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
 		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
+			models.ReServiceCodeDMHLH,
 			models.ReServiceCodeFSC,
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,

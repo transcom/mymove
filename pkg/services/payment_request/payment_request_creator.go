@@ -98,33 +98,35 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		var newPaymentServiceItems models.PaymentServiceItems
 		for _, paymentServiceItem := range paymentRequestArg.PaymentServiceItems {
 
-			// Skip service item if this is a mobile home shipment and the toggle for this item type is turned off
-			switch paymentServiceItem.MTOServiceItem.ReService.Code {
-			case models.ReServiceCodeDMHDP:
-				if !featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] { // Do not apply at all to this request
-					continue
-				} else if !featureFlagValues[featureflag.DomesticMobileHomeDDPFactor] { // Downgrade to regular DDP service item (no mobile home factor applied)
-					paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDDP
+			// If this is a mobile home shipment, run checks to replace default service items with Mobile Home equivalents if needed
+			if paymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+				switch paymentServiceItem.MTOServiceItem.ReService.Code {
+				case models.ReServiceCodeDMHDP:
+					if !featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] { // Skip service item if the toggle for this item type is turned off
+						continue
+					} else if !featureFlagValues[featureflag.DomesticMobileHomeDDPFactor] { // Downgrade to regular DDP service item (no mobile home factor applied) if factor toggle is off
+						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDDP
+					}
+				case models.ReServiceCodeDMHOP:
+					if !featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] {
+						continue
+					} else if !featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
+						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDOP
+					}
+				case models.ReServiceCodeDMHPK:
+					if !featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] {
+						continue
+					} else if !featureFlagValues[featureflag.DomesticMobileHomePackingFactor] {
+						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDPK
+					}
+				case models.ReServiceCodeDMHUPK:
+					if !featureFlagValues[featureflag.DomesticMobileHomeUnpackingEnabled] {
+						continue
+					} else if !featureFlagValues[featureflag.DomesticMobileHomeUnpackingFactor] {
+						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDUPK
+					}
+				default: // Other service item type, no mobile home specific type/factor to worry about.
 				}
-			case models.ReServiceCodeDMHOP:
-				if !featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] {
-					continue
-				} else if !featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
-					paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDOP
-				}
-			case models.ReServiceCodeDMHPK:
-				if !featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] {
-					continue
-				} else if !featureFlagValues[featureflag.DomesticMobileHomePackingFactor] {
-					paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDPK
-				}
-			case models.ReServiceCodeDMHUPK:
-				if !featureFlagValues[featureflag.DomesticMobileHomeUnpackingEnabled] {
-					continue
-				} else if !featureFlagValues[featureflag.DomesticMobileHomeUnpackingFactor] {
-					paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDUPK
-				}
-			default: // Other service item type, no mobile home specific type/factor to worry about.
 			}
 
 			// check if shipment is valid for creating a payment request
