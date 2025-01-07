@@ -1011,7 +1011,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.App
 
 // createShipmentServiceItems creates shipment level service items
 func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
-	reServiceCodes := reServiceCodesForShipment(appCtx, *shipment)
+	reServiceCodes := reServiceCodesForShipment(*shipment)
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
 		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
@@ -1098,7 +1098,7 @@ func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder U
 	return &shipment, nil
 }
 
-func reServiceCodesForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) []models.ReServiceCode {
+func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCode {
 	// We will detect the type of shipment we're working with and then call a helper with the correct
 	// default service items that we want created as a side effect.
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
@@ -1175,33 +1175,6 @@ func reServiceCodesForShipment(appCtx appcontext.AppContext, shipment models.MTO
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
 			models.ReServiceCodeDBTF,
-		}
-	case models.MTOShipmentTypeUnaccompaniedBaggage:
-		pickupIsOconus, err := models.IsAddressOconus(appCtx.DB(), *shipment.PickupAddress)
-		if err != nil {
-			appCtx.Logger().Error(err.Error())
-			return nil
-		}
-
-		destinationIsOconus, err := models.IsAddressOconus(appCtx.DB(), *shipment.DestinationAddress)
-		if err != nil {
-			appCtx.Logger().Error(err.Error())
-			return nil
-		}
-
-		if pickupIsOconus && destinationIsOconus {
-			return []models.ReServiceCode{
-				models.ReServiceCodeUBP,
-				models.ReServiceCodeIUBPK,
-				models.ReServiceCodeIUBUPK,
-			}
-		} else {
-			return []models.ReServiceCode{
-				models.ReServiceCodeUBP,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeIUBPK,
-				models.ReServiceCodeIUBUPK,
-			}
 		}
 	}
 
