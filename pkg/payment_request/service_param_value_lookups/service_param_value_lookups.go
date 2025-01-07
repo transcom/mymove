@@ -85,6 +85,8 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameStandaloneCrate,
 	models.ServiceItemParamNameStandaloneCrateCap,
 	models.ServiceItemParamNameLockedPriceCents,
+	models.ServiceItemParamNameMarketDest,
+	models.ServiceItemParamNameMarketOrigin,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
@@ -428,6 +430,14 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 
 	lookups[models.ServiceItemParamNameLockedPriceCents] = LockedPriceCentsLookup{
 		ServiceItem: serviceItem,
+	}
+
+	lookups[models.ServiceItemParamNameMarketOrigin] = MarketOriginLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameMarketDest] = MarketDestinationLookup{
+		Address: *shipment.DestinationAddress,
 	}
 
 	return lookups
