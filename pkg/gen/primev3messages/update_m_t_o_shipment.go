@@ -75,6 +75,12 @@ type UpdateMTOShipment struct {
 	//
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
+	// port of debarkation
+	PortOfDebarkation *Port `json:"portOfDebarkation,omitempty"`
+
+	// port of embarkation
+	PortOfEmbarkation *Port `json:"portOfEmbarkation,omitempty"`
+
 	// ppm shipment
 	PpmShipment *UpdatePPMShipment `json:"ppmShipment,omitempty"`
 
@@ -149,6 +155,14 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePortOfDebarkation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePortOfEmbarkation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -268,6 +282,44 @@ func (m *UpdateMTOShipment) validateFirstAvailableDeliveryDate(formats strfmt.Re
 func (m *UpdateMTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.PickupAddress) { // not required
 		return nil
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) validatePortOfDebarkation(formats strfmt.Registry) error {
+	if swag.IsZero(m.PortOfDebarkation) { // not required
+		return nil
+	}
+
+	if m.PortOfDebarkation != nil {
+		if err := m.PortOfDebarkation.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("portOfDebarkation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("portOfDebarkation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) validatePortOfEmbarkation(formats strfmt.Registry) error {
+	if swag.IsZero(m.PortOfEmbarkation) { // not required
+		return nil
+	}
+
+	if m.PortOfEmbarkation != nil {
+		if err := m.PortOfEmbarkation.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("portOfEmbarkation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("portOfEmbarkation")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -424,6 +476,14 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePortOfDebarkation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePortOfEmbarkation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -485,6 +545,48 @@ func (m *UpdateMTOShipment) contextValidateDestinationType(ctx context.Context, 
 }
 
 func (m *UpdateMTOShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidatePortOfDebarkation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PortOfDebarkation != nil {
+
+		if swag.IsZero(m.PortOfDebarkation) { // not required
+			return nil
+		}
+
+		if err := m.PortOfDebarkation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("portOfDebarkation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("portOfDebarkation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidatePortOfEmbarkation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PortOfEmbarkation != nil {
+
+		if swag.IsZero(m.PortOfEmbarkation) { // not required
+			return nil
+		}
+
+		if err := m.PortOfEmbarkation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("portOfEmbarkation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("portOfEmbarkation")
+			}
+			return err
+		}
+	}
 
 	return nil
 }

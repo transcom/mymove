@@ -64,6 +64,11 @@ type PPMDestinationAddress struct {
 	// Address Line 3
 	// Example: Montmârtre
 	StreetAddress3 *string `json:"streetAddress3,omitempty"`
+
+	// us post region cities ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	UsPostRegionCitiesID strfmt.UUID `json:"usPostRegionCitiesID,omitempty"`
 }
 
 // Validate validates this p p m destination address
@@ -83,6 +88,10 @@ func (m *PPMDestinationAddress) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateState(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUsPostRegionCitiesID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -310,6 +319,18 @@ func (m *PPMDestinationAddress) validateState(formats strfmt.Registry) error {
 
 	// value enum
 	if err := m.validateStateEnum("state", "body", *m.State); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMDestinationAddress) validateUsPostRegionCitiesID(formats strfmt.Registry) error {
+	if swag.IsZero(m.UsPostRegionCitiesID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("usPostRegionCitiesID", "body", "uuid", m.UsPostRegionCitiesID.String(), formats); err != nil {
 		return err
 	}
 
