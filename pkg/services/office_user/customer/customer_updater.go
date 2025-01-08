@@ -42,6 +42,9 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 			if residentialAddress.StreetAddress3 != nil {
 				existingCustomer.ResidentialAddress.StreetAddress3 = residentialAddress.StreetAddress3
 			}
+			if residentialAddress.UsPostRegionCityID != nil {
+				existingCustomer.ResidentialAddress.UsPostRegionCityID = residentialAddress.UsPostRegionCityID
+			}
 
 			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.ResidentialAddress)
 			if verrs != nil && verrs.HasAny() {
@@ -62,6 +65,9 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 			}
 			if backupAddress.StreetAddress3 != nil {
 				existingCustomer.BackupMailingAddress.StreetAddress3 = backupAddress.StreetAddress3
+			}
+			if backupAddress.UsPostRegionCityID != nil {
+				existingCustomer.BackupMailingAddress.UsPostRegionCityID = backupAddress.UsPostRegionCityID
 			}
 
 			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.BackupMailingAddress)

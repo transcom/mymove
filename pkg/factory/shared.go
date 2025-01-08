@@ -73,11 +73,15 @@ var PaymentRequest CustomType = "PaymentRequest"
 var PaymentServiceItem CustomType = "PaymentServiceItem"
 var PaymentServiceItemParam CustomType = "PaymentServiceItemParam"
 var PaymentRequestToInterchangeControlNumber CustomType = "PaymentRequestToInterchangeControlNumber"
+var Port CustomType = "Port"
+var PortLocation CustomType = "PortLocation"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var PrimeUpload CustomType = "PrimeUpload"
 var ProgearWeightTicket CustomType = "ProgearWeightTicket"
 var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
+var ReDomesticOtherPrice CustomType = "ReDomesticOtherPrice"
+var ReDomesticServiceAreaPrice CustomType = "ReDomesticServiceAreaPrice"
 var Role CustomType = "Role"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceParam CustomType = "ServiceParam"
@@ -137,11 +141,15 @@ var defaultTypesMap = map[string]CustomType{
 	"models.PaymentServiceItemParam":                  PaymentServiceItemParam,
 	"models.PaymentRequestToInterchangeControlNumber": PaymentRequestToInterchangeControlNumber,
 	"models.PPMShipment":                              PPMShipment,
+	"models.Port":                                     Port,
+	"models.PortLocation":                             PortLocation,
 	"models.PostalCodeToGBLOC":                        PostalCodeToGBLOC,
 	"models.PrimeUpload":                              PrimeUpload,
 	"models.ProgearWeightTicket":                      ProgearWeightTicket,
 	"models.ProofOfServiceDoc":                        ProofOfServiceDoc,
 	"models.ReService":                                ReService,
+	"models.ReDomesticOtherPrice":                     ReDomesticOtherPrice,
+	"models.ReDomesticServiceAreaPrice":               ReDomesticServiceAreaPrice,
 	"models.ServiceItemParamKey":                      ServiceItemParamKey,
 	"models.ServiceMember":                            ServiceMember,
 	"models.ServiceRequestDocument":                   ServiceRequestDocument,
@@ -273,6 +281,18 @@ type uploadGroup struct {
 var Uploads = uploadGroup{
 	UploadTypePrime: "UploadTypePrime",
 	UploadTypeUser:  "UploadTypeUser",
+}
+
+// portLocationGroup is a grouping of all the port related fields
+type portLocationGroup struct {
+	PortOfDebarkation CustomType
+	PortOfEmbarkation CustomType
+}
+
+// PortLocations is the struct to access the fields externally
+var PortLocations = portLocationGroup{
+	PortOfDebarkation: "PODLocation",
+	PortOfEmbarkation: "POELocation",
 }
 
 // Below are errors returned by various functions
