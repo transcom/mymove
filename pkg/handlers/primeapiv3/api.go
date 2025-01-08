@@ -48,6 +48,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 	primeAPIV3.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(waf),
+		mtoshipment.NewMTOShipmentRateAreaFetcher(),
 	}
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
