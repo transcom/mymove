@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 
 import PrimeUIUpdateOriginSITForm from './PrimeUIUpdateOriginSITForm';
 import PrimeUIUpdateDestSITForm from './PrimeUIUpdateDestSITForm';
+import PrimeUIUpdateInternationalFuelSurchargeForm from './PrimeUIUpdateInternationalFuelSurchargeForm';
 
 import { updateMTOServiceItem } from 'services/primeApi';
 import scrollToTop from 'shared/scrollToTop';
@@ -19,18 +20,18 @@ import { primeSimulatorRoutes } from 'constants/routes';
 import { formatDateForSwagger, formatDateWithUTC } from 'shared/dates';
 import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
 
-const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
+const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
   const navigate = useNavigate();
   const { moveCodeOrID, mtoServiceItemId } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
   /* istanbul ignore next */
-  const { mutate: createUpdateSITServiceItemRequestMutation } = useMutation(updateMTOServiceItem, {
+  const { mutate: createUpdateServiceItemRequestMutation } = useMutation(updateMTOServiceItem, {
     onSuccess: () => {
       setFlashMessage(
-        `UPDATE_SIT_SERVICE_ITEM_REQUEST_SUCCESS${moveCodeOrID}`,
+        `UPDATE_SERVICE_ITEM_REQUEST_SUCCESS${moveCodeOrID}`,
         'success',
-        'Successfully updated SIT service item',
+        'Successfully updated service item',
         '',
         true,
       );
@@ -68,44 +69,48 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
 
   const serviceItem = moveTaskOrder?.mtoServiceItems.find((s) => s?.id === mtoServiceItemId);
   const { modelType } = serviceItem;
-
-  const initialValues = {
-    sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    sitCustomerContacted: formatDateWithUTC(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    mtoServiceItemID: serviceItem.id,
-    reServiceCode: serviceItem.reServiceCode,
-    eTag: serviceItem.eTag,
-  };
-
-  // sending the data submitted in the form to the API
-  // if any of the dates are skipped or not filled with values, we'll just make them null
-  const onSubmit = (values) => {
-    const {
-      sitCustomerContacted,
-      sitDepartureDate,
-      sitRequestedDelivery,
-      updateReason,
-      mtoServiceItemID,
-      reServiceCode,
-      eTag,
-    } = values;
-
-    const body = {
-      sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
-      sitRequestedDelivery: sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
-      sitCustomerContacted: sitCustomerContacted === 'Invalid date' ? null : formatDateForSwagger(sitCustomerContacted),
-      reServiceCode,
-      modelType: 'UpdateMTOServiceItemSIT',
+  let initialValues;
+  let onSubmit;
+  if (modelType === 'MTOServiceItemOriginSIT' || modelType === 'MTOServiceItemDestSIT') {
+    initialValues = {
+      sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+      sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+      sitCustomerContacted: formatDateWithUTC(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+      mtoServiceItemID: serviceItem.id,
+      reServiceCode: serviceItem.reServiceCode,
+      eTag: serviceItem.eTag,
     };
+    // sending the data submitted in the form to the API
+    // if any of the dates are skipped or not filled with values, we'll just make them null
+    onSubmit = (values) => {
+      const {
+        sitCustomerContacted,
+        sitDepartureDate,
+        sitRequestedDelivery,
+        updateReason,
+        mtoServiceItemID,
+        reServiceCode,
+        eTag,
+      } = values;
 
-    if (serviceItem?.status === SERVICE_ITEM_STATUSES.REJECTED) {
-      body.requestApprovalsRequestedStatus = true;
-      body.updateReason = updateReason;
-    }
+      const body = {
+        sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
+        sitRequestedDelivery:
+          sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
+        sitCustomerContacted:
+          sitCustomerContacted === 'Invalid date' ? null : formatDateForSwagger(sitCustomerContacted),
+        reServiceCode,
+        modelType: 'UpdateMTOServiceItemSIT',
+      };
 
-    createUpdateSITServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
-  };
+      if (serviceItem?.status === SERVICE_ITEM_STATUSES.REJECTED) {
+        body.requestApprovalsRequestedStatus = true;
+        body.updateReason = updateReason;
+      }
+
+      createUpdateServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
+    };
+  }
 
   return (
     <div className={styles.tabContent}>
@@ -136,6 +141,13 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
                   onSubmit={onSubmit}
                 />
               ) : null}
+              {modelType === 'MTOServiceItemInternationalFuelSurcharge' ? (
+                <PrimeUIUpdateInternationalFuelSurchargeForm
+                  moveTaskOrder={moveTaskOrder}
+                  mtoServiceItemId={mtoServiceItemId}
+                  onUpdateServiceItem={createUpdateServiceItemRequestMutation}
+                />
+              ) : null}
             </Grid>
           </Grid>
         </GridContainer>
@@ -148,4 +160,4 @@ const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(PrimeUIUpdateSitServiceItem);
+export default connect(() => ({}), mapDispatchToProps)(PrimeUIUpdateServiceItem);

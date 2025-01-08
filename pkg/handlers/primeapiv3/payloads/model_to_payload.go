@@ -247,7 +247,7 @@ func Address(address *models.Address) *primev3messages.Address {
 	if address == nil {
 		return nil
 	}
-	return &primev3messages.Address{
+	payloadAddress := &primev3messages.Address{
 		ID:               strfmt.UUID(address.ID.String()),
 		StreetAddress1:   &address.StreetAddress1,
 		StreetAddress2:   address.StreetAddress2,
@@ -260,6 +260,12 @@ func Address(address *models.Address) *primev3messages.Address {
 		County:           address.County,
 		DestinationGbloc: address.DestinationGbloc,
 	}
+
+	if address.UsPostRegionCityID != nil && address.UsPostRegionCityID != &uuid.Nil {
+		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
+	}
+
+	return payloadAddress
 }
 
 // PPM Destination payload
@@ -847,6 +853,19 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
 			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
+
+	case models.ReServiceCodePODFSC, models.ReServiceCodePOEFSC:
+		var portCode string
+		if mtoServiceItem.POELocation != nil {
+			portCode = mtoServiceItem.POELocation.Port.PortCode
+		} else if mtoServiceItem.PODLocation != nil {
+			portCode = mtoServiceItem.PODLocation.Port.PortCode
+		}
+		payload = &primev3messages.MTOServiceItemInternationalFuelSurcharge{
+			ReServiceCode: string(mtoServiceItem.ReService.Code),
+			PortCode:      portCode,
+		}
+
 	default:
 		// otherwise, basic service item
 		payload = &primev3messages.MTOServiceItemBasic{
