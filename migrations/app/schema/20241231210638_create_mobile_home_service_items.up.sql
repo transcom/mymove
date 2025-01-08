@@ -19,7 +19,7 @@ INSERT INTO service_params
 VALUES
 -- Dom. Mobile Home Linehaul
 ('4d385736-307f-4721-b41e-44b7b4eabb90',(SELECT id FROM re_services WHERE code='DMHLH'),(SELECT id FROM service_item_param_keys where key='RequestedPickupDate'), now(), now()),
-('da20c86f-7cd1-4c80-a5fd-a5883fde5e22',(SELECT id FROM re_services WHERE code='DMHLH'),(SELECT id FROM service_item_param_keys where key='DistanceZip3'), now(), now()),
+('da20c86f-7cd1-4c80-a5fd-a5883fde5e22',(SELECT id FROM re_services WHERE code='DMHLH'),(SELECT id FROM service_item_param_keys where key='DistanceZip'), now(), now()),
 ('0ac14c3c-65bc-4b0e-8029-7bd5fb6abaeb',(SELECT id FROM re_services WHERE code='DMHLH'),(SELECT id FROM service_item_param_keys where key='ZipPickupAddress'), now(), now()),
 ('a1b2ee2e-268e-45db-956a-82dac6b60fed',(SELECT id FROM re_services WHERE code='DMHLH'),(SELECT id FROM service_item_param_keys where key='ZipDestAddress'), now(), now()),
 ('6eda554f-2414-4297-bc20-399c784ca483',(SELECT id FROM re_services WHERE code='DMHLH'),(SELECT id FROM service_item_param_keys where key='WeightBilled'), now(), now()),
@@ -34,12 +34,11 @@ VALUES
 ('dc0969d3-f600-4a84-8bce-3b9d0feb0bb7',(SELECT id FROM re_services WHERE code = 'DMHLH'), (SELECT id FROM service_item_param_keys where key = 'ContractCode'), now(), now()),
 ('534547b2-641c-4463-a4d2-41734982a98d', (SELECT id FROM re_services WHERE code = 'DMHLH'), (SELECT id FROM service_item_param_keys WHERE key = 'WeightAdjusted'), now(), now()),
 ('d7c9681f-0bbc-4d79-a517-b9bb5eadd9ea', (SELECT id FROM re_services WHERE code = 'DMHLH'), (SELECT id FROM service_item_param_keys WHERE key = 'WeightReweigh'), now(), now()),
-
 ('44f7168c-e159-4b2e-88d5-14273387977c',(SELECT id FROM re_services WHERE code='DMHLH'),(SELECT id FROM service_item_param_keys where key='DistanceZip'), now(), now()),
 
 -- Dom Mobile Home Shorthaul
 ('30c4428d-18b9-4893-957a-0d9cda57e525',(SELECT id FROM re_services WHERE code='DMHSH'),(SELECT id FROM service_item_param_keys where key='RequestedPickupDate'), now(), now()),
-('7299379f-1282-46ef-9fd9-1ffea7ee8045',(SELECT id FROM re_services WHERE code='DMHSH'),(SELECT id FROM service_item_param_keys where key='DistanceZip5'), now(), now()),
+('7299379f-1282-46ef-9fd9-1ffea7ee8045',(SELECT id FROM re_services WHERE code='DMHSH'),(SELECT id FROM service_item_param_keys where key='DistanceZip'), now(), now()),
 ('07673769-a548-4050-9cca-ab449af433d0',(SELECT id FROM re_services WHERE code='DMHSH'),(SELECT id FROM service_item_param_keys where key='ZipPickupAddress'), now(), now()),
 ('0d5083ef-ee62-41af-8342-0e7e11d46207',(SELECT id FROM re_services WHERE code='DMHSH'),(SELECT id FROM service_item_param_keys where key='ZipDestAddress'), now(), now()),
 ('30d34c0d-cb6c-4096-ba06-6e3060c5df95',(SELECT id FROM re_services WHERE code='DMHSH'),(SELECT id FROM service_item_param_keys where key='WeightBilled'), now(), now()),
@@ -151,5 +150,15 @@ BEGIN
 	UPDATE service_params
 	SET is_optional = TRUE
 	WHERE service_item_param_key_id = requestedPickupDateUUID;
+
+    -- Note the optional weight-based params (applies to all weight-based service items currently).
+    UPDATE service_params
+    SET is_optional = true
+    WHERE service_item_param_key_id IN (
+        SELECT id
+        FROM service_item_param_keys
+        WHERE key IN ('WeightAdjusted', 'WeightEstimated', 'WeightReweigh')
+    );
+
 
 END $$;

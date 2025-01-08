@@ -55,12 +55,20 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 	case models.ReServiceCodeCS:
 		return NewCounselingServicesPricer(), nil
 	case models.ReServiceCodeDLH:
+		fallthrough
+	case models.ReServiceCodeDMHLH:
 		return NewDomesticLinehaulPricer(), nil
 	case models.ReServiceCodeDSH:
+		fallthrough
+	case models.ReServiceCodeDMHSH:
 		return NewDomesticShorthaulPricer(), nil
 	case models.ReServiceCodeDOP:
+		fallthrough
+	case models.ReServiceCodeDMHOP:
 		return NewDomesticOriginPricer(), nil
 	case models.ReServiceCodeDDP:
+		fallthrough
+	case models.ReServiceCodeDMHDP:
 		return NewDomesticDestinationPricer(), nil
 	case models.ReServiceCodeDDSHUT:
 		return NewDomesticDestinationShuttlingPricer(), nil
@@ -71,10 +79,14 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 	case models.ReServiceCodeDUCRT:
 		return NewDomesticUncratingPricer(), nil
 	case models.ReServiceCodeDPK:
+		fallthrough
+	case models.ReServiceCodeDMHPK:
 		return NewDomesticPackPricer(), nil
 	case models.ReServiceCodeDNPK:
 		return NewDomesticNTSPackPricer(), nil
 	case models.ReServiceCodeDUPK:
+		fallthrough
+	case models.ReServiceCodeDMHUPK:
 		return NewDomesticUnpackPricer(), nil
 	case models.ReServiceCodeFSC:
 		return NewFuelSurchargePricer(), nil
