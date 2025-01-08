@@ -614,3 +614,30 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
 
   return newValues;
 };
+/**
+ * @description Converts a string to title case (capitalizes the first letter of each word)
+ * @param {string} str - The input string to format.
+ * @returns {string} - the formatted string in the title case.
+ * */
+export function toTitleCase(str) {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
+ * @description This function is used to format the port in the
+ * ShipmentAddresses component.
+ * It displays only the port code, port name, city, state and zip code.
+ * */
+export function formatPortInfo(port) {
+  if (port) {
+    const formattedCity = toTitleCase(port.city);
+    const formattedState = toTitleCase(port.state);
+    return `${port.portCode} - ${port.portName}\n${formattedCity}, ${formattedState} ${port.zip}`;
+  }
+  return '-';
+}

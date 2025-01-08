@@ -484,3 +484,54 @@ describe('constructSCOrderOconusFields', () => {
     });
   });
 });
+
+describe('formatPortInfo', () => {
+  it('formats port information correctly when all fields are provided', () => {
+    const values = {
+      portCode: 'PDX',
+      portName: 'PORTLAND INTL',
+      city: 'PORTLAND',
+      state: 'OREGON',
+      zip: '97220',
+    };
+    const result = formatters.formatPortInfo(values);
+    expect(result).toEqual('PDX - PORTLAND INTL\nPortland, Oregon 97220');
+  });
+
+  it('returns a dash when no port is provided', () => {
+    const result = formatters.formatPortInfo(null);
+    expect(result).toEqual('-');
+  });
+});
+
+describe('toTitleCase', () => {
+  it('correctly formats a lowercase string', () => {
+    const values = 'portland oregon';
+    const result = formatters.toTitleCase(values);
+    expect(result).toEqual('Portland Oregon');
+  });
+
+  it('correctly formats an uppercase string', () => {
+    const values = 'PORTLAND OREGON';
+    const result = formatters.toTitleCase(values);
+    expect(result).toEqual('Portland Oregon');
+  });
+
+  it('return an empty string when given an empty string', () => {
+    const values = '';
+    const result = formatters.toTitleCase(values);
+    expect(result).toEqual('');
+  });
+
+  it('return an empty string when given when input is null', () => {
+    const values = null;
+    const result = formatters.toTitleCase(values);
+    expect(result).toEqual('');
+  });
+
+  it('does not alter strings that are already in title case', () => {
+    const values = 'Portland Oregon';
+    const result = formatters.toTitleCase(values);
+    expect(result).toEqual('Portland Oregon');
+  });
+});
