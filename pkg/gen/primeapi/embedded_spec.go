@@ -1887,10 +1887,12 @@ func init() {
         },
         "destinationGBLOC": {
           "type": "string",
-          "example": "AGFM"
+          "readOnly": true,
+          "example": "JFK"
         },
         "destinationPostalCode": {
           "type": "string",
+          "readOnly": true,
           "example": "90210"
         },
         "eTag": {
@@ -6799,10 +6801,12 @@ func init() {
         },
         "destinationGBLOC": {
           "type": "string",
-          "example": "AGFM"
+          "readOnly": true,
+          "example": "JFK"
         },
         "destinationPostalCode": {
           "type": "string",
+          "readOnly": true,
           "example": "90210"
         },
         "eTag": {
