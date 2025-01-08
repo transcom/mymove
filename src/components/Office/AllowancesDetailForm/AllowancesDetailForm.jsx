@@ -20,8 +20,9 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     entitlements?.dependentsTwelveAndOver ||
     entitlements?.dependentsUnderTwelve
   );
-  const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(false);
-
+  const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(
+    entitlements?.adminRestrictedWeightLocation || false,
+  );
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
@@ -175,15 +176,23 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           isDisabled={formIsDisabled}
           onChange={(e) => setIsAdminWeightLocationChecked(e.target.checked)}
         />
-        {isAdminWeightLocationChecked && (
-          <MaskedTextField
-            data-testid="weightRestrictionInput"
-            name="weightRestriction"
-            label="Weight Restriction"
-            isDisabled={formIsDisabled}
-          />
-        )}
       </div>
+      {isAdminWeightLocationChecked && (
+        <MaskedTextField
+          data-testid="weightRestrictionInput"
+          id="weightRestrictionId"
+          defaultValue="0"
+          name="weightRestriction"
+          label="Weight Restriction (lbs)"
+          mask={Number}
+          scale={0} // digits after point, 0 for integers
+          signed={false} // disallow negative
+          thousandsSeparator=","
+          lazy={false} // immediate masking evaluation
+          isDisabled={formIsDisabled}
+        />
+      )}
+
       <dl>
         <dt>Standard Weight allowance</dt>
         <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>

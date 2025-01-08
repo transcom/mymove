@@ -5231,6 +5231,12 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
+      weightRestriction:
+        type: integer
+        example: 1500
+        description: >-
+          The amount of weight in pounds that the move is restricted to for a
+          particular location.
       eTag:
         type: string
     type: object
@@ -6086,6 +6092,9 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6194,6 +6203,12 @@ definitions:
       ubAllowance:
         example: 500
         type: integer
+        x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        description: unit is in lbs
+        x-formatting: weight
         x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)

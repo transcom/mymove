@@ -1061,3 +1061,4 @@
 20241230190647_add_missing_AK_zips_to_zip3_distances.up.sql
 20250106153750_admin_weight_restriction.up.sql
 20250106190758_admin_weight_restriction_convert_bool.up.sql
+20250107184554_add_weight_restriction.up.sql

@@ -110,7 +110,9 @@ const AllowancesList = ({ info, showVisualCues }) => {
         </div>
         <div className={visualCuesStyle}>
           <dt>Weight Restriction</dt>
-          <dd data-testid="weightRestriction">-</dd>
+          <dd data-testid="weightRestriction">
+            {info.weightRestriction ? formatWeight(info.weightRestriction) : DEFAULT_EMPTY_VALUE}
+          </dd>
         </div>
       </dl>
     </div>
