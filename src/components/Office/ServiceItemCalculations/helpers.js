@@ -941,7 +941,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
-    // Port of Debarkation Fuel surcharge
+    // Port of Embarkation Fuel surcharge
     case SERVICE_ITEM_CODES.POEFSC:
       result = [
         billableWeight(params),
