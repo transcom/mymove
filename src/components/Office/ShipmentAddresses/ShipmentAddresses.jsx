@@ -5,12 +5,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../types/address';
-import { formatAddress, formatCityStateAndPostalCode, formatPortInfo } from '../../../utils/shipmentDisplay';
+import { formatAddress, formatCityStateAndPostalCode } from '../../../utils/shipmentDisplay';
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
 
 import styles from './ShipmentAddresses.module.scss';
 
+import { formatPortInfo } from 'utils/formatters';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentOptionsOneOf, ShipmentStatusesOneOf } from 'types/shipment';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -87,10 +88,12 @@ const ShipmentAddresses = ({
         icon={<FontAwesomeIcon icon="arrow-right" />}
         data-testid="pickupDestinationAddress"
       />
-      <DataTable
-        columnHeaders={['Port of Embarkation', 'Port of Debarkation']}
-        dataRow={[formatPortInfo(poeLocation), formatPortInfo(podLocation)]}
-      />
+      {(poeLocation || podLocation) && (
+        <DataTable
+          columnHeaders={['Port of Embarkation', 'Port of Debarkation']}
+          dataRow={[formatPortInfo(poeLocation), formatPortInfo(podLocation)]}
+        />
+      )}
     </DataTableWrapper>
   );
 };
