@@ -73,6 +73,10 @@ type UpdateAllowancePayload struct {
 	// ub allowance
 	// Example: 500
 	UbAllowance *int64 `json:"ubAllowance,omitempty"`
+
+	// weight restriction
+	// Example: 1500
+	WeightRestriction int64 `json:"weightRestriction,omitempty"`
 }
 
 // Validate validates this update allowance payload

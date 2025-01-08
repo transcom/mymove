@@ -1,4 +1,4 @@
-swagger: '2.0'
+swagger: "2.0"
 info:
   title: MilMove Prime V2 API
   version: 0.0.1
@@ -86,18 +86,18 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        "200":
           description: Successfully retrieve an individual move task order.
           schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '500':
-          $ref: '#/responses/ServerError'
+            $ref: "#/definitions/MoveTaskOrder"
+        "401":
+          $ref: "#/responses/PermissionDenied"
+        "403":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "500":
+          $ref: "#/responses/ServerError"
   /mto-shipments:
     post:
       summary: createMTOShipment
@@ -152,7 +152,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateMTOShipment'
+            $ref: "#/definitions/CreateMTOShipment"
           x-examples:
             application/json:
               hhg:
@@ -160,23 +160,23 @@ paths:
                 value:
                   moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
                   shipmentType: HHG
-                  requestedPickupDate: '2022-12-31'
+                  requestedPickupDate: "2022-12-31"
                   pickupAddress:
                     streetAddress1: 204 South Prospect Lane
                     city: Muldraugh
                     state: KY
-                    postalCode: '40155'
+                    postalCode: "40155"
               nts:
                 summary: NTS
                 value:
                   moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
                   shipmentType: HHG_INTO_NTS
-                  requestedPickupDate: '2022-12-31'
+                  requestedPickupDate: "2022-12-31"
                   pickupAddress:
                     streetAddress1: 204 South Prospect Lane
                     city: Muldraugh
                     state: KY
-                    postalCode: '40155'
+                    postalCode: "40155"
                   agents:
                     - firstName: Edgar
                       lastName: Taylor
@@ -200,7 +200,7 @@ paths:
                   moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
                   shipmentType: PPM
                   ppmShipment:
-                    expectedDepartureDate: '2022-10-01'
+                    expectedDepartureDate: "2022-10-01"
                     estimatedWeight: 4999
                     hasProGear: false
                     sitExpected: false
@@ -239,18 +239,18 @@ paths:
                   moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
                   shipmentType: MOBILE_HOME
       responses:
-        '200':
+        "200":
           description: Successfully created a MTO shipment.
           schema:
-            $ref: '#/definitions/MTOShipment'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '404':
-          $ref: '#/responses/NotFound'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
+            $ref: "#/definitions/MTOShipment"
+        "400":
+          $ref: "#/responses/InvalidRequest"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/responses/ServerError"
   /mto-shipments/{mtoShipmentID}:
     patch:
       summary: updateMTOShipment
@@ -310,32 +310,32 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateMTOShipment'
+            $ref: "#/definitions/UpdateMTOShipment"
           x-examples:
             application/json:
               hhg:
                 summary: HHG
                 value:
-                  scheduledPickupDate: '2022-12-30'
-                  actualPickupDate: '2022-12-29'
-                  firstAvailableDeliveryDate: '2023-01-04'
+                  scheduledPickupDate: "2022-12-30"
+                  actualPickupDate: "2022-12-29"
+                  firstAvailableDeliveryDate: "2023-01-04"
                   primeEstimatedWeight: 4250
                   primeActualWeight: 4500
                   actualProGearWeight: 1053
                   actualSpouseProGearWeight: 253
                   destinationAddress:
                     streetAddress1: 6622 Airport Way S
-                    streetAddress2: '#1430'
+                    streetAddress2: "#1430"
                     city: Great Bend
                     state: NY
-                    postalCode: '13643'
+                    postalCode: "13643"
                   pointOfContact: peyton.wing@example.com
               nts:
                 summary: NTS
                 value:
                   moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
-                  scheduledPickupDate: '2022-12-30'
-                  actualPickupDate: '2022-12-29'
+                  scheduledPickupDate: "2022-12-30"
+                  actualPickupDate: "2022-12-29"
                   estimatedWeight: 4250
                   actualWeight: 4500
                   actualProGearWeight: 1053
@@ -352,7 +352,7 @@ paths:
                     streetAddress1: 812 S 129th Street
                     city: San Antonio
                     state: TX
-                    postalCode: '78245'
+                    postalCode: "78245"
               ppm:
                 summary: PPM
                 value:
@@ -364,37 +364,37 @@ paths:
                     sitExpected: true
                     sitLocation: DESTINATION
                     sitEstimatedWeight: 1760
-                    sitEstimatedEntryDate: '2022-10-06'
-                    sitEstimatedDepartureDate: '2022-10-13'
-        - $ref: '#/parameters/ifMatch'
+                    sitEstimatedEntryDate: "2022-10-06"
+                    sitEstimatedDepartureDate: "2022-10-13"
+        - $ref: "#/parameters/ifMatch"
       responses:
-        '200':
+        "200":
           description: Successfully updated the MTO shipment.
           schema:
-            $ref: '#/definitions/MTOShipment'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
+            $ref: "#/definitions/MTOShipment"
+        "400":
+          $ref: "#/responses/InvalidRequest"
+        "401":
+          $ref: "#/responses/PermissionDenied"
+        "403":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "412":
+          $ref: "#/responses/PreconditionFailed"
+        "422":
+          $ref: "#/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/responses/ServerError"
 definitions:
   MTOServiceItemBasic:
     description: Describes a basic service item subtype of a MTOServiceItem.
     allOf:
-      - $ref: '#/definitions/MTOServiceItem'
+      - $ref: "#/definitions/MTOServiceItem"
       - type: object
         properties:
           reServiceCode:
-            $ref: '#/definitions/ReServiceCode'
+            $ref: "#/definitions/ReServiceCode"
         required:
           - reServiceCode
   MTOServiceItemDestSIT:
@@ -402,7 +402,7 @@ definitions:
       Describes a domestic destination SIT service item. Subtype of a
       MTOServiceItem.
     allOf:
-      - $ref: '#/definitions/MTOServiceItem'
+      - $ref: "#/definitions/MTOServiceItem"
       - type: object
         properties:
           reServiceCode:
@@ -464,7 +464,7 @@ definitions:
               the UpdateMTOServiceItemSIT modelType at a later date.
             x-nullable: true
           sitDestinationFinalAddress:
-            $ref: '#/definitions/Address'
+            $ref: "#/definitions/Address"
           reason:
             type: string
             description: |
@@ -492,7 +492,7 @@ definitions:
       Describes a domestic crating/uncrating service item subtype of a
       MTOServiceItem.
     allOf:
-      - $ref: '#/definitions/MTOServiceItem'
+      - $ref: "#/definitions/MTOServiceItem"
       - type: object
         properties:
           reServiceCode:
@@ -506,11 +506,11 @@ definitions:
           item:
             description: The dimensions of the item being crated.
             allOf:
-              - $ref: '#/definitions/MTOServiceItemDimension'
+              - $ref: "#/definitions/MTOServiceItemDimension"
           crate:
             description: The dimensions for the crate the item will be shipped in.
             allOf:
-              - $ref: '#/definitions/MTOServiceItemDimension'
+              - $ref: "#/definitions/MTOServiceItemDimension"
           description:
             type: string
             example: Decorated horse head to be crated.
@@ -537,7 +537,7 @@ definitions:
       Describes a international crating/uncrating service item subtype of a
       MTOServiceItem.
     allOf:
-      - $ref: '#/definitions/MTOServiceItem'
+      - $ref: "#/definitions/MTOServiceItem"
       - type: object
         properties:
           reServiceCode:
@@ -551,11 +551,11 @@ definitions:
           item:
             description: The dimensions of the item being crated.
             allOf:
-              - $ref: '#/definitions/MTOServiceItemDimension'
+              - $ref: "#/definitions/MTOServiceItemDimension"
           crate:
             description: The dimensions for the crate the item will be shipped in.
             allOf:
-              - $ref: '#/definitions/MTOServiceItemDimension'
+              - $ref: "#/definitions/MTOServiceItemDimension"
           description:
             type: string
             example: Decorated horse head to be crated.
@@ -592,7 +592,7 @@ definitions:
   MTOServiceItemOriginSIT:
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
-      - $ref: '#/definitions/MTOServiceItem'
+      - $ref: "#/definitions/MTOServiceItem"
       - type: object
         properties:
           reServiceCode:
@@ -608,7 +608,7 @@ definitions:
           sitPostalCode:
             type: string
             format: zip
-            example: '90210'
+            example: "90210"
             pattern: ^(\d{5}([\-]\d{4})?)$
           sitEntryDate:
             format: date
@@ -623,9 +623,9 @@ definitions:
               origin or destination. This is optional as it can be updated using
               the UpdateMTOServiceItemSIT modelType at a later date.
           sitHHGActualOrigin:
-            $ref: '#/definitions/Address'
+            $ref: "#/definitions/Address"
           sitHHGOriginalOrigin:
-            $ref: '#/definitions/Address'
+            $ref: "#/definitions/Address"
           requestApprovalsRequestedStatus:
             type: boolean
           sitRequestedDelivery:
@@ -648,7 +648,7 @@ definitions:
   MTOServiceItemShuttle:
     description: Describes a shuttle service item.
     allOf:
-      - $ref: '#/definitions/MTOServiceItem'
+      - $ref: "#/definitions/MTOServiceItem"
       - type: object
         properties:
           reServiceCode:
@@ -727,22 +727,22 @@ definitions:
         example: handle with care
         x-nullable: true
       agents:
-        $ref: '#/definitions/MTOAgents'
+        $ref: "#/definitions/MTOAgents"
       mtoServiceItems:
         description: A list of service items connected to this shipment.
         type: array
         items:
-          $ref: '#/definitions/MTOServiceItem'
+          $ref: "#/definitions/MTOServiceItem"
       pickupAddress:
         description: The address where the movers should pick up this shipment.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       destinationAddress:
         description: Where the movers should deliver this shipment.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       shipmentType:
-        $ref: '#/definitions/MTOShipmentType'
+        $ref: "#/definitions/MTOShipmentType"
       diversion:
         description: >
           This value indicates whether or not this shipment is part of a
@@ -771,11 +771,11 @@ definitions:
         example: counselor approved
         x-nullable: true
       ppmShipment:
-        $ref: '#/definitions/CreatePPMShipment'
+        $ref: "#/definitions/CreatePPMShipment"
       boatShipment:
-        $ref: '#/definitions/CreateBoatShipment'
+        $ref: "#/definitions/CreateBoatShipment"
       mobileHomeShipment:
-        $ref: '#/definitions/CreateMobileHomeShipment'
+        $ref: "#/definitions/CreateMobileHomeShipment"
     required:
       - moveTaskOrderID
       - shipmentType
@@ -793,13 +793,13 @@ definitions:
       pickupAddress:
         description: The address of the origin location where goods are being moved from.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       destinationAddress:
         description: >-
           The address of the destination location where goods are being
           delivered to.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       sitExpected:
         description: >
           Captures whether some or all of the PPM shipment will require
@@ -813,7 +813,7 @@ definitions:
         type: boolean
       sitLocation:
         allOf:
-          - $ref: '#/definitions/SITLocationType'
+          - $ref: "#/definitions/SITLocationType"
           - x-nullable: true
       sitEstimatedWeight:
         description: The estimated weight of the goods being put into storage in pounds.
@@ -940,11 +940,11 @@ definitions:
       mtoServiceItems:
         description: A list of service items connected to this shipment.
         items:
-          $ref: '#/definitions/MTOServiceItem'
+          $ref: "#/definitions/MTOServiceItem"
         type: array
         readOnly: true
     allOf:
-      - $ref: '#/definitions/MTOShipmentWithoutServiceItems'
+      - $ref: "#/definitions/MTOShipmentWithoutServiceItems"
   Error:
     properties:
       title:
@@ -987,7 +987,7 @@ definitions:
         type: string
         description: ID of the service item. Must match path.
       modelType:
-        $ref: '#/definitions/UpdateMTOServiceItemModelType'
+        $ref: "#/definitions/UpdateMTOServiceItemModelType"
     required:
       - modelType
   UpdateMTOServiceItemShuttle:
@@ -996,7 +996,7 @@ definitions:
       shuttle. This is not creating a new service item but rather updating an
       existing service item.
     allOf:
-      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - $ref: "#/definitions/UpdateMTOServiceItem"
       - type: object
         properties:
           actualWeight:
@@ -1045,7 +1045,7 @@ definitions:
         x-nullable: true
       sitLocation:
         allOf:
-          - $ref: '#/definitions/SITLocationType'
+          - $ref: "#/definitions/SITLocationType"
           - x-nullable: true
       sitEstimatedWeight:
         description: The estimated weight of the goods being put into storage.
@@ -1167,7 +1167,7 @@ definitions:
           The address where the movers should pick up this shipment, entered by
           the customer during onboarding when they enter shipment details.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       destinationAddress:
         description: >
           Where the movers should deliver this shipment. Often provided by the
@@ -1181,27 +1181,27 @@ definitions:
 
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       destinationType:
-        $ref: '#/definitions/DestinationType'
+        $ref: "#/definitions/DestinationType"
       secondaryPickupAddress:
         description: >-
           A second pickup address for this shipment, if the customer entered
           one. An optional field.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       secondaryDeliveryAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       storageFacility:
         allOf:
           - x-nullable: true
-          - $ref: '#/definitions/StorageFacility'
+          - $ref: "#/definitions/StorageFacility"
       shipmentType:
-        $ref: '#/definitions/MTOShipmentType'
+        $ref: "#/definitions/MTOShipmentType"
       diversion:
         description: >
           This value indicates whether or not this shipment is part of a
@@ -1227,7 +1227,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       ppmShipment:
-        $ref: '#/definitions/UpdatePPMShipment'
+        $ref: "#/definitions/UpdatePPMShipment"
   UpdateMTOShipmentStatus:
     description: >-
       Contains the statuses available to the Prime when updating the state of a
@@ -1267,7 +1267,7 @@ definitions:
     type: object
     properties:
       newAddress:
-        $ref: '#/definitions/Address'
+        $ref: "#/definitions/Address"
       contractorRemarks:
         type: string
         example: >-
@@ -1285,7 +1285,7 @@ definitions:
       This is not creating a new service item but rather updating and existing
       service item.
     allOf:
-      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - $ref: "#/definitions/UpdateMTOServiceItem"
       - type: object
         properties:
           reServiceCode:
@@ -1303,7 +1303,7 @@ definitions:
               Departure date for SIT. This is the end date of the SIT at either
               origin or destination.
           sitDestinationFinalAddress:
-            $ref: '#/definitions/Address'
+            $ref: "#/definitions/Address"
           dateOfContact1:
             format: date
             type: string
@@ -1363,7 +1363,7 @@ definitions:
           sitPostalCode:
             type: string
             format: zip
-            example: '90210'
+            example: "90210"
             pattern: ^(\d{5}([\-]\d{4})?)$
             x-nullable: true
           sitEntryDate:
@@ -1542,7 +1542,7 @@ definitions:
         type: string
         format: zip
         title: ZIP
-        example: '90210'
+        example: "90210"
         pattern: ^(\d{5}([\-]\d{4})?)$
       country:
         type: string
@@ -1591,7 +1591,7 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       currentAddress:
-        $ref: '#/definitions/Address'
+        $ref: "#/definitions/Address"
       firstName:
         type: string
         example: Vanya
@@ -1674,6 +1674,10 @@ definitions:
       totalDependents:
         example: 2
         type: integer
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-formatting: weight
       eTag:
         type: string
         readOnly: true
@@ -1692,7 +1696,7 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       address:
-        $ref: '#/definitions/Address'
+        $ref: "#/definitions/Address"
       eTag:
         type: string
         readOnly: true
@@ -1733,20 +1737,20 @@ definitions:
         format: uuid
         type: string
       customer:
-        $ref: '#/definitions/Customer'
+        $ref: "#/definitions/Customer"
       customerID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
       entitlement:
-        $ref: '#/definitions/Entitlements'
+        $ref: "#/definitions/Entitlements"
       destinationDutyLocation:
-        $ref: '#/definitions/DutyLocation'
+        $ref: "#/definitions/DutyLocation"
       destinationDutyLocationGBLOC:
         type: string
         example: KKFA
       originDutyLocation:
-        $ref: '#/definitions/DutyLocation'
+        $ref: "#/definitions/DutyLocation"
       originDutyLocationGBLOC:
         type: string
         example: KKFA
@@ -1757,7 +1761,7 @@ definitions:
         type: string
         format: date
       ordersType:
-        $ref: '#/definitions/OrdersType'
+        $ref: "#/definitions/OrdersType"
       orderNumber:
         type: string
       linesOfAccounting:
@@ -1836,11 +1840,11 @@ definitions:
       uploads:
         type: array
         items:
-          $ref: '#/definitions/UploadWithOmissions'
+          $ref: "#/definitions/UploadWithOmissions"
   ProofOfServiceDocs:
     type: array
     items:
-      $ref: '#/definitions/ProofOfServiceDoc'
+      $ref: "#/definitions/ProofOfServiceDoc"
   PaymentServiceItemStatus:
     type: string
     enum:
@@ -1954,21 +1958,21 @@ definitions:
         format: uuid
         type: string
       key:
-        $ref: '#/definitions/ServiceItemParamName'
+        $ref: "#/definitions/ServiceItemParamName"
       value:
-        example: '3025'
+        example: "3025"
         type: string
       type:
-        $ref: '#/definitions/ServiceItemParamType'
+        $ref: "#/definitions/ServiceItemParamType"
       origin:
-        $ref: '#/definitions/ServiceItemParamOrigin'
+        $ref: "#/definitions/ServiceItemParamOrigin"
       eTag:
         type: string
         readOnly: true
   PaymentServiceItemParams:
     type: array
     items:
-      $ref: '#/definitions/PaymentServiceItemParam'
+      $ref: "#/definitions/PaymentServiceItemParam"
   PaymentServiceItem:
     type: object
     properties:
@@ -1986,7 +1990,7 @@ definitions:
         format: uuid
         type: string
       status:
-        $ref: '#/definitions/PaymentServiceItemStatus'
+        $ref: "#/definitions/PaymentServiceItemStatus"
       priceCents:
         type: integer
         format: cents
@@ -2001,14 +2005,14 @@ definitions:
         readOnly: true
         format: string
       paymentServiceItemParams:
-        $ref: '#/definitions/PaymentServiceItemParams'
+        $ref: "#/definitions/PaymentServiceItemParams"
       eTag:
         type: string
         readOnly: true
   PaymentServiceItems:
     type: array
     items:
-      $ref: '#/definitions/PaymentServiceItem'
+      $ref: "#/definitions/PaymentServiceItem"
   PaymentRequest:
     type: object
     properties:
@@ -2029,7 +2033,7 @@ definitions:
         type: string
         x-nullable: true
       status:
-        $ref: '#/definitions/PaymentRequestStatus'
+        $ref: "#/definitions/PaymentRequestStatus"
       paymentRequestNumber:
         example: 1234-5678-1
         readOnly: true
@@ -2041,16 +2045,16 @@ definitions:
         readOnly: true
         x-nullable: true
       proofOfServiceDocs:
-        $ref: '#/definitions/ProofOfServiceDocs'
+        $ref: "#/definitions/ProofOfServiceDocs"
       paymentServiceItems:
-        $ref: '#/definitions/PaymentServiceItems'
+        $ref: "#/definitions/PaymentServiceItems"
       eTag:
         type: string
         readOnly: true
   PaymentRequests:
     type: array
     items:
-      $ref: '#/definitions/PaymentRequest'
+      $ref: "#/definitions/PaymentRequest"
   MTOServiceItemStatus:
     description: >-
       The status of a service item, indicating where it is in the TOO's approval
@@ -2089,12 +2093,12 @@ definitions:
     properties:
       uploads:
         items:
-          $ref: '#/definitions/UploadWithOmissions'
+          $ref: "#/definitions/UploadWithOmissions"
         type: array
     type: object
   ServiceRequestDocuments:
     items:
-      $ref: '#/definitions/ServiceRequestDocument'
+      $ref: "#/definitions/ServiceRequestDocument"
     type: array
   MTOServiceItem:
     description: MTOServiceItem describes a base type of a service item. Polymorphic type.
@@ -2122,7 +2126,7 @@ definitions:
         readOnly: true
         description: The full descriptive name of the service.
       status:
-        $ref: '#/definitions/MTOServiceItemStatus'
+        $ref: "#/definitions/MTOServiceItemStatus"
       rejectionReason:
         example: item was too heavy
         type: string
@@ -2130,9 +2134,9 @@ definitions:
         readOnly: true
         description: The reason why this service item was rejected by the TOO.
       modelType:
-        $ref: '#/definitions/MTOServiceItemModelType'
+        $ref: "#/definitions/MTOServiceItemModelType"
       serviceRequestDocuments:
-        $ref: '#/definitions/ServiceRequestDocuments'
+        $ref: "#/definitions/ServiceRequestDocuments"
       eTag:
         type: string
         readOnly: true
@@ -2195,7 +2199,7 @@ definitions:
         pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
         x-nullable: true
       agentType:
-        $ref: '#/definitions/MTOAgentType'
+        $ref: "#/definitions/MTOAgentType"
       eTag:
         type: string
         readOnly: true
@@ -2206,7 +2210,7 @@ definitions:
       contractor recognize as permitted to release (in the case of pickup) or
       receive (on delivery) a shipment.
     items:
-      $ref: '#/definitions/MTOAgent'
+      $ref: "#/definitions/MTOAgent"
     type: array
     maxItems: 2
   SITExtension:
@@ -2274,7 +2278,7 @@ definitions:
   SITExtensions:
     type: array
     items:
-      $ref: '#/definitions/SITExtension'
+      $ref: "#/definitions/SITExtension"
   ReweighRequester:
     type: string
     enum:
@@ -2295,7 +2299,7 @@ definitions:
         format: date-time
         type: string
       requestedBy:
-        $ref: '#/definitions/ReweighRequester'
+        $ref: "#/definitions/ReweighRequester"
       verificationProvidedAt:
         format: date-time
         type: string
@@ -2350,7 +2354,7 @@ definitions:
       facilityName:
         type: string
       address:
-        $ref: '#/definitions/Address'
+        $ref: "#/definitions/Address"
       lotNumber:
         type: string
         x-nullable: true
@@ -2453,7 +2457,7 @@ definitions:
         type: string
         readOnly: true
       status:
-        $ref: '#/definitions/PPMShipmentStatus'
+        $ref: "#/definitions/PPMShipmentStatus"
       expectedDepartureDate:
         description: |
           Date the customer expects to begin moving from their origin.
@@ -2496,7 +2500,7 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: '90210'
+        example: "90210"
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
@@ -2507,7 +2511,7 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: '90210'
+        example: "90210"
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
@@ -2596,7 +2600,7 @@ definitions:
         x-omitempty: false
       sitLocation:
         allOf:
-          - $ref: '#/definitions/SITLocationType'
+          - $ref: "#/definitions/SITLocationType"
           - x-nullable: true
           - x-omitempty: false
       sitEstimatedWeight:
@@ -2686,18 +2690,18 @@ definitions:
         x-nullable: true
         description: The TOO comment on approval or rejection.
       status:
-        $ref: '#/definitions/ShipmentAddressUpdateStatus'
+        $ref: "#/definitions/ShipmentAddressUpdateStatus"
       shipmentID:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       originalAddress:
-        $ref: '#/definitions/Address'
+        $ref: "#/definitions/Address"
       newAddress:
-        $ref: '#/definitions/Address'
+        $ref: "#/definitions/Address"
       sitOriginalAddress:
-        $ref: '#/definitions/Address'
+        $ref: "#/definitions/Address"
       oldSitDistanceBetween:
         description: >-
           The distance between the original SIT address and the previous/old
@@ -2890,17 +2894,17 @@ definitions:
         x-nullable: true
         x-omitempty: false
       agents:
-        $ref: '#/definitions/MTOAgents'
+        $ref: "#/definitions/MTOAgents"
       sitExtensions:
-        $ref: '#/definitions/SITExtensions'
+        $ref: "#/definitions/SITExtensions"
       reweigh:
-        $ref: '#/definitions/Reweigh'
+        $ref: "#/definitions/Reweigh"
       pickupAddress:
         description: >
           The address where the movers should pick up this shipment, entered by
           the customer during onboarding when they enter shipment details.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       destinationAddress:
         description: >
           Where the movers should deliver this shipment. Often provided by the
@@ -2914,27 +2918,27 @@ definitions:
 
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       destinationType:
-        $ref: '#/definitions/DestinationType'
+        $ref: "#/definitions/DestinationType"
       secondaryPickupAddress:
         description: >-
           A second pickup address for this shipment, if the customer entered
           one. An optional field.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       secondaryDeliveryAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: "#/definitions/Address"
       storageFacility:
         allOf:
           - x-nullable: true
-          - $ref: '#/definitions/StorageFacility'
+          - $ref: "#/definitions/StorageFacility"
       shipmentType:
-        $ref: '#/definitions/MTOShipmentType'
+        $ref: "#/definitions/MTOShipmentType"
       diversion:
         description: >
           This value indicates whether or not this shipment is part of a
@@ -2963,9 +2967,9 @@ definitions:
           - CANCELED
           - DIVERSION_REQUESTED
       ppmShipment:
-        $ref: '#/definitions/PPMShipment'
+        $ref: "#/definitions/PPMShipment"
       deliveryAddressUpdate:
-        $ref: '#/definitions/ShipmentAddressUpdate'
+        $ref: "#/definitions/ShipmentAddressUpdate"
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
@@ -3008,7 +3012,7 @@ definitions:
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
-      $ref: '#/definitions/MTOShipmentWithoutServiceItems'
+      $ref: "#/definitions/MTOShipmentWithoutServiceItems"
     type: array
   MoveTaskOrder:
     type: object
@@ -3034,14 +3038,14 @@ definitions:
         format: uuid
         type: string
       order:
-        $ref: '#/definitions/Order'
+        $ref: "#/definitions/Order"
       destinationGBLOC:
         type: string
         example: KKFA
         readOnly: true
       destinationPostalCode:
         type: string
-        example: '90210'
+        example: "90210"
         readOnly: true
       referenceId:
         example: 1001-3456
@@ -3066,13 +3070,13 @@ definitions:
         x-nullable: true
         readOnly: true
       paymentRequests:
-        $ref: '#/definitions/PaymentRequests'
+        $ref: "#/definitions/PaymentRequests"
       mtoServiceItems:
         type: array
         items:
-          $ref: '#/definitions/MTOServiceItem'
+          $ref: "#/definitions/MTOServiceItem"
       mtoShipments:
-        $ref: '#/definitions/MTOShipmentsWithoutServiceObjects'
+        $ref: "#/definitions/MTOShipmentsWithoutServiceObjects"
       ppmType:
         type: string
         enum:
@@ -3132,7 +3136,7 @@ definitions:
       - instance
   ValidationError:
     allOf:
-      - $ref: '#/definitions/ClientError'
+      - $ref: "#/definitions/ClientError"
       - type: object
         properties:
           invalidFields:
@@ -3236,29 +3240,29 @@ responses:
   ServerError:
     description: A server error occurred.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: "#/definitions/Error"
   InvalidRequest:
     description: The request payload is invalid.
     schema:
-      $ref: '#/definitions/ClientError'
+      $ref: "#/definitions/ClientError"
   PreconditionFailed:
     description: >-
       Precondition failed, likely due to a stale eTag (If-Match). Fetch the
       request again to get the updated eTag value.
     schema:
-      $ref: '#/definitions/ClientError'
+      $ref: "#/definitions/ClientError"
   PermissionDenied:
     description: The request was denied.
     schema:
-      $ref: '#/definitions/ClientError'
+      $ref: "#/definitions/ClientError"
   NotFound:
     description: The requested resource wasn't found.
     schema:
-      $ref: '#/definitions/ClientError'
+      $ref: "#/definitions/ClientError"
   UnprocessableEntity:
     description: The request was unprocessable, likely due to bad input from the requester.
     schema:
-      $ref: '#/definitions/ValidationError'
+      $ref: "#/definitions/ValidationError"
 parameters:
   ifMatch:
     in: header

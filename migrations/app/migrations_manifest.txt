@@ -1071,3 +1071,4 @@
 20250103130619_revert_data_change_for_gbloc_for_ak.up.sql
 20250106153750_admin_weight_restriction.up.sql
 20250106190758_admin_weight_restriction_convert_bool.up.sql
+20250107184554_add_weight_restriction.up.sql

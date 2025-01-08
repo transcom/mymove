@@ -7226,6 +7226,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -8432,6 +8439,11 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "description": "The amount of weight in pounds that the move is restricted to for a particular location.",
+          "type": "integer",
+          "example": 1500
         }
       }
     },
@@ -14183,6 +14195,10 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "example": 1500
         }
       }
     },
@@ -24331,6 +24347,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -25537,6 +25560,11 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "description": "The amount of weight in pounds that the move is restricted to for a particular location.",
+          "type": "integer",
+          "example": 1500
         }
       }
     },
@@ -31420,6 +31448,10 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "example": 1500
         }
       }
     },
