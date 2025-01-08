@@ -1,3 +1,17 @@
+-- Add the toggles for factor/items to the application_parameters table
+INSERT INTO application_parameters
+(id, parameter_name, parameter_value)
+VALUES
+('c1a3e511-b968-4770-b078-363d7c13d275', 'domestic_mobile_home_origin_price_enabled', 'true'),
+('243d27e7-c92e-4393-85e2-13d5021654aa', 'domestic_mobile_home_destination_price_enabled', 'true'),
+('98a36f33-1d3e-40ea-9c1d-d167a03d0cd2', 'domestic_mobile_home_packing_enabled', 'true'),
+('17b063b9-1a41-4a23-bcf7-2ff36c094de9', 'domestic_mobile_home_unpacking_enabled', 'true'),
+
+('36cd7bf2-bf1e-40e1-9597-db4478cfbbdd', 'domestic_mobile_home_factor_origin_price', 'true'),
+('0849ac0c-9c31-4357-ac61-dcb272d04ecd', 'domestic_mobile_home_factor_destination_price', 'true'),
+('4dc9f760-20ae-4522-8a48-ecd73c86d603', 'domestic_mobile_home_factor_packing', 'true'),
+('10ab8633-c5d4-42d6-8df6-3bff1a742f7c', 'domestic_mobile_home_factor_unpacking', 'true');
+
 -- Add the new Domestic Mobile Home specific versions of the common HHG service items
 INSERT INTO re_services
 (id, code, name, created_at, updated_at)
