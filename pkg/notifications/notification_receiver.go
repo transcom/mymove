@@ -199,28 +199,20 @@ func (n NotificationReceiverContext) CloseoutQueue(appCtx appcontext.AppContext,
 
 // GetDefaultTopic returns the topic value set within the environment
 func (n NotificationReceiverContext) GetDefaultTopic() (string, error) {
-	// v := viper.New()
-	n.viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	// v.AutomaticEnv()
-	topicName := n.viper.GetString(cli.AWSSNSObjectTagsAddedTopicFlag)
+	topicName := n.viper.GetString(cli.SNSTagsUpdatedTopicFlag)
 	receiverBackend := n.viper.GetString(cli.ReceiverBackendFlag)
 	if topicName == "" && receiverBackend == "sns&sqs" {
-		return "", errors.New("aws_sns_object_tags_added_topic key not available")
+		return "", errors.New("sns_tags_updated_topic key not available")
 	}
 	return topicName, nil
 }
 
 // InitReceiver initializes the receiver backend
 func InitReceiver(v ViperType, logger *zap.Logger) (NotificationReceiver, error) {
-
-	// v := viper.New()
-	// v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	// v.AutomaticEnv()
-
 	if v.GetString(cli.ReceiverBackendFlag) == "sns&sqs" {
 		// Setup notification receiver service with SNS & SQS backend dependencies
-		awsSNSRegion := v.GetString(cli.AWSSNSRegionFlag)
-		awsAccountId := v.GetString(cli.AWSSNSAccountId)
+		awsSNSRegion := v.GetString(cli.SNSRegionFlag)
+		awsAccountId := v.GetString(cli.SNSAccountId)
 
 		logger.Info("Using aws sns&sqs receiver backend", zap.String("region", awsSNSRegion))
 

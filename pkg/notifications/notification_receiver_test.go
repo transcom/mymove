@@ -41,11 +41,11 @@ func (_m *Viper) GetString(key string) string {
 	switch key {
 	case cli.ReceiverBackendFlag:
 		return "sns&sqs"
-	case cli.AWSRegionFlag:
+	case cli.SNSRegionFlag:
 		return "us-gov-west-1"
-	case cli.AWSSNSAccountId:
+	case cli.SNSAccountId:
 		return "12345"
-	case cli.AWSSNSObjectTagsAddedTopicFlag:
+	case cli.SNSTagsUpdatedTopicFlag:
 		return "fake_sns_topic"
 	}
 	return ""
