@@ -145,8 +145,8 @@ stages:
 
 .install_yarn: &install_yarn
   - |
-    mkdir /builds/milmove/mymove/.cache
-    mkdir /builds/milmove/mymove/.cache/yarn
+    mkdir -p /builds/milmove/mymove/.cache
+    mkdir -p /builds/milmove/mymove/.cache/yarn
     yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
     scripts/check-generated-code yarn.lock
     echo "yarn check dependencies"
