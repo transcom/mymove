@@ -853,45 +853,48 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// if the shipment has an estimated weight, we need to update the service item pricing
 		// we only need to do this if the estimated weight, primary addresses, and pickup date are being updated since those all impact pricing
 		// we will compare data here to see if we even need to update the pricing
-		if newShipment.MarketCode == models.MarketCodeInternational &&
-			(newShipment.PrimeEstimatedWeight != nil ||
+		if dbShipment.PickupAddress != nil && dbShipment.DestinationAddress != nil &&
+			newShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS || newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+			if newShipment.MarketCode == models.MarketCodeInternational &&
+				newShipment.PrimeEstimatedWeight != nil ||
 				newShipment.PickupAddress != nil && newShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode ||
 				newShipment.DestinationAddress != nil && newShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode ||
-				newShipment.RequestedPickupDate != nil && newShipment.RequestedPickupDate.Format("2006-01-02") != dbShipment.RequestedPickupDate.Format("2006-01-02")) {
+				newShipment.RequestedPickupDate != nil && newShipment.RequestedPickupDate.Format("2006-01-02") != dbShipment.RequestedPickupDate.Format("2006-01-02") {
 
-			portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), newShipment.ID)
-			if err != nil {
-				return err
-			}
-			// if we don't have the port data, then we won't worry about pricing POEFSC/PODFSC because we need the distance from/to the ports
-			if portZip != nil && portType != nil {
-				var pickupZip string
-				var destZip string
-				// if the port type is POEFSC this means the shipment is CONUS -> OCONUS (pickup -> port)
-				// if the port type is PODFSC this means the shipment is OCONUS -> CONUS (port -> destination)
-				if *portType == models.ReServiceCodePOEFSC.String() {
-					pickupZip = newShipment.PickupAddress.PostalCode
-					destZip = *portZip
-				} else if *portType == models.ReServiceCodePODFSC.String() {
-					pickupZip = *portZip
-					destZip = newShipment.DestinationAddress.PostalCode
-				}
-				// we need to get the mileage from DTOD first, the db proc will consume that
-				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+				portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), newShipment.ID)
 				if err != nil {
 					return err
 				}
+				// if we don't have the port data, then we won't worry about pricing POEFSC/PODFSC because we need the distance from/to the ports
+				if portZip != nil && portType != nil {
+					var pickupZip string
+					var destZip string
+					// if the port type is POEFSC this means the shipment is CONUS -> OCONUS (pickup -> port)
+					// if the port type is PODFSC this means the shipment is OCONUS -> CONUS (port -> destination)
+					if *portType == models.ReServiceCodePOEFSC.String() {
+						pickupZip = newShipment.PickupAddress.PostalCode
+						destZip = *portZip
+					} else if *portType == models.ReServiceCodePODFSC.String() {
+						pickupZip = *portZip
+						destZip = newShipment.DestinationAddress.PostalCode
+					}
+					// we need to get the mileage from DTOD first, the db proc will consume that
+					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+					if err != nil {
+						return err
+					}
 
-				// update the service item pricing if relevant fields have changed
-				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), newShipment, &mileage)
-				if err != nil {
-					return err
-				}
-			} else {
-				// if we don't have the port data, that's okay - we can update the other service items except for PODFSC/POEFSC
-				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), newShipment, nil)
-				if err != nil {
-					return err
+					// update the service item pricing if relevant fields have changed
+					err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), newShipment, &mileage)
+					if err != nil {
+						return err
+					}
+				} else {
+					// if we don't have the port data, that's okay - we can update the other service items except for PODFSC/POEFSC
+					err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), newShipment, nil)
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}
