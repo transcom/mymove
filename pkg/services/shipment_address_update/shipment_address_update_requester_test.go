@@ -2,6 +2,7 @@ package shipmentaddressupdate
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/stretchr/testify/mock"
@@ -70,11 +71,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
+			false,
+			false,
 		).Return(2500, nil).Twice()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
@@ -123,8 +128,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 	suite.Run("Failed distance calculation should error", func() {
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("90210"),
-			mock.AnythingOfType("94535"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+			false,
+			false,
 		).Return(0, fmt.Errorf("error calculating distance 2")).Once()
 
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
@@ -141,6 +148,28 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			State:          "CA",
 			PostalCode:     "90210",
 		}
+		// building DDASIT service item to get dest SIT checks
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:                          models.MTOServiceItemStatusApproved,
+					SITDestinationOriginalAddressID: shipment.DestinationAddressID,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+				},
+			},
+		}, nil)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.Error(err)
 		suite.Nil(update)
@@ -242,11 +271,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
+			false,
+			false,
 		).Return(2500, nil).Times(4)
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
+			false,
+			false,
 		).Return(2500, nil).Twice()
 
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
@@ -272,11 +305,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -317,11 +354,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
@@ -362,11 +403,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
+			false,
+			false,
 		).Return(0, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"89503",
+			false,
+			false,
 		).Return(200, nil).Once()
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
@@ -489,11 +534,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			"87108",
+			false,
+			false,
 		).Return(500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			"87053",
+			false,
+			false,
 		).Return(501, nil).Once()
 		suite.NotEmpty(move.MTOShipments)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
@@ -547,16 +596,22 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
+			false,
+			false,
 		).Return(0, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94523",
 			"90210",
+			false,
+			false,
 		).Return(500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"90210",
+			false,
+			false,
 		).Return(501, nil).Once()
 
 		// request the update
@@ -582,6 +637,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
@@ -786,6 +843,445 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 		suite.Equal(updatedShipment.MarketCode, models.MarketCodeInternational)
 	})
+
+	suite.Run("Successfully update estiamted pricing on service items when address update is approved by TOO", func() {
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "50314")
+		suite.FatalNoError(err)
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "Tester Address",
+					City:               "Des Moines",
+					State:              "IA",
+					PostalCode:         "50314",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &pickupUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		suite.FatalNoError(err)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "JBER",
+					City:               "Anchorage",
+					State:              "AK",
+					PostalCode:         "99505",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &destUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		now := time.Now()
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					PrimeEstimatedWeight: models.PoundPointer(4000),
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+					ScheduledPickupDate:  &now,
+					RequestedPickupDate:  &now,
+					MarketCode:           models.MarketCodeInternational,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeISLH,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: models.CentPointer(1000),
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIHPK,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: models.CentPointer(1000),
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIHUPK,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: models.CentPointer(1000),
+				},
+			},
+		}, nil)
+		// POEFSC needs a port location
+		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: models.CentPointer(1000),
+				},
+			},
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			false,
+			false,
+		).Return(300, nil)
+
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			true,
+			true,
+		).Return(300, nil)
+
+		newDestUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99703")
+		suite.FatalNoError(err)
+		factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1:     "Cold Ave.",
+					City:               "Fairbanks",
+					State:              "AK",
+					PostalCode:         "99703",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &newDestUSPRC.ID,
+				},
+				Type: &factory.Addresses.NewAddress,
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+
+		officeRemarks := "Changing to another OCONUS address"
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), shipment.ID, "APPROVED", officeRemarks)
+
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+
+		// checking out the service items
+		var serviceItems []models.MTOServiceItem
+		err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err)
+
+		expectedReserviceCodes := []models.ReServiceCode{
+			models.ReServiceCodePOEFSC,
+			models.ReServiceCodeISLH,
+			models.ReServiceCodeIHPK,
+			models.ReServiceCodeIHUPK,
+		}
+
+		initialPrice := 1000
+		suite.Equal(4, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			actualReServiceCode := serviceItems[i].ReService.Code
+			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode))
+			// pricing should not be nil
+			suite.NotNil(serviceItems[i].PricingEstimate)
+			// initially we set them all to 1000 and they should all be changed
+			suite.NotEqual(serviceItems[i].PricingEstimate, &initialPrice)
+		}
+	})
+	suite.Run("On approval - successfully update estimated pricing on all basic iHHG service items except for POEFSC when port isn't set", func() {
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "50314")
+		suite.FatalNoError(err)
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "Tester Address",
+					City:               "Des Moines",
+					State:              "IA",
+					PostalCode:         "50314",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &pickupUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		suite.FatalNoError(err)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "JBER",
+					City:               "Anchorage",
+					State:              "AK",
+					PostalCode:         "99505",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &destUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		now := time.Now()
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					PrimeEstimatedWeight: models.PoundPointer(4000),
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+					ScheduledPickupDate:  &now,
+					RequestedPickupDate:  &now,
+					MarketCode:           models.MarketCodeInternational,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeISLH,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIHPK,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIHUPK,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: models.CentPointer(1000),
+				},
+			},
+		}, nil)
+		// no port data
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+		}, nil)
+
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			false,
+			false,
+		).Return(300, nil)
+
+		newDestUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99703")
+		suite.FatalNoError(err)
+		factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1:     "Cold Ave.",
+					City:               "Fairbanks",
+					State:              "AK",
+					PostalCode:         "99703",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &newDestUSPRC.ID,
+				},
+				Type: &factory.Addresses.NewAddress,
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+
+		officeRemarks := "Changing to another OCONUS address"
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), shipment.ID, "APPROVED", officeRemarks)
+
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+
+		// checking out the service items
+		var serviceItems []models.MTOServiceItem
+		err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err)
+
+		suite.Equal(4, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			if serviceItems[i].ReService.Code != models.ReServiceCodePOEFSC {
+				suite.NotNil(serviceItems[i].PricingEstimate)
+			} else if serviceItems[i].ReService.Code == models.ReServiceCodePOEFSC {
+				suite.Nil(serviceItems[i].PricingEstimate)
+			}
+		}
+	})
 }
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUpdateRequestChangedPricing() {
@@ -842,11 +1338,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
@@ -908,11 +1408,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
@@ -984,8 +1488,17 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		}
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
+			"90210",
+			"94535",
+			false,
+			false,
+		).Return(2500, nil).Once()
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
+			false,
+			false,
 		).Return(2500, nil).Once()
 
 		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
@@ -1007,11 +1520,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
@@ -1068,11 +1585,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
+			false,
+			false,
 		).Return(2500, nil).Once()
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -1122,12 +1643,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		suite.Equal(autoRejectionRemark, *shorthaul[0].RejectionReason)
 		suite.Equal(linehaul[0].Status, models.MTOServiceItemStatusApproved)
 	})
+
 	suite.Run("Successfully update shipment and its service items without error", func() {
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
-		).Return(30, nil).Once()
+			false,
+			false,
+		).Return(30, nil)
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
