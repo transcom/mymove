@@ -38,10 +38,10 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 	}
 }
 
-func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx appcontext.AppContext, addressUpdate models.ShipmentAddressUpdate) (bool, error) {
+func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx appcontext.AppContext, addressUpdate models.ShipmentAddressUpdate, isInternationalShipment bool) (bool, error) {
 
-	//We calculate and set the distance between the old and new address
-	distance, err := f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, false, false)
+	// We calculate and set the distance between the old and new address
+	distance, err := f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, false, isInternationalShipment)
 	if err != nil {
 		return false, err
 	}
@@ -53,17 +53,30 @@ func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx ap
 }
 
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceOrRateArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address, shipment models.MTOShipment) (bool, error) {
+	// international shipments find their rate areas differently than domestic
 	if shipment.MarketCode == models.MarketCodeInternational {
-		// we need to make sure we didn't change rate areas
+		// we already have the origin address in the db so we can check the rate area using the db func
 		originalRateArea, err := models.FetchRateAreaID(appCtx.DB(), originalDeliveryAddress.ID, nil, contractID)
 		if err != nil || originalRateArea == uuid.Nil {
 			return false, err
 		}
-		newRateArea, err := models.FetchRateAreaID(appCtx.DB(), newDeliveryAddress.ID, nil, contractID)
-		if err != nil || newRateArea == uuid.Nil {
+		// since the new address isn't created yet we can't use the db func since it doesn't have an id,
+		// we need to manually find the rate area using the postal code
+		var updateRateArea uuid.UUID
+		newRateArea, err := models.FetchOconusRateArea(appCtx.DB(), newDeliveryAddress.PostalCode)
+		if err != nil && err != sql.ErrNoRows {
 			return false, err
+		} else if err == sql.ErrNoRows { // if we got no rows then the new address is likely CONUS
+			newRateArea, err := models.FetchConusRateAreaByPostalCode(appCtx.DB(), newDeliveryAddress.PostalCode, contractID)
+			if err != nil && err != sql.ErrNoRows {
+				return false, err
+			}
+			updateRateArea = newRateArea.ID
+		} else {
+			updateRateArea = newRateArea.RateAreaId
 		}
-		if originalRateArea != newRateArea {
+		// if these are different, we need the TOO to approve this request since it will change ISLH pricing
+		if originalRateArea != updateRateArea {
 			return true, nil
 		} else {
 			return false, nil
@@ -355,7 +368,8 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 
-	if !updateNeedsTOOReview {
+	// international shipments don't need to be concerned with shorthaul/linehaul
+	if !updateNeedsTOOReview && shipment.MarketCode != models.MarketCodeInternational {
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
 			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
@@ -371,7 +385,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		}
 	}
 
-	if !updateNeedsTOOReview {
+	if !updateNeedsTOOReview && shipment.MarketCode != models.MarketCodeInternational {
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
 			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
@@ -388,7 +402,8 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 
 	if !updateNeedsTOOReview {
-		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate)
+		internationalShipment := shipment.MarketCode == models.MarketCodeInternational
+		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate, internationalShipment)
 		if err != nil {
 			return nil, err
 		}
@@ -407,7 +422,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error saving shipment address update request")
 		}
 
-		//Get the move
+		// Get the move
 		var move models.Move
 		err := txnAppCtx.DB().Find(&move, shipment.MoveTaskOrderID)
 		if err != nil {

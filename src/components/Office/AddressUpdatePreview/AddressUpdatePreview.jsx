@@ -9,23 +9,34 @@ import DataTable from 'components/DataTable/index';
 import { formatTwoLineAddress } from 'utils/shipmentDisplay';
 import DataTableWrapper from 'components/DataTableWrapper';
 import { ShipmentAddressUpdateShape } from 'types';
+import { MARKET_CODES } from 'shared/constants';
 
-const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
+const AddressUpdatePreview = ({ deliveryAddressUpdate, shipment }) => {
   const { originalAddress, newAddress, contractorRemarks } = deliveryAddressUpdate;
   const newSitMileage = deliveryAddressUpdate.newSitDistanceBetween;
+  const { marketCode } = shipment;
   return (
     <div>
       <h3 className={styles.previewHeading}>Delivery Address</h3>
       <Alert type="warning" className={styles.alert}>
-        <span className={styles.alertContent}>
-          If approved, the requested update to the delivery address will change one or all of the following:
-          <span className={styles.listItem}>Service area.</span>
-          <span className={styles.listItem}>Mileage bracket for direct delivery.</span>
-          <span className={styles.listItem}>
-            ZIP3 resulting in Domestic Shorthaul (DSH) changing to Domestic Linehaul (DLH) or vice versa.
+        {marketCode === MARKET_CODES.DOMESTIC ? (
+          <span className={styles.alertContent}>
+            If approved, the requested update to the delivery address will change one or all of the following:
+            <span className={styles.listItem}>Service area.</span>
+            <span className={styles.listItem}>Mileage bracket for direct delivery.</span>
+            <span className={styles.listItem}>
+              ZIP3 resulting in Domestic Shorthaul (DSH) changing to Domestic Linehaul (DLH) or vice versa.
+            </span>
+            Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.
           </span>
-          Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.
-        </span>
+        ) : (
+          <span className={styles.alertContent}>
+            If approved, the requested update to the delivery address will change one or all of the following:
+            <span className={styles.listItem}>The rate area for the international shipment destination address.</span>
+            <span className={styles.listItem}>Pricing for the international shipping & linehaul service item.</span>
+            Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.
+          </span>
+        )}
       </Alert>
       {newSitMileage > 50 ? (
         <Alert type="warning" className={styles.alert} id="destSitAlert" data-testid="destSitAlert">
