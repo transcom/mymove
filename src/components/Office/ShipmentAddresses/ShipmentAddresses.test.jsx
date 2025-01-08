@@ -119,6 +119,17 @@ const cancellationRequestedShipment = {
   },
 };
 
+const shipmentWithPort = {
+  ...testProps,
+  poeLocation: {
+    portCode: 'PDX',
+    portName: 'PORTLAND INTL',
+    city: 'PORTLAND',
+    state: 'OREGON',
+    zip: '97220',
+  },
+};
+
 describe('ShipmentAddresses', () => {
   it('calls props.handleShowDiversionModal on request diversion button click', async () => {
     render(
@@ -234,5 +245,11 @@ describe('ShipmentAddresses', () => {
     );
     const requestDiversionBtn = screen.getByRole('button', { name: 'Request Diversion' });
     expect(requestDiversionBtn).toBeDisabled();
+  });
+
+  it('renders port of embarkation and debarkation if one is set', async () => {
+    render(<ShipmentAddresses {...shipmentWithPort} />);
+    expect(screen.getByText('Port of Embarkation')).toBeInTheDocument();
+    expect(screen.getByText('Port of Debarkation')).toBeInTheDocument();
   });
 });
