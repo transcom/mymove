@@ -144,23 +144,13 @@ stages:
   - if: '$debug == "true"'
 
 .install_yarn: &install_yarn
-  - yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
-  - scripts/check-generated-code yarn.lock
-  - echo "yarn check dependencies"
-  - ./scripts/rebuild-dependencies-without-binaries
-
-.yarn_check_cache_and_install: &yarn_check_cache_and_install
-    - echo "Checking for cached Yarn dependencies..."
-    - |
-      if [ -d "/builds/milmove/mymove/.cache/yarn" ]; then
-        echo "Cache found. Skipping Yarn install.";
-      else
-        echo "No cache found. Installing dependencies.";
-        mkdir /builds/milmove/mymove/.cache
-        mkdir /builds/milmove/mymove/.cache/yarn
-        yarn config set "strict-ssl" false
-        yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn;
-      fi
+  - |
+    mkdir /builds/milmove/mymove/.cache
+    mkdir /builds/milmove/mymove/.cache/yarn
+    yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
+    scripts/check-generated-code yarn.lock
+    echo "yarn check dependencies"
+    ./scripts/rebuild-dependencies-without-binaries
 
 .yarn_cache: &yarn_cache
   cache:
@@ -321,7 +311,6 @@ pre_deps_yarn:
   before_script:
     - *setup_milmove_env
   script:
-     - *yarn_check_cache_and_install
      - *install_yarn
   <<: *yarn_cache
   after_script:
@@ -402,7 +391,6 @@ build_storybook:
   <<: *yarn_cache
   before_script:
     - *setup_milmove_env
-    - *yarn_check_cache_and_install
     - *install_yarn
   script:
    - yarn build-storybook
@@ -436,11 +424,14 @@ deploy_storybook_dp3:
 compile_app_client:
   stage: build
   image: $DOCKER_APP_IMAGE
+  <<: *yarn_cache
   variables:
     KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "8Gi"
     KUBERNETES_MEMORY_LIMIT: "8Gi"
-  before_script: *setup_milmove_env
+  before_script:
+  - *setup_milmove_env
+  - *install_yarn
   needs:
     - pre_deps_yarn
   script:
@@ -461,6 +452,7 @@ compile_app_client:
 compile_app_server:
   stage: build
   image: $DOCKER_APP_IMAGE
+  <<: *yarn_cache
   variables:
     KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
@@ -468,7 +460,9 @@ compile_app_server:
   needs:
     - pre_deps_golang
     - pre_deps_yarn
-  before_script: *setup_milmove_env
+  before_script:
+    - *setup_milmove_env
+    - *install_yarn
   script:
     - make -j 4 server_build build_tools
     - echo "Skipping server and tools compilation."
@@ -500,6 +494,7 @@ compile_app_server:
 pre_test:
   stage: test
   image: $DOCKER_APP_IMAGE
+  <<: *yarn_cache
   needs:
     - pre_deps_golang
     - pre_deps_yarn
@@ -516,7 +511,7 @@ pre_test:
     - |
       [ -d ~/transcom/mymove/spectral ] && cp -r ~/transcom/mymove/spectral /tmp/spectral_baseline || echo "Skipping saving baseline"
     - rm -rf ~/transcom/mymove/spectral
-    - *yarn_check_cache_and_install
+    - *install_yarn
     - ./scripts/pre-commit-go-mod || exit 0
     - echo "Run pre-commit tests without golangci-lint, eslint, or prettier"
     - SKIP=golangci-lint,eslint,prettier,ato-go-linter,gomod,appcontext-linter pre-commit run --all-files
@@ -648,7 +643,6 @@ client_test:
   <<: *yarn_cache
   before_script:
     - *setup_milmove_env
-    - *yarn_check_cache_and_install
     - *install_yarn
   coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
   dependencies:
