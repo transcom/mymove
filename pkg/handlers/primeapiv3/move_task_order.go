@@ -17,7 +17,8 @@ import (
 // GetMoveTaskOrderHandler returns the details for a particular move
 type GetMoveTaskOrderHandler struct {
 	handlers.HandlerConfig
-	moveTaskOrderFetcher services.MoveTaskOrderFetcher
+	moveTaskOrderFetcher   services.MoveTaskOrderFetcher
+	shipmentRateAreaFinder services.ShipmentRateAreaFinder
 }
 
 // Handle fetches a move from the database using its UUID or move code
@@ -104,7 +105,15 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			}
 			/** End of Feature Flag **/
 
-			moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+			// Add oconus rate area information to payload
+			shipmentPostalCodeRateArea, err := h.shipmentRateAreaFinder.GetPrimeMoveShipmentOconusRateArea(appCtx, *mto)
+			if err != nil {
+				appCtx.Logger().Error("primeapi.GetMoveTaskOrderHandler error", zap.Error(err))
+				return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(
+					payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			moveTaskOrderPayload := payloads.MoveTaskOrderWithShipmentOconusRateArea(mto, shipmentPostalCodeRateArea)
 
 			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
 		})
