@@ -13,7 +13,7 @@ import ToolTip from 'shared/ToolTip/ToolTip';
 import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
@@ -32,6 +32,9 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
   const [hasDependents, setHasDependents] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
+  const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
+  const [prevOrderType, setPrevOrderType] = useState('');
+  const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
 
   const validationSchema = Yup.object().shape({
     ordersType: Yup.mixed()
@@ -88,9 +91,24 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const alaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+
+      const updatedOptions = alaskaEnabled
+        ? ordersTypeOptions
+        : ordersTypeOptions.filter(
+            (e) => e.key !== ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS && e.key !== ORDERS_TYPE.STUDENT_TRAVEL,
+          );
+
+      setFilteredOrderTypeOptions(updatedOptions);
+    };
+    fetchData();
+  }, [ordersTypeOptions]);
+
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ values, isValid, isSubmitting, handleSubmit, touched, setFieldValue }) => {
+      {({ values, isValid, isSubmitting, handleSubmit, handleChange, touched, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.ordersType);
         if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
         else originMeta = null;
@@ -100,16 +118,36 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
         const handleHasDependentsChange = (e) => {
           // Declare a duplicate local scope of the field value
           // for the form to prevent state race conditions
-          const fieldValueHasDependents = e.target.value === 'yes';
-          setHasDependents(e.target.value === 'yes');
-          setFieldValue('hasDependents', fieldValueHasDependents ? 'yes' : 'no');
-          if (fieldValueHasDependents && isOconusMove && enableUB) {
-            setShowAccompaniedTourField(true);
-            setShowDependentAgeFields(true);
+          if (e.target.value === '') {
+            setFieldValue('hasDependents', '');
           } else {
-            setShowAccompaniedTourField(false);
-            setShowDependentAgeFields(false);
+            const fieldValueHasDependents = e.target.value === 'yes';
+            setHasDependents(e.target.value === 'yes');
+            setFieldValue('hasDependents', fieldValueHasDependents ? 'yes' : 'no');
+            if (fieldValueHasDependents && isOconusMove && enableUB) {
+              setShowAccompaniedTourField(true);
+              setShowDependentAgeFields(true);
+            } else {
+              setShowAccompaniedTourField(false);
+              setShowDependentAgeFields(false);
+            }
           }
+        };
+        const handleOrderTypeChange = (e) => {
+          const { value } = e.target;
+          if (value === ORDERS_TYPE.STUDENT_TRAVEL || value === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS) {
+            setHasDependentsDisabled(true);
+            handleHasDependentsChange({ target: { value: 'yes' } });
+          } else {
+            setHasDependentsDisabled(false);
+            if (
+              prevOrderType === ORDERS_TYPE.STUDENT_TRAVEL ||
+              prevOrderType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
+            ) {
+              handleHasDependentsChange({ target: { value: '' } });
+            }
+          }
+          setPrevOrderType(value);
         };
         return (
           <Form className={`${formStyles.form}`}>
@@ -120,8 +158,12 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
               <DropdownInput
                 label="Orders type"
                 name="ordersType"
-                options={ordersTypeOptions}
+                options={filteredOrderTypeOptions}
                 required
+                onChange={(e) => {
+                  handleChange(e);
+                  handleOrderTypeChange(e);
+                }}
                 isDisabled={isSafetyMoveSelected}
               />
               <DatePickerInput name="issueDate" label="Orders date" required />
@@ -199,6 +241,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
                     onChange={(e) => {
                       handleHasDependentsChange(e);
                     }}
+                    disabled={isHasDependentsDisabled}
                   />
                   <Field
                     as={Radio}
@@ -212,6 +255,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
                     onChange={(e) => {
                       handleHasDependentsChange(e);
                     }}
+                    disabled={isHasDependentsDisabled}
                   />
                 </div>
               </FormGroup>
