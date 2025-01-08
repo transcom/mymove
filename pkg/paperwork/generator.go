@@ -2,6 +2,7 @@ package paperwork
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -787,9 +788,41 @@ func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders
 	return mergedFile, nil
 }
 
+// Pdfcpu does not nil check watermarks as of version 0.9.1
+// This map allows us to preemptively nil check before calling the package
+func createMapOfOnlyWatermarkedPages(m map[int][]*model.Watermark) map[int][]*model.Watermark {
+	validMap := make(map[int][]*model.Watermark)
+	for page, wms := range m {
+		// Skip entries where the slice is nil or empty
+		if len(wms) == 0 {
+			continue
+		}
+
+		// Filter out nil pointers from the slice
+		validWms := []*model.Watermark{}
+		for _, wm := range wms {
+			if wm != nil {
+				validWms = append(validWms, wm)
+			}
+		}
+
+		// Only add the page to the valid map if the filtered slice is not empty
+		if len(validWms) > 0 {
+			validMap[page] = validWms
+		}
+	}
+	return validMap
+}
+
 func (g *Generator) AddWatermarks(inputFile afero.File, m map[int][]*model.Watermark) (afero.File, error) {
+	// Preemptive nil check for the map and its contents
+	watermarkMap := createMapOfOnlyWatermarkedPages(m)
+	if watermarkMap[0] == nil {
+		return nil, fmt.Errorf("no watermarks provided for generation")
+	}
+
 	buf := new(bytes.Buffer)
-	err := api.AddWatermarksSliceMap(inputFile, buf, m, g.pdfConfig)
+	err := api.AddWatermarksSliceMap(inputFile, buf, watermarkMap, g.pdfConfig)
 	if err != nil {
 		return nil, err
 	}
