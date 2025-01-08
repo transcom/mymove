@@ -273,8 +273,14 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 	}
 
 	if mtoShipment.PpmShipment != nil {
-		model.PPMShipment = PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
-		model.PPMShipment.Shipment = *model
+		ppmShipment, err := PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
+		if err != nil {
+			verrs.Add("mtoShipment", err.Error())
+			return nil, verrs
+		} else {
+			model.PPMShipment = ppmShipment
+			model.PPMShipment.Shipment = *model
+		}
 	}
 
 	if mtoShipment.BoatShipment != nil {
@@ -317,9 +323,10 @@ func ShipmentAddressUpdateModel(nonSITAddressUpdate *primev3messages.UpdateShipm
 }
 
 // PPMShipmentModelFromCreate model
-func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) *models.PPMShipment {
+func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) (*models.PPMShipment, *validate.Errors) {
+	verrs := validate.NewErrors()
 	if ppmShipment == nil {
-		return nil
+		return nil, nil
 	}
 
 	model := &models.PPMShipment{
@@ -350,6 +357,10 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 
 	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
 	if addressModel != nil {
+		if AddressModel(&ppmShipment.SecondaryPickupAddress.Address) == nil {
+			verrs.Add("ppmShipment", "Shipment cannot have a third pickup address without a second pickup address present")
+			return nil, verrs
+		}
 		model.TertiaryPickupAddress = addressModel
 		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
 	}
@@ -367,6 +378,10 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 
 	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
 	if addressModel != nil {
+		if AddressModel(&ppmShipment.SecondaryDestinationAddress.Address) == nil {
+			verrs.Add("ppmShipment", "Shipment cannot have a third destination address without a second destination address present")
+			return nil, verrs
+		}
 		model.TertiaryDestinationAddress = addressModel
 		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
 	}
@@ -398,7 +413,7 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
-	return model
+	return model, nil
 }
 
 // BoatShipmentModelFromCreate model

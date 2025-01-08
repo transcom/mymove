@@ -1637,7 +1637,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -1645,7 +1645,8 @@ func init() {
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating",
-        "MTOServiceItemInternationalCrating"
+        "MTOServiceItemInternationalCrating",
+        "MTOSerivceItemInternationalFuelSurcharge"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -1888,6 +1889,9 @@ func init() {
             }
           ]
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "destinationSitAuthEndDate": {
           "description": "The SIT authorized end date for destination SIT.",
           "type": "string",
@@ -1952,6 +1956,9 @@ func init() {
           "x-nullable": true,
           "example": 4500
         },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "originSitAuthEndDate": {
           "description": "The SIT authorized end date for origin SIT.",
           "type": "string",
@@ -1969,6 +1976,12 @@ func init() {
         "pointOfContact": {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
+        },
+        "portOfDebarkation": {
+          "$ref": "#/definitions/Port"
+        },
+        "portOfEmbarkation": {
+          "$ref": "#/definitions/Port"
         },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
@@ -2614,6 +2627,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/PPMDestinationAddress"
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
@@ -2696,6 +2712,9 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -2990,6 +3009,115 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
+    "Port": {
+      "description": "A port that is used to move an international shipment.",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "example": "PORTLAND"
+        },
+        "country": {
+          "description": "Two-letter country code",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "example": "US"
+        },
+        "county": {
+          "type": "string",
+          "example": "MULTNOMAH"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "portCode": {
+          "description": "3 or 4 digit port code",
+          "type": "string",
+          "example": "0431"
+        },
+        "portName": {
+          "description": "Name of the port",
+          "type": "string",
+          "example": "PORTLAND INTL"
+        },
+        "portType": {
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "S"
+          ]
+        },
+        "state": {
+          "description": "US state",
+          "type": "string",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "example": "OR"
+        },
+        "zip": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "99501"
+        }
+      }
+    },
     "ProofOfServiceDoc": {
       "type": "object",
       "properties": {
@@ -3005,6 +3133,32 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ProofOfServiceDoc"
+      }
+    },
+    "RateArea": {
+      "description": "Rate area info for OCONUS postal code",
+      "type": "object",
+      "required": [
+        "id",
+        "rateAreaId",
+        "rateAreaName"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rateAreaId": {
+          "description": "Rate area code",
+          "type": "string",
+          "example": "US8101000"
+        },
+        "rateAreaName": {
+          "description": "Rate area name",
+          "type": "string",
+          "example": "Alaska (Zone) I"
+        }
       }
     },
     "ReServiceCode": {
@@ -3681,6 +3835,12 @@ func init() {
         "pointOfContact": {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
+        },
+        "portOfDebarkation": {
+          "$ref": "#/definitions/Port"
+        },
+        "portOfEmbarkation": {
+          "$ref": "#/definitions/Port"
         },
         "ppmShipment": {
           "$ref": "#/definitions/UpdatePPMShipment"
@@ -5769,7 +5929,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -5777,7 +5937,8 @@ func init() {
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating",
-        "MTOServiceItemInternationalCrating"
+        "MTOServiceItemInternationalCrating",
+        "MTOSerivceItemInternationalFuelSurcharge"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -6020,6 +6181,9 @@ func init() {
             }
           ]
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "destinationSitAuthEndDate": {
           "description": "The SIT authorized end date for destination SIT.",
           "type": "string",
@@ -6084,6 +6248,9 @@ func init() {
           "x-nullable": true,
           "example": 4500
         },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "originSitAuthEndDate": {
           "description": "The SIT authorized end date for origin SIT.",
           "type": "string",
@@ -6101,6 +6268,12 @@ func init() {
         "pointOfContact": {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
+        },
+        "portOfDebarkation": {
+          "$ref": "#/definitions/Port"
+        },
+        "portOfEmbarkation": {
+          "$ref": "#/definitions/Port"
         },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
@@ -6746,6 +6919,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/PPMDestinationAddress"
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
@@ -6828,6 +7004,9 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -7122,6 +7301,115 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
+    "Port": {
+      "description": "A port that is used to move an international shipment.",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "example": "PORTLAND"
+        },
+        "country": {
+          "description": "Two-letter country code",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "example": "US"
+        },
+        "county": {
+          "type": "string",
+          "example": "MULTNOMAH"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "portCode": {
+          "description": "3 or 4 digit port code",
+          "type": "string",
+          "example": "0431"
+        },
+        "portName": {
+          "description": "Name of the port",
+          "type": "string",
+          "example": "PORTLAND INTL"
+        },
+        "portType": {
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "S"
+          ]
+        },
+        "state": {
+          "description": "US state",
+          "type": "string",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "example": "OR"
+        },
+        "zip": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "99501"
+        }
+      }
+    },
     "ProofOfServiceDoc": {
       "type": "object",
       "properties": {
@@ -7137,6 +7425,32 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ProofOfServiceDoc"
+      }
+    },
+    "RateArea": {
+      "description": "Rate area info for OCONUS postal code",
+      "type": "object",
+      "required": [
+        "id",
+        "rateAreaId",
+        "rateAreaName"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rateAreaId": {
+          "description": "Rate area code",
+          "type": "string",
+          "example": "US8101000"
+        },
+        "rateAreaName": {
+          "description": "Rate area name",
+          "type": "string",
+          "example": "Alaska (Zone) I"
+        }
       }
     },
     "ReServiceCode": {
@@ -7815,6 +8129,12 @@ func init() {
         "pointOfContact": {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
+        },
+        "portOfDebarkation": {
+          "$ref": "#/definitions/Port"
+        },
+        "portOfEmbarkation": {
+          "$ref": "#/definitions/Port"
         },
         "ppmShipment": {
           "$ref": "#/definitions/UpdatePPMShipment"
