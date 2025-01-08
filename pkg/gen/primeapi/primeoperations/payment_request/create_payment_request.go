@@ -88,8 +88,6 @@ The diverted shipment chain is created by referencing the `diversion` boolean, `
 If the chain cannot be established it will fall back to the `PrimeActualWeight` of the current shipment. This is utilized because diverted shipments are all one single shipment, but going to different locations.
 The lowest weight found is the true shipment weight, and thus we search the chain of shipments for the lowest weight found.
 
-Domestic Request Params:
-
 **DOFSIT - Domestic origin 1st day SIT**
 ```json
 
@@ -194,32 +192,6 @@ Domestic Request Params:
 ```
 
 **DDSHUT - Domestic destination shuttle service**
-```json
-
-	"params": [
-	  {
-	    "key": "WeightBilled",
-	    "value": "integer"
-	  }
-	]
-
-```
-
-International Requests Params:
-
-**IOSHUT - International origin shuttle service**
-```json
-
-	"params": [
-	  {
-	    "key": "WeightBilled",
-	    "value": "integer"
-	  }
-	]
-
-```
-
-**IDSHUT - International destination shuttle service**
 ```json
 
 	"params": [

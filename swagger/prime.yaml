@@ -1293,9 +1293,6 @@ paths:
         the chain of shipments for the lowest weight found.
 
 
-        Domestic Request Params:
-
-
         **DOFSIT - Domestic origin 1st day SIT**
 
         ```json
@@ -1411,33 +1408,6 @@ paths:
 
 
         **DDSHUT - Domestic destination shuttle service**
-
-        ```json
-          "params": [
-            {
-              "key": "WeightBilled",
-              "value": "integer"
-            }
-          ]
-        ```
-
-
-        International Requests Params:
-
-
-        **IOSHUT - International origin shuttle service**
-
-        ```json
-          "params": [
-            {
-              "key": "WeightBilled",
-              "value": "integer"
-            }
-          ]
-        ```
-
-
-        **IDSHUT - International destination shuttle service**
 
         ```json
           "params": [
