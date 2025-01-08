@@ -1488,11 +1488,13 @@ definitions:
         format: uuid
         type: string
       destinationGBLOC:
-        example: 'AGFM'
         type: string
+        example: 'JFK'
+        readOnly: true
       destinationPostalCode:
-        example: '90210'
         type: string
+        example: '90210'
+        readOnly: true
       referenceId:
         example: 1001-3456
         type: string

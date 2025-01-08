@@ -2561,22 +2561,23 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			originGBLOC = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		}
 
-		var destinationGBLOC ghcmessages.GBLOC
-		var PostalCodeToGBLOC models.PostalCodeToGBLOC
+		// populates the destination gbloc of the move
+		var destinationGBLOC string
 		var err error
-		if numShipments > 0 && move.MTOShipments[0].DestinationAddress != nil {
-			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.MTOShipments[0].DestinationAddress.PostalCode)
-		} else {
-			// If the move has no shipments or the shipment has no destination address fall back to the origin duty location GBLOC
-			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.NewDutyLocation.Address.PostalCode)
-		}
-
+		destinationGBLOC, err = move.GetDestinationGBLOC(appCtx.DB())
 		if err != nil {
-			destinationGBLOC = *ghcmessages.NewGBLOC("")
-		} else if customer.Affiliation.String() == "MARINES" {
-			destinationGBLOC = ghcmessages.GBLOC("USMC/" + PostalCodeToGBLOC.GBLOC)
-		} else {
-			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
+			destinationGBLOC = ""
+		}
+		if len(destinationGBLOC) > 0 && customer.Affiliation.String() == "MARINES" {
+			destinationGBLOC = "USMC/" + destinationGBLOC
+		}
+		destinationGblocMessage := ghcmessages.GBLOC(destinationGBLOC)
+
+		// populates the destination postal code of the move
+		var destinationPostalCode string
+		destinationPostalCode, err = move.GetDestinationPostalCode(appCtx.DB())
+		if err != nil {
+			destinationPostalCode = ""
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{
@@ -2590,12 +2591,12 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			Locator:                      move.Locator,
 			ShipmentsCount:               int64(numShipments),
 			OriginDutyLocationPostalCode: move.Orders.OriginDutyLocation.Address.PostalCode,
-			DestinationPostalCode:        move.Orders.NewDutyLocation.Address.PostalCode,
+			DestinationPostalCode:        destinationPostalCode,
 			OrderType:                    string(move.Orders.OrdersType),
 			RequestedPickupDate:          pickupDate,
 			RequestedDeliveryDate:        deliveryDate,
 			OriginGBLOC:                  ghcmessages.GBLOC(originGBLOC),
-			DestinationGBLOC:             destinationGBLOC,
+			DestinationGBLOC:             destinationGblocMessage,
 			LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 			LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
 		}
