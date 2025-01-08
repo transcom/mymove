@@ -60,7 +60,7 @@ const OrdersList = ({ ordersInfo, moveInfo, showMissingWarnings }) => {
         <div className={descriptionListStyles.row}>
           <dt>Counseling office</dt>
           <dd data-testid="counselingOffice">
-            {moveInfo.counselingOffice?.name ? moveInfo.counselingOffice?.name : '—'}
+            {moveInfo?.counselingOffice?.name ? moveInfo.counselingOffice.name : '—'}
           </dd>
         </div>
         <div
@@ -141,6 +141,7 @@ OrdersList.defaultProps = {
 
 OrdersList.propTypes = {
   ordersInfo: OrdersInfoShape.isRequired,
+  moveInfo: PropTypes.object.isRequired,
   showMissingWarnings: PropTypes.bool,
 };
 
