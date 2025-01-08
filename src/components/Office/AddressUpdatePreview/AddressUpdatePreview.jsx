@@ -33,7 +33,8 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate, shipment }) => {
           <span className={styles.alertContent}>
             If approved, the requested update to the delivery address will change one or all of the following:
             <span className={styles.listItem}>The rate area for the international shipment destination address.</span>
-            <span className={styles.listItem}>Pricing for the international shipping & linehaul service item.</span>
+            <span className={styles.listItem}>Pricing for international shipping & linehaul.</span>
+            <span className={styles.listItem}>Pricing for POD Fuel Surcharge (if applicable).</span>
             Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.
           </span>
         )}
