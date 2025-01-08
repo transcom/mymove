@@ -143,11 +143,40 @@ stages:
 .check_debug: &check_debug
   - if: '$debug == "true"'
 
-.reinstall_yarn: &reinstall_yarn
-    - yarn config set "strict-ssl" false
-    - yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
-    - echo "Rebuild dependencies without binaries"
-    - ./scripts/rebuild-dependencies-without-binaries
+.install_yarn: &install_yarn
+  - yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
+  - scripts/check-generated-code yarn.lock
+  - echo "yarn check dependencies"
+  - ./scripts/rebuild-dependencies-without-binaries
+
+.yarn_check_cache_and_install: &yarn_check_cache_and_install
+    - echo "Checking for cached Yarn dependencies..."
+    - |
+      if [ -d "/builds/milmove/mymove/.cache/yarn" ]; then
+        echo "Cache found. Skipping Yarn install.";
+      else
+        echo "No cache found. Installing dependencies.";
+        mkdir /builds/milmove/mymove/.cache
+        mkdir /builds/milmove/mymove/.cache/yarn
+        yarn config set "strict-ssl" false
+        yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn;
+      fi
+
+.yarn_cache: &yarn_cache
+  cache:
+    key:
+      files:
+        - yarn.lock
+    paths:
+      - .cache/yarn
+
+.gosum_cache: &gosum_cache
+  cache:
+    key:
+      files:
+        - go.sum
+    paths:
+      - .cache/yarn
 
 .setup_generic_app_env_variables: &setup_generic_app_env_variables
   - |
@@ -201,6 +230,18 @@ include:
 - template: Jobs/SAST.gitlab-ci.yml
 - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 - template: Jobs/Secret-Detection.gitlab-ci.yml
+
+testing_services:
+  stage: pre_checks
+  image: alpine:3.7
+  services:
+    - php:7
+    - node:latest
+    - golang:1.10
+  script:
+    - php -v
+    - node -v
+    - go version
 
 anti_virus:
   stage: pre_checks
@@ -280,18 +321,11 @@ pre_deps_yarn:
   before_script:
     - *setup_milmove_env
   script:
-     - mkdir /builds/milmove/mymove/.cache
-     - mkdir /builds/milmove/mymove/.cache/yarn
-     - yarn config set "strict-ssl" false
-     - yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
-     - scripts/check-generated-code yarn.lock
-     - echo "yarn check dependencies"
-     - ./scripts/rebuild-dependencies-without-binaries
-  artifacts:
-    paths:
-      - /builds/milmove/mymove/.cache/yarn
+     - *yarn_check_cache_and_install
+     - *install_yarn
+  <<: *yarn_cache
   after_script:
-    - *announce_failure
+      - *announce_failure
 
 check_generated_code:
   stage: pre_checks
@@ -365,12 +399,12 @@ build_storybook:
   needs:
     - pre_deps_yarn
     - anti_virus
+  <<: *yarn_cache
   before_script:
     - *setup_milmove_env
+    - *yarn_check_cache_and_install
+    - *install_yarn
   script:
-   - yarn config set "strict-ssl" false
-   - yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
-   - ./scripts/rebuild-dependencies-without-binaries
    - yarn build-storybook
   after_script:
     - *announce_failure
@@ -413,13 +447,11 @@ compile_app_client:
      - make client_build
   artifacts:
     paths:
-      - ~/.cache/yarn
       - /builds/milmove/mymove/bin
       - /builds/milmove/mymove/build
       - playwright
       - playwright.config.js
       - package.json
-      - yarn.lock
       - eslint-plugin-ato
     expire_in: 1 week
   after_script:
@@ -484,7 +516,7 @@ pre_test:
     - |
       [ -d ~/transcom/mymove/spectral ] && cp -r ~/transcom/mymove/spectral /tmp/spectral_baseline || echo "Skipping saving baseline"
     - rm -rf ~/transcom/mymove/spectral
-    - *reinstall_yarn
+    - *yarn_check_cache_and_install
     - ./scripts/pre-commit-go-mod || exit 0
     - echo "Run pre-commit tests without golangci-lint, eslint, or prettier"
     - SKIP=golangci-lint,eslint,prettier,ato-go-linter,gomod,appcontext-linter pre-commit run --all-files
@@ -516,21 +548,53 @@ pre_test:
   # - *check_main
 
 server_test:
-  stage: pre_checks
+  stage: test
   image: $DOCKER_APP_IMAGE
-  # needs:
-  #   - pre_deps_golang
+  needs:
+    - pre_deps_golang
   before_script:
   - *setup_milmove_env
   - *setup_generic_app_env_variables
   - *setup_server_env_variables
+  services:
+     - postgres:latest
+     - docker:dind
+  variables:
+    APPLICATION: app
+    # 8 since this runs on xlarge with 8 CPUs
+    GOTEST_PARALLEL: 8
+    DB_PASSWORD: mysecretpassword
+    DB_USER_LOW_PRIV: crud
+    DB_PASSWORD_LOW_PRIV: mysecretpassword
+    DB_USER: postgres
+    DB_HOST: localhost
+    DB_PORT_TEST: 5433
+    DB_PORT: 5432
+    DB_NAME: test_db
+    DB_NAME_TEST: test_db
+    DTOD_USE_MOCK: 'true'
+    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+    ENV: test
+    ENVIRONMENT: test
+    SERVER_REPORT: 1
+    COVERAGE: 1
+    SERVE_API_INTERNAL: 'true'
+    OKTA_CUSTOMER_CLIENT_ID: 1q2w3e4r5t6y7u8i9o
+    OKTA_ADMIN_CLIENT_ID: AQ1SW2DE3FR4G5
+    OKTA_OFFICE_CLIENT_ID: 9f9f9s8s90gig9
+    OKTA_API_KEY: notrealapikey8675309
+    OKTA_OFFICE_GROUP_ID: notrealgroupId
+    OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
   script:
+    - psql --version
     - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
     - scripts/check-generated-code go.sum
     - make bin/swagger
     - echo "server test -- TODO Add steps need to potentially pass job id to file and persist"
     - make -j 2 bin/milmove bin/gotestsum
-    - make server_test_build for app
+    - make server_test for app
     # - go install gotest.tools/gotestsum@latest
     # - go mod tidy
     #- bin/gotestsum --junitfile server_test_report.xml --format server_test
@@ -579,14 +643,17 @@ client_test:
     KUBERNETES_CPU_REQUEST: "4"
     KUBERNETES_MEMORY_REQUEST: "8Gi"
     KUBERNETES_MEMORY_LIMIT: "8Gi"
-  # needs:
-  #   - pre_deps_yarn
-  before_script: *setup_milmove_env
+  needs:
+    - pre_deps_yarn
+  <<: *yarn_cache
+  before_script:
+    - *setup_milmove_env
+    - *yarn_check_cache_and_install
+    - *install_yarn
   coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
   dependencies:
     - pre_deps_yarn
   script:
-    - *reinstall_yarn
     - echo "client test coverage"
     - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false >> $CI_PROJECT_DIR/coverage.output
   artifacts:
