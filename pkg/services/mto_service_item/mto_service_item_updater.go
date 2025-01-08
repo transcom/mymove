@@ -820,7 +820,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 				}
 
 				// update the service item pricing if relevant fields have changed
-				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &shipment, mileage)
+				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &shipment, &mileage)
 				if err != nil {
 					return err
 				}
