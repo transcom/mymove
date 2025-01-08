@@ -216,13 +216,38 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			},
 		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
 
-		serviceItem := testdatagen.MakeMTOServiceItemDomesticCrating(suite.DB(), testdatagen.Assertions{
+		serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDCRT,
 			},
 			MTOShipment: shipment,
 			Move:        move,
 		})
+
+		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		serviceItemPortFSC := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		agents := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
 			{
@@ -253,7 +278,8 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 
 		actualShipment := mtoShipments[0]
 
-		suite.Equal(serviceItem.ReService.Code, actualShipment.MTOServiceItems[0].ReService.Code)
+		suite.Equal(serviceItemDCRT.ReService.Code, actualShipment.MTOServiceItems[0].ReService.Code)
+		suite.Equal(serviceItemPortFSC.ReService.Code, actualShipment.MTOServiceItems[1].ReService.Code)
 		suite.Equal(agents.ID.String(), actualShipment.MTOAgents[0].ID.String())
 		suite.Equal(shipment.PickupAddress.ID.String(), actualShipment.PickupAddress.ID.String())
 		suite.Equal(secondaryPickupAddress.ID.String(), actualShipment.SecondaryPickupAddress.ID.String())
