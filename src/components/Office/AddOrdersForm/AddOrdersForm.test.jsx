@@ -274,5 +274,10 @@ describe('AddOrdersForm - With Counseling Office', () => {
 
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
     expect(counselingOfficeLabel).toBeTruthy();
+
+    await userEvent.selectOptions(screen.getByLabelText(/Counseling office/), ['Albuquerque AFB']);
+
+    const nextBtn = screen.getByRole('button', { name: 'Next' });
+    expect(nextBtn.getAttribute('disabled')).toBeFalsy();
   });
 });
