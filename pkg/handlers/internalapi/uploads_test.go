@@ -449,15 +449,14 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 	suite.NotNil(queriedUpload.DeletedAt)
 }
 
-// TODO: functioning test
 func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	localReceiver := notifications.StubNotificationReceiver{}
 
-	move := factory.BuildMove(suite.DB(), nil, nil)
+	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	uploadUser1 := factory.BuildUserUpload(suite.DB(), []factory.Customization{
 		{
-			Model:    move.Orders.UploadedOrders,
+			Model:    orders.UploadedOrders,
 			LinkOnly: true,
 		},
 		{
@@ -470,10 +469,11 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
 	}, nil)
 
 	file := suite.Fixture(FixturePDF)
-	fakeS3.Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
+	_, err := fakeS3.Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
+	suite.NoError(err)
 
 	params := uploadop.NewGetUploadStatusParams()
-	params.UploadID = strfmt.UUID(uploadUser1.ID.String())
+	params.UploadID = strfmt.UUID(uploadUser1.Upload.ID.String())
 
 	req := &http.Request{}
 	req = suite.AuthenticateRequest(req, uploadUser1.Document.ServiceMember)
@@ -490,8 +490,42 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}
-	err := suite.DB().Find(&queriedUpload, uploadUser1.Upload.ID)
-	suite.Nil(err)
+	err = suite.DB().Find(&queriedUpload, uploadUser1.Upload.ID)
+	suite.NoError(err)
+}
+
+func (suite *HandlerSuite) TestGetUploadStatusHandlerFailure() {
+	suite.Run("Error on no match for uploadId", func() {
+		orders := factory.BuildOrder(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+
+		uploadUUID := uuid.Must(uuid.NewV4())
+
+		params := uploadop.NewGetUploadStatusParams()
+		params.UploadID = strfmt.UUID(uploadUUID.String())
+
+		req := &http.Request{}
+		req = suite.AuthenticateRequest(req, orders.ServiceMember)
+		params.HTTPRequest = req
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		localReceiver := notifications.StubNotificationReceiver{}
+
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		handlerConfig.SetNotificationReceiver(localReceiver)
+		uploadInformationFetcher := upload.NewUploadInformationFetcher()
+		handler := GetUploadStatusHandler{handlerConfig, uploadInformationFetcher}
+
+		response := handler.Handle(params)
+		_, ok := response.(*uploadop.GetUploadStatusNotFound)
+		suite.True(ok)
+
+		queriedUpload := models.Upload{}
+		err := suite.DB().Find(&queriedUpload, uploadUUID)
+		suite.Error(err)
+	})
+
+	// TODO: ADD A FORBIDDEN TEST
 }
 
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {

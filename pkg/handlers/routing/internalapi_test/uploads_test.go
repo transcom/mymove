@@ -36,6 +36,6 @@ func (suite *InternalAPISuite) TestUploads() {
 
 		suite.Equal(http.StatusOK, rr.Code)
 		suite.Equal("text/event-stream", rr.Header().Get("content-type"))
-		suite.Equal("id: 0\nevent: message\ndata: CLEAN\n\n", rr.Body.String())
+		suite.Equal("id: 0\nevent: message\ndata: CLEAN\n\nid: 1\nevent: close\ndata: Connection closed\n\n", rr.Body.String())
 	})
 }

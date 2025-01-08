@@ -259,10 +259,11 @@ type GetUploadStatusHandler struct {
 }
 
 type CustomNewUploadStatusOK struct {
-	params   uploadop.GetUploadStatusParams
-	appCtx   appcontext.AppContext
-	receiver notifications.NotificationReceiver
-	storer   storage.FileStorer
+	params     uploadop.GetUploadStatusParams
+	storageKey string
+	appCtx     appcontext.AppContext
+	receiver   notifications.NotificationReceiver
+	storer     storage.FileStorer
 }
 
 // AVStatusType represents the type of the anti-virus status, whether it is still processing, clean or infected
@@ -289,23 +290,8 @@ func writeEventStreamMessage(rw http.ResponseWriter, producer runtime.Producer, 
 
 func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	// TODO: add check for permissions to view upload
-
-	uploadId := o.params.UploadID.String()
-
-	uploadUUID, err := uuid.FromString(uploadId)
-	if err != nil {
-		uploadop.NewGetUploadStatusInternalServerError().WriteResponse(rw, producer)
-		panic(err)
-	}
-
 	// Check current tag before event-driven wait for anti-virus
-	uploaded, err := models.FetchUserUploadFromUploadID(o.appCtx.DB(), o.appCtx.Session(), uploadUUID)
-	if err != nil {
-		panic(err)
-	}
-
-	tags, err := o.storer.Tags(uploaded.Upload.StorageKey)
+	tags, err := o.storer.Tags(o.storageKey)
 	var uploadStatus AVStatusType
 	if err != nil || len(tags) == 0 {
 		uploadStatus = AVStatusTypePROCESSING
@@ -335,7 +321,7 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 					]
 				}
 			}
-	}`, uploadId)
+	}`, o.params.UploadID)
 
 	notificationParams := notifications.NotificationQueueParams{
 		SubscriptionTopicName: topicName,
@@ -370,7 +356,7 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 		if len(messages) != 0 {
 			errTransaction := o.appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 
-				tags, err := o.storer.Tags(uploaded.Upload.StorageKey)
+				tags, err := o.storer.Tags(o.storageKey)
 
 				if err != nil || len(tags) == 0 {
 					uploadStatus = AVStatusTypePROCESSING
@@ -405,11 +391,36 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 func (h GetUploadStatusHandler) Handle(params uploadop.GetUploadStatusParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("GetUploadStatusHandler error", zap.Error(err))
+				switch errors.Cause(err) {
+				case models.ErrFetchForbidden:
+					return uploadop.NewGetUploadStatusForbidden(), err
+				case models.ErrFetchNotFound:
+					return uploadop.NewGetUploadStatusNotFound(), err
+				default:
+					return uploadop.NewGetUploadStatusInternalServerError(), err
+				}
+			}
+
+			uploadId := params.UploadID.String()
+			uploadUUID, err := uuid.FromString(uploadId)
+			if err != nil {
+				return handleError(err)
+			}
+
+			uploaded, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadUUID)
+			if err != nil {
+				return handleError(err)
+			}
+
 			return &CustomNewUploadStatusOK{
-				params:   params,
-				appCtx:   h.AppContextFromRequest(params.HTTPRequest),
-				receiver: h.NotificationReceiver(),
-				storer:   h.FileStorer(),
+				params:     params,
+				storageKey: uploaded.Upload.StorageKey,
+				appCtx:     h.AppContextFromRequest(params.HTTPRequest),
+				receiver:   h.NotificationReceiver(),
+				storer:     h.FileStorer(),
 			}, nil
 		})
 }
