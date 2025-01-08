@@ -29,6 +29,10 @@ type MoveFetcher interface {
 	FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *MoveTaskOrderFetcherParams) (models.Moves, error)
 }
 
+type MoveFetcherBulkAssignment interface {
+	FetchMovesForBulkAssignmentCounseling(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
+}
+
 //go:generate mockery --name MoveSearcher
 type MoveSearcher interface {
 	SearchMoves(appCtx appcontext.AppContext, params *SearchMovesParams) (models.Moves, int, error)

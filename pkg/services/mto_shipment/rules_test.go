@@ -437,7 +437,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 	suite.Run("checkPrimeDeleteAllowed for non-PPM shipments", func() {
 		testCases := map[models.MTOShipmentType]bool{
 			models.MTOShipmentTypeHHG:                  false,
-			models.MTOShipmentTypeHHGIntoNTSDom:        false,
+			models.MTOShipmentTypeHHGIntoNTS:           false,
 			models.MTOShipmentTypeHHGOutOfNTSDom:       false,
 			models.MTOShipmentTypeMobileHome:           false,
 			models.MTOShipmentTypeBoatHaulAway:         false,

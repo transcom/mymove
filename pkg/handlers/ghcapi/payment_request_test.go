@@ -228,17 +228,25 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
-	officeUserUUID, _ := uuid.NewV4()
 
 	setupTestData := func() models.OfficeUser {
-		officeUser := factory.BuildOfficeUser(nil, []factory.Customization{
-			{Model: models.OfficeUser{
-				ID: officeUserUUID,
-			}},
+
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
+			},
 		}, nil)
-		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-			RoleType: roles.RoleTypeTIO,
-		})
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeTIO})
+
 		return officeUser
 	}
 	paymentRequest := models.PaymentRequest{
@@ -250,7 +258,6 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	}
 
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
-
 	suite.Run("successful status update of payment request", func() {
 		officeUser := setupTestData()
 		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)

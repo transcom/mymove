@@ -38,6 +38,16 @@ type ListMove struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
+	// destination g b l o c
+	// Example: JFK
+	// Read Only: true
+	DestinationGBLOC string `json:"destinationGBLOC,omitempty"`
+
+	// destination postal code
+	// Example: 90210
+	// Read Only: true
+	DestinationPostalCode string `json:"destinationPostalCode,omitempty"`
+
 	// e tag
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
@@ -266,6 +276,14 @@ func (m *ListMove) ContextValidate(ctx context.Context, formats strfmt.Registry)
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationGBLOC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDestinationPostalCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -326,6 +344,24 @@ func (m *ListMove) contextValidateAvailableToPrimeAt(ctx context.Context, format
 func (m *ListMove) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListMove) contextValidateDestinationGBLOC(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "destinationGBLOC", "body", string(m.DestinationGBLOC)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListMove) contextValidateDestinationPostalCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "destinationPostalCode", "body", string(m.DestinationPostalCode)); err != nil {
 		return err
 	}
 

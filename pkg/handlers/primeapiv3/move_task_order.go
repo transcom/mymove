@@ -113,7 +113,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 					payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			moveTaskOrderPayload := payloads.MoveTaskOrderWithShipmentOconusRateArea(mto, shipmentPostalCodeRateArea)
+			moveTaskOrderPayload := payloads.MoveTaskOrderWithShipmentOconusRateArea(appCtx, mto, shipmentPostalCodeRateArea)
 
 			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
 		})

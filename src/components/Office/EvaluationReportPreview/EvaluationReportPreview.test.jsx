@@ -112,7 +112,7 @@ const mtoShipments = [
       streetAddress2: 'P.O. Box 12345',
       streetAddress3: 'c/o Some Person',
     },
-    shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+    shipmentType: 'HHG_INTO_NTS',
     status: 'DRAFT',
     storageFacility: {
       address: {

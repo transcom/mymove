@@ -59,7 +59,7 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 		if err != nil {
 			return err
 		}
-
+		updatedPPMShipment.Shipment.MoveTaskOrder.SCAssignedID = nil
 		err = validatePPMShipment(appCtx, updatedPPMShipment, ppmShipment, &ppmShipment.Shipment, PPMShipmentUpdaterChecks...)
 
 		if err != nil {
@@ -72,6 +72,14 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 			return apperror.NewInvalidInputError(ppmShipment.ID, err, verrs, "unable to validate PPMShipment")
 		} else if err != nil {
 			return apperror.NewQueryError("PPMShipment", err, "unable to update PPMShipment")
+		}
+
+		verrs, err = appCtx.DB().ValidateAndSave(&updatedPPMShipment.Shipment.MoveTaskOrder)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(updatedPPMShipment.ID, nil, verrs, "")
+		}
+		if err != nil {
+			return err
 		}
 
 		err = p.signCertificationPPMCloseout(appCtx, updatedPPMShipment.Shipment.MoveTaskOrderID, updatedPPMShipment.ID)

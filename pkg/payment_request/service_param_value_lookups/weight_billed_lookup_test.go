@@ -84,7 +84,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		{models.ReServiceCodeDOP, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeDDP, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeDPK, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeDNPK, unit.Pound(450), "500", models.MTOShipmentTypeHHGIntoNTSDom},
+		{models.ReServiceCodeDNPK, unit.Pound(450), "500", models.MTOShipmentTypeHHGIntoNTS},
 		{models.ReServiceCodeDUPK, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		// Domestic SIT
 		{models.ReServiceCodeDOFSIT, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
@@ -306,7 +306,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookupDivertedShipme
 		childEstimatedWeight := unit.Pound(1600)
 		childActualWeight := unit.Pound(2400)
 
-		_, _, _, _, _, childParamLookup := suite.setupTestDivertedShipmentChain(&parentEstimatedWeight, &childEstimatedWeight, &parentActualWeight, &childActualWeight, nil, nil, models.ReServiceCodeDLH, models.MTOShipmentTypeHHGIntoNTSDom)
+		_, _, _, _, _, childParamLookup := suite.setupTestDivertedShipmentChain(&parentEstimatedWeight, &childEstimatedWeight, &parentActualWeight, &childActualWeight, nil, nil, models.ReServiceCodeDLH, models.MTOShipmentTypeHHGIntoNTS)
 
 		// Use the child shipment
 		valueStr, err := childParamLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -324,7 +324,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookupDivertedShipme
 		childEstimatedWeight := unit.Pound(1600)
 		childActualWeight := unit.Pound(2400)
 
-		_, _, _, _, _, childParamLookup := suite.setupTestDivertedShipmentChain(&parentEstimatedWeight, &childEstimatedWeight, &parentActualWeight, &childActualWeight, &parentReweighWeight, nil, models.ReServiceCodeDLH, models.MTOShipmentTypeHHGIntoNTSDom)
+		_, _, _, _, _, childParamLookup := suite.setupTestDivertedShipmentChain(&parentEstimatedWeight, &childEstimatedWeight, &parentActualWeight, &childActualWeight, &parentReweighWeight, nil, models.ReServiceCodeDLH, models.MTOShipmentTypeHHGIntoNTS)
 
 		// Use the child shipment
 		valueStr, err := childParamLookup.ServiceParamValue(suite.AppContextForTest(), key)

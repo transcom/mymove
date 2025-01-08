@@ -221,6 +221,9 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
         {
           id: 'assignedTo',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
+          },
         },
       ),
     );
@@ -415,6 +418,9 @@ export const closeoutColumns = (
         {
           id: 'assignedTo',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
+          },
         },
       ),
     );
@@ -422,7 +428,12 @@ export const closeoutColumns = (
   return cols;
 };
 
-const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, officeUser }) => {
+const ServicesCounselingQueue = ({
+  userPrivileges,
+  isQueueManagementFFEnabled,
+  officeUser,
+  isBulkAssignmentFFEnabled,
+}) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -598,7 +609,7 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, o
     return <TabNav className={styles.tableTabs} items={navTabs()} />;
   };
 
-  if (queueType === 'Search') {
+  if (queueType === generalRoutes.QUEUE_SEARCH_PATH) {
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
@@ -657,6 +668,8 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, o
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
         />
       </div>
     );
@@ -684,6 +697,8 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, o
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
         />
       </div>
     );

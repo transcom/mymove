@@ -163,6 +163,10 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 		return false, nil
 	}
 
+	if move.IsPPMOnly() {
+		return true, nil
+	}
+
 	return originDutyLocation.ProvidesServicesCounseling, nil
 }
 

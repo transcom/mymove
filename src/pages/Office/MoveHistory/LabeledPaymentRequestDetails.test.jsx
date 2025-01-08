@@ -12,7 +12,7 @@ describe('LabeledPaymentRequestDetails', () => {
         {
           serviceItems: 'Domestic uncrating',
           shipmentId: '456',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+          shipmentType: 'HHG_INTO_NTS',
           shipmentIdAbbr: 'A1C2B',
         },
       ],

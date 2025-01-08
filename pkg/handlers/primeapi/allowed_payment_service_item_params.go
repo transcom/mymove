@@ -67,6 +67,21 @@ var (
 		models.ReServiceCodeDOSFSC: {
 			models.ServiceItemParamNameWeightBilled,
 		},
+		models.ReServiceCodeISLH: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeIHPK: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeIHUPK: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodePOEFSC: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodePODFSC: {
+			models.ServiceItemParamNameWeightBilled,
+		},
 	}
 )
 

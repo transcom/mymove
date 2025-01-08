@@ -87,8 +87,10 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
         streetAddress2: newAddress.address.streetAddress2,
         streetAddress3: newAddress.address.streetAddress3,
         city: newAddress.address.city,
+        county: newAddress.address.county,
         state: newAddress.address.state,
         postalCode: newAddress.address.postalCode,
+        usPostRegionCitiesID: newAddress.address.usPostRegionCitiesID,
       },
       contractorRemarks: values.contractorRemarks,
     };

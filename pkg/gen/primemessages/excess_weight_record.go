@@ -20,6 +20,18 @@ import (
 type ExcessWeightRecord struct {
 	UploadWithOmissions
 
+	// The date and time when the TOO acknowledged the excess unaccompanied baggage weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.
+	//
+	// Read Only: true
+	// Format: date-time
+	MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt *strfmt.DateTime `json:"moveExcessUnaccompaniedBaggageWeightAcknowledgedAt"`
+
+	// The date and time when the sum of all the move's unaccompanied baggage shipments met the excess weight qualification threshold. The system monitors these weights and will update this field automatically.
+	//
+	// Read Only: true
+	// Format: date-time
+	MoveExcessUnaccompaniedBaggageWeightQualifiedAt *strfmt.DateTime `json:"moveExcessUnaccompaniedBaggageWeightQualifiedAt"`
+
 	// The date and time when the TOO acknowledged the excess weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.
 	//
 	// Read Only: true
@@ -50,6 +62,10 @@ func (m *ExcessWeightRecord) UnmarshalJSON(raw []byte) error {
 
 	// AO1
 	var dataAO1 struct {
+		MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt *strfmt.DateTime `json:"moveExcessUnaccompaniedBaggageWeightAcknowledgedAt"`
+
+		MoveExcessUnaccompaniedBaggageWeightQualifiedAt *strfmt.DateTime `json:"moveExcessUnaccompaniedBaggageWeightQualifiedAt"`
+
 		MoveExcessWeightAcknowledgedAt *strfmt.DateTime `json:"moveExcessWeightAcknowledgedAt"`
 
 		MoveExcessWeightQualifiedAt *strfmt.DateTime `json:"moveExcessWeightQualifiedAt"`
@@ -59,6 +75,10 @@ func (m *ExcessWeightRecord) UnmarshalJSON(raw []byte) error {
 	if err := swag.ReadJSON(raw, &dataAO1); err != nil {
 		return err
 	}
+
+	m.MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt = dataAO1.MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt
+
+	m.MoveExcessUnaccompaniedBaggageWeightQualifiedAt = dataAO1.MoveExcessUnaccompaniedBaggageWeightQualifiedAt
 
 	m.MoveExcessWeightAcknowledgedAt = dataAO1.MoveExcessWeightAcknowledgedAt
 
@@ -79,12 +99,20 @@ func (m ExcessWeightRecord) MarshalJSON() ([]byte, error) {
 	}
 	_parts = append(_parts, aO0)
 	var dataAO1 struct {
+		MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt *strfmt.DateTime `json:"moveExcessUnaccompaniedBaggageWeightAcknowledgedAt"`
+
+		MoveExcessUnaccompaniedBaggageWeightQualifiedAt *strfmt.DateTime `json:"moveExcessUnaccompaniedBaggageWeightQualifiedAt"`
+
 		MoveExcessWeightAcknowledgedAt *strfmt.DateTime `json:"moveExcessWeightAcknowledgedAt"`
 
 		MoveExcessWeightQualifiedAt *strfmt.DateTime `json:"moveExcessWeightQualifiedAt"`
 
 		MoveID *strfmt.UUID `json:"moveId"`
 	}
+
+	dataAO1.MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt = m.MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt
+
+	dataAO1.MoveExcessUnaccompaniedBaggageWeightQualifiedAt = m.MoveExcessUnaccompaniedBaggageWeightQualifiedAt
 
 	dataAO1.MoveExcessWeightAcknowledgedAt = m.MoveExcessWeightAcknowledgedAt
 
@@ -109,6 +137,14 @@ func (m *ExcessWeightRecord) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateMoveExcessUnaccompaniedBaggageWeightAcknowledgedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMoveExcessUnaccompaniedBaggageWeightQualifiedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateMoveExcessWeightAcknowledgedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -124,6 +160,32 @@ func (m *ExcessWeightRecord) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ExcessWeightRecord) validateMoveExcessUnaccompaniedBaggageWeightAcknowledgedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("moveExcessUnaccompaniedBaggageWeightAcknowledgedAt", "body", "date-time", m.MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ExcessWeightRecord) validateMoveExcessUnaccompaniedBaggageWeightQualifiedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MoveExcessUnaccompaniedBaggageWeightQualifiedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("moveExcessUnaccompaniedBaggageWeightQualifiedAt", "body", "date-time", m.MoveExcessUnaccompaniedBaggageWeightQualifiedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -175,6 +237,14 @@ func (m *ExcessWeightRecord) ContextValidate(ctx context.Context, formats strfmt
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateMoveExcessUnaccompaniedBaggageWeightAcknowledgedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMoveExcessUnaccompaniedBaggageWeightQualifiedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMoveExcessWeightAcknowledgedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -186,6 +256,24 @@ func (m *ExcessWeightRecord) ContextValidate(ctx context.Context, formats strfmt
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ExcessWeightRecord) contextValidateMoveExcessUnaccompaniedBaggageWeightAcknowledgedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "moveExcessUnaccompaniedBaggageWeightAcknowledgedAt", "body", m.MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ExcessWeightRecord) contextValidateMoveExcessUnaccompaniedBaggageWeightQualifiedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "moveExcessUnaccompaniedBaggageWeightQualifiedAt", "body", m.MoveExcessUnaccompaniedBaggageWeightQualifiedAt); err != nil {
+		return err
+	}
+
 	return nil
 }
 

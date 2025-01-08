@@ -67,12 +67,14 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	originPostalCode := "90210"
 	originStreet1 := "123 Rodeo Dr."
 	originCounty1 := "LOS ANGELES"
+	originUSPRCID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	sitHHGActualOriginAddress := primemessages.Address{
-		State:          &originState,
-		City:           &originCity,
-		PostalCode:     &originPostalCode,
-		StreetAddress1: &originStreet1,
-		County:         &originCounty1,
+		State:                &originState,
+		City:                 &originCity,
+		PostalCode:           &originPostalCode,
+		StreetAddress1:       &originStreet1,
+		County:               &originCounty1,
+		UsPostRegionCitiesID: originUSPRCID,
 	}
 
 	destReason := "service member will pick up from storage at destination"
@@ -83,11 +85,13 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	destPostalCode := "90210"
 	destCounty := "LOS ANGELES"
 	destStreet := "123 Rodeo Dr."
+	destUSPRCID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	sitFinalDestAddress := primemessages.Address{
-		City:           &destCity,
-		PostalCode:     &destPostalCode,
-		StreetAddress1: &destStreet,
-		County:         &destCounty,
+		City:                 &destCity,
+		PostalCode:           &destPostalCode,
+		StreetAddress1:       &destStreet,
+		County:               &destCounty,
+		UsPostRegionCitiesID: destUSPRCID,
 	}
 
 	destServiceItem := &primemessages.MTOServiceItemDestSIT{
@@ -333,6 +337,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
 		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
 		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
 	})
 
 	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
@@ -352,6 +357,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
 		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
 		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
 		suite.Equal(destReason, *returnedModel.Reason)
 	})
 }

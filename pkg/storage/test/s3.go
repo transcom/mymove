@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -58,7 +59,11 @@ func (fake *FakeS3Storage) Fetch(key string) (io.ReadCloser, error) {
 // PresignedURL returns a URL that can be used to retrieve a file.
 func (fake *FakeS3Storage) PresignedURL(key string, contentType string, filename string) (string, error) {
 	filenameBuffer := make([]byte, 0)
-	for _, r := range filename {
+
+	// Double quote the filename to be able to handle filenames with commas in them
+	quotedFilename := strconv.Quote(filename)
+
+	for _, r := range quotedFilename {
 		if encodedRune, ok := charmap.ISO8859_1.EncodeRune(r); ok {
 			filenameBuffer = append(filenameBuffer, encodedRune)
 		}

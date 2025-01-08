@@ -29,6 +29,7 @@ import (
 )
 
 const defaultZipDistance = 1234
+const defaultInternationalZipDistance = 1800
 
 type ServiceParamValueLookupsSuite struct {
 	*testingsuite.PopTestSuite
@@ -46,7 +47,16 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(defaultZipDistance, nil)
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+		false,
+		true,
+	).Return(defaultInternationalZipDistance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
@@ -766,7 +776,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 				},
 			},
 		}, nil)
@@ -1085,5 +1095,234 @@ func (suite *ServiceParamValueLookupsSuite) TestFetchContractForMove() {
 		contract, err := fetchContractForMove(suite.AppContextForTest(), move.ID)
 		suite.NoError(err)
 		suite.Equal(testdatagen.DefaultContractCode, contract.Code)
+	})
+}
+
+func (suite *ServiceParamValueLookupsSuite) TestGetDestinationAfterCheckingSIT() {
+	suite.Run("returned destination address should be SITDestinationOriginalAddress if an approved Destination SIT exists", func() {
+		now := time.Now()
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "88101",
+				},
+			},
+		}, nil)
+
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+					Name: models.ReServiceCodeDLH.String(),
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDSH,
+					Name: models.ReServiceCodeDSH.String(),
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model:    mtoServiceItem.MTOShipment,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeFSC,
+					Name: models.ReServiceCodeFSC.String(),
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model:    mtoServiceItem.MTOShipment,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+					Name: models.ReServiceCodeDDFSIT.String(),
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:     models.MTOServiceItemStatusApproved,
+					ApprovedAt: &now,
+				},
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model:    mtoServiceItem.MTOShipment,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		serviceDestinationAddress := GetDestinationAfterCheckingSIT(suite.AppContextForTest(), mtoServiceItem.MTOShipment, &mtoServiceItem)
+
+		// with an approved Destination SIT -> serviceDestinationAddress should return same address as SITDestinationOriginalAddress
+		suite.NotEqual(mtoServiceItem.SITDestinationOriginalAddress.PostalCode, mtoServiceItem.MTOShipment.DestinationAddress.PostalCode)
+		suite.Equal(mtoServiceItem.SITDestinationOriginalAddress.PostalCode, serviceDestinationAddress.PostalCode)
+	})
+
+	suite.Run("returned destination address should be SITDestinationOriginalAddress if an approved Destination SIT exists", func() {
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "88101",
+				},
+			},
+		}, nil)
+
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+					Name: models.ReServiceCodeDLH.String(),
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDSH,
+					Name: models.ReServiceCodeDSH.String(),
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model:    mtoServiceItem.MTOShipment,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeFSC,
+					Name: models.ReServiceCodeFSC.String(),
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model:    mtoServiceItem.MTOShipment,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+					Name: models.ReServiceCodeDDFSIT.String(),
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:     models.MTOServiceItemStatusSubmitted,
+					ApprovedAt: nil,
+				},
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model:    mtoServiceItem.MTOShipment,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		serviceDestinationAddress := GetDestinationAfterCheckingSIT(suite.AppContextForTest(), mtoServiceItem.MTOShipment, &mtoServiceItem)
+
+		// without an approved Destination SIT -> serviceDestinationAddress should return same address as MTOShipment.DestinationAddress
+		suite.Equal(serviceDestinationAddress.PostalCode, mtoServiceItem.MTOShipment.DestinationAddress.PostalCode)
+		suite.NotEqual(mtoServiceItem.SITDestinationOriginalAddress.PostalCode, serviceDestinationAddress.PostalCode)
 	})
 }

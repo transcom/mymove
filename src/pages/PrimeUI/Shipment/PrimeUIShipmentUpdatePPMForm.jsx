@@ -14,7 +14,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
 const PrimeUIShipmentUpdatePPMForm = () => {
-  const { values } = useFormikContext();
+  const { values, setFieldTouched, setFieldValue } = useFormikContext();
   const {
     sitExpected,
     hasProGear,
@@ -36,6 +36,11 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       <AddressFields
         name="ppmShipment.pickupAddress"
         legend="Pickup Address"
+        locationLookup
+        formikProps={{
+          setFieldTouched,
+          setFieldValue,
+        }}
         render={(fields) => (
           <>
             <p>What address are the movers picking up from?</p>
@@ -71,7 +76,14 @@ const PrimeUIShipmentUpdatePPMForm = () => {
             </FormGroup>
             {hasSecondaryPickupAddress === 'true' && (
               <>
-                <AddressFields name="ppmShipment.secondaryPickupAddress" />
+                <AddressFields
+                  name="ppmShipment.secondaryPickupAddress"
+                  locationLookup
+                  formikProps={{
+                    setFieldTouched,
+                    setFieldValue,
+                  }}
+                />
                 <h4>Third Pickup Address</h4>
                 <FormGroup>
                   <p>
@@ -101,7 +113,16 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                     />
                   </div>
                 </FormGroup>
-                {hasTertiaryPickupAddress === 'true' && <AddressFields name="ppmShipment.tertiaryPickupAddress" />}
+                {hasTertiaryPickupAddress === 'true' && (
+                  <AddressFields
+                    name="ppmShipment.tertiaryPickupAddress"
+                    locationLookup
+                    formikProps={{
+                      setFieldTouched,
+                      setFieldValue,
+                    }}
+                  />
+                )}
               </>
             )}
           </>
@@ -112,6 +133,11 @@ const PrimeUIShipmentUpdatePPMForm = () => {
         name="ppmShipment.destinationAddress"
         legend="Delivery Address"
         address1LabelHint="Optional"
+        locationLookup
+        formikProps={{
+          setFieldTouched,
+          setFieldValue,
+        }}
         render={(fields) => (
           <>
             {fields}
@@ -146,7 +172,14 @@ const PrimeUIShipmentUpdatePPMForm = () => {
             </FormGroup>
             {hasSecondaryDestinationAddress === 'true' && (
               <>
-                <AddressFields name="ppmShipment.secondaryDestinationAddress" />
+                <AddressFields
+                  name="ppmShipment.secondaryDestinationAddress"
+                  locationLookup
+                  formikProps={{
+                    setFieldTouched,
+                    setFieldValue,
+                  }}
+                />
                 <h4>Third destination location</h4>
                 <FormGroup>
                   <p>
@@ -177,7 +210,14 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                   </div>
                 </FormGroup>
                 {hasTertiaryDestinationAddress === 'true' && (
-                  <AddressFields name="ppmShipment.tertiaryDestinationAddress" />
+                  <AddressFields
+                    name="ppmShipment.tertiaryDestinationAddress"
+                    locationLookup
+                    formikProps={{
+                      setFieldTouched,
+                      setFieldValue,
+                    }}
+                  />
                 )}
               </>
             )}

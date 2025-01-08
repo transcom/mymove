@@ -47,6 +47,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		// Create handler
 		handler := UpdateMTOShipmentAddressHandler{

@@ -50,7 +50,7 @@ export const Basic = () => (
         onClose={() => {}}
         serviceOrderNumber="12345"
         storageFacility={storageFacility}
-        shipmentType="HHG_INTO_NTS_DOMESTIC"
+        shipmentType="HHG_INTO_NTS"
       />
     </Provider>
   </div>
@@ -64,7 +64,7 @@ export const WithInfoMissing = () => (
         onClose={() => {}}
         serviceOrderNumber="12345"
         storageFacility={storageFacilityInfoMissing}
-        shipmentType="HHG_INTO_NTS_DOMESTIC"
+        shipmentType="HHG_INTO_NTS"
       />
     </Provider>
   </div>

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -91,6 +92,9 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	}
 	documentPayload := showResponse.Payload
 
+	// Double quote the filename to be able to handle filenames with commas in them
+	quotedFilename := strconv.Quote(userUpload.Upload.Filename)
+
 	responseDocumentUUID := documentPayload.ID.String()
 	if responseDocumentUUID != documentID.String() {
 		t.Errorf("wrong document uuid, expected %v, got %v", documentID, responseDocumentUUID)
@@ -103,7 +107,7 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	uploadPayload := documentPayload.Uploads[0]
 	values := url.Values{}
 	values.Add("response-content-type", uploader.FileTypePDF)
-	values.Add("response-content-disposition", "attachment; filename="+userUpload.Upload.Filename)
+	values.Add("response-content-disposition", "attachment; filename="+quotedFilename)
 	values.Add("signed", "test")
 	expectedURL := fmt.Sprintf("https://example.com/dir/%s?", userUpload.Upload.StorageKey) + values.Encode()
 	if (uploadPayload.URL).String() != expectedURL {

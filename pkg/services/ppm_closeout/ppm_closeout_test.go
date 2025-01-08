@@ -184,53 +184,42 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 
 		dpkService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDPK)
 
-		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
-				ContractID:   originDomesticServiceArea.ContractID,
-				Contract:     originDomesticServiceArea.Contract,
-				ServiceID:    dpkService.ID,
-				Service:      dpkService,
-				IsPeakPeriod: false,
-				Schedule:     3,
-				PriceCents:   7395,
+		factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReDomesticOtherPrice{
+					ContractID:   originDomesticServiceArea.ContractID,
+					ServiceID:    dpkService.ID,
+					IsPeakPeriod: true,
+					Schedule:     3,
+					PriceCents:   7395,
+				},
 			},
-		})
-		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
-				ContractID:   originDomesticServiceArea.ContractID,
-				Contract:     originDomesticServiceArea.Contract,
-				ServiceID:    dpkService.ID,
-				Service:      dpkService,
-				IsPeakPeriod: true,
-				Schedule:     3,
-				PriceCents:   7395,
-			},
-		})
+		}, nil)
 
 		dupkService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDUPK)
 
-		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
-				ContractID:   destDomesticServiceArea.ContractID,
-				Contract:     destDomesticServiceArea.Contract,
-				ServiceID:    dupkService.ID,
-				Service:      dupkService,
-				IsPeakPeriod: false,
-				Schedule:     2,
-				PriceCents:   597,
+		factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReDomesticOtherPrice{
+					ContractID:   destDomesticServiceArea.ContractID,
+					ServiceID:    dupkService.ID,
+					IsPeakPeriod: false,
+					Schedule:     2,
+					PriceCents:   597,
+				},
 			},
-		})
-		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
-				ContractID:   destDomesticServiceArea.ContractID,
-				Contract:     destDomesticServiceArea.Contract,
-				ServiceID:    dupkService.ID,
-				Service:      dupkService,
-				IsPeakPeriod: true,
-				Schedule:     2,
-				PriceCents:   597,
+		}, nil)
+		factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReDomesticOtherPrice{
+					ContractID:   destDomesticServiceArea.ContractID,
+					ServiceID:    dupkService.ID,
+					IsPeakPeriod: true,
+					Schedule:     2,
+					PriceCents:   597,
+				},
 			},
-		})
+		}, nil)
 
 		dofsitService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOFSIT)
 
@@ -348,7 +337,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 		appCtx := suite.AppContextForTest()
 
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"50309", "30813").Return(2294, nil)
+			"50309", "30813", false, false).Return(2294, nil)
 
 		mockedPaymentRequestHelper.On(
 			"FetchServiceParamsForServiceItems",
@@ -404,7 +393,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 		appCtx := suite.AppContextForTest()
 
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"50309", "30813").Return(2294, nil)
+			"50309", "30813", false, false).Return(2294, nil)
 
 		mockedPaymentRequestHelper.On(
 			"FetchServiceParamsForServiceItems",
