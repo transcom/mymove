@@ -54,10 +54,16 @@ func FetchOrMakeReDomesticServiceArea(db *pop.Connection, assertions Assertions)
 	}
 
 	var reDomesticServiceArea models.ReDomesticServiceArea
-	err := db.Where("re_domestic_service_areas.contract_id = ? AND re_domestic_service_areas.service_area = ?", contractID, assertions.ReDomesticServiceArea.ServiceArea).First(&reDomesticServiceArea)
-
-	if err != nil && err != sql.ErrNoRows {
-		log.Panic(err)
+	if assertions.ReDomesticServiceArea.ServiceArea != "" {
+		err := db.Where("re_domestic_service_areas.service_area = ?", assertions.ReDomesticServiceArea.ServiceArea).First(&reDomesticServiceArea)
+		if err != nil && err != sql.ErrNoRows {
+			log.Panic(err)
+		}
+	} else {
+		err := db.Where("re_domestic_service_areas.contract_id = ? AND re_domestic_service_areas.service_area = ?", contractID, assertions.ReDomesticServiceArea.ServiceArea).First(&reDomesticServiceArea)
+		if err != nil && err != sql.ErrNoRows {
+			log.Panic(err)
+		}
 	}
 
 	if reDomesticServiceArea.ID == uuid.Nil {
