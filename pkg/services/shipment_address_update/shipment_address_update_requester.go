@@ -663,7 +663,13 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 				}
 
 				// update the service item pricing if relevant fields have changed
-				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &shipment, mileage)
+				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &shipment, &mileage)
+				if err != nil {
+					return err
+				}
+			} else {
+				// if we don't have the port data, that's okay - we can update the other service items except for PODFSC/POEFSC
+				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &shipment, nil)
 				if err != nil {
 					return err
 				}
