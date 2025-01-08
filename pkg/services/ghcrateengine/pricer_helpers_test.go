@@ -529,7 +529,7 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 
 		_, err := createPricerGeneratedParams(suite.AppContextForTest(), subtestData.paymentServiceItem.ID, invalidParam)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Service item param key is not a pricer param")
+		suite.Contains(err.Error(), "service item param key is not a pricer param")
 	})
 
 	suite.Run("errors if no PricingParms passed from the Pricer", func() {
