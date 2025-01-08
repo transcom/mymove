@@ -169,8 +169,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCounseling(appCtx 
 func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
 	var moves []models.MoveWithEarliestDate
 
-	err := appCtx.DB().
-		RawQuery(`SELECT
+	query := `SELECT
 					moves.id,
 					MIN(LEAST(
 						COALESCE(mto_shipments.requested_pickup_date, '9999-12-31'),
@@ -179,26 +178,30 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx ap
 					)) AS earliest_date
 				FROM moves
 				INNER JOIN orders ON orders.id = moves.orders_id
+				INNER JOIN service_members ON service_members.id = orders.service_member_id
 				INNER JOIN mto_shipments ON mto_shipments.move_id = moves.id
-				LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
+				INNER JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
 				WHERE
-					moves.status = 'APPROVED'
-					AND orders.gbloc = $1
-					AND moves.show = $2
+					(moves.status IN ('APPROVED', 'SERVICE COUNSELING COMPLETED'))
+					AND (service_members.affiliation NOT IN ($1, $2, $3))
+					AND moves.show = $4
 					AND moves.sc_assigned_id IS NULL
-					AND moves.counseling_transportation_office_id = $3
-					AND (ppm_shipments.status IN ($4))
-					AND (orders.orders_type NOT IN ($5, $6, $7))
+					AND moves.closeout_office_id = $5
+					AND (ppm_shipments.status IN ($6))
+					AND (orders.orders_type NOT IN ($7, $8, $9))
 				GROUP BY moves.id
-				ORDER BY earliest_date ASC`,
-			gbloc,
-			models.BoolPointer(true),
-			officeId,
-			models.PPMShipmentStatusNeedsCloseout,
-			internalmessages.OrdersTypeBLUEBARK,
-			internalmessages.OrdersTypeWOUNDEDWARRIOR,
-			internalmessages.OrdersTypeSAFETY).
-		All(&moves)
+				ORDER BY earliest_date ASC`
+
+	err := appCtx.DB().RawQuery(query,
+		models.AffiliationNAVY,
+		models.AffiliationMARINES,
+		models.AffiliationCOASTGUARD,
+		models.BoolPointer(true),
+		officeId,
+		models.PPMShipmentStatusNeedsCloseout,
+		internalmessages.OrdersTypeBLUEBARK,
+		internalmessages.OrdersTypeWOUNDEDWARRIOR,
+		internalmessages.OrdersTypeSAFETY).All(&moves)
 
 	if err != nil {
 		return nil, fmt.Errorf("error fetching moves for office: %s with error %w", officeId, err)
