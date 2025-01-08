@@ -409,9 +409,16 @@ describe('ServicesCounselingAddOrders component', () => {
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
     expect(counselingOfficeLabel).toBeTruthy();
 
+    await userEvent.selectOptions(screen.getByLabelText(/Counseling office/), ['Glendale Luke AFB']);
+
     await user.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 500 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await user.click(selectedOptionNew);
+
+    const nextBtn = await screen.findByRole('button', { name: 'Next' });
+    await waitFor(() => {
+      expect(nextBtn.getAttribute('disabled')).toBeFalsy();
+    });
   });
 
   it('routes to the move details page when the next button is clicked for OCONUS orders', async () => {
