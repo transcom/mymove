@@ -273,14 +273,14 @@ var TransportationOffices = transportationOfficeGroup{
 
 type officeUserGroup struct {
 	SCAssignedUser  CustomType
-	TOOAssignedUser CustomType
 	TIOAssignedUser CustomType
+	TOOAssignedUser CustomType
 }
 
 var OfficeUsers = officeUserGroup{
 	SCAssignedUser:  "SCAssignedUser",
-	TOOAssignedUser: "TOOAssignedUser",
 	TIOAssignedUser: "TIOAssignedUser",
+	TOOAssignedUser: "TOOAssignedUser",
 }
 
 // uploadGroup is a grouping of all the upload related fields
