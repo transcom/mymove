@@ -21,6 +21,7 @@ type ServiceItemParamKeyData struct {
 	MTOServiceItem   models.MTOServiceItem
 	PaymentRequestID uuid.UUID
 	MoveTaskOrderID  uuid.UUID
+	ContractID       uuid.UUID
 	ContractCode     string
 	mtoShipmentID    *uuid.UUID
 	paramCache       *ServiceParamsCache
@@ -85,6 +86,8 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameStandaloneCrate,
 	models.ServiceItemParamNameStandaloneCrateCap,
 	models.ServiceItemParamNameLockedPriceCents,
+	models.ServiceItemParamNamePerUnitCents,
+	models.ServiceItemParamNamePortZip,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
@@ -120,6 +123,7 @@ func ServiceParamLookupInitialize(
 			to this query. Otherwise the contract_code field could be added to the MTO.
 		*/
 		ContractCode: contract.Code,
+		ContractID:   contract.ID,
 	}
 
 	//
@@ -427,6 +431,15 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 	}
 
 	lookups[models.ServiceItemParamNameLockedPriceCents] = LockedPriceCentsLookup{
+		ServiceItem: serviceItem,
+	}
+
+	lookups[models.ServiceItemParamNamePerUnitCents] = PerUnitCentsLookup{
+		ServiceItem: serviceItem,
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNamePortZip] = PortZipLookup{
 		ServiceItem: serviceItem,
 	}
 
