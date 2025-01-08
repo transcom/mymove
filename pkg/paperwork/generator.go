@@ -2,6 +2,8 @@ package paperwork
 
 import (
 	"bytes"
+	"encoding/gob"
+	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -94,50 +96,47 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 	return nil
 }
 
+func readTTF(r io.Reader, fd *font.TTFLight) error {
+	dec := gob.NewDecoder(r)
+	return dec.Decode(fd)
+}
+
+func loadFontFromBytes(data []byte, ttf *font.TTFLight) error {
+	reader := bytes.NewReader(data)
+	err := readTTF(reader, ttf)
+	if err != nil {
+		return fmt.Errorf("failed to parse font: %w", err)
+	}
+	return nil
+}
+
 // Configure font support for pdfcpu by using
 // go's built in config dir. This directory stores
 // application-specific data, which in the case of pdfcpu
 // turns out to be fonts. For more information see
 // https://pkg.go.dev/os#UserConfigDir
 func loadFonts() error {
-	// Get the go user config, this is where app fonts are stored
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		return err
-	}
-	// Make filepath for where pdfcpu stores its fonts
-	pdfcpuAppSupportFontDir := filepath.Join(configDir, "pdfcpu", "fonts")
-	// Make sure the directory exists, create it if it doesn't
-	err = os.MkdirAll(pdfcpuAppSupportFontDir, os.ModePerm)
-	if err != nil {
-		return err
-	}
 	// Fetch roboto regular data
 	// This font is required for pdfcpu and is typically
 	// automatically installed on configuration setup,
 	// but since we bypassed it previously we need to set it up ourselves
-	robotoFontPath := filepath.Join("fonts", "Roboto-Regular.ttf") // We store this ourselves
+
+	robotoFontPath := filepath.Join("fonts", "Roboto-Regular.gob")
 	fontData, err := os.ReadFile(robotoFontPath)
 	if err != nil {
 		return err
 	}
 
-	// Destination path where Roboto-Regular.ttf will be stored
-	fontDestPath := filepath.Join(pdfcpuAppSupportFontDir, "Roboto-Regular.ttf")
-
-	// Write the font to the config dir
-	err = os.WriteFile(fontDestPath, fontData, 0600)
+	var ttf font.TTFLight
+	err = loadFontFromBytes(fontData, &ttf)
 	if err != nil {
 		return err
 	}
 
-	// Now that config dir is configured for pdfcpu,
-	// load the fonts into pdfcpu itself
-	font.UserFontDir = pdfcpuAppSupportFontDir
-	err = font.LoadUserFonts()
-	if err != nil {
-		return err
-	}
+	// Set the font in memory
+	font.UserFontMetricsLock.Lock()
+	font.UserFontMetrics["Roboto-Regular"] = ttf
+	font.UserFontMetricsLock.Unlock()
 
 	return nil
 }
