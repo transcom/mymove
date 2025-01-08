@@ -1641,59 +1641,26 @@ func init() {
         }
       ]
     },
-    "MTOServiceItemInternationalShuttle": {
-      "description": "Describes an international shuttle service item.",
+    "MTOServiceItemInternationalFuelSurcharge": {
+      "description": "Describes a international Port of Embarkation/Debarkation fuel surcharge service item subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
         },
         {
           "type": "object",
-          "required": [
-            "reason",
-            "reServiceCode"
-          ],
           "properties": {
-            "actualWeight": {
-              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
-              "type": "integer",
-              "x-nullable": true,
-              "x-omitempty": false,
-              "example": 4000
-            },
-            "estimatedWeight": {
-              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
-              "type": "integer",
-              "x-nullable": true,
-              "x-omitempty": false,
-              "example": 4200
-            },
-            "market": {
-              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
-              "type": "string",
-              "enum": [
-                "CONUS",
-                "OCONUS"
-              ],
-              "example": "CONUS"
+            "portCode": {
+              "description": "A unique code for a Port",
+              "type": "string"
             },
             "reServiceCode": {
-              "description": "A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
+              "description": "A unique code for the service item. Indicates if the service is for Port of Embarkation (POEFSC) or Port of Debarkation (PODFSC).",
               "type": "string",
               "enum": [
-                "IOSHUT",
-                "IDSHUT"
+                "PODFSC",
+                "POEFSC"
               ]
-            },
-            "reason": {
-              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
-              "type": "string",
-              "example": "Storage items need to be picked up."
-            },
-            "requestApprovalsRequestedStatus": {
-              "description": "Indicates if \"Approvals Requested\" status is being requested.",
-              "type": "boolean",
-              "x-nullable": true
             }
           }
         }
@@ -6062,59 +6029,26 @@ func init() {
         }
       ]
     },
-    "MTOServiceItemInternationalShuttle": {
-      "description": "Describes an international shuttle service item.",
+    "MTOServiceItemInternationalFuelSurcharge": {
+      "description": "Describes a international Port of Embarkation/Debarkation fuel surcharge service item subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
         },
         {
           "type": "object",
-          "required": [
-            "reason",
-            "reServiceCode"
-          ],
           "properties": {
-            "actualWeight": {
-              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
-              "type": "integer",
-              "x-nullable": true,
-              "x-omitempty": false,
-              "example": 4000
-            },
-            "estimatedWeight": {
-              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
-              "type": "integer",
-              "x-nullable": true,
-              "x-omitempty": false,
-              "example": 4200
-            },
-            "market": {
-              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
-              "type": "string",
-              "enum": [
-                "CONUS",
-                "OCONUS"
-              ],
-              "example": "CONUS"
+            "portCode": {
+              "description": "A unique code for a Port",
+              "type": "string"
             },
             "reServiceCode": {
-              "description": "A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
+              "description": "A unique code for the service item. Indicates if the service is for Port of Embarkation (POEFSC) or Port of Debarkation (PODFSC).",
               "type": "string",
               "enum": [
-                "IOSHUT",
-                "IDSHUT"
+                "PODFSC",
+                "POEFSC"
               ]
-            },
-            "reason": {
-              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
-              "type": "string",
-              "example": "Storage items need to be picked up."
-            },
-            "requestApprovalsRequestedStatus": {
-              "description": "Indicates if \"Approvals Requested\" status is being requested.",
-              "type": "boolean",
-              "x-nullable": true
             }
           }
         }

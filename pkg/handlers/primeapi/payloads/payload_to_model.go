@@ -40,6 +40,7 @@ func AddressModel(address *primemessages.Address) *models.Address {
 		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
+		County:         address.County,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
@@ -55,6 +56,10 @@ func AddressModel(address *primemessages.Address) *models.Address {
 	}
 	if address.Country != nil {
 		modelAddress.Country = CountryModel(address.Country)
+	}
+	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+	if usPostRegionCitiesID != uuid.Nil {
+		modelAddress.UsPostRegionCityID = &usPostRegionCitiesID
 	}
 	return modelAddress
 }
