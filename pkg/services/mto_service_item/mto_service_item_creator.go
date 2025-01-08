@@ -52,6 +52,12 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 		if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
 			isPPM = true
 		}
+
+		isMobileHome := false
+		if mtoShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+			isMobileHome = true
+		}
+
 		requestedPickupDate := *mtoShipment.RequestedPickupDate
 		currTime := time.Now()
 		var distance int
@@ -78,7 +84,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 
-			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -91,7 +97,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 
 			servicesScheduleOrigin := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, servicesScheduleOrigin, isPPM)
+			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, servicesScheduleOrigin, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -106,7 +112,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -119,7 +125,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 
 			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, serviceScheduleDestination, isPPM)
+			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, serviceScheduleDestination, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -137,7 +143,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = o.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = o.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -153,7 +159,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *primeEstimatedWeight, domesticServiceArea.ServiceArea)
+			price, _, err = o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *primeEstimatedWeight, domesticServiceArea.ServiceArea, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -442,7 +448,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(mtoShipmentID, fmt.Sprintf("for mtoShipment with moveID: %s", moveID.String()))
+			return nil, nil, apperror.NewNotFoundError(mtoShipmentID, fmt.Sprintf("couldn't find MTOShipment object for mtoShipment with moveID: %s", moveID.String()))
 		default:
 			return nil, nil, apperror.NewQueryError("MTOShipment", err, "")
 		}

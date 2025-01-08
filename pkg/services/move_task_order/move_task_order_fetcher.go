@@ -107,19 +107,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 
 	/** Feature Flag - Boat Shipment **/
 	isBoatFeatureOn := false
-	featureFlagName := "boat"
-	config := cli.GetFliptFetcherConfig(viper.GetViper())
-	flagFetcher, err := featureflag.NewFeatureFlagFetcher(config)
-	if err != nil {
-		appCtx.Logger().Error("Error initializing FeatureFlagFetcher", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
-	}
 
-	flag, err := flagFetcher.GetBooleanFlagForUser(context.TODO(), appCtx, featureFlagName, map[string]string{})
-	if err != nil {
-		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
-	} else {
-		isBoatFeatureOn = flag.Match
-	}
+	// TODO: Fix checks
 
 	/** Feature Flag - Mobile Home Shipment **/
 	isMobileHomeFeatureOn := false

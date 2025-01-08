@@ -191,6 +191,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
+
 	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems and should NOT update pricing without port data", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
 			{
@@ -259,10 +260,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		shipmentRouter := NewShipmentRouter()
 		moveWeights := moverouter.NewMoveWeights(NewShipmentReweighRequester())
 		var serviceItemCreator services.MTOServiceItemCreator
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			ApplicationName: auth.OfficeApp,
-			OfficeUserID:    uuid.Must(uuid.NewV4()),
-		})
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 			MaxDaysTransitTime: 12,
@@ -284,7 +281,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		// Approve international shipment
 		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
-		_, err = shipmentApprover.ApproveShipment(appCtx, internationalShipment.ID, internationalShipmentEtag)
+		_, err = shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag)
 		suite.NoError(err)
 
 		// Get created pre approved service items

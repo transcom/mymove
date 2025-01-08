@@ -1026,7 +1026,6 @@ type ReviewShipmentAddressUpdateHandler struct {
 func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShipmentAddressUpdateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 			addressApprovalStatus := params.Body.Status
 			remarks := params.Body.OfficeRemarks

@@ -128,6 +128,16 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 }
 
 func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
+	// TODO: Fix checks
+	isMobileHomeFFOn := false
+
+	isMobileHome := false
+	if isMobileHomeFFOn {
+		if mtoShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+			isMobileHome = true
+		}
+	}
+
 	if serviceItem.ReService.Code == models.ReServiceCodeDDP ||
 		serviceItem.ReService.Code == models.ReServiceCodeDUPK ||
 		serviceItem.ReService.Code == models.ReServiceCodeDLH ||
@@ -183,7 +193,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			price, _, err = p.destinationPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = p.destinationPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -196,7 +206,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 
 			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
-			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, serviceScheduleDestination, isPPM)
+			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, serviceScheduleDestination, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -214,7 +224,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = p.linehaulPricer.Price(appCtx, contractCode, *pickupDate, unit.Miles(distance), shipmentWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = p.linehaulPricer.Price(appCtx, contractCode, *pickupDate, unit.Miles(distance), shipmentWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -225,7 +235,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 			if err != nil {
 				return 0, err
 			}
-			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServicesSchedule, isPPM)
+			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServicesSchedule, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}

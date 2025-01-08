@@ -13,7 +13,7 @@ import (
 
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
-	// Create move router for SitExtension Createor
+	// Create move router for SitExtension Creator
 	moveRouter := moverouter.NewMoveRouter()
 	sitExtensionCreator := NewSitExtensionCreator(moveRouter)
 	movefetcher := movefetcher.NewMoveTaskOrderFetcher()

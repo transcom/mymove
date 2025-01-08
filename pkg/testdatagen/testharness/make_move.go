@@ -3791,8 +3791,8 @@ func MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	locator := models.GenerateLocator()
 	move := scenario.CreateMoveWithHHGAndNTSShipments(appCtx, locator, false)
-
 	moveRouter := moverouter.NewMoveRouter()
+
 	err := moveRouter.Approve(appCtx, &move)
 	if err != nil {
 		log.Panic("Failed to approve move: %w", err)
@@ -3897,6 +3897,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	move := scenario.CreateMoveWithHHGAndNTSRShipments(appCtx, locator, false)
 
 	moveRouter := moverouter.NewMoveRouter()
+
 	err := moveRouter.Approve(appCtx, &move)
 	if err != nil {
 		log.Panic("Failed to approve move: %w", err)
@@ -3930,10 +3931,12 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything, false, false).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
+
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
+
 	for i := range newmove.MTOShipments {
 		shipment := newmove.MTOShipments[i]
 		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))

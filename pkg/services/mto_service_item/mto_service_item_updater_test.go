@@ -2860,6 +2860,7 @@ func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate() {
+
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()

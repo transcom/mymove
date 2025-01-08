@@ -81,9 +81,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload), err
 			}
 
-			createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
-			if err != nil {
-				appCtx.Logger().Error("Error creating payment request", zap.Error(err))
+			handleError := func(err error) (middleware.Responder, error) {
 				switch e := err.(type) {
 				case apperror.InvalidCreateInputError:
 					verrs := e.ValidationErrors
@@ -140,6 +138,12 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 					return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
+			}
+
+			createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
+			if err != nil {
+				appCtx.Logger().Error("Error creating payment request: ", zap.Error(err))
+				return handleError(err)
 			}
 
 			returnPayload := payloads.PaymentRequest(createdPaymentRequest)

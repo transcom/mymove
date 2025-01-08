@@ -30,7 +30,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchTaskOrderFee() {
 
 func (suite *GHCRateEngineServiceSuite) Test_fetchDomOtherPrice() {
 	suite.Run("golden path", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded, false)
 		domOtherPrice, err := fetchDomOtherPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod)
 
 		suite.NoError(err)
@@ -38,7 +38,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchDomOtherPrice() {
 	})
 
 	suite.Run("no records found", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded, false)
 
 		// Look for service code IHPK that we haven't added
 		_, err := fetchDomOtherPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeIHPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod)

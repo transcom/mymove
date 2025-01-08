@@ -20,6 +20,8 @@ const (
 	dpkTestContractYearName       = "DPK Test Year"
 	dpkTestBasePriceCents         = unit.Cents(6544)
 	dpkTestPriceCents             = unit.Cents(143010)
+	dpkDMHFTestPriceCents         = unit.Cents(5111749)
+	mobileHomeFactor              = 33.51
 )
 
 var dpkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC)
@@ -27,10 +29,13 @@ var dpkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month
 func (suite *GHCRateEngineServiceSuite) TestDomesticPackPricer() {
 	pricer := NewDomesticPackPricer()
 
-	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
-		paymentServiceItem := suite.setupDomesticPackServiceItem()
+	var paymentServiceItem models.PaymentServiceItem
+	suite.PreloadData(func() {
+		paymentServiceItem = suite.setupDomesticPackServiceItem()
+	})
 
+	suite.Run("success using PaymentServiceItemParams", func() {
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded, false)
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(dpkTestPriceCents, priceCents)
@@ -40,6 +45,24 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticPackPricer() {
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dpkTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dpkTestIsPeakPeriod)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dpkTestBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("success using PaymentServiceItemParams and with Domestic Mobile Home Factor applied", func() {
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded, true)
+		paymentServiceItem.PaymentServiceItemParams[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypeMobileHome // SEt
+
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(dpkDMHFTestPriceCents, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Mobile Home Factor Test Year"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.11000"},
+			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dpkTestBasePriceCents)},
+			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: "33.51"},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})

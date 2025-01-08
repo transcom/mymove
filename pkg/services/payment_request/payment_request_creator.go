@@ -97,6 +97,45 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		var newPaymentServiceItems models.PaymentServiceItems
 		for _, paymentServiceItem := range paymentRequestArg.PaymentServiceItems {
 
+			// If this is a mobile home shipment, run checks to replace default service items with Mobile Home equivalents if needed
+			if paymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+				DMHParams, err := models.FetchDomesticMobileHomeParameters(appCtx.DB())
+				if err != nil {
+					return fmt.Errorf("could not lookup Mobile Home application_parameter values: %w", err)
+				}
+				switch paymentServiceItem.MTOServiceItem.ReService.Code {
+				case models.ReServiceCodeDMHDP:
+					// Fetch toggles from application_parameters table
+					if *DMHParams[models.DMHDPEnabled].ParameterValue != "true" { // Skip service item if the toggle for this item type is turned off
+						continue
+					} else if *DMHParams[models.DMHDPFactor].ParameterValue != "true" { // Downgrade to regular DDP service item (no mobile home factor applied) if factor toggle is off
+						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDDP
+					}
+
+				case models.ReServiceCodeDMHOP:
+					if *DMHParams[models.DMHOPEnabled].ParameterValue != "true" {
+						continue
+					} else if *DMHParams[models.DMHOPFactor].ParameterValue != "true" {
+						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDOP
+					}
+
+				case models.ReServiceCodeDMHPK:
+					if *DMHParams[models.DMHPKEnabled].ParameterValue != "true" {
+						continue
+					} else if *DMHParams[models.DMHPKFactor].ParameterValue != "true" {
+						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDPK
+					}
+
+				case models.ReServiceCodeDMHUPK:
+					if *DMHParams[models.DMHUPKEnabled].ParameterValue != "true" {
+						continue
+					} else if *DMHParams[models.DMHUPKFactor].ParameterValue != "true" {
+						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDPK
+					}
+				default: // Other service item type, no mobile home specific type/factor to worry about.
+				}
+			}
+
 			// check if shipment is valid for creating a payment request
 			validShipmentError := p.validShipment(appCtx, paymentServiceItem.MTOServiceItem.MTOShipmentID, shipmentIDs)
 			if validShipmentError != nil {

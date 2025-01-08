@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -17,9 +18,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	var domOtherPriceCode models.ReServiceCode
+	var displayParams services.PricingDisplayParams
 	switch packUnpackCode {
 	case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
 		domOtherPriceCode = models.ReServiceCodeDPK
@@ -59,25 +61,52 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	escalatedPrice = escalatedPrice * finalWeight.ToCWTFloat64()
+	isFactorToggleOn := false // Track whether DMHF Factor FF toggle is on for this Pack or Unpack item
+	if isMobileHome {         // Only check for mobile home factor FF if this is a mobile home shipment.
+		if domOtherPriceCode == models.ReServiceCodeDPK {
+			result, err := models.FetchParameterValueByName(appCtx.DB(), models.DMHPKEnabled)
+			if err != nil || result.ParameterValue == nil {
+				return 0, nil, fmt.Errorf("could not lookup Mobile Home DDP application_parameter value: %w", err)
+			}
 
-	displayParams := services.PricingDisplayParams{
-		{
-			Key:   models.ServiceItemParamNameContractYearName,
-			Value: contractYear.Name,
-		},
-		{
-			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(domOtherPrice.PriceCents),
-		},
-		{
-			Key:   models.ServiceItemParamNameIsPeak,
-			Value: FormatBool(isPeakPeriod),
-		},
-		{
-			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: FormatEscalation(contractYear.EscalationCompounded),
-		},
+			if *result.ParameterValue == "true" {
+				isFactorToggleOn = true
+			}
+		} else if domOtherPriceCode == models.ReServiceCodeDUPK {
+			result, err := models.FetchParameterValueByName(appCtx.DB(), models.DMHUPKEnabled)
+			if err != nil || result.ParameterValue == nil {
+				return 0, nil, fmt.Errorf("could not lookup Mobile Home DDP application_parameter value: %w", err)
+			}
+
+			if *result.ParameterValue == "true" {
+				isFactorToggleOn = true
+			}
+		}
+	}
+
+	if isMobileHome && isFactorToggleOn {
+		mobileHomeFactorRow, err := fetchShipmentTypePrice(appCtx, contractCode, models.ReServiceCodeDMHF, models.MarketConus)
+		if err != nil {
+			return 0, nil, fmt.Errorf("could not fetch mobile home factor from database: %w", err)
+		}
+
+		escalatedPrice = roundToPrecision(escalatedPrice*mobileHomeFactorRow.Factor*finalWeight.ToCWTFloat64(), 2)
+		displayParams = services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(domOtherPrice.PriceCents)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
+			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: FormatFloat(mobileHomeFactorRow.Factor, 2)},
+		}
+	} else {
+		escalatedPrice = escalatedPrice * finalWeight.ToCWTFloat64()
+
+		displayParams = services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(domOtherPrice.PriceCents)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
+		}
 	}
 
 	// Adjust for NTS packing factor if needed.
@@ -195,6 +224,7 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 
 func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType, sitModifier, zipOriginalName, zipActualName string
+	var isMobileHome = false
 	if pickupDeliverySITCode == models.ReServiceCodeDDDSIT {
 		sitType = "destination"
 		sitModifier = "delivery"
@@ -267,7 +297,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	if zip3Original == zip3Actual {
 		// Do a normal shorthaul calculation
 		shorthaulPricer := NewDomesticShorthaulPricer()
-		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea, isMobileHome)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price shorthaul: %w", err)
 		}
@@ -283,7 +313,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 		linehaulPricer := NewDomesticLinehaulPricer()
 		// TODO: This will need adjusting once SIT is implemented for PPMs
 		isPPM := false
-		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea, isPPM)
+		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea, isPPM, isMobileHome)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price linehaul: %w", err)
 		}
@@ -589,4 +619,17 @@ func addContractsForEscalationCalculation(contractsMap map[string]models.ReContr
 		}
 	}
 	return contractsMap, nil
+}
+
+func GetFeatureFlagValue(appCtx appcontext.AppContext, featureFlagFetcher services.FeatureFlagFetcher, featureFlagName string) (bool, error) {
+	flagValue := false
+	flag, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureFlagName, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+		return flagValue, err
+	} else {
+		flagValue = flag.Match
+	}
+
+	return flagValue, nil
 }

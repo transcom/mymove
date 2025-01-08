@@ -43,6 +43,18 @@ const (
 	ReServiceCodeDLH ReServiceCode = "DLH"
 	// ReServiceCodeDMHF Domestic mobile home factor
 	ReServiceCodeDMHF ReServiceCode = "DMHF"
+	// ReServiceCodeDMHF Domestic mobile home linehaul
+	ReServiceCodeDMHLH ReServiceCode = "DMHLH"
+	// ReServiceCodeDMHF Domestic mobile home shorthaul
+	ReServiceCodeDMHSH ReServiceCode = "DMHSH"
+	// ReServiceCodeDMHUPK Domestic Mobile Home Packing
+	ReServiceCodeDMHPK ReServiceCode = "DMHPK"
+	// ReServiceCodeDMHUPK Domestic Mobile Home Unpacking
+	ReServiceCodeDMHUPK ReServiceCode = "DMHUPK"
+	// ReServiceCodeDMHUPK Domestic Mobile Home Origin Price
+	ReServiceCodeDMHOP ReServiceCode = "DMHOP"
+	// ReServiceCodeDMHUPK Domestic Mobile Home Destination Price
+	ReServiceCodeDMHDP ReServiceCode = "DMHDP"
 	// ReServiceCodeDNPK Domestic NTS packing
 	ReServiceCodeDNPK ReServiceCode = "DNPK"
 	// ReServiceCodeDOASIT Domestic origin add'l SIT

@@ -151,8 +151,8 @@ func main() {
 
 	// TODO: Future cleanup will need to remap to a different planner, but this command should remain for testing purposes
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ppmEstimator := ppmshipment.NewEstimatePPM(planner, &paymentrequesthelper.RequestPaymentHelper{})
 
+	ppmEstimator := ppmshipment.NewEstimatePPM(planner, &paymentrequesthelper.RequestPaymentHelper{})
 	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(planner, &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator)
 
 	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher)

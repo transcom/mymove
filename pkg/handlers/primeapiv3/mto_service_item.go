@@ -103,6 +103,10 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 			moveTaskOrderID := uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID.String())
 			mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("Error checking if MTO is available to prime: %s", err))
+				return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(primeapipayloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
 			var mtoServiceItems *models.MTOServiceItems
 
 			if mtoAvailableToPrime {

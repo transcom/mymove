@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -17,6 +18,21 @@ type ApplicationParameters struct {
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
 }
+
+// Names of Mobile Home related parameters in the application_parameters table
+const (
+	// Toggles service items on/off completely for mobile home shipments
+	DMHOPEnabled  string = "domestic_mobile_home_origin_price_enabled"
+	DMHDPEnabled  string = "domestic_mobile_home_destination_price_enabled"
+	DMHPKEnabled  string = "domestic_mobile_home_packing_enabled"
+	DMHUPKEnabled string = "domestic_mobile_home_unpacking_enabled"
+
+	// Toggles whether or not the DMHF is applied to these service items for Mobile Home shipments (if they are not toggled off by the above flags)
+	DMHOPFactor  string = "domestic_mobile_home_factor_origin_price"
+	DMHDPFactor  string = "domestic_mobile_home_factor_destination_price"
+	DMHPKFactor  string = "domestic_mobile_home_factor_packing"
+	DMHUPKFactor string = "domestic_mobile_home_factor_unpacking"
+)
 
 func (a ApplicationParameters) TableName() string {
 	return "application_parameters"
@@ -50,4 +66,29 @@ func FetchParameterValueByName(db *pop.Connection, param string) (ApplicationPar
 	}
 
 	return parameter, nil
+}
+
+func FetchDomesticMobileHomeParameters(db *pop.Connection) (map[string]ApplicationParameters, error) {
+	DMHParams := make(map[string]ApplicationParameters)
+	paramNames := [10]string{DMHDPEnabled,
+		DMHOPEnabled,
+		DMHPKEnabled,
+		DMHUPKEnabled,
+		DMHDPFactor,
+		DMHOPFactor,
+		DMHPKFactor,
+		DMHUPKFactor}
+
+	for _, paramName := range paramNames {
+		result, err := FetchParameterValueByName(db, paramName)
+		if err != nil {
+			return nil, err
+		} else if result.ParameterValue == nil {
+			return nil, errors.New(fmt.Sprintf("Received nil value for a mobile home parameter value: %s", *result.ParameterName))
+		}
+
+		DMHParams[paramName] = result
+	}
+
+	return DMHParams, nil
 }

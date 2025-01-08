@@ -4300,6 +4300,7 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 // Run does that data load thing
 func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	moveRouter := moverouter.NewMoveRouter()
+
 	// Testdatagen factories will create new random duty locations so let's get the standard ones in the migrations
 	var allDutyLocations []models.DutyLocation
 	err := appCtx.DB().All(&allDutyLocations)

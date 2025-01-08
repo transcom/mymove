@@ -61,6 +61,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 
 	// Create an initial payment request.
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
+
 	paymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
@@ -340,6 +341,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		mockCreator.On("CreatePaymentRequestCheck",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest"),
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, errors.New(errString))
 
 		recalculatorWithMockCreator := NewPaymentRequestRecalculator(mockCreator, statusUpdater)

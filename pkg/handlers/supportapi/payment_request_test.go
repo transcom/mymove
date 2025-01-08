@@ -874,6 +874,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 		mockRecalculator.On("RecalculatePaymentRequest",
 			mock.AnythingOfType("*appcontext.appContext"),
 			paymentRequestID,
+			mock.AnythingOfType("map[string]bool"),
 		).Return(&samplePaymentRequest, nil).Once()
 		handler := RecalculatePaymentRequestHandler{
 			HandlerConfig:              suite.HandlerConfig(),
@@ -948,6 +949,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 			mockRecalculator.On("RecalculatePaymentRequest",
 				mock.AnythingOfType("*appcontext.appContext"),
 				paymentRequestID,
+				mock.AnythingOfType("map[string]bool"),
 			).Return(nil, testCase.testErr)
 			handler := RecalculatePaymentRequestHandler{
 				HandlerConfig:              suite.HandlerConfig(),

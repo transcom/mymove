@@ -1403,7 +1403,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCreateDOFSIT() {
-
 	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
 	sitPostalCode := "99999"
 	reason := "lorem ipsum"
@@ -1842,6 +1841,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
+
 	suite.Run("Calcuating price estimated on creation for HHG ", func() {
 		setupTestData := func() models.MTOShipment {
 			// Set up data to use for all Origin SIT Service Item tests

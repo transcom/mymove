@@ -56,6 +56,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationSITFuelSurch
 			fscWeightBasedDistanceMultiplier float64
 			eiaFuelPrice                     unit.Millicents
 			isPPM                            bool
+			isMobileHome                     bool
 		}
 
 		testCases := map[string]struct {
@@ -70,6 +71,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationSITFuelSurch
 					fscWeightBasedDistanceMultiplier: ddsfscWeightDistanceMultiplier,
 					eiaFuelPrice:                     ddsfscFuelPrice,
 					isPPM:                            false,
+					isMobileHome:                     false,
 				},
 				errorMessage: "ActualPickupDate is required",
 			},

@@ -22,7 +22,7 @@ func NewDomesticOriginPricer() services.DomesticOriginPricer {
 }
 
 // Price determines the price for a domestic origin
-func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -35,6 +35,17 @@ func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode s
 	}
 	if len(serviceArea) == 0 {
 		return 0, nil, errors.New("ServiceArea is required")
+	}
+
+	isFactorToggleOn := false // Track whether DMHF Factor FF toggle is on for this Pack or Unpack item
+	if isMobileHome {         // Only check for mobile home factor FF if this is a mobile home shipment.
+		DMHOPFactor, err := models.FetchParameterValueByName(appCtx.DB(), models.DMHOPEnabled)
+		if err != nil {
+			return 0, nil, fmt.Errorf("could not fetch DMHOP factor toggle from application_parameters table: %w", err)
+		}
+		if *DMHOPFactor.ParameterValue == "true" {
+			isFactorToggleOn = true
+		}
 	}
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)
@@ -63,27 +74,45 @@ func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode s
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	escalatedPrice = escalatedPrice * finalWeight.ToCWTFloat64()
+	totalCost := unit.Cents(0)
+	var params services.PricingDisplayParams
+	if isFactorToggleOn {
+		mobileHomeFactorRow, err := fetchShipmentTypePrice(appCtx, contractCode, models.ReServiceCodeDMHF, models.MarketConus)
+		if err != nil {
+			return 0, nil, fmt.Errorf("could not fetch mobile home factor from database: %w", err)
+		}
+		escalatedPrice = roundToPrecision(escalatedPrice*mobileHomeFactorRow.Factor, 2)
+		totalCost = unit.Cents(escalatedPrice * finalWeight.ToCWTFloat64())
 
-	totalCost := unit.Cents(math.Round(escalatedPrice))
+		params = services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(domServiceAreaPrice.PriceCents)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
+			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: FormatFloat(mobileHomeFactorRow.Factor, 2)},
+		}
+	} else {
+		escalatedPrice = escalatedPrice * finalWeight.ToCWTFloat64()
+		totalCost = unit.Cents(math.Round(escalatedPrice))
 
-	params := services.PricingDisplayParams{
-		{
-			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(domServiceAreaPrice.PriceCents),
-		},
-		{
-			Key:   models.ServiceItemParamNameContractYearName,
-			Value: contractYear.Name,
-		},
-		{
-			Key:   models.ServiceItemParamNameIsPeak,
-			Value: FormatBool(isPeakPeriod),
-		},
-		{
-			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: FormatEscalation(contractYear.EscalationCompounded),
-		},
+		params = services.PricingDisplayParams{
+			{
+				Key:   models.ServiceItemParamNamePriceRateOrFactor,
+				Value: FormatCents(domServiceAreaPrice.PriceCents),
+			},
+			{
+				Key:   models.ServiceItemParamNameContractYearName,
+				Value: contractYear.Name,
+			},
+			{
+				Key:   models.ServiceItemParamNameIsPeak,
+				Value: FormatBool(isPeakPeriod),
+			},
+			{
+				Key:   models.ServiceItemParamNameEscalationCompounded,
+				Value: FormatEscalation(contractYear.EscalationCompounded),
+			},
+		}
 	}
 
 	if isPPM && weight < minDomesticWeight {
@@ -125,5 +154,7 @@ func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 		isPPM = true
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM)
+	isMobileHome := params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome
+
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM, isMobileHome)
 }

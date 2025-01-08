@@ -66,7 +66,7 @@ func (f *estimatePPM) CalculatePPMSITEstimatedCost(appCtx appcontext.AppContext,
 		return nil, err
 	}
 
-	estimatedSITCost, err := CalculateSITCost(appCtx, updatedPPMShipment, contract)
+	estimatedSITCost, err := f.CalculateSITCost(appCtx, updatedPPMShipment, contract)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (f *estimatePPM) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.Ap
 		return nil, err
 	}
 
-	ppmSITEstimatedCostInfoData, err := CalculateSITCostBreakdown(appCtx, updatedPPMShipment, contract)
+	ppmSITEstimatedCostInfoData, err := f.CalculateSITCostBreakdown(appCtx, updatedPPMShipment, contract)
 	if err != nil {
 		return nil, err
 	}
@@ -236,7 +236,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 
 	estimatedSITCost := oldPPMShipment.SITEstimatedCost
 	if calculateSITEstimate {
-		estimatedSITCost, err = CalculateSITCost(appCtx, newPPMShipment, contract)
+		estimatedSITCost, err = f.CalculateSITCost(appCtx, newPPMShipment, contract)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -602,7 +602,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 
 	doSITCalculation := *ppmShipment.SITExpected
 	if doSITCalculation {
-		estimatedSITCost, err := CalculateSITCost(appCtx, ppmShipment, contract)
+		estimatedSITCost, err := f.CalculateSITCost(appCtx, ppmShipment, contract)
 		if err != nil {
 			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 		}
@@ -693,7 +693,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 	return linehaul, fuel, origin, dest, packing, unpacking, storage, nil
 }
 
-func CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {
+func (f estimatePPM) CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
 	additionalDaysInSIT := additionalDaysInSIT(*ppmShipment.SITEstimatedEntryDate, *ppmShipment.SITEstimatedDepartureDate)
@@ -729,7 +729,7 @@ func CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipm
 	return &totalPrice, nil
 }
 
-func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*models.PPMSITEstimatedCostInfo, error) {
+func (f estimatePPM) CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*models.PPMSITEstimatedCostInfo, error) {
 	logger := appCtx.Logger()
 
 	ppmSITEstimatedCostInfoData := &models.PPMSITEstimatedCostInfo{}

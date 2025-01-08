@@ -177,6 +177,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 		mockPlanner.On("RecalculatePaymentRequest",
 			mock.AnythingOfType("*appcontext.appContext"),
 			paidPaymentRequest,
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, apperror.NewQueryError("PaymentRequest", fmt.Errorf("testing"), fmt.Sprintf("unexpected error while testing payment request ID %s", paidPaymentRequest.ID.String())))
 
 		var oldPaymentRequest models.PaymentRequest
@@ -200,6 +201,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 		mockRecalculator.On("RecalculatePaymentRequest",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, errors.New(errString))
 
 		shipmentRecalculatorWithMockRecalculate := NewPaymentRequestShipmentRecalculator(mockRecalculator)

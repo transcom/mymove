@@ -435,7 +435,8 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 		// And: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 
-		handler := SubmitAmendedOrdersHandler{handlerConfig, moverouter.NewMoveRouter()}
+		moveRouter := moverouter.NewMoveRouter()
+		handler := SubmitAmendedOrdersHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code

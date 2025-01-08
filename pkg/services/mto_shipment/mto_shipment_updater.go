@@ -1017,7 +1017,10 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.App
 
 // createShipmentServiceItems creates shipment level service items
 func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
-	reServiceCodes := reServiceCodesForShipment(*shipment)
+	reServiceCodes, err := reServiceCodesForShipment(appCtx, *shipment)
+	if err != nil {
+		return err
+	}
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
 		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
@@ -1104,7 +1107,7 @@ func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder U
 	return &shipment, nil
 }
 
-func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCode {
+func reServiceCodesForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) ([]models.ReServiceCode, error) {
 	// We will detect the type of shipment we're working with and then call a helper with the correct
 	// default service items that we want created as a side effect.
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
@@ -1124,7 +1127,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 					models.ReServiceCodeDDP,
 					models.ReServiceCodeDPK,
 					models.ReServiceCodeDUPK,
-				}
+				}, nil
 			}
 
 			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
@@ -1135,7 +1138,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 				models.ReServiceCodeDDP,
 				models.ReServiceCodeDPK,
 				models.ReServiceCodeDUPK,
-			}
+			}, nil
 		}
 	case models.MTOShipmentTypeHHGIntoNTS:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing
@@ -1145,7 +1148,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
 			models.ReServiceCodeDNPK,
-		}
+		}, nil
 	case models.MTOShipmentTypeHHGOutOfNTSDom:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
 		return []models.ReServiceCode{
@@ -1154,25 +1157,82 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
 			models.ReServiceCodeDUPK,
-		}
+		}, nil
 	case models.MTOShipmentTypeMobileHome:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDMHF,
+
+		// Check flags to determine if service items have been toggled on or off.
+		// if DOPFeatureFlag, err := flagFetcher.GetBooleanFlagForUser(appCtx.DB().Context(), appCtx, "domestic_mobile_home_origin_price_enabled", map[string]string{}); err != nil{
+
+		originZIP3 := shipment.PickupAddress.PostalCode[0:3]
+		destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
+		var serviceCodes []models.ReServiceCode
+		if originZIP3 == destinationZIP3 {
+			serviceCodes = []models.ReServiceCode{
+				models.ReServiceCodeDMHSH,
+				models.ReServiceCodeFSC,
+			}
+		} else {
+			serviceCodes = []models.ReServiceCode{
+				models.ReServiceCodeDMHLH,
+				models.ReServiceCodeFSC,
+			}
 		}
+		var currentCode models.ReServiceCode
+
+		DMHParams, err := models.FetchDomesticMobileHomeParameters(appCtx.DB())
+		if err != nil {
+			return nil, err
+		}
+
+		// Skip service item if this is a mobile home shipment and the toggle for this item type is turned off
+		if *DMHParams[models.DMHDPEnabled].ParameterValue == "true" {
+			if *DMHParams[models.DMHDPFactor].ParameterValue == "true" { // Downgrade to regular DDP service item (no mobile home factor applied)
+				currentCode = models.ReServiceCodeDDP
+			} else {
+				serviceCodes = append(serviceCodes, models.ReServiceCodeDMHF) // Also add the DMHF code if the factor toggle is enabled
+				currentCode = models.ReServiceCodeDMHDP
+			}
+			serviceCodes = append(serviceCodes, currentCode)
+		}
+
+		if *DMHParams[models.DMHOPEnabled].ParameterValue == "true" {
+			if *DMHParams[models.DMHOPFactor].ParameterValue == "true" {
+				currentCode = models.ReServiceCodeDOP
+			} else {
+				currentCode = models.ReServiceCodeDMHOP
+			}
+			serviceCodes = append(serviceCodes, currentCode)
+		}
+
+		if *DMHParams[models.DMHPKEnabled].ParameterValue == "true" {
+			if *DMHParams[models.DMHPKFactor].ParameterValue == "true" {
+				currentCode = models.ReServiceCodeDPK
+			} else {
+				currentCode = models.ReServiceCodeDMHPK
+			}
+			serviceCodes = append(serviceCodes, currentCode)
+		}
+
+		if *DMHParams[models.DMHUPKEnabled].ParameterValue == "true" {
+			if *DMHParams[models.DMHUPKFactor].ParameterValue == "true" {
+				currentCode = models.ReServiceCodeDUPK
+			} else {
+				currentCode = models.ReServiceCodeDMHUPK
+			}
+			serviceCodes = append(serviceCodes, currentCode)
+		}
+
+		return serviceCodes, nil
 	case models.MTOShipmentTypeBoatHaulAway:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
 		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
+			models.ReServiceCodeDMHLH,
 			models.ReServiceCodeFSC,
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
 			models.ReServiceCodeDBHF,
-		}
+		}, nil
 	case models.MTOShipmentTypeBoatTowAway:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Tow Away Boat Factor
 		return []models.ReServiceCode{
@@ -1181,10 +1241,10 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
 			models.ReServiceCodeDBTF,
-		}
+		}, nil
 	}
 
-	return []models.ReServiceCode{}
+	return []models.ReServiceCode{}, nil
 }
 
 // CalculateRequiredDeliveryDate function is used to get a distance calculation using the pickup and destination addresses. It then uses

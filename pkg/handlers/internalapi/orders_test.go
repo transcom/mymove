@@ -487,7 +487,8 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
-	orderUpdater := orderservice.NewOrderUpdater(move.NewMoveRouter())
+	moveRouter := move.NewMoveRouter()
+	orderUpdater := orderservice.NewOrderUpdater(moveRouter)
 
 	setUpRequestAndParams := func(orders models.Order) *ordersop.UploadAmendedOrdersParams {
 		endpoint := fmt.Sprintf("/orders/%v/upload_amended_orders", orders.ID.String())

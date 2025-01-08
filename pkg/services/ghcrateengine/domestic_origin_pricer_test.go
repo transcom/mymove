@@ -21,7 +21,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 	pricer := NewDomesticOriginPricer()
 
 	suite.Run("failure during pricing bubbles up", func() {
-		suite.setUpDomesticOriginData()
+		suite.setUpDomesticOriginData(false)
 		paymentServiceItem := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDOP,
@@ -59,7 +59,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 	pricer := NewDomesticOriginPricer()
 
 	suite.Run("success all params for domestic origin available", func() {
-		suite.setUpDomesticOriginData()
+		suite.setUpDomesticOriginData(false)
 		paymentServiceItem := suite.setupDomesticOriginServiceItems()
 
 		cost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
@@ -78,7 +78,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 	})
 
 	suite.Run("validation errors", func() {
-		suite.setUpDomesticOriginData()
+		suite.setUpDomesticOriginData(false)
 		paymentServiceItem := suite.setupDomesticOriginServiceItems()
 
 		// No contract code
@@ -107,10 +107,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
+
 	pricer := NewDomesticOriginPricer()
 
 	suite.Run("success domestic origin cost within peak period", func() {
-		suite.setUpDomesticOriginData()
+		suite.setUpDomesticOriginData(false)
 		isPPM := false
 
 		cost, displayParams, err := pricer.Price(
@@ -120,6 +121,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			dopTestWeight,
 			dopTestServiceArea,
 			isPPM,
+			false,
 		)
 		expectedCost := unit.Cents(5472)
 		suite.NoError(err)
@@ -135,7 +137,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 	})
 
 	suite.Run("success domestic origin cost within non-peak period", func() {
-		suite.setUpDomesticOriginData()
+		suite.setUpDomesticOriginData(false)
 		isPPM := false
 
 		nonPeakDate := peakStart.addDate(0, -1)
@@ -146,6 +148,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			dopTestWeight,
 			dopTestServiceArea,
 			isPPM,
+			false,
 		)
 
 		expectedCost := unit.Cents(4752)
@@ -161,8 +164,67 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
+	suite.Run("success domestic origin cost within peak period with Domestic Mobile Home factor applied", func() {
+
+		suite.setUpDomesticOriginData(true)
+		isPPM := false
+		isMobileHome := true
+		dopMHFTestWeight := unit.Pound(9720)
+		cost, displayParams, err := pricer.Price(
+			suite.AppContextForTest(),
+			testdatagen.DefaultContractCode,
+			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
+			dopMHFTestWeight,
+			ddpTestServiceArea,
+			isPPM,
+			isMobileHome,
+		)
+		expectedCost := unit.Cents(527661)
+		suite.NoError(err)
+		suite.Equal(expectedCost, cost)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Mobile Home Factor Test Year"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.11000"},
+			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
+			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: "33.51"},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("success domestic origin cost within non-peak period with Domestic Mobile Home Factor applied", func() {
+
+		suite.setUpDomesticOriginData(true)
+		isPPM := false
+		isMobileHome := true
+		dopMHFTestWeight := unit.Pound(9720)
+		nonPeakDate := peakStart.addDate(0, -1)
+		cost, displayParams, err := pricer.Price(
+			suite.AppContextForTest(),
+			testdatagen.DefaultContractCode,
+			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
+			dopMHFTestWeight,
+			ddpTestServiceArea,
+			isPPM,
+			isMobileHome,
+		)
+		expectedCost := unit.Cents(459261)
+		suite.NoError(err)
+		suite.Equal(expectedCost, cost)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Mobile Home Factor Test Year"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.11000"},
+			{Key: models.ServiceItemParamNameIsPeak, Value: "false"},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.27"},
+			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: "33.51"},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
 	suite.Run("failure if contract code bogus", func() {
-		suite.setUpDomesticOriginData()
+		suite.setUpDomesticOriginData(false)
 		isPPM := false
 
 		_, _, err := pricer.Price(
@@ -172,6 +234,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			dopTestWeight,
 			dopTestServiceArea,
 			isPPM,
+			false,
 		)
 
 		suite.Error(err)
@@ -179,7 +242,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 	})
 
 	suite.Run("failure if move date is outside of contract year", func() {
-		suite.setUpDomesticOriginData()
+		suite.setUpDomesticOriginData(false)
 		isPPM := false
 
 		_, _, err := pricer.Price(
@@ -189,6 +252,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			dopTestWeight,
 			dopTestServiceArea,
 			isPPM,
+			false,
 		)
 
 		if suite.Error(err) {
@@ -202,7 +266,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 	})
 
 	suite.Run("weight below minimum", func() {
-		suite.setUpDomesticOriginData()
+		suite.setUpDomesticOriginData(false)
 		isPPM := false
 
 		cost, _, err := pricer.Price(
@@ -212,6 +276,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			unit.Pound(499),
 			dopTestServiceArea,
 			isPPM,
+			false,
 		)
 		suite.Equal(unit.Cents(0), cost)
 		suite.Error(err)
@@ -219,53 +284,53 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 	})
 
 	suite.Run("validation errors", func() {
-		suite.setUpDomesticOriginData()
+		suite.setUpDomesticOriginData(false)
 		isPPM := false
 
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No contract code
-		_, _, err := pricer.Price(suite.AppContextForTest(), "", requestedPickupDate, dshTestWeight, dopTestServiceArea, isPPM)
+		_, _, err := pricer.Price(suite.AppContextForTest(), "", requestedPickupDate, dshTestWeight, dopTestServiceArea, isPPM, false)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 
 		// No reference date
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, dshTestWeight, dopTestServiceArea, isPPM)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, dshTestWeight, dopTestServiceArea, isPPM, false)
 		suite.Error(err)
 		suite.Equal("ReferenceDate is required", err.Error())
 
 		// No weight
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, dopTestServiceArea, isPPM)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, dopTestServiceArea, isPPM, false)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 
 		// No service area
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, dshTestWeight, "", isPPM)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, dshTestWeight, "", isPPM, false)
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
 	})
 
 	suite.Run("successfully finds dom destination price for ppm with weight < 500 lbs with Price method", func() {
-		suite.setUpDomesticOriginData()
+		suite.setUpDomesticOriginData(false)
 		suite.setupDomesticOriginServiceItems()
 		isPPM := true
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// the PPM price for weights < 500 should be prorated from a base of 500
-		basePriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(500), dopTestServiceArea, isPPM)
+		basePriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(500), dopTestServiceArea, isPPM, false)
 		suite.NoError(err)
 
-		halfPriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(250), dopTestServiceArea, isPPM)
+		halfPriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(250), dopTestServiceArea, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/2, halfPriceCents)
 
-		fifthPriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(100), dopTestServiceArea, isPPM)
+		fifthPriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(100), dopTestServiceArea, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/5, fifthPriceCents)
 	})
 
 	suite.Run("successfully finds dom destination price for ppm with weight < 500 lbs with PriceUsingParams method", func() {
-		suite.setUpDomesticOriginData()
+		suite.setUpDomesticOriginData(false)
 		paymentServiceItem := suite.setupDomesticOriginServiceItems()
 		params := paymentServiceItem.PaymentServiceItemParams
 		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
@@ -324,22 +389,64 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginServiceItems() models
 	)
 }
 
-func (suite *GHCRateEngineServiceSuite) setUpDomesticOriginData() {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
-		testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				Escalation:           1.0197,
-				EscalationCompounded: 1.0407,
-			},
-		})
+func (suite *GHCRateEngineServiceSuite) setUpDomesticOriginData(needsMobileHomeFactorValues bool) {
 
-	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
-		testdatagen.Assertions{
-			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				Contract:    contractYear.Contract,
-				ServiceArea: dopTestServiceArea,
+	var contractYear models.ReContractYear
+	if needsMobileHomeFactorValues {
+		contractYear = testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					Escalation:           1.11,
+					EscalationCompounded: 1.11,
+					Name:                 "Mobile Home Factor Test Year",
+				},
+			})
+
+		dmhf := factory.FetchReService(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDMHF,
+					Name: "Dom. Mobile Home Factor",
+				},
 			},
-		})
+		}, nil)
+
+		shipmentTypePrice := models.ReShipmentTypePrice{
+			ContractID: contractYear.Contract.ID,
+			ServiceID:  dmhf.ID,
+			Market:     models.MarketConus,
+			Factor:     33.51,
+		}
+
+		suite.MustSave(&shipmentTypePrice)
+	} else {
+		contractYear = testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					Escalation:           1.0197,
+					EscalationCompounded: 1.0407,
+				},
+			})
+	}
+
+	var serviceArea models.ReDomesticServiceArea
+	if needsMobileHomeFactorValues {
+		serviceArea = testdatagen.MakeReDomesticServiceArea(suite.DB(),
+			testdatagen.Assertions{
+				ReDomesticServiceArea: models.ReDomesticServiceArea{
+					Contract:    contractYear.Contract,
+					ServiceArea: dopTestServiceArea,
+				},
+			})
+	} else {
+		serviceArea = testdatagen.MakeReDomesticServiceArea(suite.DB(),
+			testdatagen.Assertions{
+				ReDomesticServiceArea: models.ReDomesticServiceArea{
+					Contract:    contractYear.Contract,
+					ServiceArea: dopTestServiceArea,
+				},
+			})
+	}
 
 	domesticOriginService := factory.FetchReService(suite.DB(), []factory.Customization{
 		{

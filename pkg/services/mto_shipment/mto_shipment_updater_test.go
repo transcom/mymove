@@ -1053,7 +1053,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 			{
 				Model: models.MTOAgent{
-					FirstName:    models.StringPointer("Test"),
+					FirstName:    models.StringPointer("test"),
 					LastName:     models.StringPointer("Agent"),
 					Email:        models.StringPointer("test@test.email.com"),
 					MTOAgentType: models.MTOAgentReleasing,
@@ -1118,7 +1118,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 			{
 				Model: models.MTOAgent{
-					FirstName:    models.StringPointer("Test"),
+					FirstName:    models.StringPointer("test"),
 					LastName:     models.StringPointer("Agent"),
 					Email:        models.StringPointer("test@test.email.com"),
 					MTOAgentType: models.MTOAgentReleasing,
@@ -1181,7 +1181,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 			{
 				Model: models.MTOAgent{
-					FirstName:    models.StringPointer("Test"),
+					FirstName:    models.StringPointer("test"),
 					LastName:     models.StringPointer("Agent"),
 					Email:        models.StringPointer("test@test.email.com"),
 					MTOAgentType: models.MTOAgentReleasing,
@@ -2056,6 +2056,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
+
 	estimatedWeight := unit.Pound(2000)
 	status := models.MTOShipmentStatusApproved
 	// need the re service codes to update status

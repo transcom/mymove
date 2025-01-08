@@ -37,14 +37,44 @@ func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServ
 	suite.MustSave(&taskOrderFee)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReServiceCode, schedule int, isPeakPeriod bool, priceCents unit.Cents, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
-		testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				Name:                 contractYearName,
-				EscalationCompounded: escalationCompounded,
+func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReServiceCode, schedule int, isPeakPeriod bool, priceCents unit.Cents, contractYearName string, escalationCompounded float64, needsMobileHomeFactorValues bool) {
+	var contractYear models.ReContractYear
+	if needsMobileHomeFactorValues {
+		contractYear = testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					Escalation:           1.11,
+					EscalationCompounded: 1.11,
+					Name:                 "Mobile Home Factor Test Year",
+				},
+			})
+
+		dmhf := factory.FetchReService(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDMHF,
+					Name: "Dom. Mobile Home Factor",
+				},
 			},
-		})
+		}, nil)
+
+		shipmentTypePrice := models.ReShipmentTypePrice{
+			ContractID: contractYear.Contract.ID,
+			ServiceID:  dmhf.ID,
+			Market:     models.MarketConus,
+			Factor:     33.51,
+		}
+
+		suite.MustSave(&shipmentTypePrice)
+	} else {
+		contractYear = testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					Name:                 contractYearName,
+					EscalationCompounded: escalationCompounded,
+				},
+			})
+	}
 
 	service := factory.FetchReServiceByCode(suite.DB(), code)
 
@@ -134,6 +164,34 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 				ServiceArea: serviceAreaCode,
 			},
 		})
+}
+
+func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPriceForDMHF(serviceAreaCode string, isPeakPeriod bool, weightLower unit.Pound, weightUpper unit.Pound, milesLower int, milesUpper int, priceMillicents unit.Millicents, contractYearName string, escalationCompounded float64) {
+	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Name:                 contractYearName,
+				EscalationCompounded: escalationCompounded,
+			},
+		})
+
+	dmhf := factory.FetchReService(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDMHF,
+				Name: "Dom. Mobile Home Factor",
+			},
+		},
+	}, nil)
+
+	shipmentTypePrice := models.ReShipmentTypePrice{
+		ContractID: contractYear.Contract.ID,
+		ServiceID:  dmhf.ID,
+		Market:     models.MarketConus,
+		Factor:     33.51,
+	}
+
+	suite.MustSave(&shipmentTypePrice)
 }
 
 func (suite *GHCRateEngineServiceSuite) setupShipmentTypePrice(code models.ReServiceCode, market models.Market, factor float64, contractYearName string, escalationCompounded float64) {

@@ -4243,6 +4243,7 @@ func createHHGWithOriginSITServiceItems(
 		"90210", "30813", false, false).Return(2361, nil)
 
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
+
 	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
@@ -4516,6 +4517,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		"90210", "30813", false, false).Return(2361, nil)
 
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
+
 	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
@@ -5563,10 +5565,10 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		},
 	}
 
-	paymentRequest, err := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
+	paymentRequest, paymentRequestErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
 
-	if err != nil {
-		logger.Fatal("error while creating payment request:", zap.Error(err))
+	if paymentRequestErr != nil {
+		logger.Fatal("error while creating payment request:", zap.Error(paymentRequestErr))
 	}
 	logger.Debug("create payment request ok: ", zap.Any("", paymentRequest))
 }

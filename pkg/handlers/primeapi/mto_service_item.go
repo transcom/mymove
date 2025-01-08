@@ -43,7 +43,6 @@ type CreateMTOServiceItemHandler struct {
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOServiceItemParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
 			// ** Create service item can not be done for PPM shipment **/
 			shipment, err := models.FetchShipmentByID(appCtx.DB(), uuid.FromStringOrNil(params.Body.MtoShipmentID().String()))
 			if err != nil {

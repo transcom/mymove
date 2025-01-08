@@ -104,7 +104,6 @@ type UpdateServiceItemSitEntryDateHandler struct {
 func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.UpdateServiceItemSitEntryDateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
 			mtoServiceItemID, err := uuid.FromString(params.MtoServiceItemID)
 			// return parsing errors
 			if err != nil {

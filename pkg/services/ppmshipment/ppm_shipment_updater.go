@@ -63,7 +63,7 @@ func (f *ppmShipmentUpdater) UpdatePPMShipmentSITEstimatedCost(appCtx appcontext
 			return err
 		}
 
-		estimatedSITCost, err := CalculateSITCost(appCtx, updatedPPMShipment, contract)
+		estimatedSITCost, err := f.estimator.CalculateSITCost(appCtx, updatedPPMShipment, contract)
 		if err != nil {
 			return err
 		}

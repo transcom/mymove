@@ -18,8 +18,8 @@ func NewDomesticUnpackPricer() services.DomesticUnpackPricer {
 }
 
 // Price determines the price for a domestic unpack service
-func (p domesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDUPK, contractCode, referenceDate, weight, servicesScheduleDest, isPPM)
+func (p domesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDUPK, contractCode, referenceDate, weight, servicesScheduleDest, isPPM, isMobileHome)
 }
 
 // PriceUsingParams determines the price for a domestic unpack service given PaymentServiceItemParams
@@ -52,5 +52,7 @@ func (p domesticUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 		isPPM = true
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleDest, isPPM)
+	isMobileHome := params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome
+
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleDest, isPPM, isMobileHome)
 }
