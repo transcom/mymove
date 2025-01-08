@@ -504,6 +504,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 		addressUpdate.OfficeRemarks = &tooRemarks
 		shipment.DestinationAddress = &addressUpdate.NewAddress
+		shipment.DestinationAddressID = &addressUpdate.NewAddressID
 
 		var haulPricingTypeHasChanged bool
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
@@ -565,7 +566,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 		// If the pricing type has changed then we automatically reject the DLH or DSH service item on the shipment since it is now inaccurate
 		var approvedPaymentRequestsExistsForServiceItem bool
-		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 {
+		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 && shipment.MarketCode != models.MarketCodeInternational {
 			serviceItems := shipment.MTOServiceItems
 			autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
 			var regeneratedServiceItems models.MTOServiceItems
