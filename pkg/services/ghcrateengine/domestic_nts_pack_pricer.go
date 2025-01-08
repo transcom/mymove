@@ -19,11 +19,11 @@ func NewDomesticNTSPackPricer() services.DomesticNTSPackPricer {
 
 // Price determines the price for a domestic NTS pack service
 func (p domesticNTSPackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDNPK, contractCode, referenceDate, weight, servicesScheduleOrigin, isPPM, false, nil)
+	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDNPK, contractCode, referenceDate, weight, servicesScheduleOrigin, isPPM, false)
 }
 
 // PriceUsingParams determines the price for a domestic NTS pack service given PaymentServiceItemParams
-func (p domesticNTSPackPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticNTSPackPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err

@@ -61,13 +61,9 @@ func (h UpdateReweighHandler) Handle(params mtoshipmentops.UpdateReweighParams) 
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 			}
-			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
-			if err != nil {
-				return handleError(err)
-			}
 
 			// Call the service object
-			updatedReweigh, err := h.ReweighUpdater.UpdateReweighCheck(appCtx, newReweigh, eTag, featureFlagValues)
+			updatedReweigh, err := h.ReweighUpdater.UpdateReweighCheck(appCtx, newReweigh, eTag)
 
 			// Convert the errors into error responses to return to caller
 			if err != nil {

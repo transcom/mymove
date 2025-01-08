@@ -26,7 +26,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/reweigh"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -579,8 +578,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		}
 		shipmentIDAbbr := serviceItem.MTOShipment.ID.String()[0:5]
 
-		featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 
@@ -663,8 +661,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 

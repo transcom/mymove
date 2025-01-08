@@ -15,11 +15,10 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool, isMobileHome bool, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	var domOtherPriceCode models.ReServiceCode
 	var displayParams services.PricingDisplayParams
@@ -65,17 +64,21 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	isFactorToggleOn := false // Track whether DMHF Factor FF toggle is on for this Pack or Unpack item
 	if isMobileHome {         // Only check for mobile home factor FF if this is a mobile home shipment.
 		if domOtherPriceCode == models.ReServiceCodeDPK {
-			if featureFlagValues == nil || len(featureFlagValues) <= 0 {
-				return 0, nil, fmt.Errorf("Expected a map of feature flag values when checking pricing for DPK item, received nil or empty map instead.")
+			result, err := models.FetchParameterValueByName(appCtx.DB(), models.DMHPKEnabled)
+			if err != nil || result.ParameterValue == nil {
+				return 0, nil, fmt.Errorf("could not lookup Mobile Home DDP application_parameter value: %w", err)
 			}
-			if featureFlagValues[featureflag.DomesticMobileHomePackingFactor] {
+
+			if *result.ParameterValue == "true" {
 				isFactorToggleOn = true
 			}
 		} else if domOtherPriceCode == models.ReServiceCodeDUPK {
-			if featureFlagValues == nil || len(featureFlagValues) <= 0 {
-				return 0, nil, fmt.Errorf("Expected a map of feature flag values when checking pricing for DUPK item, received nil or empty map instead.")
+			result, err := models.FetchParameterValueByName(appCtx.DB(), models.DMHUPKEnabled)
+			if err != nil || result.ParameterValue == nil {
+				return 0, nil, fmt.Errorf("could not lookup Mobile Home DDP application_parameter value: %w", err)
 			}
-			if featureFlagValues[featureflag.DomesticMobileHomeUnpackingFactor] {
+
+			if *result.ParameterValue == "true" {
 				isFactorToggleOn = true
 			}
 		}

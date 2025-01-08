@@ -16,9 +16,9 @@ type PaymentRequestRecalculator struct {
 	mock.Mock
 }
 
-// RecalculatePaymentRequest provides a mock function with given fields: appCtx, paymentRequestID, featureFlagValues
-func (_m *PaymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, featureFlagValues map[string]bool) (*models.PaymentRequest, error) {
-	ret := _m.Called(appCtx, paymentRequestID, featureFlagValues)
+// RecalculatePaymentRequest provides a mock function with given fields: appCtx, paymentRequestID
+func (_m *PaymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
+	ret := _m.Called(appCtx, paymentRequestID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RecalculatePaymentRequest")
@@ -26,19 +26,19 @@ func (_m *PaymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontex
 
 	var r0 *models.PaymentRequest
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, map[string]bool) (*models.PaymentRequest, error)); ok {
-		return rf(appCtx, paymentRequestID, featureFlagValues)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.PaymentRequest, error)); ok {
+		return rf(appCtx, paymentRequestID)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, map[string]bool) *models.PaymentRequest); ok {
-		r0 = rf(appCtx, paymentRequestID, featureFlagValues)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.PaymentRequest); ok {
+		r0 = rf(appCtx, paymentRequestID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.PaymentRequest)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, map[string]bool) error); ok {
-		r1 = rf(appCtx, paymentRequestID, featureFlagValues)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, paymentRequestID)
 	} else {
 		r1 = ret.Error(1)
 	}

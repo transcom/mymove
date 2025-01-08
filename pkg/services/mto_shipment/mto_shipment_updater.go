@@ -20,7 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/query"
 )
@@ -348,7 +347,7 @@ func (e StaleIdentifierError) Error() string {
 }
 
 // UpdateMTOShipment updates the mto shipment
-func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string, featureFlagValues map[string]bool) (*models.MTOShipment, error) {
+func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error) {
 	eagerAssociations := []string{"MoveTaskOrder",
 		"PickupAddress",
 		"DestinationAddress",
@@ -391,7 +390,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	setNewShipmentFields(appCtx, oldShipment, mtoShipment)
 	newShipment := oldShipment // old shipment has now been updated with requested changes
 	// db version is used to check if agents need creating or updating
-	err = f.updateShipmentRecord(appCtx, &dbShipment, newShipment, eTag, featureFlagValues)
+	err = f.updateShipmentRecord(appCtx, &dbShipment, newShipment, eTag)
 	if err != nil {
 		switch err.(type) {
 		case StaleIdentifierError:
@@ -429,7 +428,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 
 // Takes the validated shipment input and updates the database using a transaction. If any part of the
 // update fails, the entire transaction will be rolled back.
-func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string, featureFlagValues map[string]bool) error {
+func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
 	var autoReweighShipments models.MTOShipments
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
@@ -895,7 +894,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// Perform shipment recalculate payment request
 		//
 		if runShipmentRecalculate {
-			_, err := f.recalculator.ShipmentRecalculatePaymentRequest(txnAppCtx, dbShipment.ID, featureFlagValues)
+			_, err := f.recalculator.ShipmentRecalculatePaymentRequest(txnAppCtx, dbShipment.ID)
 			if err != nil {
 				return err
 			}
@@ -940,7 +939,7 @@ type mtoShipmentStatusUpdater struct {
 }
 
 // UpdateMTOShipmentStatus updates MTO Shipment Status
-func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, diversionReason *string, eTag string, featureFlagValues map[string]bool) (*models.MTOShipment, error) {
+func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, diversionReason *string, eTag string) (*models.MTOShipment, error) {
 	shipment, err := fetchShipment(appCtx, shipmentID, o.builder)
 	if err != nil {
 		return nil, err
@@ -1001,7 +1000,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.App
 	// and current status is approved
 	createSSI := shipment.Status == models.MTOShipmentStatusApproved && !wasShipmentDiversionRequested
 	if createSSI {
-		err = o.createShipmentServiceItems(appCtx, shipment, featureFlagValues)
+		err = o.createShipmentServiceItems(appCtx, shipment)
 		if err != nil {
 			return nil, err
 		}
@@ -1011,12 +1010,15 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.App
 }
 
 // createShipmentServiceItems creates shipment level service items
-func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment, featureFlagValues map[string]bool) error {
-	reServiceCodes := reServiceCodesForShipment(*shipment, featureFlagValues)
+func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	reServiceCodes, err := reServiceCodesForShipment(appCtx, *shipment)
+	if err != nil {
+		return err
+	}
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
 		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
-		_, verrs, err := o.siCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem, featureFlagValues)
+		_, verrs, err := o.siCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
 
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")
@@ -1099,7 +1101,7 @@ func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder U
 	return &shipment, nil
 }
 
-func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues map[string]bool) []models.ReServiceCode {
+func reServiceCodesForShipment(appCtx appcontext.AppContext, shipment models.MTOShipment) ([]models.ReServiceCode, error) {
 	// We will detect the type of shipment we're working with and then call a helper with the correct
 	// default service items that we want created as a side effect.
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
@@ -1119,7 +1121,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 					models.ReServiceCodeDDP,
 					models.ReServiceCodeDPK,
 					models.ReServiceCodeDUPK,
-				}
+				}, nil
 			}
 
 			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
@@ -1130,7 +1132,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 				models.ReServiceCodeDDP,
 				models.ReServiceCodeDPK,
 				models.ReServiceCodeDUPK,
-			}
+			}, nil
 		}
 	case models.MTOShipmentTypeHHGIntoNTS:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing
@@ -1140,7 +1142,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
 			models.ReServiceCodeDNPK,
-		}
+		}, nil
 	case models.MTOShipmentTypeHHGOutOfNTSDom:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
 		return []models.ReServiceCode{
@@ -1149,7 +1151,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
 			models.ReServiceCodeDUPK,
-		}
+		}, nil
 	case models.MTOShipmentTypeMobileHome:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
 
@@ -1172,9 +1174,14 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 		}
 		var currentCode models.ReServiceCode
 
+		DMHParams, err := models.FetchDomesticMobileHomeParameters(appCtx.DB())
+		if err != nil {
+			return nil, err
+		}
+
 		// Skip service item if this is a mobile home shipment and the toggle for this item type is turned off
-		if featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] {
-			if !featureFlagValues[featureflag.DomesticMobileHomeDDPFactor] { // Downgrade to regular DDP service item (no mobile home factor applied)
+		if *DMHParams[models.DMHDPEnabled].ParameterValue == "true" {
+			if *DMHParams[models.DMHDPFactor].ParameterValue == "true" { // Downgrade to regular DDP service item (no mobile home factor applied)
 				currentCode = models.ReServiceCodeDDP
 			} else {
 				serviceCodes = append(serviceCodes, models.ReServiceCodeDMHF) // Also add the DMHF code if the factor toggle is enabled
@@ -1183,8 +1190,8 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 			serviceCodes = append(serviceCodes, currentCode)
 		}
 
-		if featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] {
-			if !featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
+		if *DMHParams[models.DMHOPEnabled].ParameterValue == "true" {
+			if *DMHParams[models.DMHOPFactor].ParameterValue == "true" {
 				currentCode = models.ReServiceCodeDOP
 			} else {
 				currentCode = models.ReServiceCodeDMHOP
@@ -1192,8 +1199,8 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 			serviceCodes = append(serviceCodes, currentCode)
 		}
 
-		if featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] {
-			if !featureFlagValues[featureflag.DomesticMobileHomePackingFactor] {
+		if *DMHParams[models.DMHPKEnabled].ParameterValue == "true" {
+			if *DMHParams[models.DMHPKFactor].ParameterValue == "true" {
 				currentCode = models.ReServiceCodeDPK
 			} else {
 				currentCode = models.ReServiceCodeDMHPK
@@ -1201,8 +1208,8 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 			serviceCodes = append(serviceCodes, currentCode)
 		}
 
-		if featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] {
-			if !featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
+		if *DMHParams[models.DMHUPKEnabled].ParameterValue == "true" {
+			if *DMHParams[models.DMHUPKFactor].ParameterValue == "true" {
 				currentCode = models.ReServiceCodeDUPK
 			} else {
 				currentCode = models.ReServiceCodeDMHUPK
@@ -1210,7 +1217,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 			serviceCodes = append(serviceCodes, currentCode)
 		}
 
-		return serviceCodes
+		return serviceCodes, nil
 	case models.MTOShipmentTypeBoatHaulAway:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
 		return []models.ReServiceCode{
@@ -1219,7 +1226,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
 			models.ReServiceCodeDBHF,
-		}
+		}, nil
 	case models.MTOShipmentTypeBoatTowAway:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Tow Away Boat Factor
 		return []models.ReServiceCode{
@@ -1228,10 +1235,10 @@ func reServiceCodesForShipment(shipment models.MTOShipment, featureFlagValues ma
 			models.ReServiceCodeDOP,
 			models.ReServiceCodeDDP,
 			models.ReServiceCodeDBTF,
-		}
+		}, nil
 	}
 
-	return []models.ReServiceCode{}
+	return []models.ReServiceCode{}, nil
 }
 
 // CalculateRequiredDeliveryDate function is used to get a distance calculation using the pickup and destination addresses. It then uses

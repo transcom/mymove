@@ -22,7 +22,6 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -192,7 +191,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
+
 	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems and should NOT update pricing without port data", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
 			{
@@ -282,7 +281,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		// Approve international shipment
 		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
-		_, err = shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag, featureFlagValues)
+		_, err = shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag)
 		suite.NoError(err)
 
 		// Get created pre approved service items
@@ -343,7 +342,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		).Return(500, nil)
 
 		preApprovalTime := time.Now()
-		shipment, approverErr := approver.ApproveShipment(appCtx, shipmentForAutoApprove.ID, shipmentForAutoApproveEtag, featureFlagValues)
+		shipment, approverErr := approver.ApproveShipment(appCtx, shipmentForAutoApprove.ID, shipmentForAutoApproveEtag)
 
 		suite.NoError(approverErr)
 		suite.Equal(move.ID, shipment.MoveTaskOrderID)
@@ -393,7 +392,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		// Verify that required delivery date is not calculated when it does not need to be
 		planner.AssertNumberOfCalls(suite.T(), "TransitDistance", 0)
 
-		shipment, approverErr := approver.ApproveShipment(appCtx, shipmentForAutoApprove.Shipment.ID, shipmentForAutoApproveEtag, featureFlagValues)
+		shipment, approverErr := approver.ApproveShipment(appCtx, shipmentForAutoApprove.Shipment.ID, shipmentForAutoApproveEtag)
 
 		suite.NoError(approverErr)
 		suite.Equal(move.ID, shipment.MoveTaskOrderID)
@@ -464,7 +463,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		).Return(500, nil)
 
 		shipmentHeavyEtag := etag.GenerateEtag(shipmentHeavy.UpdatedAt)
-		_, err = approver.ApproveShipment(appCtx, shipmentHeavy.ID, shipmentHeavyEtag, featureFlagValues)
+		_, err = approver.ApproveShipment(appCtx, shipmentHeavy.ID, shipmentHeavyEtag)
 		suite.NoError(err)
 
 		fetchedShipment := models.MTOShipment{}
@@ -495,7 +494,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		}, nil)
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
-		_, err := approver.ApproveShipment(appCtx, rejectedShipment.ID, eTag, featureFlagValues)
+		_, err := approver.ApproveShipment(appCtx, rejectedShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -520,7 +519,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		}, nil)
 
-		_, err := approver.ApproveShipment(appCtx, staleShipment.ID, staleETag, featureFlagValues)
+		_, err := approver.ApproveShipment(appCtx, staleShipment.ID, staleETag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -534,7 +533,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err := approver.ApproveShipment(appCtx, badShipmentID, eTag, featureFlagValues)
+		_, err := approver.ApproveShipment(appCtx, badShipmentID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -568,7 +567,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		shipmentRouter.On("Approve", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-		_, err = approver.ApproveShipment(appCtx, shipment.ID, eTag, featureFlagValues)
+		_, err = approver.ApproveShipment(appCtx, shipment.ID, eTag)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(suite.T(), "Approve", 1)
@@ -601,7 +600,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		// Verify that required delivery date is not calculated when it does not need to be
 		planner.AssertNumberOfCalls(suite.T(), "TransitDistance", 0)
 
-		shipment, approverErr := approver.ApproveShipment(appCtx, shipmentForAutoApprove.ID, shipmentForAutoApproveEtag, featureFlagValues)
+		shipment, approverErr := approver.ApproveShipment(appCtx, shipmentForAutoApprove.ID, shipmentForAutoApproveEtag)
 
 		suite.Contains(approverErr.Error(), "shipment uses external vendor, cannot be approved for GHC Prime")
 		suite.Equal(uuid.UUID{}, shipment.ID)
@@ -755,7 +754,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		for _, testCase := range testCases {
 			shipmentEtag := etag.GenerateEtag(testCase.shipment.UpdatedAt)
-			_, err := approver.ApproveShipment(appCtx, testCase.shipment.ID, shipmentEtag, featureFlagValues)
+			_, err := approver.ApproveShipment(appCtx, testCase.shipment.ID, shipmentEtag)
 			suite.NoError(err)
 
 			fetchedShipment := models.MTOShipment{}
@@ -800,7 +799,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 
-		_, approverErr := approver.ApproveShipment(appCtx, shipment.ID, shipmentEtag, featureFlagValues)
+		_, approverErr := approver.ApproveShipment(appCtx, shipment.ID, shipmentEtag)
 		suite.NoError(approverErr)
 
 		err := appCtx.DB().Reload(shipment.MoveTaskOrder.Orders.Entitlement)
@@ -840,7 +839,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 
-		_, approverErr := approver.ApproveShipment(appCtx, shipment.ID, shipmentEtag, featureFlagValues)
+		_, approverErr := approver.ApproveShipment(appCtx, shipment.ID, shipmentEtag)
 		suite.NoError(approverErr)
 
 		err := appCtx.DB().Reload(&shipment.MoveTaskOrder)

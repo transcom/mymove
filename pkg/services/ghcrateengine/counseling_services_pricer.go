@@ -9,16 +9,16 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-type counselingServicesPricer struct {
+type CounselingServicesPricer struct {
 }
 
 // NewCounselingServicesPricer creates a new pricer for counseling services
 func NewCounselingServicesPricer() services.CounselingServicesPricer {
-	return &counselingServicesPricer{}
+	return &CounselingServicesPricer{}
 }
 
 // Price determines the price for a counseling service
-func (p counselingServicesPricer) Price(appCtx appcontext.AppContext, lockedPriceCents *unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
+func (p CounselingServicesPricer) Price(appCtx appcontext.AppContext, lockedPriceCents *unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
 
 	if lockedPriceCents == nil {
 		return 0, nil, fmt.Errorf("invalid value for locked_price_cents")
@@ -35,7 +35,7 @@ func (p counselingServicesPricer) Price(appCtx appcontext.AppContext, lockedPric
 }
 
 // PriceUsingParams determines the price for a counseling service given PaymentServiceItemParams
-func (p counselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p CounselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 
 	lockedPriceCents, err := getParamInt(params, models.ServiceItemParamNameLockedPriceCents)
 	if err != nil {

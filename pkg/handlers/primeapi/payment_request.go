@@ -140,12 +140,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				}
 			}
 
-			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
-			if err != nil {
-				return handleError(err)
-			}
-
-			createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest, featureFlagValues)
+			createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
 			if err != nil {
 				appCtx.Logger().Error("Error creating payment request: ", zap.Error(err))
 				return handleError(err)

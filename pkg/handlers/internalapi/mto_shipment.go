@@ -147,11 +147,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				return mtoshipmentops.NewUpdateMTOShipmentForbidden(), noServiceMemberIDErr
 			}
 
-			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
-			if err != nil {
-				return mtoshipmentops.NewUpdateMTOShipmentInternalServerError(), err
-			}
-
 			payload := params.Body
 			if payload == nil {
 				noBodyErr := apperror.NewBadDataError("Invalid mto shipment: params Body is nil")
@@ -174,7 +169,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						h.GetTraceIDFromRequest(params.HTTPRequest))), invalidShipmentStatusErr
 			}
 
-			updatedMTOShipment, err := h.shipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "internal", nil, featureFlagValues)
+			updatedMTOShipment, err := h.shipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "internal", nil)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))

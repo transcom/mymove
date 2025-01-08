@@ -33,7 +33,6 @@ import (
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -2861,7 +2860,7 @@ func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
+
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
@@ -2894,7 +2893,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 		invalidServiceItem := serviceItem
 		invalidServiceItem.MoveTaskOrderID = serviceItem.ID // invalid Move ID
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &invalidServiceItem, serviceItem.MTOShipment, eTag, featureFlagValues)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &invalidServiceItem, serviceItem.MTOShipment, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -2911,7 +2910,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 
 		for _, serviceItem := range serviceItems {
 			eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
-			updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &serviceItem, serviceItem.MTOShipment, eTag, featureFlagValues)
+			updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &serviceItem, serviceItem.MTOShipment, eTag)
 
 			suite.NotNil(updatedServiceItem)
 			suite.Nil(err)

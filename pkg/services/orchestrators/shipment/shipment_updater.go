@@ -33,7 +33,7 @@ func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipm
 }
 
 // UpdateShipment updates a shipment, taking into account different shipment types and their needs.
-func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string, planner route.Planner, featureFlagValues map[string]bool) (*models.MTOShipment, error) {
+func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string, planner route.Planner) (*models.MTOShipment, error) {
 	if err := validateShipment(appCtx, *shipment, s.checks...); err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 	var mtoShipment *models.MTOShipment
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
-		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipment(txnAppCtx, shipment, eTag, api, featureFlagValues)
+		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipment(txnAppCtx, shipment, eTag, api)
 
 		if err != nil {
 			return err
@@ -57,7 +57,7 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 						estimatedWeightToUse = *mtoShipment.PrimeEstimatedWeight
 					}
 					mtoShipment.MTOServiceItems[index].EstimatedWeight = &estimatedWeightToUse
-					serviceItemEstimatedPrice, err := s.mtoServiceItemCreator.FindEstimatedPrice(appCtx, &serviceItem, *mtoShipment, featureFlagValues)
+					serviceItemEstimatedPrice, err := s.mtoServiceItemCreator.FindEstimatedPrice(appCtx, &serviceItem, *mtoShipment)
 					if serviceItemEstimatedPrice != 0 && err == nil {
 						mtoShipment.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
 					}

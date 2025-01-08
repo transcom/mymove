@@ -16,9 +16,9 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		paymentServiceItem := suite.setupManagementServicesItem()
-		managementServicesPricer := NewManagementServicesPricer()
+		ManagementServicesPricer := NewManagementServicesPricer()
 
-		priceCents, displayParams, err := managementServicesPricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
+		priceCents, displayParams, err := ManagementServicesPricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 
@@ -31,18 +31,18 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
-		managementServicesPricer := NewManagementServicesPricer()
+		ManagementServicesPricer := NewManagementServicesPricer()
 
-		priceCents, _, err := managementServicesPricer.Price(suite.AppContextForTest(), &lockedPrice)
+		priceCents, _, err := ManagementServicesPricer.Price(suite.AppContextForTest(), &lockedPrice)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
 
 	suite.Run("sending PaymentServiceItemParams without expected param", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
-		managementServicesPricer := NewManagementServicesPricer()
+		ManagementServicesPricer := NewManagementServicesPricer()
 
-		_, _, err := managementServicesPricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{}, nil)
+		_, _, err := ManagementServicesPricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 }

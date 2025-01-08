@@ -13,12 +13,12 @@ const (
 
 func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	lockedPrice := csPriceCents
-	counselingServicesPricer := NewCounselingServicesPricer()
+	CounselingServicesPricer := NewCounselingServicesPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		paymentServiceItem := suite.setupCounselingServicesItem()
 
-		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
+		priceCents, displayParams, err := CounselingServicesPricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 
@@ -32,7 +32,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 
-		priceCents, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), &lockedPrice)
+		priceCents, _, err := CounselingServicesPricer.Price(suite.AppContextForTest(), &lockedPrice)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
@@ -40,7 +40,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	suite.Run("sending PaymentServiceItemParams without expected param", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 
-		_, _, err := counselingServicesPricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{}, nil)
+		_, _, err := CounselingServicesPricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 }

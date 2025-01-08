@@ -44,9 +44,9 @@ func (_m *MTOShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCtx appcontext.
 	return r0, r1
 }
 
-// UpdateMTOShipment provides a mock function with given fields: appCtx, mtoShipment, eTag, api, featureFlagValues
-func (_m *MTOShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string, featureFlagValues map[string]bool) (*models.MTOShipment, error) {
-	ret := _m.Called(appCtx, mtoShipment, eTag, api, featureFlagValues)
+// UpdateMTOShipment provides a mock function with given fields: appCtx, mtoShipment, eTag, api
+func (_m *MTOShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, mtoShipment, eTag, api)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateMTOShipment")
@@ -54,19 +54,19 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mt
 
 	var r0 *models.MTOShipment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string, string, map[string]bool) (*models.MTOShipment, error)); ok {
-		return rf(appCtx, mtoShipment, eTag, api, featureFlagValues)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string, string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, mtoShipment, eTag, api)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string, string, map[string]bool) *models.MTOShipment); ok {
-		r0 = rf(appCtx, mtoShipment, eTag, api, featureFlagValues)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string, string) *models.MTOShipment); ok {
+		r0 = rf(appCtx, mtoShipment, eTag, api)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string, string, map[string]bool) error); ok {
-		r1 = rf(appCtx, mtoShipment, eTag, api, featureFlagValues)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string, string) error); ok {
+		r1 = rf(appCtx, mtoShipment, eTag, api)
 	} else {
 		r1 = ret.Error(1)
 	}

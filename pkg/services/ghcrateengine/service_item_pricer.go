@@ -28,7 +28,7 @@ func (p serviceItemPricer) PriceServiceItem(appCtx appcontext.AppContext, item m
 
 	// pricingParams are rate engine params that were queried from the pricing tables such as
 	// price, rate, escalation etc.
-	priceCents, pricingParams, err := pricer.PriceUsingParams(appCtx, item.PaymentServiceItemParams, nil)
+	priceCents, pricingParams, err := pricer.PriceUsingParams(appCtx, item.PaymentServiceItemParams)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}

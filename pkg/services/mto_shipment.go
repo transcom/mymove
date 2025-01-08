@@ -24,7 +24,7 @@ type MTOShipmentFetcher interface {
 //go:generate mockery --name MTOShipmentUpdater
 type MTOShipmentUpdater interface {
 	MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error)
-	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string, featureFlagValues map[string]bool) (*models.MTOShipment, error)
+	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error)
 }
 
 // BillableWeightInputs is a type for capturing what should be returned when a shipment's billable weight is calculated
@@ -53,7 +53,7 @@ type ShipmentDeleter interface {
 //
 //go:generate mockery --name ShipmentApprover
 type ShipmentApprover interface {
-	ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, featureFlagValues map[string]bool) (*models.MTOShipment, error)
+	ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
 // ShipmentDiversionRequester is the service object interface for requesting a shipment diversion
@@ -95,7 +95,7 @@ type ShipmentReweighRequester interface {
 //
 //go:generate mockery --name MTOShipmentStatusUpdater
 type MTOShipmentStatusUpdater interface {
-	UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, diversionReason *string, eTag string, featureFlagValues map[string]bool) (*models.MTOShipment, error)
+	UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, diversionReason *string, eTag string) (*models.MTOShipment, error)
 }
 
 // MTOShipmentCreator is the exported interface for creating a shipment

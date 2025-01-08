@@ -1,8 +1,6 @@
 package primeapi
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -133,11 +131,7 @@ func (h UpdateMTOShipmentStatusHandler) Handle(params mtoshipmentops.UpdateMTOSh
 			status := models.MTOShipmentStatus(params.Body.Status)
 			eTag := params.IfMatch
 
-			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
-			if err != nil {
-				appCtx.Logger().Panic(fmt.Sprintf("Error fetching mobile home feature flags: %s", err))
-			}
-			shipment, err := h.updater.UpdateMTOShipmentStatus(appCtx, shipmentID, status, nil, nil, eTag, featureFlagValues)
+			shipment, err := h.updater.UpdateMTOShipmentStatus(appCtx, shipmentID, status, nil, nil, eTag)
 			if err != nil {
 				appCtx.Logger().Error("UpdateMTOShipmentStatusStatus error: ", zap.Error(err))
 

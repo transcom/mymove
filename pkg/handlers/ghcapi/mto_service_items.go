@@ -104,12 +104,6 @@ type UpdateServiceItemSitEntryDateHandler struct {
 func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.UpdateServiceItemSitEntryDateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
-			if err != nil {
-				return mtoserviceitemop.NewUpdateServiceItemSitEntryDateInternalServerError(), err
-			}
-
 			mtoServiceItemID, err := uuid.FromString(params.MtoServiceItemID)
 			// return parsing errors
 			if err != nil {
@@ -158,7 +152,7 @@ func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.Upd
 
 					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
-					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", nil, featureFlagValues)
+					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", nil)
 					if err != nil {
 						appCtx.Logger().Error(fmt.Sprintf("Could not update the shipment SIT auth end date for shipment ID: %s: %s", shipment.ID, err))
 					}
@@ -190,11 +184,6 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			existingMTOServiceItem := models.MTOServiceItem{}
-
-			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
-			if err != nil {
-				return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError(), err
-			}
 
 			mtoServiceItemID, err := uuid.FromString(params.MtoServiceItemID)
 			// return parsing errors
@@ -276,7 +265,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 
 					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
-					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", nil, featureFlagValues)
+					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", nil)
 					if err != nil {
 						appCtx.Logger().Error(fmt.Sprintf("Could not update the shipment SIT auth end date for shipment ID: %s: %s", shipment.ID, err))
 					}

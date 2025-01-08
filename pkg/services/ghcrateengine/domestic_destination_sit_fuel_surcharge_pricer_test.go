@@ -175,7 +175,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationS
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		paymentServiceItem := setupTestData()
-		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(ddsfscPriceCents, priceCents)
 
@@ -217,7 +217,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationS
 			suite.Run(name, func() {
 				paymentServiceItem := setupTestData()
 				params := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, testcase.missingPaymentServiceItem)
-				_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), params, nil)
+				_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), params)
 				suite.Error(err)
 				suite.Equal(testcase.errorMessage, err.Error())
 			})
@@ -230,7 +230,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDomesticDestinationS
 		paramsWithBadReference[0].PaymentServiceItemID = uuid.Nil
 		// Pricer only searches for the shipment when the ID is nil
 		paramsWithBadReference[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ID = uuid.Nil
-		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBadReference, nil)
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBadReference)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
@@ -280,7 +280,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDDSFSCBelowMinimumWe
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 		paramsWithBelowMinimumWeight[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
 
-		priceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight, nil)
+		priceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
 		suite.NoError(err)
 		suite.Equal(ddsfscPriceCents, priceCents)
 
@@ -290,7 +290,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDDSFSCBelowMinimumWe
 		paymentServiceItem := setupTestData()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 
-		priceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight, nil)
+		priceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
 		if suite.Error(err) {
 			suite.Equal("Weight must be a minimum of 500", err.Error())
 			suite.Equal(unit.Cents(0), priceCents)

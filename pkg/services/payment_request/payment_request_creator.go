@@ -18,7 +18,6 @@ import (
 	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/featureflag"
 )
 
 type paymentRequestCreator struct {
@@ -40,11 +39,11 @@ func NewPaymentRequestCreator(planner route.Planner, pricer services.ServiceItem
 	}
 }
 
-func (p *paymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, featureFlagValues map[string]bool) (*models.PaymentRequest, error) {
-	return p.CreatePaymentRequest(appCtx, paymentRequest, featureFlagValues, p.checks...)
+func (p *paymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error) {
+	return p.CreatePaymentRequest(appCtx, paymentRequest, p.checks...)
 }
 
-func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequestArg *models.PaymentRequest, featureFlagValues map[string]bool, checks ...paymentRequestValidator) (*models.PaymentRequest, error) {
+func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequestArg *models.PaymentRequest, checks ...paymentRequestValidator) (*models.PaymentRequest, error) {
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var err error
 		now := time.Now()
@@ -100,30 +99,38 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 
 			// If this is a mobile home shipment, run checks to replace default service items with Mobile Home equivalents if needed
 			if paymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+				DMHParams, err := models.FetchDomesticMobileHomeParameters(appCtx.DB())
+				if err != nil {
+					return fmt.Errorf("could not lookup Mobile Home application_parameter values: %w", err)
+				}
 				switch paymentServiceItem.MTOServiceItem.ReService.Code {
 				case models.ReServiceCodeDMHDP:
-					if !featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] { // Skip service item if the toggle for this item type is turned off
+					// Fetch toggles from application_parameters table
+					if *DMHParams[models.DMHDPEnabled].ParameterValue != "true" { // Skip service item if the toggle for this item type is turned off
 						continue
-					} else if !featureFlagValues[featureflag.DomesticMobileHomeDDPFactor] { // Downgrade to regular DDP service item (no mobile home factor applied) if factor toggle is off
+					} else if *DMHParams[models.DMHDPFactor].ParameterValue != "true" { // Downgrade to regular DDP service item (no mobile home factor applied) if factor toggle is off
 						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDDP
 					}
+
 				case models.ReServiceCodeDMHOP:
-					if !featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] {
+					if *DMHParams[models.DMHOPEnabled].ParameterValue != "true" {
 						continue
-					} else if !featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
+					} else if *DMHParams[models.DMHOPFactor].ParameterValue != "true" {
 						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDOP
 					}
+
 				case models.ReServiceCodeDMHPK:
-					if !featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] {
+					if *DMHParams[models.DMHPKEnabled].ParameterValue != "true" {
 						continue
-					} else if !featureFlagValues[featureflag.DomesticMobileHomePackingFactor] {
+					} else if *DMHParams[models.DMHPKFactor].ParameterValue != "true" {
 						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDPK
 					}
+
 				case models.ReServiceCodeDMHUPK:
-					if !featureFlagValues[featureflag.DomesticMobileHomeUnpackingEnabled] {
+					if *DMHParams[models.DMHUPKEnabled].ParameterValue != "true" {
 						continue
-					} else if !featureFlagValues[featureflag.DomesticMobileHomeUnpackingFactor] {
-						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDUPK
+					} else if *DMHParams[models.DMHUPKFactor].ParameterValue != "true" {
+						paymentServiceItem.MTOServiceItem.ReService.Code = models.ReServiceCodeDPK
 					}
 				default: // Other service item type, no mobile home specific type/factor to worry about.
 				}

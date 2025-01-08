@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -23,7 +22,7 @@ func NewDomesticOriginPricer() services.DomesticOriginPricer {
 }
 
 // Price determines the price for a domestic origin
-func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, isMobileHome bool, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -40,10 +39,11 @@ func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode s
 
 	isFactorToggleOn := false // Track whether DMHF Factor FF toggle is on for this Pack or Unpack item
 	if isMobileHome {         // Only check for mobile home factor FF if this is a mobile home shipment.
-		if featureFlagValues == nil || len(featureFlagValues) <= 0 {
-			return 0, nil, fmt.Errorf("Expected a map of feature flag values when checking pricing for DPK item, received nil or empty map instead.")
+		DMHOPFactor, err := models.FetchParameterValueByName(appCtx.DB(), models.DMHOPEnabled)
+		if err != nil {
+			return 0, nil, fmt.Errorf("could not fetch DMHOP factor toggle from application_parameters table: %w", err)
 		}
-		if featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
+		if *DMHOPFactor.ParameterValue == "true" {
 			isFactorToggleOn = true
 		}
 	}
@@ -125,7 +125,7 @@ func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode s
 }
 
 // PriceUsingParams determines the price for a domestic origin given PaymentServiceItemParams
-func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -154,11 +154,7 @@ func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 		isPPM = true
 	}
 
-	// Check if mobile home FF is on and DOP FF has been enabled for Mobile Home shipments
-	var isMobileHome = false
-	if featureFlagValues[featureflag.DomesticMobileHome] && featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
-		isMobileHome = true
-	}
+	isMobileHome := params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM, isMobileHome, featureFlagValues)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM, isMobileHome)
 }

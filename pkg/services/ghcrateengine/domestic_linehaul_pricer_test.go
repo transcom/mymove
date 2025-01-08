@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -30,13 +29,13 @@ const (
 var dlhRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
+
 	linehaulServicePricer := NewDomesticLinehaulPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
-		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
+		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(dlhPriceCents, priceCents)
 
@@ -54,7 +53,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.setupDomesticLinehaulPriceForDMHF(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		paymentServiceItem.PaymentServiceItemParams[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypeMobileHome
-		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, featureFlagValues)
+		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		expectedTotalPriceInt := 651173930
 		expectedPrice := unit.Cents(expectedTotalPriceInt)
@@ -80,7 +79,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	})
 
 	suite.Run("sending PaymentServiceItemParams without expected param", func() {
-		_, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{}, nil)
+		_, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
@@ -94,7 +93,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		}
 		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 
-		priceCents, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight, nil)
+		priceCents, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
 		suite.Error(err)
 		suite.Equal("Weight must be at least 500", err.Error())
 		suite.Equal(unit.Cents(0), priceCents)
@@ -118,7 +117,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		params := paymentServiceItem.PaymentServiceItemParams
 		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
 
-		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
+		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(dlhPriceCents, priceCents)
 
@@ -156,16 +155,16 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		weightBilledIndex := 4
 
 		params[weightBilledIndex].Value = "500"
-		basePriceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
+		basePriceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 
 		params[weightBilledIndex].Value = "250"
-		halfPriceCents, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
+		halfPriceCents, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/2, halfPriceCents)
 
 		params[weightBilledIndex].Value = "100"
-		fifthPriceCents, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
+		fifthPriceCents, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/5, fifthPriceCents)
 

@@ -43,12 +43,6 @@ type CreateMTOServiceItemHandler struct {
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOServiceItemParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.FeatureFlagFetcher())
-			if err != nil {
-				appCtx.Logger().Error("Error fetching feature flags for Domestic Mobile Homes.", zap.Error(err))
-			}
-
 			// ** Create service item can not be done for PPM shipment **/
 			shipment, err := models.FetchShipmentByID(appCtx.DB(), uuid.FromStringOrNil(params.Body.MtoShipmentID().String()))
 			if err != nil {
@@ -114,7 +108,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 			if mtoAvailableToPrime {
 				mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
-				mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem, featureFlagValues)
+				mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem)
 			} else if err == nil {
 				primeErr := apperror.NewNotFoundError(moveTaskOrderID, "primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
 				appCtx.Logger().Error(primeErr.Error())

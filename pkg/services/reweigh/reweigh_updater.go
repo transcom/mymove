@@ -32,19 +32,19 @@ func NewReweighUpdater(moveAvailabilityChecker services.MoveTaskOrderChecker, re
 }
 
 // UpdateReweighCheck passes the Prime validator key to CreateReweigh
-func (f *reweighUpdater) UpdateReweighCheck(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, featureFlagValues map[string]bool) (*models.Reweigh, error) {
-	return f.UpdateReweigh(appCtx, reweigh, eTag, featureFlagValues, f.checks...)
+func (f *reweighUpdater) UpdateReweighCheck(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string) (*models.Reweigh, error) {
+	return f.UpdateReweigh(appCtx, reweigh, eTag, f.checks...)
 }
 
 // UpdateReweigh updates the Reweigh table
-func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, featureFlagValues map[string]bool, checks ...reweighValidator) (*models.Reweigh, error) {
+func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, checks ...reweighValidator) (*models.Reweigh, error) {
 	var updatedReweigh *models.Reweigh
 
 	// Make sure we do this whole process in a transaction so partial changes do not get made committed
 	// in the event of an error.
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var err error
-		updatedReweigh, err = f.doUpdateReweigh(txnAppCtx, reweigh, eTag, featureFlagValues, checks...)
+		updatedReweigh, err = f.doUpdateReweigh(txnAppCtx, reweigh, eTag, checks...)
 		return err
 	})
 	if transactionError != nil {
@@ -54,7 +54,7 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	return updatedReweigh, nil
 }
 
-func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, featureFlagValues map[string]bool, checks ...reweighValidator) (*models.Reweigh, error) {
+func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string, checks ...reweighValidator) (*models.Reweigh, error) {
 	oldReweigh := models.Reweigh{}
 
 	// Find the reweigh, return error if not found
@@ -138,7 +138,7 @@ func (f *reweighUpdater) doUpdateReweigh(appCtx appcontext.AppContext, reweigh *
 
 	// Recalculate payment request for the shipment, if the reweigh weight changed
 	if reweighChanged(oldReweigh, updatedReweigh) {
-		_, err = f.recalculator.ShipmentRecalculatePaymentRequest(appCtx, reweigh.ShipmentID, featureFlagValues)
+		_, err = f.recalculator.ShipmentRecalculatePaymentRequest(appCtx, reweigh.ShipmentID)
 		if err != nil {
 			return nil, err
 		}

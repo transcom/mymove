@@ -30,7 +30,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUncratingPricer() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDUCRT, ducrtTestServiceSchedule, ducrtTestBasePriceCents, testdatagen.DefaultContractCode, ducrtTestEscalationCompounded)
 
 		paymentServiceItem := suite.setupDomesticUncratingServiceItem()
-		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(ducrtTestPriceCents, priceCents)
 
@@ -53,7 +53,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUncratingPricer() {
 
 	suite.Run("PriceUsingParams but sending empty params", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDUCRT, ducrtTestServiceSchedule, ducrtTestBasePriceCents, testdatagen.DefaultContractCode, ducrtTestEscalationCompounded)
-		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{}, nil)
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 

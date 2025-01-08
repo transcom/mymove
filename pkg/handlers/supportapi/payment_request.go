@@ -504,11 +504,7 @@ func (h RecalculatePaymentRequestHandler) Handle(params paymentrequestop.Recalcu
 				}
 			}
 
-			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
-			if err != nil {
-				return handleError(err)
-			}
-			newPaymentRequest, err := h.PaymentRequestRecalculator.RecalculatePaymentRequest(appCtx, paymentRequestID, featureFlagValues)
+			newPaymentRequest, err := h.PaymentRequestRecalculator.RecalculatePaymentRequest(appCtx, paymentRequestID)
 			if err != nil {
 				return handleError(err)
 			}

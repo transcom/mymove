@@ -39,7 +39,7 @@ type mtoServiceItemCreator struct {
 	fuelSurchargePricer services.FuelSurchargePricer
 }
 
-func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment, featureFlagValues map[string]bool) (unit.Cents, error) {
+func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
 	if serviceItem.ReService.Code == models.ReServiceCodeDOP ||
 		serviceItem.ReService.Code == models.ReServiceCodeDPK ||
 		serviceItem.ReService.Code == models.ReServiceCodeDDP ||
@@ -47,10 +47,6 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 		serviceItem.ReService.Code == models.ReServiceCodeDLH ||
 		serviceItem.ReService.Code == models.ReServiceCodeDSH ||
 		serviceItem.ReService.Code == models.ReServiceCodeFSC {
-
-		if featureFlagValues == nil || len(featureFlagValues) <= 0 {
-			return 0, fmt.Errorf("Expected a map of feature flag values in findEstimatedPrice, received nil or empty map instead.")
-		}
 
 		isPPM := false
 		if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
@@ -88,7 +84,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 
-			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome, featureFlagValues)
+			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -101,7 +97,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 
 			servicesScheduleOrigin := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, servicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
+			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, servicesScheduleOrigin, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -116,7 +112,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome, featureFlagValues)
+			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -129,7 +125,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 
 			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, serviceScheduleDestination, isPPM, isMobileHome, featureFlagValues)
+			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, serviceScheduleDestination, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -335,7 +331,7 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 }
 
 // CreateMTOServiceItem creates a MTO Service Item
-func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, featureFlagValues map[string]bool) (*models.MTOServiceItems, *validate.Errors, error) {
+func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
 	var verrs *validate.Errors
 	var err error
 	var requestedServiceItems models.MTOServiceItems // used in case additional service items need to be auto-created
@@ -619,7 +615,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// DLH, DPK, DOP, DDP, DUPK
 
 	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil {
-		serviceItemEstimatedPrice, err := o.FindEstimatedPrice(appCtx, serviceItem, mtoShipment, featureFlagValues)
+		serviceItemEstimatedPrice, err := o.FindEstimatedPrice(appCtx, serviceItem, mtoShipment)
 		if serviceItemEstimatedPrice != 0 && err == nil {
 			serviceItem.PricingEstimate = &serviceItemEstimatedPrice
 		}

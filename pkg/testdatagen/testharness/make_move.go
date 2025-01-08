@@ -9,20 +9,16 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -3833,21 +3829,10 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
-	v := viper.New()
-	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
-	if err != nil {
-		log.Panicf("Error setting up feature flag fetcher: %s", err)
-	}
-
-	featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
-	if err != nil {
-		log.Panicf("Error fetching mobile home feature flags: %s", err)
-	}
-
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
 	for i := range newmove.MTOShipments {
 		shipment := newmove.MTOShipments[i]
-		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt), featureFlagValues)
+		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 		if err != nil {
 			log.Panic("Error updating shipment status %w", err)
 		}
@@ -3952,19 +3937,9 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
 
-	v := viper.New()
-	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
-	if err != nil {
-		log.Panicf("Error setting up feature flag fetcher: %s", err)
-	}
-	featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
-	if err != nil {
-		log.Panicf("Error fetching domestic mobile home feature flags: %s", err)
-	}
-
 	for i := range newmove.MTOShipments {
 		shipment := newmove.MTOShipments[i]
-		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt), featureFlagValues)
+		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 		if err != nil {
 			log.Panic("Error updating shipment status %w", err)
 		}

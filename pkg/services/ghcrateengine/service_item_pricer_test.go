@@ -43,8 +43,8 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 		serviceCode models.ReServiceCode
 		pricer      services.ParamsPricer
 	}{
-		{models.ReServiceCodeMS, &managementServicesPricer{}},
-		{models.ReServiceCodeCS, &counselingServicesPricer{}},
+		{models.ReServiceCodeMS, &ManagementServicesPricer{}},
+		{models.ReServiceCodeCS, &CounselingServicesPricer{}},
 		{models.ReServiceCodeDLH, &domesticLinehaulPricer{}},
 		{models.ReServiceCodeDSH, &domesticShorthaulPricer{}},
 		{models.ReServiceCodeDOP, &domesticOriginPricer{}},

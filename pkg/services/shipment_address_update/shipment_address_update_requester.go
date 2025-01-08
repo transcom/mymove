@@ -450,7 +450,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	return &addressUpdate, nil
 }
 
-func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string, featureFlagValues map[string]bool) (*models.ShipmentAddressUpdate, error) {
+func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string) (*models.ShipmentAddressUpdate, error) {
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
@@ -503,7 +503,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			if shipment.MarketCode != models.MarketCodeInternational && shipment.PrimeEstimatedWeight != nil || shipment.MarketCode != models.MarketCodeInternational && shipment.PrimeActualWeight != nil {
 				var updatedServiceItem *models.MTOServiceItem
 				if serviceItem.ReService.Code == models.ReServiceCodeDDP || serviceItem.ReService.Code == models.ReServiceCodeDUPK {
-					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt), featureFlagValues)
+					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
 					if err != nil {
 						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
 					}
@@ -511,14 +511,14 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 				if !shipmentHasApprovedDestSIT {
 					if serviceItem.ReService.Code == models.ReServiceCodeDLH || serviceItem.ReService.Code == models.ReServiceCodeFSC {
-						updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt), featureFlagValues)
+						updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
 						if err != nil {
 							return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
 						}
 					}
 				} else {
 					if serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
-						updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt), featureFlagValues)
+						updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
 						if err != nil {
 							return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
 						}
@@ -559,7 +559,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 						// Regenerate approved service items to replace the rejected ones.
 						// Ensure that the updated pricing is applied (e.g. DLH -> DSH, DSH -> DLH etc.)
-						regeneratedServiceItem, _, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem, featureFlagValues)
+						regeneratedServiceItem, _, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
 						if createErr != nil {
 							return nil, createErr
 						}

@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -62,8 +61,8 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 
 	// Create an initial payment request.
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
-	paymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg, featureFlagValues)
+
+	paymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
 	// Add a few proof of service docs and prime uploads.
@@ -100,7 +99,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 	// Recalculate the payment request created above.
 	statusUpdater := NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
-	newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), paymentRequest.ID, featureFlagValues)
+	newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), paymentRequest.ID)
 	suite.FatalNoError(err)
 
 	// Fetch the old payment request again -- status should have changed and it should no longer
@@ -307,11 +306,10 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 
 	suite.Run("Fail to find payment request ID", func() {
 		bogusPaymentRequestID := uuid.Must(uuid.NewV4())
-		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), bogusPaymentRequestID, featureFlagValues)
+		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), bogusPaymentRequestID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.IsType(apperror.NotFoundError{}, err)
@@ -327,7 +325,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 				},
 			},
 		}, nil)
-		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), paidPaymentRequest.ID, featureFlagValues)
+		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), paidPaymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.IsType(apperror.ConflictError{}, err)
@@ -349,7 +347,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		recalculatorWithMockCreator := NewPaymentRequestRecalculator(mockCreator, statusUpdater)
 
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
-		newPaymentRequest, err := recalculatorWithMockCreator.RecalculatePaymentRequest(suite.AppContextForTest(), paymentRequest.ID, featureFlagValues)
+		newPaymentRequest, err := recalculatorWithMockCreator.RecalculatePaymentRequest(suite.AppContextForTest(), paymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.Equal(err.Error(), errString)
@@ -369,7 +367,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		recalculatorWithMockStatusUpdater := NewPaymentRequestRecalculator(creator, mockStatusUpdater)
 
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
-		newPaymentRequest, err := recalculatorWithMockStatusUpdater.RecalculatePaymentRequest(suite.AppContextForTest(), paymentRequest.ID, featureFlagValues)
+		newPaymentRequest, err := recalculatorWithMockStatusUpdater.RecalculatePaymentRequest(suite.AppContextForTest(), paymentRequest.ID)
 		suite.Nil(newPaymentRequest)
 		if suite.Error(err) {
 			suite.Equal(err.Error(), errString)

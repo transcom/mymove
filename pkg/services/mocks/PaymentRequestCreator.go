@@ -14,9 +14,9 @@ type PaymentRequestCreator struct {
 	mock.Mock
 }
 
-// CreatePaymentRequestCheck provides a mock function with given fields: appCtx, paymentRequest, featureFlagValues
-func (_m *PaymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, featureFlagValues map[string]bool) (*models.PaymentRequest, error) {
-	ret := _m.Called(appCtx, paymentRequest, featureFlagValues)
+// CreatePaymentRequestCheck provides a mock function with given fields: appCtx, paymentRequest
+func (_m *PaymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error) {
+	ret := _m.Called(appCtx, paymentRequest)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreatePaymentRequestCheck")
@@ -24,19 +24,19 @@ func (_m *PaymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.App
 
 	var r0 *models.PaymentRequest
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest, map[string]bool) (*models.PaymentRequest, error)); ok {
-		return rf(appCtx, paymentRequest, featureFlagValues)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest) (*models.PaymentRequest, error)); ok {
+		return rf(appCtx, paymentRequest)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest, map[string]bool) *models.PaymentRequest); ok {
-		r0 = rf(appCtx, paymentRequest, featureFlagValues)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest) *models.PaymentRequest); ok {
+		r0 = rf(appCtx, paymentRequest)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.PaymentRequest)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.PaymentRequest, map[string]bool) error); ok {
-		r1 = rf(appCtx, paymentRequest, featureFlagValues)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.PaymentRequest) error); ok {
+		r1 = rf(appCtx, paymentRequest)
 	} else {
 		r1 = ret.Error(1)
 	}

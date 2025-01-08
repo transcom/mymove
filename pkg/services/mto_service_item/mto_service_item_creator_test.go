@@ -28,7 +28,6 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -187,7 +186,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 	// Expected outcome:
 	//             Error because we cannot create service items before move is approved.
 
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &mocks.Planner{}
@@ -201,7 +199,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 	creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	serviceItemForUnapprovedMove := suite.buildValidServiceItemWithInvalidMove()
 
-	createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemForUnapprovedMove, featureFlagValues)
+	createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemForUnapprovedMove)
 
 	move := serviceItemForUnapprovedMove.MoveTaskOrder
 	suite.DB().Find(&move, move.ID)
@@ -218,7 +216,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &mocks.Planner{}
@@ -245,7 +242,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		sitMove := sitServiceItem.MoveTaskOrder
 		sitShipment := sitServiceItem.MTOShipment
 
-		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem, featureFlagValues)
+		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(createdServiceItems)
@@ -298,7 +295,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		shutServiceItem := suite.buildValidDOSHUTServiceItemWithValidMove()
 		shutMove := shutServiceItem.MoveTaskOrder
 
-		createdServiceItem, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &shutServiceItem, featureFlagValues)
+		createdServiceItem, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &shutServiceItem)
 
 		var foundMove models.Move
 		suite.DB().Find(&foundMove, shutMove.ID)
@@ -322,7 +319,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		//             Service item is created and has a status of Submitted
 
 		serviceItemNoStatus := suite.buildValidServiceItemWithNoStatusAndValidMove()
-		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemNoStatus, featureFlagValues)
+		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemNoStatus)
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
 		suite.NoError(err)
@@ -371,7 +368,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			createNewBuilder: fakeCreateNewBuilder,
 		}
 
-		createdServiceItems, verrs, _ := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem, featureFlagValues)
+		createdServiceItems, verrs, _ := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem)
 		suite.Error(verrs)
 		suite.Nil(createdServiceItems)
 	})
@@ -388,7 +385,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			MoveTaskOrderID: notFoundID,
 		}
 
-		createdServiceItemsNoMTO, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemNoMTO, featureFlagValues)
+		createdServiceItemsNoMTO, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemNoMTO)
 		suite.Nil(createdServiceItemsNoMTO)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -415,7 +412,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		}
 
-		createdServiceItemsBadCode, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemBadCode, featureFlagValues)
+		createdServiceItemsBadCode, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemBadCode)
 		suite.Nil(createdServiceItemsBadCode)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -473,7 +470,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reServiceCS,
 		}
 
-		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemCS, featureFlagValues)
+		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemCS)
 		suite.NotNil(createdServiceItemsCS)
 		suite.NoError(err)
 
@@ -494,7 +491,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reServiceMS,
 		}
 
-		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS, featureFlagValues)
+		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
 		suite.NotNil(createdServiceItemsMS)
 		suite.NoError(err)
 
@@ -554,11 +551,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reServiceMS,
 		}
 
-		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS, featureFlagValues)
+		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
 		suite.NotNil(createdServiceItemsMS)
 		suite.NoError(err)
 
-		createdServiceItemsMSDupe, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS, featureFlagValues)
+		createdServiceItemsMSDupe, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
 
 		fakeMTOShipmentRouterErr := apperror.NewConflictError(serviceItemMS.ID, fmt.Sprintf("for creating a service item. A service item with reServiceCode %s already exists for this move and/or shipment.", serviceItemMS.ReService.Code))
 
@@ -617,7 +614,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reServiceCS,
 		}
 
-		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemCS, featureFlagValues)
+		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemCS)
 		suite.Nil(createdServiceItemsCS)
 		suite.Error(err)
 		suite.Contains(err.Error(), "cannot create fee for service item CS: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment")
@@ -636,7 +633,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reServiceMS,
 		}
 
-		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS, featureFlagValues)
+		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
 		suite.Nil(createdServiceItemsMS)
 		suite.Error(err)
 		suite.Contains(err.Error(), "cannot create fee for service item MS: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment")
@@ -685,7 +682,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reServiceCS,
 		}
 
-		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemCS, featureFlagValues)
+		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemCS)
 		suite.NotNil(createdServiceItemsCS)
 		suite.NoError(err)
 	})
@@ -762,7 +759,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reServiceCS,
 		}
 
-		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemCS, featureFlagValues)
+		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemCS)
 		suite.NotNil(createdServiceItemsCS)
 		suite.NoError(err)
 		createdServiceItemCSList := *createdServiceItemsCS
@@ -789,7 +786,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reServiceMS,
 		}
 
-		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS, featureFlagValues)
+		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
 		suite.NotNil(createdServiceItemsMS)
 		suite.NoError(err)
 		createdServiceItemMSList := *createdServiceItemsMS
@@ -816,7 +813,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reService,
 		}
 
-		createdServiceItemsBadShip, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemBadShip, featureFlagValues)
+		createdServiceItemsBadShip, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemBadShip)
 		suite.Nil(createdServiceItemsBadShip)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -851,7 +848,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemNoWeight, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemNoWeight)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 	})
@@ -900,7 +897,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		contactOne.TimeMilitary = "10:30Z"
 		contactTwo.TimeMilitary = "14:00Z"
 		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -917,7 +914,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		contactOne.TimeMilitary = "2645Z"
 		contactTwo.TimeMilitary = "3625Z"
 		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -935,7 +932,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		contactOne.TimeMilitary = "2167Z"
 		contactTwo.TimeMilitary = "1253Z"
 		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -953,7 +950,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		contactOne.TimeMilitary = "2050M"
 		contactTwo.TimeMilitary = "1224M"
 		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -971,7 +968,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		contactOne.TimeMilitary = "1405Z"
 		contactTwo.TimeMilitary = "2013Z"
 		serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contactOne, contactTwo}
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
@@ -985,7 +982,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	var reServiceDOFSIT models.ReService
 	var reServiceDOPSIT models.ReService
 	var reServiceDOSFSC models.ReService
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 
 	setupTestData := func() models.MTOShipment {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1044,7 +1040,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT, featureFlagValues)
+		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(verr)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -1095,7 +1091,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 
@@ -1172,7 +1168,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		// Successful creation of DOFSIT
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 
@@ -1199,7 +1195,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
 
 		createdDOASITItem := (*createdServiceItems)[0]
 		originalDate, _ := sitEntryDate.MarshalText()
@@ -1238,7 +1234,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		existingServiceItem := &serviceItemDOASIT
 		existingServiceItem.SITOriginHHGActualAddress = &actualPickupAddress2
 
-		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), existingServiceItem, featureFlagValues)
+		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), existingServiceItem)
 		suite.Nil(createdServiceItems)
 		suite.Error(verr)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -1265,7 +1261,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			Reason:          &reason,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
@@ -1299,7 +1295,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -1335,7 +1331,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -1370,7 +1366,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -1397,7 +1393,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			ReService:       badReService,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -1410,7 +1406,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
 	sitPostalCode := "99999"
 	reason := "lorem ipsum"
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 
 	suite.Run("Fail to create DOFSIT service item due to missing SITOriginHHGActualAddress", func() {
 		// Set up data to use for all Origin SIT Service Item tests
@@ -1447,7 +1442,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -1457,7 +1452,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 // TestCreateDestSITServiceItem tests the creation of destination SIT service items
 func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 	setupTestData := func() (models.MTOShipment, services.MTOServiceItemCreator, models.ReService) {
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
@@ -1536,7 +1530,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 		suite.NoError(err)
 	})
 
@@ -1571,7 +1565,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -1595,7 +1589,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 
@@ -1660,12 +1654,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 
 		// Make a second attempt to add a DDFSIT
-		createdServiceItems, _, err = creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		createdServiceItems, _, err = creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
@@ -1690,7 +1684,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		}
 
 		// Make a second attempt to add a DDFSIT
-		serviceItem, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		serviceItem, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 		suite.Nil(serviceItem)
 		suite.Error(err)
 		suite.IsType(apperror.UnprocessableEntityError{}, err)
@@ -1719,7 +1713,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 
@@ -1733,7 +1727,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err = creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT, featureFlagValues)
+		createdServiceItems, _, err = creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 		suite.Equal(len(*createdServiceItems), 1)
@@ -1784,7 +1778,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -1808,7 +1802,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			CustomerContacts: getCustomerContacts(),
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDDSIT, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDDSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -1834,7 +1828,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			CustomerContacts: getCustomerContacts(),
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDSFSC, featureFlagValues)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDSFSC)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -1847,7 +1841,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
+
 	suite.Run("Calcuating price estimated on creation for HHG ", func() {
 		setupTestData := func() models.MTOShipment {
 			// Set up data to use for all Origin SIT Service Item tests
@@ -2125,25 +2119,25 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment, featureFlagValues)
+		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
 		suite.Equal(unit.Cents(61080), dopEstimatedPriceInCents)
 
-		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment, featureFlagValues)
+		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment)
 		suite.Equal(unit.Cents(540000), dpkEstimatedPriceInCents)
 
-		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment, featureFlagValues)
+		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment)
 		suite.Equal(unit.Cents(42240), ddpEstimatedPriceInCents)
 
-		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment, featureFlagValues)
+		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment)
 		suite.Equal(unit.Cents(43860), dupkEstimatedPriceInCents)
 
-		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment, featureFlagValues)
+		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment)
 		suite.Equal(unit.Cents(12381600), dlhEstimatedPriceInCents)
 
-		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment, featureFlagValues)
+		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment)
 		suite.Equal(unit.Cents(10080000), dshEstimatedPriceInCents)
 
-		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment, featureFlagValues)
+		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
 		suite.Equal(unit.Cents(-168), fscEstimatedPriceInCents)
 	})
 
@@ -2425,25 +2419,25 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		).Return(800, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment, featureFlagValues)
+		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
 		suite.Equal(unit.Cents(67188), dopEstimatedPriceInCents)
 
-		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment, featureFlagValues)
+		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment)
 		suite.Equal(unit.Cents(594000), dpkEstimatedPriceInCents)
 
-		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment, featureFlagValues)
+		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment)
 		suite.Equal(unit.Cents(46464), ddpEstimatedPriceInCents)
 
-		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment, featureFlagValues)
+		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment)
 		suite.Equal(unit.Cents(48246), dupkEstimatedPriceInCents)
 
-		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment, featureFlagValues)
+		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment)
 		suite.Equal(unit.Cents(29990400), dlhEstimatedPriceInCents)
 
-		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment, featureFlagValues)
+		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment)
 		suite.Equal(unit.Cents(22176000), dshEstimatedPriceInCents)
 
-		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment, featureFlagValues)
+		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
 		suite.Equal(unit.Cents(-335), fscEstimatedPriceInCents)
 	})
 
