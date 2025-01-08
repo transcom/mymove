@@ -7,12 +7,14 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/disintegration/imaging"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/font"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
@@ -92,6 +94,67 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 	return nil
 }
 
+// Configure font support for pdfcpu by using
+// go's built in config dir. This directory stores
+// application-specific data, which in the case of pdfcpu
+// turns out to be fonts. For more information see
+// https://pkg.go.dev/os#UserConfigDir
+func loadFonts() error {
+	// Get the go user config, this is where app fonts are stored
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return err
+	}
+	// Make filepath for where pdfcpu stores its fonts
+	pdfcpuAppSupportFontDir := filepath.Join(configDir, "pdfcpu", "fonts")
+	// Make sure the directory exists, create it if it doesn't
+	err = os.MkdirAll(pdfcpuAppSupportFontDir, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	// Fetch roboto regular data
+	// This font is required for pdfcpu and is typically
+	// automatically installed on configuration setup,
+	// but since we bypassed it previously we need to set it up ourselves
+	robotoFontPath := filepath.Join("fonts", "Roboto-Regular.ttf") // We store this ourselves
+	fontData, err := os.ReadFile(robotoFontPath)
+	if err != nil {
+		return err
+	}
+
+	// Destination path where Roboto-Regular.ttf will be stored
+	fontDestPath := filepath.Join(pdfcpuAppSupportFontDir, "Roboto-Regular.ttf")
+
+	// Write the font to the config dir
+	err = os.WriteFile(fontDestPath, fontData, 0600)
+	if err != nil {
+		return err
+	}
+
+	// Now that config dir is configured for pdfcpu,
+	// load the fonts into pdfcpu itself
+	font.UserFontDir = pdfcpuAppSupportFontDir
+	err = font.LoadUserFonts()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// By disabling the pdfcpu configdir via the api, it does not natively support fonts
+// To workaround this, we will configure the fonts ourself
+func setupOurPdfcpuConfig() (*model.Configuration, error) {
+	// Get the default configuration from pdfcpu
+	defaultConfig := model.NewDefaultConfiguration()
+	// Load our custom fonts
+	err := loadFonts()
+	if err != nil {
+		return nil, err
+	}
+	return defaultConfig, nil
+}
+
 // NewGenerator creates a new Generator.
 func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	// Use in memory filesystem for generation. Purpose is to not write
@@ -101,7 +164,10 @@ func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	// Disable ConfiDir for AWS deployment purposes.
 	// PDFCPU will attempt to create temp dir using os.create(hard disk).This will prevent it.
 	api.DisableConfigDir()
-	pdfConfig := model.NewDefaultConfiguration()
+	pdfConfig, err := setupOurPdfcpuConfig()
+	if err != nil {
+		return nil, err
+	}
 	pdfCPU := pdfCPUWrapper{Configuration: pdfConfig}
 
 	directory, err := afs.TempDir("", "generator")
