@@ -109,3 +109,6 @@ export { default as moveCancelerPPMShipments } from './MoveCanceler/MoveCanceler
 export { default as cancelMove } from './CancelMove/CancelMove';
 export { default as cancelMoveMTOShipments } from './CancelMove/CancelMoveMTOShipments';
 export { default as cancelMovePPMShipments } from './CancelMove/CancelMovePPMShipments';
+export { default as updateAssignedOfficeUser } from './UpdateAssignedOfficeUser/UpdateAssignedOfficeUser';
+export { default as deleteAssignedOfficeUser } from './UpdateAssignedOfficeUser/DeleteAssignedOfficeUser';
+export { default as UpdatePaymentRequestStatusMoves } from './UpdatePaymentRequestStatus/UpdatePaymentRequestStatusMoves';
