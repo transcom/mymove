@@ -1537,6 +1537,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
+		PoeLocation:                 Port(mtoShipment.MTOServiceItems, "POE"),
+		PodLocation:                 Port(mtoShipment.MTOServiceItems, "POD"),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -2747,4 +2749,34 @@ func VLocations(vLocations models.VLocations) ghcmessages.VLocations {
 		payload[i] = VLocation(&copyOfVLocation)
 	}
 	return payload
+}
+
+func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.Port {
+	if mtoServiceItems == nil {
+		return nil
+	}
+
+	for _, mtoServiceItem := range mtoServiceItems {
+		var portLocation *models.PortLocation
+		if portType == "POE" && mtoServiceItem.POELocation != nil {
+			portLocation = mtoServiceItem.POELocation
+		} else if portType == "POD" && mtoServiceItem.PODLocation != nil {
+			portLocation = mtoServiceItem.PODLocation
+		}
+
+		if portLocation != nil {
+			return &ghcmessages.Port{
+				ID:       strfmt.UUID(portLocation.ID.String()),
+				PortType: portLocation.Port.PortType.String(),
+				PortCode: portLocation.Port.PortCode,
+				PortName: portLocation.Port.PortName,
+				City:     portLocation.City.CityName,
+				County:   portLocation.UsPostRegionCity.UsprcCountyNm,
+				State:    portLocation.UsPostRegionCity.UsPostRegion.State.StateName,
+				Zip:      portLocation.UsPostRegionCity.UsprZipID,
+				Country:  portLocation.Country.CountryName,
+			}
+		}
+	}
+	return nil
 }
