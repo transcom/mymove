@@ -29,9 +29,13 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                       <input type="checkbox" />
                     </td>
                     <td>
-                      {user.lastName}, {user.firstName}
+                      <p data-testid="bulkAssignmentUser">
+                        {user.lastName}, {user.firstName}
+                      </p>
                     </td>
-                    <td className={styles.BulkAssignmentDataCenter}>{user.workload || 0}</td>
+                    <td className={styles.BulkAssignmentDataCenter}>
+                      <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
+                    </td>
                     <td className={styles.BulkAssignmentDataCenter}>
                       <input className={styles.BulkAssignmentAssignment} type="number" />
                     </td>
