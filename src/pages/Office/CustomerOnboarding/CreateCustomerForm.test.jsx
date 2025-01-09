@@ -712,10 +712,6 @@ describe('CreateCustomerForm', () => {
       const selectedBackupLocation = await screen.findByText(/04225/);
       await userEvent.click(selectedBackupLocation);
     });
-    await userEvent.type(
-      getByTestId('backup_mailing_address.streetAddress1'),
-      safetyPayload.backup_mailing_address.streetAddress1,
-    );
 
     await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
