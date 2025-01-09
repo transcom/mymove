@@ -143,6 +143,19 @@ stages:
 .check_debug: &check_debug
   - if: '$debug == "true"'
 
+.check_integration_ignore_branch: &check_integration_ignore_branch
+  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $INTEGRATION_IGNORE_BRANCH'
+
+.check_integration_mtls_ignore_branch: &check_integration_mtls_ignore_branch
+  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $INTEGRATION_MTLS_IGNORE_BRANCH'
+
+.check_client_ignore_branch: &check_client_ignore_branch
+  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $CLIENT_IGNORE_BRANCH'
+
+.check_server_ignore_branch: &check_server_ignore_branch
+  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $SERVER_IGNORE_BRANCH'
+
+
 .install_yarn: &install_yarn
   - |
     mkdir -p /builds/milmove/mymove/.cache
@@ -224,6 +237,7 @@ include:
 testing_services:
   stage: pre_checks
   image: alpine:3.7
+  allow_failure: true
   services:
     - php:7
     - node:latest
@@ -257,8 +271,8 @@ anti_virus:
         $CI_PROJECT_DIR
   after_script:
     - *announce_failure
-  # rules:
-  #   - *check_main
+  rules:
+    - *check_main
 
 # Prep the public folder for frontend dependency serving
 # This is needed for things like pdfjs-dist
@@ -399,8 +413,8 @@ build_storybook:
   artifacts:
     paths:
       - /builds/milmove/mymove/storybook-static
-  # rules:
-  #   - *check_main
+  rules:
+    - *check_main
 
 deploy_storybook_dp3:
   stage: deploy
@@ -539,8 +553,8 @@ pre_test:
     - ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
   after_script:
     - *announce_failure
-  # rules:
-  # - *check_main
+  rules:
+   - *check_server_ignore_branch
 
 server_test:
   stage: test
@@ -602,8 +616,8 @@ server_test:
       junit: /builds/milmove/mymove/tmp/test-results/gotest/app/go-test-report.xml
   after_script:
     - *announce_failure
-  # rules:
-  # - *check_main
+  rules:
+   - *check_server_ignore_branch
 
 server_test_coverage:
   stage: test
@@ -622,14 +636,15 @@ server_test_coverage:
         tmp/test-results/gotest/app/go-coverage.txt
   after_script:
     - *announce_failure
-  # rules:
-  # - *check_main  ###may need to rethink the logic and intent of this they save per the following and do some PR interaction
-      # only save the cache on default branch builds because we only want to
-      # change the baseline of test results on main builds
-      #
-      # Save the new baseline regardless of if the coverage succeeds
-      # or fails as a merge to main means we have a new baseline. We
-      # will use other means to measure if our coverage is increasing
+  rules:
+   - *check_server_ignore_branch
+  ###may need to rethink the logic and intent of this they save per the following and do some PR interaction
+  # only save the cache on default branch builds because we only want to
+  # change the baseline of test results on main builds
+  #
+  # Save the new baseline regardless of if the coverage succeeds
+  # or fails as a merge to main means we have a new baseline. We
+  # will use other means to measure if our coverage is increasing
 
 client_test:
   stage: test
@@ -660,8 +675,8 @@ client_test:
       - /builds/milmove/mymove/jest-junit-reports
   after_script:
     - *announce_failure
-  # rules:
-  # - *check_main
+  rules:
+   - *check_client_ignore_branch
 
 client_test_coverage:
   stage: test
@@ -681,8 +696,8 @@ client_test_coverage:
       coverage/clover.xml
   after_script:
     - *announce_failure
-  # rules:
-  # - *check_main
+  rules:
+   - *check_client_ignore_branch
 
 integration_test_devseed:
   stage: test
@@ -704,8 +719,8 @@ integration_test_devseed:
       make db_dev_fresh
   after_script:
     - *announce_failure
-  # rules:
-  # - *check_main
+  rules:
+   - *check_integration_ignore_branch
 
 integration_tests:
   stage: test
@@ -725,8 +740,8 @@ integration_tests:
     - echo "integration_tests"
   after_script:
     - *announce_failure
-  # rules:
-  # - *check_main
+  rules:
+   - *check_integration_ignore_branch
 
 integration_test_mtls:
   stage: test
@@ -740,8 +755,8 @@ integration_test_mtls:
     - echo "integration_test_mtls"
   after_script:
     - *announce_failure
-  # rules:
-  # - *check_main
+  rules:
+   - *check_integration_mtls_ignore_branch
 
 integration_test_admin:
   stage: test
@@ -757,8 +772,8 @@ integration_test_admin:
     - echo "integration_test_admin"
   after_script:
     - *announce_failure
-  # rules:
-  # - *check_main
+  rules:
+   - *check_integration_ignore_branch
 
 integration_test_my:
   stage: test
@@ -774,8 +789,8 @@ integration_test_my:
     - echo "integration_test_my"
   after_script:
     - *announce_failure
-  # rules:
-  # - *check_main
+  rules:
+   - *check_integration_ignore_branch
 
 integration_test_office:
   stage: test
@@ -791,8 +806,8 @@ integration_test_office:
     - echo "integration_test_office"
   after_script:
     - *announce_failure
-  # rules:
-  # - *check_main
+  rules:
+   - *check_integration_ignore_branch
 
 
 ###############################################################
@@ -1319,7 +1334,7 @@ build_push_migrations_prd:
   after_script:
     - *announce_failure
   rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
+   - *check_main
 
 build_push_tasks_prd:
   stage: push_prd
@@ -1372,7 +1387,7 @@ push_otel_collector_image_prd:
   after_script:
     - *announce_failure
   rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
+  - *check_main
 
 deploy_migrations_prd:
   stage: deploy_prd
