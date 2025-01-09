@@ -4312,6 +4312,50 @@ func init() {
         }
       }
     },
+    "/queues/bulk-assignment": {
+      "get": {
+        "description": "Supervisor office users are able to bulk assign moves. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the moves that are available to be assigned\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets data for bulk assignment modal",
+        "operationId": "getBulkAssignmentData",
+        "parameters": [
+          {
+            "enum": [
+              "COUNSELING",
+              "CLOSEOUT",
+              "TASK_ORDER",
+              "PAYMENT_REQUEST"
+            ],
+            "type": "string",
+            "description": "A string corresponding to the queue type",
+            "name": "queueType",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned bulk assignment data",
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentData"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -6692,6 +6736,9 @@ func init() {
         "firstName": {
           "type": "string"
         },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
         "lastName": {
           "type": "string"
         },
@@ -6699,6 +6746,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "workload": {
+          "type": "integer"
         }
       }
     },
@@ -6820,6 +6870,28 @@ func init() {
         }
       },
       "x-nullable": true
+    },
+    "BulkAssignmentData": {
+      "type": "object",
+      "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "bulkAssignmentMoveIDs": {
+          "$ref": "#/definitions/BulkAssignmentMoveIDs"
+        }
+      }
+    },
+    "BulkAssignmentMoveID": {
+      "type": "string",
+      "format": "uuid",
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
+    "BulkAssignmentMoveIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
     },
     "ClientError": {
       "type": "object",
@@ -20663,6 +20735,59 @@ func init() {
         }
       }
     },
+    "/queues/bulk-assignment": {
+      "get": {
+        "description": "Supervisor office users are able to bulk assign moves. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the moves that are available to be assigned\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets data for bulk assignment modal",
+        "operationId": "getBulkAssignmentData",
+        "parameters": [
+          {
+            "enum": [
+              "COUNSELING",
+              "CLOSEOUT",
+              "TASK_ORDER",
+              "PAYMENT_REQUEST"
+            ],
+            "type": "string",
+            "description": "A string corresponding to the queue type",
+            "name": "queueType",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned bulk assignment data",
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentData"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -23437,6 +23562,9 @@ func init() {
         "firstName": {
           "type": "string"
         },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
         "lastName": {
           "type": "string"
         },
@@ -23444,6 +23572,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "workload": {
+          "type": "integer"
         }
       }
     },
@@ -23565,6 +23696,28 @@ func init() {
         }
       },
       "x-nullable": true
+    },
+    "BulkAssignmentData": {
+      "type": "object",
+      "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "bulkAssignmentMoveIDs": {
+          "$ref": "#/definitions/BulkAssignmentMoveIDs"
+        }
+      }
+    },
+    "BulkAssignmentMoveID": {
+      "type": "string",
+      "format": "uuid",
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
+    "BulkAssignmentMoveIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
     },
     "ClientError": {
       "type": "object",
