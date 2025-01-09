@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -280,6 +282,10 @@ func (m MTOShipment) ContainsAPPMShipment() bool {
 	return m.PPMShipment != nil
 }
 
+func (m MTOShipment) IsPPMShipment() bool {
+	return m.ShipmentType == MTOShipmentTypePPM
+}
+
 // determining the market code for a shipment based off of address isOconus value
 // this function takes in a shipment and returns the same shipment with the updated MarketCode value
 func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
@@ -361,6 +367,33 @@ func DetermineMarketCode(address1 *Address, address2 *Address) (MarketCode, erro
 	}
 }
 
+// PortLocationInfo holds the ZIP code and port type for a shipment
+// this is used in the db function/query below
+type PortLocationInfo struct {
+	UsprZipID string `db:"uspr_zip_id"`
+	PortType  string `db:"port_type"`
+}
+
+// GetPortLocationForShipment gets the ZIP and port type associated with the port for the POEFSC/PODFSC service item in a shipment
+func GetPortLocationInfoForShipment(db *pop.Connection, shipmentID uuid.UUID) (*string, *string, error) {
+	var portLocationInfo PortLocationInfo
+
+	err := db.RawQuery("SELECT * FROM get_port_location_info_for_shipment($1)", shipmentID).
+		First(&portLocationInfo)
+
+	if err != nil && err != sql.ErrNoRows {
+		return nil, nil, fmt.Errorf("error fetching port location for shipment ID: %s with error %w", shipmentID, err)
+	}
+
+	// return the ZIP code and port type, or nil if not found
+	if portLocationInfo.UsprZipID != "" && portLocationInfo.PortType != "" {
+		return &portLocationInfo.UsprZipID, &portLocationInfo.PortType, nil
+	}
+
+	// if nothing was found, return nil - just means we don't have the port info from Prime yet
+	return nil, nil, nil
+}
+
 func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShipment) error {
 	err := db.RawQuery("CALL create_approved_service_items_for_shipment($1)", shipment.ID).Exec()
 	if err != nil {
@@ -368,4 +401,49 @@ func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShip
 	}
 
 	return nil
+}
+
+// a db stored proc that will handle updating the pricing_estimate columns of basic service items for shipment types:
+// iHHG
+// iUB
+func UpdateEstimatedPricingForShipmentBasicServiceItems(db *pop.Connection, shipment *MTOShipment, mileage *int) error {
+	err := db.RawQuery("CALL update_service_item_pricing($1, $2)", shipment.ID, mileage).Exec()
+	if err != nil {
+		return fmt.Errorf("error updating estimated pricing for shipment's service items: %w", err)
+	}
+
+	return nil
+}
+
+// GetDestinationGblocForShipment gets the GBLOC associated with the shipment's destination address
+// there are certain exceptions for OCONUS addresses in Alaska Zone II based on affiliation
+func GetDestinationGblocForShipment(db *pop.Connection, shipmentID uuid.UUID) (*string, error) {
+	var gbloc *string
+
+	err := db.RawQuery("SELECT * FROM get_destination_gbloc_for_shipment($1)", shipmentID).
+		First(&gbloc)
+
+	if err != nil && err != sql.ErrNoRows {
+		return nil, fmt.Errorf("error fetching destination gbloc for shipment ID: %s with error %w", shipmentID, err)
+	}
+
+	if gbloc != nil {
+		return gbloc, nil
+	}
+
+	return nil, nil
+}
+
+// Returns a Shipment for a given id
+func FetchShipmentByID(db *pop.Connection, shipmentID uuid.UUID) (*MTOShipment, error) {
+	var mtoShipment MTOShipment
+	err := db.Q().Find(&mtoShipment, shipmentID)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return nil, ErrFetchNotFound
+		}
+		return nil, err
+	}
+	return &mtoShipment, nil
 }
