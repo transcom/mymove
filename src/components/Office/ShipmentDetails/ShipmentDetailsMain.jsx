@@ -15,6 +15,7 @@ import ConvertSITToCustomerExpenseModal from 'components/Office/ConvertSITToCust
 import ShipmentSITDisplay from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplay';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
+import PortTable from 'components/Office/PortTable/PortTable';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 import ShipmentRemarks from 'components/Office/ShipmentRemarks/ShipmentRemarks';
 import Restricted from 'components/Restricted/Restricted';
@@ -271,6 +272,7 @@ const ShipmentDetailsMain = ({
         poeLocation={displayPoeLocation}
         podLocation={displayPodLocation}
       />
+      <PortTable poeLocation={displayPoeLocation} podLocation={displayPodLocation} />
       <ShipmentWeightDetails
         estimatedWeight={weightResult}
         initialWeight={primeActualWeight}
