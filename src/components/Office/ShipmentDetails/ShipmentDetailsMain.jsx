@@ -272,7 +272,9 @@ const ShipmentDetailsMain = ({
         poeLocation={displayPoeLocation}
         podLocation={displayPodLocation}
       />
-      <PortTable poeLocation={displayPoeLocation} podLocation={displayPodLocation} />
+      {(displayPoeLocation || displayPodLocation) && (
+        <PortTable poeLocation={displayPoeLocation} podLocation={displayPodLocation} />
+      )}
       <ShipmentWeightDetails
         estimatedWeight={weightResult}
         initialWeight={primeActualWeight}
