@@ -109,6 +109,13 @@ const shipment = {
   serviceOrderNumber: '1234',
   tacType: LOA_TYPE.HHG,
   sacType: LOA_TYPE.NTS,
+  poeLocation: {
+    portCode: 'PDX',
+    portName: 'PORTLAND INTL',
+    city: 'PORTLAND',
+    state: 'OREGON',
+    zip: '97220',
+  },
 };
 
 const order = {
