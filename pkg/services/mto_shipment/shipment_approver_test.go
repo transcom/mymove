@@ -278,7 +278,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
+			true,
 			true,
 		).Return(500, nil)
 

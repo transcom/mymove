@@ -1204,7 +1204,28 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 
 	internationalShipment := marketCode == models.MarketCodeInternational
 	// Get a distance calculation between pickup and destination addresses.
-	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, false, internationalShipment)
+
+	if pickupAddress.Country == nil {
+		var pickupCountry models.Country
+		err := appCtx.DB().Where("id = ?", pickupAddress.CountryId).First(&pickupCountry)
+		if err != nil {
+			return nil, err
+		}
+		pickupAddress.Country = &pickupCountry
+	}
+	if destinationAddress.Country == nil {
+		var destinationCountry models.Country
+		err := appCtx.DB().Where("id = ?", destinationAddress.CountryId).First(&destinationCountry)
+		if err != nil {
+			return nil, err
+		}
+		destinationAddress.Country = &destinationCountry
+	}
+
+	// DTOD is only needed if either address is alaska and the other is CONUS
+	useDTOD := ShouldUseDtod(pickupAddress, destinationAddress)
+
+	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, useDTOD, internationalShipment)
 	if err != nil {
 		return nil, err
 	}
@@ -1426,4 +1447,13 @@ func updateAuthorizedWeight(appCtx appcontext.AppContext, shipment *models.MTOSh
 	}
 
 	return nil
+}
+
+// All full OCONUS use DTOD
+// AK is the exception to this rule
+// only use DTOD if either address is Alaska
+func ShouldUseDtod(pickup models.Address, destination models.Address) bool {
+	isPickupOCONUS := models.EvaluateIsOconus(pickup)
+	isDestinationOCONUS := models.EvaluateIsOconus(destination)
+	return isPickupOCONUS || isDestinationOCONUS
 }

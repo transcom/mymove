@@ -465,7 +465,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"99505",
-			false,
+			true,
 			true,
 		).Return(1000, nil)
 		planner.On("ZipTransitDistance",
@@ -3443,5 +3443,101 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 		suite.NoError(err)
 
 		suite.Equal(models.ReServiceCodeDSH, serviceItems[0].ReService.Code)
+	})
+}
+
+func (suite *MTOShipmentServiceSuite) TestShouldUseDTODForRDD() {
+
+	suite.Run("If both addresses are CONUS, but neither Alaska DTOD should not be used", func() {
+		{
+			pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "7 Q St",
+						City:           "Twentynine Palms",
+						State:          "CA",
+						PostalCode:     "92277",
+					},
+				},
+			}, nil)
+			destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "7 Q St",
+						City:           "Twentynine Palms",
+						State:          "CA",
+						PostalCode:     "92277",
+					},
+				},
+			}, nil)
+
+			result := ShouldUseDtod(pickupAddress, destinationAddress)
+			suite.False(result, "Both CONUS addresses should allow use of DTOD")
+		}
+	})
+
+	suite.Run("If both addresses are OCONUS, DTOD should be used", func() {
+		destinationCountry := factory.BuildCountry(suite.DB(), []factory.Customization{
+			{
+				Model: models.Country{
+					CountryName: "Germany",
+					Country:     "DE",
+				},
+			},
+		}, nil)
+
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "7 Q St",
+					City:           "Bremen",
+				},
+			},
+			{
+				Model:    destinationCountry,
+				LinkOnly: true,
+			},
+		}, nil)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "7 Q St",
+					City:           "Berlin",
+				},
+			},
+			{
+				Model:    destinationCountry,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		result := ShouldUseDtod(pickupAddress, destinationAddress)
+		suite.True(result, "Both CONUS addresses should allow use of DTOD")
+	})
+
+	suite.Run("If both addresses are CONUS, but one is Alaska DTOD should be used", func() {
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "7 Q St",
+					City:           "Twentynine Palms",
+					State:          "CA",
+					PostalCode:     "92277",
+				},
+			},
+		}, nil)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "7 Q St",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99503",
+				},
+			},
+		}, nil)
+
+		result := ShouldUseDtod(pickupAddress, destinationAddress)
+		suite.True(result, "Both CONUS With one being Alaska should use DTOD")
 	})
 }

@@ -75,6 +75,25 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 			return "", apperror.NewNotFoundError(*mtoShipmentID, "looking for port ZIP for shipment")
 		}
 	}
+
+	// if the shipment is international, we need to change the respective ZIP to use the port ZIP and not the address ZIP
+	if mtoShipment.MarketCode == models.MarketCodeInternational {
+		portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), *mtoShipmentID)
+		if err != nil {
+			return "", err
+		}
+		if portZip != nil && portType != nil {
+			// if the port type is POEFSC this means the shipment is CONUS -> OCONUS (pickup -> port)
+			// if the port type is PODFSC this means the shipment is OCONUS -> CONUS (port -> destination)
+			if *portType == models.ReServiceCodePOEFSC.String() {
+				destinationZip = *portZip
+			} else if *portType == models.ReServiceCodePODFSC.String() {
+				pickupZip = *portZip
+			}
+		} else {
+			return "", apperror.NewNotFoundError(*mtoShipmentID, "looking for port ZIP for shipment")
+		}
+	}
 	errorMsgForPickupZip := fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip)
 	errorMsgForDestinationZip := fmt.Sprintf("Shipment must have valid destination zipcode. Received: %s", destinationZip)
 	if len(pickupZip) < 5 {
@@ -93,13 +112,30 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 
 		switch siCopy.ReService.Code {
 		case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
-			if siCopy.Status == models.MTOServiceItemStatusApproved {
-				hasApprovedDestinationSIT = true
+			if mtoShipment.DeliveryAddressUpdate != nil && mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+				if siCopy.ApprovedAt != nil {
+					if mtoShipment.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+						destinationZip = mtoShipment.DeliveryAddressUpdate.OriginalAddress.PostalCode
+					} else {
+						destinationZip = mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode
+					}
+				}
 			}
 		}
 	}
 
+	if mtoShipment.DeliveryAddressUpdate != nil && mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode, false, false)
+		if err != nil {
+			return "", err
+		}
+		return strconv.Itoa(distanceMiles), nil
+	}
+
 	internationalShipment := mtoShipment.MarketCode == models.MarketCodeInternational
+	if mtoShipment.Distance != nil && mtoShipment.ShipmentType != models.MTOShipmentTypePPM && !internationalShipment {
+		return strconv.Itoa(mtoShipment.Distance.Int()), nil
+	}
 
 	if pickupZip == destinationZip {
 		distanceMiles = 1

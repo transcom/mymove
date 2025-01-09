@@ -263,6 +263,39 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.Equal(fmt.Sprintf("%d", defaultZipDistance), distance)
 	})
 
+	suite.Run("Do not call ZipTransitDistance on PPMs with shipments that have a distance", func() {
+		miles := unit.Miles(defaultZipDistance)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Distance:     &miles,
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
+			},
+		}, nil)
+
+		distanceZipLookup := DistanceZipLookup{
+			PickupAddress:      models.Address{PostalCode: shipment.PickupAddress.PostalCode},
+			DestinationAddress: models.Address{PostalCode: shipment.DestinationAddress.PostalCode},
+		}
+
+		appContext := suite.AppContextForTest()
+		distance, err := distanceZipLookup.lookup(appContext, &ServiceItemParamKeyData{
+			planner:       suite.planner,
+			mtoShipmentID: &shipment.ID,
+		})
+		suite.NoError(err)
+
+		planner := suite.planner.(*mocks.Planner)
+		planner.AssertNotCalled(suite.T(), "ZipTransitDistance", appContext, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode, false, false)
+
+		err = suite.DB().Reload(&shipment)
+		suite.NoError(err)
+
+		suite.Equal(unit.Miles(defaultZipDistance), *shipment.Distance)
+		suite.Equal(fmt.Sprintf("%d", defaultZipDistance), distance)
+	})
+
 	suite.Run("Sucessfully updates mtoShipment distance when the pickup and destination zips are the same", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
