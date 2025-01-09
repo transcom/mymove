@@ -45,6 +45,11 @@ var allSITServiceItemsToCheck = []models.ReServiceCode{
 	models.ReServiceCodeDOSFSC,
 }
 
+var allAccessorialServiceItemsToCheck = []models.ReServiceCode{
+	models.ReServiceCodeIDSHUT,
+	models.ReServiceCodeIOSHUT,
+}
+
 var destSITServiceItems = []models.ReServiceCode{
 	models.ReServiceCodeDDDSIT,
 	models.ReServiceCodeDDASIT,
@@ -338,6 +343,40 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 		}
 	}
 
+	if slices.Contains(allAccessorialServiceItemsToCheck, serviceItemData.oldServiceItem.ReService.Code) {
+		if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusRejected {
+			return nil
+		} else if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusApproved {
+
+			invalidFieldChange := false
+			// Fields that are not allowed to change when status is approved
+
+			if serviceItemData.updatedServiceItem.ReService.Code.String() != "" && serviceItemData.updatedServiceItem.ReService.Code.String() != serviceItemData.oldServiceItem.ReService.Code.String() {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.Reason != nil {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.RequestedApprovalsRequestedStatus != nil {
+				invalidFieldChange = true
+			}
+
+			if invalidFieldChange {
+				return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+					"- one or more fields is not allowed to be updated when the shuttle service item has an approved status.")
+			}
+
+			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+				"- unknown field or fields attempting to be updated.")
+		} else {
+			// Rejects the update if the original SIT does not have a REJECTED status
+			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+				"- this shuttle service item cannot be updated because the status is not in an editable state.")
+		}
+	}
+
 	return nil
 }
 
@@ -382,7 +421,7 @@ func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppC
 // checkNonPrimeFields checks that no fields were modified that are not allowed to be updated by the Prime
 func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) error {
 
-	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status && (!slices.Contains(allSITServiceItemsToCheck, v.oldServiceItem.ReService.Code)) {
+	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status && (!slices.Contains(allAccessorialServiceItemsToCheck, v.oldServiceItem.ReService.Code)) && (!slices.Contains(allSITServiceItemsToCheck, v.oldServiceItem.ReService.Code)) {
 		v.verrs.Add("status", "cannot be updated")
 	}
 
