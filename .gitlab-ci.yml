@@ -14,7 +14,6 @@ variables:
   DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
   DOCKER_TOKEN: DOCKER_TOKEN
   registry: https://registry.hub.docker.com/
-
   #Circle CI need to replace
   #CIRCLE_PROJECT_USERNAME: "my-username"  # Replace with the actual namespace
   CIRCLE_PROJECT_REPONAME: "mymove"      # Replace with your GitLab project name
@@ -22,23 +21,19 @@ variables:
   CIRCLE_BRANCH: "$CI_COMMIT_BRANCH"      # Map to GitLab's branch variable
   #CIRCLE_TOKEN: "$GITLAB_API_TOKEN"       # GitLab API token for querying pipelines
   CIRCLE_BUILD_NUM: "$CI_PIPELINE_ID"
-
   GOPATH: "$CI_PROJECT_DIR/go"
   GOLANGCI_LINT_CONCURRENCY: "4"
   GOLANGCI_LINT_VERBOSE: "-v"
-
   # Specify the environment: loadtest, demo, exp
   DP3_ENV: &dp3_env placeholder_env
-
   # Specify the branch to deploy
   DP3_BRANCH: &dp3_branch placeholder_branch_name
-
   # Ignore branches for integration tests
   INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
   INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
   CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
   SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
-
+  RUNNER_TAG: &runner_tag milmove
 stages:
 - pre_checks
 - build
@@ -48,21 +43,18 @@ stages:
 - prod_approval
 - push_prd
 - deploy_prd
-
 #anchors
 #set safe directory and path
 .setup_milmove_env: &setup_milmove_env
     - git config --global --add safe.directory /builds/milmove/mymove
     - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
     - export REACT_APP_ERROR_LOGGING=otel
-
 .announce_failure: &announce_failure
   #- if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
   - echo $CI_COMMIT_BRANCH
   - echo $CI_JOB_STATUS
   - echo "Announcing broken branch in GitLab CI"
   # fi
-
 .setup_aws_vars_dp3: &setup_aws_vars_dp3
   - if [[ "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo" ]]; then
      export AWS_DEFAULT_REGION=$(eval echo \$${DP3_ENV^^}_REGION)
@@ -229,6 +221,8 @@ stages:
 
 sast:
   stage: pre_checks
+  tags:
+    - $RUNNER_TAG
 include:
 - template: Jobs/SAST.gitlab-ci.yml
 - template: Jobs/Dependency-Scanning.gitlab-ci.yml
@@ -237,6 +231,8 @@ include:
 testing_services:
   stage: pre_checks
   image: alpine:3.7
+  tags:
+    - $RUNNER_TAG
   allow_failure: true
   services:
     - php:7
@@ -246,9 +242,13 @@ testing_services:
     - php -v
     - node -v
     - go version
+  rules:
+   - *check_integration_ignore_branch
 
 anti_virus:
   stage: pre_checks
+  tags:
+    - $RUNNER_TAG
   image: milmove/clamav-ci # Custom image with ClamAV pre-installed
   script:
     - pwd
@@ -278,6 +278,8 @@ anti_virus:
 # This is needed for things like pdfjs-dist
 prep_server_hosted_client_deps:
   stage: pre_checks
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_milmove_env
@@ -292,6 +294,8 @@ prep_server_hosted_client_deps:
 
 pre_deps_golang:
   stage: pre_checks
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_milmove_env
@@ -319,6 +323,8 @@ pre_deps_golang:
 
 pre_deps_yarn:
   stage: pre_checks
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
@@ -348,6 +354,8 @@ check_generated_code:
 
 check_tls_certificate_dp3:
   stage: pre_checks
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE # Replace with your appropriate Docker image.
   before_script:
     - *setup_aws_vars_dp3
@@ -370,6 +378,8 @@ check_tls_certificate_dp3:
 
 check_tls_certificate_stg:
   stage: pre_checks
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done.
   before_script:
     - *setup_aws_vars_stg
@@ -382,6 +392,8 @@ check_tls_certificate_stg:
 
 check_tls_certificate_prd:
   stage: pre_checks
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_tls_vars_prd
@@ -394,6 +406,8 @@ check_tls_certificate_prd:
 
 build_storybook:
   stage: build
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "4"
@@ -418,6 +432,8 @@ build_storybook:
 
 deploy_storybook_dp3:
   stage: deploy
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -437,6 +453,8 @@ deploy_storybook_dp3:
 
 compile_app_client:
   stage: build
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   <<: *yarn_cache
   variables:
@@ -465,6 +483,8 @@ compile_app_client:
 
 compile_app_server:
   stage: build
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   <<: *yarn_cache
   variables:
@@ -507,6 +527,8 @@ compile_app_server:
 
 pre_test:
   stage: test
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   <<: *yarn_cache
   needs:
@@ -558,6 +580,8 @@ pre_test:
 
 server_test:
   stage: test
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
@@ -621,6 +645,8 @@ server_test:
 
 server_test_coverage:
   stage: test
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
@@ -648,6 +674,8 @@ server_test_coverage:
 
 client_test:
   stage: test
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "4"
@@ -680,6 +708,8 @@ client_test:
 
 client_test_coverage:
   stage: test
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -701,6 +731,8 @@ client_test_coverage:
 
 integration_test_devseed:
   stage: test
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
@@ -724,6 +756,8 @@ integration_test_devseed:
 
 integration_tests:
   stage: test
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -745,6 +779,8 @@ integration_tests:
 
 integration_test_mtls:
   stage: test
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -760,6 +796,8 @@ integration_test_mtls:
 
 integration_test_admin:
   stage: test
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -777,6 +815,8 @@ integration_test_admin:
 
 integration_test_my:
   stage: test
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -794,6 +834,8 @@ integration_test_my:
 
 integration_test_office:
   stage: test
+  tags:
+    - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -815,6 +857,8 @@ integration_test_office:
 ###############################################################
 build_push_app_dp3:
   stage: push
+  tags:
+    - $RUNNER_TAG
   environment: DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -836,6 +880,8 @@ build_push_app_dp3:
 
 build_push_migrations_dp3:
   stage: push
+  tags:
+    - $RUNNER_TAG
   environment: DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -857,6 +903,8 @@ build_push_migrations_dp3:
 
 build_push_tasks_dp3:
   stage: push
+  tags:
+    - $RUNNER_TAG
   environment: DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -878,6 +926,8 @@ build_push_tasks_dp3:
 
 push_otel_collector_image_dp3:
   stage: push
+  tags:
+    - $RUNNER_TAG
   environment: DP3_ENV
   image:
     name: $DOCKER_BASE_IMAGE
@@ -905,6 +955,8 @@ push_otel_collector_image_dp3:
 
 deploy_migrations_dp3:
   stage: deploy
+  tags:
+    - $RUNNER_TAG
   environment: DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
@@ -933,6 +985,8 @@ deploy_migrations_dp3:
 
 deploy_tasks_dp3:
   stage: deploy
+  tags:
+    - $RUNNER_TAG
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -956,6 +1010,8 @@ deploy_tasks_dp3:
 
 deploy_app_client_tls_dp3:
   stage: deploy
+  tags:
+    - $RUNNER_TAG
   environment: DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
@@ -994,6 +1050,8 @@ deploy_app_client_tls_dp3:
 
 deploy_app_dp3:
   stage: deploy
+  tags:
+    - $RUNNER_TAG
   environment: DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
@@ -1045,6 +1103,8 @@ deploy_app_dp3:
 
 build_push_app_stg:
   stage: push
+  tags:
+    - $RUNNER_TAG
   environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1066,6 +1126,8 @@ build_push_app_stg:
 
 build_push_migrations_stg:
   stage: push
+  tags:
+    - $RUNNER_TAG
   environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1087,6 +1149,8 @@ build_push_migrations_stg:
 
 build_push_tasks_stg:
   stage: push
+  tags:
+    - $RUNNER_TAG
   environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1108,6 +1172,8 @@ build_push_tasks_stg:
 
 push_otel_collector_image_stg:
   stage: push
+  tags:
+    - $RUNNER_TAG
   environment: stg
   image:
     name: $DOCKER_BASE_IMAGE
@@ -1138,6 +1204,8 @@ push_otel_collector_image_stg:
 
 deploy_migrations_stg:
   stage: deploy
+  tags:
+    - $RUNNER_TAG
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1166,6 +1234,8 @@ deploy_migrations_stg:
 
 deploy_tasks_stg:
   stage: deploy
+  tags:
+    - $RUNNER_TAG
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1229,6 +1299,8 @@ deploy_app_client_tls_stg:
 
 deploy_app_stg:
   stage: deploy
+  tags:
+    - $RUNNER_TAG
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1279,6 +1351,8 @@ deploy_app_stg:
 ##############################################################################
 prod_approval:
   stage: prod_approval
+  tags:
+    - $RUNNER_TAG
   environment: prd_approval
   needs:
       - compile_app_client
@@ -1313,9 +1387,10 @@ build_push_app_prd:
     - *announce_failure
   rules:
     - *check_main
-
 build_push_migrations_prd:
   stage: push_prd
+  tags:
+    - $RUNNER_TAG
   environment: prd
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1339,6 +1414,8 @@ build_push_migrations_prd:
 build_push_tasks_prd:
   stage: push_prd
   environment: prd
+  tags:
+    - $RUNNER_TAG
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -1360,6 +1437,8 @@ build_push_tasks_prd:
 
 push_otel_collector_image_prd:
   stage: push_prd
+  tags:
+    - $RUNNER_TAG
   environment: prd
   image:
     name: $DOCKER_BASE_IMAGE
@@ -1377,7 +1456,6 @@ push_otel_collector_image_prd:
 
     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
-
     - echo "Pushing the image to our private ECR using Crane..."
     - crane push --insecure image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
 
@@ -1392,6 +1470,8 @@ push_otel_collector_image_prd:
 deploy_migrations_prd:
   stage: deploy_prd
   environment: prd
+  tags:
+    - $RUNNER_TAG
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -1420,6 +1500,8 @@ deploy_migrations_prd:
 deploy_tasks_prd:
   stage: deploy_prd
   environment: prd
+  tags:
+    - $RUNNER_TAG
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -1445,6 +1527,8 @@ deploy_tasks_prd:
 deploy_app_client_tls_prd:
   stage: deploy_prd
   environment: prd
+  tags:
+    - $RUNNER_TAG
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -1482,6 +1566,8 @@ deploy_app_client_tls_prd:
 
 deploy_app_prd:
   stage: deploy_prd
+  tags:
+    - $RUNNER_TAG
   environment: prd
   image:
     name: $DOCKER_APP_IMAGE
