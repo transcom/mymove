@@ -27,6 +27,7 @@ import {
   getSelectionOptionLabel,
 } from 'components/Table/utils';
 import { roleTypes } from 'constants/userRoles';
+import { useBulkAssignmentQueries } from 'hooks/queries';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -54,9 +55,9 @@ const TableQueue = ({
   sessionStorageKey,
   isSupervisor,
   isBulkAssignmentFFEnabled,
-  bulkAssignmentData,
   officeUser,
   activeRole,
+  queueType,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -66,6 +67,8 @@ const TableQueue = ({
       setIsPageReload(false);
     }, 500);
   }, []);
+
+  const { bulkAssignmentData } = useBulkAssignmentQueries(queueType);
 
   const [paramSort, setParamSort] = useState(
     getTableQueueSortParamSessionStorageValue(sessionStorageKey) || defaultSortedColumns,
@@ -92,7 +95,7 @@ const TableQueue = ({
   }, [currentPageSize, sessionStorageKey]);
 
   const [pageCount, setPageCount] = useState(0);
-  const [isBulkAssignModalVisible, setIsBulkAssignModalVisible] = useState(true);
+  const [isBulkAssignModalVisible, setIsBulkAssignModalVisible] = useState(false);
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
@@ -333,11 +336,11 @@ const TableQueue = ({
           <div className={styles.queueHeader}>
             <h1>{`${title} (${totalCount})`}</h1>
             <div className={styles.queueButtonWrapper}>
-              {/* {isSupervisor && isBulkAssignmentFFEnabled && ( */}
-              <Button className={styles.btn} type="button" onClick={handleShowBulkAssignMoveModal}>
-                Bulk Assignment
-              </Button>
-              {/* )} */}
+              {isSupervisor && isBulkAssignmentFFEnabled && (
+                <Button className={styles.btn} type="button" onClick={handleShowBulkAssignMoveModal}>
+                  Bulk Assignment
+                </Button>
+              )}
               {showCSVExport && (
                 <TableCSVExportButton
                   className={styles.csvDownloadLink}
