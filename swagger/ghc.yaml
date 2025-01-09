@@ -7445,6 +7445,12 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      destinationGBLOC:
+        example: AGFM
+        type: string
+      destinationPostalCode:
+        example: '90210'
+        type: string
       referenceId:
         example: 1001-3456
         type: string
@@ -7601,7 +7607,7 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
-      destinationDutyLocationPostalCode:
+      destinationPostalCode:
         format: zip
         type: string
         title: ZIP
