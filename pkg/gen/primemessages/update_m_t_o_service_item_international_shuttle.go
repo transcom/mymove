@@ -22,11 +22,11 @@ import (
 type UpdateMTOServiceItemInternationalShuttle struct {
 	idField strfmt.UUID
 
-	// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+	// Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT & IOSHUT) service items.
 	// Example: 4000
 	ActualWeight *int64 `json:"actualWeight"`
 
-	// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+	// An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT & IOSHUT) service item.
 	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight"`
 
@@ -61,11 +61,11 @@ func (m *UpdateMTOServiceItemInternationalShuttle) SetModelType(val UpdateMTOSer
 func (m *UpdateMTOServiceItemInternationalShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		// Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT & IOSHUT) service items.
 		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 
-		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		// An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT & IOSHUT) service item.
 		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
@@ -124,11 +124,11 @@ func (m UpdateMTOServiceItemInternationalShuttle) MarshalJSON() ([]byte, error) 
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		// Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT & IOSHUT) service items.
 		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 
-		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		// An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT & IOSHUT) service item.
 		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 

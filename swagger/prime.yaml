@@ -2300,7 +2300,7 @@ definitions:
             description: >
               A unique code for the service item. Indicates if shuttling is
               requested for the international shipment origin (`IOSHUT`) or
-              destination (`DDSHUT`).
+              destination (`IDSHUT`).
             enum:
               - IOSHUT
               - IDSHUT
@@ -2494,7 +2494,7 @@ definitions:
             example: 4000
             description: >-
               Provided by the movers, based on weight tickets. Relevant for
-              shuttling (DDSHUT & DOSHUT) service items.
+              shuttling (IDSHUT & IOSHUT) service items.
             x-nullable: true
             x-omitempty: false
           estimatedWeight:
@@ -2502,7 +2502,7 @@ definitions:
             example: 4200
             description: >-
               An estimate of how much weight from a shipment will be included in
-              a shuttling (DDSHUT & DOSHUT) service item.
+              a shuttling (IDSHUT & IOSHUT) service item.
             x-nullable: true
             x-omitempty: false
           requestApprovalsRequestedStatus:
