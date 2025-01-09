@@ -2,11 +2,13 @@ package paymentrequest
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -57,4 +59,51 @@ func (p *paymentRequestFetcher) FetchPaymentRequest(appCtx appcontext.AppContext
 	}
 
 	return paymentRequest, err
+}
+
+type paymentRequestFetcherBulkAssignment struct {
+}
+
+// NewPaymentRequestFetcherBulkAssignment creates a new paymentRequestFetcherBulkAssignment service
+func NewPaymentRequestFetcherBulkAssignment() services.PaymentRequestFetcherBulkAssignment {
+	return &paymentRequestFetcherBulkAssignment{}
+}
+
+func (f paymentRequestFetcherBulkAssignment) FetchPaymentRequestsForBulkAssignment(appCtx appcontext.AppContext, gbloc string) ([]models.PaymentRequestWithEarliestRequestedDate, error) {
+	var payment_requests []models.PaymentRequestWithEarliestRequestedDate
+
+	err := appCtx.DB().
+		RawQuery(`SELECT
+					payment_requests.id,
+					payment_requests.requested_at
+				FROM payment_requests
+                INNER JOIN moves on moves.id = payment_requests.move_id
+                INNER JOIN orders ON orders.id = moves.orders_id
+                INNER JOIN service_members ON orders.service_member_id = service_members.id
+				LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
+				WHERE
+					payment_requests.status = 'PENDING'
+					AND moves.show = $1
+					AND (orders.orders_type NOT IN ($2, $3, $4))
+					AND moves.tio_assigned_id IS NULL
+					AND service_members.affiliation != 'MARINES'
+					AND move_to_gbloc.gbloc = $5
+				GROUP BY payment_requests.id
+                ORDER BY payment_requests.requested_at ASC`,
+			models.BoolPointer(true),
+			internalmessages.OrdersTypeBLUEBARK,
+			internalmessages.OrdersTypeWOUNDEDWARRIOR,
+			internalmessages.OrdersTypeSAFETY,
+			gbloc).
+		All(&payment_requests)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching payment requests for GBLOC: %s with error %w", gbloc, err)
+	}
+
+	if len(payment_requests) < 1 {
+		return nil, nil
+	}
+
+	return payment_requests, nil
 }

@@ -122,3 +122,7 @@ type ShipmentsPaymentSITBalance interface {
 type PaymentRequestBulkDownloadCreator interface {
 	CreatePaymentRequestBulkDownload(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (afero.File, error)
 }
+
+type PaymentRequestFetcherBulkAssignment interface {
+	FetchPaymentRequestsForBulkAssignment(appCtx appcontext.AppContext, gbloc string) ([]models.PaymentRequestWithEarliestRequestedDate, error)
+}
