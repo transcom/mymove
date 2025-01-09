@@ -88,7 +88,8 @@ const PrimeUIShipmentUpdateAddress = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values, { setSubmitting }) => {
-    const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = values.address;
+    const { streetAddress1, streetAddress2, streetAddress3, city, county, state, postalCode, usPostRegionCitiesID } =
+      values.address;
 
     const body = {
       id: values.addressID,
@@ -96,8 +97,10 @@ const PrimeUIShipmentUpdateAddress = () => {
       streetAddress2,
       streetAddress3,
       city,
+      county,
       state,
       postalCode,
+      usPostRegionCitiesID,
     };
 
     // Check if the address payload contains any blank properties and remove
