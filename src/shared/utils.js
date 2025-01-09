@@ -171,3 +171,41 @@ export function isEmpty(obj) {
 export function isNullUndefinedOrWhitespace(value) {
   return value == null || value === undefined || value.trim() === '';
 }
+
+export function checkAddressTogglesToClearAddresses(body) {
+  let values = body;
+
+  if (values.shipmentType === 'PPM') {
+    if (values.ppmShipment.hasSecondaryPickupAddress !== 'true') {
+      values.ppmShipment.secondaryPickupAddress = {};
+      values.ppmShipment.tertiaryPickupAddress = {};
+    }
+    if (values.ppmShipment.hasTertiaryPickupAddress !== 'true') {
+      values.ppmShipment.tertiaryPickupAddress = {};
+    }
+    if (values.ppmShipment.hasSecondaryDestinationAddress !== 'true') {
+      values.ppmShipment.secondaryDestinationAddress = {};
+      values.ppmShipment.tertiaryDestinationAddress = {};
+    }
+    if (values.ppmShipment.hasTertiaryDestinationAddress !== 'true') {
+      values.ppmShipment.tertiaryDestinationAddress = {};
+    }
+  } else {
+    if (values.hasSecondaryPickupAddress !== 'true') {
+      values.secondaryPickupAddress = {};
+      values.tertiaryPickupAddress = {};
+    }
+    if (values.hasTertiaryPickupAddress !== 'true') {
+      values.tertiaryPickupAddress = {};
+    }
+    if (values.hasSecondaryDestinationAddress !== 'true') {
+      values.secondaryDestinationAddress = {};
+      values.tertiaryDestinationAddress = {};
+    }
+    if (values.hasTertiaryDestinationAddress !== 'true') {
+      values.tertiaryDestinationAddress = {};
+    }
+  }
+
+  return values;
+}
