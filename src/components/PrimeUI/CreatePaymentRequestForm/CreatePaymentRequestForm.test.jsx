@@ -37,6 +37,12 @@ describe('CreatePaymentRequestForm', () => {
       { id: '6', reServiceCode: 'DDFSIT', reServiceName: 'Domestic destination 1st day SIT' },
     ],
     2: [{ id: '5', reServiceCode: 'FSC' }],
+    3: [
+      { id: '7', reServiceCode: 'IHPK' },
+      { id: '8', reServiceCode: 'IHUPK' },
+      { id: '8', reServiceCode: 'ISLH' },
+      { id: '8', reServiceCode: 'POEFSC' },
+    ],
   };
 
   it('renders the form', async () => {

@@ -153,3 +153,15 @@ type ShipmentSITStatus interface {
 	CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error)
 	RetrieveShipmentSIT(appCtx appcontext.AppContext, shipment models.MTOShipment) (models.SITServiceItemGroupings, error)
 }
+
+type ShipmentPostalCodeRateArea struct {
+	PostalCode string
+	RateArea   *models.ReRateArea
+}
+
+// ShipmentRateAreaFinder is the interface to retrieve Oconus RateArea info for shipment
+//
+//go:generate mockery --name ShipmentRateAreaFinder
+type ShipmentRateAreaFinder interface {
+	GetPrimeMoveShipmentOconusRateArea(appCtx appcontext.AppContext, move models.Move) (*[]ShipmentPostalCodeRateArea, error)
+}
