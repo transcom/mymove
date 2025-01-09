@@ -432,8 +432,8 @@ deploy_storybook_dp3:
   artifacts:
     paths:
       - /builds/milmove/mymove/storybook-static
-  # rules:
-  #   - *check_main
+  rules:
+    - *check_main
 
 compile_app_client:
   stage: build
