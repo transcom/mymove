@@ -246,6 +246,8 @@ testing_services:
     - php -v
     - node -v
     - go version
+  rules:
+   - *check_integration_ignore_branch
 
 anti_virus:
   stage: pre_checks
