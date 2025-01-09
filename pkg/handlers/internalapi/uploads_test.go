@@ -525,7 +525,52 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerFailure() {
 		suite.Error(err)
 	})
 
-	// TODO: ADD A FORBIDDEN TEST
+	suite.Run("Error when attempting access to another service member's upload", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		localReceiver := notifications.StubNotificationReceiver{}
+
+		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		orders := factory.BuildOrder(suite.DB(), nil, nil)
+		uploadUser1 := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    orders.UploadedOrders,
+				LinkOnly: true,
+			},
+			{
+				Model: models.Upload{
+					Filename:    "FileName",
+					Bytes:       int64(15),
+					ContentType: uploader.FileTypePDF,
+				},
+			},
+		}, nil)
+
+		file := suite.Fixture(FixturePDF)
+		_, err := fakeS3.Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
+		suite.NoError(err)
+
+		params := uploadop.NewGetUploadStatusParams()
+		params.UploadID = strfmt.UUID(uploadUser1.Upload.ID.String())
+
+		req := &http.Request{}
+		req = suite.AuthenticateRequest(req, otherServiceMember)
+		params.HTTPRequest = req
+
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		handlerConfig.SetNotificationReceiver(localReceiver)
+		uploadInformationFetcher := upload.NewUploadInformationFetcher()
+		handler := GetUploadStatusHandler{handlerConfig, uploadInformationFetcher}
+
+		response := handler.Handle(params)
+		_, ok := response.(*uploadop.GetUploadStatusForbidden)
+		suite.True(ok)
+
+		queriedUpload := models.Upload{}
+		err = suite.DB().Find(&queriedUpload, uploadUser1.Upload.ID)
+		suite.NoError(err)
+	})
 }
 
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
