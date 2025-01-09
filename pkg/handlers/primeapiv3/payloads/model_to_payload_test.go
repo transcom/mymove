@@ -144,12 +144,13 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 				PostalCode:     fairbanksAlaskaPostalCode,
 			},
 			DestinationAddress: &models.Address{
-				StreetAddress1: "123 Main St",
-				StreetAddress2: &streetAddress2,
-				StreetAddress3: &streetAddress3,
-				City:           "Anchorage",
-				State:          "AK",
-				PostalCode:     anchorageAlaskaPostalCode,
+				StreetAddress1:   "123 Main St",
+				StreetAddress2:   &streetAddress2,
+				StreetAddress3:   &streetAddress3,
+				City:             "Anchorage",
+				State:            "AK",
+				PostalCode:       anchorageAlaskaPostalCode,
+				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
@@ -162,12 +163,13 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 				PostalCode:     wasillaAlaskaPostalCode,
 			},
 			DestinationAddress: &models.Address{
-				StreetAddress1: "123 Main St",
-				StreetAddress2: &streetAddress2,
-				StreetAddress3: &streetAddress3,
-				City:           "Wasilla",
-				State:          "AK",
-				PostalCode:     wasillaAlaskaPostalCode,
+				StreetAddress1:   "123 Main St",
+				StreetAddress2:   &streetAddress2,
+				StreetAddress3:   &streetAddress3,
+				City:             "Wasilla",
+				State:            "AK",
+				PostalCode:       wasillaAlaskaPostalCode,
+				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
@@ -231,20 +233,22 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
 			PickupAddress: &models.Address{
-				StreetAddress1: "123 Main St",
-				StreetAddress2: &streetAddress2,
-				StreetAddress3: &streetAddress3,
-				City:           "Beverly Hills",
-				State:          "CA",
-				PostalCode:     "90210",
+				StreetAddress1:   "123 Main St",
+				StreetAddress2:   &streetAddress2,
+				StreetAddress3:   &streetAddress3,
+				City:             "Beverly Hills",
+				State:            "CA",
+				PostalCode:       "90210",
+				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 			DestinationAddress: &models.Address{
-				StreetAddress1: "123 Main St",
-				StreetAddress2: &streetAddress2,
-				StreetAddress3: &streetAddress3,
-				City:           "Beverly Hills",
-				State:          "CA",
-				PostalCode:     "90210",
+				StreetAddress1:   "123 Main St",
+				StreetAddress2:   &streetAddress2,
+				StreetAddress3:   &streetAddress3,
+				City:             "Beverly Hills",
+				State:            "CA",
+				PostalCode:       "90210",
+				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 		})
 
@@ -351,6 +355,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			} else {
 				suite.NotNil(shipment.PickupAddress)
 				suite.NotNil(shipment.DestinationAddress)
+				suite.NotNil(shipment.DestinationAddress.DestinationGbloc)
 				if slices.Contains(expectedAlaskaPostalCodes, *shipment.PickupAddress.PostalCode) {
 					ra, contains := shipmentPostalCodeRateAreaLookupMap[*shipment.PickupAddress.PostalCode]
 					suite.True(contains)
@@ -1336,4 +1341,30 @@ func (suite *PayloadsSuite) TestMTOServiceItemPODFSC() {
 	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.State, portLocation.UsPostRegionCity.UsPostRegion.State.StateName)
 	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.Zip, portLocation.UsPostRegionCity.UsprZipID)
 	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.Country, portLocation.Country.CountryName)
+}
+func (suite *PayloadsSuite) TestAddress() {
+	usprcId := uuid.Must(uuid.NewV4())
+	shipmentAddress := &models.Address{
+		ID:                 uuid.Must(uuid.NewV4()),
+		StreetAddress1:     "400 Drive St",
+		City:               "Charleston",
+		County:             models.StringPointer("Charleston"),
+		State:              "SC",
+		PostalCode:         "29404",
+		UsPostRegionCityID: &usprcId,
+	}
+
+	result := Address(shipmentAddress)
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(shipmentAddress.ID.String()), result.ID)
+	suite.Equal(strfmt.UUID(usprcId.String()), result.UsPostRegionCitiesID)
+
+	result = Address(nil)
+	suite.Nil(result)
+
+	usprcId = uuid.Nil
+	shipmentAddress.UsPostRegionCityID = &uuid.Nil
+	result = Address(shipmentAddress)
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(""), result.UsPostRegionCitiesID)
 }
