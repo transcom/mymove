@@ -49,6 +49,25 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	// Now calculate the distance between zips
 	pickupZip := r.PickupAddress.PostalCode
 	destinationZip := r.DestinationAddress.PostalCode
+
+	// if the shipment is international, we need to change the respective ZIP to use the port ZIP and not the address ZIP
+	if mtoShipment.MarketCode == models.MarketCodeInternational {
+		portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), *mtoShipmentID)
+		if err != nil {
+			return "", err
+		}
+		if portZip != nil && portType != nil {
+			// if the port type is POEFSC this means the shipment is CONUS -> OCONUS (pickup -> port)
+			// if the port type is PODFSC this means the shipment is OCONUS -> CONUS (port -> destination)
+			if *portType == models.ReServiceCodePOEFSC.String() {
+				destinationZip = *portZip
+			} else if *portType == models.ReServiceCodePODFSC.String() {
+				pickupZip = *portZip
+			}
+		} else {
+			return "", apperror.NewNotFoundError(*mtoShipmentID, "looking for port ZIP for shipment")
+		}
+	}
 	errorMsgForPickupZip := fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip)
 	errorMsgForDestinationZip := fmt.Sprintf("Shipment must have valid destination zipcode. Received: %s", destinationZip)
 	if len(pickupZip) < 5 {
@@ -83,7 +102,7 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		}
 
 		if mtoShipment.DeliveryAddressUpdate != nil && mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-			distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode)
+			distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode, false, false)
 			if err != nil {
 				return "", err
 			}
@@ -91,14 +110,15 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		}
 	}
 
-	if mtoShipment.Distance != nil && mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
+	internationalShipment := mtoShipment.MarketCode == models.MarketCodeInternational
+	if mtoShipment.Distance != nil && mtoShipment.ShipmentType != models.MTOShipmentTypePPM && !internationalShipment {
 		return strconv.Itoa(mtoShipment.Distance.Int()), nil
 	}
 
 	if pickupZip == destinationZip {
 		distanceMiles = 1
 	} else {
-		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
+		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip, false, internationalShipment)
 		if err != nil {
 			return "", err
 		}

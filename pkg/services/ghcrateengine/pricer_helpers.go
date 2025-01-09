@@ -498,10 +498,10 @@ func createPricerGeneratedParams(appCtx appcontext.AppContext, paymentServiceIte
 			Where("key = ?", param.Key).
 			First(&serviceItemParamKey)
 		if err != nil {
-			return paymentServiceItemParams, fmt.Errorf("Unable to find service item param key for %v", param.Key)
+			return paymentServiceItemParams, fmt.Errorf("unable to find service item param key for %v", param.Key)
 		}
 		if serviceItemParamKey.Origin != models.ServiceItemParamOriginPricer {
-			return paymentServiceItemParams, fmt.Errorf("Service item param key is not a pricer param. Param key: %v", serviceItemParamKey.Key)
+			return paymentServiceItemParams, fmt.Errorf("service item param key is not a pricer param. Param key: %v", serviceItemParamKey.Key)
 		}
 
 		// Create the PaymentServiceItemParam from the PricingDisplayParam and store it in the DB
