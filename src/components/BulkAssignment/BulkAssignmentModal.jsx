@@ -58,58 +58,58 @@ export const BulkAssignmentModal = ({
   onClose,
   onSubmit,
   title,
-  content,
   submitText,
   closeText,
   //  bulkAssignmentData,
 }) => (
-  <Modal>
-    <ModalClose handleClick={() => onClose()} />
-    <ModalTitle>
-      <h3>{title}</h3>
-    </ModalTitle>
-
-    <div className={styles.BulkAssignmentTable}>
-      <table>
-        <tr>
-          <th className={styles.BulkAssignmentSelect}>Select/Deselect All </th>
-          <th className={styles.BulkAssignmentUser}>User</th>
-          <th className={styles.BulkAssignmentWorkload}>Workload</th>
-          <th className={styles.BulkAssignmentAssignment}>Equal Assignment</th>
-        </tr>
-        {data.availableOfficeUsers.map((user) => {
-          return (
-            <tr>
-              <td className={styles.BulkAssignmentSelect}>
-                <input type="checkbox" />
-              </td>
-              <td className={styles.BulkAssignmentUser}>
-                {user.firstName},{user.lastName}
-              </td>
-              <td>{user.workload}</td>
-              <td>
-                <input type="number" />
-              </td>
-            </tr>
-          );
-        })}
-      </table>
-    </div>
-    <ModalActions autofocus="true">
-      <Button
-        data-focus="true"
-        className="usa-button--destructive"
-        type="submit"
-        data-testid="modalSubmitButton"
-        onClick={() => onSubmit()}
-      >
-        {submitText}
-      </Button>
-      <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
-        {closeText}
-      </Button>
-    </ModalActions>
-  </Modal>
+  <div>
+    <Modal className={styles.BulkModal}>
+      <ModalClose handleClick={() => onClose()} />
+      <ModalTitle>
+        <h3>{title}</h3>
+      </ModalTitle>
+      <div className={styles.BulkAssignmentTable}>
+        <table>
+          <tr>
+            <th>Select/Deselect All </th>
+            <th>User</th>
+            <th>Workload</th>
+            <th>Assignment</th>
+          </tr>
+          {data.availableOfficeUsers.map((user) => {
+            return (
+              <tr>
+                <td className={styles.BulkAssignmentDataCenter}>
+                  <input type="checkbox" />
+                </td>
+                <td>
+                  {user.firstName},{user.lastName}
+                </td>
+                <td className={styles.BulkAssignmentDataCenter}>{user.workload}</td>
+                <td className={styles.BulkAssignmentDataCenter}>
+                  <input className={styles.BulkAssignmentAssignment} type="number" />
+                </td>
+              </tr>
+            );
+          })}
+        </table>
+      </div>
+      <ModalActions autofocus="true">
+        <Button
+          data-focus="true"
+          className="usa-button--destructive"
+          type="submit"
+          data-testid="modalSubmitButton"
+          onClick={() => onSubmit()}
+        >
+          {submitText}
+        </Button>
+        <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
+          {closeText}
+        </Button>
+      </ModalActions>
+    </Modal>
+  </div>
 );
 
 BulkAssignmentModal.propTypes = {
@@ -117,14 +117,12 @@ BulkAssignmentModal.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 
   title: PropTypes.string,
-  content: PropTypes.string,
   submitText: PropTypes.string,
   closeText: PropTypes.string,
 };
 
 BulkAssignmentModal.defaultProps = {
   title: 'Bulk Assignment',
-  content: 'Here we will display moves to be assigned in bulk.',
   submitText: 'Save',
   closeText: 'Cancel',
 };

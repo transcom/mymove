@@ -1,45 +1,23 @@
-.BulkAssignmentTable{
-    margin: 0 auto;
-    height: 400px;
-    
-    // width isn't doing anything here
-    /*
-        make select column with the size of the text and not 200px and do the same with workload and assignment columns
-        justify-content or align-content: center for all the table cells
-    */
+.BulkModal {
+  min-width: 900px !important;
+  overflow-y: auto;
+  max-height: 90vh;
+}
 
-    overflow-y: scroll;
+.BulkAssignmentTable {
 
-    table {
-        max-width: 800px; 
-
-        td {
-            max-width: 100px;
-        }
-        .BulkAssignmentSelect {
-            width: 100px;
-        }
-
-        .BulkAssignmentUser {
-            width: 10px;
-        }
+  table {
+    th {
+      max-width: 10px;
+      color: blue;
+      text-align: center;
     }
-
-    header, .BulkAssignmentRow {
-        display: flex;
-        justify-content: flex-start;
-        padding: 10px 20px;
-
-        .BulkAssignmentSelect {
-            width: 100px;
-        }
-        
-        .BulkAssignmentUser {
-            width: 200px;
-        }
-
-        .BulkAssignmentAssignment { 
-            width: 50px
-        }
+    .BulkAssignmentDataCenter {
+      text-align: center;
     }
+    .BulkAssignmentAssignment {
+        width: 50px;
+        text-align: center;
+    }
+  }
 }
