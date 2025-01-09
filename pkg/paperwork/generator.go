@@ -99,6 +99,7 @@ func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	// to hard disk due to restrictions in AWS storage. May need better long term solution.
 	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
+	api.LoadConfiguration().Path = filepath.Join("..", "..", "config", "pdfcpu", "config.yml")
 	pdfConfig := api.LoadConfiguration()
 	pdfCPU := pdfCPUWrapper{Configuration: pdfConfig}
 

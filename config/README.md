@@ -20,3 +20,9 @@ go run github.com/transcom/mymove/cmd/ecs-deploy task-def \
 ## TLS cert/key (optional)
 
 The `devlocal-https.*` files are a self-signed TLS cert/key pair. They are a [snake oil](https://en.wikipedia.org/wiki/Snake_oil_(cryptography)) certificate used to locally run the webserver during development. They are included as a convenience so engineers don't have to generate their own.
+
+## pdfcpu
+
+Provide default generated config.yml to prevent pdfcpu package from attempting to write to filesystem at runtime.
+
+See [pdfcpu configuration guide](https://pdfcpu.io/getting_started/config_dir.html)
