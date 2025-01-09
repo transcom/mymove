@@ -92,7 +92,7 @@ const TableQueue = ({
   }, [currentPageSize, sessionStorageKey]);
 
   const [pageCount, setPageCount] = useState(0);
-  const [isBulkAssignModalVisible, setIsBulkAssignModalVisible] = useState(false);
+  const [isBulkAssignModalVisible, setIsBulkAssignModalVisible] = useState(true);
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
@@ -333,11 +333,11 @@ const TableQueue = ({
           <div className={styles.queueHeader}>
             <h1>{`${title} (${totalCount})`}</h1>
             <div className={styles.queueButtonWrapper}>
-              {isSupervisor && isBulkAssignmentFFEnabled && (
-                <Button className={styles.btn} type="button" onClick={handleShowBulkAssignMoveModal}>
-                  Bulk Assignment
-                </Button>
-              )}
+              {/* {isSupervisor && isBulkAssignmentFFEnabled && ( */}
+              <Button className={styles.btn} type="button" onClick={handleShowBulkAssignMoveModal}>
+                Bulk Assignment
+              </Button>
+              {/* )} */}
               {showCSVExport && (
                 <TableCSVExportButton
                   className={styles.csvDownloadLink}

@@ -2,7 +2,57 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
+import styles from './BulkAssignmentModal.module.scss';
+
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
+
+const data = {
+  availableOfficeUsers: [
+    {
+      firstName: 'John',
+      lastName: 'Snow',
+      officeUserId: '123',
+      workload: 0,
+    },
+    {
+      firstName: 'Jane',
+      lastName: 'Doe',
+      officeUserId: '456',
+      workload: 1,
+    },
+    {
+      firstName: 'Jimmy',
+      lastName: 'Page',
+      officeUserId: '789',
+      workload: 2,
+    },
+    {
+      firstName: 'Peter',
+      lastName: 'Pan',
+      officeUserId: '101',
+      workload: 3,
+    },
+    {
+      firstName: 'Ringo',
+      lastName: 'Starr',
+      officeUserId: '111',
+      workload: 4,
+    },
+    {
+      firstName: 'George',
+      lastName: 'Harrison',
+      officeUserId: '121',
+      workload: 5,
+    },
+    {
+      firstName: 'Stuart',
+      lastName: 'Skinner',
+      officeUserId: '131',
+      workload: 6,
+    },
+  ],
+  bulkAssignmentMoveIDs: ['1', '2', '3', '4', '5'],
+};
 
 export const BulkAssignmentModal = ({
   onClose,
@@ -18,16 +68,33 @@ export const BulkAssignmentModal = ({
     <ModalTitle>
       <h3>{title}</h3>
     </ModalTitle>
-    <div>
+
+    <div className={styles.BulkAssignmentTable}>
       <table>
         <tr>
-          <th>Select/Deselect All </th>
-          <th>User</th>
-          <th>Equal Assignment</th>
+          <th className={styles.BulkAssignmentSelect}>Select/Deselect All </th>
+          <th className={styles.BulkAssignmentUser}>User</th>
+          <th className={styles.BulkAssignmentWorkload}>Workload</th>
+          <th className={styles.BulkAssignmentAssignment}>Equal Assignment</th>
         </tr>
+        {data.availableOfficeUsers.map((user) => {
+          return (
+            <tr>
+              <td className={styles.BulkAssignmentSelect}>
+                <input type="checkbox" />
+              </td>
+              <td className={styles.BulkAssignmentUser}>
+                {user.firstName},{user.lastName}
+              </td>
+              <td>{user.workload}</td>
+              <td>
+                <input type="number" />
+              </td>
+            </tr>
+          );
+        })}
       </table>
     </div>
-    <p>{content}</p>
     <ModalActions autofocus="true">
       <Button
         data-focus="true"

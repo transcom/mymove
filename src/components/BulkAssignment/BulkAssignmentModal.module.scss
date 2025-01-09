@@ -1,0 +1,45 @@
+.BulkAssignmentTable{
+    margin: 0 auto;
+    height: 400px;
+    
+    // width isn't doing anything here
+    /*
+        make select column with the size of the text and not 200px and do the same with workload and assignment columns
+        justify-content or align-content: center for all the table cells
+    */
+
+    overflow-y: scroll;
+
+    table {
+        max-width: 800px; 
+
+        td {
+            max-width: 100px;
+        }
+        .BulkAssignmentSelect {
+            width: 100px;
+        }
+
+        .BulkAssignmentUser {
+            width: 10px;
+        }
+    }
+
+    header, .BulkAssignmentRow {
+        display: flex;
+        justify-content: flex-start;
+        padding: 10px 20px;
+
+        .BulkAssignmentSelect {
+            width: 100px;
+        }
+        
+        .BulkAssignmentUser {
+            width: 200px;
+        }
+
+        .BulkAssignmentAssignment { 
+            width: 50px
+        }
+    }
+}
