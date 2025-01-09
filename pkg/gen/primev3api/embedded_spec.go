@@ -405,6 +405,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -1673,7 +1678,7 @@ func init() {
               "example": "CONUS"
             },
             "reServiceCode": {
-              "description": "A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `IDSHUT` + "`" + `).\n",
               "type": "string",
               "enum": [
                 "IOSHUT",
@@ -1948,6 +1953,9 @@ func init() {
             }
           ]
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "destinationSitAuthEndDate": {
           "description": "The SIT authorized end date for destination SIT.",
           "type": "string",
@@ -2011,6 +2019,9 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "originSitAuthEndDate": {
           "description": "The SIT authorized end date for origin SIT.",
@@ -2680,6 +2691,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/PPMDestinationAddress"
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
@@ -2762,6 +2776,9 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -3180,6 +3197,32 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ProofOfServiceDoc"
+      }
+    },
+    "RateArea": {
+      "description": "Rate area info for OCONUS postal code",
+      "type": "object",
+      "required": [
+        "id",
+        "rateAreaId",
+        "rateAreaName"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rateAreaId": {
+          "description": "Rate area code",
+          "type": "string",
+          "example": "US8101000"
+        },
+        "rateAreaName": {
+          "description": "Rate area name",
+          "type": "string",
+          "example": "Alaska (Zone) I"
+        }
       }
     },
     "ReServiceCode": {
@@ -3646,14 +3689,14 @@ func init() {
           "type": "object",
           "properties": {
             "actualWeight": {
-              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT \u0026 IOSHUT) service items.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
               "example": 4000
             },
             "estimatedWeight": {
-              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT \u0026 IOSHUT) service item.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
@@ -4759,6 +4802,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -6027,7 +6075,7 @@ func init() {
               "example": "CONUS"
             },
             "reServiceCode": {
-              "description": "A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `IDSHUT` + "`" + `).\n",
               "type": "string",
               "enum": [
                 "IOSHUT",
@@ -6302,6 +6350,9 @@ func init() {
             }
           ]
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "destinationSitAuthEndDate": {
           "description": "The SIT authorized end date for destination SIT.",
           "type": "string",
@@ -6365,6 +6416,9 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "originSitAuthEndDate": {
           "description": "The SIT authorized end date for origin SIT.",
@@ -7034,6 +7088,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/PPMDestinationAddress"
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
@@ -7116,6 +7173,9 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -7534,6 +7594,32 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ProofOfServiceDoc"
+      }
+    },
+    "RateArea": {
+      "description": "Rate area info for OCONUS postal code",
+      "type": "object",
+      "required": [
+        "id",
+        "rateAreaId",
+        "rateAreaName"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rateAreaId": {
+          "description": "Rate area code",
+          "type": "string",
+          "example": "US8101000"
+        },
+        "rateAreaName": {
+          "description": "Rate area name",
+          "type": "string",
+          "example": "Alaska (Zone) I"
+        }
       }
     },
     "ReServiceCode": {
@@ -8002,14 +8088,14 @@ func init() {
           "type": "object",
           "properties": {
             "actualWeight": {
-              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT \u0026 IOSHUT) service items.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
               "example": 4000
             },
             "estimatedWeight": {
-              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT \u0026 IOSHUT) service item.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
