@@ -51,7 +51,7 @@ type MTOServiceItemInternationalShuttle struct {
 	// Enum: [CONUS OCONUS]
 	Market string `json:"market,omitempty"`
 
-	// A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (`IOSHUT`) or destination (`DDSHUT`).
+	// A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (`IOSHUT`) or destination (`IDSHUT`).
 	//
 	// Required: true
 	// Enum: [IOSHUT IDSHUT]
@@ -183,7 +183,7 @@ func (m *MTOServiceItemInternationalShuttle) UnmarshalJSON(raw []byte) error {
 		// Enum: [CONUS OCONUS]
 		Market string `json:"market,omitempty"`
 
-		// A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (`IOSHUT`) or destination (`DDSHUT`).
+		// A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (`IOSHUT`) or destination (`IDSHUT`).
 		//
 		// Required: true
 		// Enum: [IOSHUT IDSHUT]
@@ -292,7 +292,7 @@ func (m MTOServiceItemInternationalShuttle) MarshalJSON() ([]byte, error) {
 		// Enum: [CONUS OCONUS]
 		Market string `json:"market,omitempty"`
 
-		// A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (`IOSHUT`) or destination (`DDSHUT`).
+		// A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (`IOSHUT`) or destination (`IDSHUT`).
 		//
 		// Required: true
 		// Enum: [IOSHUT IDSHUT]

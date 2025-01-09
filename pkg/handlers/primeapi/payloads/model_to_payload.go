@@ -825,7 +825,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			ActualWeight:                    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
 
-		if mtoServiceItem.ReService.Code == models.ReServiceCodeIOSHUT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIOSHUT && mtoServiceItem.MTOShipment.PickupAddress != nil {
 			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
 				shuttleSI.Market = models.MarketOconus.FullString()
 			} else {

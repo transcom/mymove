@@ -7,10 +7,10 @@ allOf:
         type: string
         description: >
           A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (`IOSHUT`)
-          or destination (`DDSHUT`).
+          or destination (`IDSHUT`).
         enum:
-          - IOSHUT # Domestic Origin Shuttle Service
-          - IDSHUT # Domestic Destination Shuttle Service
+          - IOSHUT # International Origin Shuttle Service
+          - IDSHUT # International Destination Shuttle Service
       reason:
         type: string
         example: Storage items need to be picked up.
