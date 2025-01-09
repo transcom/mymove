@@ -677,3 +677,81 @@ func (suite *TransportationOfficeServiceSuite) Test_GetTransportationOffice() {
 	suite.Equal("OFFICE ONE", office1f.Name)
 	suite.Equal("OFFICE TWO", office2f.Name)
 }
+
+func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOffices() {
+	// Test for CONUS
+	suite.Run("success - find closest counseling office for CONUS", func() {
+		customAddressCONUS := models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "123 Mayport St",
+			City:           "NS Mayport",
+			State:          "FL",
+			PostalCode:     "32228",
+			County:         "Duval",
+			IsOconus:       models.BoolPointer(false),
+		}
+		suite.MustSave(&customAddressCONUS)
+		airForce := models.AffiliationAIRFORCE
+
+		origDutyLocationCONUS := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{Model: customAddressCONUS, Type: &factory.Addresses.DutyLocationAddress},
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: false,
+				},
+			},
+			{Model: models.TransportationOffice{
+				Name:             "NS Mayport",
+				Gbloc:            "CNNQ",
+				ProvidesCloseout: false,
+			}},
+			{Model: models.ServiceMember{Affiliation: &airForce}},
+		}, nil)
+
+		suite.NotNil(origDutyLocationCONUS)
+		suite.NotNil(suite.toFetcher)
+
+		officeCONUS, err := suite.toFetcher.FindClosestCounselingOffice(suite.AppContextForTest(), origDutyLocationCONUS.ID)
+
+		suite.NoError(err)
+		suite.NotNil(officeCONUS)
+		suite.Equal("PPPO Jacksonville - USN", officeCONUS.Name) // Check for CONUS condition
+	})
+
+	// Test for OCONUS
+	suite.Run("success - find closest counseling office for OCONUS", func() {
+		customAddressOCONUS := models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "456 Yokota St",
+			City:           "Yokota AB",
+			State:          "Tokyo",
+			PostalCode:     "197-0001",
+			County:         "Japan",
+			IsOconus:       models.BoolPointer(true),
+		}
+		suite.MustSave(&customAddressOCONUS)
+		army := models.AffiliationARMY
+
+		origDutyLocationOCONUS := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{Model: customAddressOCONUS, Type: &factory.Addresses.DutyLocationAddress},
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: false,
+				},
+			},
+			{Model: models.TransportationOffice{
+				Name:             "Yokota AB",
+				Gbloc:            "JPN1",
+				ProvidesCloseout: true,
+			}},
+			{Model: models.ServiceMember{Affiliation: &army}},
+		}, nil)
+
+		suite.NotNil(origDutyLocationOCONUS)
+		suite.NotNil(suite.toFetcher)
+		officeOCONUS, err := suite.toFetcher.FindClosestCounselingOffice(suite.AppContextForTest(), origDutyLocationOCONUS.ID)
+		suite.NoError(err)
+		suite.NotNil(officeOCONUS)
+		suite.Equal("Yokota AB - USN", officeOCONUS.Name) // Check for OCONUS condition
+	})
+}
