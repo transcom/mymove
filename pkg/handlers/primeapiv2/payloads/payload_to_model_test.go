@@ -107,10 +107,12 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	destCity := "Beverly Hills"
 	destPostalCode := "90210"
 	destStreet := "123 Rodeo Dr."
+	destUSPRCID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	sitFinalDestAddress := primev2messages.Address{
-		City:           &destCity,
-		PostalCode:     &destPostalCode,
-		StreetAddress1: &destStreet,
+		City:                 &destCity,
+		PostalCode:           &destPostalCode,
+		StreetAddress1:       &destStreet,
+		UsPostRegionCitiesID: destUSPRCID,
 	}
 
 	destServiceItem := &primev2messages.MTOServiceItemDestSIT{
@@ -373,6 +375,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
 		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
 		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
 	})
 
 	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
@@ -392,6 +395,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
 		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
 		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
 		suite.Equal(destReason, *returnedModel.Reason)
 	})
 }
