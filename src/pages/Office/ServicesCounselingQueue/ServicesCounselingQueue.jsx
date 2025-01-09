@@ -26,7 +26,6 @@ import {
   useUserQueries,
   useMoveSearchQueries,
   useCustomerSearchQueries,
-  useBulkAssignmentQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingOriginLocations,
@@ -206,7 +205,10 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
             <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
               <Dropdown
                 defaultValue={row.assignedTo?.officeUserId}
-                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
+                onChange={(e) => {
+                  handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR);
+                  window.location.reload();
+                }}
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
@@ -517,7 +519,6 @@ const ServicesCounselingQueue = ({
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
-  const { bulkAssignmentData } = useBulkAssignmentQueries('COUNSELING');
 
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -666,6 +667,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          queueType="CLOSEOUT"
         />
       </div>
     );
@@ -695,7 +697,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
-          bulkAssignmentData={bulkAssignmentData} // do we want to pass it everytime?
+          queueType="COUNSELING"
         />
       </div>
     );

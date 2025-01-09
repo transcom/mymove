@@ -6,62 +6,7 @@ import styles from './BulkAssignmentModal.module.scss';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
-const data = {
-  availableOfficeUsers: [
-    {
-      firstName: 'John',
-      lastName: 'Snow',
-      officeUserId: '123',
-      workload: 0,
-    },
-    {
-      firstName: 'Jane',
-      lastName: 'Doe',
-      officeUserId: '456',
-      workload: 1,
-    },
-    {
-      firstName: 'Jimmy',
-      lastName: 'Page',
-      officeUserId: '789',
-      workload: 2,
-    },
-    {
-      firstName: 'Peter',
-      lastName: 'Pan',
-      officeUserId: '101',
-      workload: 3,
-    },
-    {
-      firstName: 'Ringo',
-      lastName: 'Starr',
-      officeUserId: '111',
-      workload: 4,
-    },
-    {
-      firstName: 'George',
-      lastName: 'Harrison',
-      officeUserId: '121',
-      workload: 5,
-    },
-    {
-      firstName: 'Stuart',
-      lastName: 'Skinner',
-      officeUserId: '131',
-      workload: 6,
-    },
-  ],
-  bulkAssignmentMoveIDs: ['1', '2', '3', '4', '5'],
-};
-
-export const BulkAssignmentModal = ({
-  onClose,
-  onSubmit,
-  title,
-  submitText,
-  closeText,
-  //  bulkAssignmentData,
-}) => (
+export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, bulkAssignmentData }) => (
   <div>
     <Modal className={styles.BulkModal}>
       <ModalClose handleClick={() => onClose()} />
@@ -76,22 +21,28 @@ export const BulkAssignmentModal = ({
             <th>Workload</th>
             <th>Assignment</th>
           </tr>
-          {data.availableOfficeUsers.map((user) => {
-            return (
-              <tr>
-                <td className={styles.BulkAssignmentDataCenter}>
-                  <input type="checkbox" />
-                </td>
-                <td>
-                  {user.firstName},{user.lastName}
-                </td>
-                <td className={styles.BulkAssignmentDataCenter}>{user.workload}</td>
-                <td className={styles.BulkAssignmentDataCenter}>
-                  <input className={styles.BulkAssignmentAssignment} type="number" />
-                </td>
-              </tr>
-            );
-          })}
+          {Object.prototype.hasOwnProperty.call(bulkAssignmentData, 'availableOfficeUsers')
+            ? bulkAssignmentData.availableOfficeUsers.map((user) => {
+                return (
+                  <tr key={user}>
+                    <td className={styles.BulkAssignmentDataCenter}>
+                      <input type="checkbox" />
+                    </td>
+                    <td>
+                      <p data-testid="bulkAssignmentUser">
+                        {user.lastName}, {user.firstName}
+                      </p>
+                    </td>
+                    <td className={styles.BulkAssignmentDataCenter}>
+                      <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
+                    </td>
+                    <td className={styles.BulkAssignmentDataCenter}>
+                      <input className={styles.BulkAssignmentAssignment} type="number" />
+                    </td>
+                  </tr>
+                );
+              })
+            : null}
         </table>
       </div>
       <ModalActions autofocus="true">
