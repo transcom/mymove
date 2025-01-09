@@ -70,7 +70,7 @@ func FetchParameterValueByName(db *pop.Connection, param string) (ApplicationPar
 
 func FetchDomesticMobileHomeParameters(db *pop.Connection) (map[string]ApplicationParameters, error) {
 	DMHParams := make(map[string]ApplicationParameters)
-	paramNames := [10]string{DMHDPEnabled,
+	paramNames := [8]string{DMHDPEnabled,
 		DMHOPEnabled,
 		DMHPKEnabled,
 		DMHUPKEnabled,

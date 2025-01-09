@@ -1181,7 +1181,7 @@ func reServiceCodesForShipment(appCtx appcontext.AppContext, shipment models.MTO
 
 		// Skip service item if this is a mobile home shipment and the toggle for this item type is turned off
 		if *DMHParams[models.DMHDPEnabled].ParameterValue == "true" {
-			if *DMHParams[models.DMHDPFactor].ParameterValue == "true" { // Downgrade to regular DDP service item (no mobile home factor applied)
+			if *DMHParams[models.DMHDPFactor].ParameterValue != "true" { // Downgrade to regular DDP service item (no mobile home factor applied)
 				currentCode = models.ReServiceCodeDDP
 			} else {
 				serviceCodes = append(serviceCodes, models.ReServiceCodeDMHF) // Also add the DMHF code if the factor toggle is enabled
@@ -1191,7 +1191,7 @@ func reServiceCodesForShipment(appCtx appcontext.AppContext, shipment models.MTO
 		}
 
 		if *DMHParams[models.DMHOPEnabled].ParameterValue == "true" {
-			if *DMHParams[models.DMHOPFactor].ParameterValue == "true" {
+			if *DMHParams[models.DMHOPFactor].ParameterValue != "true" {
 				currentCode = models.ReServiceCodeDOP
 			} else {
 				currentCode = models.ReServiceCodeDMHOP
@@ -1200,7 +1200,7 @@ func reServiceCodesForShipment(appCtx appcontext.AppContext, shipment models.MTO
 		}
 
 		if *DMHParams[models.DMHPKEnabled].ParameterValue == "true" {
-			if *DMHParams[models.DMHPKFactor].ParameterValue == "true" {
+			if *DMHParams[models.DMHPKFactor].ParameterValue != "true" {
 				currentCode = models.ReServiceCodeDPK
 			} else {
 				currentCode = models.ReServiceCodeDMHPK
@@ -1209,7 +1209,7 @@ func reServiceCodesForShipment(appCtx appcontext.AppContext, shipment models.MTO
 		}
 
 		if *DMHParams[models.DMHUPKEnabled].ParameterValue == "true" {
-			if *DMHParams[models.DMHUPKFactor].ParameterValue == "true" {
+			if *DMHParams[models.DMHUPKFactor].ParameterValue != "true" {
 				currentCode = models.ReServiceCodeDUPK
 			} else {
 				currentCode = models.ReServiceCodeDMHUPK
