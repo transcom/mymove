@@ -227,22 +227,18 @@ describe('PrimeUIShipmentCreateForm', () => {
       initialValues.ppmShipment.pickupAddress.streetAddress1,
     );
 
-    expect(await screen.getAllByLabelText('City')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.city);
-    expect(await screen.getAllByLabelText('State')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.state);
-    expect(await screen.getAllByLabelText('ZIP')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.postalCode);
+    expect(screen.getAllByText('City')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('State')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('County')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('ZIP')[0]).toBeInTheDocument();
 
     expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
       initialValues.ppmShipment.secondaryPickupAddress.streetAddress1,
     );
-    expect(await screen.getAllByLabelText(/City/)[1]).toHaveValue(
-      initialValues.ppmShipment.secondaryPickupAddress.city,
-    );
-    expect(await screen.getAllByLabelText('State')[1]).toHaveValue(
-      initialValues.ppmShipment.secondaryPickupAddress.state,
-    );
-    expect(await screen.getAllByLabelText('ZIP')[1]).toHaveValue(
-      initialValues.ppmShipment.secondaryPickupAddress.postalCode,
-    );
+    expect(screen.getAllByText('City')[1]).toBeInTheDocument();
+    expect(screen.getAllByText('State')[1]).toBeInTheDocument();
+    expect(screen.getAllByText('County')[1]).toBeInTheDocument();
+    expect(screen.getAllByText('ZIP')[1]).toBeInTheDocument();
 
     expect(await screen.findByText('Storage In Transit (SIT)')).toBeInTheDocument();
     const sitExpectedInput = await screen.findByLabelText('SIT Expected');

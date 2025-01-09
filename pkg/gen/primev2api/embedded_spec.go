@@ -399,6 +399,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -1956,6 +1961,16 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "destinationGBLOC": {
+          "type": "string",
+          "readOnly": true,
+          "example": "KKFA"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "90210"
         },
         "eTag": {
           "type": "string",
@@ -4006,6 +4021,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -5563,6 +5583,16 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "destinationGBLOC": {
+          "type": "string",
+          "readOnly": true,
+          "example": "KKFA"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "90210"
         },
         "eTag": {
           "type": "string",
