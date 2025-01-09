@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Radio, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
 import { Field, useField, useFormikContext } from 'formik';
 
-import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES, FEATURE_FLAG_KEYS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
@@ -17,7 +15,7 @@ import { LOCATION_TYPES } from 'types/sitStatusShape';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
-const PrimeUIShipmentCreateForm = () => {
+const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
   const { values, setFieldTouched, setFieldValue } = useFormikContext();
   const { shipmentType } = values;
   const { sitExpected, hasProGear } = values.ppmShipment;
@@ -25,8 +23,6 @@ const PrimeUIShipmentCreateForm = () => {
   const [, , checkBoxHelperProps] = useField('diversion');
   const [, , divertedFromIdHelperProps] = useField('divertedFromShipmentId');
   const [isChecked, setIsChecked] = useState(false);
-  const [enableBoat, setEnableBoat] = useState(false);
-  const [enableMobileHome, setEnableMobileHome] = useState(false);
 
   const hasShipmentType = !!shipmentType;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
@@ -79,14 +75,6 @@ const PrimeUIShipmentCreateForm = () => {
 
     return undefined;
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
-      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
-    };
-    fetchData();
-  }, []);
 
   let shipmentTypeOptions = Object.values(SHIPMENT_TYPES).map((value) => ({ key: value, value }));
   if (!enableBoat) {
@@ -463,7 +451,7 @@ const PrimeUIShipmentCreateForm = () => {
                       name="hasSecondaryPickupAddress"
                       value="false"
                       title="No, there is not a second pickup address"
-                      checked={hasSecondaryPickupAddress !== 'true'}
+                      checked={hasSecondaryPickupAddress !== 'true' && hasTertiaryPickupAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>
@@ -565,7 +553,7 @@ const PrimeUIShipmentCreateForm = () => {
                       name="hasSecondaryDestinationAddress"
                       value="false"
                       title="No, there is not a second delivery address"
-                      checked={hasSecondaryDestinationAddress !== 'true'}
+                      checked={hasSecondaryDestinationAddress !== 'true' && hasTertiaryDestinationAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>
