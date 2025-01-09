@@ -1610,6 +1610,36 @@ paths:
         ```
 
         ---
+
+
+        International SIT Service Items & Accepted Payment Request Parameters:
+
+        ---
+
+        **IOSHUT - International origin shuttle service**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **IDSHUT - International destination shuttle service**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        ---
       operationId: createPaymentRequest
       tags:
         - paymentRequest
