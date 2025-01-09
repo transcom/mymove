@@ -408,7 +408,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                 validationSchema={validationSchema}
                 validateOnMount
               >
-                {({ isValid, isSubmitting, handleSubmit }) => {
+                {({ isValid, isSubmitting, handleSubmit, setFieldValue, setFieldTouched }) => {
                   return (
                     <Form className={formStyles.form}>
                       {isPPM ? (
@@ -438,6 +438,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                           tertiaryDeliveryAddress={initialValues.tertiaryDeliveryAddress}
                           diversion={initialValues.diversion}
                           shipmentType={shipment.shipmentType}
+                          formikProps={{ setFieldValue, setFieldTouched }}
                         />
                       )}
                       <div className={formStyles.formActions}>
