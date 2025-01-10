@@ -460,7 +460,7 @@ func formatAdditionalShipments(ssfd models.ShipmentSummaryFormData) (map[string]
 			page3Map[fmt.Sprintf("AddShipmentStatus%d", i)] = FormatCurrentPPMStatus(*shipment.PPMShipment)
 		case shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS Release"
-		case shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom:
+		case shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS"
 		case shipment.ShipmentType == models.MTOShipmentTypeMobileHome:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Mobile Home"

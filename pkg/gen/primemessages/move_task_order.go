@@ -39,6 +39,16 @@ type MoveTaskOrder struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
+	// destination g b l o c
+	// Example: KKFA
+	// Read Only: true
+	DestinationGBLOC string `json:"destinationGBLOC,omitempty"`
+
+	// destination postal code
+	// Example: 90210
+	// Read Only: true
+	DestinationPostalCode string `json:"destinationPostalCode,omitempty"`
+
 	// e tag
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
@@ -127,6 +137,10 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
+		DestinationGBLOC string `json:"destinationGBLOC,omitempty"`
+
+		DestinationPostalCode string `json:"destinationPostalCode,omitempty"`
+
 		ETag string `json:"eTag,omitempty"`
 
 		ExcessWeightAcknowledgedAt *strfmt.DateTime `json:"excessWeightAcknowledgedAt"`
@@ -182,6 +196,12 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 	// createdAt
 	result.CreatedAt = data.CreatedAt
+
+	// destinationGBLOC
+	result.DestinationGBLOC = data.DestinationGBLOC
+
+	// destinationPostalCode
+	result.DestinationPostalCode = data.DestinationPostalCode
 
 	// eTag
 	result.ETag = data.ETag
@@ -247,6 +267,10 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
+		DestinationGBLOC string `json:"destinationGBLOC,omitempty"`
+
+		DestinationPostalCode string `json:"destinationPostalCode,omitempty"`
+
 		ETag string `json:"eTag,omitempty"`
 
 		ExcessWeightAcknowledgedAt *strfmt.DateTime `json:"excessWeightAcknowledgedAt"`
@@ -283,6 +307,10 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		AvailableToPrimeAt: m.AvailableToPrimeAt,
 
 		CreatedAt: m.CreatedAt,
+
+		DestinationGBLOC: m.DestinationGBLOC,
+
+		DestinationPostalCode: m.DestinationPostalCode,
 
 		ETag: m.ETag,
 
@@ -655,6 +683,14 @@ func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Regi
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationGBLOC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDestinationPostalCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -726,6 +762,24 @@ func (m *MoveTaskOrder) contextValidateAvailableToPrimeAt(ctx context.Context, f
 func (m *MoveTaskOrder) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateDestinationGBLOC(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "destinationGBLOC", "body", string(m.DestinationGBLOC)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateDestinationPostalCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "destinationPostalCode", "body", string(m.DestinationPostalCode)); err != nil {
 		return err
 	}
 
