@@ -344,7 +344,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 		})
 	}
 
-	suite.PreloadData(func() {
+	setupData := func() {
 		setupPricerData()
 		sitLocationDestination := models.SITLocationTypeDestination
 		entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
@@ -389,7 +389,8 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 		mockedPlanner := &routemocks.Planner{}
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 			"90210", "30813", false, false).Return(2294, nil)
-	})
+	}
+	setupData()
 
 	setUpGetCostRequestAndParams := func() ppmsitops.GetPPMSITEstimatedCostParams {
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/sit_location/%s/sit-estimated-cost", ppmShipment.ID.String(), *ppmShipment.SITLocation)

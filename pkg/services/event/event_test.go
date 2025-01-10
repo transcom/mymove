@@ -22,6 +22,8 @@ type EventServiceSuite struct {
 
 func (suite *EventServiceSuite) SetupSuite() {
 	suite.PreloadData(func() {
+		err := factory.DeleteAllotmentsFromDatabase(suite.DB())
+		suite.FatalNoError(err)
 		factory.SetupDefaultAllotments(suite.DB())
 	})
 }

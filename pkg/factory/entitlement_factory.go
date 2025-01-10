@@ -162,6 +162,20 @@ func BuildHHGAllowance(db *pop.Connection, customs []Customization, traits []Tra
 	return hhgAllowance
 }
 
+func DeleteAllotmentsFromDatabase(db *pop.Connection) error {
+	if db != nil {
+		err := db.RawQuery("DELETE FROM hhg_allowances").Exec()
+		if err != nil {
+			return err
+		}
+		err = db.RawQuery("DELETE FROM pay_grades").Exec()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Helper function to retrieve default weight data by grade
 func getDefaultWeightData(grade string) struct {
 	TotalWeightSelf               int

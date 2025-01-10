@@ -18,6 +18,8 @@ type HandlerSuite struct {
 
 func (suite *HandlerSuite) SetupSuite() {
 	suite.PreloadData(func() {
+		err := factory.DeleteAllotmentsFromDatabase(suite.DB())
+		suite.FatalNoError(err)
 		factory.SetupDefaultAllotments(suite.DB())
 	})
 }

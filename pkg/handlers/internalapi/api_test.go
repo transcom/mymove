@@ -27,8 +27,16 @@ type HandlerSuite struct {
 	handlers.BaseHandlerTestSuite
 }
 
+func (suite *HandlerSuite) deleteAllotmentsFromDatabase() {
+	err := suite.DB().RawQuery("DELETE FROM hhg_allowances").Exec()
+	suite.FatalNoError(err)
+	err = suite.DB().RawQuery("DELETE FROM pay_grades").Exec()
+	suite.FatalNoError(err)
+}
+
 func (suite *HandlerSuite) SetupSuite() {
 	suite.PreloadData(func() {
+		suite.deleteAllotmentsFromDatabase()
 		factory.SetupDefaultAllotments(suite.DB())
 		factory.FetchOrBuildCountry(suite.DB(), []factory.Customization{
 			{

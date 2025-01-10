@@ -10,7 +10,6 @@ import (
 
 func (suite *FactorySuite) TestBuildEntitlement() {
 	fetcher := entitlements.NewWeightAllotmentFetcher()
-
 	setupE1Allotment := func() {
 		pg := BuildPayGrade(suite.DB(), []Customization{
 			{
@@ -301,10 +300,15 @@ func (suite *FactorySuite) TestBuildHHGAllowance() {
 	})
 }
 
+func (suite *FactorySuite) deleteAllotmentsFromDatabase() {
+	err := suite.DB().RawQuery("DELETE FROM hhg_allowances").Exec()
+	suite.FatalNoError(err)
+	err = suite.DB().RawQuery("DELETE FROM pay_grades").Exec()
+	suite.FatalNoError(err)
+}
+
 func (suite *FactorySuite) TestSetupAllAllotments() {
 	suite.Run("Successful creation of allotments for all known grades", func() {
-		err := suite.DB().TruncateAll()
-		suite.NoError(err)
 
 		SetupDefaultAllotments(suite.DB())
 

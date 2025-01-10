@@ -927,7 +927,7 @@ func (suite *HandlerSuite) TestCheckForLockedMovesAndUnlockHandler() {
 
 		return req, handler
 	}
-	suite.PreloadData(setupLockedMove)
+	setupLockedMove()
 
 	suite.Run("Successful unlocking of move", func() {
 		req, handler := setupTestData()

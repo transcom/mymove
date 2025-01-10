@@ -27,7 +27,7 @@ import (
 func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerUnit() {
 	var ppmShipment models.PPMShipment
 
-	suite.PreloadData(func() {
+	setupData := func() {
 		userUploader, err := uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 
 		suite.FatalNoError(err)
@@ -54,7 +54,8 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerUnit() {
 				},
 			}, nil),
 		)
-	})
+	}
+	setupData()
 
 	setUpRequestAndParams := func() movingexpenseops.UpdateMovingExpenseParams {
 		movingExpense := ppmShipment.MovingExpenses[0]
@@ -236,7 +237,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 	var ppmShipment models.PPMShipment
 	var movingExpense models.MovingExpense
 
-	suite.PreloadData(func() {
+	setupData := func() {
 		var err error
 
 		userUploader, err = uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
@@ -270,7 +271,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 		}, nil)
 
 		ppmShipment.MovingExpenses = append(ppmShipment.MovingExpenses, movingExpense)
-	})
+	}
 
 	setUpRequestAndParams := func(movingExpense models.MovingExpense) movingexpenseops.UpdateMovingExpenseParams {
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expense/%s", ppmShipment.ID.String(), movingExpense.ID.String())
@@ -330,6 +331,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 
 	suite.Run("Success", func() {
 		suite.Run("Can approve a moving expense", func() {
+			setupData()
 			params := setUpRequestAndParams(ppmShipment.MovingExpenses[0])
 
 			params.UpdateMovingExpense.Status = ghcmessages.PPMDocumentStatusAPPROVED
@@ -352,6 +354,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 		})
 
 		suite.Run("Can exclude a moving expense", func() {
+			setupData()
 			params := setUpRequestAndParams(ppmShipment.MovingExpenses[0])
 
 			reason := "Not a valid receipt"
@@ -380,6 +383,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 		})
 
 		suite.Run("Can reject a moving expense", func() {
+			setupData()
 			params := setUpRequestAndParams(ppmShipment.MovingExpenses[0])
 
 			reason := "Over budget!"
@@ -408,6 +412,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 		})
 
 		suite.Run("Can update a non-storage moving expense", func() {
+			setupData()
 			params := setUpRequestAndParams(ppmShipment.MovingExpenses[0])
 
 			newAmount := movingExpense.Amount.AddCents(1000)
@@ -435,6 +440,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 		})
 
 		suite.Run("Can update a storage moving expense", func() {
+			setupData()
 			storageExpenseType := models.MovingExpenseReceiptTypeStorage
 			storageMovingExpense := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
 				{
@@ -503,6 +509,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 
 	suite.Run("Failure", func() {
 		suite.Run("Returns a Forbidden response if the request doesn't come from the office app", func() {
+			setupData()
 			params := setUpRequestAndParams(ppmShipment.MovingExpenses[0])
 
 			params.HTTPRequest = suite.AuthenticateRequest(params.HTTPRequest, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
@@ -515,6 +522,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 		})
 
 		suite.Run("Returns a NotFound response when the moving expense is not found", func() {
+			setupData()
 			params := setUpRequestAndParams(ppmShipment.MovingExpenses[0])
 
 			params.MovingExpenseID = handlers.FmtUUIDValue(uuid.Must(uuid.NewV4()))
@@ -527,6 +535,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 		})
 
 		suite.Run("Returns a PreconditionFailed response when the eTag doesn't match the expected eTag", func() {
+			setupData()
 			params := setUpRequestAndParams(ppmShipment.MovingExpenses[0])
 
 			params.IfMatch = "wrong eTag"
@@ -547,6 +556,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 		})
 
 		suite.Run("Returns an UnprocessableEntity response when the requested updates aren't valid", func() {
+			setupData()
 			params := setUpRequestAndParams(ppmShipment.MovingExpenses[0])
 
 			params.UpdateMovingExpense = &ghcmessages.UpdateMovingExpense{

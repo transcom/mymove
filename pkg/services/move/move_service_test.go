@@ -15,6 +15,8 @@ type MoveServiceSuite struct {
 
 func (suite *MoveServiceSuite) SetupSuite() {
 	suite.PreloadData(func() {
+		err := factory.DeleteAllotmentsFromDatabase(suite.DB())
+		suite.FatalNoError(err)
 		factory.SetupDefaultAllotments(suite.DB())
 	})
 }

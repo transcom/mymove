@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -15,6 +16,12 @@ type EntitlementsServiceSuite struct {
 	fs *afero.Afero
 }
 
+func (suite *EntitlementsServiceSuite) SetupSuite() {
+	suite.PreloadData(func() {
+		err := factory.DeleteAllotmentsFromDatabase(suite.DB())
+		suite.FatalNoError(err)
+	})
+}
 func TestEntitlementsServiceSuite(t *testing.T) {
 	var f = afero.NewMemMapFs()
 	file := &afero.Afero{Fs: f}

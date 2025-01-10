@@ -15,6 +15,8 @@ type MTOShipmentServiceSuite struct {
 
 func (suite *MTOShipmentServiceSuite) SetupSuite() {
 	suite.PreloadData(func() {
+		err := factory.DeleteAllotmentsFromDatabase(suite.DB())
+		suite.FatalNoError(err)
 		factory.SetupDefaultAllotments(suite.DB())
 	})
 }

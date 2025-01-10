@@ -108,7 +108,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		suite.MustSave(&csTaskOrderFee)
 	}
 
-	suite.PreloadData(setupPricerData)
+	setupPricerData()
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}

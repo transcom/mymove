@@ -28,7 +28,7 @@ import (
 func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 	var ppmShipment models.PPMShipment
 
-	suite.PreloadData(func() {
+	setupData := func() {
 		userUploader, err := uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 
 		suite.FatalNoError(err)
@@ -103,7 +103,8 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 			)
 		}
 
-	})
+	}
+	setupData()
 
 	setUpRequestAndParams := func() ppmdocumentops.GetPPMDocumentsParams {
 		endpoint := fmt.Sprintf("/shipments/%s/ppm-documents", ppmShipment.Shipment.ID.String())
@@ -233,7 +234,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 
 	var ppmShipment models.PPMShipment
 
-	suite.PreloadData(func() {
+	setupData := func() {
 		userUploader, err := uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 
 		suite.FatalNoError(err)
@@ -308,7 +309,8 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 			)
 		}
 
-	})
+	}
+	setupData()
 
 	setUpParamsAndHandler := func() (ppmdocumentops.GetPPMDocumentsParams, GetPPMDocumentsHandler) {
 		endpoint := fmt.Sprintf("/shipments/%s/ppm-documents", ppmShipment.Shipment.ID.String())

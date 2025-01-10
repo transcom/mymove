@@ -19,8 +19,16 @@ type PayloadsSuite struct {
 	storer storage.FileStorer
 }
 
+func (suite *PayloadsSuite) deleteAllotmentsFromDatabase() {
+	err := suite.DB().RawQuery("DELETE FROM hhg_allowances").Exec()
+	suite.FatalNoError(err)
+	err = suite.DB().RawQuery("DELETE FROM pay_grades").Exec()
+	suite.FatalNoError(err)
+}
+
 func (suite *PayloadsSuite) SetupSuite() {
 	suite.PreloadData(func() {
+		suite.deleteAllotmentsFromDatabase()
 		factory.SetupDefaultAllotments(suite.DB())
 	})
 }
