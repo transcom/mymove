@@ -18,8 +18,6 @@ COPY config/tls/api.loadtest.dp3.us.crt /config/tls/api.loadtest.dp3.us.crt
 COPY config/tls/api.exp.dp3.us.chain.der.p7b /config/tls/api.exp.dp3.us.chain.der.p7b
 COPY config/tls/api.exp.dp3.us.crt /config/tls/api.exp.dp3.us.crt
 
-COPY config/pdfcpu/config.yml /config/pdfcpu/config.yml
-
 COPY swagger/* /swagger/
 COPY build /build
 COPY public/static/react-file-viewer /public/static/react-file-viewer

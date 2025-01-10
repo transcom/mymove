@@ -18,8 +18,6 @@ COPY bin/milmove /bin/milmove
 COPY config/tls/milmove-cert-bundle.p7b /config/tls/milmove-cert-bundle.p7b
 COPY config/tls/dod-sw-ca-75.pem /config/tls/dod-sw-ca-75.pem
 
-COPY config/pdfcpu/config.yml /config/pdfcpu/config.yml
-
 COPY swagger/* /swagger/
 COPY build /build
 COPY public/static/react-file-viewer /public/static/react-file-viewer
