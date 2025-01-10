@@ -619,7 +619,7 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 
 	weight := shipment.PrimeEstimatedWeight
 
-	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 		weight = shipment.NTSRecordedWeight
 	}
 
