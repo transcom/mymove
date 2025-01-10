@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -21,7 +20,7 @@ import (
 // NotificationQueueParams stores the params for queue creation
 type NotificationQueueParams struct {
 	SubscriptionTopicName string
-	NamePrefix            string
+	NamePrefix            QueuePrefixType
 	FilterPolicy          string
 }
 
@@ -30,7 +29,7 @@ type NotificationQueueParams struct {
 //go:generate mockery --name NotificationReceiver
 type NotificationReceiver interface {
 	CreateQueueWithSubscription(appCtx appcontext.AppContext, params NotificationQueueParams) (string, error)
-	ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]ReceivedMessage, error)
+	ReceiveMessages(appCtx appcontext.AppContext, queueUrl string, timerContext context.Context) ([]ReceivedMessage, error)
 	CloseoutQueue(appCtx appcontext.AppContext, queueUrl string) error
 	GetDefaultTopic() (string, error)
 }
@@ -45,6 +44,13 @@ type NotificationReceiverContext struct {
 	queueSubscriptionMap map[string]string
 	receiverCancelMap    map[string]context.CancelFunc
 }
+
+// QueuePrefixType represents a prefix identifier given to a name of dynamic notification queues
+type QueuePrefixType string
+
+const (
+	QueuePrefixObjectTagsAdded QueuePrefixType = "ObjectTagsAdded"
+)
 
 type SnsClient interface {
 	Subscribe(ctx context.Context, params *sns.SubscribeInput, optFns ...func(*sns.Options)) (*sns.SubscribeOutput, error)
@@ -118,7 +124,8 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 
 	result, err := n.sqsService.CreateQueue(context.Background(), input)
 	if err != nil {
-		log.Fatalf("Failed to create SQS queue, %v", err)
+		appCtx.Logger().Error("Failed to create SQS queue, %v", zap.Error(err))
+		return "", err
 	}
 
 	subscribeInput := &sns.SubscribeInput{
@@ -132,17 +139,18 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 	}
 	subscribeOutput, err := n.snsService.Subscribe(context.Background(), subscribeInput)
 	if err != nil {
-		log.Fatalf("Failed to create subscription, %v", err)
+		appCtx.Logger().Error("Failed to create subscription, %v", zap.Error(err))
+		return "", err
 	}
 
 	n.queueSubscriptionMap[*result.QueueUrl] = *subscribeOutput.SubscriptionArn
 
-	return *result.QueueUrl, err
+	return *result.QueueUrl, nil
 }
 
 // ReceiveMessages polls given queue continuously for messages for up to 20 seconds
-func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]ReceivedMessage, error) {
-	recCtx, cancelRecCtx := context.WithCancel(context.Background())
+func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string, timerContext context.Context) ([]ReceivedMessage, error) {
+	recCtx, cancelRecCtx := context.WithCancel(timerContext)
 	defer cancelRecCtx()
 	n.receiverCancelMap[queueUrl] = cancelRecCtx
 
@@ -151,13 +159,13 @@ func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContex
 		MaxNumberOfMessages: 1,
 		WaitTimeSeconds:     20,
 	})
-	if err != nil && recCtx.Err() != context.Canceled {
-		appCtx.Logger().Info("Couldn't get messages from queue. Error: %v\n", zap.Error(err))
-		return nil, err
+	if errors.Is(recCtx.Err(), context.Canceled) || errors.Is(recCtx.Err(), context.DeadlineExceeded) {
+		return nil, recCtx.Err()
 	}
 
-	if recCtx.Err() == context.Canceled {
-		return nil, recCtx.Err()
+	if err != nil {
+		appCtx.Logger().Info("Couldn't get messages from queue. Error: %v\n", zap.Error(err))
+		return nil, err
 	}
 
 	receivedMessages := make([]ReceivedMessage, len(result.Messages))
@@ -207,8 +215,9 @@ func (n NotificationReceiverContext) GetDefaultTopic() (string, error) {
 	return topicName, nil
 }
 
-// InitReceiver initializes the receiver backend
+// InitReceiver initializes the receiver backend, only call this once
 func InitReceiver(v ViperType, logger *zap.Logger) (NotificationReceiver, error) {
+
 	if v.GetString(cli.ReceiverBackendFlag) == "sns&sqs" {
 		// Setup notification receiver service with SNS & SQS backend dependencies
 		awsSNSRegion := v.GetString(cli.SNSRegionFlag)
@@ -227,7 +236,15 @@ func InitReceiver(v ViperType, logger *zap.Logger) (NotificationReceiver, error)
 		snsService := sns.NewFromConfig(cfg)
 		sqsService := sqs.NewFromConfig(cfg)
 
-		return NewNotificationReceiver(v, snsService, sqsService, awsSNSRegion, awsAccountId), nil
+		notificationReceiver := NewNotificationReceiver(v, snsService, sqsService, awsSNSRegion, awsAccountId)
+
+		// Remove any remaining previous notification queues on server start
+		err = notificationReceiver.wipeAllNotificationQueues(snsService, sqsService, logger)
+		if err != nil {
+			return nil, err
+		}
+
+		return notificationReceiver, nil
 	}
 
 	return NewStubNotificationReceiver(), nil
@@ -235,4 +252,55 @@ func InitReceiver(v ViperType, logger *zap.Logger) (NotificationReceiver, error)
 
 func (n NotificationReceiverContext) constructArn(awsService string, endpointName string) string {
 	return fmt.Sprintf("arn:aws-us-gov:%s:%s:%s:%s", awsService, n.awsRegion, n.awsAccountId, endpointName)
+}
+
+// Removes ALL previously created notification queues
+func (n *NotificationReceiverContext) wipeAllNotificationQueues(snsService *sns.Client, sqsService *sqs.Client, logger *zap.Logger) error {
+
+	defaultTopic, err := n.GetDefaultTopic()
+	if err != nil {
+		return err
+	}
+
+	logger.Info("Removing previous subscriptions...")
+	paginator := sns.NewListSubscriptionsByTopicPaginator(snsService, &sns.ListSubscriptionsByTopicInput{
+		TopicArn: aws.String(n.constructArn("sns", defaultTopic)),
+	})
+
+	for paginator.HasMorePages() {
+		output, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return err
+		}
+		for _, subscription := range output.Subscriptions {
+			if strings.Contains(*subscription.Endpoint, string(QueuePrefixObjectTagsAdded)) {
+				logger.Info("Subscription ARN: ", zap.String("subscription arn", *subscription.SubscriptionArn))
+				logger.Info("Endpoint ARN: ", zap.String("endpoint arn", *subscription.Endpoint))
+				_, err = snsService.Unsubscribe(context.Background(), &sns.UnsubscribeInput{
+					SubscriptionArn: subscription.SubscriptionArn,
+				})
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	logger.Info("Removing previous queues...")
+	result, err := sqsService.ListQueues(context.Background(), &sqs.ListQueuesInput{
+		QueueNamePrefix: aws.String(string(QueuePrefixObjectTagsAdded)),
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, url := range result.QueueUrls {
+		_, err = sqsService.DeleteQueue(context.Background(), &sqs.DeleteQueueInput{
+			QueueUrl: &url,
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

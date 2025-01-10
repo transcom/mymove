@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -258,7 +259,7 @@ type GetUploadStatusHandler struct {
 	services.UploadInformationFetcher
 }
 
-type CustomNewUploadStatusOK struct {
+type CustomGetUploadStatusResponse struct {
 	params     uploadop.GetUploadStatusParams
 	storageKey string
 	appCtx     appcontext.AppContext
@@ -278,39 +279,45 @@ const (
 	AVStatusTypeINFECTED AVStatusType = "INFECTED"
 )
 
-func writeEventStreamMessage(rw http.ResponseWriter, producer runtime.Producer, id int, event string, data string) {
+func (o *CustomGetUploadStatusResponse) writeEventStreamMessage(rw http.ResponseWriter, producer runtime.Producer, id int, event string, data string) {
 	resProcess := []byte(fmt.Sprintf("id: %s\nevent: %s\ndata: %s\n\n", strconv.Itoa(id), event, data))
 	if produceErr := producer.Produce(rw, resProcess); produceErr != nil {
-		panic(produceErr)
+		o.appCtx.Logger().Error(produceErr.Error())
 	}
 	if f, ok := rw.(http.Flusher); ok {
 		f.Flush()
 	}
 }
 
-func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	// Check current tag before event-driven wait for anti-virus
 	tags, err := o.storer.Tags(o.storageKey)
 	var uploadStatus AVStatusType
 	if err != nil || len(tags) == 0 {
 		uploadStatus = AVStatusTypePROCESSING
-	} else {
+	} else if _, exists := tags["av-status"]; exists {
 		uploadStatus = AVStatusType(tags["av-status"])
+	} else {
+		uploadStatus = AVStatusTypePROCESSING
 	}
 
-	writeEventStreamMessage(rw, producer, 0, "message", string(uploadStatus))
-
 	if uploadStatus == AVStatusTypeCLEAN || uploadStatus == AVStatusTypeINFECTED {
-		writeEventStreamMessage(rw, producer, 1, "close", "Connection closed")
+		rw.WriteHeader(http.StatusOK)
+		o.writeEventStreamMessage(rw, producer, 0, "message", string(uploadStatus))
+		o.writeEventStreamMessage(rw, producer, 1, "close", "Connection closed")
 		return // skip notification loop since object already tagged from anti-virus
+	} else {
+		// Limitation: once the status code header has been written (first response), we are not able to update the status for subsequent responses.
+		// StatusAccepted: Standard code 202 for accepted request, but response not yet ready.
+		rw.WriteHeader(http.StatusAccepted)
+		o.writeEventStreamMessage(rw, producer, 0, "message", string(uploadStatus))
 	}
 
 	// Start waiting for tag updates
 	topicName, err := o.receiver.GetDefaultTopic()
 	if err != nil {
-		o.appCtx.Logger().Error("aws_sns_object_tags_added_topic key not available.")
-		return
+		o.appCtx.Logger().Error(err.Error())
 	}
 
 	filterPolicy := fmt.Sprintf(`{
@@ -325,7 +332,7 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 
 	notificationParams := notifications.NotificationQueueParams{
 		SubscriptionTopicName: topicName,
-		NamePrefix:            "ObjectTagsAdded",
+		NamePrefix:            notifications.QueuePrefixObjectTagsAdded,
 		FilterPolicy:          filterPolicy,
 	}
 
@@ -334,23 +341,36 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 		o.appCtx.Logger().Error(err.Error())
 	}
 
-	// Cleanup
+	id_counter := 1
+
+	// For loop over 120 seconds, cancel context when done and it breaks the loop
+	totalReceiverContext, totalReceiverContextCancelFunc := context.WithTimeout(context.Background(), 120*time.Second)
+	defer totalReceiverContextCancelFunc()
+
+	// Cleanup if client closes connection
 	go func() {
 		<-o.params.HTTPRequest.Context().Done()
+		totalReceiverContextCancelFunc()
+	}()
+
+	// Cleanup at end of work
+	go func() {
+		<-totalReceiverContext.Done()
+		id_counter++
+		o.writeEventStreamMessage(rw, producer, id_counter, "close", "Connection closed")
 		_ = o.receiver.CloseoutQueue(o.appCtx, queueUrl)
 	}()
 
-	id_counter := 1
-	// Run for 120 seconds, 20 second long polling for receiver, 6 times
-	for range 6 {
-		o.appCtx.Logger().Info("Receiving...")
-		messages, errs := o.receiver.ReceiveMessages(o.appCtx, queueUrl)
-		if errs != nil && errs != context.Canceled {
-			o.appCtx.Logger().Error(errs.Error())
-		}
+	for {
+		o.appCtx.Logger().Info("Receiving Messages...")
+		messages, errs := o.receiver.ReceiveMessages(o.appCtx, queueUrl, totalReceiverContext)
 
-		if errs == context.Canceled {
-			break
+		if errors.Is(errs, context.Canceled) || errors.Is(errs, context.DeadlineExceeded) {
+			return
+		}
+		if errs != nil {
+			o.appCtx.Logger().Error(err.Error())
+			return
 		}
 
 		if len(messages) != 0 {
@@ -360,11 +380,13 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 
 				if err != nil || len(tags) == 0 {
 					uploadStatus = AVStatusTypePROCESSING
-				} else {
+				} else if _, exists := tags["av-status"]; exists {
 					uploadStatus = AVStatusType(tags["av-status"])
+				} else {
+					uploadStatus = AVStatusTypePROCESSING
 				}
 
-				writeEventStreamMessage(rw, producer, id_counter, "message", string(uploadStatus))
+				o.writeEventStreamMessage(rw, producer, id_counter, "message", string(uploadStatus))
 
 				if uploadStatus == AVStatusTypeCLEAN || uploadStatus == AVStatusTypeINFECTED {
 					return errors.New("connection_closed")
@@ -374,16 +396,23 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 			})
 
 			if errTransaction != nil && errTransaction.Error() == "connection_closed" {
-				id_counter++
-				writeEventStreamMessage(rw, producer, id_counter, "close", "Connection closed")
-				break
+				return
 			}
 
 			if errTransaction != nil {
-				panic(errTransaction) // let the recovery middleware deal with this
+				o.appCtx.Logger().Error(err.Error())
+				return
 			}
 		}
 		id_counter++
+
+		select {
+		case <-totalReceiverContext.Done():
+			return
+		default:
+			time.Sleep(1 * time.Second) // Throttle as a precaution against hounding of the SDK
+			continue
+		}
 	}
 }
 
@@ -415,7 +444,7 @@ func (h GetUploadStatusHandler) Handle(params uploadop.GetUploadStatusParams) mi
 				return handleError(err)
 			}
 
-			return &CustomNewUploadStatusOK{
+			return &CustomGetUploadStatusResponse{
 				params:     params,
 				storageKey: uploaded.Upload.StorageKey,
 				appCtx:     h.AppContextFromRequest(params.HTTPRequest),

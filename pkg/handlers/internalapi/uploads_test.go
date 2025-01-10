@@ -486,7 +486,7 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
 	handler := GetUploadStatusHandler{handlerConfig, uploadInformationFetcher}
 
 	response := handler.Handle(params)
-	_, ok := response.(*CustomNewUploadStatusOK)
+	_, ok := response.(*CustomGetUploadStatusResponse)
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}

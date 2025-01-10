@@ -478,8 +478,11 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		appCtx.Logger().Fatal("notification sender sending not enabled", zap.Error(err))
 	}
 
-	// Email
-	notificationReceiver, _ := notifications.InitReceiver(v, appCtx.Logger())
+	// Notification Receiver
+	notificationReceiver, err := notifications.InitReceiver(v, appCtx.Logger())
+	if err != nil {
+		appCtx.Logger().Fatal("notification receiver not enabled", zap.Error(err))
+	}
 
 	routingConfig.BuildRoot = v.GetString(cli.BuildRootFlag)
 	sendProductionInvoice := v.GetBool(cli.GEXSendProdInvoiceFlag)

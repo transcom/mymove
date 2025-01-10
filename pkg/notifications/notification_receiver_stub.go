@@ -2,6 +2,7 @@ package notifications
 
 import (
 	"context"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -27,7 +28,8 @@ func (n StubNotificationReceiver) CreateQueueWithSubscription(appCtx appcontext.
 	return "stubQueueName", nil
 }
 
-func (n StubNotificationReceiver) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]ReceivedMessage, error) {
+func (n StubNotificationReceiver) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string, timerContext context.Context) ([]ReceivedMessage, error) {
+	time.Sleep(2 * time.Second)
 	messageId := "stubMessageId"
 	body := queueUrl + ":stubMessageBody"
 	mockMessages := make([]ReceivedMessage, 1)

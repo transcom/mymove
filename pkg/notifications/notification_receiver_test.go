@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
@@ -110,7 +111,10 @@ func (suite *notificationReceiverSuite) TestSuccessPath() {
 		suite.NotContains(createdQueueUrl, queueParams.NamePrefix)
 		suite.Equal(createdQueueUrl, "stubQueueName")
 
-		receivedMessages, err := localReceiver.ReceiveMessages(suite.AppContextForTest(), createdQueueUrl)
+		timerContext, cancelTimerContext := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancelTimerContext()
+
+		receivedMessages, err := localReceiver.ReceiveMessages(suite.AppContextForTest(), createdQueueUrl, timerContext)
 		suite.NoError(err)
 		suite.Len(receivedMessages, 1)
 		suite.Equal(receivedMessages[0].MessageId, "stubMessageId")
@@ -146,7 +150,10 @@ func (suite *notificationReceiverSuite) TestSuccessPath() {
 		suite.NoError(err)
 		suite.Equal("FakeQueueUrl", createdQueueUrl)
 
-		receivedMessages, err := receiver.ReceiveMessages(suite.AppContextForTest(), createdQueueUrl)
+		timerContext, cancelTimerContext := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancelTimerContext()
+
+		receivedMessages, err := receiver.ReceiveMessages(suite.AppContextForTest(), createdQueueUrl, timerContext)
 		suite.NoError(err)
 		suite.Len(receivedMessages, 1)
 		suite.Equal(receivedMessages[0].MessageId, "fakeMessageId")
