@@ -174,36 +174,19 @@ stages:
     ./scripts/rebuild-dependencies-without-binaries
 
 .yarn_cache: &yarn_cache
-  cache:
-    - key:
+    key:
       files:
         - yarn.lock
-      paths:
-        - .cache/yarn
+    paths:
+      - .cache/yarn
 
 .go_cache: &go_cache
-  cache:
-    - key:
+    key:
       files:
         - go.sum
-      paths:
-        - $GOPATH/pkg/mod
-        - /builds/milmove/mymove/bin
-
-.go_yarn_cache: &go_yarn_cache
-  cache:
-    - key:
-      files:
-        - yarn.lock
-      paths:
-        - .cache/yarn
-    - key:
-      files:
-        - go.sum
-      paths:
-        - $GOPATH/pkg/mod
-        - /builds/milmove/mymove/bin
-
+    paths:
+      - $GOPATH/pkg/mod
+      - /builds/milmove/mymove/bin
 
 .setup_generic_app_env_variables: &setup_generic_app_env_variables
   - |
@@ -324,7 +307,8 @@ pre_deps_golang:
     - make bin/swagger
   after_script:
     - *announce_failure
-  <<: *go_cache
+  cache:
+    - <<: *go_cache
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/
@@ -348,7 +332,9 @@ pre_deps_yarn:
     - *setup_milmove_env
   script:
      - *install_yarn
-  <<: *go_yarn_cache
+  cache:
+    - <<: *go_cache
+    - <<: *yarn_cache
   after_script:
       - *announce_failure
 
@@ -432,7 +418,8 @@ build_storybook:
   needs:
     - pre_deps_yarn
     - anti_virus
-  <<: *yarn_cache
+  cache:
+    - <<: *yarn_cache
   before_script:
     - *setup_milmove_env
     - *install_yarn
@@ -472,7 +459,8 @@ compile_app_client:
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
-  <<: *yarn_cache
+  cache:
+    - <<: *yarn_cache
   variables:
     KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "8Gi"
@@ -502,7 +490,9 @@ compile_app_server:
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
-  <<: *go_yarn_cache
+  cache:
+    - <<: *go_cache
+    - <<: *yarn_cache
   variables:
     KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
@@ -546,7 +536,9 @@ pre_test:
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
-  <<: *go_yarn_cache
+  cache:
+    - <<: *go_cache
+    - <<: *yarn_cache
   needs:
     - pre_deps_golang
     - pre_deps_yarn
@@ -703,7 +695,8 @@ client_test:
     KUBERNETES_MEMORY_LIMIT: "8Gi"
   needs:
     - pre_deps_yarn
-  <<: *yarn_cache
+  cache:
+    - <<: *yarn_cache
   before_script:
     - *setup_milmove_env
     - *install_yarn
