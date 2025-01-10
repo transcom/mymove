@@ -288,7 +288,7 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 		var latestDestinationAddress *models.Address
 
 		switch older.ShipmentType {
-		case models.MTOShipmentTypeHHGIntoNTSDom:
+		case models.MTOShipmentTypeHHGIntoNTS:
 			if older.StorageFacility == nil {
 				// latestDestinationAddress is only used for calculating RDD.
 				// We don't want to block an update because we're missing info to calculate RDD
