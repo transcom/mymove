@@ -39,7 +39,13 @@ variables:
   CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
   SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
 
+  #RUNNER_TAG: &runner_tag milmove
   RUNNER_TAG: &runner_tag milmove
+  DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
+
+  postgres: &postgres cimg/postgres:12.11
+  #postgres: &postgres postgres:16.4
+  redis: &redis redis:5.0.6
 
 stages:
 - pre_checks
@@ -237,23 +243,6 @@ include:
 - template: Jobs/SAST.gitlab-ci.yml
 - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 - template: Jobs/Secret-Detection.gitlab-ci.yml
-
-testing_services:
-  stage: pre_checks
-  image: alpine:3.7
-  tags:
-    - $RUNNER_TAG
-  allow_failure: true
-  services:
-    - php:7
-    - node:latest
-    - golang:1.10
-  script:
-    - php -v
-    - node -v
-    - go version
-  rules:
-   - *check_integration_ignore_branch
 
 anti_virus:
   stage: pre_checks
@@ -591,7 +580,7 @@ pre_test:
 server_test:
   stage: test
   tags:
-    - $RUNNER_TAG
+    - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
@@ -650,8 +639,8 @@ server_test:
       junit: /builds/milmove/mymove/tmp/test-results/gotest/app/go-test-report.xml
   after_script:
     - *announce_failure
-  rules:
-   - *check_server_ignore_branch
+  # rules:
+  #  - *check_server_ignore_branch
 
 server_test_coverage:
   stage: test
@@ -742,8 +731,32 @@ client_test_coverage:
 integration_test_devseed:
   stage: test
   tags:
-    - $RUNNER_TAG
+    - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
+  services:
+    - name: docker:dind
+      alias: docker
+    - name: $postgres
+    - name: $redis
+  variables:
+    DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
+    DOCKER_TLS_CERTDIR: ""
+    APPLICATION: app
+    DB_PASSWORD: mysecretpassword
+    DB_USER_LOW_PRIV: crud
+    DB_PASSWORD_LOW_PRIV: mysecretpassword
+    DB_USER: postgres
+    DB_HOST: localhost
+    DB_PORT: 5432
+    DB_NAME: dev_db
+    DB_NAME_DEV: dev_db
+    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+    ENVIRONMENT: development
+    DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_DB: test_db
   needs:
     - pre_deps_golang
     - prep_server_hosted_client_deps
@@ -752,17 +765,16 @@ integration_test_devseed:
    - *setup_generic_app_env_variables
    - *setup_devseed_env_variables
   script:
+    - echo "integration_test_devseed"
     - |
-      echo "integration_test_devseed"
-      echo 'export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)' >> $BASH_ENV
-      echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)' >> $BASH_ENV
-      echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
-      source $BASH_ENV
-      make db_dev_fresh
+     export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
+     export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
+     export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
+    - make db_dev_fresh
   after_script:
     - *announce_failure
-  rules:
-   - *check_integration_ignore_branch
+  # rules:
+  #  - *check_integration_ignore_branch
 
 integration_tests:
   stage: test
