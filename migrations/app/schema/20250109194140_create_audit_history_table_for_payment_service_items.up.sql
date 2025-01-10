@@ -1,0 +1,1 @@
+SELECT add_audit_history_table('payment_service_items');

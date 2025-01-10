@@ -19,4 +19,5 @@ export default {
   moving_expenses: 'moving_expenses',
   progear_weight_tickets: 'progear_weight_tickets',
   gsr_appeals: 'gsr_appeals',
+  payment_service_items: 'payment_service_items',
 };
