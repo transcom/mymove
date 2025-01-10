@@ -150,4 +150,7 @@ export default {
   approvals_requested_at: 'Approvals requested at',
   approved_at: 'Approved at',
   counseling_office_name: 'Counseling office',
+  assigned_sc: 'Counselor assigned',
+  assigned_too: 'Task ordering officer assigned',
+  assigned_tio: 'Task invoicing officer assigned',
 };

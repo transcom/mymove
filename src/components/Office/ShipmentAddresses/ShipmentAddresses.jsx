@@ -11,6 +11,7 @@ import DataTable from '../../DataTable/index';
 
 import styles from './ShipmentAddresses.module.scss';
 
+import { formatPortInfo } from 'utils/formatters';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentOptionsOneOf, ShipmentStatusesOneOf } from 'types/shipment';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -25,6 +26,8 @@ const ShipmentAddresses = ({
   handleShowDiversionModal,
   shipmentInfo,
   isMoveLocked,
+  poeLocation,
+  podLocation,
 }) => {
   let pickupHeader;
   let destinationHeader;
@@ -85,6 +88,12 @@ const ShipmentAddresses = ({
         icon={<FontAwesomeIcon icon="arrow-right" />}
         data-testid="pickupDestinationAddress"
       />
+      {(poeLocation || podLocation) && (
+        <DataTable
+          columnHeaders={['Port of Embarkation', 'Port of Debarkation']}
+          dataRow={[formatPortInfo(poeLocation), formatPortInfo(podLocation)]}
+        />
+      )}
     </DataTableWrapper>
   );
 };

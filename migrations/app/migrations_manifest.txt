@@ -1072,3 +1072,4 @@
 20250106153750_admin_weight_restriction.up.sql
 20250106190758_admin_weight_restriction_convert_bool.up.sql
 20250107184554_add_weight_restriction.up.sql
+20250103180420_update_pricing_proc_to_use_local_price_variable.up.sql
