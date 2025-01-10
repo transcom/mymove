@@ -307,7 +307,7 @@ func findOconusGblocDepartmentIndicator(appCtx appcontext.AppContext, dutyLocati
 		serviceMember.Affiliation, dutyLocation.Name, *departmentIndicator, dutyLocation.Address.ID))
 }
 
-// Return the closeset transportation office in the GBLOC of the given duty location for oconus/cunus duty locations
+// Return the closeset transportation office in the GBLOC of the given duty location for oconus/conus duty locations
 func (o transportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (models.TransportationOffice, error) {
 	var closestOffice models.TransportationOffice
 	duty_location, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
