@@ -350,7 +350,7 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 			newer.RequiredDeliveryDate = requiredDeliveryDate
 		}
 
-		// RDD for UB shipments only need the pick up date, shipment origin address and destination address
+		// RDD for UB shipments only need the pick up date, shipment origin address and destination address to determine required delivery date
 		if older.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage && older.ScheduledPickupDate != nil {
 			requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDateUBShipment(appCtx, *older.PickupAddress, *older.DestinationAddress, *older.ScheduledPickupDate)
 			if calcErr != nil {
