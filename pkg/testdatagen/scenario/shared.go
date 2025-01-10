@@ -4098,7 +4098,7 @@ func createNTSMove(appCtx appcontext.AppContext) {
 		},
 		{
 			Model: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 			},
 		},
 	}, nil)
@@ -7261,7 +7261,7 @@ func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter
 			Model: models.MTOShipment{
 				ID:                   uuid.Must(uuid.NewV4()),
 				PrimeEstimatedWeight: &estimatedWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				Status:               models.MTOShipmentStatusSubmitted,
 			},
@@ -10515,6 +10515,60 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			},
 		}, nil)
 	}
+
+	return move
+}
+
+/*
+Create Needs Service Counseling in a non-default GBLOC - pass in orders with all required information, shipment type, destination type, locator
+*/
+func CreateNeedsServicesCounselingInOtherGBLOC(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) models.Move {
+	db := appCtx.DB()
+	originDutyLocationAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "35023",
+			},
+		},
+	}, nil)
+	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:      "Test Location",
+				AddressID: originDutyLocationAddress.ID,
+			},
+		},
+	}, nil)
+	order := factory.BuildOrder(db, []factory.Customization{
+		{
+			Model: originDutyLocation,
+		},
+	}, nil)
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    order,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Locator: locator,
+				Status:  models.MoveStatusNeedsServiceCounseling,
+			},
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: shipmentType,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	return move
 }

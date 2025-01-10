@@ -86,7 +86,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	}
 
 	suite.Run("Success - Returns a basic move payload with no payment requests, service items or shipments", func() {
-		returnedModel := MoveTaskOrder(&basicMove)
+		returnedModel := MoveTaskOrder(suite.AppContextForTest(), &basicMove)
 
 		suite.IsType(&primev3messages.MoveTaskOrder{}, returnedModel)
 		suite.Equal(strfmt.UUID(basicMove.ID.String()), returnedModel.ID)
@@ -259,7 +259,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		})
 
 		// no ShipmentPostalCodeRateArea passed in
-		returnedModel := MoveTaskOrderWithShipmentOconusRateArea(newMove, nil)
+		returnedModel := MoveTaskOrderWithShipmentOconusRateArea(suite.AppContextForTest(), newMove, nil)
 
 		suite.IsType(&primev3messages.MoveTaskOrder{}, returnedModel)
 		suite.Equal(strfmt.UUID(newMove.ID.String()), returnedModel.ID)
@@ -322,7 +322,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			},
 		}
 
-		returnedModel = MoveTaskOrderWithShipmentOconusRateArea(newMove, &shipmentPostalCodeRateArea)
+		returnedModel = MoveTaskOrderWithShipmentOconusRateArea(suite.AppContextForTest(), newMove, &shipmentPostalCodeRateArea)
 
 		var shipmentPostalCodeRateAreaLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
 		for _, i := range shipmentPostalCodeRateArea {
@@ -1225,6 +1225,55 @@ func (suite *PayloadsSuite) TestBoatShipment() {
 	suite.NotNil(result)
 }
 
+func (suite *PayloadsSuite) TestDestinationPostalCodeAndGBLOC() {
+	moveID := uuid.Must(uuid.NewV4())
+	moveLocator := "TESTTEST"
+	primeTime := time.Now()
+	ordersID := uuid.Must(uuid.NewV4())
+	refID := "123456"
+	contractNum := "HTC-123-456"
+	address := models.Address{PostalCode: "35023"}
+	shipment := models.MTOShipment{
+		ID:                 uuid.Must(uuid.NewV4()),
+		DestinationAddress: &address,
+	}
+	shipments := models.MTOShipments{shipment}
+	contractor := models.Contractor{
+		ContractNumber: contractNum,
+	}
+
+	basicMove := models.Move{
+		ID:                   moveID,
+		Locator:              moveLocator,
+		CreatedAt:            primeTime,
+		ReferenceID:          &refID,
+		AvailableToPrimeAt:   &primeTime,
+		ApprovedAt:           &primeTime,
+		OrdersID:             ordersID,
+		Contractor:           &contractor,
+		PaymentRequests:      models.PaymentRequests{},
+		SubmittedAt:          &primeTime,
+		UpdatedAt:            primeTime,
+		Status:               models.MoveStatusAPPROVED,
+		SignedCertifications: models.SignedCertifications{},
+		MTOServiceItems:      models.MTOServiceItems{},
+		MTOShipments:         shipments,
+	}
+
+	suite.Run("Returns values needed to get the destination postal code and GBLOC", func() {
+		returnedModel := MoveTaskOrder(suite.AppContextForTest(), &basicMove)
+
+		suite.IsType(&primev3messages.MoveTaskOrder{}, returnedModel)
+		suite.Equal(strfmt.UUID(basicMove.ID.String()), returnedModel.ID)
+		suite.Equal(basicMove.Locator, returnedModel.MoveCode)
+		suite.Equal(strfmt.DateTime(basicMove.CreatedAt), returnedModel.CreatedAt)
+		suite.Equal(handlers.FmtDateTimePtr(basicMove.AvailableToPrimeAt), returnedModel.AvailableToPrimeAt)
+		suite.Equal(strfmt.UUID(basicMove.OrdersID.String()), returnedModel.OrderID)
+		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
+		suite.NotEmpty(returnedModel.ETag)
+	})
+}
+
 func (suite *PayloadsSuite) TestMarketCode() {
 	suite.Run("returns nil when marketCode is nil", func() {
 		var marketCode *models.MarketCode = nil
@@ -1286,7 +1335,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemPOEFSC() {
 		},
 	}
 
-	mtoPayload := MoveTaskOrder(&move)
+	mtoPayload := MoveTaskOrder(suite.AppContextForTest(), &move)
 	suite.NotNil(mtoPayload)
 	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.PortType, portLocation.Port.PortType.String())
 	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.PortCode, portLocation.Port.PortCode)
@@ -1337,7 +1386,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemPODFSC() {
 		},
 	}
 
-	mtoPayload := MoveTaskOrder(&move)
+	mtoPayload := MoveTaskOrder(suite.AppContextForTest(), &move)
 	suite.NotNil(mtoPayload)
 	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.PortType, portLocation.Port.PortType.String())
 	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.PortCode, portLocation.Port.PortCode)
@@ -1347,4 +1396,30 @@ func (suite *PayloadsSuite) TestMTOServiceItemPODFSC() {
 	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.State, portLocation.UsPostRegionCity.UsPostRegion.State.StateName)
 	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.Zip, portLocation.UsPostRegionCity.UsprZipID)
 	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.Country, portLocation.Country.CountryName)
+}
+func (suite *PayloadsSuite) TestAddress() {
+	usprcId := uuid.Must(uuid.NewV4())
+	shipmentAddress := &models.Address{
+		ID:                 uuid.Must(uuid.NewV4()),
+		StreetAddress1:     "400 Drive St",
+		City:               "Charleston",
+		County:             models.StringPointer("Charleston"),
+		State:              "SC",
+		PostalCode:         "29404",
+		UsPostRegionCityID: &usprcId,
+	}
+
+	result := Address(shipmentAddress)
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(shipmentAddress.ID.String()), result.ID)
+	suite.Equal(strfmt.UUID(usprcId.String()), result.UsPostRegionCitiesID)
+
+	result = Address(nil)
+	suite.Nil(result)
+
+	usprcId = uuid.Nil
+	shipmentAddress.UsPostRegionCityID = &uuid.Nil
+	result = Address(shipmentAddress)
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(""), result.UsPostRegionCitiesID)
 }

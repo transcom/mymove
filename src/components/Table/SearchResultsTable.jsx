@@ -166,7 +166,7 @@ const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
   createHeader(
     'Destination ZIP',
     (row) => {
-      return row.destinationDutyLocationPostalCode;
+      return row.destinationPostalCode;
     },
     {
       id: 'destinationPostalCode',
