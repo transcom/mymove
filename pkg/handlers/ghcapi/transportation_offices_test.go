@@ -174,7 +174,7 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 		},
 		{
 			Model: models.TransportationOffice{
-				Name:             "PPPO Travis AFB - USAF",
+				Name:             "New PPPO Travis AFB - USAF",
 				Gbloc:            "KKFA",
 				ProvidesCloseout: true,
 			},
@@ -200,5 +200,11 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 
 	// Validate outgoing payload
 	suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
-
+	var i int
+	for index, office := range responsePayload.Payload {
+		if *office.Name == "New PPPO Travis AFB - USAF" {
+			i = index
+		}
+	}
+	suite.NotNil(i)
 }
