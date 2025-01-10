@@ -854,10 +854,10 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// we only need to do this if the estimated weight, primary addresses, and pickup date are being updated since those all impact pricing
 		// we will compare data here to see if we even need to update the pricing
 		if newShipment.MarketCode == models.MarketCodeInternational &&
-			newShipment.PrimeEstimatedWeight != nil ||
-			newShipment.PickupAddress != nil && newShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode ||
-			newShipment.DestinationAddress != nil && newShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode ||
-			newShipment.RequestedPickupDate != nil && newShipment.RequestedPickupDate.Format("2006-01-02") != dbShipment.RequestedPickupDate.Format("2006-01-02") {
+			(newShipment.PrimeEstimatedWeight != nil ||
+				newShipment.PickupAddress != nil && newShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode ||
+				newShipment.DestinationAddress != nil && newShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode ||
+				newShipment.RequestedPickupDate != nil && newShipment.RequestedPickupDate.Format("2006-01-02") != dbShipment.RequestedPickupDate.Format("2006-01-02")) {
 
 			portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), newShipment.ID)
 			if err != nil {
