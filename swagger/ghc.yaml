@@ -8283,14 +8283,14 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
-  VLocations:
-    type: array
-    items:
-      $ref: '#/definitions/VLocation'
   ReServiceItems:
     type: array
     items:
       $ref: '#/definitions/ReServiceItem'
+  VLocations:
+    type: array
+    items:
+      $ref: '#/definitions/VLocation'
   GBLOCs:
     type: array
     items:
