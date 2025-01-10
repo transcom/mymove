@@ -43,7 +43,7 @@ variables:
   RUNNER_TAG: &runner_tag milmove
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
 
-  postgres: &postgres cimg/postgres:12.11
+  postgres: &postgres postgres:16.4
   #postgres: &postgres postgres:16.4
   redis: &redis redis:5.0.6
 
@@ -175,19 +175,35 @@ stages:
 
 .yarn_cache: &yarn_cache
   cache:
-    key:
+    - key:
       files:
         - yarn.lock
-    paths:
-      - .cache/yarn
+      paths:
+        - .cache/yarn
 
-.gosum_cache: &gosum_cache
+.go_cache: &go_cache
   cache:
-    key:
+    - key:
       files:
         - go.sum
-    paths:
-      - .cache/yarn
+      paths:
+        - $GOPATH/pkg/mod
+        - /builds/milmove/mymove/bin
+
+.go_yarn_cache: &go_yarn_cache
+  cache:
+    - key:
+      files:
+        - yarn.lock
+      paths:
+        - .cache/yarn
+    - key:
+      files:
+        - go.sum
+      paths:
+        - $GOPATH/pkg/mod
+        - /builds/milmove/mymove/bin
+
 
 .setup_generic_app_env_variables: &setup_generic_app_env_variables
   - |
@@ -308,6 +324,7 @@ pre_deps_golang:
     - make bin/swagger
   after_script:
     - *announce_failure
+  <<: *go_cache
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/
@@ -331,7 +348,7 @@ pre_deps_yarn:
     - *setup_milmove_env
   script:
      - *install_yarn
-  <<: *yarn_cache
+  <<: *go_yarn_cache
   after_script:
       - *announce_failure
 
@@ -485,7 +502,7 @@ compile_app_server:
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
-  <<: *yarn_cache
+  <<: *go_yarn_cache
   variables:
     KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
@@ -529,7 +546,7 @@ pre_test:
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
-  <<: *yarn_cache
+  <<: *go_yarn_cache
   needs:
     - pre_deps_golang
     - pre_deps_yarn
