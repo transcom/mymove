@@ -9,5 +9,12 @@ export default {
   eventName: o.updateMTOStatusServiceCounselingCompleted,
   tableName: t.moves,
   getEventNameDisplay: () => 'Updated move',
-  getDetails: () => <> Counseling Completed </>,
+  getDetails: ({ changedValues }) => {
+    return (
+      <>
+        <div> Counseling Completed </div>
+        {changedValues?.sc_assigned_id !== undefined ? <div> Counselor Unassigned </div> : null}
+      </>
+    );
+  },
 };
