@@ -42,6 +42,8 @@ const testProps = {
     shipmentLocator: 'ABCDEF-01',
   },
   diversionReason: '',
+  poeLocation: null,
+  podLocation: null,
 };
 
 const ppmShipment = {
@@ -114,6 +116,17 @@ const cancellationRequestedShipment = {
     status: 'CANCELLATION_REQUESTED',
     shipmentType: SHIPMENT_OPTIONS.HHG,
     shipmentLocator: 'ABCDEF-01',
+  },
+};
+
+const shipmentWithPort = {
+  ...testProps,
+  poeLocation: {
+    portCode: 'PDX',
+    portName: 'PORTLAND INTL',
+    city: 'PORTLAND',
+    state: 'OREGON',
+    zip: '97220',
   },
 };
 
@@ -232,5 +245,11 @@ describe('ShipmentAddresses', () => {
     );
     const requestDiversionBtn = screen.getByRole('button', { name: 'Request Diversion' });
     expect(requestDiversionBtn).toBeDisabled();
+  });
+
+  it('renders port of embarkation and debarkation if one is set', async () => {
+    render(<ShipmentAddresses {...shipmentWithPort} />);
+    expect(screen.getByText('Port of Embarkation')).toBeInTheDocument();
+    expect(screen.getByText('Port of Debarkation')).toBeInTheDocument();
   });
 });
