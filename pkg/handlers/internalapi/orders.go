@@ -412,11 +412,21 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.OriginDutyLocation = &originDutyLocation
 				order.OriginDutyLocationID = &originDutyLocationID
 
-				originGBLOC, originGBLOCerr := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
-				if originGBLOCerr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), originGBLOCerr), originGBLOCerr
+				var originDutyLocationGBLOC *string
+				if *originDutyLocation.Address.IsOconus {
+					originDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), originDutyLocation.Address, order.ServiceMember)
+					if err != nil {
+						return handlers.ResponseForError(appCtx.Logger(), err), err
+					}
+					originDutyLocationGBLOC = &originDutyLocationGBLOCOconus.Gbloc
+				} else {
+					originDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+					if err != nil {
+						return handlers.ResponseForError(appCtx.Logger(), err), err
+					}
+					originDutyLocationGBLOC = &originDutyLocationGBLOCConus.GBLOC
 				}
-				order.OriginDutyLocationGBLOC = &originGBLOC.GBLOC
+				order.OriginDutyLocationGBLOC = originDutyLocationGBLOC
 
 				if payload.MoveID != "" {
 
