@@ -99,8 +99,12 @@ func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	// to hard disk due to restrictions in AWS storage. May need better long term solution.
 	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
-	api.LoadConfiguration().Path = filepath.Join("..", "..", "config", "pdfcpu", "config.yml")
-	pdfConfig := api.LoadConfiguration()
+	repositoryConfigYmlPath := filepath.Join("..", "..", "config", "pdfcpu", "config.yml")
+	err := api.EnsureDefaultConfigAt(repositoryConfigYmlPath) // Load our config into pdfcpu
+	if err != nil {
+		return nil, err
+	}
+	pdfConfig := api.LoadConfiguration() // As long as our config was set properly, this will load it and not create a new default config
 	pdfCPU := pdfCPUWrapper{Configuration: pdfConfig}
 
 	directory, err := afs.TempDir("", "generator")
