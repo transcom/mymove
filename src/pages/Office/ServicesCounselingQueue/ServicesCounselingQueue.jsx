@@ -26,6 +26,7 @@ import {
   useUserQueries,
   useMoveSearchQueries,
   useCustomerSearchQueries,
+  useBulkAssignmentQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingOriginLocations,
@@ -450,6 +451,8 @@ const ServicesCounselingQueue = ({
     officeUser?.transportation_office_assignments?.length > 1 && gblocContext
       ? gblocContext
       : { selectedGbloc: undefined };
+  const { closeoutBulkAssignmentData } = useBulkAssignmentQueries('CLOSEOUT');
+  const { counselingBulkAssignmentData } = useBulkAssignmentQueries('COUNSELING');
 
   // Feature Flag
   useEffect(() => {
@@ -667,7 +670,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
-          queueType="CLOSEOUT"
+          bulkAssignmentData={closeoutBulkAssignmentData}
         />
       </div>
     );
@@ -697,7 +700,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
-          queueType="COUNSELING"
+          bulkAssignmentData={counselingBulkAssignmentData}
         />
       </div>
     );

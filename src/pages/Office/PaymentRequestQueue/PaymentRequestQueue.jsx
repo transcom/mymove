@@ -7,7 +7,12 @@ import styles from './PaymentRequestQueue.module.scss';
 
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
-import { usePaymentRequestQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
+import {
+  usePaymentRequestQueueQueries,
+  useUserQueries,
+  useMoveSearchQueries,
+  useBulkAssignmentQueries,
+} from 'hooks/queries';
 import { getPaymentRequestsQueue } from 'services/ghcApi';
 import { createHeader } from 'components/Table/utils';
 import {
@@ -194,6 +199,7 @@ const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBul
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
+  const { bulkAssignmentData } = useBulkAssignmentQueries('PAYMENT_REQUEST');
   const supervisor = userPrivileges
     ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
     : false;
@@ -331,7 +337,7 @@ const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBul
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
-          queueType="PAYMENT_REQUEST"
+          bulkAssignmentData={bulkAssignmentData}
         />
       </div>
     );

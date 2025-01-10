@@ -27,7 +27,6 @@ import {
   getSelectionOptionLabel,
 } from 'components/Table/utils';
 import { roleTypes } from 'constants/userRoles';
-import { useBulkAssignmentQueries } from 'hooks/queries';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -57,7 +56,7 @@ const TableQueue = ({
   isBulkAssignmentFFEnabled,
   officeUser,
   activeRole,
-  queueType,
+  bulkAssignmentData,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -67,8 +66,6 @@ const TableQueue = ({
       setIsPageReload(false);
     }, 500);
   }, []);
-
-  const { bulkAssignmentData } = useBulkAssignmentQueries(queueType);
 
   const [paramSort, setParamSort] = useState(
     getTableQueueSortParamSessionStorageValue(sessionStorageKey) || defaultSortedColumns,
@@ -208,7 +205,6 @@ const TableQueue = ({
 
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
   const isDateFilterValue = (value) => {
     return !Number.isNaN(Date.parse(value));
   };
