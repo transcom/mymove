@@ -47,6 +47,7 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 	proGearWeight := 2000
 	proGearWeightSpouse := 500
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	weightRestriction := 0
 
 	// Create default Entitlement
 	entitlement := models.Entitlement{
@@ -59,6 +60,8 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 		ProGearWeightSpouse:                          proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight:               rmeWeight,
 		OrganizationalClothingAndIndividualEquipment: ocie,
+		AdminRestrictedWeightLocation:                *setBoolPtr(&cEntitlement.AdminRestrictedWeightLocation, false),
+		WeightRestriction:                            weightRestriction,
 	}
 	// Set default calculated values
 	entitlement.SetWeightAllotment(string(*grade), ordersType)
@@ -73,4 +76,5 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 	}
 
 	return entitlement
+
 }
