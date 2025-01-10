@@ -66,7 +66,6 @@ PrimeUIShipmentUpdateAddressForm.propTypes = {
     addressID: PropTypes.string,
     eTag: PropTypes.string,
   }).isRequired,
-  addressLocation: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
 };
 

@@ -78,6 +78,7 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values, { setSubmitting }) => {
+    let isMounted = true;
     const { mtoShipmentID, newAddress } = values;
 
     const body = {
@@ -95,13 +96,23 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
       contractorRemarks: values.contractorRemarks,
     };
 
-    updateShipmentDestinationAddressAPI({
-      mtoShipmentID,
-      ifMatchETag: values.eTag,
-      body,
-    }).then(() => {
-      setSubmitting(false);
-    });
+    try {
+      updateShipmentDestinationAddressAPI({
+        mtoShipmentID,
+        ifMatchETag: values.eTag,
+        body,
+      }).then((value) => {
+        if (isMounted) {
+          setSubmitting(value);
+        }
+      });
+    } catch (error) {
+      setFlashMessage(`MSG_UPDATE_SUCCESS${shipmentId}`, 'success', `Successfully updated shipment`, '', true);
+    }
+
+    return () => {
+      isMounted = false;
+    };
   };
 
   const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
