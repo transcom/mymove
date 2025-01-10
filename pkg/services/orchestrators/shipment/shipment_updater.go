@@ -56,10 +56,17 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 					} else {
 						estimatedWeightToUse = *mtoShipment.PrimeEstimatedWeight
 					}
+					estimatedWeightToUse = unit.Pound(estimatedWeightToUse.Float64() * 1.1)
 					mtoShipment.MTOServiceItems[index].EstimatedWeight = &estimatedWeightToUse
 					serviceItemEstimatedPrice, err := s.mtoServiceItemCreator.FindEstimatedPrice(appCtx, &serviceItem, *mtoShipment)
+
 					if serviceItemEstimatedPrice != 0 && err == nil {
-						mtoShipment.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
+
+						priceResult := serviceItemEstimatedPrice
+						if mtoShipment.MTOServiceItems[index].PricingEstimate.Float64() > 0.0 {
+							priceResult = priceResult.MultiplyFloat64(1.1)
+						}
+						mtoShipment.MTOServiceItems[index].PricingEstimate = &priceResult
 					}
 					if err != nil {
 						return err
