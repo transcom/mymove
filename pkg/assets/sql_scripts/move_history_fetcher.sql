@@ -642,6 +642,21 @@ WITH move AS (
 		JOIN gsr_appeals ON gsr_appeals.id = audit_history.object_id
 		WHERE audit_history.table_name = 'gsr_appeals'
 	),
+	move_shipment_address_updates AS (
+		SELECT shipment_address_updates.*
+		FROM
+			shipment_address_updates
+		WHERE
+			shipment_address_updates.shipment_id = (SELECT id FROM move_shipments.id)
+	),
+	shipment_address_updates_logs as (
+		SELECT audit_history.*,
+			NULL AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN move_shipment_address_updates ON move_shipment_address_updates.id = audit_history.object_id
+	),
 	combined_logs AS (
 		SELECT
 			*
@@ -732,6 +747,11 @@ WITH move AS (
 			*
 		FROM
 			gsr_appeals_logs
+		UNION
+		SELECT
+        	*
+    	FROM
+			shipment_address_updates_logs
 
 
 	)
