@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestReContractYearValidations() {
@@ -50,5 +50,64 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 			"escalation_compounded": {"-1.740000 is not greater than 0.000000."},
 		}
 		suite.verifyValidationErrors(&badDatesReContractYear, expErrors)
+	})
+}
+
+func (suite *ModelSuite) TestReContractYearModel() {
+	suite.Run("test that FetchContractId returns the contractId given a requestedPickupDate", func() {
+		validReContractYear := testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Name:                 "Base Period Year 1",
+				StartDate:            time.Date(2019, time.October, 1, 0, 0, 0, 0, time.UTC),
+				EndDate:              time.Date(2020, time.September, 30, 0, 0, 0, 0, time.UTC),
+				Escalation:           1.03,
+				EscalationCompounded: 1.74,
+			},
+		})
+
+		requestedPickupDate := time.Date(2019, time.October, 25, 0, 0, 0, 0, time.UTC)
+		contractYearId, err := models.FetchContractId(suite.DB(), requestedPickupDate)
+
+		suite.Nil(err)
+		suite.NotNil(contractYearId)
+		suite.Equal(contractYearId, validReContractYear.ContractID)
+	})
+
+	suite.Run("test that FetchContractId returns error when no requestedPickupDate is given", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Name:                 "Base Period Year 1",
+				StartDate:            time.Date(2019, time.October, 1, 0, 0, 0, 0, time.UTC),
+				EndDate:              time.Date(2020, time.September, 30, 0, 0, 0, 0, time.UTC),
+				Escalation:           1.03,
+				EscalationCompounded: 1.74,
+			},
+		})
+
+		var time time.Time
+		contractYearId, err := models.FetchContractId(suite.DB(), time)
+
+		suite.NotNil(err)
+		suite.Contains(err.Error(), "error fetching contract ID - required parameters not provided")
+		suite.Equal(contractYearId, uuid.Nil)
+	})
+
+	suite.Run("test that FetchContractId returns error when no contract is found for given requestedPickupDate", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Name:                 "Base Period Year 1",
+				StartDate:            time.Date(2019, time.October, 1, 0, 0, 0, 0, time.UTC),
+				EndDate:              time.Date(2020, time.September, 30, 0, 0, 0, 0, time.UTC),
+				Escalation:           1.03,
+				EscalationCompounded: 1.74,
+			},
+		})
+		requestedPickupDate := time.Date(2019, time.September, 1, 0, 0, 0, 0, time.UTC)
+
+		contractYearId, err := models.FetchContractId(suite.DB(), requestedPickupDate)
+
+		suite.NotNil(err)
+		suite.Contains(err.Error(), "error fetching contract year id")
+		suite.Equal(contractYearId, uuid.Nil)
 	})
 }

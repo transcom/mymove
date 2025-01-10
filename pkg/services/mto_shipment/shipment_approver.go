@@ -184,6 +184,7 @@ func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID
 func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
+		shipment.ShipmentType != models.MTOShipmentTypeUnaccompaniedBaggage &&
 		(shipment.PrimeEstimatedWeight != nil || (shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom &&
 			shipment.NTSRecordedWeight != nil)) {
 
@@ -217,6 +218,13 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 		}
 
 		shipment.RequiredDeliveryDate = requiredDeliveryDate
+	} else if shipment.ScheduledPickupDate != nil && shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDateUBShipment(appCtx, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate)
+		if calcErr != nil {
+			return calcErr
+		}
+
+		shipment.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
 	return nil
