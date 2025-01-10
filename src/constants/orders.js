@@ -12,6 +12,7 @@ export const SPECIAL_ORDERS_TYPES = {
   WOUNDED_WARRIOR: 'Wounded Warrior',
   BLUEBARK: 'BLUEBARK',
   SAFETY: 'Safety',
+  SAFETY_NON_LABEL: 'SAFETY',
 };
 
 export const CHECK_SPECIAL_ORDERS_TYPES = (ordersType) => {
