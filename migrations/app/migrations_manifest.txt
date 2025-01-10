@@ -1069,3 +1069,4 @@
 20241230190638_remove_AK_zips_from_zip3.up.sql
 20241230190647_add_missing_AK_zips_to_zip3_distances.up.sql
 20250103130619_revert_data_change_for_gbloc_for_ak.up.sql
+20250103180420_update_pricing_proc_to_use_local_price_variable.up.sql
