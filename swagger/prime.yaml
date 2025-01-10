@@ -1072,6 +1072,33 @@ paths:
         }
 
         ```
+
+
+        The following service items allow you to update the Port that the
+        shipment will use:
+
+        - PODFSC (Port of Debarkation can be updated)
+
+        - POEFSC (Port of Embarkation can be updated)
+
+
+        At a MINIMUM, the payload for updating the port should contain the
+        reServiceCode (PODFSC or POEFSC), modelType
+        (UpdateMTOServiceItemInternationalPortFSC), portCode, and id for the
+        service item.
+
+        Please see the example payload below:
+
+        ```json
+
+        {
+          "id": "1ed224b6-c65e-4616-b88e-8304d26c9562",
+          "modelType": "UpdateMTOServiceItemInternationalPortFSC",
+          "portCode": "SEA",
+          "reServiceCode": "POEFSC"
+        }
+
+        ```
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -1187,8 +1214,34 @@ paths:
         [updateMTOShipment](#operation/updateMTOShipment).
 
 
-        **FSC - Fuel Surcharge** service items require `ActualPickupDate` to be
-        updated on the shipment.
+        If `WeightBilled` is not provided then the full shipment weight
+        (`PrimeActualWeight`) will be considered in the calculation.
+
+
+        **NOTE**: Diversions have a unique calcuation for payment requests
+        without a `WeightBilled` parameter.
+
+
+        If you created a payment request for a diversion and `WeightBilled` is
+        not provided, then the following will be used in the calculation:
+
+        - The lowest shipment weight (`PrimeActualWeight`) found in the diverted
+        shipment chain.
+
+        - The lowest reweigh weight found in the diverted shipment chain.
+
+
+        The diverted shipment chain is created by referencing the `diversion`
+        boolean, `divertedFromShipmentId` UUID, and matching destination to
+        pickup addresses.
+
+        If the chain cannot be established it will fall back to the
+        `PrimeActualWeight` of the current shipment. This is utilized because
+        diverted shipments are all one single shipment, but going to different
+        locations.
+
+        The lowest weight found is the true shipment weight, and thus we search
+        the chain of shipments for the lowest weight found.
 
 
         A service item can be on several payment requests in the case of partial
@@ -1223,38 +1276,124 @@ paths:
         ```
 
 
-        SIT Service Items & Accepted Payment Request Parameters:
+        Domestic Basic Service Items & Accepted Payment Request Parameters:
 
         ---
 
-        If `WeightBilled` is not provided then the full shipment weight
-        (`PrimeActualWeight`) will be considered in the calculation.
+
+        **DLH - Domestic Linehaul**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
 
 
-        **NOTE**: Diversions have a unique calcuation for payment requests
-        without a `WeightBilled` parameter.
+        **DSH - Domestic Shorthaul**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
 
 
-        If you created a payment request for a diversion and `WeightBilled` is
-        not provided, then the following will be used in the calculation:
+        **FSC - Fuel Surcharge**
 
-        - The lowest shipment weight (`PrimeActualWeight`) found in the diverted
-        shipment chain.
+        **NOTE**: FSC requires `ActualPickupDate` to be updated on the shipment.
 
-        - The lowest reweigh weight found in the diverted shipment chain.
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
 
 
-        The diverted shipment chain is created by referencing the `diversion`
-        boolean, `divertedFromShipmentId` UUID, and matching destination to
-        pickup addresses.
+        **DUPK - Domestic Unpacking**
 
-        If the chain cannot be established it will fall back to the
-        `PrimeActualWeight` of the current shipment. This is utilized because
-        diverted shipments are all one single shipment, but going to different
-        locations.
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
 
-        The lowest weight found is the true shipment weight, and thus we search
-        the chain of shipments for the lowest weight found.
+
+        **DPK - Domestic Packing**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DNPK - Domestic NTS Packing**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DPK - Domestic Packing**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DOP - Domestic Origin Price**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DDP - Domestic Destination Price**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        Domestic SIT Service Items & Accepted Payment Request Parameters:
+
+        ---
 
 
         **DOFSIT - Domestic origin 1st day SIT**
@@ -1372,6 +1511,85 @@ paths:
 
 
         **DDSHUT - Domestic destination shuttle service**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        ---
+
+
+        International Basic Service Items & Accepted Payment Request Parameters:
+
+        ---
+
+        Just like domestic shipments & service items, if `WeightBilled` is not
+        provided then the full shipment weight (`PrimeActualWeight`) will be
+        considered in the calculation.
+
+        **NOTE**: `POEFSC` & `PODFSC` service items must have a port associated
+        on the service item in order to successfully add it to a payment
+        request. To update the port of a service item, you must use the
+        (#operation/updateMTOServiceItem) endpoint.
+
+
+        **ISLH - International Shipping & Linehaul**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **IHPK - International HHG Pack**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **IHUPK - International HHG Unpack**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **POEFSC - International Port of Embarkation Fuel Surcharge**
+         **NOTE**: POEFSC requires `ActualPickupDate` to be updated on the shipment & `POELocation` on the service item.
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **PODFSC - International Port of Debarkation Fuel Surcharge**
+
+        **NOTE**: PODFSC requires `ActualPickupDate` to be updated on the
+        shipment & `PODLocation` on the service item.
 
         ```json
           "params": [
@@ -1817,6 +2035,14 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      destinationGBLOC:
+        type: string
+        example: JFK
+        readOnly: true
+      destinationPostalCode:
+        type: string
+        example: '90210'
+        readOnly: true
       orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -1877,6 +2103,14 @@ definitions:
         type: string
       order:
         $ref: '#/definitions/Order'
+      destinationGBLOC:
+        type: string
+        example: KKFA
+        readOnly: true
+      destinationPostalCode:
+        type: string
+        example: '90210'
+        readOnly: true
       referenceId:
         example: 1001-3456
         type: string
@@ -2234,6 +2468,25 @@ definitions:
         required:
           - reason
           - reServiceCode
+  MTOServiceItemInternationalFuelSurcharge:
+    description: >-
+      Describes a international Port of Embarkation/Debarkation fuel surcharge
+      service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >-
+              A unique code for the service item. Indicates if the service is
+              for Port of Embarkation (POEFSC) or Port of Debarkation (PODFSC).
+            enum:
+              - PODFSC
+              - POEFSC
+          portCode:
+            description: A unique code for a Port
+            type: string
   MTOShipment:
     type: object
     properties:
@@ -2326,12 +2579,15 @@ definitions:
         * DDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
+        * PODFSC - UpdateMTOServiceItemInternationalPortFSC
+        * POEFSC - UpdateMTOServiceItemInternationalPortFSC
 
       The documentation will then update with the supported fields.
     type: string
     enum:
       - UpdateMTOServiceItemSIT
       - UpdateMTOServiceItemShuttle
+      - UpdateMTOServiceItemInternationalPortFSC
   UpdateMTOServiceItemShuttle:
     description: >
       Subtype used to provide the estimated weight and actual weight for
@@ -2463,6 +2719,28 @@ definitions:
             description: Indicates if "Approvals Requested" status is being requested.
             type: boolean
             x-nullable: true
+  UpdateMTOServiceItemInternationalPortFSC:
+    description: >
+      Subtype used to provide the port for fuel surcharge. This is not creating
+      a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          portCode:
+            type: string
+            example: PDX
+            description: >-
+              Port used for the shipment. Relevant for moving (PODFSC & POEFSC)
+              service items.
+            x-nullable: true
+            x-omitempty: false
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - PODFSC
+              - POEFSC
   UpdateMTOShipment:
     properties:
       actualProGearWeight:
@@ -2880,6 +3158,14 @@ definitions:
         title: isOconus
         x-nullable: true
         example: false
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      destinationGbloc:
+        type: string
+        pattern: ^[A-Z]{4}$
+        x-nullable: true
     required:
       - streetAddress1
       - city
@@ -3368,6 +3654,7 @@ definitions:
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
         * ICRT, IUCRT - MTOServiceItemInternationalCrating
+        * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge
 
       The documentation will then update with the supported fields.
     type: string
@@ -3378,6 +3665,7 @@ definitions:
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
+      - MTOSerivceItemInternationalFuelSurcharge
   ServiceRequestDocument:
     properties:
       uploads:
@@ -3665,7 +3953,7 @@ definitions:
     description: |
       The type of shipment.
         * `HHG` = Household goods move
-        * `HHG_INTO_NTS_DOMESTIC` = HHG into Non-temporary storage (NTS)
+        * `HHG_INTO_NTS` = HHG into Non-temporary storage (NTS)
         * `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
         * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
         * `BOAT_HAUL_AWAY` = Boat shipment that requires additional equipment to haul it to it's destination
@@ -3677,14 +3965,14 @@ definitions:
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
       - HHG
-      - HHG_INTO_NTS_DOMESTIC
+      - HHG_INTO_NTS
       - HHG_OUTOF_NTS_DOMESTIC
       - MOBILE_HOME
       - PPM
       - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: Household goods move (HHG)
-      HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
+      HHG_INTO_NTS: HHG into Non-temporary storage (NTS)
       HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS Release)
       PPM: Personally Procured Move also known as Do It Yourself (DITY)
       BOAT_HAUL_AWAY: >-

@@ -225,7 +225,7 @@ const useEditShipmentQueriesReturnValueNTS = {
       moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
       requestedPickupDate: '2018-03-15',
       scheduledPickupDate: '2018-03-16',
-      shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+      shipmentType: 'HHG_INTO_NTS',
       status: 'SUBMITTED',
       updatedAt: '2020-06-10T15:58:02.404031Z',
     },
@@ -284,11 +284,11 @@ describe('EditShipmentDetails component', () => {
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValueNTS);
     renderWithProviders(<EditShipmentDetails />, mockRoutingConfig);
 
-    const h1 = await screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
+    const h1 = screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
     await waitFor(() => {
       expect(h1).toBeInTheDocument();
     });
-    expect(screen.getAllByLabelText('ZIP').length).toBe(2);
+    expect(screen.getAllByTestId('ZIP').length).toBe(2);
     expect(screen.getByLabelText('1111 (NTS)')).toBeInTheDocument();
     expect(screen.getByLabelText('2222 (NTS)')).toBeInTheDocument();
   });

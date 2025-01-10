@@ -305,9 +305,9 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 			City:               "SomeCity",
 			State:              "AK",
 			PostalCode:         postalCode,
-			County:             "SomeCounty",
+			County:             models.StringPointer("SomeCounty"),
 			IsOconus:           models.BoolPointer(true),
-			UsPostRegionCityId: &usprc.ID,
+			UsPostRegionCityID: &usprc.ID,
 			CountryId:          models.UUIDPointer(us_country.ID),
 		}
 		suite.MustSave(&address)
@@ -686,7 +686,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 		City:           "Mayport",
 		State:          "FL",
 		PostalCode:     "32228",
-		County:         "Duval",
+		County:         models.StringPointer("Duval"),
 		IsOconus:       models.BoolPointer(false),
 	}
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
@@ -709,7 +709,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 		City:           "Jacksonville",
 		State:          "FL",
 		PostalCode:     "32228",
-		County:         "Duval",
+		County:         models.StringPointer("Duval"),
 		IsOconus:       models.BoolPointer(false),
 	}
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
@@ -732,7 +732,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 		City:           "Palm Valley",
 		State:          "FL",
 		PostalCode:     "32228",
-		County:         "Duval",
+		County:         models.StringPointer("Duval"),
 		IsOconus:       models.BoolPointer(false),
 	}
 	origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
@@ -757,7 +757,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 		City:           "Fernandina",
 		State:          "FL",
 		PostalCode:     "32228",
-		County:         "Duval",
+		County:         models.StringPointer("Duval"),
 		IsOconus:       models.BoolPointer(false),
 	}
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
@@ -897,9 +897,9 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 			City:               "Fairbanks",
 			State:              "AK",
 			PostalCode:         postalCode,
-			County:             "Fairbanks North Star Borough",
+			County:             models.StringPointer("Fairbanks North Star Borough"),
 			IsOconus:           models.BoolPointer(true),
-			UsPostRegionCityId: &usprc.ID,
+			UsPostRegionCityID: &usprc.ID,
 			CountryId:          models.UUIDPointer(us_country.ID),
 		}
 		suite.MustSave(&address)

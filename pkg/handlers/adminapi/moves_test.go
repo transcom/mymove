@@ -118,6 +118,8 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		return UpdateMoveHandler{
 			suite.HandlerConfig(),

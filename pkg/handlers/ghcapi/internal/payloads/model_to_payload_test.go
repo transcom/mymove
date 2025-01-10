@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -156,7 +157,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		State:          state,
 		PostalCode:     postalcode,
 		Country:        &country,
-		County:         county,
+		County:         &county,
 	}
 
 	isActualExpenseReimbursement := true
@@ -202,7 +203,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 			State:          state,
 			PostalCode:     postalcode,
 			Country:        &country,
-			County:         county,
+			County:         &county,
 		}
 
 		expectedPPMShipment2 := models.PPMShipment{
@@ -266,7 +267,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	oldAddress := models.Address{
@@ -274,7 +275,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	sitOriginalAddress := models.Address{
@@ -282,7 +283,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89501",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 	officeRemarks := "some office remarks"
 	newSitDistanceBetween := 0
@@ -313,6 +314,93 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 
 		suite.Nil(returnedShipmentAddressUpdate)
 	})
+}
+
+func (suite *PayloadsSuite) TestMoveWithGBLOC() {
+	defaultOrdersNumber := "ORDER3"
+	defaultTACNumber := "F8E1"
+	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
+	defaultGrade := "E_1"
+	defaultHasDependents := false
+	defaultSpouseHasProGear := false
+	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	defaultOrdersTypeDetail := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
+	defaultStatus := models.OrderStatusDRAFT
+	testYear := 2018
+	defaultIssueDate := time.Date(testYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
+	defaultGBLOC := "KKFA"
+
+	originDutyLocation := models.DutyLocation{
+		Name: "Custom Origin",
+	}
+	originDutyLocationTOName := "origin duty location transportation office"
+	firstName := "customFirst"
+	lastName := "customLast"
+	serviceMember := models.ServiceMember{
+		FirstName: &firstName,
+		LastName:  &lastName,
+	}
+	uploadedOrders := models.Document{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+	dependents := 7
+	entitlement := models.Entitlement{
+		TotalDependents: &dependents,
+	}
+	amendedOrders := models.Document{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+	// Create order
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model: originDutyLocation,
+			Type:  &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.TransportationOffice{
+				Name: originDutyLocationTOName,
+			},
+			Type: &factory.TransportationOffices.OriginDutyLocation,
+		},
+		{
+			Model: serviceMember,
+		},
+		{
+			Model: uploadedOrders,
+			Type:  &factory.Documents.UploadedOrders,
+		},
+		{
+			Model: entitlement,
+		},
+		{
+			Model: amendedOrders,
+			Type:  &factory.Documents.UploadedAmendedOrders,
+		},
+	}, nil)
+
+	suite.Equal(defaultOrdersNumber, *order.OrdersNumber)
+	suite.Equal(defaultTACNumber, *order.TAC)
+	suite.Equal(defaultDepartmentIndicator, *order.DepartmentIndicator)
+	suite.Equal(defaultGrade, string(*order.Grade))
+	suite.Equal(defaultHasDependents, order.HasDependents)
+	suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
+	suite.Equal(defaultOrdersType, order.OrdersType)
+	suite.Equal(defaultOrdersTypeDetail, *order.OrdersTypeDetail)
+	suite.Equal(defaultStatus, order.Status)
+	suite.Equal(defaultIssueDate, order.IssueDate)
+	suite.Equal(defaultReportByDate, order.ReportByDate)
+	suite.Equal(defaultGBLOC, *order.OriginDutyLocationGBLOC)
+
+	suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
+	suite.Equal(originDutyLocationTOName, order.OriginDutyLocation.TransportationOffice.Name)
+	suite.Equal(*serviceMember.FirstName, *order.ServiceMember.FirstName)
+	suite.Equal(*serviceMember.LastName, *order.ServiceMember.LastName)
+	suite.Equal(uploadedOrders.ID, order.UploadedOrdersID)
+	suite.Equal(uploadedOrders.ID, order.UploadedOrders.ID)
+	suite.Equal(*entitlement.TotalDependents, *order.Entitlement.TotalDependents)
+	suite.Equal(amendedOrders.ID, *order.UploadedAmendedOrdersID)
+	suite.Equal(amendedOrders.ID, order.UploadedAmendedOrders.ID)
 }
 
 func (suite *PayloadsSuite) TestWeightTicketUpload() {
@@ -394,7 +482,7 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	backupAddress := models.Address{
@@ -402,7 +490,7 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	phone := "444-555-6677"
@@ -511,7 +599,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	backupAddress := models.Address{
@@ -519,7 +607,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		County:         *models.StringPointer("WASHOE"),
+		County:         models.StringPointer("WASHOE"),
 	}
 
 	phone := "444-555-6677"
@@ -757,6 +845,33 @@ func (suite *PayloadsSuite) TestGsrAppeal() {
 		suite.Equal(remarks, result.Remarks, "Expected Remarks to match")
 		suite.Equal(strfmt.DateTime(createdAt), result.CreatedAt, "Expected CreatedAt to match")
 		suite.False(result.IsSeriousIncident, "Expected IsSeriousIncident to be false")
+	})
+}
+
+func (suite *PayloadsSuite) TestVLocation() {
+	suite.Run("correctly maps VLocation with all fields populated", func() {
+		city := "LOS ANGELES"
+		state := "CA"
+		postalCode := "90210"
+		county := "LOS ANGELES"
+		usPostRegionCityID := uuid.Must(uuid.NewV4())
+
+		vLocation := &models.VLocation{
+			CityName:             city,
+			StateName:            state,
+			UsprZipID:            postalCode,
+			UsprcCountyNm:        county,
+			UsPostRegionCitiesID: &usPostRegionCityID,
+		}
+
+		payload := VLocation(vLocation)
+
+		suite.IsType(payload, &ghcmessages.VLocation{})
+		suite.Equal(handlers.FmtUUID(usPostRegionCityID), &payload.UsPostRegionCitiesID, "Expected UsPostRegionCitiesID to match")
+		suite.Equal(city, payload.City, "Expected City to match")
+		suite.Equal(state, payload.State, "Expected State to match")
+		suite.Equal(postalCode, payload.PostalCode, "Expected PostalCode to match")
+		suite.Equal(county, *(payload.County), "Expected County to match")
 	})
 }
 
