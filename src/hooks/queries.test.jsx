@@ -66,7 +66,7 @@ jest.mock('services/ghcApi', () => ({
             ],
           },
           b2: {
-            shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+            shipmentType: 'HHG_OUTOF_NTS',
             mtoAgents: [
               {
                 agentType: 'RELEASING_AGENT',
@@ -114,7 +114,7 @@ jest.mock('services/ghcApi', () => ({
       },
       {
         id: 'b2',
-        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS',
         mtoAgents: [
           {
             agentType: 'RELEASING_AGENT',
@@ -421,7 +421,7 @@ describe('usePaymentRequestQueries', () => {
         },
         {
           id: 'b2',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          shipmentType: 'HHG_OUTOF_NTS',
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -1055,7 +1055,7 @@ describe('useReviewShipmentWeightsQuery', () => {
         },
         {
           id: 'b2',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          shipmentType: 'HHG_OUTOF_NTS',
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',

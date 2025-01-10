@@ -38,7 +38,7 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		shipmentStatus = mtoShipment.Status
 	}
 
-	shipmentHasPickupDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && mtoShipment.ShipmentType != models.MTOShipmentTypePPM
+	shipmentHasPickupDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS && mtoShipment.ShipmentType != models.MTOShipmentTypePPM
 	shipmentHasDeliveryDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTS && mtoShipment.ShipmentType != models.MTOShipmentTypePPM
 
 	var pickupAddress, secondaryPickupAddress models.Address
@@ -95,7 +95,7 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 	var storageFacilityID *uuid.UUID
 	var storageFacility models.StorageFacility
-	if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom ||
+	if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS ||
 		mtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS {
 		if mtoShipment.StorageFacility != nil {
 			if isZeroUUID(mtoShipment.StorageFacility.ID) {

@@ -55,7 +55,7 @@ func (suite *ServiceParamValueLookupsSuite) TestReferenceDateLookup() {
 	})
 
 	suite.Run("golden path for NTS-Release", func() {
-		mtoServiceItem := setupTestData(models.MTOShipmentTypeHHGOutOfNTSDom)
+		mtoServiceItem := setupTestData(models.MTOShipmentTypeHHGOutOfNTS)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
@@ -83,7 +83,7 @@ func (suite *ServiceParamValueLookupsSuite) TestReferenceDateLookup() {
 	})
 
 	suite.Run("error path for NTS-Release", func() {
-		mtoServiceItem := setupTestData(models.MTOShipmentTypeHHGOutOfNTSDom)
+		mtoServiceItem := setupTestData(models.MTOShipmentTypeHHGOutOfNTS)
 
 		// Set the ActualPickupDate to nil
 		mtoServiceItem.MTOShipment.ActualPickupDate = nil
