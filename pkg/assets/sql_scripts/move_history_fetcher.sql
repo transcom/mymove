@@ -650,8 +650,7 @@ WITH move AS (
 		SELECT shipment_address_updates.*
 		FROM
 			shipment_address_updates
-		WHERE
-			shipment_address_updates.shipment_id = (SELECT id FROM move_shipments.id)
+		JOIN move_shipments ON shipment_address_updates.shipment_id = move_shipments.id
 	),
 	shipment_address_updates_logs as (
 		SELECT audit_history.*,
@@ -659,7 +658,8 @@ WITH move AS (
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN move_shipment_address_updates ON move_shipment_address_updates.id = audit_history.object_id
+		JOIN move_shipments ON move_shipments.id = move_shipments.id
+		WHERE audit_history.table_name = 'shipment_address_updates'
 	),
 	combined_logs AS (
 		SELECT
