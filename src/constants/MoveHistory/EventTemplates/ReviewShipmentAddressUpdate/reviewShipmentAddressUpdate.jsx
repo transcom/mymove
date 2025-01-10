@@ -7,7 +7,7 @@ import t from 'constants/MoveHistory/Database/Tables';
 export default {
   action: a.UPDATE,
   eventName: o.reviewShipmentAddressUpdate,
-  tableName: t.moves,
+  tableName: t.shipment_address_updates,
   getEventNameDisplay: () => {
     return 'Shipment Destination Address Request';
   },
@@ -20,7 +20,11 @@ export default {
       );
     }
     if (changedValues.status === 'REJECTED') {
-      return 'Rejected';
+      return (
+        <div>
+          <b>Status</b>: Rejected
+        </div>
+      );
     }
     return null;
   },
