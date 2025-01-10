@@ -205,7 +205,11 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
             <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
               <Dropdown
                 defaultValue={row.assignedTo?.officeUserId}
-                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
+                key={row.locator}
+                onChange={(e) => {
+                  handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR);
+                  window.location.reload();
+                }}
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
@@ -422,7 +426,12 @@ export const closeoutColumns = (
   return cols;
 };
 
-const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, officeUser }) => {
+const ServicesCounselingQueue = ({
+  userPrivileges,
+  isQueueManagementFFEnabled,
+  officeUser,
+  isBulkAssignmentFFEnabled,
+}) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -657,6 +666,9 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, o
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          queueType="CLOSEOUT"
         />
       </div>
     );
@@ -684,6 +696,9 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, o
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          queueType="COUNSELING"
         />
       </div>
     );

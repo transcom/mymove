@@ -1,0 +1,37 @@
+.BulkModal {
+  min-width: 900px !important;
+  overflow-y: auto;
+  max-height: 50vh;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.BulkAssignmentTable {
+  table {
+    th {
+      max-width: 10px;
+      color: blue;
+      text-align: center;
+    }
+    .BulkAssignmentDataCenter {
+      text-align: center;
+    }
+    .BulkAssignmentAssignment {
+      width: 60px;
+      text-align: center;
+    }
+  }
+}
+
+.CancelConfirmationModalWrapper {
+  position: fixed !important;
+  left: 0;
+  bottom: 50px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.CancelConfirmationModal {
+  width: 350px;
+}
