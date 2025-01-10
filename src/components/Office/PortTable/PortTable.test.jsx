@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 
 import PortTable from './PortTable';
 
-const poeLocation = {
+const poeLocationSet = {
   poeLocation: {
     portCode: 'PDX',
     portName: 'PORTLAND INTL',
@@ -14,7 +14,7 @@ const poeLocation = {
   podLocation: null,
 };
 
-const podLocation = {
+const podLocationSet = {
   poeLocation: null,
   podLocation: {
     portCode: 'SEA',
@@ -32,7 +32,7 @@ const nullPortLocation = {
 
 describe('PortTable', () => {
   it('renders POE location if poeLocation is set', async () => {
-    render(<PortTable {...poeLocation} />);
+    render(<PortTable {...poeLocationSet} />);
     expect(screen.getByText(/PDX - PORTLAND INTL/)).toBeInTheDocument();
     expect(screen.getByText(/Portland, Oregon 97220/)).toBeInTheDocument();
     expect(screen.queryByText(/SEA - SEATTLE TACOMA INTL/)).not.toBeInTheDocument();
@@ -40,7 +40,7 @@ describe('PortTable', () => {
   });
 
   it('renders POD location if podLocation is set', async () => {
-    render(<PortTable {...podLocation} />);
+    render(<PortTable {...podLocationSet} />);
     expect(screen.queryByText(/PDX - PORTLAND INTL/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Portland, Oregon 97220/)).not.toBeInTheDocument();
     expect(screen.getByText(/SEA - SEATTLE TACOMA INTL/)).toBeInTheDocument();
