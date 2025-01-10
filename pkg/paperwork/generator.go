@@ -8,6 +8,7 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -100,7 +101,17 @@ func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
 	repositoryConfigYmlPath := filepath.Join("..", "..", "config", "pdfcpu", "config.yml")
-	err := api.EnsureDefaultConfigAt(repositoryConfigYmlPath) // Load our config into pdfcpu
+	_, err := os.Stat(repositoryConfigYmlPath)
+	if err != nil {
+		// If config doesn't exist
+		if os.IsNotExist(err) {
+			return nil, fmt.Errorf("pdfcpu config.yml does not exist at path %s", repositoryConfigYmlPath)
+		}
+		// If perms issue
+		return nil, fmt.Errorf("could not access pdfcpu config.yml at path %q: %w", repositoryConfigYmlPath, err)
+	}
+
+	err = api.EnsureDefaultConfigAt(repositoryConfigYmlPath) // Load our config into pdfcpu
 	if err != nil {
 		return nil, err
 	}
