@@ -269,8 +269,6 @@ const ShipmentDetailsMain = ({
         }}
         handleShowDiversionModal={handleShowDiversionModal}
         isMoveLocked={isMoveLocked}
-        poeLocation={displayPoeLocation}
-        podLocation={displayPodLocation}
       />
       {(displayPoeLocation || displayPodLocation) && (
         <PortTable poeLocation={displayPoeLocation} podLocation={displayPodLocation} />
