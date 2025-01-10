@@ -9021,6 +9021,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationGBLOC": {
+          "type": "string",
+          "example": "AGFM"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "example": "90210"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -9900,7 +9908,7 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_INTO_NTS",
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM",
         "BOAT_HAUL_AWAY",
@@ -9912,7 +9920,7 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_INTO_NTS": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
@@ -12785,7 +12793,7 @@ func init() {
             "BOAT_HAUL_AWAY",
             "BOAT_TOW_AWAY",
             "HHG",
-            "HHG_INTO_NTS_DOMESTIC",
+            "HHG_INTO_NTS",
             "HHG_OUTOF_NTS_DOMESTIC",
             "MOBILE_HOME",
             "PPM",
@@ -13225,15 +13233,15 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
         },
         "edipi": {
           "type": "string",
@@ -25851,6 +25859,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationGBLOC": {
+          "type": "string",
+          "example": "AGFM"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "example": "90210"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -26730,7 +26746,7 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_INTO_NTS",
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM",
         "BOAT_HAUL_AWAY",
@@ -26742,7 +26758,7 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_INTO_NTS": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
@@ -29691,7 +29707,7 @@ func init() {
             "BOAT_HAUL_AWAY",
             "BOAT_TOW_AWAY",
             "HHG",
-            "HHG_INTO_NTS_DOMESTIC",
+            "HHG_INTO_NTS",
             "HHG_OUTOF_NTS_DOMESTIC",
             "MOBILE_HOME",
             "PPM",
@@ -30181,15 +30197,15 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
         },
         "edipi": {
           "type": "string",
