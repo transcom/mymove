@@ -143,7 +143,7 @@ const ServicesCounselingMoveAllowances = () => {
     storageInTransit: `${storageInTransit}`,
     gunSafe,
     adminRestrictedWeightLocation,
-    weightRestriction,
+    weightRestriction: `${weightRestriction}`,
     organizationalClothingAndIndividualEquipment,
     accompaniedTour,
     dependentsUnderTwelve: `${dependentsUnderTwelve}`,
