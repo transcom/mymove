@@ -597,17 +597,17 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		// Validate outgoing payload without shipment
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		var moveDestinationPostalCode string
+		var moveDestinationAddress *models.Address
 		var moveDestinationGBLOC string
 		var err error
 
 		// Get destination postal code and GBLOC based on business logic
-		moveDestinationPostalCode, err = move.GetDestinationPostalCode(suite.DB())
+		moveDestinationAddress, err = move.GetDestinationAddress(suite.DB())
 		suite.NoError(err)
 		moveDestinationGBLOC, err = move.GetDestinationGBLOC(suite.DB())
 		suite.NoError(err)
 
-		suite.Equal(moveDestinationPostalCode, "62225")
+		suite.Equal(moveDestinationAddress.PostalCode, "62225")
 		suite.Equal(ghcmessages.GBLOC(moveDestinationGBLOC), ghcmessages.GBLOC("AGFM"))
 
 		// Set Mock Search settings for move with MTO Shipment
@@ -639,12 +639,12 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		// Get destination postal code and GBLOC based on business logic
-		moveDestinationPostalCode, err = moveWithShipment.GetDestinationPostalCode(suite.DB())
+		moveDestinationAddress, err = move.GetDestinationAddress(suite.DB())
 		suite.NoError(err)
 		moveDestinationGBLOC, err = moveWithShipment.GetDestinationGBLOC(suite.DB())
 		suite.NoError(err)
 
-		suite.Equal(moveDestinationPostalCode, "90210")
+		suite.Equal(moveDestinationAddress.PostalCode, "90210")
 		suite.Equal(ghcmessages.GBLOC(moveDestinationGBLOC), ghcmessages.GBLOC("KKFA"))
 
 		// Set Mock Search settings for move with PPM Shipment
@@ -676,12 +676,12 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		// Get destination postal code and GBLOC based on business logic
-		moveDestinationPostalCode, err = moveWithShipmentPPM.GetDestinationPostalCode(suite.DB())
+		moveDestinationAddress, err = move.GetDestinationAddress(suite.DB())
 		suite.NoError(err)
 		moveDestinationGBLOC, err = moveWithShipmentPPM.GetDestinationGBLOC(suite.DB())
 		suite.NoError(err)
 
-		suite.Equal(moveDestinationPostalCode, payload.SearchMoves[0].DestinationPostalCode)
+		suite.Equal(moveDestinationAddress.PostalCode, payload.SearchMoves[0].DestinationPostalCode)
 		suite.Equal(ghcmessages.GBLOC(moveDestinationGBLOC), payload.SearchMoves[0].DestinationGBLOC)
 	})
 }
