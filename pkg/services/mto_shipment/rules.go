@@ -337,7 +337,7 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 
 		// If we have all the data, calculate RDD
 		if latestSchedPickupDate != nil && (latestEstimatedWeight != nil || (older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS &&
-			older.NTSRecordedWeight != nil)) && latestPickupAddress != nil && latestDestinationAddress != nil {
+			older.NTSRecordedWeight != nil)) && latestPickupAddress != nil && latestDestinationAddress != nil && older.ShipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
 			weight := latestEstimatedWeight
 			if older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && older.NTSRecordedWeight != nil {
 				weight = older.NTSRecordedWeight
@@ -348,6 +348,16 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 				verrs.Add("requiredDeliveryDate", err.Error())
 			}
 			newer.RequiredDeliveryDate = requiredDeliveryDate
+		}
+
+		// RDD for UB shipments only need the pick up date, shipment origin address and destination address
+		if older.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage && older.ScheduledPickupDate != nil {
+			requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDateUBShipment(appCtx, *older.PickupAddress, *older.DestinationAddress, *older.ScheduledPickupDate)
+			if calcErr != nil {
+				return calcErr
+			}
+
+			newer.RequiredDeliveryDate = &requiredDeliveryDate
 		}
 		return verrs
 	})
