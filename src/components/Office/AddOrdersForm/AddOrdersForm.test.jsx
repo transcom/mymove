@@ -257,8 +257,8 @@ describe('AddOrdersForm - With Counseling Office', () => {
     );
 
     await userEvent.selectOptions(await screen.findByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
-    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
-    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+    await userEvent.paste(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await userEvent.paste(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
