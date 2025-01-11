@@ -836,15 +836,14 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		expectedReserviceCodes := []models.ReServiceCode{
 			models.ReServiceCodeUBP,
+			models.ReServiceCodePOEFSC,
 			models.ReServiceCodeIUBPK,
 			models.ReServiceCodeIUBUPK,
-			models.ReServiceCodePOEFSC,
 		}
 
 		suite.Equal(4, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
-			actualReServiceCode := serviceItems[i].ReService.Code
-			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode), "Contains unexpected: "+actualReServiceCode.String())
+			suite.Equal(expectedReserviceCodes[i], serviceItems[i].ReService.Code)
 		}
 	})
 
@@ -896,15 +895,14 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		expectedReserviceCodes := []models.ReServiceCode{
 			models.ReServiceCodeUBP,
+			models.ReServiceCodePODFSC,
 			models.ReServiceCodeIUBPK,
 			models.ReServiceCodeIUBUPK,
-			models.ReServiceCodePODFSC,
 		}
 
 		suite.Equal(4, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
-			actualReServiceCode := serviceItems[i].ReService.Code
-			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode), "Contains unexpected: "+actualReServiceCode.String())
+			suite.Equal(expectedReserviceCodes[i], serviceItems[i].ReService.Code)
 		}
 	})
 
@@ -962,8 +960,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		suite.Equal(3, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
-			actualReServiceCode := serviceItems[i].ReService.Code
-			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode), "Contains unexpected: "+actualReServiceCode.String())
+			suite.Equal(expectedReserviceCodes[i], serviceItems[i].ReService.Code)
 		}
 	})
 
