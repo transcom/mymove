@@ -63,6 +63,150 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.Equal(unit.Miles(defaultZipDistance), *mtoShipment.Distance)
 	})
 
+	suite.Run("Calculate transit zip distance for international shipment with port data", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "SEA",
+				},
+			},
+		}, nil)
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model: models.Address{
+					PostalCode: "74133",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.MTOServiceItem{
+					POELocationID: &portLocation.ID,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		distanceStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+		expected := strconv.Itoa(defaultInternationalZipDistance)
+		suite.Equal(expected, distanceStr)
+
+		var mtoShipment models.MTOShipment
+		err = suite.DB().Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		suite.NoError(err)
+
+		suite.Equal(unit.Miles(defaultInternationalZipDistance), *mtoShipment.Distance)
+	})
+
+	suite.Run("Calculate transit zip distance with an approved Destination SIT service item", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		now := time.Now()
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "88101",
+				},
+			},
+		}, nil)
+
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "33607",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					PostalCode: "90210",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+					Name: models.ReServiceCodeDDFSIT.String(),
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:     models.MTOServiceItemStatusApproved,
+					ApprovedAt: &now,
+				},
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+			},
+			{
+				Model:    mtoServiceItem.MTOShipment,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		distanceStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+		expected := strconv.Itoa(defaultZipDistance)
+		suite.Equal(expected, distanceStr)
+
+		var mtoShipment models.MTOShipment
+		err = suite.DB().Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		suite.NoError(err)
+
+		suite.Equal(unit.Miles(defaultZipDistance), *mtoShipment.Distance)
+	})
+
 	suite.Run("Calculate zip distance lookup without a saved service item", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
@@ -88,7 +232,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.Equal(unit.Miles(defaultZipDistance), *ppmShipment.Shipment.Distance)
 	})
 
-	suite.Run("Call ZipTransitDistance on non-PPMs with shipments that have a distance", func() {
+	suite.Run("Call ZipTransitDistance on PPMs with shipments that have a distance", func() {
 		miles := unit.Miles(defaultZipDistance)
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
@@ -116,39 +260,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.NoError(err)
 
 		suite.Equal(unit.Miles(defaultZipDistance), *ppmShipment.Shipment.Distance)
-		suite.Equal(fmt.Sprintf("%d", defaultZipDistance), distance)
-	})
-
-	suite.Run("Do not call ZipTransitDistance on PPMs with shipments that have a distance", func() {
-		miles := unit.Miles(defaultZipDistance)
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Distance:     &miles,
-					ShipmentType: models.MTOShipmentTypeHHG,
-				},
-			},
-		}, nil)
-
-		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: shipment.PickupAddress.PostalCode},
-			DestinationAddress: models.Address{PostalCode: shipment.DestinationAddress.PostalCode},
-		}
-
-		appContext := suite.AppContextForTest()
-		distance, err := distanceZipLookup.lookup(appContext, &ServiceItemParamKeyData{
-			planner:       suite.planner,
-			mtoShipmentID: &shipment.ID,
-		})
-		suite.NoError(err)
-
-		planner := suite.planner.(*mocks.Planner)
-		planner.AssertNotCalled(suite.T(), "ZipTransitDistance", appContext, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode, false, false)
-
-		err = suite.DB().Reload(&shipment)
-		suite.NoError(err)
-
-		suite.Equal(unit.Miles(defaultZipDistance), *shipment.Distance)
 		suite.Equal(fmt.Sprintf("%d", defaultZipDistance), distance)
 	})
 

@@ -103,6 +103,11 @@ type Move struct {
 	CounselingOffice             *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
 }
 
+type MoveWithEarliestDate struct {
+	ID           uuid.UUID `json:"id" db:"id"`
+	EarliestDate time.Time `db:"earliest_date"`
+}
+
 // TableName overrides the table name used by Pop.
 func (m Move) TableName() string {
 	return "moves"
@@ -194,6 +199,50 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	}
 
 	return &move, nil
+}
+
+// GetDestinationPostalCode returns the postal code for the move. This ensures that business logic is centralized.
+func (m Move) GetDestinationPostalCode(db *pop.Connection) (string, error) {
+	// Since this requires looking up the move in the DB, the move must have an ID. This means, the move has to have been created first.
+	if uuid.UUID.IsNil(m.ID) {
+		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the move in the DB before getting the destination Postal Code.")
+	}
+
+	err := db.Load(&m, "Orders")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return "", errors.WithMessage(err, "No Orders found in the DB associated with moveID "+m.ID.String())
+		}
+		return "", err
+	}
+
+	var gblocsMap map[uuid.UUID]string
+	gblocsMap, err = m.Orders.GetDestinationPostalCodeForAssociatedMoves(db)
+	if err != nil {
+		return "", err
+	}
+	return gblocsMap[m.ID], nil
+}
+
+// GetDestinationGBLOC returns the GBLOC for the move. This ensures that business logic is centralized.
+func (m Move) GetDestinationGBLOC(db *pop.Connection) (string, error) {
+	// Since this requires looking up the move in the DB, the move must have an ID. This means, the move has to have been created first.
+	if uuid.UUID.IsNil(m.ID) {
+		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the move in the DB before getting the destination GBLOC.")
+	}
+
+	postalCode, err := m.GetDestinationPostalCode(db)
+	if err != nil {
+		return "", err
+	}
+
+	var gblocResult PostalCodeToGBLOC
+	gblocResult, err = FetchGBLOCForPostalCode(db, postalCode)
+	if err != nil {
+		return "", err
+	}
+
+	return gblocResult.GBLOC, err
 }
 
 // CreateSignedCertification creates a new SignedCertification associated with this move
