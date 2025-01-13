@@ -119,7 +119,7 @@ const (
 	ReServiceCodeNSTH ReServiceCode = "NSTH"
 	// ReServiceCodeNSTUB Nonstandard UB
 	ReServiceCodeNSTUB ReServiceCode = "NSTUB"
-	// ReServiceCodeUBP International UB
+	// ReServiceCodeUBP International UB price
 	ReServiceCodeUBP ReServiceCode = "UBP"
 	// ReServiceCodeISLH Shipping & Linehaul
 	ReServiceCodeISLH ReServiceCode = "ISLH"
