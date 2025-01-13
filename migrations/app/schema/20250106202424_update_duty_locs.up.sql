@@ -24,3 +24,5 @@ INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_
 INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_at,transportation_office_id,provides_services_counseling) VALUES
 ('98beab3c-f8ce-4e3c-b78e-8db614721621'::uuid, 'Cannon AFB, NM 88101',null, 'fb90a7df-6494-4974-a0ce-4bdbcaff80c0'::uuid,now(),now(),'80796bc4-e494-4b19-bb16-cdcdba187829',true);
 
+--associate New London, CT duty location to New London transportation office
+update duty_locations set transportation_office_id = '5eb485ae-fb9c-4c90-80e4-6231158797df' where id = '3a2a84cd-0991-4f40-9a19-f977608d08f0';
