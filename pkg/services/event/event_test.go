@@ -313,7 +313,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:      models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType:      models.MTOShipmentTypeHHGIntoNTS,
 					NTSRecordedWeight: &ntsRecordedWeight,
 				},
 			},
@@ -370,7 +370,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:       models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGIntoNTS,
 					UsesExternalVendor: true,
 				},
 			},

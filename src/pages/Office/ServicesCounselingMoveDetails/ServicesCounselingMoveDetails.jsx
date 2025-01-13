@@ -105,15 +105,15 @@ const ServicesCounselingMoveDetails = ({
   // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
   // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
   const showWhenCollapsed = {
-    HHG_INTO_NTS_DOMESTIC: ['counselorRemarks'],
+    HHG_INTO_NTS: ['counselorRemarks'],
     HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'],
   }; // add any additional fields that we also want to always show
   const neverShow = {
-    HHG_INTO_NTS_DOMESTIC: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility', 'requestedDeliveryDate'],
+    HHG_INTO_NTS: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility', 'requestedDeliveryDate'],
     HHG_OUTOF_NTS_DOMESTIC: ['requestedPickupDate'],
   };
   const warnIfMissing = {
-    HHG_INTO_NTS_DOMESTIC: [{ fieldName: 'tacType' }, { fieldName: 'sacType' }],
+    HHG_INTO_NTS: [{ fieldName: 'tacType' }, { fieldName: 'sacType' }],
     HHG_OUTOF_NTS_DOMESTIC: [
       { fieldName: 'ntsRecordedWeight' },
       { fieldName: 'serviceOrderNumber' },
