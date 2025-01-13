@@ -37,7 +37,7 @@ func (wr *weightRestrictor) ApplyWeightRestrictionToEntitlement(appCtx appcontex
 		return nil, err
 	}
 
-	// Don't allow applying a weight restriction above teh max allowance, that's silly
+	// Don't allow applying a weight restriction above the max allowance, that's silly
 	if weightRestriction > maxHhgAllowance {
 		return nil, apperror.NewInvalidInputError(entitlement.ID,
 			fmt.Errorf("weight restriction %d exceeds max HHG allowance %d", weightRestriction, maxHhgAllowance),

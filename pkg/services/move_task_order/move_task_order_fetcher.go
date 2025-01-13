@@ -200,7 +200,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	}
 
 	// Now that we have the move and order, construct the allotment (hhg allowance)
-	// Only fetch if grade us not nil
+	// Only fetch if grade is not nil
 	if mto.Orders.Grade != nil {
 		allotment, err := f.waf.GetWeightAllotment(appCtx, string(*mto.Orders.Grade), mto.Orders.OrdersType)
 		if err != nil {
