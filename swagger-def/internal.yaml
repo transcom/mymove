@@ -1806,7 +1806,7 @@ definitions:
     example: HHG
     enum:
       - HHG
-      - HHG_INTO_NTS_DOMESTIC
+      - HHG_INTO_NTS
       - HHG_OUTOF_NTS_DOMESTIC
       - PPM
       - BOAT_HAUL_AWAY
@@ -1815,7 +1815,7 @@ definitions:
       - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
-      HHG_INTO_NTS_DOMESTIC: NTS
+      HHG_INTO_NTS: NTS
       HHG_OUTOF_NTS_DOMESTIC: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away

@@ -382,7 +382,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     },
   );
 
-  it.each(['HHG', 'HHG_INTO_NTS_DOMESTIC', 'HHG_OUTOF_NTS_DOMESTIC'])(
+  it.each(['HHG', 'HHG_INTO_NTS', 'HHG_OUTOF_NTS_DOMESTIC'])(
     'renders the initial form, selecting %s',
     async (shipmentType) => {
       isBooleanFlagEnabled.mockResolvedValue(false);
