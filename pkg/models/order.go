@@ -461,7 +461,7 @@ func (o Order) GetDestinationAddressForAssociatedMoves(db *pop.Connection) (*Add
 
 			if o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusRejected &&
 				o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusCanceled &&
-				o.Moves[i].MTOShipments[j].ShipmentType != MTOShipmentTypeHHGIntoNTSDom &&
+				o.Moves[i].MTOShipments[j].ShipmentType != MTOShipmentTypeHHGIntoNTS &&
 				o.Moves[i].MTOShipments[j].DeletedAt == nil {
 				shipments = append(shipments, o.Moves[i].MTOShipments[j])
 			}
