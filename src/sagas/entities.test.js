@@ -152,7 +152,7 @@ describe('updateMTOShipment', () => {
         streetAddress2: '#E306',
       },
       requestedPickupDate: '2020-12-22',
-      shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+      shipmentType: 'HHG_INTO_NTS',
       status: 'SUBMITTED',
       updatedAt: '2020-12-08T17:39:05.051Z',
     },
