@@ -100,7 +100,7 @@ func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	// to hard disk due to restrictions in AWS storage. May need better long term solution.
 	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
-	// Disable ConfiDir for AWS deployment purposes.
+	// Disable ConfigDir for AWS deployment purposes.
 	// PDFCPU will attempt to create temp dir using os.create(hard disk).This will prevent it.
 	api.DisableConfigDir()
 	pdfConfig := model.NewDefaultConfiguration()
