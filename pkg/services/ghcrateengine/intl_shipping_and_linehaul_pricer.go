@@ -48,7 +48,7 @@ func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contr
 		appCtx,
 		contract.ID,
 		referenceDate,
-		true,
+		false,
 		basePrice)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
