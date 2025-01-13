@@ -3,6 +3,7 @@ package testdatagen
 import (
 	"github.com/gobuffalo/pop/v6"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -33,16 +34,45 @@ func makeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 		OrganizationalClothingAndIndividualEquipment: ocie,
 	}
 
-	weightData := getDefaultWeightData(string(*grade))
-	allotment := models.WeightAllotment{
-		TotalWeightSelf:               weightData.TotalWeightSelf,
-		TotalWeightSelfPlusDependents: weightData.TotalWeightSelfPlusDependents,
-		ProGearWeight:                 weightData.ProGearWeight,
-		ProGearWeightSpouse:           weightData.ProGearWeightSpouse,
+	var hhgAllowance models.HHGAllowance
+	if assertions.Order.OrdersType == internalmessages.OrdersTypeSTUDENTTRAVEL {
+		// Set to student travel allotment
+		entitlement.WeightAllotted = &models.WeightAllotment{
+			TotalWeightSelf:               350,
+			TotalWeightSelfPlusDependents: 350,
+			ProGearWeight:                 0,
+			ProGearWeightSpouse:           0,
+			UnaccompaniedBaggageAllowance: 100,
+		}
 	}
-	entitlement.WeightAllotted = &allotment
-	dBAuthorizedWeight := entitlement.AuthorizedWeight()
-	entitlement.DBAuthorizedWeight = dBAuthorizedWeight
+	err := db.RawQuery(`
+		SELECT hhg_allowances.*
+		FROM hhg_allowances
+		INNER JOIN pay_grades ON hhg_allowances.pay_grade_id = pay_grades.id
+		WHERE pay_grades.grade = $1
+		LIMIT 1
+	`, grade).First(&hhgAllowance)
+	if err != nil {
+		// Resort to defaults, for some reason it must've been truncated
+		weightData := getDefaultWeightData(string(*grade))
+		allotment := models.WeightAllotment{
+			TotalWeightSelf:               weightData.TotalWeightSelf,
+			TotalWeightSelfPlusDependents: weightData.TotalWeightSelfPlusDependents,
+			ProGearWeight:                 weightData.ProGearWeight,
+			ProGearWeightSpouse:           weightData.ProGearWeightSpouse,
+		}
+		entitlement.WeightAllotted = &allotment
+		dBAuthorizedWeight := entitlement.AuthorizedWeight()
+		entitlement.DBAuthorizedWeight = dBAuthorizedWeight
+	} else {
+		// The db data was found
+		entitlement.WeightAllotted = &models.WeightAllotment{
+			TotalWeightSelf:               hhgAllowance.TotalWeightSelf,
+			TotalWeightSelfPlusDependents: hhgAllowance.TotalWeightSelfPlusDependents,
+			ProGearWeight:                 hhgAllowance.ProGearWeight,
+			ProGearWeightSpouse:           hhgAllowance.ProGearWeightSpouse,
+		}
+	}
 
 	// Overwrite values with those from assertions
 	mergeModels(&entitlement, assertions.Entitlement)
