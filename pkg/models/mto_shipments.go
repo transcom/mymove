@@ -20,7 +20,7 @@ type MTOShipmentType string
 // using these also in move.go selected move type
 const (
 	// NTSRaw is the raw string value of the NTS Shipment Type
-	NTSRaw = "HHG_INTO_NTS_DOMESTIC"
+	NTSRaw = "HHG_INTO_NTS"
 	// NTSrRaw is the raw string value of the NTSr Shipment Type
 	NTSrRaw = "HHG_OUTOF_NTS_DOMESTIC"
 )
@@ -36,8 +36,8 @@ const (
 const (
 	// MTOShipmentTypeHHG is an HHG Shipment Type default
 	MTOShipmentTypeHHG MTOShipmentType = "HHG"
-	// MTOShipmentTypeHHGIntoNTSDom is an HHG Shipment Type for going into NTS Domestic
-	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
+	// MTOShipmentTypeHHGIntoNTS is an HHG Shipment Type for going into NTS
+	MTOShipmentTypeHHGIntoNTS MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
 	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = NTSrRaw
 	// MTOShipmentTypeMobileHome is a Shipment Type for MobileHome
@@ -277,6 +277,33 @@ func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*Service
 	return &serviceMember, nil
 }
 
+func (m *MTOShipment) UpdateOrdersDestinationGBLOC(db *pop.Connection) error {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(m.ID) {
+		return fmt.Errorf("error updating orders destination GBLOC for shipment due to no shipment ID provided")
+	}
+
+	var err error
+	var order Order
+
+	err = db.Load(&m, "MoveTaskOrder.OrdersID")
+	if err != nil {
+		return fmt.Errorf("error loading orders for shipment ID: %s with error %w", m.ID, err)
+	}
+
+	order, err = FetchOrder(db, m.MoveTaskOrder.OrdersID)
+	if err != nil {
+		return fmt.Errorf("error fetching order for shipment ID: %s with error %w", m.ID, err)
+	}
+
+	err = order.UpdateDestinationGBLOC(db)
+	if err != nil {
+		return fmt.Errorf("error fetching GBLOC for postal code with error %w", err)
+	}
+
+	return nil
+}
+
 // Helper function to check that an MTO Shipment contains a PPM Shipment
 func (m MTOShipment) ContainsAPPMShipment() bool {
 	return m.PPMShipment != nil
@@ -298,7 +325,7 @@ func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
 
 	// determine market code based on address and shipment type
 	switch shipment.ShipmentType {
-	case MTOShipmentTypeHHGIntoNTSDom:
+	case MTOShipmentTypeHHGIntoNTS:
 		if shipment.PickupAddress != nil && shipment.StorageFacility != nil &&
 			shipment.PickupAddress.IsOconus != nil && shipment.StorageFacility.Address.IsOconus != nil {
 			// If both pickup and storage facility are present, check if both are domestic
@@ -345,6 +372,35 @@ func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
 		}
 	}
 	return shipment
+}
+
+func (s MTOShipment) GetDestinationAddress(db *pop.Connection) (*Address, error) {
+	if uuid.UUID.IsNil(s.ID) {
+		return nil, errors.New("MTOShipment ID is required to fetch destination address.")
+	}
+
+	err := db.Load(&s, "DestinationAddress", "PPMShipment.DestinationAddress")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return nil, errors.WithMessage(ErrSqlRecordNotFound, string(s.ShipmentType)+" ShipmentID: "+s.ID.String())
+		}
+		return nil, err
+	}
+
+	if s.ShipmentType == MTOShipmentTypePPM {
+		if s.PPMShipment.DestinationAddress != nil {
+			return s.PPMShipment.DestinationAddress, nil
+		} else if s.DestinationAddress != nil {
+			return s.DestinationAddress, nil
+		}
+		return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType))
+	}
+
+	if s.DestinationAddress != nil {
+		return s.DestinationAddress, nil
+	}
+
+	return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType))
 }
 
 // this function takes in two addresses and determines the market code string
@@ -413,6 +469,25 @@ func UpdateEstimatedPricingForShipmentBasicServiceItems(db *pop.Connection, ship
 	}
 
 	return nil
+}
+
+// GetDestinationGblocForShipment gets the GBLOC associated with the shipment's destination address
+// there are certain exceptions for OCONUS addresses in Alaska Zone II based on affiliation
+func GetDestinationGblocForShipment(db *pop.Connection, shipmentID uuid.UUID) (*string, error) {
+	var gbloc *string
+
+	err := db.RawQuery("SELECT * FROM get_destination_gbloc_for_shipment($1)", shipmentID).
+		First(&gbloc)
+
+	if err != nil && err != sql.ErrNoRows {
+		return nil, fmt.Errorf("error fetching destination gbloc for shipment ID: %s with error %w", shipmentID, err)
+	}
+
+	if gbloc != nil {
+		return gbloc, nil
+	}
+
+	return nil, nil
 }
 
 // Returns a Shipment for a given id

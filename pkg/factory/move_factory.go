@@ -35,6 +35,15 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		closeoutOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
 	}
 
+
+	var counselingOffice models.TransportationOffice
+	tempCounselingOfficeCustoms := customs
+	counselingOfficeResult := findValidCustomization(customs, TransportationOffices.CounselingOffice)
+	if counselingOfficeResult != nil {
+		tempCounselingOfficeCustoms = convertCustomizationInList(tempCounselingOfficeCustoms, TransportationOffices.CounselingOffice, TransportationOffice)
+		counselingOffice = BuildTransportationOffice(db, tempCounselingOfficeCustoms, nil)
+	}
+
 	var scAssignedUser models.OfficeUser
 	tempSCAssignedUserCustoms := customs
 	scAssignedUserResult := findValidCustomization(customs, OfficeUsers.SCAssignedUser)
@@ -42,6 +51,7 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		tempSCAssignedUserCustoms = convertCustomizationInList(tempSCAssignedUserCustoms, OfficeUsers.SCAssignedUser, OfficeUser)
 		scAssignedUser = BuildOfficeUser(db, tempSCAssignedUserCustoms, nil)
 	}
+
 
 	var tooAssignedUser models.OfficeUser
 	tempTOOAssignedUserCustoms := customs
@@ -97,10 +107,17 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.CloseoutOfficeID = &closeoutOffice.ID
 	}
 
+
+	if counselingOfficeResult != nil {
+		move.CounselingOffice = &counselingOffice
+		move.CounselingOfficeID = &counselingOffice.ID
+	}
+
 	if scAssignedUserResult != nil {
 		move.SCAssignedUser = &scAssignedUser
 		move.SCAssignedID = &scAssignedUser.ID
 	}
+
 
 	if tooAssignedUserResult != nil {
 		move.TOOAssignedUser = &tooAssignedUser
@@ -111,6 +128,7 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.TIOAssignedUser = &tioAssignedUser
 		move.TIOAssignedID = &tioAssignedUser.ID
 	}
+
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&move, cMove)
 
@@ -203,6 +221,8 @@ func BuildMoveWithShipment(db *pop.Connection, customs []Customization, traits [
 	return move
 }
 func BuildMoveWithPPMShipment(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
+	// Please note this function runs BuildMove 3 times
+	// Once here, once in buildMTOShipmentWithBuildType, and once in BuildPPMShipment
 	move := BuildMove(db, customs, traits)
 
 	mtoShipment := buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentPPM)
