@@ -42,7 +42,7 @@ describe('BulkAssignmentModal', () => {
     expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment' })).toBeInTheDocument();
   });
 
-  it('closes the modal when close icon is clicked', async () => 
+  it('closes the modal when close icon is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} bulkAssignmentData={data} />);
 
     const closeButton = await screen.findByTestId('modalCloseButton');
