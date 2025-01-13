@@ -834,16 +834,23 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err2)
 
-		expectedReserviceCodes := []models.ReServiceCode{
+		expectedReServiceCodes := []models.ReServiceCode{
 			models.ReServiceCodeUBP,
 			models.ReServiceCodePOEFSC,
 			models.ReServiceCodeIUBPK,
 			models.ReServiceCodeIUBUPK,
 		}
+		expectedReServiceNames := []string{
+			"International UB price",
+			"International POE Fuel Surcharge",
+			"International UB pack",
+			"International UB unpack",
+		}
 
 		suite.Equal(4, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
-			suite.Equal(expectedReserviceCodes[i], serviceItems[i].ReService.Code)
+			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
+			suite.Equal(expectedReServiceNames[i], serviceItems[i].ReService.Name)
 		}
 	})
 
@@ -893,16 +900,23 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err2)
 
-		expectedReserviceCodes := []models.ReServiceCode{
+		expectedReServiceCodes := []models.ReServiceCode{
 			models.ReServiceCodeUBP,
 			models.ReServiceCodePODFSC,
 			models.ReServiceCodeIUBPK,
 			models.ReServiceCodeIUBUPK,
 		}
+		expectedReServiceNames := []string{
+			"International UB price",
+			"International POD Fuel Surcharge",
+			"International UB pack",
+			"International UB unpack",
+		}
 
 		suite.Equal(4, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
-			suite.Equal(expectedReserviceCodes[i], serviceItems[i].ReService.Code)
+			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
+			suite.Equal(expectedReServiceNames[i], serviceItems[i].ReService.Name)
 		}
 	})
 
@@ -952,15 +966,21 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err2)
 
-		expectedReserviceCodes := []models.ReServiceCode{
+		expectedReServiceCodes := []models.ReServiceCode{
 			models.ReServiceCodeUBP,
 			models.ReServiceCodeIUBPK,
 			models.ReServiceCodeIUBUPK,
 		}
+		expectedReServiceNames := []string{
+			"International UB price",
+			"International UB pack",
+			"International UB unpack",
+		}
 
 		suite.Equal(3, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
-			suite.Equal(expectedReserviceCodes[i], serviceItems[i].ReService.Code)
+			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
+			suite.Equal(expectedReServiceNames[i], serviceItems[i].ReService.Name)
 		}
 	})
 
