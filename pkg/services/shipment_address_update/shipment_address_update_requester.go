@@ -281,6 +281,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
 	}
+	isInternationalShipment := shipment.MarketCode == models.MarketCodeInternational
 
 	shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipment)
 
@@ -369,7 +370,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 
 	// international shipments don't need to be concerned with shorthaul/linehaul
-	if !updateNeedsTOOReview && shipment.MarketCode != models.MarketCodeInternational {
+	if !updateNeedsTOOReview && !isInternationalShipment {
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
 			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
@@ -385,7 +386,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		}
 	}
 
-	if !updateNeedsTOOReview && shipment.MarketCode != models.MarketCodeInternational {
+	if !updateNeedsTOOReview && !isInternationalShipment {
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
 			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
@@ -402,8 +403,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 
 	if !updateNeedsTOOReview {
-		internationalShipment := shipment.MarketCode == models.MarketCodeInternational
-		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate, internationalShipment)
+		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate, isInternationalShipment)
 		if err != nil {
 			return nil, err
 		}
@@ -495,6 +495,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	}
 
 	shipment = addressUpdate.Shipment
+	isInternationalShipment := shipment.MarketCode == models.MarketCodeInternational
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 		queryBuilder := query.NewQueryBuilder()
@@ -566,7 +567,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 		// If the pricing type has changed then we automatically reject the DLH or DSH service item on the shipment since it is now inaccurate
 		var approvedPaymentRequestsExistsForServiceItem bool
-		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 && shipment.MarketCode != models.MarketCodeInternational {
+		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 && !isInternationalShipment {
 			serviceItems := shipment.MTOServiceItems
 			autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
 			var regeneratedServiceItems models.MTOServiceItems
@@ -670,7 +671,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		// if the shipment has an estimated weight, we need to update the service item pricing since we know the distances have changed
 		// this only applies to international shipments that the TOO is approving the address change for
 		if shipment.PrimeEstimatedWeight != nil &&
-			shipment.MarketCode == models.MarketCodeInternational &&
+			isInternationalShipment &&
 			tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 			portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), shipment.ID)
 			if err != nil {
