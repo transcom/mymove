@@ -13,4 +13,5 @@ type TransportationOfficesFetcher interface {
 	GetTransportationOffice(appCtx appcontext.AppContext, transportationOfficeID uuid.UUID, includeOnlyPPMCloseoutOffices bool) (*models.TransportationOffice, error)
 	GetAllGBLOCs(appCtx appcontext.AppContext) (*models.GBLOCs, error)
 	GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffices, error)
+	FindClosestCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (models.TransportationOffice, error)
 }
