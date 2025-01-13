@@ -253,8 +253,10 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 		auditHistoryContains := func(auditHistories models.AuditHistories, keyword string) func() (success bool) {
 			return func() (success bool) {
 				for _, record := range auditHistories {
-					if strings.Contains(*record.ChangedData, keyword) {
-						return true
+					if record.ChangedData != nil {
+						if strings.Contains(*record.ChangedData, keyword) {
+							return true
+						}
 					}
 				}
 				return false
