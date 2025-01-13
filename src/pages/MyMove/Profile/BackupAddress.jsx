@@ -28,6 +28,8 @@ export const BackupAddress = ({ serviceMember, updateServiceMember }) => {
       city: serviceMember.backup_mailing_address?.city || '',
       state: serviceMember.backup_mailing_address?.state || '',
       postalCode: serviceMember.backup_mailing_address?.postalCode || '',
+      county: serviceMember.backup_mailing_address?.county || '',
+      usPostRegionCitiesID: serviceMember.backup_mailing_address?.usPostRegionCitiesID || '',
     },
   };
 

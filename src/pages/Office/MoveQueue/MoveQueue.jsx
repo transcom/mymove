@@ -32,6 +32,7 @@ import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import handleQueueAssignment from 'utils/queues';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter = true) => {
   const cols = [
@@ -163,7 +164,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
               {row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}
             </div>
           ) : (
-            <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol}>
+            <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol} key={row.id}>
               <Dropdown
                 defaultValue={row.assignedTo?.officeUserId}
                 onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.TOO)}
@@ -189,13 +190,15 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
   return cols;
 };
 
-const MoveQueue = ({ isQueueManagementFFEnabled }) => {
+const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmentFFEnabled }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
-
+  const supervisor = userPrivileges
+    ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
+    : false;
   useEffect(() => {
     const fetchData = async () => {
       const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
@@ -340,6 +343,8 @@ const MoveQueue = ({ isQueueManagementFFEnabled }) => {
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
         />
       </div>
     );

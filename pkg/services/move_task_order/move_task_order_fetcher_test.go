@@ -344,6 +344,102 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		}
 	})
 
+	suite.Run("Success with Prime available move, returns destination GBLOC in shipment dest address", func() {
+		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		suite.FatalNoError(err)
+		army := models.AffiliationARMY
+		postalCode := "99501"
+		// since we truncate the test db, we need to add the postal_code_to_gbloc value
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         postalCode,
+					UsPostRegionCityID: &zone2UUID,
+				},
+			},
+		}, nil)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:            false,
+			Locator:                  move.Locator,
+			ExcludeExternalShipments: true,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.NotNil(actualMTO)
+
+		if suite.Len(actualMTO.MTOShipments, 1) {
+			suite.Equal(move.ID.String(), actualMTO.ID.String())
+			// the shipment should have a destination GBLOC value
+			suite.NotNil(actualMTO.MTOShipments[0].DestinationAddress.DestinationGbloc)
+		}
+	})
+
+	suite.Run("Success with Prime available move, returns USMC destination GBLOC for USMC move", func() {
+		usmc := models.AffiliationMARINES
+
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &usmc,
+				},
+			},
+		}, nil)
+
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:            false,
+			Locator:                  move.Locator,
+			ExcludeExternalShipments: true,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.NotNil(actualMTO)
+
+		if suite.Len(actualMTO.MTOShipments, 1) {
+			suite.Equal(move.ID.String(), actualMTO.ID.String())
+			suite.NotNil(actualMTO.MTOShipments[0].DestinationAddress.DestinationGbloc)
+			suite.Equal(*actualMTO.MTOShipments[0].DestinationAddress.DestinationGbloc, "USMC")
+		}
+	})
+
 	suite.Run("Success with move that has only deleted shipments", func() {
 		mtoWithAllShipmentsDeleted := factory.BuildMove(suite.DB(), nil, nil)
 		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
@@ -389,6 +485,86 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 		_, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 		suite.Error(err)
+	})
+
+	suite.Run("Success - found move with Port of Embarkation", func() {
+		expectedMTO, _ := setupTestData()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		poeId := uuid.FromStringOrNil("b6e94f5b-33c0-43f3-b960-7c7b2a4ee5fc")
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					POELocationID: &poeId,
+					Status:        models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC, // POEFSC, International POE Fuel Surcharge
+				},
+			},
+		}, nil)
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		found := false
+		for _, serviceItem := range actualMTO.MTOServiceItems {
+			if serviceItem.ReService.Code == models.ReServiceCodePOEFSC {
+				suite.Equal(poeId, serviceItem.POELocation.ID)
+				found = true
+				break
+			}
+		}
+		// Verify that the expected service item was found
+		suite.True(found, "Expected service item ReServiceCodePOEFSC")
+	})
+
+	suite.Run("Success - found move with Port of Debarkation", func() {
+		expectedMTO, _ := setupTestData()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		podId := uuid.FromStringOrNil("b6e94f5b-33c0-43f3-b960-7c7b2a4ee5fc")
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					PODLocationID: &podId,
+					Status:        models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePODFSC, // PODFSC, International POD Fuel Surcharge
+				},
+			},
+		}, nil)
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		found := false
+		for _, serviceItem := range actualMTO.MTOServiceItems {
+			if serviceItem.ReService.Code == models.ReServiceCodePODFSC {
+				suite.Equal(podId, serviceItem.PODLocation.ID)
+				found = true
+				break
+			}
+		}
+		// Verify that the expected service item was found
+		suite.True(found, "Expected service item ReServiceCodePODFSC")
 	})
 
 }

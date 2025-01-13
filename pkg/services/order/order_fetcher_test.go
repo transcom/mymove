@@ -897,7 +897,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			{
 				Model: models.Address{
 					PostalCode:         postalCode,
-					UsPostRegionCityId: &zone2UUID,
+					UsPostRegionCityID: &zone2UUID,
 				},
 			},
 		}, nil)
@@ -906,7 +906,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			{
 				Model: models.Address{
 					PostalCode:         postalCode,
-					UsPostRegionCityId: &zone4UUID,
+					UsPostRegionCityID: &zone4UUID,
 				},
 			},
 		}, nil)
@@ -1042,7 +1042,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			{
 				Model: models.Address{
 					PostalCode:         postalCode2,
-					UsPostRegionCityId: &zone2UUID,
+					UsPostRegionCityID: &zone2UUID,
 				},
 			},
 		}, nil)
@@ -1051,7 +1051,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			{
 				Model: models.Address{
 					PostalCode:         postalCode,
-					UsPostRegionCityId: &zone2UUID,
+					UsPostRegionCityID: &zone2UUID,
 				},
 			},
 		}, nil)
@@ -1186,7 +1186,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			{
 				Model: models.Address{
 					PostalCode:         postalCode,
-					UsPostRegionCityId: &zone2UUID,
+					UsPostRegionCityID: &zone2UUID,
 				},
 			},
 		}, nil)

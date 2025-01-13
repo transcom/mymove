@@ -4,7 +4,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestReZip3Validations() {
@@ -48,11 +47,6 @@ func (suite *ModelSuite) TestReZip3Validations() {
 
 	suite.Run("test FetchReZip3Item", func() {
 		zip3 := "606"
-		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
-			ReZip3: models.ReZip3{
-				Zip3: zip3,
-			},
-		})
 
 		reZip3, err := models.FetchReZip3Item(suite.DB(), zip3)
 		suite.Nil(err)

@@ -142,6 +142,10 @@ export async function getCustomerSupportRemarksForMove(key, locator) {
   return makeGHCRequest('customerSupportRemarks.getCustomerSupportRemarksForMove', { locator }, { normalize: false });
 }
 
+export async function getBulkAssignmentData(queueType) {
+  return makeGHCRequest('queues.getBulkAssignmentData', { queueType }, { normalize: false });
+}
+
 export async function createCustomerSupportRemarkForMove({ body, locator }) {
   return makeGHCRequest('customerSupportRemarks.createCustomerSupportRemarkForMove', {
     body,
@@ -886,6 +890,10 @@ export async function patchPPMSIT({ ppmShipmentId, payload, eTag }) {
 
 export async function bulkDownloadPaymentRequest(paymentRequestID) {
   return makeGHCRequestRaw('paymentRequests.bulkDownload', { paymentRequestID });
+}
+
+export async function searchLocationByZipCityState(search) {
+  return makeGHCRequest('addresses.getLocationByZipCityState', { search }, { normalize: false });
 }
 
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {

@@ -442,7 +442,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
-					County:         "POLK",
+					County:         models.StringPointer("POLK"),
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -454,7 +454,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "50309",
-					County:         "COLUMBIA",
+					County:         models.StringPointer("COLUMBIA"),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -469,7 +469,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50308",
-				County:         "POLK",
+				County:         models.StringPointer("POLK"),
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
@@ -478,7 +478,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30183",
-				County:         "COLUMBIA",
+				County:         models.StringPointer("COLUMBIA"),
 			},
 		}
 
@@ -1504,7 +1504,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.DestinationAddress = destinationAddress
 		mockedPlanner := &routemocks.Planner{}
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813").Return(2294, nil)
+			"90210", "30813", false, false).Return(2294, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
 
@@ -1560,7 +1560,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.DestinationAddress = destinationAddress
 		mockedPlanner := &routemocks.Planner{}
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813").Return(2294, nil)
+			"90210", "30813", false, false).Return(2294, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
 
