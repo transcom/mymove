@@ -5893,7 +5893,6 @@ definitions:
         example: "N002214CSW32Y9"
         $ref: definitions/NullableString.yaml
       grade:
-        $ref: "#/definitions/Grade"
         $ref: '#/definitions/Grade'
       hasDependents:
         type: boolean
