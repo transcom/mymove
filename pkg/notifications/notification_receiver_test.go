@@ -66,6 +66,10 @@ func (_m *MockSnsClient) Unsubscribe(ctx context.Context, params *sns.Unsubscrib
 	return &sns.UnsubscribeOutput{}, nil
 }
 
+func (_m *MockSnsClient) ListSubscriptionsByTopic(context.Context, *sns.ListSubscriptionsByTopicInput, ...func(*sns.Options)) (*sns.ListSubscriptionsByTopicOutput, error) {
+	return &sns.ListSubscriptionsByTopicOutput{}, nil
+}
+
 // mock - SQS
 type MockSqsClient struct {
 	mock.Mock
@@ -90,11 +94,15 @@ func (_m *MockSqsClient) DeleteQueue(ctx context.Context, params *sqs.DeleteQueu
 	return &sqs.DeleteQueueOutput{}, nil
 }
 
+func (_m *MockSqsClient) ListQueues(ctx context.Context, params *sqs.ListQueuesInput, optFns ...func(*sqs.Options)) (*sqs.ListQueuesOutput, error) {
+	return &sqs.ListQueuesOutput{}, nil
+}
+
 func (suite *notificationReceiverSuite) TestSuccessPath() {
 
 	suite.Run("local backend - notification receiver stub", func() {
 		v := viper.New()
-		localReceiver, err := InitReceiver(v, suite.Logger())
+		localReceiver, err := InitReceiver(v, suite.Logger(), true)
 
 		suite.NoError(err)
 		suite.IsType(StubNotificationReceiver{}, localReceiver)
@@ -121,10 +129,12 @@ func (suite *notificationReceiverSuite) TestSuccessPath() {
 		suite.Equal(*receivedMessages[0].Body, fmt.Sprintf("%s:stubMessageBody", createdQueueUrl))
 	})
 
-	suite.Run("aws backend - notification receiver init", func() {
+	suite.Run("aws backend - notification receiver InitReceiver", func() {
 		v := Viper{}
 
-		receiver, _ := InitReceiver(&v, suite.Logger())
+		receiver, err := InitReceiver(&v, suite.Logger(), false)
+
+		suite.NoError(err)
 		suite.IsType(NotificationReceiverContext{}, receiver)
 		defaultTopic, err := receiver.GetDefaultTopic()
 		suite.Equal("fake_sns_topic", defaultTopic)

@@ -55,12 +55,14 @@ const (
 type SnsClient interface {
 	Subscribe(ctx context.Context, params *sns.SubscribeInput, optFns ...func(*sns.Options)) (*sns.SubscribeOutput, error)
 	Unsubscribe(ctx context.Context, params *sns.UnsubscribeInput, optFns ...func(*sns.Options)) (*sns.UnsubscribeOutput, error)
+	ListSubscriptionsByTopic(context.Context, *sns.ListSubscriptionsByTopicInput, ...func(*sns.Options)) (*sns.ListSubscriptionsByTopicOutput, error)
 }
 
 type SqsClient interface {
 	CreateQueue(ctx context.Context, params *sqs.CreateQueueInput, optFns ...func(*sqs.Options)) (*sqs.CreateQueueOutput, error)
 	ReceiveMessage(ctx context.Context, params *sqs.ReceiveMessageInput, optFns ...func(*sqs.Options)) (*sqs.ReceiveMessageOutput, error)
 	DeleteQueue(ctx context.Context, params *sqs.DeleteQueueInput, optFns ...func(*sqs.Options)) (*sqs.DeleteQueueOutput, error)
+	ListQueues(ctx context.Context, params *sqs.ListQueuesInput, optFns ...func(*sqs.Options)) (*sqs.ListQueuesOutput, error)
 }
 
 type ViperType interface {
@@ -216,7 +218,7 @@ func (n NotificationReceiverContext) GetDefaultTopic() (string, error) {
 }
 
 // InitReceiver initializes the receiver backend, only call this once
-func InitReceiver(v ViperType, logger *zap.Logger) (NotificationReceiver, error) {
+func InitReceiver(v ViperType, logger *zap.Logger, wipeAllNotificationQueues bool) (NotificationReceiver, error) {
 
 	if v.GetString(cli.ReceiverBackendFlag) == "sns&sqs" {
 		// Setup notification receiver service with SNS & SQS backend dependencies
@@ -239,9 +241,11 @@ func InitReceiver(v ViperType, logger *zap.Logger) (NotificationReceiver, error)
 		notificationReceiver := NewNotificationReceiver(v, snsService, sqsService, awsSNSRegion, awsAccountId)
 
 		// Remove any remaining previous notification queues on server start
-		err = notificationReceiver.wipeAllNotificationQueues(snsService, sqsService, logger)
-		if err != nil {
-			return nil, err
+		if wipeAllNotificationQueues {
+			err = notificationReceiver.wipeAllNotificationQueues(logger)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		return notificationReceiver, nil
@@ -255,15 +259,14 @@ func (n NotificationReceiverContext) constructArn(awsService string, endpointNam
 }
 
 // Removes ALL previously created notification queues
-func (n *NotificationReceiverContext) wipeAllNotificationQueues(snsService *sns.Client, sqsService *sqs.Client, logger *zap.Logger) error {
-
+func (n *NotificationReceiverContext) wipeAllNotificationQueues(logger *zap.Logger) error {
 	defaultTopic, err := n.GetDefaultTopic()
 	if err != nil {
 		return err
 	}
 
 	logger.Info("Removing previous subscriptions...")
-	paginator := sns.NewListSubscriptionsByTopicPaginator(snsService, &sns.ListSubscriptionsByTopicInput{
+	paginator := sns.NewListSubscriptionsByTopicPaginator(n.snsService, &sns.ListSubscriptionsByTopicInput{
 		TopicArn: aws.String(n.constructArn("sns", defaultTopic)),
 	})
 
@@ -276,7 +279,7 @@ func (n *NotificationReceiverContext) wipeAllNotificationQueues(snsService *sns.
 			if strings.Contains(*subscription.Endpoint, string(QueuePrefixObjectTagsAdded)) {
 				logger.Info("Subscription ARN: ", zap.String("subscription arn", *subscription.SubscriptionArn))
 				logger.Info("Endpoint ARN: ", zap.String("endpoint arn", *subscription.Endpoint))
-				_, err = snsService.Unsubscribe(context.Background(), &sns.UnsubscribeInput{
+				_, err = n.snsService.Unsubscribe(context.Background(), &sns.UnsubscribeInput{
 					SubscriptionArn: subscription.SubscriptionArn,
 				})
 				if err != nil {
@@ -287,7 +290,7 @@ func (n *NotificationReceiverContext) wipeAllNotificationQueues(snsService *sns.
 	}
 
 	logger.Info("Removing previous queues...")
-	result, err := sqsService.ListQueues(context.Background(), &sqs.ListQueuesInput{
+	result, err := n.sqsService.ListQueues(context.Background(), &sqs.ListQueuesInput{
 		QueueNamePrefix: aws.String(string(QueuePrefixObjectTagsAdded)),
 	})
 	if err != nil {
@@ -295,7 +298,7 @@ func (n *NotificationReceiverContext) wipeAllNotificationQueues(snsService *sns.
 	}
 
 	for _, url := range result.QueueUrls {
-		_, err = sqsService.DeleteQueue(context.Background(), &sqs.DeleteQueueInput{
+		_, err = n.sqsService.DeleteQueue(context.Background(), &sqs.DeleteQueueInput{
 			QueueUrl: &url,
 		})
 		if err != nil {

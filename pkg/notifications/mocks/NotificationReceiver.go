@@ -3,8 +3,11 @@
 package mocks
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	context "context"
+
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
+	mock "github.com/stretchr/testify/mock"
 
 	notifications "github.com/transcom/mymove/pkg/notifications"
 )
@@ -88,9 +91,9 @@ func (_m *NotificationReceiver) GetDefaultTopic() (string, error) {
 	return r0, r1
 }
 
-// ReceiveMessages provides a mock function with given fields: appCtx, queueUrl
-func (_m *NotificationReceiver) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]notifications.ReceivedMessage, error) {
-	ret := _m.Called(appCtx, queueUrl)
+// ReceiveMessages provides a mock function with given fields: appCtx, queueUrl, timerContext
+func (_m *NotificationReceiver) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string, timerContext context.Context) ([]notifications.ReceivedMessage, error) {
+	ret := _m.Called(appCtx, queueUrl, timerContext)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ReceiveMessages")
@@ -98,19 +101,19 @@ func (_m *NotificationReceiver) ReceiveMessages(appCtx appcontext.AppContext, qu
 
 	var r0 []notifications.ReceivedMessage
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) ([]notifications.ReceivedMessage, error)); ok {
-		return rf(appCtx, queueUrl)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, context.Context) ([]notifications.ReceivedMessage, error)); ok {
+		return rf(appCtx, queueUrl, timerContext)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) []notifications.ReceivedMessage); ok {
-		r0 = rf(appCtx, queueUrl)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, context.Context) []notifications.ReceivedMessage); ok {
+		r0 = rf(appCtx, queueUrl, timerContext)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]notifications.ReceivedMessage)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string) error); ok {
-		r1 = rf(appCtx, queueUrl)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, context.Context) error); ok {
+		r1 = rf(appCtx, queueUrl, timerContext)
 	} else {
 		r1 = ret.Error(1)
 	}

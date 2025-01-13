@@ -77,7 +77,7 @@ func (suite *InternalAPISuite) TestUploads() {
 
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
-		suite.Equal(http.StatusAccepted, rr.Code)
+		suite.Equal(http.StatusOK, rr.Code)
 		suite.Equal("text/event-stream", rr.Header().Get("content-type"))
 
 		message1 := "id: 0\nevent: message\ndata: PROCESSING\n\n"

@@ -302,15 +302,14 @@ func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, pr
 		uploadStatus = AVStatusTypePROCESSING
 	}
 
+	// Limitation: once the status code header has been written (first response), we are not able to update the status for subsequent responses.
+	// Standard 200 OK used with common SSE paradigm
+	rw.WriteHeader(http.StatusOK)
 	if uploadStatus == AVStatusTypeCLEAN || uploadStatus == AVStatusTypeINFECTED {
-		rw.WriteHeader(http.StatusOK)
 		o.writeEventStreamMessage(rw, producer, 0, "message", string(uploadStatus))
 		o.writeEventStreamMessage(rw, producer, 1, "close", "Connection closed")
 		return // skip notification loop since object already tagged from anti-virus
 	} else {
-		// Limitation: once the status code header has been written (first response), we are not able to update the status for subsequent responses.
-		// StatusAccepted: Standard code 202 for accepted request, but response not yet ready.
-		rw.WriteHeader(http.StatusAccepted)
 		o.writeEventStreamMessage(rw, producer, 0, "message", string(uploadStatus))
 	}
 
@@ -345,7 +344,11 @@ func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, pr
 
 	// For loop over 120 seconds, cancel context when done and it breaks the loop
 	totalReceiverContext, totalReceiverContextCancelFunc := context.WithTimeout(context.Background(), 120*time.Second)
-	defer totalReceiverContextCancelFunc()
+	defer func() {
+		id_counter++
+		o.writeEventStreamMessage(rw, producer, id_counter, "close", "Connection closed")
+		totalReceiverContextCancelFunc()
+	}()
 
 	// Cleanup if client closes connection
 	go func() {
@@ -356,8 +359,6 @@ func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, pr
 	// Cleanup at end of work
 	go func() {
 		<-totalReceiverContext.Done()
-		id_counter++
-		o.writeEventStreamMessage(rw, producer, id_counter, "close", "Connection closed")
 		_ = o.receiver.CloseoutQueue(o.appCtx, queueUrl)
 	}()
 
