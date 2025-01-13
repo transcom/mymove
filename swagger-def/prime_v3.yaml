@@ -103,7 +103,7 @@ paths:
                 value:
                   {
                     'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'shipmentType': 'HHG_INTO_NTS_DOMESTIC',
+                    'shipmentType': 'HHG_INTO_NTS',
                     'requestedPickupDate': '2022-12-31',
                     'pickupAddress':
                       {
