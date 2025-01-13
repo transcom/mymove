@@ -105,11 +105,6 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.CloseoutOfficeID = &closeoutOffice.ID
 	}
 
-	if scAssignedUserResult != nil {
-		move.SCAssignedUser = &scAssignedUser
-		move.SCAssignedID = &scAssignedUser.ID
-	}
-
 	if tooAssignedUserResult != nil {
 		move.TOOAssignedUser = &tooAssignedUser
 		move.TOOAssignedID = &tooAssignedUser.ID
@@ -123,6 +118,11 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 	if counselingOfficeResult != nil {
 		move.CounselingOffice = &counselingOffice
 		move.CounselingOfficeID = &counselingOffice.ID
+	}
+
+	if scAssignedUserResult != nil {
+		move.SCAssignedUser = &scAssignedUser
+		move.SCAssignedID = &scAssignedUser.ID
 	}
 
 	// Overwrite values with those from assertions
