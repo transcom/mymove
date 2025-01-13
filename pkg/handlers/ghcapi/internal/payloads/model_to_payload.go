@@ -682,6 +682,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		MoveCode:                       moveCode,
 		MoveTaskOrderID:                moveTaskOrderID,
 		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(swag.StringValue(order.OriginDutyLocationGBLOC)),
+		HasDependents:                  order.HasDependents,
 	}
 
 	return &payload
