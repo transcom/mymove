@@ -233,8 +233,6 @@ const TableQueue = ({
     }
     setAllFilters(filters);
   };
-  // const bulkAssignmentRows = bulkAssignmentData.map((item) => Object.values(item));
-  // console.log('bulkAssignmentData: ', bulkAssignmentData);
 
   const renderFilterPillButton = (index, value, buttonTitle, label, dataTestId) => {
     return (
@@ -325,7 +323,7 @@ const TableQueue = ({
           <BulkAssignmentModal
             isOpen={isBulkAssignModalVisible}
             onClose={handleCloseBulkAssignModal}
-            bulkAssignmentData={bulkAssignmentData} // drill in the arguments to show in modal
+            bulkAssignmentData={bulkAssignmentData || {}}
           />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
