@@ -1062,6 +1062,7 @@ paths:
         * Releasing / Receiving agents
         * Actual Pro Gear Weight
         * Actual Spouse Pro Gear Weight
+        * Location of the POE/POD
       consumes:
         - application/json
       produces:
@@ -1420,6 +1421,7 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - shipment
+        - shipment_address_updates
       description: This endpoint is used to approve a address update request. Office remarks are required.
         Approving the address update will update the Destination Final Address of the associated service item
       operationId: reviewShipmentAddressUpdate

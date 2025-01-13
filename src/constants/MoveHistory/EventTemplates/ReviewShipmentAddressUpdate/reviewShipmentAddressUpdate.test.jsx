@@ -21,7 +21,7 @@ describe('when given a Review Shipment Address Update history record', () => {
       },
       context,
       eventName: o.reviewShipmentAddressUpdate,
-      tableName: t.moves,
+      tableName: t.shipment_address_updates,
     };
 
     const template = getTemplate(historyRecord);
@@ -37,7 +37,7 @@ describe('when given a Review Shipment Address Update history record', () => {
       },
       context,
       eventName: o.reviewShipmentAddressUpdate,
-      tableName: t.moves,
+      tableName: t.shipment_address_updates,
     };
 
     const template = getTemplate(historyRecord);
@@ -55,13 +55,14 @@ describe('when given a Review Shipment Address Update history record', () => {
       },
       context,
       eventName: o.reviewShipmentAddressUpdate,
-      tableName: t.moves,
+      tableName: t.shipment_address_updates,
     };
 
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('Rejected')).toBeInTheDocument();
+    expect(screen.getByText('Status')).toBeInTheDocument();
+    expect(screen.getByText(/Rejected/)).toBeInTheDocument();
   });
 
   it('returns null if the status is not "APPROVED" or "REJECTED"', () => {
@@ -72,7 +73,7 @@ describe('when given a Review Shipment Address Update history record', () => {
       },
       context,
       eventName: o.reviewShipmentAddressUpdate,
-      tableName: t.moves,
+      tableName: t.shipment_address_updates,
     };
 
     const template = getTemplate(historyRecord);
