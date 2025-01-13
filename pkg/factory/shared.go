@@ -274,14 +274,6 @@ var TransportationOffices = transportationOfficeGroup{
 }
 
 type officeUserGroup struct {
-	SCAssignedUser CustomType
-}
-
-var OfficeUsers = officeUserGroup{
-	SCAssignedUser: "SCAssignedUser",
-}
-
-type officeUserGroup struct {
 	SCAssignedUser  CustomType
 	TIOAssignedUser CustomType
 	TOOAssignedUser CustomType
