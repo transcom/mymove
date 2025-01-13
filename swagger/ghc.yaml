@@ -5199,6 +5199,9 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      adminRestrictedWeightLocation:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -5262,6 +5265,12 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
+      weightRestriction:
+        type: integer
+        example: 1500
+        description: >-
+          The amount of weight in pounds that the move is restricted to for a
+          particular location.
       eTag:
         type: string
     type: object
@@ -6085,6 +6094,12 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      adminRestrictedWeightLocation:
+        description: >-
+          Indicates if the customer is restricted to a specific location for
+          their admin restricted weight.
+        type: boolean
+        x-nullable: true
       accompaniedTour:
         type: boolean
         example: true
@@ -6111,6 +6126,9 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6188,6 +6206,12 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      adminRestrictedWeightLocation:
+        description: >-
+          Indicates if the customer is restricted to a specific location for
+          their admin restricted weight.
+        type: boolean
+        x-nullable: true
       accompaniedTour:
         type: boolean
         example: true
@@ -6213,6 +6237,12 @@ definitions:
       ubAllowance:
         example: 500
         type: integer
+        x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        description: unit is in lbs
+        x-formatting: weight
         x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)

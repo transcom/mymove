@@ -23,6 +23,10 @@ type Entitlements struct {
 	// Example: true
 	AccompaniedTour *bool `json:"accompaniedTour,omitempty"`
 
+	// admin restricted weight location
+	// Example: false
+	AdminRestrictedWeightLocation bool `json:"adminRestrictedWeightLocation,omitempty"`
+
 	// authorized weight
 	// Example: 2000
 	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
@@ -90,6 +94,10 @@ type Entitlements struct {
 	// The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.
 	// Example: 3
 	UnaccompaniedBaggageAllowance *int64 `json:"unaccompaniedBaggageAllowance,omitempty"`
+
+	// The amount of weight in pounds that the move is restricted to for a particular location.
+	// Example: 1500
+	WeightRestriction int64 `json:"weightRestriction,omitempty"`
 }
 
 // Validate validates this entitlements

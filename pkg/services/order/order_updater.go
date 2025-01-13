@@ -456,6 +456,12 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 		order.Entitlement.GunSafe = *payload.GunSafe
 	}
 
+	if payload.AdminRestrictedWeightLocation != nil {
+		order.Entitlement.AdminRestrictedWeightLocation = *payload.AdminRestrictedWeightLocation
+	}
+
+	order.Entitlement.WeightRestriction = int(payload.WeightRestriction)
+
 	if payload.AccompaniedTour != nil {
 		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
 	}
@@ -501,8 +507,8 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 	}
 
 	return order
-}
 
+}
 func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) models.Order {
 	order := existingOrder
 
@@ -556,6 +562,12 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 		order.Entitlement.GunSafe = *payload.GunSafe
 	}
 
+	if payload.AdminRestrictedWeightLocation != nil {
+		order.Entitlement.AdminRestrictedWeightLocation = *payload.AdminRestrictedWeightLocation
+	}
+
+	order.Entitlement.WeightRestriction = int(*payload.WeightRestriction)
+
 	if payload.AccompaniedTour != nil {
 		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
 	}
@@ -595,8 +607,8 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	}
 
 	return order
-}
 
+}
 func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext, doc *models.Document) (*models.Document, error) {
 	var docID uuid.UUID
 	if doc != nil {

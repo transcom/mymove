@@ -6939,6 +6939,11 @@ func init() {
           "x-nullable": true,
           "example": true
         },
+        "adminRestrictedWeightLocation": {
+          "description": "Indicates if the customer is restricted to a specific location for their admin restricted weight.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
@@ -7001,6 +7006,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -8120,6 +8132,10 @@ func init() {
           "x-nullable": true,
           "example": true
         },
+        "adminRestrictedWeightLocation": {
+          "type": "boolean",
+          "example": false
+        },
         "authorizedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -8203,6 +8219,11 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "description": "The amount of weight in pounds that the move is restricted to for a particular location.",
+          "type": "integer",
+          "example": 1500
         }
       }
     },
@@ -13875,6 +13896,11 @@ func init() {
           "x-nullable": true,
           "example": true
         },
+        "adminRestrictedWeightLocation": {
+          "description": "Indicates if the customer is restricted to a specific location for their admin restricted weight.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
@@ -13937,6 +13963,10 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "example": 1500
         }
       }
     },
@@ -23773,6 +23803,11 @@ func init() {
           "x-nullable": true,
           "example": true
         },
+        "adminRestrictedWeightLocation": {
+          "description": "Indicates if the customer is restricted to a specific location for their admin restricted weight.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
@@ -23839,6 +23874,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -24958,6 +25000,10 @@ func init() {
           "x-nullable": true,
           "example": true
         },
+        "adminRestrictedWeightLocation": {
+          "type": "boolean",
+          "example": false
+        },
         "authorizedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -25041,6 +25087,11 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "description": "The amount of weight in pounds that the move is restricted to for a particular location.",
+          "type": "integer",
+          "example": 1500
         }
       }
     },
@@ -30841,6 +30892,11 @@ func init() {
           "x-nullable": true,
           "example": true
         },
+        "adminRestrictedWeightLocation": {
+          "description": "Indicates if the customer is restricted to a specific location for their admin restricted weight.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
@@ -30907,6 +30963,10 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "example": 1500
         }
       }
     },

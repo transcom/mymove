@@ -406,10 +406,12 @@ const MoveDetails = ({
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
+    adminRestrictedWeightLocation: allowances.adminRestrictedWeightLocation,
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,
     ubAllowance: allowances.unaccompaniedBaggageAllowance,
+    weightRestriction: allowances.weightRestriction,
   };
 
   const customerInfo = {
