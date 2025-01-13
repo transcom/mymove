@@ -325,6 +325,55 @@ func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 	})
 }
 
+func (suite *ModelSuite) TestCreateInternationalAccessorialServiceItemsForShipment() {
+	suite.Run("test creating accessorial service items for shipment", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "CA",
+					PostalCode:     "90210",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: "i",
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "AK",
+					PostalCode:     "98765",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		ioshutServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIOSHUT,
+				},
+			},
+		}, nil)
+
+		mtoServiceItems, err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), shipment.ID, models.MTOServiceItems{ioshutServiceItem})
+		suite.NoError(err)
+		suite.NotNil(mtoServiceItems)
+	})
+}
+
 func (suite *ModelSuite) TestFindShipmentByID() {
 	suite.Run("success - test find", func() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)

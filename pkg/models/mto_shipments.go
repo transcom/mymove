@@ -479,6 +479,11 @@ func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShip
 }
 
 func CreateInternationalAccessorialServiceItemsForShipment(db *pop.Connection, shipmentId uuid.UUID, mtoServiceItems MTOServiceItems) (*MTOServiceItems, error) {
+	if len(mtoServiceItems) == 0 {
+		err := fmt.Errorf("must request service items to create: %s", shipmentId)
+		return nil, apperror.NewInvalidInputError(shipmentId, err, nil, err.Error())
+	}
+
 	for _, serviceItem := range mtoServiceItems {
 		if !slices.Contains(internationalAccessorialServiceItems, serviceItem.ReService.Code) {
 			err := fmt.Errorf("cannot create domestic service items for international shipment: %s", shipmentId)
