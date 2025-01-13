@@ -87,9 +87,10 @@ test.describe('Prime simulator user', () => {
     await page.locator('input[name="estimatedWeight"]').type('{backspace}7500');
     await page.locator('input[name="actualWeight"]').type('{backspace}8000');
     await page.locator('input[name="destinationAddress.streetAddress1"]').fill('142 E Barrel Hoop Circle');
-    await page.locator('input[name="destinationAddress.city"]').fill('Joshua Tree');
-    await page.locator('select[name="destinationAddress.state"]').selectOption({ label: 'CA' });
-    await page.locator('input[name="destinationAddress.postalCode"]').fill('92252');
+    const locationLookup = 'JOSHUA TREE, CA 92252 (SAN BERNARDINO)';
+    await page.locator('input#destinationAddress-location-input').fill('92252');
+    await expect(page.getByText(locationLookup, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
 
     await page.getByText('Save').click();
     await expect(page.getByText('Successfully updated shipment')).toHaveCount(1);
@@ -145,9 +146,10 @@ test.describe('Prime simulator user', () => {
     await page.locator('input[name="estimatedWeight"]').type('{backspace}7500');
     await page.locator('input[name="actualWeight"]').type('{backspace}8000');
     await page.locator('input[name="destinationAddress.streetAddress1"]').fill('142 E Barrel Hoop Circle');
-    await page.locator('input[name="destinationAddress.city"]').fill('Joshua Tree');
-    await page.locator('select[name="destinationAddress.state"]').selectOption({ label: 'CA' });
-    await page.locator('input[name="destinationAddress.postalCode"]').fill('92252');
+    const locationLookup = 'JOSHUA TREE, CA 92252 (SAN BERNARDINO)';
+    await page.locator('input#destinationAddress-location-input').fill('92252');
+    await expect(page.getByText(locationLookup, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
     await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of record (HOR)' });
 
     await page.getByText('Save').click();

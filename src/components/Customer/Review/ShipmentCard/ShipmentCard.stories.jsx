@@ -59,7 +59,7 @@ const hhgDefaultProps = {
 
 const ntsDefaultProps = {
   moveId: 'testMove123',
-  shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+  shipmentType: 'HHG_INTO_NTS',
   shipmentId: 'ABC123K',
   showEditAndDeleteBtn: true,
   onEditClick: noop,
