@@ -9,6 +9,7 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -94,51 +95,13 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 	return nil
 }
 
-//go:embed config/config.yml
-var pdfcpuConfig []byte
-
-func writeEmbeddedPdfcpuToMemorySystem(filepath string, afs *afero.Afero) error {
-	if afs == nil {
-		return errors.New("no memory filesystem found when attempting to write embedded pdfcpu config")
-	}
-
-	f, err := afs.Create(filepath)
-	if err != nil {
-		return err
-	}
-
-	_, err = f.Write(pdfcpuConfig)
-	if err != nil {
-		return err
-	}
-
-	err = f.Close()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // NewGenerator creates a new Generator.
 func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	// Use in memory filesystem for generation. Purpose is to not write
 	// to hard disk due to restrictions in AWS storage. May need better long term solution.
 	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
-	// Make sure the embed worked
-	if len(pdfcpuConfig) == 0 {
-		return nil, fmt.Errorf("embedded pdfcpuConfig is empty")
-	}
-
-	pdfcpuConfigYmlPath := filepath.Join("config", "pdfcpu", "config.yml")
-	// Write the embedded config to memory filesystem to avoid AWS read-only issues
-	err := writeEmbeddedPdfcpuToMemorySystem(pdfcpuConfigYmlPath, afs)
-	if err != nil {
-		return nil, err
-	}
-
-	err = api.EnsureDefaultConfigAt(pdfcpuConfigYmlPath) // Load our config into pdfcpu
+	err := api.EnsureDefaultConfigAt(os.TempDir()) // TempDir should be mutable in ephemeral storage
 	if err != nil {
 		return nil, err
 	}
