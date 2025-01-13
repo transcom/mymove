@@ -161,6 +161,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ReServiceItemsGetAllReServiceItemsHandler: re_service_items.GetAllReServiceItemsHandlerFunc(func(params re_service_items.GetAllReServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation re_service_items.GetAllReServiceItems has not yet been implemented")
 		}),
+		QueuesGetBulkAssignmentDataHandler: queues.GetBulkAssignmentDataHandlerFunc(func(params queues.GetBulkAssignmentDataParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetBulkAssignmentData has not yet been implemented")
+		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
 		}),
@@ -495,6 +498,8 @@ type MymoveAPI struct {
 	PpmFinishDocumentReviewHandler ppm.FinishDocumentReviewHandler
 	// ReServiceItemsGetAllReServiceItemsHandler sets the operation handler for the get all re service items operation
 	ReServiceItemsGetAllReServiceItemsHandler re_service_items.GetAllReServiceItemsHandler
+	// QueuesGetBulkAssignmentDataHandler sets the operation handler for the get bulk assignment data operation
+	QueuesGetBulkAssignmentDataHandler queues.GetBulkAssignmentDataHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler sets the operation handler for the get customer support remarks for move operation
@@ -819,6 +824,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ReServiceItemsGetAllReServiceItemsHandler == nil {
 		unregistered = append(unregistered, "re_service_items.GetAllReServiceItemsHandler")
+	}
+	if o.QueuesGetBulkAssignmentDataHandler == nil {
+		unregistered = append(unregistered, "queues.GetBulkAssignmentDataHandler")
 	}
 	if o.CustomerGetCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.GetCustomerHandler")
@@ -1260,6 +1268,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/re-service-items"] = re_service_items.NewGetAllReServiceItems(o.context, o.ReServiceItemsGetAllReServiceItemsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/queues/bulk-assignment"] = queues.NewGetBulkAssignmentData(o.context, o.QueuesGetBulkAssignmentDataHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

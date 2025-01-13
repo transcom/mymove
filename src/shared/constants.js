@@ -209,6 +209,7 @@ export const FEATURE_FLAG_KEYS = {
   MOBILE_HOME: 'mobile_home',
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
   ENABLE_ALASKA: 'enable_alaska',
+  BULK_ASSIGNMENT: 'bulk_assignment',
 };
 
 export const MOVE_DOCUMENT_TYPE = {

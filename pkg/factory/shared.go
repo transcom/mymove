@@ -262,6 +262,7 @@ type transportationOfficeGroup struct {
 	OriginDutyLocation CustomType
 	NewDutyLocation    CustomType
 	CloseoutOffice     CustomType
+	CounselingOffice   CustomType
 }
 
 // TransportationOffices is the struct to access the fields externally
@@ -269,6 +270,15 @@ var TransportationOffices = transportationOfficeGroup{
 	OriginDutyLocation: "OriginDutyLocationTransportationOffice",
 	NewDutyLocation:    "NewDutyLocationTransportationOffice",
 	CloseoutOffice:     "CloseoutOffice",
+	CounselingOffice:   "CounselingOffice",
+}
+
+type officeUserGroup struct {
+	SCAssignedUser CustomType
+}
+
+var OfficeUsers = officeUserGroup{
+	SCAssignedUser: "SCAssignedUser",
 }
 
 // uploadGroup is a grouping of all the upload related fields
