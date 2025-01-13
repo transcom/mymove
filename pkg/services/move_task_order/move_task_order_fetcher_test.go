@@ -344,6 +344,102 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		}
 	})
 
+	suite.Run("Success with Prime available move, returns destination GBLOC in shipment dest address", func() {
+		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		suite.FatalNoError(err)
+		army := models.AffiliationARMY
+		postalCode := "99501"
+		// since we truncate the test db, we need to add the postal_code_to_gbloc value
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         postalCode,
+					UsPostRegionCityID: &zone2UUID,
+				},
+			},
+		}, nil)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:            false,
+			Locator:                  move.Locator,
+			ExcludeExternalShipments: true,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.NotNil(actualMTO)
+
+		if suite.Len(actualMTO.MTOShipments, 1) {
+			suite.Equal(move.ID.String(), actualMTO.ID.String())
+			// the shipment should have a destination GBLOC value
+			suite.NotNil(actualMTO.MTOShipments[0].DestinationAddress.DestinationGbloc)
+		}
+	})
+
+	suite.Run("Success with Prime available move, returns USMC destination GBLOC for USMC move", func() {
+		usmc := models.AffiliationMARINES
+
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &usmc,
+				},
+			},
+		}, nil)
+
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:            false,
+			Locator:                  move.Locator,
+			ExcludeExternalShipments: true,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.NotNil(actualMTO)
+
+		if suite.Len(actualMTO.MTOShipments, 1) {
+			suite.Equal(move.ID.String(), actualMTO.ID.String())
+			suite.NotNil(actualMTO.MTOShipments[0].DestinationAddress.DestinationGbloc)
+			suite.Equal(*actualMTO.MTOShipments[0].DestinationAddress.DestinationGbloc, "USMC")
+		}
+	})
+
 	suite.Run("Success with move that has only deleted shipments", func() {
 		mtoWithAllShipmentsDeleted := factory.BuildMove(suite.DB(), nil, nil)
 		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
