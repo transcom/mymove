@@ -1080,7 +1080,7 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 		}
 
 		shipment.RequiredDeliveryDate = requiredDeliveryDate
-	} else if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+	} else if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage && shipment.ScheduledPickupDate != nil && !shipment.ScheduledDeliveryDate.IsZero() {
 		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDateUBShipment(appCtx, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate)
 		if calcErr != nil {
 			return calcErr
