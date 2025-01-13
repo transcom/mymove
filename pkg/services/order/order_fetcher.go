@@ -803,10 +803,6 @@ func tooQueueOriginRequestsFilter(role roles.RoleType, locator *string) QueryOpt
 			)
 			OR
 			(
-				((moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL) AND moves.status = 'APPROVALS REQUESTED')
-			)
-			OR
-			(
 				((sit_extensions.mto_shipment_id IS NOT NULL) AND sit_extensions.status = 'PENDING')
 			)
 			`
