@@ -1679,7 +1679,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			"90210",
 			"94535",
 			"94535",
 			false,
