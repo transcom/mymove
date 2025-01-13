@@ -216,7 +216,7 @@ BEGIN
     id uuid,
             move_id uuid,
             mto_shipment_id uuid,
-            re_service_code text,
+            re_service_id uuid,
             created_at timestamptz,
             updated_at timestamptz,
             reason text,
@@ -274,6 +274,10 @@ BEGIN
         RAISE EXCEPTION ''Shipment with ID % not found or missing required details.'', shipment_id;
     END IF;
 
+    IF s_type <> item.shipment_type THEN
+    RAISE EXCEPTION ''Shipment type mismatch. Expected %, but got %.'', s_type, item.shipment_type;
+    END IF;
+
     -- loop through each provided service item  object
     FOREACH item IN ARRAY service_items
     LOOP
@@ -287,7 +291,7 @@ BEGIN
             JOIN re_services rs ON rsi.service_id = rs.id
             WHERE rsi.shipment_type = s_type
               AND rsi.market_code = m_code
-              AND rs.code = (item.re_service_code)
+              AND rs.id = (item.re_service_id)
               AND rsi.is_auto_approved = false
         LOOP
             BEGIN
