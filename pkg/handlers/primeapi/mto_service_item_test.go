@@ -1663,7 +1663,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		).Return(400, nil)
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher),
+			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		}
 
 		// create the params struct
@@ -1948,7 +1948,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		).Return(400, nil)
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher),
+			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		}
 
 		// create the params struct

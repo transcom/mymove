@@ -4294,7 +4294,7 @@ func createHHGWithOriginSITServiceItems(
 		false,
 		false,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -4562,7 +4562,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		false,
 		false,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
@@ -5046,7 +5046,7 @@ func createHHGWithPaymentServiceItems(
 		false,
 		false,
 	).Return(400, nil)
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
