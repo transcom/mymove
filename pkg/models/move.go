@@ -103,6 +103,11 @@ type Move struct {
 	CounselingOffice             *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
 }
 
+type MoveWithEarliestDate struct {
+	ID           uuid.UUID `json:"id" db:"id"`
+	EarliestDate time.Time `db:"earliest_date"`
+}
+
 // TableName overrides the table name used by Pop.
 func (m Move) TableName() string {
 	return "moves"
