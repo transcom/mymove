@@ -35,14 +35,6 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		closeoutOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
 	}
 
-	var counselingOffice models.TransportationOffice
-	tempCounselingOfficeCustoms := customs
-	counselingOfficeResult := findValidCustomization(customs, TransportationOffices.CounselingOffice)
-	if counselingOfficeResult != nil {
-		tempCounselingOfficeCustoms = convertCustomizationInList(tempCounselingOfficeCustoms, TransportationOffices.CounselingOffice, TransportationOffice)
-		counselingOffice = BuildTransportationOffice(db, tempCounselingOfficeCustoms, nil)
-	}
-
 	var scAssignedUser models.OfficeUser
 	tempSCAssignedUserCustoms := customs
 	scAssignedUserResult := findValidCustomization(customs, OfficeUsers.SCAssignedUser)
@@ -65,6 +57,14 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 	if tioAssignedUserResult != nil {
 		tempTIOAssignedUserCustoms = convertCustomizationInList(tempTIOAssignedUserCustoms, OfficeUsers.TIOAssignedUser, OfficeUser)
 		tioAssignedUser = BuildOfficeUser(db, tempTIOAssignedUserCustoms, nil)
+	}
+
+	var counselingOffice models.TransportationOffice
+	tempCounselingOfficeCustoms := customs
+	counselingOfficeResult := findValidCustomization(customs, TransportationOffices.CounselingOffice)
+	if counselingOfficeResult != nil {
+		tempCounselingOfficeCustoms = convertCustomizationInList(tempCounselingOfficeCustoms, TransportationOffices.CounselingOffice, TransportationOffice)
+		counselingOffice = BuildTransportationOffice(db, tempCounselingOfficeCustoms, nil)
 	}
 
 	var defaultReferenceID string
@@ -105,11 +105,6 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.CloseoutOfficeID = &closeoutOffice.ID
 	}
 
-	if counselingOfficeResult != nil {
-		move.CounselingOffice = &counselingOffice
-		move.CounselingOfficeID = &counselingOffice.ID
-	}
-
 	if scAssignedUserResult != nil {
 		move.SCAssignedUser = &scAssignedUser
 		move.SCAssignedID = &scAssignedUser.ID
@@ -123,6 +118,11 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 	if tioAssignedUserResult != nil {
 		move.TIOAssignedUser = &tioAssignedUser
 		move.TIOAssignedID = &tioAssignedUser.ID
+	}
+
+	if counselingOfficeResult != nil {
+		move.CounselingOffice = &counselingOffice
+		move.CounselingOfficeID = &counselingOffice.ID
 	}
 
 	// Overwrite values with those from assertions
