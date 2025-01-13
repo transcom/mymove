@@ -28,16 +28,16 @@ variables:
   GOLANGCI_LINT_VERBOSE: "-v"
 
   # Specify the environment: loadtest, demo, exp
-  DP3_ENV: &dp3_env placeholder_env
+  DP3_ENV: &dp3_env demo
 
-  # Specify the branch to deploy
-  DP3_BRANCH: &dp3_branch placeholder_branch_name
+  # Specify the branch to deploy TODO: this might be not needed. So far useless
+  DP3_BRANCH: &dp3_branch B-22106-AddIntegrationTesting
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
-  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-22106-AddIntegrationTesting
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-22106-AddIntegrationTesting
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-22106-AddIntegrationTesting
+  SERVER_IGNORE_BRANCH: &server_ignore_branch B-22106-AddIntegrationTesting
 
   #RUNNER_TAG: &runner_tag milmove
   RUNNER_TAG: &runner_tag milmove
@@ -72,19 +72,38 @@ stages:
   # fi
 
 .setup_aws_vars_dp3: &setup_aws_vars_dp3
-  - if [[ "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo" ]]; then
-     export AWS_DEFAULT_REGION=$(eval echo \$${DP3_ENV^^}_REGION)
-     export AWS_ACCOUNT_ID=$(eval echo \$${DP3_ENV^^}_ACCOUNT_ID)
-     export AWS_ACCESS_KEY_ID=$(eval echo \$${DP3_ENV^^}_ACCESS_KEY_ID)
-     export AWS_SECRET_ACCESS_KEY=$(eval echo \$${DP3_ENV^^}_SECRET_ACCESS_KEY)
+  - |
+    if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
+      export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
+      export AWS_DEFAULT_REGION=$(eval echo \$${ENV^^}_REGION);
+      export AWS_ACCOUNT_ID=$(eval echo \$${ENV^^}_ACCOUNT_ID);
+      export AWS_ACCESS_KEY_ID=$(eval echo \$${ENV^^}_ACCESS_KEY_ID);
+      export AWS_SECRET_ACCESS_KEY=$(eval echo \$${ENV^^}_SECRET_ACCESS_KEY);
+      echo ${AWS_ACCOUNT_ID}
     fi
 
 .setup_tls_vars_dp3: &setup_tls_vars_dp3
-  - if [[ "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo" ]]; then
-    export TLS_CERT=$(eval echo \$${DP3_ENV^^}_DP3_CERT)
-    export TLS_KEY=$(eval echo \$${DP3_ENV^^}_DP3_KEY)
-    export TLS_CA=$(eval echo \$${DP3_ENV^^}_DP3_CA)
-   fi
+  - |
+    if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
+      export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
+      export TLS_CERT=$(eval echo \$${ENV^^}_DP3_CERT);
+      export TLS_KEY=$(eval echo \$${ENV^^}_DP3_KEY);
+      export TLS_CA=$(eval echo \$${ENV^^}_DP3_CA);
+      echo ${TLS_CERT}
+      echo ${TLS_KEY}
+    fi
+
+.setup_release_dp3: &setup_release_dp3
+  - |
+    if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
+      export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
+      export ECR_REPOSITORY_URI=$(eval echo \$${ENV^^}_ACCOUNT_ID.dkr.ecr.\$${ENV^^}_REGION.amazonaws.com);
+      export APP_DOCKER_FILE=Dockerfile.dp3
+      export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
+      export APP_ENVIRONMENT=$ENV
+      echo ${ECR_REPOSITORY_URI}
+      echo ${APP_ENVIRONMENT}
+    fi
 
 .setup_aws_vars_stg: &setup_aws_vars_stg
   - export AWS_DEFAULT_REGION=$STG_REGION
@@ -109,14 +128,6 @@ stages:
   - export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT
   - export TLS_KEY=$PRD_MOVE_MIL_DOD_TLS_KEY
   - export TLS_CA=$PRD_MOVE_MIL_DOD_TLS_CA
-
-.setup_release_dp3: &setup_release_dp3
-  #if demo/loadtest/exp
-  - export ECR_REPOSITORY_URI=$(eval echo \$${DP3_ENV^^}_ACCOUNT_ID).dkr.ecr.$(eval echo \$${DP3_ENV^^}_REGION).amazonaws.com
-  - export APP_DOCKER_FILE=Dockerfile.dp3
-  - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
-  - export APP_ENVIRONMENT=$DPS_ENV
-  - echo ${ECR_REPOSITORY_URI}
 
 .setup_release_stg: &setup_release_stg
   #if main
@@ -326,14 +337,11 @@ pre_deps_yarn:
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
-  needs:
-    - pre_deps_golang
   before_script:
     - *setup_milmove_env
   script:
      - *install_yarn
   cache:
-    - <<: *go_cache
     - <<: *yarn_cache
   after_script:
       - *announce_failure
@@ -362,6 +370,7 @@ check_tls_certificate_dp3:
   before_script:
     - *setup_aws_vars_dp3
     - *setup_tls_vars_dp3
+    - *setup_release_dp3
     - *announce_failure
   script:
     # Check if we are using a DP3 environment
@@ -372,6 +381,8 @@ check_tls_certificate_dp3:
         exit 0
       fi
     - echo "Running TLS pair check..."
+    - echo key ${TLS_KEY}
+    - echo cert ${TLS_CERT}
     - /usr/local/bin/check-tls-pair "${TLS_KEY}" "${TLS_CERT}"
   after_script:
     - *announce_failure
@@ -382,7 +393,7 @@ check_tls_certificate_stg:
   stage: pre_checks
   tags:
     - $RUNNER_TAG
-  image: $DOCKER_APP_IMAGE # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done.
+  image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_aws_vars_stg
     - *setup_tls_vars_stg
@@ -652,8 +663,8 @@ server_test:
       junit: /builds/milmove/mymove/tmp/test-results/gotest/app/go-test-report.xml
   after_script:
     - *announce_failure
-  # rules:
-  #  - *check_server_ignore_branch
+  rules:
+   - *check_server_ignore_branch
 
 server_test_coverage:
   stage: test
@@ -787,8 +798,8 @@ integration_test_devseed:
     - make db_dev_fresh
   after_script:
     - *announce_failure
-  # rules:
-  #  - *check_integration_ignore_branch
+  rules:
+   - *check_integration_ignore_branch
 
 integration_tests:
   stage: test
