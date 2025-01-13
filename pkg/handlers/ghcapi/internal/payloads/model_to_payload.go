@@ -2161,6 +2161,30 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 	return &availableOfficeUsers
 }
 
+func BulkAssignmentData(appCtx appcontext.AppContext, moves []models.MoveWithEarliestDate, officeUsers []models.OfficeUserWithWorkload, officeId uuid.UUID) ghcmessages.BulkAssignmentData {
+	availableOfficeUsers := make(ghcmessages.AvailableOfficeUsers, len(officeUsers))
+	availableMoves := make(ghcmessages.BulkAssignmentMoveIDs, len(moves))
+
+	for i, officeUser := range officeUsers {
+		availableOfficeUsers[i] = &ghcmessages.AvailableOfficeUser{
+			LastName:     officeUser.LastName,
+			FirstName:    officeUser.FirstName,
+			OfficeUserID: *handlers.FmtUUID(officeUser.ID),
+			Workload:     int64(officeUser.Workload),
+		}
+	}
+	for i, move := range moves {
+		availableMoves[i] = ghcmessages.BulkAssignmentMoveID(strfmt.UUID(move.ID.String()))
+	}
+
+	bulkAssignmentData := &ghcmessages.BulkAssignmentData{
+		AvailableOfficeUsers:  availableOfficeUsers,
+		BulkAssignmentMoveIDs: availableMoves,
+	}
+
+	return *bulkAssignmentData
+}
+
 func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.AssignedOfficeUser, isCloseoutQueue bool, officeUser models.OfficeUser, ppmCloseoutGblocs bool) bool {
 	// default to false
 	isAssignable := false
