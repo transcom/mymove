@@ -788,6 +788,7 @@ const ShipmentForm = (props) => {
                   if (status === ADDRESS_UPDATE_STATUS.APPROVED) {
                     setValues({
                       ...values,
+                      hasDeliveryAddress: 'yes',
                       delivery: {
                         ...values.delivery,
                         address: mtoShipment.deliveryAddressUpdate.newAddress,

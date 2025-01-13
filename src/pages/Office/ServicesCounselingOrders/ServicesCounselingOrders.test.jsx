@@ -7,6 +7,9 @@ import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/Serv
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { counselingUpdateOrder, getOrder } from 'services/ghcApi';
+import { formatYesNoAPIValue } from 'utils/formatters';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const mockOriginDutyLocation = {
   address: {
@@ -100,6 +103,13 @@ jest.mock('services/ghcApi', () => ({
     // Default to no LOA
     return Promise.resolve(undefined);
   },
+  counselingUpdateOrder: jest.fn(),
+  getOrder: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(true)),
 }));
 
 const useOrdersDocumentQueriesReturnValue = {
@@ -218,6 +228,8 @@ describe('Orders page', () => {
     });
 
     it('renders each option for orders type dropdown', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
       render(
         <MockProviders>
           <ServicesCounselingOrders {...ordersMockProps} />
@@ -238,6 +250,12 @@ describe('Orders page', () => {
 
       await userEvent.selectOptions(ordersTypeDropdown, 'SEPARATION');
       expect(ordersTypeDropdown).toHaveValue('SEPARATION');
+
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+      expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
     });
 
     it('populates initial field values', async () => {
@@ -409,6 +427,7 @@ describe('Orders page', () => {
       });
     });
   });
+
   describe('LOA concatenation', () => {
     it('concatenates the LOA string correctly', async () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
@@ -430,6 +449,7 @@ describe('Orders page', () => {
       expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
     });
   });
+
   describe('LOA concatenation with regex removes extra spaces', () => {
     it('concatenates the LOA string correctly and without extra spaces', async () => {
       let extraSpacesLongLineOfAccounting =
@@ -444,6 +464,334 @@ describe('Orders page', () => {
       extraSpacesLongLineOfAccounting = extraSpacesLongLineOfAccounting.replace(/ +\*/g, '*');
 
       expect(extraSpacesLongLineOfAccounting).toEqual(expectedLongLineOfAccounting);
+    });
+  });
+
+  describe('Order type: STUDENT_TRAVEL', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('select STUDENT_TRAVEL', async () => {
+      // create a local copy of order return value and set initial values
+      const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
+      orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
+
+      // set return values for mocked functions
+      useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+      getOrder.mockResolvedValue(orderQueryReturnValues);
+
+      // render component
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      // Select STUDENT_TRAVEL from the dropdown
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+
+      // Submit the form
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      await userEvent.click(saveButton);
+
+      // Verify correct values were passed
+      await waitFor(() => {
+        expect(counselingUpdateOrder).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              hasDependents: formatYesNoAPIValue('yes'),
+              ordersType: ORDERS_TYPE.STUDENT_TRAVEL,
+            }),
+          }),
+        );
+      });
+    });
+
+    it('De-select STUDENT_TRAVEL', async () => {
+      // create a local copy of order return value and set initial values
+      const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.STUDENT_TRAVEL;
+      orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('yes');
+
+      // set return values for mocked functions
+      useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+      getOrder.mockResolvedValue(orderQueryReturnValues);
+
+      // render component
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      // De-select STUDENT_TRAVEL from the dropdown
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+
+      // Submit the form
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      await userEvent.click(saveButton);
+
+      // Verify correct values were passed
+      await waitFor(() => {
+        expect(counselingUpdateOrder).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              hasDependents: formatYesNoAPIValue('yes'),
+              ordersType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+            }),
+          }),
+        );
+      });
+    });
+
+    it('select STUDENT_TRAVEL, De-select STUDENT_TRAVEL', async () => {
+      // create a local copy of order return value and set initial values
+      const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
+      orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
+
+      // set return values for mocked functions
+      useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+      getOrder.mockResolvedValue(orderQueryReturnValues);
+
+      // render component
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
+
+      // Submit the form
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      await userEvent.click(saveButton);
+
+      // Verify correct values were passed
+      await waitFor(() => {
+        expect(counselingUpdateOrder).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              hasDependents: formatYesNoAPIValue('no'),
+              ordersType: ORDERS_TYPE.LOCAL_MOVE,
+            }),
+          }),
+        );
+      });
+    });
+
+    it('select STUDENT_TRAVEL, select EARLY_RETURN_OF_DEPENDENTS', async () => {
+      // create a local copy of order return value and set initial values
+      const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
+      orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
+
+      // set return values for mocked functions
+      useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+      getOrder.mockResolvedValue(orderQueryReturnValues);
+
+      // render component
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      // Select STUDENT_TRAVEL and then select EARLY_RETURN_OF_DEPENDENTS from the dropdown
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+      // Submit the form
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      await userEvent.click(saveButton);
+
+      // Verify correct values were passed
+      await waitFor(() => {
+        expect(counselingUpdateOrder).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              hasDependents: formatYesNoAPIValue('yes'),
+              ordersType: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS,
+            }),
+          }),
+        );
+      });
+    });
+  });
+
+  describe('Order type: EARLY_RETURN_OF_DEPENDENTS', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('select EARLY_RETURN_OF_DEPENDENTS', async () => {
+      // create a local copy of order return value and set initial values
+      const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
+      orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
+
+      // set return values for mocked functions
+      useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+      getOrder.mockResolvedValue(orderQueryReturnValues);
+
+      // render component
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      // Select EARLY_RETURN_OF_DEPENDENTS from the dropdown
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+      // Submit the form
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      await userEvent.click(saveButton);
+
+      // Verify correct values were passed
+      await waitFor(() => {
+        expect(counselingUpdateOrder).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              hasDependents: formatYesNoAPIValue('yes'),
+              ordersType: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS,
+            }),
+          }),
+        );
+      });
+    });
+
+    it('De-select EARLY_RETURN_OF_DEPENDENTS', async () => {
+      // create a local copy of order return value and set initial values
+      const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS;
+      orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('yes');
+
+      // set return values for mocked functions
+      useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+      getOrder.mockResolvedValue(orderQueryReturnValues);
+
+      // render component
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      // De-select EARLY_RETURN_OF_DEPENDENTS from the dropdown
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+
+      // Submit the form
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      await userEvent.click(saveButton);
+
+      // Verify correct values were passed
+      await waitFor(() => {
+        expect(counselingUpdateOrder).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              hasDependents: formatYesNoAPIValue('yes'),
+              ordersType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+            }),
+          }),
+        );
+      });
+    });
+
+    it('select EARLY_RETURN_OF_DEPENDENTS, De-select EARLY_RETURN_OF_DEPENDENTS', async () => {
+      // create a local copy of order return value and set initial values
+      const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
+      orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
+
+      // set return values for mocked functions
+      useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+      getOrder.mockResolvedValue(orderQueryReturnValues);
+
+      // render component
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
+
+      // Submit the form
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      await userEvent.click(saveButton);
+
+      // Verify correct values were passed
+      await waitFor(() => {
+        expect(counselingUpdateOrder).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              hasDependents: formatYesNoAPIValue('no'),
+              ordersType: ORDERS_TYPE.LOCAL_MOVE,
+            }),
+          }),
+        );
+      });
+    });
+
+    it('select EARLY_RETURN_OF_DEPENDENTS, select STUDENT_TRAVEL', async () => {
+      // create a local copy of order return value and set initial values
+      const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
+      orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
+
+      // set return values for mocked functions
+      useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+      getOrder.mockResolvedValue(orderQueryReturnValues);
+
+      // render component
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      // Select EARLY_RETURN_OF_DEPENDENTS and then select STUDENT_TRAVEL from the dropdown
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+
+      // Submit the form
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      await userEvent.click(saveButton);
+
+      // Verify correct values were passed
+      await waitFor(() => {
+        expect(counselingUpdateOrder).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              hasDependents: formatYesNoAPIValue('yes'),
+              ordersType: ORDERS_TYPE.STUDENT_TRAVEL,
+            }),
+          }),
+        );
+      });
     });
   });
 });
