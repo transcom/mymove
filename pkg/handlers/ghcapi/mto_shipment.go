@@ -409,7 +409,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
 			}
 
-			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "ghc", nil)
+			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "ghc", h.HandlerConfig.HHGPlanner())
 			if err != nil {
 				return handleError(err)
 			}

@@ -47,24 +47,10 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 			return err
 		}
 
-		if mtoShipment != nil && planner != nil {
-			if mtoShipment.ShipmentType != models.MTOShipmentTypePPM && (shipment.PrimeEstimatedWeight != nil || mtoShipment.PrimeEstimatedWeight != nil) && mtoShipment.Status == models.MTOShipmentStatusApproved {
-				for index, serviceItem := range mtoShipment.MTOServiceItems {
-					var estimatedWeightToUse unit.Pound
-					if shipment.PrimeEstimatedWeight != nil {
-						estimatedWeightToUse = *shipment.PrimeEstimatedWeight
-					} else {
-						estimatedWeightToUse = *mtoShipment.PrimeEstimatedWeight
-					}
-					mtoShipment.MTOServiceItems[index].EstimatedWeight = &estimatedWeightToUse
-					serviceItemEstimatedPrice, err := s.mtoServiceItemCreator.FindEstimatedPrice(appCtx, &serviceItem, *mtoShipment)
-					if serviceItemEstimatedPrice != 0 && err == nil {
-						mtoShipment.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
-					}
-					if err != nil {
-						return err
-					}
-				}
+		if mtoShipment != nil && (mtoShipment.ShipmentType != models.MTOShipmentTypePPM) && (shipment.PrimeEstimatedWeight != nil || mtoShipment.PrimeEstimatedWeight != nil) && mtoShipment.Status == models.MTOShipmentStatusApproved {
+			mtoShipment, err = AddPricingEstimatesToMTOServiceItems(appCtx, *s, mtoShipment, shipment)
+			if err != nil {
+				return err
 			}
 		}
 
@@ -153,4 +139,32 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 	}
 
 	return mtoShipment, nil
+}
+
+func AddPricingEstimatesToMTOServiceItems(appCtx appcontext.AppContext, shipmentUpdater shipmentUpdater, mtoShipment *models.MTOShipment, shipmentDelta *models.MTOShipment) (*models.MTOShipment, error) {
+	mtoShipmentCopy := mtoShipment
+
+	for index, serviceItem := range mtoShipmentCopy.MTOServiceItems {
+		var estimatedWeightToUse unit.Pound
+		if shipmentDelta.PrimeEstimatedWeight != nil {
+			estimatedWeightToUse = *shipmentDelta.PrimeEstimatedWeight
+		} else {
+			estimatedWeightToUse = *mtoShipmentCopy.PrimeEstimatedWeight
+		}
+		estimatedWeightToUse = unit.Pound(estimatedWeightToUse.Float64() * 1.1)
+		mtoShipmentCopy.MTOServiceItems[index].EstimatedWeight = &estimatedWeightToUse
+		serviceItemEstimatedPrice, err := shipmentUpdater.mtoServiceItemCreator.FindEstimatedPrice(appCtx, &serviceItem, *mtoShipment)
+
+		if serviceItemEstimatedPrice != 0 && err == nil {
+
+			// multiply price by 110% of estimated weight
+			priceResult := serviceItemEstimatedPrice.MultiplyFloat64(1.1)
+
+			mtoShipmentCopy.MTOServiceItems[index].PricingEstimate = &priceResult
+		}
+		if err != nil {
+			return mtoShipmentCopy, err
+		}
+	}
+	return mtoShipmentCopy, nil
 }
