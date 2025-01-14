@@ -19,7 +19,6 @@ import { isEmpty } from 'shared/utils';
 import { fromPrimeAPIAddressFormat } from 'utils/formatters';
 import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
 import { getAddressLabel } from 'shared/constants';
-import { setFlashMessage } from 'store/flash/actions';
 
 const updateAddressSchema = Yup.object().shape({
   addressID: Yup.string(),
@@ -65,7 +64,6 @@ const PrimeUIShipmentUpdateAddress = () => {
         queryClient.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
         queryClient.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]);
       }
-      setFlashMessage(`MSG_UPDATE_SUCCESS${shipmentId}`, 'success', `Successfully updated shipment`, '', true);
       handleClose();
     },
     onError: (error) => {

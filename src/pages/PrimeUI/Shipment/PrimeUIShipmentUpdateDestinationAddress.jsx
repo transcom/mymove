@@ -3,6 +3,8 @@ import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
+import { connect } from 'react-redux';
+import { func } from 'prop-types';
 
 import PrimeUIShipmentUpdateDestinationAddressForm from './PrimeUIShipmentUpdateDestinationAddressForm';
 
@@ -17,7 +19,7 @@ import { updateShipmentDestinationAddress } from 'services/primeApi';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { isEmpty } from 'shared/utils';
 import { fromPrimeAPIAddressFormat } from 'utils/formatters';
-import { setFlashMessage } from 'store/flash/actions';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 const updateDestinationAddressSchema = Yup.object().shape({
   mtoShipmentID: Yup.string(),
@@ -28,7 +30,7 @@ const updateDestinationAddressSchema = Yup.object().shape({
   eTag: Yup.string(),
 });
 
-const PrimeUIShipmentUpdateDestinationAddress = () => {
+const PrimeUIShipmentUpdateDestinationAddress = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
   const { moveCodeOrID, shipmentId } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
@@ -78,7 +80,6 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values, { setSubmitting }) => {
-    let isMounted = true;
     const { mtoShipmentID, newAddress } = values;
 
     const body = {
@@ -96,23 +97,13 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
       contractorRemarks: values.contractorRemarks,
     };
 
-    try {
-      updateShipmentDestinationAddressAPI({
-        mtoShipmentID,
-        ifMatchETag: values.eTag,
-        body,
-      }).then((value) => {
-        if (isMounted) {
-          setSubmitting(value);
-        }
-      });
-    } catch (error) {
-      setFlashMessage(`MSG_UPDATE_SUCCESS${shipmentId}`, 'success', `Successfully updated shipment`, '', true);
-    }
-
-    return () => {
-      isMounted = false;
-    };
+    updateShipmentDestinationAddressAPI({
+      mtoShipmentID,
+      ifMatchETag: values.eTag,
+      body,
+    }).then(() => {
+      setSubmitting(false);
+    });
   };
 
   const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
@@ -157,4 +148,16 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
   );
 };
 
-export default PrimeUIShipmentUpdateDestinationAddress;
+PrimeUIShipmentUpdateDestinationAddress.propTypes = {
+  setFlashMessage: func,
+};
+
+PrimeUIShipmentUpdateDestinationAddress.defaultProps = {
+  setFlashMessage: () => {},
+};
+
+const mapDispatchToProps = {
+  setFlashMessage: setFlashMessageAction,
+};
+
+export default connect(() => ({}), mapDispatchToProps)(PrimeUIShipmentUpdateDestinationAddress);
