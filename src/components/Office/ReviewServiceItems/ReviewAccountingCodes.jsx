@@ -27,7 +27,7 @@ const ReviewMoveLevelServiceItems = ({ services }) => {
       {services.map((item) => (
         <div key={item.id}>
           <div className={styles.ShipmentAmount}>{toDollarString(item.amount)}</div>
-          <div className={styles.ShipmentType}>{item.mtoServiceItemName} Fee</div>
+          <div className={styles.ShipmentType}>{item.mtoServiceItemName} fee</div>
         </div>
       ))}
     </div>
