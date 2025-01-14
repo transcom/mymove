@@ -720,7 +720,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	adminRestrictedWeightLocation := entitlement.AdminRestrictedWeightLocation
 
 	var weightRestriction int64
-	wr := int64(entitlement.WeightRestriction)
+	wr := int64(*entitlement.WeightRestriction)
 	weightRestriction = wr
 
 	var accompaniedTour *bool
@@ -757,10 +757,11 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
 		GunSafe:                       gunSafe,
-		AdminRestrictedWeightLocation: adminRestrictedWeightLocation,
+		AdminRestrictedWeightLocation: *adminRestrictedWeightLocation,
 		WeightRestriction:             weightRestriction,
 		ETag:                          etag.GenerateEtag(entitlement.UpdatedAt),
 	}
+
 } // DutyLocation payload
 func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 	if dutyLocation == nil {

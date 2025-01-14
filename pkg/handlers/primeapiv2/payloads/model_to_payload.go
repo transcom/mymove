@@ -162,7 +162,7 @@ func Entitlement(entitlement *models.Entitlement) *primev2messages.Entitlements 
 		UnaccompaniedBaggageAllowance:  &ubAllowance,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
 		GunSafe:                        entitlement.GunSafe,
-		AdminRestrictedWeightLocation:  entitlement.AdminRestrictedWeightLocation,
+		AdminRestrictedWeightLocation:  *entitlement.AdminRestrictedWeightLocation,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  int64(entitlement.ProGearWeight),
@@ -172,7 +172,7 @@ func Entitlement(entitlement *models.Entitlement) *primev2messages.Entitlements 
 		StorageInTransit:  sit,
 		TotalDependents:   totalDependents,
 		TotalWeight:       totalWeight,
-		WeightRestriction: int64(entitlement.WeightRestriction),
+		WeightRestriction: int64(*entitlement.WeightRestriction),
 		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }

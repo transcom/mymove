@@ -35,6 +35,29 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     checkUBFeatureFlag();
   }, []);
 
+  useEffect(() => {
+    if (!isAdminWeightLocationChecked) {
+      // Find the weight restriction input and reset its value to 0
+      const weightRestrictionInput = document.getElementById('weightRestrictionId');
+      if (weightRestrictionInput) {
+        weightRestrictionInput.value = '0';
+      }
+    }
+  }, [isAdminWeightLocationChecked]);
+
+  const handleAdminWeightLocationChange = (e) => {
+    setIsAdminWeightLocationChecked(e.target.checked);
+    if (!e.target.checked) {
+      const weightRestrictionInput = document.querySelector('input[name="weightRestriction"]');
+      if (weightRestrictionInput) {
+        weightRestrictionInput.value = '0';
+        // Trigger change event to ensure form state is updated
+        const event = new Event('input', { bubbles: true });
+        weightRestrictionInput.dispatchEvent(event);
+      }
+    }
+  };
+
   return (
     <div className={styles.AllowancesDetailForm}>
       {header && <h3 data-testid="header">{header}</h3>}
@@ -172,9 +195,9 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           data-testid="adminWeightLocation"
           id="adminWeightLocation"
           name="adminRestrictedWeightLocation"
-          label="Admin Restricted Weight Location"
+          label="Admin restricted weight location"
           isDisabled={formIsDisabled}
-          onChange={(e) => setIsAdminWeightLocationChecked(e.target.checked)}
+          onChange={handleAdminWeightLocationChange}
         />
       </div>
       {isAdminWeightLocationChecked && (
@@ -209,7 +232,6 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     </div>
   );
 };
-
 AllowancesDetailForm.propTypes = {
   entitlements: EntitlementShape.isRequired,
   branchOptions: DropdownArrayOf.isRequired,

@@ -166,7 +166,7 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 		StorageInTransit:  sit,
 		TotalDependents:   totalDependents,
 		TotalWeight:       totalWeight,
-		WeightRestriction: int64(entitlement.WeightRestriction),
+		WeightRestriction: int64(*entitlement.WeightRestriction),
 		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }

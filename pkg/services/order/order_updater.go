@@ -457,10 +457,11 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 	}
 
 	if payload.AdminRestrictedWeightLocation != nil {
-		order.Entitlement.AdminRestrictedWeightLocation = *payload.AdminRestrictedWeightLocation
+		order.Entitlement.AdminRestrictedWeightLocation = payload.AdminRestrictedWeightLocation
 	}
 
-	order.Entitlement.WeightRestriction = int(payload.WeightRestriction)
+	weightRestriction := int(payload.WeightRestriction)
+	order.Entitlement.WeightRestriction = &weightRestriction
 
 	if payload.AccompaniedTour != nil {
 		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
@@ -563,10 +564,13 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	}
 
 	if payload.AdminRestrictedWeightLocation != nil {
-		order.Entitlement.AdminRestrictedWeightLocation = *payload.AdminRestrictedWeightLocation
+		order.Entitlement.AdminRestrictedWeightLocation = payload.AdminRestrictedWeightLocation
 	}
 
-	order.Entitlement.WeightRestriction = int(*payload.WeightRestriction)
+	if payload.WeightRestriction != nil {
+		weightRestriction := int(*payload.WeightRestriction)
+		order.Entitlement.WeightRestriction = &weightRestriction
+	}
 
 	if payload.AccompaniedTour != nil {
 		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
@@ -607,7 +611,6 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	}
 
 	return order
-
 }
 func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext, doc *models.Document) (*models.Document, error) {
 	var docID uuid.UUID
