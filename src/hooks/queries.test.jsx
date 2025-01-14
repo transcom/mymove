@@ -17,6 +17,7 @@ import {
   useEvaluationReportQueries,
   useServicesCounselingQueuePPMQueries,
   useReviewShipmentWeightsQuery,
+  useBulkAssignmentQueries,
 } from './queries';
 
 import { serviceItemCodes } from 'content/serviceItems';
@@ -311,6 +312,33 @@ jest.mock('services/ghcApi', () => ({
       ],
     });
   },
+  getBulkAssignmentData: () =>
+    Promise.resolve({
+      availableOfficeUsers: [
+        {
+          firstName: 'Dan',
+          lastName: 'Quinn',
+          officeUserId: '0567dc9d-d88e-4c8d-94b0-00483e769058',
+          workload: 2,
+        },
+        {
+          firstName: 'Brian',
+          lastName: 'Robinson',
+          officeUserId: '10fa3a2b-436a-4cc9-8c7c-c2a9604b0d41',
+        },
+        {
+          firstName: 'Jayden',
+          lastName: 'Daniels',
+          officeUserId: '1be7530a-362b-4f84-87c7-e076a1d9873d',
+          workload: 2,
+        },
+      ],
+      bulkAssignmentMoveIDs: [
+        'd63b5a39-c47e-4855-a39d-5f6b156d0421',
+        'a5d3d748-bdc0-4439-af45-2a95e545fa8c',
+        '72b98287-641e-4da8-a6e2-6c9eb3373bbb',
+      ],
+    }),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -995,6 +1023,46 @@ describe('useServicesCounselingQueuePPMQueries', () => {
           {
             id: 'move2',
           },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
+describe('useBulkAssignmentQueries', () => {
+  it('loads data', async () => {
+    const { result, waitFor } = renderHook(() => useBulkAssignmentQueries('COUNSELING'), { wrapper });
+
+    await waitFor(() => result.current.isSuccess);
+
+    expect(result.current).toEqual({
+      bulkAssignmentData: {
+        availableOfficeUsers: [
+          {
+            firstName: 'Dan',
+            lastName: 'Quinn',
+            officeUserId: '0567dc9d-d88e-4c8d-94b0-00483e769058',
+            workload: 2,
+          },
+          {
+            firstName: 'Brian',
+            lastName: 'Robinson',
+            officeUserId: '10fa3a2b-436a-4cc9-8c7c-c2a9604b0d41',
+          },
+          {
+            firstName: 'Jayden',
+            lastName: 'Daniels',
+            officeUserId: '1be7530a-362b-4f84-87c7-e076a1d9873d',
+            workload: 2,
+          },
+        ],
+        bulkAssignmentMoveIDs: [
+          'd63b5a39-c47e-4855-a39d-5f6b156d0421',
+          'a5d3d748-bdc0-4439-af45-2a95e545fa8c',
+          '72b98287-641e-4da8-a6e2-6c9eb3373bbb',
         ],
       },
       isLoading: false,
