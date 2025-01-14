@@ -95,16 +95,47 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 	return nil
 }
 
+// Identifies if a filepath directory is mutable
+// This is needed in order to write config and fonts to filesystem
+// as the pdfcpu package hard-code requires it at this time
+// for initial installation and for form filling
+func isDirMutable(path string) bool {
+	testFile := filepath.Join(path, "tmp")
+	file, err := os.Create(testFile)
+	if err != nil {
+		return false
+	}
+	file.Close()
+	os.Remove(testFile) // Cleanup the test file, it is mutable here
+	return true
+}
+
 // NewGenerator creates a new Generator.
 func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	// Use in memory filesystem for generation. Purpose is to not write
 	// to hard disk due to restrictions in AWS storage. May need better long term solution.
 	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
-	err := api.EnsureDefaultConfigAt(os.TempDir()) // TempDir should be mutable in ephemeral storage
-	if err != nil {
-		return nil, err
+	tmpDir := os.TempDir()
+	if isDirMutable(tmpDir) {
+		err := api.EnsureDefaultConfigAt(tmpDir)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// tmp dir wasn't mutable, try ephemeral
+		ephemeralPath := "/ephemeral-dir" // TODO: make this a const
+		if isDirMutable(ephemeralPath) {
+			err := api.EnsureDefaultConfigAt(ephemeralPath)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			// Neither directory is mutable
+			return nil, fmt.Errorf("both tmp directory (%s) and ephemeral directory (%s) are not mutable, cannot configure default pdfcpu generator settings", tmpDir, ephemeralPath)
+		}
 	}
+
 	pdfConfig := api.LoadConfiguration() // As long as our config was set properly, this will load it and not create a new default config
 	pdfCPU := pdfCPUWrapper{Configuration: pdfConfig}
 
