@@ -126,7 +126,7 @@ func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 		}
 	} else {
 		// tmp dir wasn't mutable, try ephemeral
-		ephemeralPath := "/tmp/ephemeral-dir" // TODO: make this a const
+		ephemeralPath := "/ephemeral-dir" // TODO: make this a const
 		if isDirMutable(ephemeralPath) {
 			err := api.EnsureDefaultConfigAt(ephemeralPath)
 			if err != nil {

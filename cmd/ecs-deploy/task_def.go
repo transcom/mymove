@@ -624,7 +624,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	if v.GetBool("mount-ephemeral-volume") {
 		containerDefinitions[0].MountPoints = append(containerDefinitions[0].MountPoints,
 			ecstypes.MountPoint{
-				ContainerPath: aws.String("/tmp/ephemeral-dir"),
+				ContainerPath: aws.String("/ephemeral-dir"),
 				SourceVolume:  aws.String("ephemeral-volume"),
 				ReadOnly:      aws.Bool(false),
 			},
