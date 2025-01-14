@@ -77,6 +77,13 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		}
 	}
 
+	// create international shipment service items
+	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage) && shipment.MarketCode == models.MarketCodeInternational {
+		err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
+		if err != nil {
+			return shipment, err
+		}
+	}
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create international shipment service items before approving
 		// we use a database proc to create the basic auto-approved service items
