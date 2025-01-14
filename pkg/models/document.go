@@ -40,23 +40,19 @@ func (d *Document) Validate(_ *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchDocument returns a document if the user has access to that document
-func FetchDocument(db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool) (Document, error) {
-	return fetchDocumentWithAccessibilityCheck(db, session, id, includeDeletedDocs, true)
+func FetchDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (Document, error) {
+	return fetchDocumentWithAccessibilityCheck(db, session, id, true)
 }
 
 // FetchDocument returns a document regardless if user has access to that document
-func FetchDocumentWithNoRestrictions(db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool) (Document, error) {
-	return fetchDocumentWithAccessibilityCheck(db, session, id, includeDeletedDocs, false)
+func FetchDocumentWithNoRestrictions(db *pop.Connection, session *auth.Session, id uuid.UUID) (Document, error) {
+	return fetchDocumentWithAccessibilityCheck(db, session, id, false)
 }
 
 // FetchDocument returns a document if the user has access to that document
-func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool, checkUserAccessiability bool) (Document, error) {
+func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Session, id uuid.UUID, checkUserAccessiability bool) (Document, error) {
 	var document Document
 	query := db.Q()
-
-	if !includeDeletedDocs {
-		query = query.Where("documents.deleted_at is null and u.deleted_at is null")
-	}
 
 	err := query.Eager("UserUploads.Upload").
 		LeftJoin("user_uploads as uu", "documents.id = uu.document_id").
@@ -73,9 +69,7 @@ func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Sessi
 
 	// encountered issues trying to filter userUploads using pop.
 	// going with the option to filter userUploads after the query.
-	if !includeDeletedDocs {
-		document.UserUploads = document.UserUploads.FilterDeleted()
-	}
+	document.UserUploads = document.UserUploads.FilterDeleted()
 
 	if checkUserAccessiability {
 		_, smErr := FetchServiceMemberForUser(db, session, document.ServiceMemberID)

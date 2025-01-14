@@ -102,7 +102,7 @@ func FetchUserUpload(db *pop.Connection, session *auth.Session, id uuid.UUID) (U
 	// If there's a document, check permissions. Otherwise user must
 	// have been the uploader
 	if userUpload.DocumentID != nil {
-		_, docErr := FetchDocument(db, session, *userUpload.DocumentID, false)
+		_, docErr := FetchDocument(db, session, *userUpload.DocumentID)
 		if docErr != nil {
 			return UserUpload{}, docErr
 		}
@@ -129,7 +129,7 @@ func FetchUserUploadFromUploadID(db *pop.Connection, session *auth.Session, uplo
 	// If there's a document, check permissions. Otherwise user must
 	// have been the uploader
 	if userUpload.DocumentID != nil {
-		_, docErr := FetchDocument(db, session, *userUpload.DocumentID, false)
+		_, docErr := FetchDocument(db, session, *userUpload.DocumentID)
 		if docErr != nil {
 			return UserUpload{}, docErr
 		}
@@ -142,13 +142,27 @@ func FetchUserUploadFromUploadID(db *pop.Connection, session *auth.Session, uplo
 // DeleteUserUpload deletes an upload from the database
 func DeleteUserUpload(dbConn *pop.Connection, userUpload *UserUpload) error {
 	if dbConn.TX != nil {
-		err := utilities.SoftDestroy(dbConn, userUpload)
+		// userUpload.Document is a belongs_to relation, so will not be automatically
+		// deleted when we call SoftDestroy on the uploaded document
+		err := utilities.SoftDestroy(dbConn, &userUpload.Document)
+		if err != nil {
+			return err
+		}
+
+		err = utilities.SoftDestroy(dbConn, userUpload)
 		if err != nil {
 			return err
 		}
 	} else {
 		return dbConn.Transaction(func(db *pop.Connection) error {
-			err := utilities.SoftDestroy(db, userUpload)
+			// userUpload.Document is a belongs_to relation, so will not be automatically
+			// deleted when we call SoftDestroy on the uploaded document
+			err := utilities.SoftDestroy(dbConn, &userUpload.Document)
+			if err != nil {
+				return err
+			}
+
+			err = utilities.SoftDestroy(db, userUpload)
 			if err != nil {
 				return err
 			}
