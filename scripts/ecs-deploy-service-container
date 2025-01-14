@@ -108,7 +108,7 @@ blue_task_def_arn=$(aws ecs describe-services --services "${name}" --cluster "${
 # If name equals "app-client-tls", then set EPHEMERAL_FLAG
 # This allows the ECS definition to mount a mutable volume
 EPHEMERAL_FLAG=""
-if [[ "$name" == "app-client-tls" ]]; then
+if [[ "$name" == "app-client-tls" || "$name" == "app" ]]; then
   EPHEMERAL_FLAG="--mount-ephemeral-volume=true"
 fi
 
