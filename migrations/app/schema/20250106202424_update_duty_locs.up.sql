@@ -21,6 +21,10 @@ INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_
 	 ('6555ccb2-a8a1-4961-98cc-b507490580ed'::uuid,'San Diego, CA 92135',NULL,'cb437e3d-a2e8-4315-95c6-6da85b6c242a'::uuid,now(),now(),null,true);
 
 --add Cannon AFB 88101 duty location
+INSERT INTO addresses
+(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, street_address_3, county, is_oconus, country_id, us_post_region_cities_id)
+VALUES('fb90a7df-6494-4974-a0ce-4bdbcaff80c0'::uuid, 'n/a', NULL, 'CANNON AFB', 'NM', '88101', now(), now(), NULL, 'CURRY', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '68393e10-1aed-4a51-85a0-559a0a5b0e3f'::uuid);
+
 INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_at,transportation_office_id,provides_services_counseling) VALUES
 ('98beab3c-f8ce-4e3c-b78e-8db614721621'::uuid, 'Cannon AFB, NM 88101',null, 'fb90a7df-6494-4974-a0ce-4bdbcaff80c0'::uuid,now(),now(),'80796bc4-e494-4b19-bb16-cdcdba187829',true);
 
