@@ -17,7 +17,7 @@ const formatChangedValues = (historyRecord) => {
 
 export default {
   action: a.UPDATE,
-  eventName: o.updatePaymentServiceItem,
+  eventName: o.updatePaymentServiceItemStatus,
   tableName: t.payment_service_items,
   getEventNameDisplay: () => {
     return <div>Updated Payment Service Item</div>;
