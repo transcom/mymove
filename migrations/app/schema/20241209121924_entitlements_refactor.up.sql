@@ -1,8 +1,7 @@
 -- See https://dp3.atlassian.net/wiki/spaces/MT/pages/2738716677/HHG+and+UB+Entitlements
 -- Prep entitlements table for holding weight restricted
 ALTER TABLE entitlements
-ADD COLUMN IF NOT EXISTS is_weight_restricted boolean NOT NULL DEFAULT false,
-    ADD COLUMN IF NOT EXISTS weight_restriction int;
+ADD COLUMN IF NOT EXISTS weight_restriction int;
 -- Create pay grades table to get our static entitlements.go file to be db based
 CREATE TABLE IF NOT EXISTS pay_grades (
     id uuid PRIMARY KEY NOT NULL,

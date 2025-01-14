@@ -30,7 +30,6 @@ func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
 		updatedEntitlement, err := restrictor.ApplyWeightRestrictionToEntitlement(suite.AppContextForTest(), entitlement, 10000, etag.GenerateEtag(entitlement.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(updatedEntitlement)
-		suite.True(updatedEntitlement.IsWeightRestricted)
 		suite.NotNil(updatedEntitlement.WeightRestriction)
 		suite.Equal(10000, *updatedEntitlement.WeightRestriction)
 	})
@@ -70,9 +69,8 @@ func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
 		// Create an entitlement with a restriction already applied
 		weightRestriction := 5000
 		entitlement := models.Entitlement{
-			ID:                 uuid.Must(uuid.NewV4()),
-			IsWeightRestricted: true,
-			WeightRestriction:  &weightRestriction,
+			ID:                uuid.Must(uuid.NewV4()),
+			WeightRestriction: &weightRestriction,
 		}
 		suite.MustCreate(&entitlement)
 
@@ -80,7 +78,6 @@ func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
 		updatedEntitlement, err := restrictor.RemoveWeightRestrictionFromEntitlement(suite.AppContextForTest(), entitlement, etag.GenerateEtag(entitlement.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(updatedEntitlement)
-		suite.False(updatedEntitlement.IsWeightRestricted)
 		suite.Nil(updatedEntitlement.WeightRestriction)
 	})
 

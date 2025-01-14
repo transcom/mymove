@@ -44,8 +44,7 @@ func (wr *weightRestrictor) ApplyWeightRestrictionToEntitlement(appCtx appcontex
 			nil, "error applying weight restriction")
 	}
 
-	// Update the restriction fields
-	originalEntitlement.IsWeightRestricted = true
+	// Update the restriction field
 	originalEntitlement.WeightRestriction = &weightRestriction
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&originalEntitlement)
@@ -75,8 +74,7 @@ func (wr *weightRestrictor) RemoveWeightRestrictionFromEntitlement(appCtx appcon
 		return nil, apperror.NewPreconditionFailedError(originalEntitlement.ID, nil)
 	}
 
-	// Update the restriction fields
-	originalEntitlement.IsWeightRestricted = false
+	// Update the restriction field
 	originalEntitlement.WeightRestriction = nil
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&originalEntitlement)
