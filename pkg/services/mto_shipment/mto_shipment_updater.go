@@ -1081,7 +1081,7 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 
 		shipment.RequiredDeliveryDate = requiredDeliveryDate
 	} else if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage && shipment.ScheduledPickupDate != nil && !shipment.ScheduledDeliveryDate.IsZero() {
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDateUBShipment(appCtx, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate)
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDateForInternationalShipment(appCtx, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.ShipmentType)
 		if calcErr != nil {
 			return calcErr
 		}
@@ -1248,9 +1248,9 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 	return &requiredDeliveryDate, nil
 }
 
-// CalculateRequiredDeliveryDateUBShipment function is used to get the Required delivery Date of a UB shipment by finding the re_intl_transit_time using the origin and destination address rate areas.
+// CalculateRequiredDeliveryDateForInternationalShipment function is used to get the Required delivery Date of a UB shipment by finding the re_intl_transit_time using the origin and destination address rate areas.
 // The transit time is then added to the day after the pickup date then that date is used as the required delivery date for the UB shipment.
-func CalculateRequiredDeliveryDateUBShipment(appCtx appcontext.AppContext, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time) (time.Time, error) {
+func CalculateRequiredDeliveryDateForInternationalShipment(appCtx appcontext.AppContext, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, shipmentType models.MTOShipmentType) (time.Time, error) {
 
 	// Transit times does not include the pickup date. Setting the required delivery date to the day after pickup date
 	rdd := pickupDate.AddDate(0, 0, 1)
@@ -1279,8 +1279,17 @@ func CalculateRequiredDeliveryDateUBShipment(appCtx appcontext.AppContext, picku
 		return rdd, err
 	}
 
-	// rdd plus the intl ub transit time
-	return rdd.AddDate(0, 0, *internationalTransitTime.UbTransitTime), nil
+	if shipmentType == models.MTOShipmentTypeHHG {
+		// rdd plus the intl hhg transit time
+		return rdd.AddDate(0, 0, *internationalTransitTime.HhgTransitTime), nil
+	}
+
+	if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+		// rdd plus the intl ub transit time
+		return rdd.AddDate(0, 0, *internationalTransitTime.UbTransitTime), nil
+	}
+
+	return rdd, nil
 }
 
 // This private function is used to generically construct service items when shipments are approved.
