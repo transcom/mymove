@@ -60,7 +60,7 @@ func (suite *PayloadsSuite) TestMobileHomeShipment() {
 
 	suite.Run("Test Mobile Home Shipment With Nil", func() {
 		mobileHomeShipment := MobileHomeShipment(nil, nil)
-		suite.NotNil(mobileHomeShipment)
+		suite.Nil(mobileHomeShipment)
 	})
 }
 
