@@ -122,6 +122,8 @@ const (
 	healthCheckFlag          string = "health-check"
 )
 
+var mountEphemeralVolume bool // Conditionally set from flags
+
 // ECRImage represents an ECR Image tag broken into its constituent parts
 type ECRImage struct {
 	AWSRegion        string
@@ -221,6 +223,7 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	flag.String(entryPointFlag, fmt.Sprintf("%s serve", binMilMove), "The entryPoint for the container")
 	flag.Int(cpuFlag, int(512), "The CPU reservation")
 	flag.Int(memFlag, int(2048), "The memory reservation")
+	flag.BoolVar(&mountEphemeralVolume, "mount-ephemeral-volume", false, "Mount ephemeral, mutable volume when true")
 
 	// Logging Levels
 	cli.InitLoggingFlags(flag)
@@ -615,6 +618,18 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			User:                   aws.String("1042"),
 		},
 	}
+	// Now that we have our default ECS task definition
+	// mount the conditional ephemeral storage.
+	// The volume is set later in this func
+	if v.GetBool("mount-ephemeral-volume") {
+		containerDefinitions[0].MountPoints = append(containerDefinitions[0].MountPoints,
+			ecstypes.MountPoint{
+				ContainerPath: aws.String("/ephemeral-dir"),
+				SourceVolume:  aws.String("ephemeral-volume"),
+				ReadOnly:      aws.Bool(false),
+			},
+		)
+	}
 
 	// if health check is enabled, add it to the container definition
 	if v.GetBool(healthCheckFlag) {
@@ -910,6 +925,15 @@ service:
 		NetworkMode:             ecstypes.NetworkModeAwsvpc,
 		RequiresCompatibilities: []ecstypes.Compatibility{"FARGATE"},
 		TaskRoleArn:             aws.String(taskRoleArn),
+	}
+
+	// Append the volume if ephemeral is set to be mounted
+	if v.GetBool("mount-ephemeral-volume") {
+		newTaskDefInput.Volumes = []ecstypes.Volume{
+			{
+				Name: aws.String("ephemeral-volume"),
+			},
+		}
 	}
 
 	// Registration is never allowed by default and requires a flag
