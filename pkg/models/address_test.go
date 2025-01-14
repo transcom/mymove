@@ -1,6 +1,10 @@
 package models_test
 
 import (
+	"fmt"
+
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/factory"
 	m "github.com/transcom/mymove/pkg/models"
 )
@@ -188,5 +192,207 @@ func (suite *ModelSuite) TestAddressIsEmpty() {
 			PostalCode:     "90210",
 		}
 		suite.False(m.IsAddressEmpty(&testAddress))
+	})
+}
+
+func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
+	setupDataForOconusDutyLocation := func(postalCode string) (m.ReRateArea, m.OconusRateArea, m.UsPostRegionCity, m.DutyLocation) {
+		usprc, err := m.FindByZipCode(suite.AppContextForTest().DB(), postalCode)
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: m.Address{
+					IsOconus:           m.BoolPointer(true),
+					UsPostRegionCityID: &usprc.ID,
+				},
+			},
+		}, nil)
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DutyLocationAddress,
+			},
+		}, nil)
+
+		contract := m.ReContract{
+			Code: "Test_create_oconus_order_code",
+			Name: "Test_create_oconus_order",
+		}
+		verrs, err := suite.AppContextForTest().DB().ValidateAndSave(&contract)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(verrs.Error())
+		}
+
+		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+		rateArea := m.ReRateArea{
+			ID:         uuid.Must(uuid.NewV4()),
+			ContractID: contract.ID,
+			IsOconus:   true,
+			Code:       rateAreaCode,
+			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+			Contract:   contract,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&rateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		us_country, err := m.FetchCountryByCode(suite.DB(), "US")
+		suite.NotNil(us_country)
+		suite.Nil(err)
+
+		oconusRateArea := m.OconusRateArea{
+			ID:                 uuid.Must(uuid.NewV4()),
+			RateAreaId:         rateArea.ID,
+			CountryId:          us_country.ID,
+			UsPostRegionCityId: usprc.ID,
+			Active:             true,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		return rateArea, oconusRateArea, *usprc, originDutyLocation
+	}
+
+	suite.Run("fetches duty location GBLOC for AK address, Zone II AirForce", func() {
+		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99707")
+
+		airForce := m.AffiliationAIRFORCE
+		defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: m.ServiceMember{
+					Affiliation: &airForce,
+				},
+			},
+		}, nil)
+
+		jppsoRegion := m.JppsoRegions{
+			Name: "JPPSO Elmendorf-Richardson",
+			Code: "MBFL",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := m.GblocAors{
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
+		}
+		suite.MustSave(&gblocAors)
+
+		gbloc, err := m.FetchOconusAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(gbloc.Gbloc, "MBFL")
+	})
+
+	suite.Run("fetches duty location GBLOC for AK address, Zone II Army", func() {
+		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99707")
+
+		army := m.AffiliationARMY
+		defaultDepartmentIndicator := "ARMY"
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: m.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		jppsoRegion := m.JppsoRegions{
+			Name: "JPPSO-Northwest",
+			Code: "JEAT",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := m.GblocAors{
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
+		}
+		suite.MustSave(&gblocAors)
+
+		gbloc, err := m.FetchOconusAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(gbloc.Gbloc, "JEAT")
+	})
+
+	suite.Run("fetches duty location GBLOC for AK Cordova address, Zone IV", func() {
+		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99574")
+
+		army := m.AffiliationARMY
+		defaultDepartmentIndicator := "ARMY"
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: m.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		jppsoRegion := m.JppsoRegions{
+			Name: "USCG Base Kodiak",
+			Code: "MAPS",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := m.GblocAors{
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
+		}
+		suite.MustSave(&gblocAors)
+
+		gbloc, err := m.FetchOconusAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(gbloc.Gbloc, "MAPS")
+	})
+
+	suite.Run("fetches duty location GBLOC for AK NOT Cordova address, Zone IV", func() {
+		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99803")
+
+		army := m.AffiliationARMY
+		defaultDepartmentIndicator := "ARMY"
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: m.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		jppsoRegion := m.JppsoRegions{
+			Name: "USCG Base Ketchikan",
+			Code: "MAPK",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := m.GblocAors{
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
+		}
+		suite.MustSave(&gblocAors)
+
+		gbloc, err := m.FetchOconusAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(gbloc.Gbloc, "MAPK")
 	})
 }
