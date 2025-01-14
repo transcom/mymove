@@ -40,22 +40,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
 	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	setupE1Allotment := func() {
-		pg := factory.BuildPayGrade(suite.DB(), []factory.Customization{
-			{
-				Model: models.PayGrade{
-					Grade: "E_1",
-				},
-			},
-		}, nil)
-		factory.BuildHHGAllowance(suite.DB(), []factory.Customization{
-			{
-				Model:    pg,
-				LinkOnly: true,
-			},
-		}, nil)
-	}
-	setupE1Allotment()
+
 	originDutyLocation := factory.BuildDutyLocation(suite.AppContextForTest().DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -124,22 +109,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 
 func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	waf := entitlements.NewWeightAllotmentFetcher()
-	setupE1Allotment := func() {
-		pg := factory.BuildPayGrade(suite.DB(), []factory.Customization{
-			{
-				Model: models.PayGrade{
-					Grade: "E_1",
-				},
-			},
-		}, nil)
-		factory.BuildHHGAllowance(suite.DB(), []factory.Customization{
-			{
-				Model:    pg,
-				LinkOnly: true,
-			},
-		}, nil)
-	}
-	setupE1Allotment()
+
 	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
 	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -1284,28 +1254,12 @@ func (suite *HandlerSuite) makeUpdateBillableWeightHandlerSubtestData() (subtest
 
 func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
-	setupGrade := func(grade string) {
-		pg := factory.BuildPayGrade(suite.DB(), []factory.Customization{
-			{
-				Model: models.PayGrade{
-					Grade: grade,
-				},
-			},
-		}, nil)
-		factory.BuildHHGAllowance(suite.DB(), []factory.Customization{
-			{
-				Model:    pg,
-				LinkOnly: true,
-			},
-		}, nil)
-	}
+
 	suite.Run("Returns 200 when all validations pass", func() {
 		handlerConfig := suite.HandlerConfig()
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
-		// We're going to update from E_1 to O_5. Make sure O_5 has an allowance
-		setupGrade(string(*subtestData.body.Grade))
 
 		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
@@ -1511,21 +1465,6 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 
 func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	grade := ghcmessages.GradeO5
-	setupGrade := func(grade string) {
-		pg := factory.BuildPayGrade(suite.DB(), []factory.Customization{
-			{
-				Model: models.PayGrade{
-					Grade: grade,
-				},
-			},
-		}, nil)
-		factory.BuildHHGAllowance(suite.DB(), []factory.Customization{
-			{
-				Model:    pg,
-				LinkOnly: true,
-			},
-		}, nil)
-	}
 	affiliation := ghcmessages.AffiliationAIRFORCE
 	ocie := false
 	proGearWeight := models.Int64Pointer(100)
@@ -1546,7 +1485,6 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		setupGrade(string(grade))
 		handlerConfig := suite.HandlerConfig()
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders

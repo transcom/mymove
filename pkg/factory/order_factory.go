@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -301,14 +302,7 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 				grade := internalmessages.OrderPayGrade(existingPayGrade.Grade)
 				order.Grade = internalmessages.NewOrderPayGrade(grade)
 			} else {
-				// Create a new PayGrade
-				existingPayGrade = BuildPayGrade(db, []Customization{
-					{
-						Model: models.PayGrade{
-							Grade: string(*order.Grade),
-						},
-					},
-				}, nil)
+				log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data %w", err))
 			}
 		}
 
@@ -316,13 +310,7 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		var existingHHGAllowance models.HHGAllowance
 		err := db.Where("pay_grade_id = ?", existingPayGrade.ID).First(&existingHHGAllowance)
 		if err != nil {
-			// Create a new HHGAllowance
-			BuildHHGAllowance(db, []Customization{
-				{
-					Model:    existingPayGrade,
-					LinkOnly: true,
-				},
-			}, nil)
+			log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data %w", err))
 		}
 
 		mustCreate(db, &order)

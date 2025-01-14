@@ -15,14 +15,6 @@ type FactorySuite struct {
 	*testingsuite.PopTestSuite
 }
 
-func (suite *FactorySuite) SetupSuite() {
-	suite.PreloadData(func() {
-		// The factory suite creates allotments and allowances, make sure they're wiped
-		// This is because pay grades and hhg allowances are excluded from truncation, meaning they have static data built in
-		suite.deleteAllotmentsFromDatabase()
-	})
-}
-
 func TestFactorySuite(t *testing.T) {
 
 	ts := &FactorySuite{

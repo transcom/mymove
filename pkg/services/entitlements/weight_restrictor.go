@@ -93,14 +93,8 @@ func (wr *weightRestrictor) RemoveWeightRestrictionFromEntitlement(appCtx appcon
 func (wr *weightRestrictor) fetchMaxHhgAllowance(appCtx appcontext.AppContext) (int, error) {
 	var maxHhgAllowance int
 	err := appCtx.DB().
-		RawQuery(`
-            SELECT parameter_value::int
-            FROM application_parameters
-            WHERE parameter_name = $1
-            LIMIT 1
-        `, "maxHhgAllowance").
+		RawQuery(`SELECT parameter_value::int FROM application_parameters WHERE parameter_name = 'maxHhgAllowance' LIMIT 1`).
 		First(&maxHhgAllowance)
-
 	if err != nil {
 		return maxHhgAllowance, apperror.NewQueryError("ApplicationParameters", err, "error fetching max HHG allowance")
 	}

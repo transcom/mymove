@@ -5,7 +5,6 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -21,14 +20,6 @@ func (suite *HandlerSuite) AfterTest() {
 	for _, file := range suite.TestFilesToClose() {
 		file.Data.Close()
 	}
-}
-
-func (suite *HandlerSuite) SetupSuite() {
-	suite.PreloadData(func() {
-		err := factory.DeleteAllotmentsFromDatabase(suite.DB())
-		suite.FatalNoError(err)
-		factory.SetupDefaultAllotments(suite.DB())
-	})
 }
 
 // TestHandlerSuite creates our test suite

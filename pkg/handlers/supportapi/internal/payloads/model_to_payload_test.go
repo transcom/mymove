@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -21,14 +20,6 @@ import (
 // HandlerSuite is an abstraction of our original suite
 type PayloadsSuite struct {
 	handlers.BaseHandlerTestSuite
-}
-
-func (suite *PayloadsSuite) SetupSuite() {
-	suite.PreloadData(func() {
-		err := factory.DeleteAllotmentsFromDatabase(suite.DB())
-		suite.FatalNoError(err)
-		factory.SetupDefaultAllotments(suite.DB())
-	})
 }
 
 // TestHandlerSuite creates our test suite
