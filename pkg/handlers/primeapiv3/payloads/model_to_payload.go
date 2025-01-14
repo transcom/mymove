@@ -215,7 +215,7 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 		StorageInTransit:  sit,
 		TotalDependents:   totalDependents,
 		TotalWeight:       totalWeight,
-		WeightRestriction: int64(entitlement.WeightRestriction),
+		WeightRestriction: int64(*entitlement.WeightRestriction),
 		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
