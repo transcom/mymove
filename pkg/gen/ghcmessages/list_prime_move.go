@@ -35,6 +35,14 @@ type ListPrimeMove struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
+	// destination g b l o c
+	// Example: AGFM
+	DestinationGBLOC string `json:"destinationGBLOC,omitempty"`
+
+	// destination postal code
+	// Example: 90210
+	DestinationPostalCode string `json:"destinationPostalCode,omitempty"`
+
 	// e tag
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`

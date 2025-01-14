@@ -53,13 +53,19 @@ const EvaluationReportShipmentDisplay = ({
             <h5>
               <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
             </h5>
-            {displayInfo.isDiversion && <Tag>diversion</Tag>}
-            {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">canceled</Tag>}
-            {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
-            {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
-              <Tag>cancellation requested</Tag>
-            )}
-            {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
+            <div>
+              {displayInfo.isDiversion && <Tag className="usa-tag--diversion">diversion</Tag>}
+              {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && (
+                <Tag className="usa-tag--cancellation">canceled</Tag>
+              )}
+              {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
+                <Tag className="usa-tag--diversion">diversion requested</Tag>
+              )}
+              {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
+                <Tag className="usa-tag--cancellation">cancellation requested</Tag>
+              )}
+              {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
+            </div>
           </div>
           <h6 className={styles.headingShipmentID}>Shipment ID: {displayInfo.shipmentLocator}</h6>
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
