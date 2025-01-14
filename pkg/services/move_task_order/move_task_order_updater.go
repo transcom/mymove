@@ -65,6 +65,9 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 			return err
 		}
 
+		//When submiting a move for approval - remove the SC assigned user
+		move.SCAssignedID = nil
+
 		// Save the move.
 		var verrs *validate.Errors
 		verrs, err = appCtx.DB().ValidateAndSave(move)
@@ -256,6 +259,9 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 	if existingETag != eTag {
 		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
+
+	//When approving a shipment - remove the assigned TOO user
+	move.TOOAssignedID = nil
 
 	// If the move is already been made available to prime, we will not need to approve and update the move,
 	// just the provided service items.
