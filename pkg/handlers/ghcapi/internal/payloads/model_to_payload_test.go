@@ -9,15 +9,101 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func TestOrder(_ *testing.T) {
 	order := &models.Order{}
 	Order(order)
+}
+
+func (suite *PayloadsSuite) TestOrderWithMove() {
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	moves := models.Moves{}
+	moves = append(moves, move)
+	order := factory.BuildOrder(nil, []factory.Customization{
+		{
+			Model: models.Order{
+				ID:            uuid.Must(uuid.NewV4()),
+				HasDependents: *models.BoolPointer(true),
+				Moves:         moves,
+			},
+		},
+	}, nil)
+	Order(&order)
+}
+
+func (suite *PayloadsSuite) TestBoatShipment() {
+	boat := factory.BuildBoatShipment(suite.DB(), nil, nil)
+	boatShipment := BoatShipment(nil, &boat)
+	suite.NotNil(boatShipment)
+
+}
+
+func (suite *PayloadsSuite) TestMobileHomeShipment() {
+	mobileHome := factory.BuildMobileHomeShipment(suite.DB(), nil, nil)
+	mobileHomeShipment := MobileHomeShipment(nil, &mobileHome)
+	suite.NotNil(mobileHomeShipment)
+}
+
+func (suite *PayloadsSuite) TestMovingExpense() {
+	contractExpense := models.MovingExpenseReceiptTypeContractedExpense
+	weightStored := 2000
+	sitLocation := models.SITLocationTypeDestination
+	sitReimburseableAmount := 500
+
+	movingExpense := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	movingExpenseValues := MovingExpense(nil, &movingExpense)
+	suite.NotNil(movingExpenseValues)
+}
+
+func (suite *PayloadsSuite) TestMovingExpenses() {
+	contractExpense := models.MovingExpenseReceiptTypeContractedExpense
+	weightStored := 2000
+	sitLocation := models.SITLocationTypeDestination
+	sitReimburseableAmount := 500
+	movingExpenses := models.MovingExpenses{}
+
+	movingExpense := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	movingExpenseTwo := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	movingExpenses = append(movingExpenses, movingExpense, movingExpenseTwo)
+	movingExpensesValue := MovingExpenses(nil, movingExpenses)
+	suite.NotNil(movingExpensesValue)
 }
 
 // TestMove makes sure zero values/optional fields are handled
@@ -315,6 +401,93 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 	})
 }
 
+func (suite *PayloadsSuite) TestMoveWithGBLOC() {
+	defaultOrdersNumber := "ORDER3"
+	defaultTACNumber := "F8E1"
+	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
+	defaultGrade := "E_1"
+	defaultHasDependents := false
+	defaultSpouseHasProGear := false
+	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	defaultOrdersTypeDetail := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
+	defaultStatus := models.OrderStatusDRAFT
+	testYear := 2018
+	defaultIssueDate := time.Date(testYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
+	defaultGBLOC := "KKFA"
+
+	originDutyLocation := models.DutyLocation{
+		Name: "Custom Origin",
+	}
+	originDutyLocationTOName := "origin duty location transportation office"
+	firstName := "customFirst"
+	lastName := "customLast"
+	serviceMember := models.ServiceMember{
+		FirstName: &firstName,
+		LastName:  &lastName,
+	}
+	uploadedOrders := models.Document{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+	dependents := 7
+	entitlement := models.Entitlement{
+		TotalDependents: &dependents,
+	}
+	amendedOrders := models.Document{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+	// Create order
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model: originDutyLocation,
+			Type:  &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.TransportationOffice{
+				Name: originDutyLocationTOName,
+			},
+			Type: &factory.TransportationOffices.OriginDutyLocation,
+		},
+		{
+			Model: serviceMember,
+		},
+		{
+			Model: uploadedOrders,
+			Type:  &factory.Documents.UploadedOrders,
+		},
+		{
+			Model: entitlement,
+		},
+		{
+			Model: amendedOrders,
+			Type:  &factory.Documents.UploadedAmendedOrders,
+		},
+	}, nil)
+
+	suite.Equal(defaultOrdersNumber, *order.OrdersNumber)
+	suite.Equal(defaultTACNumber, *order.TAC)
+	suite.Equal(defaultDepartmentIndicator, *order.DepartmentIndicator)
+	suite.Equal(defaultGrade, string(*order.Grade))
+	suite.Equal(defaultHasDependents, order.HasDependents)
+	suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
+	suite.Equal(defaultOrdersType, order.OrdersType)
+	suite.Equal(defaultOrdersTypeDetail, *order.OrdersTypeDetail)
+	suite.Equal(defaultStatus, order.Status)
+	suite.Equal(defaultIssueDate, order.IssueDate)
+	suite.Equal(defaultReportByDate, order.ReportByDate)
+	suite.Equal(defaultGBLOC, *order.OriginDutyLocationGBLOC)
+
+	suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
+	suite.Equal(originDutyLocationTOName, order.OriginDutyLocation.TransportationOffice.Name)
+	suite.Equal(*serviceMember.FirstName, *order.ServiceMember.FirstName)
+	suite.Equal(*serviceMember.LastName, *order.ServiceMember.LastName)
+	suite.Equal(uploadedOrders.ID, order.UploadedOrdersID)
+	suite.Equal(uploadedOrders.ID, order.UploadedOrders.ID)
+	suite.Equal(*entitlement.TotalDependents, *order.Entitlement.TotalDependents)
+	suite.Equal(amendedOrders.ID, *order.UploadedAmendedOrdersID)
+	suite.Equal(amendedOrders.ID, order.UploadedAmendedOrders.ID)
+}
+
 func (suite *PayloadsSuite) TestWeightTicketUpload() {
 	uploadID, _ := uuid.NewV4()
 	testURL := "https://testurl.com"
@@ -553,6 +726,81 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 	})
 }
 
+func (suite *PayloadsSuite) TestMoveTaskOrder() {
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	moveTaskOrder := MoveTaskOrder(&move)
+	suite.NotNil(moveTaskOrder)
+}
+
+func (suite *PayloadsSuite) TestTransportationOffice() {
+	office := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	transportationOffice := TransportationOffice(&office)
+	suite.NotNil(transportationOffice)
+}
+func (suite *PayloadsSuite) TestTransportationOffices() {
+	office := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	officeTwo := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	transportationOfficeList := models.TransportationOffices{}
+	transportationOfficeList = append(transportationOfficeList, office, officeTwo)
+	value := TransportationOffices(transportationOfficeList)
+	suite.NotNil(value)
+}
+func (suite *PayloadsSuite) TestListMove() {
+
+	marines := models.AffiliationMARINES
+	listMove := ListMove(nil)
+
+	suite.Nil(listMove)
+	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
+			},
+		},
+	}, nil)
+
+	listMove = ListMove(&moveUSMC)
+	suite.NotNil(listMove)
+}
+
+func (suite *PayloadsSuite) TestListMoves() {
+	list := models.Moves{}
+
+	marines := models.AffiliationMARINES
+	spaceForce := models.AffiliationSPACEFORCE
+	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
+			},
+		},
+	}, nil)
+	moveSF := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &spaceForce,
+			},
+		},
+	}, nil)
+	list = append(list, moveUSMC, moveSF)
+	value := ListMoves(&list)
+	suite.NotNil(value)
+}
 func (suite *PayloadsSuite) TestSearchMoves() {
 	appCtx := suite.AppContextForTest()
 
@@ -566,7 +814,7 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 	}, nil)
 
 	moves := models.Moves{moveUSMC}
-	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
+	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Marine move with no shipments", func() {
 		payload := SearchMoves(appCtx, moves)
 
 		suite.IsType(payload, &ghcmessages.SearchMoves{})
