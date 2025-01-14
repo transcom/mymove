@@ -152,7 +152,7 @@ paths:
                 summary: NTS
                 value:
                   moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
-                  shipmentType: HHG_INTO_NTS_DOMESTIC
+                  shipmentType: HHG_INTO_NTS
                   requestedPickupDate: '2022-12-31'
                   pickupAddress:
                     streetAddress1: 204 South Prospect Lane
@@ -1654,6 +1654,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      destinationGbloc:
+        type: string
+        pattern: ^[A-Z]{4}$
+        x-nullable: true
     required:
       - streetAddress1
       - city
@@ -2460,7 +2464,7 @@ definitions:
     description: |
       The type of shipment.
         * `HHG` = Household goods move
-        * `HHG_INTO_NTS_DOMESTIC` = HHG into Non-temporary storage (NTS)
+        * `HHG_INTO_NTS` = HHG into Non-temporary storage (NTS)
         * `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
         * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
         * `BOAT_HAUL_AWAY` = Boat shipment that requires additional equipment to haul it to it's destination
@@ -2472,14 +2476,14 @@ definitions:
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
       - HHG
-      - HHG_INTO_NTS_DOMESTIC
+      - HHG_INTO_NTS
       - HHG_OUTOF_NTS_DOMESTIC
       - MOBILE_HOME
       - PPM
       - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: Household goods move (HHG)
-      HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
+      HHG_INTO_NTS: HHG into Non-temporary storage (NTS)
       HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS Release)
       PPM: Personally Procured Move also known as Do It Yourself (DITY)
       BOAT_HAUL_AWAY: >-
@@ -3566,6 +3570,14 @@ definitions:
         type: string
       order:
         $ref: '#/definitions/Order'
+      destinationGBLOC:
+        type: string
+        example: KKFA
+        readOnly: true
+      destinationPostalCode:
+        type: string
+        example: '90210'
+        readOnly: true
       referenceId:
         example: 1001-3456
         type: string
