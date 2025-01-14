@@ -112,24 +112,10 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 
 		switch siCopy.ReService.Code {
 		case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
-			if mtoShipment.DeliveryAddressUpdate != nil && mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-				if siCopy.ApprovedAt != nil {
-					if mtoShipment.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
-						destinationZip = mtoShipment.DeliveryAddressUpdate.OriginalAddress.PostalCode
-					} else {
-						destinationZip = mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode
-					}
-				}
+			if siCopy.Status == models.MTOServiceItemStatusApproved {
+				hasApprovedDestinationSIT = true
 			}
 		}
-	}
-
-	if mtoShipment.DeliveryAddressUpdate != nil && mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode, false, false)
-		if err != nil {
-			return "", err
-		}
-		return strconv.Itoa(distanceMiles), nil
 	}
 
 	internationalShipment := mtoShipment.MarketCode == models.MarketCodeInternational
