@@ -57,7 +57,7 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		defaultStatus = models.MTOShipmentStatusDraft
 		buildStorageFacility = hasStorageFacilityCustom
 		shipmentHasPickupDetails = true
-		shipmentHasDeliveryDetails = false
+		shipmentHasDeliveryDetails = true
 	case mtoShipmentNTSR:
 		defaultShipmentType = models.MTOShipmentTypeHHGOutOfNTS
 		defaultStatus = models.MTOShipmentStatusDraft
@@ -81,6 +81,10 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		ShipmentType:    defaultShipmentType,
 		Status:          defaultStatus,
 		MarketCode:      defaultMarketCode,
+	}
+
+	if newMTOShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS && newMTOShipment.StorageFacility != nil {
+		newMTOShipment.DestinationAddress = &newMTOShipment.StorageFacility.Address
 	}
 
 	if cMtoShipment.Status == models.MTOShipmentStatusApproved {
