@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movefetcher "github.com/transcom/mymove/pkg/services/move"
@@ -25,6 +26,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
 	factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
@@ -77,7 +80,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -109,6 +112,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 }
 
 func (suite *HandlerSuite) TestGetDestinationRequestsQueuesHandler() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	// default GBLOC is KKFA
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
@@ -232,7 +237,7 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueuesHandler() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetDestinationRequestsQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -253,6 +258,7 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueuesHandler() {
 func (suite *HandlerSuite) TestListPrimeMovesHandler() {
 	// Default Origin Duty Location GBLOC is KKFA
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	request := httptest.NewRequest("GET", "/queues/listPrimeMoves", nil)
 	params := queues.ListPrimeMovesParams{
@@ -261,7 +267,7 @@ func (suite *HandlerSuite) TestListPrimeMovesHandler() {
 	handlerConfig := suite.HandlerConfig()
 	handler := ListPrimeMovesHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -376,6 +382,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	move := models.Move{
 		Status: models.MoveStatusSUBMITTED,
@@ -421,7 +428,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -447,6 +454,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	// Default Origin Duty Location GBLOC is KKFA
 	hhgMove := factory.BuildSubmittedMove(suite.DB(), nil, nil)
@@ -509,7 +517,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -571,6 +579,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	submittedMove := models.Move{
 		Status: models.MoveStatusSUBMITTED,
@@ -663,7 +672,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -824,6 +833,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			},
 		},
 	}, nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	dutyLocation2 := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
@@ -920,7 +930,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -1056,6 +1066,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -1066,7 +1077,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -1087,6 +1098,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 	serviceUser.User.Roles = append(serviceUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeCustomer,
 	})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateRequest(request, serviceUser)
@@ -1097,7 +1109,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -1118,6 +1130,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	// Create an order with an origin duty location outside of office user GBLOC
 	excludedMove := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -1149,7 +1162,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -1463,6 +1476,7 @@ type servicesCounselingSubtestData struct {
 func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *servicesCounselingSubtestData) {
 	subtestData = &servicesCounselingSubtestData{}
 	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
 	// Default Origin Duty Location GBLOC is KKFA
@@ -1659,7 +1673,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	subtestData.handler = GetServicesCounselingQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
