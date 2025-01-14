@@ -238,7 +238,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 
 func (suite *HandlerSuite) TestWeightAllowances() {
 	suite.Run("With E-1 rank and no dependents", func() {
-		order := factory.BuildOrder(nil, []factory.Customization{
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
 					ID:            uuid.Must(uuid.NewV4()),
@@ -292,7 +292,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 	})
 
 	suite.Run("With E-1 rank and dependents", func() {
-		order := factory.BuildOrder(nil, []factory.Customization{
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
 					ID:            uuid.Must(uuid.NewV4()),
