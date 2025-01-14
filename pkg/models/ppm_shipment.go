@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -318,4 +319,18 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 		return nil, err
 	}
 	return &ppmShipment, nil
+}
+
+// a db stored proc that will handle updating the estimated_incentive value
+// this simulates pricing of a basic iHHG shipment with ISLH, IHPK, IHUPK, and the CONUS portion for a FSC
+func CalculatePPMIncentive(db *pop.Connection, ppmID uuid.UUID, mileage int, weight int, isEstimated bool, isActual bool) (int, error) {
+	var incentive int
+
+	err := db.RawQuery("SELECT calculate_ppm_incentive($1, $2, $3, $4, $5)", ppmID, mileage, weight, isEstimated, isActual).
+		First(&incentive)
+	if err != nil {
+		return 0, fmt.Errorf("error calculating PPM incentive for PPM ID %s: %w", ppmID, err)
+	}
+
+	return incentive, nil
 }

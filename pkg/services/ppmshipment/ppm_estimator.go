@@ -203,46 +203,58 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		}
 	}
 
-	calculateSITEstimate := shouldCalculateSITCost(newPPMShipment, &oldPPMShipment)
+	// if the PPM is international, we will use a db stored proc
+	if newPPMShipment.Shipment.MarketCode != models.MarketCodeInternational {
 
-	// Clear out any previously calculated SIT estimated costs, if SIT is no longer expected
-	if newPPMShipment.SITExpected != nil && !*newPPMShipment.SITExpected {
-		newPPMShipment.SITEstimatedCost = nil
-	}
+		calculateSITEstimate := shouldCalculateSITCost(newPPMShipment, &oldPPMShipment)
 
-	skipCalculatingEstimatedIncentive := shouldSkipEstimatingIncentive(newPPMShipment, &oldPPMShipment)
+		// Clear out any previously calculated SIT estimated costs, if SIT is no longer expected
+		if newPPMShipment.SITExpected != nil && !*newPPMShipment.SITExpected {
+			newPPMShipment.SITEstimatedCost = nil
+		}
 
-	if skipCalculatingEstimatedIncentive && !calculateSITEstimate {
-		return oldPPMShipment.EstimatedIncentive, newPPMShipment.SITEstimatedCost, nil
-	}
+		skipCalculatingEstimatedIncentive := shouldSkipEstimatingIncentive(newPPMShipment, &oldPPMShipment)
 
-	contractDate := newPPMShipment.ExpectedDepartureDate
-	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
-	if err != nil {
-		return nil, nil, err
-	}
+		if skipCalculatingEstimatedIncentive && !calculateSITEstimate {
+			return oldPPMShipment.EstimatedIncentive, newPPMShipment.SITEstimatedCost, nil
+		}
 
-	estimatedIncentive := oldPPMShipment.EstimatedIncentive
-	if !skipCalculatingEstimatedIncentive {
-		// Clear out advance and advance requested fields when the estimated incentive is reset.
-		newPPMShipment.HasRequestedAdvance = nil
-		newPPMShipment.AdvanceAmountRequested = nil
-
-		estimatedIncentive, err = f.calculatePrice(appCtx, newPPMShipment, 0, contract, false)
+		contractDate := newPPMShipment.ExpectedDepartureDate
+		contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
 		if err != nil {
 			return nil, nil, err
 		}
-	}
 
-	estimatedSITCost := oldPPMShipment.SITEstimatedCost
-	if calculateSITEstimate {
-		estimatedSITCost, err = CalculateSITCost(appCtx, newPPMShipment, contract)
+		estimatedIncentive := oldPPMShipment.EstimatedIncentive
+		if !skipCalculatingEstimatedIncentive {
+			// Clear out advance and advance requested fields when the estimated incentive is reset.
+			newPPMShipment.HasRequestedAdvance = nil
+			newPPMShipment.AdvanceAmountRequested = nil
+
+			estimatedIncentive, err = f.calculatePrice(appCtx, newPPMShipment, 0, contract, false)
+			if err != nil {
+				return nil, nil, err
+			}
+		}
+
+		estimatedSITCost := oldPPMShipment.SITEstimatedCost
+		if calculateSITEstimate {
+			estimatedSITCost, err = CalculateSITCost(appCtx, newPPMShipment, contract)
+			if err != nil {
+				return nil, nil, err
+			}
+		}
+
+		return estimatedIncentive, estimatedSITCost, nil
+
+	} else {
+		estimatedIncentive, err := models.CalculatePPMIncentive(appCtx.DB(), newPPMShipment.ID, 1000, newPPMShipment.EstimatedWeight.Int(), true, false)
 		if err != nil {
 			return nil, nil, err
 		}
-	}
 
-	return estimatedIncentive, estimatedSITCost, nil
+		return (*unit.Cents)(&estimatedIncentive), nil, nil
+	}
 }
 
 func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*unit.Cents, error) {
