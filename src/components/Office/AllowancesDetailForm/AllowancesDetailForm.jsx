@@ -172,6 +172,10 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
         lazy={false} // immediate masking evaluation
         isDisabled={formIsDisabled}
       />
+      <dl>
+        <dt>Standard Weight allowance</dt>
+        <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
+      </dl>
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
           data-testid="ocieInput"
@@ -215,11 +219,6 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           isDisabled={formIsDisabled}
         />
       )}
-
-      <dl>
-        <dt>Standard Weight allowance</dt>
-        <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
-      </dl>
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
           id="dependentsAuthorizedInput"
