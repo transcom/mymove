@@ -64,7 +64,7 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 	}
 	// Set default calculated values
 	var hhgAllowance models.HHGAllowance
-	if db != nil {
+	if db != nil && grade != nil {
 		err := db.
 			RawQuery(`
           SELECT hhg_allowances.*
@@ -76,7 +76,7 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 			First(&hhgAllowance)
 		if err != nil {
 			// The database must not be running or the data was truncated
-			log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data %w", err))
+			log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data. pay grade: %s err: %w", *order.Grade, err))
 		}
 	}
 

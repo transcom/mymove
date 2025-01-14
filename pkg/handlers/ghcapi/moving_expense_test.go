@@ -27,7 +27,7 @@ import (
 func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerUnit() {
 	var ppmShipment models.PPMShipment
 
-	setupData := func() {
+	suite.PreloadData(func() {
 		userUploader, err := uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 
 		suite.FatalNoError(err)
@@ -54,8 +54,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerUnit() {
 				},
 			}, nil),
 		)
-	}
-	setupData()
+	})
 
 	setUpRequestAndParams := func() movingexpenseops.UpdateMovingExpenseParams {
 		movingExpense := ppmShipment.MovingExpenses[0]

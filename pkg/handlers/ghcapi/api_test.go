@@ -16,19 +16,6 @@ type HandlerSuite struct {
 	handlers.BaseHandlerTestSuite
 }
 
-func (suite *HandlerSuite) deleteAllotmentsFromDatabase() {
-	err := suite.DB().RawQuery("DELETE FROM hhg_allowances").Exec()
-	suite.FatalNoError(err)
-	err = suite.DB().RawQuery("DELETE FROM pay_grades").Exec()
-	suite.FatalNoError(err)
-}
-
-func (suite *HandlerSuite) SetupSuite() {
-	suite.PreloadData(func() {
-		suite.deleteAllotmentsFromDatabase()
-	})
-}
-
 // AfterTest completes tests by trying to close open files
 func (suite *HandlerSuite) AfterTest() {
 	for _, file := range suite.TestFilesToClose() {

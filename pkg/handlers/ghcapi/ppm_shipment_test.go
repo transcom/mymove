@@ -26,7 +26,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 	var ppmShipment models.PPMShipment
 	newFakeSITEstimatedCost := models.CentPointer(unit.Cents(25500))
 
-	setupPricerData := func() {
+	suite.PreloadData(func() {
 		testdatagen.FetchOrMakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
 			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
 				FuelPriceInMillicents: unit.Millicents(281400),
@@ -342,10 +342,9 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 				PriceCents:            63,
 			},
 		})
-	}
+	})
 
 	setupData := func() {
-		setupPricerData()
 		sitLocationDestination := models.SITLocationTypeDestination
 		entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
