@@ -757,7 +757,7 @@ const ServicesCounselingMoveDetails = ({
                 </div>
               )}
             </Grid>
-            <Grid row col={12}>
+            <Grid row col={12} className={scMoveDetailsStyles.scFinancialReviewWrapper}>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
                   <FinancialReviewButton
