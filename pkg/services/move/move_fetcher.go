@@ -169,8 +169,6 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCounseling(appCtx 
 func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
 	var moves []models.MoveWithEarliestDate
 
-	ppmCloseoutGblocs := gbloc == "NAVY" || gbloc == "TVCB" || gbloc == "USCG"
-
 	query := `SELECT
 					moves.id,
 					COALESCE(ppm_shipments.expected_departure_date, '9999-12-31') AS earliest_date
@@ -182,16 +180,18 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx ap
 				WHERE
 					(moves.status IN ('APPROVED', 'SERVICE COUNSELING COMPLETED'))
 					AND moves.show = $1
-					AND moves.sc_assigned_id IS NULL
-					`
-	if !ppmCloseoutGblocs {
+					AND moves.sc_assigned_id IS NULL`
+
+	switch gbloc {
+	case "NAVY":
+		query += ` AND (service_members.affiliation in ('` + string(models.AffiliationNAVY) + `'))`
+	case "TVCB":
+		query += ` AND (service_members.affiliation in ('` + string(models.AffiliationMARINES) + `'))`
+	case "USCG":
+		query += ` AND (service_members.affiliation in ('` + string(models.AffiliationCOASTGUARD) + `'))`
+	default:
 		query += ` AND moves.closeout_office_id = '` + officeId.String() + `'
 				   AND (service_members.affiliation NOT IN ('` +
-			string(models.AffiliationNAVY) + `', '` +
-			string(models.AffiliationMARINES) + `', '` +
-			string(models.AffiliationCOASTGUARD) + `'))`
-	} else {
-		query += ` AND (service_members.affiliation IN ('` +
 			string(models.AffiliationNAVY) + `', '` +
 			string(models.AffiliationMARINES) + `', '` +
 			string(models.AffiliationCOASTGUARD) + `'))`
