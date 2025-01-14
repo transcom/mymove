@@ -25,8 +25,6 @@ type NotificationQueueParams struct {
 }
 
 // NotificationReceiver is an interface for receiving notifications
-//
-//go:generate mockery --name NotificationReceiver
 type NotificationReceiver interface {
 	CreateQueueWithSubscription(appCtx appcontext.AppContext, params NotificationQueueParams) (string, error)
 	ReceiveMessages(appCtx appcontext.AppContext, queueUrl string, timerContext context.Context) ([]ReceivedMessage, error)
@@ -52,12 +50,14 @@ const (
 	QueuePrefixObjectTagsAdded QueuePrefixType = "ObjectTagsAdded"
 )
 
+//go:generate mockery --name SnsClient --output ./receiverMocks
 type SnsClient interface {
 	Subscribe(ctx context.Context, params *sns.SubscribeInput, optFns ...func(*sns.Options)) (*sns.SubscribeOutput, error)
 	Unsubscribe(ctx context.Context, params *sns.UnsubscribeInput, optFns ...func(*sns.Options)) (*sns.UnsubscribeOutput, error)
 	ListSubscriptionsByTopic(context.Context, *sns.ListSubscriptionsByTopicInput, ...func(*sns.Options)) (*sns.ListSubscriptionsByTopicOutput, error)
 }
 
+//go:generate mockery --name SqsClient --output ./receiverMocks
 type SqsClient interface {
 	CreateQueue(ctx context.Context, params *sqs.CreateQueueInput, optFns ...func(*sqs.Options)) (*sqs.CreateQueueOutput, error)
 	ReceiveMessage(ctx context.Context, params *sqs.ReceiveMessageInput, optFns ...func(*sqs.Options)) (*sqs.ReceiveMessageOutput, error)
@@ -65,6 +65,7 @@ type SqsClient interface {
 	ListQueues(ctx context.Context, params *sqs.ListQueuesInput, optFns ...func(*sqs.Options)) (*sqs.ListQueuesOutput, error)
 }
 
+//go:generate mockery --name ViperType --output ./receiverMocks
 type ViperType interface {
 	GetString(string) string
 	SetEnvKeyReplacer(*strings.Replacer)

@@ -3,7 +3,6 @@ package notifications
 import (
 	"context"
 	"fmt"
-	"strings"
 	"testing"
 	"time"
 
@@ -11,11 +10,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/cli"
+	mocks "github.com/transcom/mymove/pkg/notifications/receiverMocks"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -33,76 +32,16 @@ func TestNotificationReceiverSuite(t *testing.T) {
 	hs.PopTestSuite.TearDown()
 }
 
-// mock - Viper
-type Viper struct {
-	mock.Mock
-}
-
-func (_m *Viper) GetString(key string) string {
-	switch key {
-	case cli.ReceiverBackendFlag:
-		return "sns&sqs"
-	case cli.SNSRegionFlag:
-		return "us-gov-west-1"
-	case cli.SNSAccountId:
-		return "12345"
-	case cli.SNSTagsUpdatedTopicFlag:
-		return "fake_sns_topic"
-	}
-	return ""
-}
-func (_m *Viper) SetEnvKeyReplacer(_ *strings.Replacer) {}
-
-// mock - SNS
-type MockSnsClient struct {
-	mock.Mock
-}
-
-func (_m *MockSnsClient) Subscribe(ctx context.Context, params *sns.SubscribeInput, optFns ...func(*sns.Options)) (*sns.SubscribeOutput, error) {
-	return &sns.SubscribeOutput{SubscriptionArn: aws.String("FakeSubscriptionArn")}, nil
-}
-
-func (_m *MockSnsClient) Unsubscribe(ctx context.Context, params *sns.UnsubscribeInput, optFns ...func(*sns.Options)) (*sns.UnsubscribeOutput, error) {
-	return &sns.UnsubscribeOutput{}, nil
-}
-
-func (_m *MockSnsClient) ListSubscriptionsByTopic(context.Context, *sns.ListSubscriptionsByTopicInput, ...func(*sns.Options)) (*sns.ListSubscriptionsByTopicOutput, error) {
-	return &sns.ListSubscriptionsByTopicOutput{}, nil
-}
-
-// mock - SQS
-type MockSqsClient struct {
-	mock.Mock
-}
-
-func (_m *MockSqsClient) CreateQueue(ctx context.Context, params *sqs.CreateQueueInput, optFns ...func(*sqs.Options)) (*sqs.CreateQueueOutput, error) {
-	return &sqs.CreateQueueOutput{
-		QueueUrl: aws.String("FakeQueueUrl"),
-	}, nil
-}
-func (_m *MockSqsClient) ReceiveMessage(ctx context.Context, params *sqs.ReceiveMessageInput, optFns ...func(*sqs.Options)) (*sqs.ReceiveMessageOutput, error) {
-	messages := make([]types.Message, 0)
-	messages = append(messages, types.Message{
-		MessageId: aws.String("fakeMessageId"),
-		Body:      aws.String(*params.QueueUrl + ":fakeMessageBody"),
-	})
-	return &sqs.ReceiveMessageOutput{
-		Messages: messages,
-	}, nil
-}
-func (_m *MockSqsClient) DeleteQueue(ctx context.Context, params *sqs.DeleteQueueInput, optFns ...func(*sqs.Options)) (*sqs.DeleteQueueOutput, error) {
-	return &sqs.DeleteQueueOutput{}, nil
-}
-
-func (_m *MockSqsClient) ListQueues(ctx context.Context, params *sqs.ListQueuesInput, optFns ...func(*sqs.Options)) (*sqs.ListQueuesOutput, error) {
-	return &sqs.ListQueuesOutput{}, nil
-}
-
 func (suite *notificationReceiverSuite) TestSuccessPath() {
 
 	suite.Run("local backend - notification receiver stub", func() {
-		v := viper.New()
-		localReceiver, err := InitReceiver(v, suite.Logger(), true)
+		// Setup mocks
+		mockedViper := mocks.ViperType{}
+		mockedViper.On("GetString", cli.ReceiverBackendFlag).Return("local")
+		mockedViper.On("GetString", cli.SNSRegionFlag).Return("us-gov-west-1")
+		mockedViper.On("GetString", cli.SNSAccountId).Return("12345")
+		mockedViper.On("GetString", cli.SNSTagsUpdatedTopicFlag).Return("fake_sns_topic")
+		localReceiver, err := InitReceiver(&mockedViper, suite.Logger(), true)
 
 		suite.NoError(err)
 		suite.IsType(StubNotificationReceiver{}, localReceiver)
@@ -130,9 +69,14 @@ func (suite *notificationReceiverSuite) TestSuccessPath() {
 	})
 
 	suite.Run("aws backend - notification receiver InitReceiver", func() {
-		v := Viper{}
+		// Setup mocks
+		mockedViper := mocks.ViperType{}
+		mockedViper.On("GetString", cli.ReceiverBackendFlag).Return("sns&sqs")
+		mockedViper.On("GetString", cli.SNSRegionFlag).Return("us-gov-west-1")
+		mockedViper.On("GetString", cli.SNSAccountId).Return("12345")
+		mockedViper.On("GetString", cli.SNSTagsUpdatedTopicFlag).Return("fake_sns_topic")
 
-		receiver, err := InitReceiver(&v, suite.Logger(), false)
+		receiver, err := InitReceiver(&mockedViper, suite.Logger(), false)
 
 		suite.NoError(err)
 		suite.IsType(NotificationReceiverContext{}, receiver)
@@ -142,11 +86,37 @@ func (suite *notificationReceiverSuite) TestSuccessPath() {
 	})
 
 	suite.Run("aws backend - notification receiver with mock services", func() {
-		v := Viper{}
-		snsService := MockSnsClient{}
-		sqsService := MockSqsClient{}
+		// Setup mocks
+		mockedViper := mocks.ViperType{}
+		mockedViper.On("GetString", cli.ReceiverBackendFlag).Return("sns&sqs")
+		mockedViper.On("GetString", cli.SNSRegionFlag).Return("us-gov-west-1")
+		mockedViper.On("GetString", cli.SNSAccountId).Return("12345")
+		mockedViper.On("GetString", cli.SNSTagsUpdatedTopicFlag).Return("fake_sns_topic")
 
-		receiver := NewNotificationReceiver(&v, &snsService, &sqsService, "", "")
+		mockedSns := mocks.SnsClient{}
+		mockedSns.On("Subscribe", mock.Anything, mock.AnythingOfType("*sns.SubscribeInput")).Return(&sns.SubscribeOutput{
+			SubscriptionArn: aws.String("FakeSubscriptionArn"),
+		}, nil)
+		mockedSns.On("Unsubscribe", mock.Anything, mock.AnythingOfType("*sns.UnsubscribeInput")).Return(&sns.UnsubscribeOutput{}, nil)
+		mockedSns.On("ListSubscriptionsByTopic", mock.Anything, mock.AnythingOfType("*sns.ListSubscriptionsByTopicInput")).Return(&sns.ListSubscriptionsByTopicOutput{}, nil)
+
+		mockedSqs := mocks.SqsClient{}
+		mockedSqs.On("CreateQueue", mock.Anything, mock.AnythingOfType("*sqs.CreateQueueInput")).Return(&sqs.CreateQueueOutput{
+			QueueUrl: aws.String("fakeQueueUrl"),
+		}, nil)
+		mockedSqs.On("ReceiveMessage", mock.Anything, mock.AnythingOfType("*sqs.ReceiveMessageInput")).Return(&sqs.ReceiveMessageOutput{
+			Messages: []types.Message{
+				{
+					MessageId: aws.String("fakeMessageId"),
+					Body:      aws.String("fakeQueueUrl:fakeMessageBody"),
+				},
+			},
+		}, nil)
+		mockedSqs.On("DeleteQueue", mock.Anything, mock.AnythingOfType("*sqs.DeleteQueueInput")).Return(&sqs.DeleteQueueOutput{}, nil)
+		mockedSqs.On("ListQueues", mock.Anything, mock.AnythingOfType("*sqs.ListQueuesInput")).Return(&sqs.ListQueuesOutput{}, nil)
+
+		// Run test
+		receiver := NewNotificationReceiver(&mockedViper, &mockedSns, &mockedSqs, "", "")
 		suite.IsType(NotificationReceiverContext{}, receiver)
 
 		defaultTopic, err := receiver.GetDefaultTopic()
@@ -158,7 +128,7 @@ func (suite *notificationReceiverSuite) TestSuccessPath() {
 		}
 		createdQueueUrl, err := receiver.CreateQueueWithSubscription(suite.AppContextForTest(), queueParams)
 		suite.NoError(err)
-		suite.Equal("FakeQueueUrl", createdQueueUrl)
+		suite.Equal("fakeQueueUrl", createdQueueUrl)
 
 		timerContext, cancelTimerContext := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancelTimerContext()
