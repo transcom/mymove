@@ -259,16 +259,19 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 			}
 
+			var weightRestriction *int
 			entitlement := models.Entitlement{
-				DependentsAuthorized:    payload.HasDependents,
-				DBAuthorizedWeight:      models.IntPointer(weight),
-				StorageInTransit:        models.IntPointer(sitDaysAllowance),
-				ProGearWeight:           weightAllotment.ProGearWeight,
-				ProGearWeightSpouse:     weightAllotment.ProGearWeightSpouse,
-				AccompaniedTour:         payload.AccompaniedTour,
-				DependentsUnderTwelve:   dependentsUnderTwelve,
-				DependentsTwelveAndOver: dependentsTwelveAndOver,
-				UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
+				DependentsAuthorized:          payload.HasDependents,
+				DBAuthorizedWeight:            models.IntPointer(weight),
+				StorageInTransit:              models.IntPointer(sitDaysAllowance),
+				ProGearWeight:                 weightAllotment.ProGearWeight,
+				ProGearWeightSpouse:           weightAllotment.ProGearWeightSpouse,
+				AccompaniedTour:               payload.AccompaniedTour,
+				DependentsUnderTwelve:         dependentsUnderTwelve,
+				DependentsTwelveAndOver:       dependentsTwelveAndOver,
+				UBAllowance:                   &weightAllotment.UnaccompaniedBaggageAllowance,
+				AdminRestrictedWeightLocation: models.BoolPointer(false),
+				WeightRestriction:             weightRestriction,
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {

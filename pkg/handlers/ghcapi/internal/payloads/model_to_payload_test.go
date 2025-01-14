@@ -464,6 +464,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		DependentsTwelveAndOver:        &dependentsTwelveAndOver,
 		UpdatedAt:                      time.Now(),
 		UBAllowance:                    &ubAllowance,
+		AdminRestrictedWeightLocation:  models.BoolPointer(false),
 	}
 
 	returnedEntitlement := Entitlement(entitlement)
