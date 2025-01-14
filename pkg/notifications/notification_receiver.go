@@ -111,11 +111,22 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 			"Resource": "%s",
 			"Condition": {
 				"ArnEquals": {
-				"aws:SourceArn": "%s"
+					"aws:SourceArn": "%s"
 				}
       		}
+		}, {
+			"Sid": "DenyNonSSLAccess",
+			"Effect": "Deny",
+			"Principal": "*",
+			"Action": "sqs:*",
+			"Resource": "%s",
+			"Condition": {
+				"Bool": {
+					"aws:SecureTransport": "false"
+				}
+			}
 		}]
-	}`, queueArn, topicArn)
+	}`, queueArn, topicArn, queueArn)
 
 	input := &sqs.CreateQueueInput{
 		QueueName: &queueName,
