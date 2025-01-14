@@ -184,7 +184,7 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+			ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
 			ApprovedDate:         models.TimePointer(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
 		}
@@ -421,7 +421,7 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 	suite.Run("Successful creation of NTSShipment", func() {
 		ntsShipment := BuildNTSShipment(suite.DB(), nil, nil)
 
-		suite.Equal(models.MTOShipmentTypeHHGIntoNTSDom, ntsShipment.ShipmentType)
+		suite.Equal(models.MTOShipmentTypeHHGIntoNTS, ntsShipment.ShipmentType)
 		suite.False(ntsShipment.MoveTaskOrderID.IsNil())
 		suite.False(ntsShipment.MoveTaskOrder.ID.IsNil())
 

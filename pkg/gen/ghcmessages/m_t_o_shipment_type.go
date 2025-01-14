@@ -34,8 +34,8 @@ const (
 	// MTOShipmentTypeHHG captures enum value "HHG"
 	MTOShipmentTypeHHG MTOShipmentType = "HHG"
 
-	// MTOShipmentTypeHHGINTONTSDOMESTIC captures enum value "HHG_INTO_NTS_DOMESTIC"
-	MTOShipmentTypeHHGINTONTSDOMESTIC MTOShipmentType = "HHG_INTO_NTS_DOMESTIC"
+	// MTOShipmentTypeHHGINTONTS captures enum value "HHG_INTO_NTS"
+	MTOShipmentTypeHHGINTONTS MTOShipmentType = "HHG_INTO_NTS"
 
 	// MTOShipmentTypeHHGOUTOFNTSDOMESTIC captures enum value "HHG_OUTOF_NTS_DOMESTIC"
 	MTOShipmentTypeHHGOUTOFNTSDOMESTIC MTOShipmentType = "HHG_OUTOF_NTS_DOMESTIC"
@@ -61,7 +61,7 @@ var mTOShipmentTypeEnum []interface{}
 
 func init() {
 	var res []MTOShipmentType
-	if err := json.Unmarshal([]byte(`["HHG","HHG_INTO_NTS_DOMESTIC","HHG_OUTOF_NTS_DOMESTIC","PPM","BOAT_HAUL_AWAY","BOAT_TOW_AWAY","MOBILE_HOME","UNACCOMPANIED_BAGGAGE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["HHG","HHG_INTO_NTS","HHG_OUTOF_NTS_DOMESTIC","PPM","BOAT_HAUL_AWAY","BOAT_TOW_AWAY","MOBILE_HOME","UNACCOMPANIED_BAGGAGE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

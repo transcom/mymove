@@ -22,7 +22,7 @@ func (r EIAFuelPriceLookup) lookup(appCtx appcontext.AppContext, _ *ServiceItemP
 	// Make sure there is an actual pickup date since ActualPickupDate is nullable
 	actualPickupDate := r.MTOShipment.ActualPickupDate
 	if actualPickupDate == nil {
-		return "", fmt.Errorf("not found looking for pickup address")
+		return "", fmt.Errorf("not found looking for shipment pickup date")
 	}
 
 	// Find the GHCDieselFuelPrice object effective before the shipment's ActualPickupDate and ends after the ActualPickupDate
