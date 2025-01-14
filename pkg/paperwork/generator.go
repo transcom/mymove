@@ -9,6 +9,7 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -103,6 +104,7 @@ func isDirMutable(path string) bool {
 	testFile := filepath.Join(path, "tmp")
 	file, err := os.Create(testFile)
 	if err != nil {
+		log.Printf("isDirMutable: failed for %s: %v\n", path, err)
 		return false
 	}
 	file.Close()
