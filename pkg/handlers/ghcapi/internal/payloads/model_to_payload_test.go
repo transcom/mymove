@@ -39,16 +39,29 @@ func (suite *PayloadsSuite) TestOrderWithMove() {
 }
 
 func (suite *PayloadsSuite) TestBoatShipment() {
-	boat := factory.BuildBoatShipment(suite.DB(), nil, nil)
-	boatShipment := BoatShipment(nil, &boat)
-	suite.NotNil(boatShipment)
+	suite.Run("Test Boat Shipment", func() {
+		boat := factory.BuildBoatShipment(suite.DB(), nil, nil)
+		boatShipment := BoatShipment(nil, &boat)
+		suite.NotNil(boatShipment)
+	})
 
+	suite.Run("Test Boat Shipment", func() {
+		boatShipment := BoatShipment(nil, nil)
+		suite.Nil(boatShipment)
+	})
 }
 
 func (suite *PayloadsSuite) TestMobileHomeShipment() {
-	mobileHome := factory.BuildMobileHomeShipment(suite.DB(), nil, nil)
-	mobileHomeShipment := MobileHomeShipment(nil, &mobileHome)
-	suite.NotNil(mobileHomeShipment)
+	suite.Run("Test Mobile Home Shipment", func() {
+		mobileHome := factory.BuildMobileHomeShipment(suite.DB(), nil, nil)
+		mobileHomeShipment := MobileHomeShipment(nil, &mobileHome)
+		suite.NotNil(mobileHomeShipment)
+	})
+
+	suite.Run("Test Mobile Home Shipment With Nil", func() {
+		mobileHomeShipment := MobileHomeShipment(nil, nil)
+		suite.NotNil(mobileHomeShipment)
+	})
 }
 
 func (suite *PayloadsSuite) TestMovingExpense() {
