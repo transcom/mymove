@@ -60,8 +60,8 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 		ProGearWeightSpouse:                          proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight:               rmeWeight,
 		OrganizationalClothingAndIndividualEquipment: ocie,
-		AdminRestrictedWeightLocation:                *setBoolPtr(&cEntitlement.AdminRestrictedWeightLocation, false),
-		WeightRestriction:                            weightRestriction,
+		AdminRestrictedWeightLocation:                setBoolPtr(cEntitlement.AdminRestrictedWeightLocation, false),
+		WeightRestriction:                            &weightRestriction,
 	}
 	// Set default calculated values
 	entitlement.SetWeightAllotment(string(*grade), ordersType)
