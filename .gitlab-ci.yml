@@ -31,13 +31,13 @@ variables:
   DP3_ENV: &dp3_env demo
 
   # Specify the branch to deploy TODO: this might be not needed. So far useless
-  DP3_BRANCH: &dp3_branch B-22106-AddIntegrationTesting
+  DP3_BRANCH: &dp3_branch placeholder_branch_name
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-22106-AddIntegrationTesting
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-22106-AddIntegrationTesting
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
   CLIENT_IGNORE_BRANCH: &client_ignore_branch B-22106-AddIntegrationTesting
-  SERVER_IGNORE_BRANCH: &server_ignore_branch B-22106-AddIntegrationTesting
+  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
 
   #RUNNER_TAG: &runner_tag milmove
   RUNNER_TAG: &runner_tag milmove
@@ -84,12 +84,10 @@ stages:
   - |
     if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
       export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
-      echo ${ENV}
       export AWS_DEFAULT_REGION=$(eval echo \$${ENV^^}_REGION);
       export AWS_ACCOUNT_ID=$(eval echo \$${ENV^^}_ACCOUNT_ID);
       export AWS_ACCESS_KEY_ID=$(eval echo \$${ENV^^}_ACCESS_KEY_ID);
       export AWS_SECRET_ACCESS_KEY=$(eval echo \$${ENV^^}_SECRET_ACCESS_KEY);
-      echo ${AWS_ACCOUNT_ID}
     fi
 
 .setup_release_dp3: &setup_release_dp3
@@ -102,8 +100,6 @@ stages:
       export APP_DOCKER_FILE=Dockerfile.dp3
       export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
       export APP_ENVIRONMENT=$ENV
-      echo ecr-repo: ${ECR_REPOSITORY_URI}
-      echo app_release: ${APP_ENVIRONMENT}
     fi
 
 .setup_aws_vars_stg: &setup_aws_vars_stg
@@ -137,7 +133,6 @@ stages:
   - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
   #TODO: update demo to stg
   - export APP_ENVIRONMENT=demo
-  - echo ${ECR_REPOSITORY_URI}
 
 .setup_release_prd: &setup_release_prd
   #build off prd variables
@@ -146,7 +141,6 @@ stages:
   - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
   #TODO: update exp to prod
   - export APP_ENVIRONMENT=exp
-  - echo ${ECR_REPOSITORY_URI}
 
 .kaniko_before_setup: &kaniko_before_setup
   # prep login for kaniko
