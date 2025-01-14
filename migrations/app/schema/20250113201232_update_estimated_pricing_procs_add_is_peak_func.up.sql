@@ -4,6 +4,9 @@ DECLARE
     peak_start DATE := MAKE_DATE(EXTRACT(YEAR FROM input_date)::INT, 5, 15); -- May 15th of the input year
     peak_end DATE := MAKE_DATE(EXTRACT(YEAR FROM input_date)::INT, 9, 30);   -- September 30th of the input year
 BEGIN
+    IF input_date IS NULL THEN
+        RAISE EXCEPTION 'Input date cannot be NULL';
+    END IF;
     -- if the input date is between May 15 and September 30 (inclusive), return true
     IF input_date BETWEEN peak_start AND peak_end THEN
         RETURN TRUE;
