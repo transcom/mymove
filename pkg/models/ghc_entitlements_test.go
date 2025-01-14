@@ -7,7 +7,9 @@ import (
 
 func (suite *ModelSuite) TestAuthorizedWeightWhenExistsInDB() {
 	aw := 3000
+
 	entitlement := models.Entitlement{DBAuthorizedWeight: &aw}
+	entitlement.AdminRestrictedWeightLocation = models.BoolPointer(false)
 	err := suite.DB().Create(&entitlement)
 	suite.NoError(err)
 
@@ -92,8 +94,9 @@ func (suite *ModelSuite) TestOconusFields() {
 func (suite *ModelSuite) TestTotalDependentsCalculation() {
 	suite.Run("calculates total dependents correctly when both fields are set", func() {
 		entitlement := models.Entitlement{
-			DependentsUnderTwelve:   models.IntPointer(2),
-			DependentsTwelveAndOver: models.IntPointer(3),
+			DependentsUnderTwelve:         models.IntPointer(2),
+			DependentsTwelveAndOver:       models.IntPointer(3),
+			AdminRestrictedWeightLocation: models.BoolPointer(false),
 		}
 		verrs, err := suite.DB().ValidateAndCreate(&entitlement)
 		suite.NoError(err)
@@ -108,7 +111,8 @@ func (suite *ModelSuite) TestTotalDependentsCalculation() {
 	})
 	suite.Run("calculates total dependents correctly when DependentsUnderTwelve is nil", func() {
 		entitlement := models.Entitlement{
-			DependentsTwelveAndOver: models.IntPointer(3),
+			DependentsTwelveAndOver:       models.IntPointer(3),
+			AdminRestrictedWeightLocation: models.BoolPointer(false),
 		}
 		verrs, err := suite.DB().ValidateAndCreate(&entitlement)
 		suite.NoError(err)
@@ -123,7 +127,8 @@ func (suite *ModelSuite) TestTotalDependentsCalculation() {
 	})
 	suite.Run("calculates total dependents correctly when DependentsTwelveAndOver is nil", func() {
 		entitlement := models.Entitlement{
-			DependentsUnderTwelve: models.IntPointer(2),
+			DependentsUnderTwelve:         models.IntPointer(2),
+			AdminRestrictedWeightLocation: models.BoolPointer(false),
 		}
 		verrs, err := suite.DB().ValidateAndCreate(&entitlement)
 		suite.NoError(err)
@@ -138,8 +143,9 @@ func (suite *ModelSuite) TestTotalDependentsCalculation() {
 	})
 	suite.Run("sets total dependents to nil when both fields are nil", func() {
 		entitlement := models.Entitlement{
-			DependentsUnderTwelve:   nil,
-			DependentsTwelveAndOver: nil,
+			DependentsUnderTwelve:         nil,
+			DependentsTwelveAndOver:       nil,
+			AdminRestrictedWeightLocation: models.BoolPointer(false),
 		}
 		verrs, err := suite.DB().ValidateAndCreate(&entitlement)
 		suite.NoError(err)
