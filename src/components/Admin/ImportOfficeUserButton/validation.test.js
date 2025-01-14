@@ -98,7 +98,7 @@ describe('parsePrivileges', () => {
     expect(privilegesArray).toEqual(expect.arrayContaining([supervisorPrivilege, safetyPrivilege]));
   });
 
-  it('fail: throws an error if there is an invalid role', () => {
+  it('fail: throws an error if there is an invalid privilege', () => {
     function parseInvalidPrivileges() {
       parsePrivileges('test_privilege');
     }
