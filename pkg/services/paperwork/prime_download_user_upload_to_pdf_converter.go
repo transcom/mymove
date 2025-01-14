@@ -117,7 +117,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 
 // Build orderUploadDocType for document
 func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppContext, uploadDocType services.MoveOrderUploadType, documentID uuid.UUID) (*pdfBatchInfo, error) {
-	document, err := models.FetchDocumentWithNoRestrictions(appCtx.DB(), appCtx.Session(), documentID, false)
+	document, err := models.FetchDocumentWithNoRestrictions(appCtx.DB(), appCtx.Session(), documentID)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("error fetching document domain by id: %s", documentID))
 	}
