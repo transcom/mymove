@@ -1,0 +1,22 @@
+.BulkModal {
+  min-width: 900px !important;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.BulkAssignmentTable {
+
+  table {
+    th {
+      max-width: 10px;
+      text-align: center;
+    }
+    .BulkAssignmentDataCenter {
+      text-align: center;
+    }
+    .BulkAssignmentAssignment {
+        width: 60px;
+        text-align: center;
+    }
+  }
+}

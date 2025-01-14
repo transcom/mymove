@@ -7,7 +7,12 @@ import styles from './PaymentRequestQueue.module.scss';
 
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
-import { usePaymentRequestQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
+import {
+  usePaymentRequestQueueQueries,
+  useUserQueries,
+  useMoveSearchQueries,
+  useBulkAssignmentQueries,
+} from 'hooks/queries';
 import { getPaymentRequestsQueue } from 'services/ghcApi';
 import { createHeader } from 'components/Table/utils';
 import {
@@ -160,7 +165,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
           ) : (
             <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol} key={row.id}>
               <Dropdown
-                defaultValue={row.assignedTo?.officeUserId}
+                key={row.id}
                 onChange={(e) => {
                   handleQueueAssignment(row.moveID, e.target.value, roleTypes.TIO);
                 }}
@@ -169,7 +174,11 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
                 {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => {
                   return (
-                    <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                    <option
+                      value={officeUserId}
+                      key={officeUserId}
+                      selected={row.assignedTo?.officeUserId === officeUserId}
+                    >
                       {`${lastName}, ${firstName}`}
                     </option>
                   );
@@ -197,6 +206,7 @@ const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBul
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
+  const { bulkAssignmentData } = useBulkAssignmentQueries('PAYMENT_REQUEST');
   const supervisor = userPrivileges
     ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
     : false;
@@ -334,6 +344,7 @@ const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBul
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          bulkAssignmentData={bulkAssignmentData}
         />
       </div>
     );

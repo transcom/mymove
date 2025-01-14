@@ -26,6 +26,7 @@ import {
   useUserQueries,
   useMoveSearchQueries,
   useCustomerSearchQueries,
+  useBulkAssignmentQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingOriginLocations,
@@ -202,15 +203,19 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
           return !row?.assignable ? (
             <div>{row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}</div>
           ) : (
-            <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
+            <div data-label="assignedSelect" className={styles.assignedToCol}>
               <Dropdown
-                defaultValue={row.assignedTo?.officeUserId}
+                key={row.id}
                 onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
                 {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
-                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                  <option
+                    value={officeUserId}
+                    key={officeUserId}
+                    selected={row.assignedTo?.officeUserId === officeUserId}
+                  >
                     {`${lastName}, ${firstName}`}
                   </option>
                 ))}
@@ -453,6 +458,8 @@ const ServicesCounselingQueue = ({
     officeUser?.transportation_office_assignments?.length > 1 && gblocContext
       ? gblocContext
       : { selectedGbloc: undefined };
+  const { closeoutBulkAssignmentData } = useBulkAssignmentQueries('CLOSEOUT');
+  const { counselingBulkAssignmentData } = useBulkAssignmentQueries('COUNSELING');
 
   // Feature Flag
   useEffect(() => {
@@ -670,6 +677,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          bulkAssignmentData={closeoutBulkAssignmentData}
         />
       </div>
     );
@@ -699,6 +707,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          bulkAssignmentData={counselingBulkAssignmentData}
         />
       </div>
     );
