@@ -450,9 +450,9 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.NotNil(ntsShipment.PrimeActualWeight)
 		suite.Nil(ntsShipment.StorageFacility)
 		suite.NotNil(ntsShipment.ScheduledPickupDate)
-		suite.Nil(ntsShipment.RequestedDeliveryDate)
+		suite.NotNil(ntsShipment.RequestedDeliveryDate)
 		suite.Nil(ntsShipment.ActualDeliveryDate)
-		suite.Nil(ntsShipment.ScheduledDeliveryDate)
+		suite.NotNil(ntsShipment.ScheduledDeliveryDate)
 	})
 
 	suite.Run("Successful creation of NTSShipment with storage facility", func() {
