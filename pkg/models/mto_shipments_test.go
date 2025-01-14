@@ -362,7 +362,7 @@ func (suite *ModelSuite) TestCreateInternationalAccessorialServiceItemsForShipme
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDDSHUT,
+					Code: models.ReServiceCodeIDSHUT,
 				},
 			},
 		}, nil)
