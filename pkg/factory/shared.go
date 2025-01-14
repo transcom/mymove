@@ -80,6 +80,8 @@ var PrimeUpload CustomType = "PrimeUpload"
 var ProgearWeightTicket CustomType = "ProgearWeightTicket"
 var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
+var ReDomesticOtherPrice CustomType = "ReDomesticOtherPrice"
+var ReDomesticServiceAreaPrice CustomType = "ReDomesticServiceAreaPrice"
 var Role CustomType = "Role"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceParam CustomType = "ServiceParam"
@@ -146,6 +148,8 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ProgearWeightTicket":                      ProgearWeightTicket,
 	"models.ProofOfServiceDoc":                        ProofOfServiceDoc,
 	"models.ReService":                                ReService,
+	"models.ReDomesticOtherPrice":                     ReDomesticOtherPrice,
+	"models.ReDomesticServiceAreaPrice":               ReDomesticServiceAreaPrice,
 	"models.ServiceItemParamKey":                      ServiceItemParamKey,
 	"models.ServiceMember":                            ServiceMember,
 	"models.ServiceRequestDocument":                   ServiceRequestDocument,
@@ -258,6 +262,7 @@ type transportationOfficeGroup struct {
 	OriginDutyLocation CustomType
 	NewDutyLocation    CustomType
 	CloseoutOffice     CustomType
+	CounselingOffice   CustomType
 }
 
 // TransportationOffices is the struct to access the fields externally
@@ -265,6 +270,19 @@ var TransportationOffices = transportationOfficeGroup{
 	OriginDutyLocation: "OriginDutyLocationTransportationOffice",
 	NewDutyLocation:    "NewDutyLocationTransportationOffice",
 	CloseoutOffice:     "CloseoutOffice",
+	CounselingOffice:   "CounselingOffice",
+}
+
+type officeUserGroup struct {
+	SCAssignedUser  CustomType
+	TIOAssignedUser CustomType
+	TOOAssignedUser CustomType
+}
+
+var OfficeUsers = officeUserGroup{
+	SCAssignedUser:  "SCAssignedUser",
+	TIOAssignedUser: "TIOAssignedUser",
+	TOOAssignedUser: "TOOAssignedUser",
 }
 
 // uploadGroup is a grouping of all the upload related fields

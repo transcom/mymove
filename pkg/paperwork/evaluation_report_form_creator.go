@@ -356,7 +356,7 @@ func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) e
 		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
 			leftAddressLabel = vals.StorageFacilityName
 			rightAddressLabel = "DELIVERY ADDRESS"
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS {
 			leftAddressLabel = "PICKUP ADDRESS"
 			rightAddressLabel = vals.StorageFacilityName
 		}
@@ -608,7 +608,7 @@ func (f *EvaluationReportFormFiller) sideBySideAddress(gap float64, leftAddressX
 func (f *EvaluationReportFormFiller) formatShipmentType(shipmentType models.MTOShipmentType) string {
 	if shipmentType == models.MTOShipmentTypePPM {
 		return "PPM"
-	} else if shipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+	} else if shipmentType == models.MTOShipmentTypeHHGIntoNTS {
 		return "NTS"
 	} else if shipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
 		return "NTS-R"
