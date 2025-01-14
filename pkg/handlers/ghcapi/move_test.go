@@ -639,7 +639,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		// Get destination postal code and GBLOC based on business logic
-		moveDestinationAddress, err = move.GetDestinationAddress(suite.DB())
+		moveDestinationAddress, err = moveWithShipment.GetDestinationAddress(suite.DB())
 		suite.NoError(err)
 		moveDestinationGBLOC, err = moveWithShipment.GetDestinationGBLOC(suite.DB())
 		suite.NoError(err)
@@ -676,7 +676,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		// Get destination postal code and GBLOC based on business logic
-		moveDestinationAddress, err = move.GetDestinationAddress(suite.DB())
+		moveDestinationAddress, err = moveWithShipmentPPM.GetDestinationAddress(suite.DB())
 		suite.NoError(err)
 		moveDestinationGBLOC, err = moveWithShipmentPPM.GetDestinationGBLOC(suite.DB())
 		suite.NoError(err)
