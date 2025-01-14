@@ -5935,7 +5935,8 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment"
+          "shipment",
+          "shipment_address_updates"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
@@ -7252,6 +7253,11 @@ func init() {
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "hasDependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?",
+          "x-nullable": true
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -23019,7 +23025,8 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment"
+          "shipment",
+          "shipment_address_updates"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
@@ -24488,6 +24495,11 @@ func init() {
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "hasDependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?",
+          "x-nullable": true
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",

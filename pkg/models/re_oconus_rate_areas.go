@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 )
 
@@ -18,4 +19,17 @@ type OconusRateArea struct {
 
 func (o OconusRateArea) TableName() string {
 	return "re_oconus_rate_areas"
+}
+
+func FetchOconusRateArea(db *pop.Connection, zip string) (*OconusRateArea, error) {
+	var reOconusRateArea OconusRateArea
+	err := db.Q().
+		InnerJoin("re_rate_areas ra", "re_oconus_rate_areas.rate_area_id = ra.id").
+		InnerJoin("us_post_region_cities upc", "upc.id = re_oconus_rate_areas.us_post_region_cities_id").
+		Where("upc.uspr_zip_id = ?", zip).
+		First(&reOconusRateArea)
+	if err != nil {
+		return nil, err
+	}
+	return &reOconusRateArea, nil
 }

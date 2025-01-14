@@ -1429,8 +1429,8 @@ paths:
           $ref: "#/responses/ServerError"
       tags:
         - shipment
-      description:
-        This endpoint is used to approve a address update request. Office remarks are required.
+        - shipment_address_updates
+      description: This endpoint is used to approve a address update request. Office remarks are required.
         Approving the address update will update the Destination Final Address of the associated service item
       operationId: reviewShipmentAddressUpdate
       summary: Allows TOO to review a shipment address update
@@ -5893,7 +5893,11 @@ definitions:
         example: "N002214CSW32Y9"
         $ref: definitions/NullableString.yaml
       grade:
-        $ref: "#/definitions/Grade"
+        $ref: '#/definitions/Grade'
+      hasDependents:
+        type: boolean
+        title: Are dependents included in your orders?
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
