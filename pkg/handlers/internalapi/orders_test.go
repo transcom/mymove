@@ -817,8 +817,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			}}, nil)
 
 		newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-		newTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-		newDutyLocation.TransportationOffice = newTransportationOffice
 
 		newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 		newOrdersNumber := "123456"
