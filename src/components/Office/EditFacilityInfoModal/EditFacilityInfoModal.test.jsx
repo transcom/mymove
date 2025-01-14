@@ -45,7 +45,7 @@ describe('EditFacilityInfoModal', () => {
           onSubmit={mockOnSubmit}
           storageFacility={storageFacility}
           serviceOrderNumber="12345"
-          shipmentType="HHG_INTO_NTS_DOMESTIC"
+          shipmentType="HHG_INTO_NTS"
         />
       </Provider>,
     );
@@ -68,7 +68,7 @@ describe('EditFacilityInfoModal', () => {
           onSubmit={mockOnSubmit}
           storageFacility={incompleteStorageFacility}
           serviceOrderNumber="12345"
-          shipmentType="HHG_INTO_NTS_DOMESTIC"
+          shipmentType="HHG_INTO_NTS"
         />
       </Provider>,
     );
@@ -92,7 +92,7 @@ describe('EditFacilityInfoModal', () => {
           onSubmit={() => {}}
           storageFacility={incompleteStorageFacility}
           serviceOrderNumber="12345"
-          shipmentType="HHG_INTO_NTS_DOMESTIC"
+          shipmentType="HHG_INTO_NTS"
         />
       </Provider>,
     );
@@ -112,7 +112,7 @@ describe('EditFacilityInfoModal', () => {
           onSubmit={() => {}}
           storageFacility={storageFacility}
           serviceOrderNumber="12345"
-          shipmentType="HHG_INTO_NTS_DOMESTIC"
+          shipmentType="HHG_INTO_NTS"
         />
       </Provider>,
     );

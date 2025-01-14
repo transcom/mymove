@@ -104,7 +104,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 }
 
 func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
-	suite.Run("test MTOShipmentTypeHHGIntoNTSDom with domestic pickup and storage facility", func() {
+	suite.Run("test MTOShipmentTypeHHGIntoNTS with domestic pickup and storage facility", func() {
 		pickupAddress := models.Address{
 			IsOconus: models.BoolPointer(false),
 		}
@@ -112,7 +112,7 @@ func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
 			IsOconus: models.BoolPointer(false),
 		}
 		shipment := &models.MTOShipment{
-			ShipmentType:  models.MTOShipmentTypeHHGIntoNTSDom,
+			ShipmentType:  models.MTOShipmentTypeHHGIntoNTS,
 			PickupAddress: &pickupAddress,
 			StorageFacility: &models.StorageFacility{
 				Address: storageAddress,
@@ -123,12 +123,12 @@ func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
 		suite.Equal(models.MarketCodeDomestic, updatedShipment.MarketCode, "Expected MarketCode to be d")
 	})
 
-	suite.Run("test MTOShipmentTypeHHGIntoNTSDom with international pickup", func() {
+	suite.Run("test MTOShipmentTypeHHGIntoNTS with international pickup", func() {
 		pickupAddress := models.Address{
 			IsOconus: models.BoolPointer(true),
 		}
 		shipment := &models.MTOShipment{
-			ShipmentType:  models.MTOShipmentTypeHHGIntoNTSDom,
+			ShipmentType:  models.MTOShipmentTypeHHGIntoNTS,
 			PickupAddress: &pickupAddress,
 		}
 
@@ -322,55 +322,6 @@ func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 
 		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &invalidShipment)
 		suite.Error(err)
-	})
-}
-
-func (suite *ModelSuite) TestCreateInternationalAccessorialServiceItemsForShipment() {
-	suite.Run("test creating accessorial service items for shipment", func() {
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-
-				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "CA",
-					PostalCode:     "90210",
-					IsOconus:       models.BoolPointer(false),
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.MTOShipment{
-					MarketCode: "i",
-				},
-			},
-			{
-				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       models.BoolPointer(true),
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, nil)
-
-		ioshutServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeIOSHUT,
-				},
-			},
-		}, nil)
-
-		mtoServiceItems, err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), shipment.ID, models.MTOServiceItems{ioshutServiceItem})
-		suite.NoError(err)
-		suite.NotNil(mtoServiceItems)
 	})
 }
 
