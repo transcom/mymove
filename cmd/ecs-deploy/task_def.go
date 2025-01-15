@@ -628,7 +628,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 					{
 						ContainerPath: aws.String("/tmpfs"),
 						Size:          512,
-						MountOptions:  []string{"mode=0700", "rw", "nosuid"},
+						MountOptions:  []string{"modemode=0700", "rw", "nosuid"},
 					},
 				},
 			}
