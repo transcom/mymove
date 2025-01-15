@@ -68,7 +68,24 @@ func (f *excessWeightRiskManager) AcknowledgeExcessWeightRisk(appCtx appcontext.
 		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	return f.acknowledgeRiskAndApproveMove(appCtx, *order)
+	return f.acknowledgeRiskAndApproveMove(appCtx, *order, false)
+}
+
+// AcknowledgeExcessUnaccompaniedBaggageWeightRisk records the date and time the TOO dismissed the excess unaccompanied baggage weight risk notification
+func (f *excessWeightRiskManager) AcknowledgeExcessUnaccompaniedBaggageWeightRisk(appCtx appcontext.AppContext, orderID uuid.UUID, eTag string) (*models.Move, error) {
+	order, err := f.findOrder(appCtx, orderID)
+	if err != nil {
+		return &models.Move{}, err
+	}
+
+	move := order.Moves[0]
+
+	existingETag := etag.GenerateEtag(move.UpdatedAt)
+	if existingETag != eTag {
+		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	}
+
+	return f.acknowledgeRiskAndApproveMove(appCtx, *order, true)
 }
 
 func (f *excessWeightRiskManager) findOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
@@ -87,12 +104,12 @@ func (f *excessWeightRiskManager) findOrder(appCtx appcontext.AppContext, orderI
 	return &order, nil
 }
 
-func (f *excessWeightRiskManager) acknowledgeRiskAndApproveMove(appCtx appcontext.AppContext, order models.Order) (*models.Move, error) {
+func (f *excessWeightRiskManager) acknowledgeRiskAndApproveMove(appCtx appcontext.AppContext, order models.Order, isAcknowledgingUbExcessWeightRisk bool) (*models.Move, error) {
 	move := order.Moves[0]
 	var returnedMove *models.Move
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		updatedMove, err := f.acknowledgeExcessWeight(txnAppCtx, move)
+		updatedMove, err := f.acknowledgeExcessWeight(txnAppCtx, move, isAcknowledgingUbExcessWeightRisk)
 		if err != nil {
 			return err
 		}
@@ -124,7 +141,10 @@ func (f *excessWeightRiskManager) updateBillableWeight(appCtx appcontext.AppCont
 			return err
 		}
 
-		updatedMove, err := f.acknowledgeExcessWeight(txnAppCtx, move)
+		// Acknowledge excess weight for the overall move
+		// unaccompanied baggage is never affected by billable weight updates as it is
+		// a separate, immutable allowance
+		updatedMove, err := f.acknowledgeExcessWeight(txnAppCtx, move, false)
 		if err != nil {
 			return err
 		}
@@ -161,7 +181,9 @@ func (f *excessWeightRiskManager) updateMaxBillableWeightWithTIORemarks(appCtx a
 			return err
 		}
 
-		updatedMove, err = f.acknowledgeExcessWeight(txnAppCtx, *updatedMove)
+		// Unaccompanied baggage is never affected by billable weight updates as it is
+		// a separate, immutable allowance
+		updatedMove, err = f.acknowledgeExcessWeight(txnAppCtx, *updatedMove, false)
 		if err != nil {
 			return err
 		}
@@ -199,16 +221,32 @@ func (f *excessWeightRiskManager) updateAuthorizedWeight(appCtx appcontext.AppCo
 	return f.handleError(order.ID, verrs, err)
 }
 
-func (f *excessWeightRiskManager) acknowledgeExcessWeight(appCtx appcontext.AppContext, move models.Move) (*models.Move, error) {
-	if !excessWeightRiskShouldBeAcknowledged(move) {
-		return &move, nil
-	}
-
-	now := time.Now()
-	move.ExcessWeightAcknowledgedAt = &now
-	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
-	if e := f.handleError(move.ID, verrs, err); e != nil {
-		return &move, e
+func (f *excessWeightRiskManager) acknowledgeExcessWeight(appCtx appcontext.AppContext, move models.Move, isAcknowledgingUbExcessWeightRisk bool) (*models.Move, error) {
+	// Separately handle whether the excess weight being acknowledged is for the entire move allowance or just the unaccompanied baggage allowance
+	if isAcknowledgingUbExcessWeightRisk {
+		// Make sure it should be acknowledgeable
+		if !excessUnaccompaniedBaggageWeightRiskShouldBeAcknowledged(move) {
+			return &move, nil
+		}
+		// Acknowledge it
+		now := time.Now()
+		move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt = &now
+		verrs, err := appCtx.DB().ValidateAndUpdate(&move)
+		if e := f.handleError(move.ID, verrs, err); e != nil {
+			return &move, e
+		}
+	} else {
+		// Make sure it should be acknowledgeable
+		if !excessWeightRiskShouldBeAcknowledged(move) {
+			return &move, nil
+		}
+		// Acknowledge it
+		now := time.Now()
+		move.ExcessWeightAcknowledgedAt = &now
+		verrs, err := appCtx.DB().ValidateAndUpdate(&move)
+		if e := f.handleError(move.ID, verrs, err); e != nil {
+			return &move, e
+		}
 	}
 
 	return &move, nil
@@ -227,4 +265,8 @@ func (f *excessWeightRiskManager) handleError(modelID uuid.UUID, verrs *validate
 
 func excessWeightRiskShouldBeAcknowledged(move models.Move) bool {
 	return move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil
+}
+
+func excessUnaccompaniedBaggageWeightRiskShouldBeAcknowledged(move models.Move) bool {
+	return move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt == nil
 }
