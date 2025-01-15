@@ -171,7 +171,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx ap
 
 	query := `SELECT
 					moves.id,
-					COALESCE(ppm_shipments.expected_departure_date, '9999-12-31') AS earliest_date
+					ppm_shipments.submitted_at AS earliest_date
 				FROM moves
 				INNER JOIN orders ON orders.id = moves.orders_id
 				INNER JOIN service_members ON service_members.id = orders.service_member_id
@@ -199,7 +199,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx ap
 
 	query += ` AND (ppm_shipments.status IN ($2))
 					AND (orders.orders_type NOT IN ($3, $4, $5))
-				GROUP BY moves.id, ppm_shipments.expected_departure_date
+				GROUP BY moves.id, ppm_shipments.submitted_at
 				ORDER BY earliest_date ASC`
 
 	err := appCtx.DB().RawQuery(query,
