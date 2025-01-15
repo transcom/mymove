@@ -252,7 +252,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 
-			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && mtoShipment.NTSRecordedWeight != nil {
+			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && mtoShipment.NTSRecordedWeight != nil {
 				previouslyRecordedWeight := *mtoShipment.NTSRecordedWeight
 				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
 			}
@@ -404,7 +404,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				}
 			}
 
-			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && mtoShipment.NTSRecordedWeight != nil {
+			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && mtoShipment.NTSRecordedWeight != nil {
 				previouslyRecordedWeight := *mtoShipment.NTSRecordedWeight
 				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
 			}

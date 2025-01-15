@@ -538,7 +538,7 @@ func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment mo
 	var ptrPickupAddress *models.Address
 	var addressType string
 	switch mtoShipment.ShipmentType {
-	case models.MTOShipmentTypeHHGOutOfNTSDom:
+	case models.MTOShipmentTypeHHGOutOfNTS:
 		addressType = "storage facility"
 		if mtoShipment.StorageFacility != nil {
 			ptrPickupAddress = &mtoShipment.StorageFacility.Address
