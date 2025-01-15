@@ -2416,7 +2416,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 	factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 			},
 		},
 	}, nil)
