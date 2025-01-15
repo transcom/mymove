@@ -7,6 +7,11 @@ RUN apt-get update
 RUN apt-get install -y ca-certificates --no-install-recommends
 RUN update-ca-certificates
 
+# Create non-root user UID 1042 and set ephemeral directory with ownership
+# This is because we host our ECS tasks under UID 1042 so as to not run as root
+RUN useradd -u 1042 appuser
+RUN mkdir -p /ephemeral-dir && chown appuser:appuser /ephemeral-dir
+
 # hadolint ignore=DL3007
 FROM gcr.io/distroless/base-debian11@sha256:ac69aa622ea5dcbca0803ca877d47d069f51bd4282d5c96977e0390d7d256455
 COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
