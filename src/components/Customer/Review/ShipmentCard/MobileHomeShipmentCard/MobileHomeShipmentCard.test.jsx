@@ -61,7 +61,7 @@ describe('MobileHomeShipmentCard component', () => {
   it('renders component with all fields', () => {
     render(<MobileHomeShipmentCard {...defaultProps} />);
 
-    expect(screen.getAllByTestId('ShipmentCardNumber').length).toBe(1);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Mobile Home 1');
     expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
@@ -139,6 +139,11 @@ describe('MobileHomeShipmentCard component', () => {
     expect(screen.getByTitle('Help about incomplete shipment')).toBeInTheDocument();
 
     await userEvent.click(screen.getByTitle('Help about incomplete shipment'));
-    expect(screen.getAllByTestId('ShipmentCardNumber').length).toBe(1);
+
+    expect(incompleteShipmentProps.onIncompleteClick).toHaveBeenCalledWith(
+      'Mobile Home 1',
+      'testMove123-01',
+      SHIPMENT_TYPES.MOBILE_HOME,
+    );
   });
 });

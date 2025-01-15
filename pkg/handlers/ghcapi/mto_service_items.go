@@ -153,7 +153,7 @@ func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.Upd
 
 					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
-					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
+					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", nil)
 					if err != nil {
 						appCtx.Logger().Error(fmt.Sprintf("Could not update the shipment SIT auth end date for shipment ID: %s: %s", shipment.ID, err))
 					}
@@ -266,7 +266,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 
 					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
-					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
+					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", nil)
 					if err != nil {
 						appCtx.Logger().Error(fmt.Sprintf("Could not update the shipment SIT auth end date for shipment ID: %s: %s", shipment.ID, err))
 					}

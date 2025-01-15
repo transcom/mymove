@@ -389,7 +389,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.OriginDutyLocationGBLOC = &originGBLOC.GBLOC
 
 				if payload.MoveID != "" {
-
 					moveID, err := uuid.FromString(payload.MoveID.String())
 					if err != nil {
 						return handlers.ResponseForError(appCtx.Logger(), err), err

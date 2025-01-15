@@ -55,8 +55,8 @@ const MoveDetails = ({
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const [enableBoat, setEnableBoat] = useState(false);
@@ -73,7 +73,7 @@ const MoveDetails = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const errorIfMissing = {
     HHG_INTO_NTS: [{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }],
-    HHG_OUTOF_NTS_DOMESTIC: [
+    HHG_OUTOF_NTS: [
       { fieldName: 'storageFacility' },
       { fieldName: 'ntsRecordedWeight' },
       { fieldName: 'serviceOrderNumber' },
@@ -115,7 +115,7 @@ const MoveDetails = ({
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
     errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
-    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
+    errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
   }
 
   let sections = useMemo(() => {
@@ -658,7 +658,7 @@ const MoveDetails = ({
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
             >
-              <OrdersList ordersInfo={ordersInfo} />
+              <OrdersList ordersInfo={ordersInfo} moveInfo={move} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">

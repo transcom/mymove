@@ -56,7 +56,6 @@ export const IsSupportedState = async (value, context) => {
   const selectedState = value;
 
   const enableAK = 'enabledAK';
-
   let unsupportedStates;
   if (enableAK in context.options.context) {
     unsupportedStates = context.options.context.enabledAK ? unSupportedStates : unSupportedStatesDisabledAlaska;

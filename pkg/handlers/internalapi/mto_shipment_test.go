@@ -490,7 +490,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		params := subtestData.params
 
 		// Set fields appropriately for NTS-Release
-		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTSDOMESTIC
+		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTS
 		params.Body.ShipmentType = &ntsrShipmentType
 		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
 		params.Body.PickupAddress = nil
@@ -762,7 +762,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 
 	authRequestAndSetUpHandlerAndParams := func(originalShipment models.MTOShipment, mockShipmentUpdater *mocks.ShipmentUpdater) (UpdateMTOShipmentHandler, mtoshipmentops.UpdateMTOShipmentParams) {
 		endpoint := fmt.Sprintf("/mto-shipments/%s", originalShipment.ID.String())
@@ -1486,6 +1486,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.MTOShipment"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
+			nil,
 		).Return(nil, err)
 
 		subtestData := getDefaultMTOShipmentAndParams(&mockUpdater)

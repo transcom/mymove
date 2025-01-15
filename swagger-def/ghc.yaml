@@ -1062,6 +1062,7 @@ paths:
         * Releasing / Receiving agents
         * Actual Pro Gear Weight
         * Actual Spouse Pro Gear Weight
+        * Location of the POE/POD
       consumes:
         - application/json
       produces:
@@ -1420,6 +1421,7 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - shipment
+        - shipment_address_updates
       description: This endpoint is used to approve a address update request. Office remarks are required.
         Approving the address update will update the Destination Final Address of the associated service item
       operationId: reviewShipmentAddressUpdate
@@ -3733,6 +3735,118 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
+  /queues/destination-requests:
+    get:
+      produces:
+        - application/json
+      summary: Gets queued list of all customer moves by a shipment's destination address GBLOC that have destination requests (destination SIT, shuttle, destination address requests)
+      description: >
+        A TOO will view this queue when they have destination requests tied to the destination address in their GBLOC within a shipment. This includes unapproved destination SIT service items (including shuttle) and destination address requests that are not approved.
+      operationId: getDestinationRequestsQueue
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: requested page of results
+        - in: query
+          name: perPage
+          type: integer
+          description: results per page
+        - in: query
+          name: sort
+          type: string
+          enum:
+            [
+              customerName,
+              edipi,
+              emplid,
+              branch,
+              locator,
+              status,
+              originDutyLocation,
+              destinationDutyLocation,
+              requestedMoveDate,
+              appearedInTooAt,
+              assignedTo,
+              counselingOffice,
+            ]
+          description: field that results should be sorted by
+        - in: query
+          name: order
+          type: string
+          enum: [asc, desc]
+          description: direction of sort order if applied
+        - in: query
+          name: branch
+          type: string
+        - in: query
+          name: locator
+          type: string
+        - in: query
+          name: customerName
+          type: string
+        - in: query
+          name: edipi
+          type: string
+        - in: query
+          name: emplid
+          type: string
+        - in: query
+          name: originDutyLocation
+          type: array
+          uniqueItems: true
+          collectionFormat: multi
+          items:
+            type: string
+        - in: query
+          name: destinationDutyLocation
+          type: string
+        - in: query
+          name: appearedInTooAt
+          type: string
+          format: date-time
+        - in: query
+          name: requestedMoveDate
+          type: string
+          description: filters the requested pickup date of a shipment on the move
+        - in: query
+          name: status
+          type: array
+          description: Filtering for the status.
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - APPROVALS REQUESTED
+        - in: query
+          name: orderType
+          type: string
+          description: order type
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: |
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this move.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/payment-requests:
     get:
       produces:
@@ -4084,7 +4198,7 @@ paths:
         - transportationOffice
       responses:
         '200':
-          description: Successfully retrieved transportation offices
+          description: Successfully retrieved GBLOCs
           schema:
             $ref: '#/definitions/GBLOCs'
         '400':
@@ -4122,6 +4236,29 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /transportation_offices/{dutyLocationId}/counseling_offices:
+    get:
+      summary: Returns the counseling locations in the GBLOC matching the duty location
+      description: Returns the counseling locations matching the GBLOC from the selected duty location
+      operationId: showCounselingOffices
+      tags:
+        - transportationOffice
+      parameters:
+        - in: path
+          name: dutyLocationId
+          format: uuid
+          type: string
+          required: true
+          description: UUID of the duty location
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully retrieved counseling offices
+          schema:
+            $ref: '#/definitions/CounselingOffices'
+        '500':
+          description: internal server error
   /uploads:
     post:
       summary: Create a new upload
@@ -5231,6 +5368,13 @@ definitions:
         format: uuid
         description: The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members
         x-nullable: true
+      counselingOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
+      counselingOfficeId:
+        type: string
+        format: uuid
+        description: The transportation office that will handle services counseling for this move
+        x-nullable: true
       approvalsRequestedAt:
         type: string
         format: date-time
@@ -5648,6 +5792,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      counselingOfficeId:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
+        x-nullable: true
       ordersNumber:
         type: string
         title: Orders Number
@@ -5752,6 +5901,10 @@ definitions:
         $ref: definitions/NullableString.yaml
       grade:
         $ref: '#/definitions/Grade'
+      hasDependents:
+        type: boolean
+        title: Are dependents included in your orders?
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -7762,18 +7915,35 @@ definitions:
     type: array
     items:
       $ref: 'definitions/TransportationOffice.yaml'
-  VLocations:
-    type: array
-    items:
-      $ref: "definitions/VLocation.yaml"
   ReServiceItems:
     type: array
     items:
       $ref: "definitions/ReServiceItem.yaml"
+  VLocations:
+    type: array
+    items:
+      $ref: "definitions/VLocation.yaml"
   GBLOCs:
     type: array
     items:
       type: string
+  CounselingOffices:
+    type: array
+    items:
+      $ref: '#/definitions/CounselingOffice'
+  CounselingOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+    required:
+      - id
+      - name
   MovePayload:
     type: object
     properties:

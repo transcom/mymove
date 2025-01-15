@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -71,5 +72,28 @@ func (h GetTransportationOfficesGBLOCsHandler) Handle(params transportationoffic
 
 			returnPayload := payloads.GBLOCs(*transportationOffices)
 			return transportationofficeop.NewGetTransportationOfficesGBLOCsOK().WithPayload(returnPayload), nil
+		})
+}
+
+// ShowCounselingOfficesHandler returns the counseling offices for a duty location ID
+type ShowCounselingOfficesHandler struct {
+	handlers.HandlerConfig
+	services.TransportationOfficesFetcher
+}
+
+// Handle retrieves the counseling offices in the system for a given duty location ID
+func (h ShowCounselingOfficesHandler) Handle(params transportationofficeop.ShowCounselingOfficesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			dutyLocationID := uuid.FromStringOrNil(params.DutyLocationID.String())
+
+			counselingOffices, err := h.TransportationOfficesFetcher.GetCounselingOffices(appCtx, dutyLocationID)
+			if err != nil {
+				appCtx.Logger().Error("Error searching for Counseling Offices: ", zap.Error(err))
+				return transportationofficeop.NewShowCounselingOfficesInternalServerError(), err
+			}
+
+			returnPayload := payloads.CounselingOffices(*counselingOffices)
+			return transportationofficeop.NewShowCounselingOfficesOK().WithPayload(returnPayload), nil
 		})
 }

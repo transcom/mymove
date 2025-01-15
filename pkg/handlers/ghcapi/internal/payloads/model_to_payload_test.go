@@ -832,7 +832,6 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 			},
 		},
 	}, nil)
-
 	moves := models.Moves{moveUSMC}
 	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Marine move with no shipments", func() {
 		payload := SearchMoves(appCtx, moves)
@@ -906,16 +905,16 @@ func (suite *PayloadsSuite) TestReServiceItems() {
 		marketCodeInternational := models.MarketCodeInternational
 		marketCodeDomestic := models.MarketCodeDomestic
 		poefscReServiceCode := models.ReServiceCodePOEFSC
-		poedscReServiceCode := models.ReServiceCodePODFSC
+		podfscReServiceCode := models.ReServiceCodePODFSC
 		poefscServiceName := "International POE Fuel Surcharge"
-		poedscServiceName := "International POD Fuel Surcharge"
+		podfscServiceName := "International POD Fuel Surcharge"
 		poefscService := models.ReService{
 			Code: poefscReServiceCode,
 			Name: poefscServiceName,
 		}
 		podfscService := models.ReService{
-			Code: poedscReServiceCode,
-			Name: poedscServiceName,
+			Code: podfscReServiceCode,
+			Name: podfscServiceName,
 		}
 		hhgShipmentType := models.MTOShipmentTypeHHG
 		ubShipmentType := models.MTOShipmentTypeUnaccompaniedBaggage
@@ -1217,5 +1216,171 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
 		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
 		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
+	})
+}
+
+func (suite *PayloadsSuite) TestPort() {
+
+	suite.Run("returns nil when PortLocation is nil", func() {
+		var mtoServiceItems models.MTOServiceItems = nil
+		result := Port(mtoServiceItems, "POE")
+		suite.Nil(result, "Expected result to be nil when Port Location is nil")
+	})
+
+	suite.Run("Success - Maps PortLocation to Port payload", func() {
+		// Use the factory to create a port location
+		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		mtoServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		// Actual
+		mtoServiceItems := models.MTOServiceItems{mtoServiceItem}
+		result := Port(mtoServiceItems, "POE")
+
+		// Assert
+		suite.IsType(&ghcmessages.Port{}, result)
+		suite.Equal(strfmt.UUID(portLocation.ID.String()), result.ID)
+		suite.Equal(portLocation.Port.PortType.String(), result.PortType)
+		suite.Equal(portLocation.Port.PortCode, result.PortCode)
+		suite.Equal(portLocation.Port.PortName, result.PortName)
+		suite.Equal(portLocation.City.CityName, result.City)
+		suite.Equal(portLocation.UsPostRegionCity.UsprcCountyNm, result.County)
+		suite.Equal(portLocation.UsPostRegionCity.UsPostRegion.State.StateName, result.State)
+		suite.Equal(portLocation.UsPostRegionCity.UsprZipID, result.Zip)
+		suite.Equal(portLocation.Country.CountryName, result.Country)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
+	suite.Run("Only POE Location is set", func() {
+		// Create mock data for MTOServiceItems with POE and POD
+		poePortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		poefscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code:     models.ReServiceCodePOEFSC,
+					Priority: 1,
+				},
+			},
+			{
+				Model:    poePortLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MTOServiceItems: models.MTOServiceItems{poefscServiceItem},
+				},
+			},
+		}, nil)
+
+		payload := MTOShipment(nil, &mtoShipment, nil)
+
+		// Assertions
+		suite.NotNil(payload, "Expected payload to not be nil")
+		suite.NotNil(payload.PoeLocation, "Expected POELocation to not be nil")
+		suite.Equal("PDX", payload.PoeLocation.PortCode, "Expected POE Port Code to match")
+		suite.Equal("PORTLAND INTL", payload.PoeLocation.PortName, "Expected POE Port Name to match")
+		suite.Nil(payload.PodLocation, "Expected PODLocation to be nil when POELocation is set")
+	})
+
+	suite.Run("Only POD Location is set", func() {
+		// Create mock data for MTOServiceItems with POE and POD
+		podPortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		podfscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code:     models.ReServiceCodePODFSC,
+					Priority: 1,
+				},
+			},
+			{
+				Model:    podPortLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfDebarkation,
+			},
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MTOServiceItems: models.MTOServiceItems{podfscServiceItem},
+				},
+			},
+		}, nil)
+
+		payload := MTOShipment(nil, &mtoShipment, nil)
+
+		// Assertions
+		suite.NotNil(payload, "Expected payload to not be nil")
+		suite.NotNil(payload.PodLocation, "Expected PODLocation to not be nil")
+		suite.Equal("PDX", payload.PodLocation.PortCode, "Expected POD Port Code to match")
+		suite.Equal("PORTLAND INTL", payload.PodLocation.PortName, "Expected POD Port Name to match")
+		suite.Nil(payload.PoeLocation, "Expected PODLocation to be nil when PODLocation is set")
+	})
+}
+
+func (suite *PayloadsSuite) TestCounselingOffices() {
+	suite.Run("correctly maps transportaion offices to counseling offices payload", func() {
+		office1 := factory.BuildTransportationOffice(nil, []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Liberty",
+				},
+			},
+		}, nil)
+
+		office2 := factory.BuildTransportationOffice(nil, []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Walker",
+				},
+			},
+		}, nil)
+
+		offices := models.TransportationOffices{office1, office2}
+
+		payload := CounselingOffices(offices)
+
+		suite.IsType(payload, ghcmessages.CounselingOffices{})
+		suite.Equal(2, len(payload))
+		suite.Equal(office1.ID.String(), payload[0].ID.String())
+		suite.Equal(office2.ID.String(), payload[1].ID.String())
 	})
 }

@@ -163,6 +163,10 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 		return false, nil
 	}
 
+	if move.IsPPMOnly() {
+		return true, nil
+	}
+
 	return originDutyLocation.ProvidesServicesCounseling, nil
 }
 
@@ -538,7 +542,7 @@ func (router moveRouter) CompleteServiceCounseling(_ appcontext.AppContext, move
 	// Examine shipments for valid state and how to transition.
 	ppmOnlyMove := true
 	for _, s := range move.MTOShipments {
-		if s.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && s.StorageFacilityID == nil {
+		if s.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && s.StorageFacilityID == nil {
 			return apperror.NewConflictError(s.ID, "NTS-release shipment must include facility info")
 		}
 		if s.ShipmentType != models.MTOShipmentTypePPM {
