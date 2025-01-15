@@ -65,14 +65,13 @@ func (suite *InternalAPISuite) TestUploads() {
 		rr := httptest.NewRecorder()
 
 		fakeS3, ok := suite.HandlerConfig().FileStorer().(*storageTest.FakeS3Storage)
-		if ok && fakeS3 != nil {
-			fakeS3.EmptyTags = true
-		}
+		suite.True(ok)
+		suite.NotNil(fakeS3, "FileStorer should be fakeS3")
+
+		fakeS3.EmptyTags = true
 		go func() {
-			time.Sleep(3 * time.Second)
-			if ok && fakeS3 != nil {
-				fakeS3.EmptyTags = false
-			}
+			time.Sleep(5 * time.Second)
+			fakeS3.EmptyTags = false
 		}()
 
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
