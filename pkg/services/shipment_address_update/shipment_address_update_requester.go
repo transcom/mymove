@@ -56,7 +56,7 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceO
 	// international shipments find their rate areas differently than domestic
 	if shipment.MarketCode == models.MarketCodeInternational {
 		// we already have the origin address in the db so we can check the rate area using the db func
-		originalRateArea, err := models.FetchRateAreaID(appCtx.DB(), originalDeliveryAddress.ID, nil, contractID)
+		originalRateArea, err := models.FetchRateAreaID(appCtx.DB(), originalDeliveryAddress.ID, uuid.Nil, contractID)
 		if err != nil || originalRateArea == uuid.Nil {
 			return false, err
 		}

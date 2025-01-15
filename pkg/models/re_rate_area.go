@@ -56,7 +56,7 @@ func FetchReRateAreaItem(tx *pop.Connection, contractID uuid.UUID, code string) 
 }
 
 // a db stored proc that takes in an address id & a service code to get the rate area id for an address
-func FetchRateAreaID(db *pop.Connection, addressID uuid.UUID, serviceID *uuid.UUID, contractID uuid.UUID) (uuid.UUID, error) {
+func FetchRateAreaID(db *pop.Connection, addressID uuid.UUID, serviceID uuid.UUID, contractID uuid.UUID) (uuid.UUID, error) {
 	if addressID != uuid.Nil && contractID != uuid.Nil {
 		var rateAreaID uuid.UUID
 		err := db.RawQuery("SELECT get_rate_area_id($1, $2, $3)", addressID, serviceID, contractID).First(&rateAreaID)
