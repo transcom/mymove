@@ -433,4 +433,83 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		// Orders type isn't WW, BB, or Safety
 		suite.Equal(assignedMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
+
+	suite.Run("Closeout returns non Navy/USCG/USMC ppms in needs closeout status", func() {
+		moveFetcher := NewMoveFetcherBulkAssignment()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// create non USMC/USCG/NAVY ppm in need closeout status
+		factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsCloseout,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		// create non closeout needed ppm
+		factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusWaitingOnCustomer,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		marine := models.AffiliationMARINES
+		marinePPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsCloseout,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					Affiliation: &marine,
+				},
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentCloseout(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.NotEqual(marinePPM.ID, moves[0].ID)
+	})
 }

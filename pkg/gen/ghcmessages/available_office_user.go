@@ -34,7 +34,7 @@ type AvailableOfficeUser struct {
 	OfficeUserID strfmt.UUID `json:"officeUserId,omitempty"`
 
 	// workload
-	Workload int64 `json:"workload,omitempty"`
+	Workload int64 `json:"workload"`
 }
 
 // Validate validates this available office user
