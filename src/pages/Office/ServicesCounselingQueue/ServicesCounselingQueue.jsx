@@ -458,8 +458,8 @@ const ServicesCounselingQueue = ({
     officeUser?.transportation_office_assignments?.length > 1 && gblocContext
       ? gblocContext
       : { selectedGbloc: undefined };
-  const { closeoutBulkAssignmentData } = useBulkAssignmentQueries('CLOSEOUT');
-  const { counselingBulkAssignmentData } = useBulkAssignmentQueries('COUNSELING');
+  const closeoutBulkAssignmentData = useBulkAssignmentQueries('CLOSEOUT');
+  const counselingBulkAssignmentData = useBulkAssignmentQueries('COUNSELING');
 
   // Feature Flag
   useEffect(() => {
@@ -677,7 +677,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
-          bulkAssignmentData={closeoutBulkAssignmentData}
+          bulkAssignmentData={closeoutBulkAssignmentData.bulkAssignmentData || {}}
         />
       </div>
     );
@@ -707,7 +707,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
-          bulkAssignmentData={counselingBulkAssignmentData}
+          bulkAssignmentData={counselingBulkAssignmentData.bulkAssignmentData || {}}
         />
       </div>
     );
