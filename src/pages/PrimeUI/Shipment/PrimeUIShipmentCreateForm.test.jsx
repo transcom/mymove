@@ -457,27 +457,27 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(screen.getAllByLabelText('Address 1')[5]).toHaveValue('');
   });
 
-  it('does not render secondary pickup address question for HHG_OUTOF_NTS_DOMESTIC', async () => {
+  it('does not render secondary pickup address question for HHG_OUTOF_NTS', async () => {
     renderShipmentCreateForm();
 
     const shipmentTypeInput = await screen.findByLabelText('Shipment type');
     expect(shipmentTypeInput).toBeInTheDocument();
 
     // Select the shipment type
-    await userEvent.selectOptions(shipmentTypeInput, 'HHG_OUTOF_NTS_DOMESTIC');
+    await userEvent.selectOptions(shipmentTypeInput, 'HHG_OUTOF_NTS');
 
     const hasSecondaryPickup = screen.queryByTestId('has-secondary-pickup');
     expect(hasSecondaryPickup).not.toBeInTheDocument();
   });
 
-  it('renders secondary destination address question for HHG_OUTOF_NTS_DOMESTIC', async () => {
+  it('renders secondary destination address question for HHG_OUTOF_NTS', async () => {
     renderShipmentCreateForm();
 
     const shipmentTypeInput = await screen.findByLabelText('Shipment type');
     expect(shipmentTypeInput).toBeInTheDocument();
 
     // Select the shipment type
-    await userEvent.selectOptions(shipmentTypeInput, 'HHG_OUTOF_NTS_DOMESTIC');
+    await userEvent.selectOptions(shipmentTypeInput, 'HHG_OUTOF_NTS');
 
     const hasSecondaryDestination = screen.queryByTestId('has-secondary-destination');
     expect(hasSecondaryDestination).toBeInTheDocument();
