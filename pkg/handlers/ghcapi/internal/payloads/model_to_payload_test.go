@@ -119,6 +119,18 @@ func (suite *PayloadsSuite) TestMovingExpenses() {
 	suite.NotNil(movingExpensesValue)
 }
 
+func (suite *PayloadsSuite) TestMTOServiceItemDimension() {
+	dimension := models.MTOServiceItemDimension{
+		Type:   models.DimensionTypeItem,
+		Length: 1000,
+		Height: 1000,
+		Width:  1000,
+	}
+
+	ghcDimension := MTOServiceItemDimension(&dimension)
+	suite.NotNil(ghcDimension)
+}
+
 // TestMove makes sure zero values/optional fields are handled
 func TestMove(t *testing.T) {
 	_, err := Move(&models.Move{}, &test.FakeS3Storage{})
