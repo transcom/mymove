@@ -94,9 +94,9 @@ stages:
   - |
     if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
       export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
-      export AWS_REGION=$(eval echo \$${ENV}_REGION);
+      export AWS_DEFAULT_REGION=$(eval echo \$${ENV}_REGION);
       export AWS_ACCOUNT_ID=$(eval echo \$${ENV}_ACCOUNT_ID);
-      export ECR_REPOSITORY_URI=$(echo ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com)
+      export ECR_REPOSITORY_URI=$(echo ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com)
       export APP_DOCKER_FILE=Dockerfile.dp3
       export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
       export APP_ENVIRONMENT=$DP3_ENV
