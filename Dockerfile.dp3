@@ -22,9 +22,6 @@ COPY swagger/* /swagger/
 COPY build /build
 COPY public/static/react-file-viewer /public/static/react-file-viewer
 
-# Before serving grant 1042 rights to the ephemeral dir
-RUN chmod 777 /ephemeral-dir
-
 ENTRYPOINT ["/bin/milmove"]
 
 CMD ["serve", "--logging-level=debug"]
