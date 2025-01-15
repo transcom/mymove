@@ -204,7 +204,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			},
 		}, nil)
 		mtoShipment.PrimeEstimatedWeight = nil
-		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIOSHUT)
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		reason := "lorem ipsum"
 
