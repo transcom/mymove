@@ -780,7 +780,7 @@ func (f *estimatePPM) calculateOCONUSIncentive(appCtx appcontext.AppContext, ppm
 		return nil, fmt.Errorf("failed to calculate PPM incentive: %w", err)
 	}
 
-	return (*unit.Cents)(&incentive), nil
+	return (*unit.Cents)(&incentive.TotalIncentive), nil
 }
 
 func CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {

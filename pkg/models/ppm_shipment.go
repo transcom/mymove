@@ -35,11 +35,15 @@ type PPMCloseout struct {
 	RemainingIncentive    *unit.Cents
 	HaulPrice             *unit.Cents
 	HaulFSC               *unit.Cents
-	HaulType              HaulType
+	HaulType              *HaulType
 	DOP                   *unit.Cents
 	DDP                   *unit.Cents
 	PackPrice             *unit.Cents
 	UnpackPrice           *unit.Cents
+	IHPKPrice             *unit.Cents
+	IHUPKPrice            *unit.Cents
+	ISLHPrice             *unit.Cents
+	FSCPrice              *unit.Cents
 	SITReimbursement      *unit.Cents
 }
 
@@ -321,16 +325,25 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 	return &ppmShipment, nil
 }
 
+type PPMIncentive struct {
+	TotalIncentive int `db:"total_incentive"`
+	PriceISLH      int `db:"price_islh"`
+	PriceIHPK      int `db:"price_ihpk"`
+	PriceIHUPK     int `db:"price_ihupk"`
+	PriceFSC       int `db:"price_fsc"`
+}
+
 // a db stored proc that will handle updating the estimated_incentive value
 // this simulates pricing of a basic iHHG shipment with ISLH, IHPK, IHUPK, and the CONUS portion for a FSC
-func CalculatePPMIncentive(db *pop.Connection, ppmID uuid.UUID, pickupAddressID uuid.UUID, destAddressID uuid.UUID, moveDate time.Time, mileage int, weight int, isEstimated bool, isActual bool, isMax bool) (int, error) {
-	var incentive int
+func CalculatePPMIncentive(db *pop.Connection, ppmID uuid.UUID, pickupAddressID uuid.UUID, destAddressID uuid.UUID, moveDate time.Time, mileage int, weight int, isEstimated bool, isActual bool, isMax bool) (*PPMIncentive, error) {
+	var incentive PPMIncentive
 
-	err := db.RawQuery("SELECT calculate_ppm_incentive($1, $2, $3, $4, $5, $6, $7, $8, $9)", ppmID, pickupAddressID, destAddressID, moveDate, mileage, weight, isEstimated, isActual, isMax).
+	// Run the stored procedure and scan the results into the struct
+	err := db.RawQuery("SELECT * FROM calculate_ppm_incentive($1, $2, $3, $4, $5, $6, $7, $8, $9)", ppmID, pickupAddressID, destAddressID, moveDate, mileage, weight, isEstimated, isActual, isMax).
 		First(&incentive)
 	if err != nil {
-		return 0, fmt.Errorf("error calculating PPM incentive for PPM ID %s: %w", ppmID, err)
+		return nil, fmt.Errorf("error calculating PPM incentive for PPM ID %s: %w", ppmID, err)
 	}
 
-	return incentive, nil
+	return &incentive, nil
 }

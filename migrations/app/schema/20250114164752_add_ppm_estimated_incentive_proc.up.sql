@@ -1,5 +1,3 @@
--- function that calculates a ppm incentive given mileage, weight, and dates
--- this is used to calculate estimated, max, and actual incentives
 CREATE OR REPLACE FUNCTION calculate_ppm_incentive(
     ppm_id UUID,
     pickup_address_id UUID,
@@ -10,16 +8,16 @@ CREATE OR REPLACE FUNCTION calculate_ppm_incentive(
     is_estimated BOOLEAN,
     is_actual BOOLEAN,
     is_max BOOLEAN
-) RETURNS NUMERIC AS
+) RETURNS TABLE (
+    total_incentive NUMERIC,
+    price_islh NUMERIC,
+    price_ihpk NUMERIC,
+    price_ihupk NUMERIC,
+    price_fsc NUMERIC
+) AS
 $$
 DECLARE
     ppm RECORD;
-    escalated_price NUMERIC;
-    estimated_price_islh NUMERIC;
-    estimated_price_ihpk NUMERIC;
-    estimated_price_ihupk NUMERIC;
-    estimated_price_fsc NUMERIC;
-    total_incentive NUMERIC := 0;
     contract_id UUID;
     o_rate_area_id UUID;
     d_rate_area_id UUID;
@@ -34,12 +32,8 @@ BEGIN
         RAISE EXCEPTION 'is_estimated, is_actual, and is_max cannot all be FALSE. No update will be performed.';
     END IF;
 
-    -- validating it's a real PPM
-    SELECT ppms.id
-    INTO ppm
-    FROM ppm_shipments ppms
-    WHERE ppms.id = ppm_id;
-
+    -- Validating it's a real PPM
+    SELECT ppms.id INTO ppm FROM ppm_shipments ppms WHERE ppms.id = ppm_id;
     IF ppm IS NULL THEN
         RAISE EXCEPTION 'PPM with ID % not found', ppm_id;
     END IF;
@@ -61,7 +55,7 @@ BEGIN
 
     -- ISLH calculation
     SELECT rs.id INTO service_id FROM re_services rs WHERE rs.code = 'ISLH';
-    estimated_price_islh := ROUND(
+    price_islh := ROUND(
         calculate_escalated_price(
             o_rate_area_id,
             d_rate_area_id,
@@ -71,11 +65,10 @@ BEGIN
             move_date
         ) * (weight / 100)::NUMERIC * 100, 0
     );
-    RAISE NOTICE 'Estimated price for ISLH: % cents', estimated_price_islh;
 
     -- IHPK calculation
     SELECT rs.id INTO service_id FROM re_services rs WHERE rs.code = 'IHPK';
-    estimated_price_ihpk := ROUND(
+    price_ihpk := ROUND(
         calculate_escalated_price(
             o_rate_area_id,
             NULL,
@@ -85,11 +78,10 @@ BEGIN
             move_date
         ) * (weight / 100)::NUMERIC * 100, 0
     );
-    RAISE NOTICE 'Estimated price for IHPK: % cents', estimated_price_ihpk;
 
     -- IHUPK calculation
     SELECT rs.id INTO service_id FROM re_services rs WHERE rs.code = 'IHUPK';
-    estimated_price_ihupk := ROUND(
+    price_ihupk := ROUND(
         calculate_escalated_price(
             NULL,
             d_rate_area_id,
@@ -99,27 +91,25 @@ BEGIN
             move_date
         ) * (weight / 100)::NUMERIC * 100, 0
     );
-    RAISE NOTICE 'Estimated price for IHUPK: % cents', estimated_price_ihupk;
 
     -- FSC calculation
     estimated_fsc_multiplier := get_fsc_multiplier(weight);
     fuel_price := get_fuel_price(move_date);
     price_difference := calculate_price_difference(fuel_price);
     cents_above_baseline := mileage * estimated_fsc_multiplier;
-    estimated_price_fsc := ROUND((cents_above_baseline * price_difference) * 100);
-    RAISE NOTICE 'Estimated price for FSC: % cents', estimated_price_fsc;
+    price_fsc := ROUND((cents_above_baseline * price_difference) * 100);
 
-    -- total
-    total_incentive := estimated_price_islh + estimated_price_ihpk + estimated_price_ihupk + estimated_price_fsc;
-    RAISE NOTICE 'Total PPM Incentive: % cents', total_incentive;
+    -- Total incentive
+    total_incentive := price_islh + price_ihpk + price_ihupk + price_fsc;
 
-    -- now update the incentive value
+    -- Update the PPM incentive values
     UPDATE ppm_shipments
     SET estimated_incentive = CASE WHEN is_estimated THEN total_incentive ELSE estimated_incentive END,
         final_incentive = CASE WHEN is_actual THEN total_incentive ELSE final_incentive END,
         max_incentive = CASE WHEN is_max THEN total_incentive ELSE max_incentive END
     WHERE id = ppm_id;
 
-    RETURN total_incentive;
+    -- Return all values
+    RETURN QUERY SELECT total_incentive, price_islh, price_ihpk, price_ihupk, price_fsc;
 END;
 $$ LANGUAGE plpgsql;
