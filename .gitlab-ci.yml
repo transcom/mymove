@@ -1037,6 +1037,7 @@ deploy_tasks_dp3:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_dp3
     - *setup_release_dp3
   script:
     - echo "Getting Digest from AWS"
