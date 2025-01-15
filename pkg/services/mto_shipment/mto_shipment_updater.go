@@ -752,7 +752,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				existingMoveStatus := move.Status
 				// if the move is in excess weight risk and the TOO has not acknowledge that, need to change move status to "Approvals Requested"
 				// this will trigger the TOO to acknowledged the excess right, which populates ExcessWeightAcknowledgedAt
-				if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
+				if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil || move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt == nil {
 					err = f.moveRouter.SendToOfficeUser(txnAppCtx, move)
 					if err != nil {
 						return err
