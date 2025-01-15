@@ -1539,6 +1539,7 @@ func init() {
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
+        "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemInternationalCrating"
       ]
@@ -4406,6 +4407,7 @@ func init() {
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
+        "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemInternationalCrating"
       ]

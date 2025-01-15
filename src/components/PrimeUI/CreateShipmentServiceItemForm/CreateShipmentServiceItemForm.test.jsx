@@ -91,6 +91,7 @@ describe('CreateShipmentServiceItemForm component', () => {
     ['shuttleSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemShuttle],
     ['DomesticCratingForm', createServiceItemModelTypes.MTOServiceItemDomesticCrating],
     ['InternationalCratingForm', createServiceItemModelTypes.MTOServiceItemInternationalCrating],
+    ['InternationalShuttleSitServiceItemForm', createServiceItemModelTypes.MTOServiceItemInternationalShuttle],
   ])('renders %s after selecting %s type', async (formName, serviceItemType) => {
     isBooleanFlagEnabled.mockResolvedValue(true);
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
