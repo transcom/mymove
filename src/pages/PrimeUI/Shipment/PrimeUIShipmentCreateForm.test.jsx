@@ -460,6 +460,58 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(screen.getAllByLabelText('Address 1')[5]).toHaveValue('');
   });
 
+  it('does not render secondary pickup address question for HHG_OUTOF_NTS_DOMESTIC', async () => {
+    renderShipmentCreateForm();
+
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    expect(shipmentTypeInput).toBeInTheDocument();
+
+    // Select the shipment type
+    await userEvent.selectOptions(shipmentTypeInput, 'HHG_OUTOF_NTS_DOMESTIC');
+
+    const hasSecondaryPickup = screen.queryByTestId('has-secondary-pickup');
+    expect(hasSecondaryPickup).not.toBeInTheDocument();
+  });
+
+  it('renders secondary destination address question for HHG_OUTOF_NTS_DOMESTIC', async () => {
+    renderShipmentCreateForm();
+
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    expect(shipmentTypeInput).toBeInTheDocument();
+
+    // Select the shipment type
+    await userEvent.selectOptions(shipmentTypeInput, 'HHG_OUTOF_NTS_DOMESTIC');
+
+    const hasSecondaryDestination = screen.queryByTestId('has-secondary-destination');
+    expect(hasSecondaryDestination).toBeInTheDocument();
+  });
+
+  it('does not render secondary destination address question for HHG_INTO_NTS', async () => {
+    renderShipmentCreateForm();
+
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    expect(shipmentTypeInput).toBeInTheDocument();
+
+    // Select the shipment type
+    await userEvent.selectOptions(shipmentTypeInput, 'HHG_INTO_NTS');
+
+    const hasSecondaryDestination = screen.queryByTestId('has-secondary-destination');
+    expect(hasSecondaryDestination).not.toBeInTheDocument();
+  });
+
+  it('renders secondary pickup address question for HHG_INTO_NTS', async () => {
+    renderShipmentCreateForm();
+
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    expect(shipmentTypeInput).toBeInTheDocument();
+
+    // Select the shipment type
+    await userEvent.selectOptions(shipmentTypeInput, 'HHG_INTO_NTS');
+
+    const hasSecondaryPickup = screen.queryByTestId('has-secondary-pickup');
+    expect(hasSecondaryPickup).toBeInTheDocument();
+  });
+
   it('renders the HHG form and displays the shipment id text input when diversion box is checked', async () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
     expect(await screen.queryByText('BOAT_HAUL_AWAY')).not.toBeInTheDocument();
