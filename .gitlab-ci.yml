@@ -1041,6 +1041,7 @@ deploy_tasks_dp3:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
+    - deploy_migrations_dp3
     - build_push_tasks_dp3
     - compile_app_server
     - compile_app_client
@@ -1292,6 +1293,7 @@ deploy_tasks_stg:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
+    - deploy_migrations_stg
     - build_push_tasks_stg
     - compile_app_server
     - compile_app_client
@@ -1559,6 +1561,7 @@ deploy_tasks_prd:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
+    - deploy_migrations_prd
     - build_push_tasks_prd
     - compile_app_server
     - compile_app_client
