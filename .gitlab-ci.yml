@@ -99,7 +99,7 @@ stages:
       export ECR_REPOSITORY_URI=$(echo ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com)
       export APP_DOCKER_FILE=Dockerfile.dp3
       export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
-      export APP_ENVIRONMENT=$ENV
+      export APP_ENVIRONMENT=$DP3_ENV
     fi
 
 .setup_aws_vars_stg: &setup_aws_vars_stg
