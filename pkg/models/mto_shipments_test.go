@@ -366,6 +366,8 @@ func (suite *ModelSuite) TestCreateInternationalAccessorialServiceItemsForShipme
 				},
 			},
 		}, nil)
+
+		serviceItem.MTOShipment = shipment
 		mtoServiceItems, err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), shipment.ID, models.MTOServiceItems{serviceItem})
 		suite.NoError(err)
 		suite.NotNil(mtoServiceItems)

@@ -1,46 +1,11 @@
-DO
+DO '
 BEGIN
-    IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'mto_service_item_type') THEN
-        DROP TYPE mto_service_item_type
+    IF EXISTS (SELECT 1 FROM pg_type WHERE typname = ''mto_service_item_type'') THEN
+        ALTER TYPE mto_service_item_type DROP ATTRIBUTE "re_service_id";
+        ALTER TYPE mto_service_item_type ADD ATTRIBUTE "re_service_code" text;
     END IF;
-
-    CREATE TYPE  mto_service_item_type AS (
-        id uuid,
-        move_id uuid,
-        mto_shipment_id uuid,
-        re_service_code text,
-        created_at timestamptz,
-        updated_at timestamptz,
-        reason text,
-        pickup_postal_code text,
-        description text,
-        status public.service_item_status,
-        rejection_reason text,
-        approved_at timestamp,
-        rejected_at timestamp,
-        sit_postal_code text,
-        sit_entry_date date,
-        sit_departure_date date,
-        sit_destination_final_address_id uuid,
-        sit_origin_hhg_original_address_id uuid,
-        sit_origin_hhg_actual_address_id uuid,
-        estimated_weight int4,
-        actual_weight int4,
-        sit_destination_original_address_id uuid,
-        sit_customer_contacted date,
-        sit_requested_delivery date,
-        requested_approvals_requested_status bool,
-        customer_expense bool,
-        customer_expense_reason text,
-        sit_delivery_miles int4,
-        pricing_estimate int4,
-        standalone_crate bool,
-        locked_price_cents int4,
-        service_location public.service_location_enum,
-        poe_location_id uuid,
-        pod_location_id uuid
-    );
-END;
+END
+';
 
 CREATE OR REPLACE PROCEDURE create_accessorial_service_items_for_shipment (
     IN shipment_id UUID,

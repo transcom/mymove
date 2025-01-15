@@ -400,11 +400,10 @@ func (m MTOServiceItem) Value() (driver.Value, error) {
 		pricingEstimate = m.PricingEstimate.Int64()
 	}
 
-	s := fmt.Sprintf("(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%d,%s,%s,%s,%t,%t,%s,%d,%d,%t,%d,%s,%s,%s)",
+	s := fmt.Sprintf("(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%d,%s,%s,%s,%t,%t,%s,%d,%d,%t,%d,%s,%s,%s,%s)",
 		id,
 		moveTaskOrderID,
 		mtoShipmentID,
-		m.ReService.Code.String(),
 		m.CreatedAt.Format("2006-01-02 15:04:05"),
 		m.UpdatedAt.Format("2006-01-02 15:04:05"),
 		reason,
@@ -435,6 +434,7 @@ func (m MTOServiceItem) Value() (driver.Value, error) {
 		serviceLocation,
 		poeLocationID,
 		podLocationID,
+		m.ReService.Code.String(),
 	)
 	return []byte(s), nil
 }
