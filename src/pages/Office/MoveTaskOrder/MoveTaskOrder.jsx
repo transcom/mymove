@@ -33,6 +33,7 @@ import ServiceItemContainer from 'components/Office/ServiceItemContainer/Service
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import {
   acknowledgeExcessWeightRisk,
+  acknowledgeExcessUnaccompaniedBaggageWeightRisk,
   approveSITExtension,
   denySITExtension,
   patchMTOServiceItemStatus,
@@ -109,6 +110,7 @@ export const MoveTaskOrder = (props) => {
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
+  const [isUnaccompaniedBaggageWeightAlertVisible, setIsUnaccompaniedBaggageWeightAlertVisible] = useState(false);
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   /* ------------------ Selected / Active Item ------------------------- */
@@ -126,6 +128,7 @@ export const MoveTaskOrder = (props) => {
   const [estimatedNTSWeightTotal, setEstimatedNTSWeightTotal] = useState(null);
   const [estimatedNTSReleaseWeightTotal, setEstimatedNTSReleaseWeightTotal] = useState(null);
   const [estimatedPPMWeightTotal, setEstimatedPPMWeightTotal] = useState(null);
+  const [estimatedUBWeightTotal, setEstimatedUBWeightTotal] = useState(null);
   const [, setSubmittedChangeTime] = useState(Date.now());
   const [breakdownVisible, setBreakdownVisible] = useState(false);
 
@@ -328,6 +331,18 @@ export const MoveTaskOrder = (props) => {
   });
 
   /* istanbul ignore next */
+  const { mutate: mutateAcknowledgeExcessUnaccompaniedBaggageWeightRisk } = useMutation({
+    mutationFn: acknowledgeExcessUnaccompaniedBaggageWeightRisk,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [MOVES, move.locator] });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
+    },
+  });
+
+  /* istanbul ignore next */
   const { mutate: mutateSITExtensionApproval } = useMutation({
     mutationFn: approveSITExtension,
     onSuccess: (data, variables) => {
@@ -462,9 +477,17 @@ export const MoveTaskOrder = (props) => {
   const handleAcknowledgeExcessWeightRisk = () => {
     mutateAcknowledgeExcessWeightRisk({ orderID: order.id, ifMatchETag: move.eTag });
   };
+  // Handle unaccompanied baggage excess weight acknowledgement
+  const handleAcknowledgeExcessUnaccompaniedBaggageWeightRisk = () => {
+    mutateAcknowledgeExcessUnaccompaniedBaggageWeightRisk({ orderID: order.id, ifMatchETag: move.eTag });
+  };
   const handleHideWeightAlert = () => {
     handleAcknowledgeExcessWeightRisk();
     setIsWeightAlertVisible(false);
+  };
+  const handleHideUnaccompaniedBaggageWeightAlert = () => {
+    handleAcknowledgeExcessUnaccompaniedBaggageWeightRisk();
+    setIsUnaccompaniedBaggageWeightAlertVisible(false);
   };
 
   const handleShowWeightModal = () => {
@@ -839,23 +862,43 @@ export const MoveTaskOrder = (props) => {
     setEstimatedHHGWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.HHG));
     setEstimatedNTSWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.NTS));
     setEstimatedNTSReleaseWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.NTSR));
+    setEstimatedUBWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE));
     setEstimatedPPMWeightTotal(calculateEstimatedWeight(onlyPPMShipments));
     let excessBillableWeightCount = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
+    const riskOfExcessUnaccompaniedBaggageAcknowledged = !!move?.excessUnaccompaniedBaggageWeightAcknowledgedAt;
+    const riskOfExcessUnaccompaniedBaggageQualifiedAt = !!move?.excessUnaccompaniedBaggageWeightQualifiedAt;
+    const qualifiedAfterAcknowledged =
+      move?.excessUnaccompaniedBaggageWeightQualifiedAt &&
+      move?.excessUnaccompaniedBaggageWeightAcknowledgedAt &&
+      new Date(move.excessUnaccompaniedBaggageWeightQualifiedAt) >
+        new Date(move.excessUnaccompaniedBaggageWeightAcknowledgedAt);
 
     if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
-      excessBillableWeightCount = 1;
-      setExcessWeightRiskCount(1);
-    } else {
-      setExcessWeightRiskCount(0);
+      excessBillableWeightCount += 1;
     }
 
     const showWeightAlert = !riskOfExcessAcknowledged && !!excessBillableWeightCount;
+    // Make sure that the risk of UB is NOT acknowledged AND that it is qualified before showing the alert
+    // Also, if the timestamp of acknowledgement is BEFORE its qualified timestamp, then we should show the alert
+    const showUnaccompaniedBaggageWeightAlert =
+      !riskOfExcessUnaccompaniedBaggageAcknowledged &&
+      riskOfExcessUnaccompaniedBaggageQualifiedAt &&
+      (!riskOfExcessUnaccompaniedBaggageAcknowledged || qualifiedAfterAcknowledged);
+
+    if (showUnaccompaniedBaggageWeightAlert) {
+      excessBillableWeightCount += 1;
+    }
+
+    setExcessWeightRiskCount(excessBillableWeightCount);
 
     setIsWeightAlertVisible(showWeightAlert);
+    setIsUnaccompaniedBaggageWeightAlertVisible(showUnaccompaniedBaggageWeightAlert);
   }, [
     estimatedWeightTotal,
     move?.excess_weight_acknowledged_at,
+    move?.excessUnaccompaniedBaggageWeightAcknowledgedAt,
+    move?.excessUnaccompaniedBaggageWeightQualifiedAt,
     nonPPMShipments,
     onlyPPMShipments,
     order?.entitlement.totalWeight,
@@ -935,6 +978,10 @@ export const MoveTaskOrder = (props) => {
           ? formatWeight(Math.round(estimatedNTSReleaseWeightTotal * 1.1))
           : '—'}
       </div>
+      <div>110% Estimated UB</div>
+      <div className={moveTaskOrderStyles.subValue} data-testid="breakdownUBEstimatedWeight">
+        {Number.isFinite(estimatedUBWeightTotal) ? formatWeight(Math.round(estimatedUBWeightTotal * 1.1)) : '—'}
+      </div>
     </div>
   );
 
@@ -991,6 +1038,17 @@ export const MoveTaskOrder = (props) => {
       disabled={isMoveLocked}
     >
       <FontAwesomeIcon icon="times" />
+    </Button>
+  );
+  const excessUnaccompaniedBaggageWeightAlertControl = (
+    <Button
+      data-testid="excessUnaccompaniedBaggageWeightAlertButton"
+      type="button"
+      onClick={handleHideUnaccompaniedBaggageWeightAlert}
+      unstyled
+      disabled={isMoveLocked}
+    >
+      <FontAwesomeIcon title="hideUbExcessWeightAlert" icon="times" />
     </Button>
   );
 
@@ -1063,6 +1121,33 @@ export const MoveTaskOrder = (props) => {
                         disabled={isMoveLocked}
                       >
                         Review billable weight
+                      </Button>
+                    </span>
+                  </Restricted>
+                </Restricted>
+              </span>
+            </Alert>
+          )}
+          {isUnaccompaniedBaggageWeightAlertVisible && (
+            <Alert
+              headingLevel="h4"
+              slim
+              type="warning"
+              cta={excessUnaccompaniedBaggageWeightAlertControl}
+              className={styles.alertWithButton}
+            >
+              <span>
+                This move is at risk for exceeding unaccompanied baggage weight allowance.{' '}
+                <Restricted to={permissionTypes.updateBillableWeight}>
+                  <Restricted to={permissionTypes.updateMTOPage}>
+                    <span className={styles.rightAlignButtonWrapper}>
+                      <Button
+                        type="button"
+                        onClick={handleHideUnaccompaniedBaggageWeightAlert}
+                        unstyled
+                        disabled={isMoveLocked}
+                      >
+                        Acknowledge and proceed
                       </Button>
                     </span>
                   </Restricted>
