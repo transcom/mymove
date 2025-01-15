@@ -1,9 +1,15 @@
+-- function that calculates a ppm incentive given mileage, weight, and dates
+-- this is used to calculate estimated, max, and actual incentives
 CREATE OR REPLACE FUNCTION calculate_ppm_incentive(
     ppm_id UUID,
+    pickup_address_id UUID,
+    destination_address_id UUID,
+    move_date DATE,
     mileage INT,
     weight INT,
     is_estimated BOOLEAN,
-    is_actual BOOLEAN
+    is_actual BOOLEAN,
+    is_max BOOLEAN
 ) RETURNS NUMERIC AS
 $$
 DECLARE
@@ -24,11 +30,12 @@ DECLARE
     cents_above_baseline NUMERIC;
 BEGIN
 
-    IF NOT is_estimated AND NOT is_actual THEN
-        RAISE EXCEPTION 'Both is_estimated and is_actual cannot be FALSE. No update will be performed.';
+    IF NOT is_estimated AND NOT is_actual AND NOT is_max THEN
+        RAISE EXCEPTION 'is_estimated, is_actual, and is_max cannot all be FALSE. No update will be performed.';
     END IF;
 
-    SELECT ppms.id, ppms.pickup_postal_address_id, ppms.destination_postal_address_id, ppms.expected_departure_date
+    -- validating it's a real PPM
+    SELECT ppms.id
     INTO ppm
     FROM ppm_shipments ppms
     WHERE ppms.id = ppm_id;
@@ -37,19 +44,19 @@ BEGIN
         RAISE EXCEPTION 'PPM with ID % not found', ppm_id;
     END IF;
 
-    contract_id := get_contract_id(ppm.expected_departure_date);
+    contract_id := get_contract_id(move_date);
     IF contract_id IS NULL THEN
-        RAISE EXCEPTION 'Contract not found for date: %', ppm.expected_departure_date;
+        RAISE EXCEPTION 'Contract not found for date: %', move_date;
     END IF;
 
-    o_rate_area_id := get_rate_area_id(ppm.pickup_postal_address_id, NULL, contract_id);
+    o_rate_area_id := get_rate_area_id(pickup_address_id, NULL, contract_id);
     IF o_rate_area_id IS NULL THEN
-        RAISE EXCEPTION 'Origin rate area is NULL for address ID %', ppm.pickup_postal_address_id;
+        RAISE EXCEPTION 'Origin rate area is NULL for address ID %', pickup_address_id;
     END IF;
 
-    d_rate_area_id := get_rate_area_id(ppm.destination_postal_address_id, NULL, contract_id);
+    d_rate_area_id := get_rate_area_id(destination_address_id, NULL, contract_id);
     IF d_rate_area_id IS NULL THEN
-        RAISE EXCEPTION 'Destination rate area is NULL for address ID %', ppm.destination_postal_address_id;
+        RAISE EXCEPTION 'Destination rate area is NULL for address ID %', destination_address_id;
     END IF;
 
     -- ISLH calculation
@@ -61,7 +68,7 @@ BEGIN
             service_id,
             contract_id,
             'ISLH',
-            ppm.expected_departure_date
+            move_date
         ) * (weight / 100)::NUMERIC * 100, 0
     );
     RAISE NOTICE 'Estimated price for ISLH: % cents', estimated_price_islh;
@@ -75,7 +82,7 @@ BEGIN
             service_id,
             contract_id,
             'IHPK',
-            ppm.expected_departure_date
+            move_date
         ) * (weight / 100)::NUMERIC * 100, 0
     );
     RAISE NOTICE 'Estimated price for IHPK: % cents', estimated_price_ihpk;
@@ -89,14 +96,14 @@ BEGIN
             service_id,
             contract_id,
             'IHUPK',
-            ppm.expected_departure_date
+            move_date
         ) * (weight / 100)::NUMERIC * 100, 0
     );
     RAISE NOTICE 'Estimated price for IHUPK: % cents', estimated_price_ihupk;
 
     -- FSC calculation
     estimated_fsc_multiplier := get_fsc_multiplier(weight);
-    fuel_price := get_fuel_price(ppm.expected_departure_date);
+    fuel_price := get_fuel_price(move_date);
     price_difference := calculate_price_difference(fuel_price);
     cents_above_baseline := mileage * estimated_fsc_multiplier;
     estimated_price_fsc := ROUND((cents_above_baseline * price_difference) * 100);
@@ -109,7 +116,8 @@ BEGIN
     -- now update the incentive value
     UPDATE ppm_shipments
     SET estimated_incentive = CASE WHEN is_estimated THEN total_incentive ELSE estimated_incentive END,
-        final_incentive = CASE WHEN is_actual THEN total_incentive ELSE final_incentive END
+        final_incentive = CASE WHEN is_actual THEN total_incentive ELSE final_incentive END,
+        max_incentive = CASE WHEN is_max THEN total_incentive ELSE max_incentive END
     WHERE id = ppm_id;
 
     RETURN total_incentive;

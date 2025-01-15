@@ -203,7 +203,13 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		}
 	}
 
-	// if the PPM is international, we will use a db stored proc
+	contractDate := newPPMShipment.ExpectedDepartureDate
+	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// if the PPM is international, we will use a db func
 	if newPPMShipment.Shipment.MarketCode != models.MarketCodeInternational {
 
 		calculateSITEstimate := shouldCalculateSITCost(newPPMShipment, &oldPPMShipment)
@@ -217,12 +223,6 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 
 		if skipCalculatingEstimatedIncentive && !calculateSITEstimate {
 			return oldPPMShipment.EstimatedIncentive, newPPMShipment.SITEstimatedCost, nil
-		}
-
-		contractDate := newPPMShipment.ExpectedDepartureDate
-		contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
-		if err != nil {
-			return nil, nil, err
 		}
 
 		estimatedIncentive := oldPPMShipment.EstimatedIncentive
@@ -248,45 +248,15 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		return estimatedIncentive, estimatedSITCost, nil
 
 	} else {
-		var mileage int
 		pickupAddress := newPPMShipment.PickupAddress
 		destinationAddress := newPPMShipment.DestinationAddress
 
-		// get the Tacoma, WA port (code: 3002) - this is the authorized port for PPMs
-		ppmPort, err := models.FetchPortLocationByCode(appCtx.DB(), "3002")
-		if err != nil {
-			return nil, nil, fmt.Errorf("failed to fetch port location: %w", err)
-		}
-
-		// handling OCONUS/CONUS mileage logic to determine mileage checks
-		isPickupOconus := pickupAddress.IsOconus != nil && *pickupAddress.IsOconus
-		isDestinationOconus := destinationAddress.IsOconus != nil && *destinationAddress.IsOconus
-
-		switch {
-		case isPickupOconus && isDestinationOconus:
-			// OCONUS -> OCONUS: no mileage (set to 0)
-			mileage = 0
-		case isPickupOconus && !isDestinationOconus:
-			// OCONUS -> CONUS: get mileage from port ZIP to destination ZIP
-			mileage, err = f.planner.ZipTransitDistance(appCtx, ppmPort.UsPostRegionCity.UsprZipID, destinationAddress.PostalCode, true, true)
-			if err != nil {
-				return nil, nil, fmt.Errorf("failed to calculate OCONUS to CONUS mileage: %w", err)
-			}
-		case !isPickupOconus && isDestinationOconus:
-			// CONUS -> OCONUS: get mileage from pickup ZIP to port ZIP
-			mileage, err = f.planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, ppmPort.UsPostRegionCity.UsprZipID, true, true)
-			if err != nil {
-				return nil, nil, fmt.Errorf("failed to calculate CONUS to OCONUS mileage: %w", err)
-			}
-		}
-
-		// now we can calculate the incentive
-		estimatedIncentive, err := models.CalculatePPMIncentive(appCtx.DB(), newPPMShipment.ID, mileage, newPPMShipment.EstimatedWeight.Int(), true, false)
+		estimatedIncentive, err := f.calculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newPPMShipment.EstimatedWeight.Int(), false, false, true)
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 		}
 
-		return (*unit.Cents)(&estimatedIncentive), nil, nil
+		return estimatedIncentive, nil, nil
 	}
 }
 
@@ -306,7 +276,7 @@ func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment 
 	// we have access to the MoveTaskOrderID in the ppmShipment object so we can use that to get the customer's maximum weight entitlement
 	var move models.Move
 	err = appCtx.DB().Q().Eager(
-		"Orders.Entitlement",
+		"Orders.Entitlement", "Orders.OriginDutyLocation.Address", "Orders.NewDutyLocation.Address",
 	).Where("show = TRUE").Find(&move, newPPMShipment.Shipment.MoveTaskOrderID)
 	if err != nil {
 		return nil, apperror.NewNotFoundError(newPPMShipment.ID, " error querying move")
@@ -322,14 +292,27 @@ func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment 
 		return nil, err
 	}
 
-	// since the max incentive is based off of the authorized weight entitlement and that value CAN change
-	// we will calculate the max incentive each time it is called
-	maxIncentive, err := f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
-	if err != nil {
-		return nil, err
-	}
+	if newPPMShipment.Shipment.MarketCode != models.MarketCodeInternational {
 
-	return maxIncentive, nil
+		// since the max incentive is based off of the authorized weight entitlement and that value CAN change
+		// we will calculate the max incentive each time it is called
+		maxIncentive, err := f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
+		if err != nil {
+			return nil, err
+		}
+
+		return maxIncentive, nil
+	} else {
+		pickupAddress := orders.OriginDutyLocation.Address
+		destinationAddress := orders.NewDutyLocation.Address
+
+		maxIncentive, err := f.calculateOCONUSIncentive(appCtx, newPPMShipment.ID, pickupAddress, destinationAddress, contractDate, *orders.Entitlement.DBAuthorizedWeight, false, false, true)
+		if err != nil {
+			return nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
+		}
+
+		return maxIncentive, nil
+	}
 }
 
 func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*unit.Cents, error) {
@@ -352,32 +335,51 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 		newTotalWeight = *newPPMShipment.AllowableWeight
 	}
 
-	isMissingInfo := shouldSetFinalIncentiveToNil(newPPMShipment, newTotalWeight)
-	var skipCalculateFinalIncentive bool
-	finalIncentive := oldPPMShipment.FinalIncentive
-
-	if !isMissingInfo {
-		skipCalculateFinalIncentive = shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment, originalTotalWeight, newTotalWeight)
-		if !skipCalculateFinalIncentive {
-			contractDate := newPPMShipment.ExpectedDepartureDate
-			if newPPMShipment.ActualMoveDate != nil {
-				contractDate = *newPPMShipment.ActualMoveDate
-			}
-			contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
-			if err != nil {
-				return nil, err
-			}
-
-			finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, newTotalWeight, contract, false)
-			if err != nil {
-				return nil, err
-			}
-		}
-	} else {
-		finalIncentive = nil
+	contractDate := newPPMShipment.ExpectedDepartureDate
+	if newPPMShipment.ActualMoveDate != nil {
+		contractDate = *newPPMShipment.ActualMoveDate
+	}
+	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+	if err != nil {
+		return nil, err
 	}
 
-	return finalIncentive, nil
+	if newPPMShipment.Shipment.MarketCode != models.MarketCodeInternational {
+		isMissingInfo := shouldSetFinalIncentiveToNil(newPPMShipment, newTotalWeight)
+		var skipCalculateFinalIncentive bool
+		finalIncentive := oldPPMShipment.FinalIncentive
+		if !isMissingInfo {
+			skipCalculateFinalIncentive = shouldSkipCalculatingFinalIncentive(newPPMShipment, &oldPPMShipment, originalTotalWeight, newTotalWeight)
+			if !skipCalculateFinalIncentive {
+
+				finalIncentive, err := f.calculatePrice(appCtx, newPPMShipment, newTotalWeight, contract, false)
+				if err != nil {
+					return nil, err
+				}
+				return finalIncentive, nil
+			}
+		} else {
+			finalIncentive = nil
+
+			return finalIncentive, nil
+		}
+
+		return finalIncentive, nil
+	} else {
+		pickupAddress := newPPMShipment.PickupAddress
+		destinationAddress := newPPMShipment.DestinationAddress
+
+		// we can't calculate actual incentive without the weight
+		if newTotalWeight != 0 {
+			finalIncentive, err := f.calculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newTotalWeight.Int(), false, true, false)
+			if err != nil {
+				return nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
+			}
+			return finalIncentive, nil
+		} else {
+			return nil, nil
+		}
+	}
 }
 
 // SumWeightTickets return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
@@ -736,6 +738,49 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 	}
 
 	return linehaul, fuel, origin, dest, packing, unpacking, storage, nil
+}
+
+// function for calculating incentives for OCONUS PPM shipments
+// this uses a db function that takes in values needed to come up with the estimated/actual/max incentives
+// this simulates the reimbursement for an iHHG move with ISLH, IHPK, IHUPK, and CONUS portion of FSC
+func (f *estimatePPM) calculateOCONUSIncentive(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, pickupAddress models.Address, destinationAddress models.Address, moveDate time.Time, weight int, isEstimated bool, isActual bool, isMax bool) (*unit.Cents, error) {
+	var mileage int
+	ppmPort, err := models.FetchPortLocationByCode(appCtx.DB(), "3002") // Tacoma, WA port
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch port location: %w", err)
+	}
+
+	// check if addresses are OCONUS or CONUS -> this determines how we check mileage to/from the authorized port
+	isPickupOconus := pickupAddress.IsOconus != nil && *pickupAddress.IsOconus
+	isDestinationOconus := destinationAddress.IsOconus != nil && *destinationAddress.IsOconus
+
+	switch {
+	case isPickupOconus && isDestinationOconus:
+		// OCONUS -> OCONUS, we only reimburse for the CONUS mileage of the PPM
+		mileage = 0
+	case isPickupOconus && !isDestinationOconus:
+		// OCONUS -> CONUS (port ZIP -> address ZIP)
+		mileage, err = f.planner.ZipTransitDistance(appCtx, ppmPort.UsPostRegionCity.UsprZipID, destinationAddress.PostalCode, true, true)
+		if err != nil {
+			return nil, fmt.Errorf("failed to calculate OCONUS to CONUS mileage: %w", err)
+		}
+	case !isPickupOconus && isDestinationOconus:
+		// CONUS -> OCONUS (address ZIP -> port ZIP)
+		mileage, err = f.planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, ppmPort.UsPostRegionCity.UsprZipID, true, true)
+		if err != nil {
+			return nil, fmt.Errorf("failed to calculate CONUS to OCONUS mileage: %w", err)
+		}
+	default:
+		// covering down on CONUS -> CONUS moves - they should not appear here
+		return nil, fmt.Errorf("invalid pickup and destination configuration: pickup isOconus=%v, destination isOconus=%v", isPickupOconus, isDestinationOconus)
+	}
+
+	incentive, err := models.CalculatePPMIncentive(appCtx.DB(), ppmShipmentID, pickupAddress.ID, destinationAddress.ID, moveDate, mileage, weight, isEstimated, isActual, isMax)
+	if err != nil {
+		return nil, fmt.Errorf("failed to calculate PPM incentive: %w", err)
+	}
+
+	return (*unit.Cents)(&incentive), nil
 }
 
 func CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {
