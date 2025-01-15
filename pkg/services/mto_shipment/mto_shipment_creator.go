@@ -80,7 +80,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	isMobileHomeShipment := shipment.ShipmentType == models.MTOShipmentTypeMobileHome
 
 	// Check shipment fields that should be there or not based on shipment type.
-	if shipment.ShipmentType != models.MTOShipmentTypePPM && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && !isBoatShipment && !isMobileHomeShipment {
+	if shipment.ShipmentType != models.MTOShipmentTypePPM && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS && !isBoatShipment && !isMobileHomeShipment {
 		// No need for a PPM to have a RequestedPickupDate
 		if shipment.RequestedPickupDate == nil || shipment.RequestedPickupDate.IsZero() {
 			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
@@ -210,12 +210,12 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			}
 			shipment.PickupAddress.County = county
 
-		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && shipment.ShipmentType != models.MTOShipmentTypePPM && !isBoatShipment && !isMobileHomeShipment {
+		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS && shipment.ShipmentType != models.MTOShipmentTypePPM && !isBoatShipment && !isMobileHomeShipment {
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG, NTS, or UB type MTO shipment")
 		}
 
 		if shipment.SecondaryPickupAddress != nil {
-			if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+			if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
 				secondaryPickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryPickupAddress)
 				if errAddress != nil {
 					return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create secondary pickup address "+errAddress.Error())
@@ -228,12 +228,12 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				}
 				shipment.SecondaryPickupAddress.County = county
 			} else {
-				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Secondary pickup address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGOutOfNTSDom))
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Secondary pickup address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGOutOfNTS))
 			}
 		}
 
 		if shipment.TertiaryPickupAddress != nil {
-			if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+			if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
 				tertiaryPickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.TertiaryPickupAddress)
 				if errAddress != nil {
 					return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create tertiary pickup address "+errAddress.Error())
@@ -246,7 +246,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				}
 				shipment.TertiaryPickupAddress.County = county
 			} else {
-				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Tertiary pickup address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGOutOfNTSDom))
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Tertiary pickup address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGOutOfNTS))
 			}
 		}
 
@@ -320,7 +320,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			shipment.StorageFacilityID = &shipment.StorageFacility.ID
 
 			// For NTS-Release set the pick up address to the storage facility
-			if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+			if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 				shipment.PickupAddressID = &shipment.StorageFacility.AddressID
 				shipment.PickupAddress = &shipment.StorageFacility.Address
 			}
