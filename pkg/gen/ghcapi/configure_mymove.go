@@ -72,6 +72,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// order.UploadAmendedOrdersMaxParseMemory = 32 << 20
 
+	if api.OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler == nil {
+		api.OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler = order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandlerFunc(func(params order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.AcknowledgeExcessUnaccompaniedBaggageWeightRisk has not yet been implemented")
+		})
+	}
 	if api.OrderAcknowledgeExcessWeightRiskHandler == nil {
 		api.OrderAcknowledgeExcessWeightRiskHandler = order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
