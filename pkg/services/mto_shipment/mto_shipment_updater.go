@@ -1203,27 +1203,12 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 		"99950", "99824", "99850", "99901", "99928", "99950", "99835"}
 
 	internationalShipment := marketCode == models.MarketCodeInternational
-	// Get a distance calculation between pickup and destination addresses.
-
-	if pickupAddress.Country == nil {
-		var pickupCountry models.Country
-		err := appCtx.DB().Where("id = ?", pickupAddress.CountryId).First(&pickupCountry)
-		if err != nil {
-			return nil, err
-		}
-		pickupAddress.Country = &pickupCountry
-	}
-	if destinationAddress.Country == nil {
-		var destinationCountry models.Country
-		err := appCtx.DB().Where("id = ?", destinationAddress.CountryId).First(&destinationCountry)
-		if err != nil {
-			return nil, err
-		}
-		destinationAddress.Country = &destinationCountry
-	}
 
 	// DTOD is only needed if either address is alaska and the other is CONUS
-	useDTOD := ShouldUseDtod(pickupAddress, destinationAddress)
+	useDTOD, err := FetchDTODDecision(appCtx, pickupAddress, destinationAddress)
+	if err != nil {
+		return nil, err
+	}
 
 	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, useDTOD, internationalShipment)
 	if err != nil {
@@ -1456,4 +1441,44 @@ func ShouldUseDtod(pickup models.Address, destination models.Address) bool {
 	isPickupOCONUS := models.EvaluateIsOconus(pickup)
 	isDestinationOCONUS := models.EvaluateIsOconus(destination)
 	return isPickupOCONUS || isDestinationOCONUS
+}
+
+func LookupCountryForAddress(appCtx appcontext.AppContext, lookupAddress models.Address) (models.Country, error) {
+	var LookupCountry models.Country
+	var err error
+	//if there is no country ID, likely CONUS so use zip code
+	if lookupAddress.CountryId == nil {
+		err = appCtx.DB().Q().
+			Join("v_locations", "v_locations.country_id = re_countries.id").Where("v_locations.uspr_zip_id = ?", lookupAddress.PostalCode).First(&LookupCountry)
+	} else {
+		err = appCtx.DB().Q().
+			Join("v_locations", "v_locations.country_id = re_countries.id").Where("v_locations.country_id = ?", lookupAddress.CountryId).First(&LookupCountry)
+	}
+	if err != nil {
+		return LookupCountry, err
+	}
+
+	return LookupCountry, nil
+}
+func FetchDTODDecision(appCtx appcontext.AppContext, pickupAddress models.Address, destinationAddress models.Address) (bool, error) {
+	// Get a distance calculation between pickup and destination addresses.
+	if pickupAddress.Country == nil {
+		lookupCountry, err := LookupCountryForAddress(appCtx, pickupAddress)
+		if err == nil {
+			pickupAddress.Country = &lookupCountry
+		} else {
+			return false, err
+		}
+	}
+	if destinationAddress.Country == nil {
+		lookupCountry, err := LookupCountryForAddress(appCtx, destinationAddress)
+		if err == nil {
+			destinationAddress.Country = &lookupCountry
+		} else {
+			return false, err
+		}
+	}
+
+	// DTOD is only needed if either address is alaska and the other is CONUS
+	return ShouldUseDtod(pickupAddress, destinationAddress), nil
 }
