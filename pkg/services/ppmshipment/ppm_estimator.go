@@ -248,9 +248,42 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		return estimatedIncentive, estimatedSITCost, nil
 
 	} else {
-		estimatedIncentive, err := models.CalculatePPMIncentive(appCtx.DB(), newPPMShipment.ID, 1000, newPPMShipment.EstimatedWeight.Int(), true, false)
+		var mileage int
+		pickupAddress := newPPMShipment.PickupAddress
+		destinationAddress := newPPMShipment.DestinationAddress
+
+		// get the Tacoma, WA port (code: 3002) - this is the authorized port for PPMs
+		ppmPort, err := models.FetchPortLocationByCode(appCtx.DB(), "3002")
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, fmt.Errorf("failed to fetch port location: %w", err)
+		}
+
+		// handling OCONUS/CONUS mileage logic to determine mileage checks
+		isPickupOconus := pickupAddress.IsOconus != nil && *pickupAddress.IsOconus
+		isDestinationOconus := destinationAddress.IsOconus != nil && *destinationAddress.IsOconus
+
+		switch {
+		case isPickupOconus && isDestinationOconus:
+			// OCONUS -> OCONUS: no mileage (set to 0)
+			mileage = 0
+		case isPickupOconus && !isDestinationOconus:
+			// OCONUS -> CONUS: get mileage from port ZIP to destination ZIP
+			mileage, err = f.planner.ZipTransitDistance(appCtx, ppmPort.UsPostRegionCity.UsprZipID, destinationAddress.PostalCode, true, true)
+			if err != nil {
+				return nil, nil, fmt.Errorf("failed to calculate OCONUS to CONUS mileage: %w", err)
+			}
+		case !isPickupOconus && isDestinationOconus:
+			// CONUS -> OCONUS: get mileage from pickup ZIP to port ZIP
+			mileage, err = f.planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, ppmPort.UsPostRegionCity.UsprZipID, true, true)
+			if err != nil {
+				return nil, nil, fmt.Errorf("failed to calculate CONUS to OCONUS mileage: %w", err)
+			}
+		}
+
+		// now we can calculate the incentive
+		estimatedIncentive, err := models.CalculatePPMIncentive(appCtx.DB(), newPPMShipment.ID, mileage, newPPMShipment.EstimatedWeight.Int(), true, false)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 		}
 
 		return (*unit.Cents)(&estimatedIncentive), nil, nil
