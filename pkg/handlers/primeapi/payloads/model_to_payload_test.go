@@ -24,31 +24,35 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	primeTime := time.Now()
 	submittedAt := time.Now()
 	excessWeightQualifiedAt := time.Now()
+	excessUnaccompaniedBaggageWeightQualifiedAt := time.Now()
 	excessWeightAcknowledgedAt := time.Now()
+	excessUnaccompaniedBaggageWeightAcknowledgedAt := time.Now()
 	excessWeightUploadID := uuid.Must(uuid.NewV4())
 	ordersType := primemessages.OrdersTypeRETIREMENT
 	originDutyGBLOC := "KKFA"
 	shipmentGBLOC := "AGFM"
 
 	basicMove := models.Move{
-		ID:                         moveTaskOrderID,
-		Locator:                    "TESTTEST",
-		CreatedAt:                  time.Now(),
-		AvailableToPrimeAt:         &primeTime,
-		ApprovedAt:                 &primeTime,
-		OrdersID:                   ordersID,
-		Orders:                     models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC},
-		ReferenceID:                &referenceID,
-		PaymentRequests:            models.PaymentRequests{},
-		SubmittedAt:                &submittedAt,
-		UpdatedAt:                  time.Now(),
-		Status:                     models.MoveStatusAPPROVED,
-		SignedCertifications:       models.SignedCertifications{},
-		MTOServiceItems:            models.MTOServiceItems{},
-		MTOShipments:               models.MTOShipments{},
-		ExcessWeightQualifiedAt:    &excessWeightQualifiedAt,
-		ExcessWeightAcknowledgedAt: &excessWeightAcknowledgedAt,
-		ExcessWeightUploadID:       &excessWeightUploadID,
+		ID:                      moveTaskOrderID,
+		Locator:                 "TESTTEST",
+		CreatedAt:               time.Now(),
+		AvailableToPrimeAt:      &primeTime,
+		ApprovedAt:              &primeTime,
+		OrdersID:                ordersID,
+		Orders:                  models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC},
+		ReferenceID:             &referenceID,
+		PaymentRequests:         models.PaymentRequests{},
+		SubmittedAt:             &submittedAt,
+		UpdatedAt:               time.Now(),
+		Status:                  models.MoveStatusAPPROVED,
+		SignedCertifications:    models.SignedCertifications{},
+		MTOServiceItems:         models.MTOServiceItems{},
+		MTOShipments:            models.MTOShipments{},
+		ExcessWeightQualifiedAt: &excessWeightQualifiedAt,
+		ExcessUnaccompaniedBaggageWeightQualifiedAt:    &excessUnaccompaniedBaggageWeightQualifiedAt,
+		ExcessWeightAcknowledgedAt:                     &excessWeightAcknowledgedAt,
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: &excessUnaccompaniedBaggageWeightAcknowledgedAt,
+		ExcessWeightUploadID:                           &excessWeightUploadID,
 		ShipmentGBLOC: models.MoveToGBLOCs{
 			models.MoveToGBLOC{GBLOC: &shipmentGBLOC},
 		},
@@ -70,7 +74,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
 		suite.NotEmpty(returnedModel.ETag)
 		suite.True(returnedModel.ExcessWeightQualifiedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightQualifiedAt)))
+		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightQualifiedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightQualifiedAt)))
 		suite.True(returnedModel.ExcessWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightAcknowledgedAt)))
+		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)))
 		suite.Require().NotNil(returnedModel.ExcessWeightUploadID)
 		suite.Equal(strfmt.UUID(basicMove.ExcessWeightUploadID.String()), *returnedModel.ExcessWeightUploadID)
 	})
@@ -153,17 +159,21 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 		}, []factory.Trait{factory.GetTraitTimestampedUpload})
 
 		move := models.Move{
-			ID:                         id,
-			ExcessWeightQualifiedAt:    &now,
-			ExcessWeightAcknowledgedAt: &now,
-			ExcessWeightUploadID:       &upload.ID,
-			ExcessWeightUpload:         &upload,
+			ID:                      id,
+			ExcessWeightQualifiedAt: &now,
+			ExcessUnaccompaniedBaggageWeightQualifiedAt:    &now,
+			ExcessWeightAcknowledgedAt:                     &now,
+			ExcessUnaccompaniedBaggageWeightAcknowledgedAt: &now,
+			ExcessWeightUploadID:                           &upload.ID,
+			ExcessWeightUpload:                             &upload,
 		}
 
 		excessWeightRecord := ExcessWeightRecord(suite.AppContextForTest(), fakeFileStorer, &move)
 		suite.Equal(move.ID.String(), excessWeightRecord.MoveID.String())
 		suite.Equal(strfmt.DateTime(*move.ExcessWeightQualifiedAt).String(), excessWeightRecord.MoveExcessWeightQualifiedAt.String())
+		suite.Equal(strfmt.DateTime(*move.ExcessUnaccompaniedBaggageWeightQualifiedAt).String(), excessWeightRecord.MoveExcessUnaccompaniedBaggageWeightQualifiedAt.String())
 		suite.Equal(strfmt.DateTime(*move.ExcessWeightAcknowledgedAt).String(), excessWeightRecord.MoveExcessWeightAcknowledgedAt.String())
+		suite.Equal(strfmt.DateTime(*move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt).String(), excessWeightRecord.MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt.String())
 
 		suite.Equal(move.ExcessWeightUploadID.String(), excessWeightRecord.ID.String())
 		suite.Equal(move.ExcessWeightUpload.ID.String(), excessWeightRecord.ID.String())
@@ -446,6 +456,20 @@ func (suite *PayloadsSuite) TestInternalServerError() {
 	suite.Equal(traceID.String(), detailError.Instance.String())
 }
 
+func (suite *PayloadsSuite) TestNotImplementedError() {
+	traceID, _ := uuid.NewV4()
+	detail := "Err"
+
+	noDetailError := NotImplementedError(nil, traceID)
+	suite.Equal(handlers.NotImplementedErrMessage, *noDetailError.Title)
+	suite.Equal(traceID.String(), noDetailError.Instance.String())
+
+	detailError := NotImplementedError(&detail, traceID)
+	suite.Equal(handlers.NotImplementedErrMessage, *detailError.Title)
+	suite.Equal(detail, *detailError.Detail)
+	suite.Equal(traceID.String(), detailError.Instance.String())
+}
+
 func (suite *PayloadsSuite) TestGetDimension() {
 	dimensionType := models.DimensionTypeItem
 	dimensions := models.MTOServiceItemDimensions{
@@ -500,6 +524,80 @@ func (suite *PayloadsSuite) TestPaymentRequests() {
 
 	suite.NotNil(result)
 	suite.Equal(len(paymentRequests), len(*result))
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentWithoutServiceItems() {
+	// Create the addresses
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationType := models.DestinationTypeHomeOfRecord
+	secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+	secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+	dlhTestWeight := unit.Pound(4000)
+
+	// Create the MTOShipment with populated PickupAddress and DestinationAddress
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PickupAddressID:            &pickupAddress.ID,
+				DestinationAddressID:       &destinationAddress.ID,
+				DestinationType:            &destinationType,
+				SecondaryPickupAddressID:   &secondaryPickupAddress.ID,
+				SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
+				PrimeEstimatedWeight:       models.PoundPointer(unit.Pound(980)),
+				PrimeActualWeight:          &dlhTestWeight,
+				NTSRecordedWeight:          models.PoundPointer(unit.Pound(249)),
+			},
+		},
+	}, nil)
+	shipmentWithoutServiceItem := MTOShipmentWithoutServiceItems(&mtoShipment)
+	suite.NotNil(shipmentWithoutServiceItem)
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentsWithoutServiceItems() {
+	// Create the addresses
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationType := models.DestinationTypeHomeOfRecord
+	secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+	secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+	dlhTestWeight := unit.Pound(4000)
+
+	// Create the MTOShipment
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PickupAddressID:            &pickupAddress.ID,
+				DestinationAddressID:       &destinationAddress.ID,
+				DestinationType:            &destinationType,
+				SecondaryPickupAddressID:   &secondaryPickupAddress.ID,
+				SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
+				PrimeEstimatedWeight:       models.PoundPointer(unit.Pound(980)),
+				PrimeActualWeight:          &dlhTestWeight,
+				NTSRecordedWeight:          models.PoundPointer(unit.Pound(249)),
+			},
+		},
+	}, nil)
+
+	// Create the MTOShipment
+	mtoShipmentTwo := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PickupAddressID:            &pickupAddress.ID,
+				DestinationAddressID:       &destinationAddress.ID,
+				DestinationType:            &destinationType,
+				SecondaryPickupAddressID:   &secondaryPickupAddress.ID,
+				SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
+				PrimeEstimatedWeight:       models.PoundPointer(unit.Pound(980)),
+				PrimeActualWeight:          &dlhTestWeight,
+				NTSRecordedWeight:          models.PoundPointer(unit.Pound(249)),
+			},
+		},
+	}, nil)
+	shipmentList := models.MTOShipments{}
+	shipmentList = append(shipmentList, mtoShipmentTwo, mtoShipment)
+	value := MTOShipmentsWithoutServiceItems(&shipmentList)
+	suite.NotNil(value)
 }
 
 func (suite *PayloadsSuite) TestPaymentServiceItem() {
@@ -622,8 +720,11 @@ func (suite *PayloadsSuite) TestAddress() {
 	suite.Equal(strfmt.UUID(""), result.UsPostRegionCitiesID)
 }
 
-func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
+func (suite *PayloadsSuite) TestMTOServiceItemDCRTandDOFSITandDDFSIT() {
 	reServiceCode := models.ReServiceCodeDCRT
+	reServiceCodeSIT := models.ReServiceCodeDOFSIT
+	reServiceCodeDDFSIT := models.ReServiceCodeDDFSIT
+
 	reason := "reason"
 	dateOfContact1 := time.Now()
 	timeMilitary1 := "1500Z"
@@ -651,11 +752,83 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 			},
 		},
 	}
+	year, month, day := time.Now().Date()
+	aWeekAgo := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
+	departureDate := aWeekAgo.Add(time.Hour * 24 * 30)
+	actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+	requestApprovalRequestedStatus := false
+	mtoServiceItemDOFSIT := &models.MTOServiceItem{
+		ID:                        uuid.Must(uuid.NewV4()),
+		ReService:                 models.ReService{Code: reServiceCodeSIT},
+		Reason:                    &reason,
+		SITDepartureDate:          &departureDate,
+		SITEntryDate:              &aWeekAgo,
+		SITPostalCode:             models.StringPointer("90210"),
+		SITOriginHHGActualAddress: &actualPickupAddress,
+		SITCustomerContacted:      &aWeekAgo,
+		SITRequestedDelivery:      &aWeekAgo,
+		SITOriginHHGOriginalAddress: &models.Address{
+			StreetAddress1: "dummyStreet2",
+			City:           "dummyCity2",
+			State:          "FL",
+			PostalCode:     "55555",
+		},
+		RequestedApprovalsRequestedStatus: &requestApprovalRequestedStatus,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+	mtoServiceItemDDFSIT := &models.MTOServiceItem{
+		ID:                        uuid.Must(uuid.NewV4()),
+		ReService:                 models.ReService{Code: reServiceCodeDDFSIT},
+		Reason:                    &reason,
+		SITDepartureDate:          &departureDate,
+		SITEntryDate:              &aWeekAgo,
+		SITPostalCode:             models.StringPointer("90210"),
+		SITOriginHHGActualAddress: &actualPickupAddress,
+		SITCustomerContacted:      &aWeekAgo,
+		SITRequestedDelivery:      &aWeekAgo,
+		SITOriginHHGOriginalAddress: &models.Address{
+			StreetAddress1: "dummyStreet2",
+			City:           "dummyCity2",
+			State:          "FL",
+			PostalCode:     "55555",
+		},
+		RequestedApprovalsRequestedStatus: &requestApprovalRequestedStatus,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
 
 	resultDCRT := MTOServiceItem(mtoServiceItemDCRT)
+	resultDOFSIT := MTOServiceItem(mtoServiceItemDOFSIT)
+	resultDDFSIT := MTOServiceItem(mtoServiceItemDDFSIT)
 
 	suite.NotNil(resultDCRT)
-
+	suite.NotNil(resultDOFSIT)
+	suite.NotNil(resultDDFSIT)
 	_, ok := resultDCRT.(*primemessages.MTOServiceItemDomesticCrating)
 
 	suite.True(ok)
