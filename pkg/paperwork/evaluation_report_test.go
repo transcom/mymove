@@ -131,6 +131,6 @@ func (suite *PaperworkSuite) TestPickShipmentCardLayout() {
 		suite.ElementsMatch(NTSShipmentCardLayout, PickShipmentCardLayout(models.MTOShipmentTypeHHGIntoNTS))
 	})
 	suite.Run("NTS-R", func() {
-		suite.ElementsMatch(NTSRShipmentCardLayout, PickShipmentCardLayout(models.MTOShipmentTypeHHGOutOfNTSDom))
+		suite.ElementsMatch(NTSRShipmentCardLayout, PickShipmentCardLayout(models.MTOShipmentTypeHHGOutOfNTS))
 	})
 }

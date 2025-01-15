@@ -187,7 +187,7 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
 		shipment.ShipmentType != models.MTOShipmentTypeUnaccompaniedBaggage &&
-		(shipment.PrimeEstimatedWeight != nil || (shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom &&
+		(shipment.PrimeEstimatedWeight != nil || (shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS &&
 			shipment.NTSRecordedWeight != nil)) {
 
 		var pickupLocation *models.Address
@@ -202,9 +202,9 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = &shipment.StorageFacility.Address
 			weight = shipment.PrimeEstimatedWeight.Int()
-		case models.MTOShipmentTypeHHGOutOfNTSDom:
+		case models.MTOShipmentTypeHHGOutOfNTS:
 			if shipment.StorageFacility == nil {
-				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGOutOfNTSDom)
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGOutOfNTS)
 			}
 			pickupLocation = &shipment.StorageFacility.Address
 			deliveryLocation = shipment.DestinationAddress
@@ -266,7 +266,7 @@ func (f *shipmentApprover) updateAuthorizedWeight(appCtx appcontext.AppContext, 
 	}
 
 	var dBAuthorizedWeight int
-	if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+	if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
 		dBAuthorizedWeight = int(*shipment.PrimeEstimatedWeight)
 	} else {
 		dBAuthorizedWeight = int(*shipment.NTSRecordedWeight)
@@ -274,7 +274,7 @@ func (f *shipmentApprover) updateAuthorizedWeight(appCtx appcontext.AppContext, 
 	if len(move.MTOShipments) != 0 {
 		for _, mtoShipment := range move.MTOShipments {
 			if mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
-				if mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+				if mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
 					//uses PrimeEstimatedWeight for HHG and NTS shipments
 					if mtoShipment.PrimeEstimatedWeight != nil {
 						dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)
