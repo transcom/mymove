@@ -122,7 +122,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
-	tooDestinationRequestsQuery := tooQueueOriginRequestsFilter(role, params.Locator)
+	tooDestinationRequestsQuery := tooQueueOriginRequestsFilter(role)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
 	options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
 
@@ -192,10 +192,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		}
 		if role == roles.RoleTypeTOO {
 			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
-			query.LeftJoin("mto_service_items", "mto_shipments.id = mto_service_items.mto_shipment_id").
-				LeftJoin("re_services", "mto_service_items.re_service_id = re_services.id").
-				LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id AND shipment_address_updates.new_address_id != mto_shipments.destination_address_id").
-				LeftJoin("sit_extensions", "mto_shipments.id = sit_extensions.mto_shipment_id")
 		}
 
 		if params.NeedsPPMCloseout != nil {
@@ -790,32 +786,43 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 // We want to filter out any moves that have ONLY destination type requests to them, such as destination SIT, shuttle, out of the
 // task order queue. If the moves have origin SIT, excess weight risks, or sit extensions, they should still appear in the task order
 // queue, which is what this query looks for
-func tooQueueOriginRequestsFilter(role roles.RoleType, locator *string) QueryOption {
+func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
 	return func(query *pop.Query) {
 		if role == roles.RoleTypeTOO {
 			baseQuery := `
-			(
-				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DOPSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT', 'IOPSIT', 'ICRT', 'IOSFSC')))
-			)
-			OR
-			(
-				((moves.excess_weight_qualified_at IS NOT NULL AND moves.excess_weight_acknowledged_at IS NULL) AND moves.status = 'APPROVALS REQUESTED')
-			)
-			OR
-			(
-				((moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL) AND moves.status = 'APPROVALS REQUESTED')
-			)
-			OR
-			(
-				((sit_extensions.mto_shipment_id IS NOT NULL) AND sit_extensions.status = 'PENDING')
-			)
-			`
-			if locator != nil {
-				query.Where(`
-			(moves.locator = ?) AND ( `+baseQuery+`)`, strings.ToUpper(*locator))
-			} else {
-				query.Where(baseQuery)
-			}
+				NOT (
+					(
+						-- moves with destination requests (submitted destination re_services codes)
+						EXISTS (
+							SELECT 1
+							FROM mto_service_items msi
+							JOIN re_services rs ON msi.re_service_id = rs.id
+							WHERE msi.mto_shipment_id = mto_shipments.id
+							AND msi.status = 'SUBMITTED'
+							AND rs.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')
+						)
+						-- moves with destination requests (destination address update requested)
+						OR
+						EXISTS (
+							SELECT 1
+							FROM shipment_address_updates sau
+							WHERE sau.shipment_id = mto_shipments.id
+							AND sau.status = 'REQUESTED'
+						)
+					)
+
+					-- moves with origin requests (submitted origin re_services codes)
+					AND NOT EXISTS (
+						SELECT 1
+						FROM mto_service_items msi
+						JOIN re_services rs ON msi.re_service_id = rs.id
+						WHERE msi.mto_shipment_id = mto_shipments.id
+						AND msi.status = 'SUBMITTED'
+						AND rs.code NOT IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')
+					)
+				)
+            `
+			query.Where(baseQuery)
 		}
 	}
 }
