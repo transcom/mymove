@@ -29,7 +29,7 @@ func (n StubNotificationReceiver) CreateQueueWithSubscription(appCtx appcontext.
 }
 
 func (n StubNotificationReceiver) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string, timerContext context.Context) ([]ReceivedMessage, error) {
-	time.Sleep(5 * time.Second)
+	time.Sleep(18 * time.Second)
 	messageId := "stubMessageId"
 	body := queueUrl + ":stubMessageBody"
 	mockMessages := make([]ReceivedMessage, 1)
