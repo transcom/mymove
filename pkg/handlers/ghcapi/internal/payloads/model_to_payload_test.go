@@ -832,6 +832,7 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 			},
 		},
 	}, nil)
+
 	moves := models.Moves{moveUSMC}
 	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Marine move with no shipments", func() {
 		payload := SearchMoves(appCtx, moves)
