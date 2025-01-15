@@ -2170,7 +2170,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 					Model: models.MTOShipment{
 						PrimeEstimatedWeight: &estimatedPrimeWeight,
 						RequestedPickupDate:  &pickupDate,
-						ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+						ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
 					},
 				},
 			}, nil)

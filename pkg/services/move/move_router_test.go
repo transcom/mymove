@@ -1331,7 +1331,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 			{
 				Model: models.MTOShipment{
 					ID:           uuid.Must(uuid.NewV4()),
-					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 				},
 			},
 			{

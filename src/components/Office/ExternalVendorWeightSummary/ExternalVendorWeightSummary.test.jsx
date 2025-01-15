@@ -30,9 +30,7 @@ describe('ExternalVendorWeightSummary component', () => {
   it('renders with one NTSR shipment', () => {
     render(
       <MockProviders>
-        <ExternalVendorWeightSummary
-          shipments={[{ ntsRecordedWeight: 1500, shipmentType: 'HHG_OUTOF_NTS_DOMESTIC' }]}
-        />
+        <ExternalVendorWeightSummary shipments={[{ ntsRecordedWeight: 1500, shipmentType: 'HHG_OUTOF_NTS' }]} />
       </MockProviders>,
     );
 
@@ -42,9 +40,9 @@ describe('ExternalVendorWeightSummary component', () => {
 
   it('renders with many NTSR shipments', () => {
     const shipments = [
-      { ntsRecordedWeight: 1000, shipmentType: 'HHG_OUTOF_NTS_DOMESTIC' },
-      { ntsRecordedWeight: 500, shipmentType: 'HHG_OUTOF_NTS_DOMESTIC' },
-      { ntsRecordedWeight: 1500, shipmentType: 'HHG_OUTOF_NTS_DOMESTIC' },
+      { ntsRecordedWeight: 1000, shipmentType: 'HHG_OUTOF_NTS' },
+      { ntsRecordedWeight: 500, shipmentType: 'HHG_OUTOF_NTS' },
+      { ntsRecordedWeight: 1500, shipmentType: 'HHG_OUTOF_NTS' },
     ];
     render(
       <MockProviders>
@@ -58,11 +56,11 @@ describe('ExternalVendorWeightSummary component', () => {
 
   it('renders with many NTSR and NTS shipments', () => {
     const shipments = [
-      { ntsRecordedWeight: 1000, shipmentType: 'HHG_OUTOF_NTS_DOMESTIC' },
+      { ntsRecordedWeight: 1000, shipmentType: 'HHG_OUTOF_NTS' },
       { shipmentType: 'HHG_INTO_NTS' },
-      { ntsRecordedWeight: 500, shipmentType: 'HHG_OUTOF_NTS_DOMESTIC' },
+      { ntsRecordedWeight: 500, shipmentType: 'HHG_OUTOF_NTS' },
       { shipmentType: 'HHG_INTO_NTS' },
-      { ntsRecordedWeight: 1500, shipmentType: 'HHG_OUTOF_NTS_DOMESTIC' },
+      { ntsRecordedWeight: 1500, shipmentType: 'HHG_OUTOF_NTS' },
     ];
     render(
       <MockProviders>
