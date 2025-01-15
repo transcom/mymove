@@ -46,8 +46,6 @@ var internationalAccessorialServiceItems = []ReServiceCode{
 	ReServiceCodeIDFSIT,
 	ReServiceCodeIOPSIT,
 	ReServiceCodeIDDSIT,
-	ReServiceCodePODFSC,
-	ReServiceCodePOEFSC,
 	ReServiceCodeIDSHUT,
 	ReServiceCodeIOSHUT,
 }
