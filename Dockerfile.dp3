@@ -12,7 +12,8 @@ COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 COPY bin/milmove /bin/milmove
 
 # Ephemeral volume
-COPY --from=build-env /ephemeral-dir /ephemeral-directory
+COPY --from=build-env /ephemeral-dir /ephemeral-dir
+
 
 # Demo Environment certs
 COPY config/tls/api.demo.dp3.us.chain.der.p7b /config/tls/api.demo.dp3.us.chain.der.p7b
