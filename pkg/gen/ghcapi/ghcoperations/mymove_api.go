@@ -275,6 +275,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveMoveCancelerHandler: move.MoveCancelerHandlerFunc(func(params move.MoveCancelerParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.MoveCanceler has not yet been implemented")
 		}),
+		QueuesPostBulkAssignmentDataHandler: queues.PostBulkAssignmentDataHandlerFunc(func(params queues.PostBulkAssignmentDataParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.PostBulkAssignmentData has not yet been implemented")
+		}),
 		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
 		}),
@@ -574,6 +577,8 @@ type MymoveAPI struct {
 	QueuesListPrimeMovesHandler queues.ListPrimeMovesHandler
 	// MoveMoveCancelerHandler sets the operation handler for the move canceler operation
 	MoveMoveCancelerHandler move.MoveCancelerHandler
+	// QueuesPostBulkAssignmentDataHandler sets the operation handler for the post bulk assignment data operation
+	QueuesPostBulkAssignmentDataHandler queues.PostBulkAssignmentDataHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
 	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
 	// LinesOfAccountingRequestLineOfAccountingHandler sets the operation handler for the request line of accounting operation
@@ -938,6 +943,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveMoveCancelerHandler == nil {
 		unregistered = append(unregistered, "move.MoveCancelerHandler")
+	}
+	if o.QueuesPostBulkAssignmentDataHandler == nil {
+		unregistered = append(unregistered, "queues.PostBulkAssignmentDataHandler")
 	}
 	if o.ShipmentRejectShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
@@ -1420,6 +1428,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveID}/cancel"] = move.NewMoveCanceler(o.context, o.MoveMoveCancelerHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/queues/bulk-assignment/assign"] = queues.NewPostBulkAssignmentData(o.context, o.QueuesPostBulkAssignmentDataHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

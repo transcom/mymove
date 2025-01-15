@@ -146,6 +146,10 @@ export async function getBulkAssignmentData(queueType) {
   return makeGHCRequest('queues.getBulkAssignmentData', { queueType }, { normalize: false });
 }
 
+export async function postBulkAssignmentData(queueType, data) {
+  return makeGHCRequest('queues.postBulkAssignmentData', { queueType, data }, { normalize: false });
+}
+
 export async function createCustomerSupportRemarkForMove({ body, locator }) {
   return makeGHCRequest('customerSupportRemarks.createCustomerSupportRemarkForMove', {
     body,

@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -60,6 +61,21 @@ func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, sea
 	}
 
 	return move, nil
+}
+
+func (f moveFetcher) FetchMovesByIdArray(appCtx appcontext.AppContext, moveIds []ghcmessages.BulkAssignmentMoveData) (models.Moves, error) {
+	moves := models.Moves{}
+
+	err := appCtx.DB().Q().
+		Where("id in (?)", moveIds).
+		Where("show = TRUE").
+		All(&moves)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return moves, nil
 }
 
 // Fetches moves for Navy servicemembers with approved shipments. Ignores gbloc rules
@@ -153,6 +169,107 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCounseling(appCtx 
 			internalmessages.OrdersTypeBLUEBARK,
 			internalmessages.OrdersTypeWOUNDEDWARRIOR,
 			internalmessages.OrdersTypeSAFETY).
+		All(&moves)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching moves for office: %s with error %w", officeId, err)
+	}
+
+	if len(moves) < 1 {
+		return nil, nil
+	}
+
+	return moves, nil
+}
+
+func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
+	var moves []models.MoveWithEarliestDate
+
+	query := `SELECT
+					moves.id,
+					COALESCE(ppm_shipments.expected_departure_date, '9999-12-31') AS earliest_date
+				FROM moves
+				INNER JOIN orders ON orders.id = moves.orders_id
+				INNER JOIN service_members ON service_members.id = orders.service_member_id
+				INNER JOIN mto_shipments ON mto_shipments.move_id = moves.id
+				INNER JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
+				WHERE
+					(moves.status IN ('APPROVED', 'SERVICE COUNSELING COMPLETED'))
+					AND moves.show = $1
+					AND moves.sc_assigned_id IS NULL`
+
+	switch gbloc {
+	case "NAVY":
+		query += ` AND (service_members.affiliation in ('` + string(models.AffiliationNAVY) + `'))`
+	case "TVCB":
+		query += ` AND (service_members.affiliation in ('` + string(models.AffiliationMARINES) + `'))`
+	case "USCG":
+		query += ` AND (service_members.affiliation in ('` + string(models.AffiliationCOASTGUARD) + `'))`
+	default:
+		query += ` AND moves.closeout_office_id = '` + officeId.String() + `'
+				   AND (service_members.affiliation NOT IN ('` +
+			string(models.AffiliationNAVY) + `', '` +
+			string(models.AffiliationMARINES) + `', '` +
+			string(models.AffiliationCOASTGUARD) + `'))`
+	}
+
+	query += ` AND (ppm_shipments.status IN ($2))
+					AND (orders.orders_type NOT IN ($3, $4, $5))
+				GROUP BY moves.id, ppm_shipments.expected_departure_date
+				ORDER BY earliest_date ASC`
+
+	err := appCtx.DB().RawQuery(query,
+		models.BoolPointer(true),
+		models.PPMShipmentStatusNeedsCloseout,
+		internalmessages.OrdersTypeBLUEBARK,
+		internalmessages.OrdersTypeWOUNDEDWARRIOR,
+		internalmessages.OrdersTypeSAFETY).All(&moves)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching moves for office: %s with error %w", officeId, err)
+	}
+
+	if len(moves) < 1 {
+		return nil, nil
+	}
+
+	return moves, nil
+}
+
+func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentTaskOrder(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
+	var moves []models.MoveWithEarliestDate
+
+	err := appCtx.DB().
+		RawQuery(`SELECT
+					moves.id,
+					MIN(LEAST(
+						COALESCE(mto_shipments.requested_pickup_date, '9999-12-31'),
+						COALESCE(mto_shipments.requested_delivery_date, '9999-12-31'),
+						COALESCE(ppm_shipments.expected_departure_date, '9999-12-31')
+					)) AS earliest_date
+				FROM moves
+				INNER JOIN orders ON orders.id = moves.orders_id
+				INNER JOIN service_members ON orders.service_member_id = service_members.id
+				INNER JOIN mto_shipments ON mto_shipments.move_id = moves.id
+				LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
+				LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
+				WHERE
+					(moves.status IN ('APPROVALS REQUESTED', 'SUBMITTED', 'SERVICE COUNSELING COMPLETED'))
+					AND moves.show = $1
+					AND moves.too_assigned_id IS NULL
+					AND (orders.orders_type NOT IN ($2, $3, $4))
+					AND service_members.affiliation != 'MARINES'
+					AND ((mto_shipments.shipment_type != $5 AND move_to_gbloc.gbloc = $6) OR (mto_shipments.shipment_type = $7 AND orders.gbloc = $8))
+				GROUP BY moves.id
+				ORDER BY earliest_date ASC`,
+			models.BoolPointer(true),
+			internalmessages.OrdersTypeBLUEBARK,
+			internalmessages.OrdersTypeWOUNDEDWARRIOR,
+			internalmessages.OrdersTypeSAFETY,
+			models.MTOShipmentTypeHHGOutOfNTSDom,
+			gbloc,
+			models.MTOShipmentTypeHHGOutOfNTSDom,
+			gbloc).
 		All(&moves)
 
 	if err != nil {
