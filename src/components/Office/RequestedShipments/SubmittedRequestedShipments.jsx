@@ -35,12 +35,12 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 // Different things show when collapsed depending on if the shipment is an external vendor or not.
 const showWhenCollapsedWithExternalVendor = {
   HHG_INTO_NTS: ['serviceOrderNumber', 'requestedDeliveryDate'],
-  HHG_OUTOF_NTS_DOMESTIC: ['serviceOrderNumber', 'requestedPickupDate'],
+  HHG_OUTOF_NTS: ['serviceOrderNumber', 'requestedPickupDate'],
 };
 
 const showWhenCollapsedWithGHCPrime = {
   HHG_INTO_NTS: ['tacType', 'requestedDeliveryDate'],
-  HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType', 'requestedPickupDate'],
+  HHG_OUTOF_NTS: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType', 'requestedPickupDate'],
 };
 
 const SubmittedRequestedShipments = ({
