@@ -1423,7 +1423,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 		},
 		{
 			Model: models.MTOShipment{
-				ShipmentType:      models.MTOShipmentTypeHHGOutOfNTSDom,
+				ShipmentType:      models.MTOShipmentTypeHHGOutOfNTS,
 				PrimeActualWeight: &testOriginalWeight,
 				ActualPickupDate:  &actualPickupDate,
 			},
