@@ -1,6 +1,7 @@
 -- removing ServiceAreaOrigin
 DELETE FROM service_params
-WHERE service_item_param_key_id = '599bbc21-8d1d-4039-9a89-ff52e3582144';
+WHERE service_id = '9f3d551a-0725-430e-897e-80ee9add3ae9'
+AND service_item_param_key_id = '599bbc21-8d1d-4039-9a89-ff52e3582144';
 
 -- function that evaluates a date and returns T/F if it is during peak period
 CREATE OR REPLACE FUNCTION is_peak_period(input_date DATE) RETURNS BOOLEAN AS $$
