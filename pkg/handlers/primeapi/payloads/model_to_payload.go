@@ -20,13 +20,25 @@ import (
 )
 
 // MoveTaskOrder payload
-func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
+func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
+	db := appCtx.DB()
 	if moveTaskOrder == nil {
 		return nil
 	}
 	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	mtoShipments := MTOShipmentsWithoutServiceItems(&moveTaskOrder.MTOShipments)
+
+	var destGbloc, destZip string
+	var err error
+	destGbloc, err = moveTaskOrder.GetDestinationGBLOC(db)
+	if err != nil {
+		destGbloc = ""
+	}
+	destZip, err = moveTaskOrder.GetDestinationPostalCode(db)
+	if err != nil {
+		destZip = ""
+	}
 
 	payload := &primemessages.MoveTaskOrder{
 		ID:                         strfmt.UUID(moveTaskOrder.ID.String()),
@@ -36,15 +48,19 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 		ApprovedAt:                 handlers.FmtDateTimePtr(moveTaskOrder.ApprovedAt),
 		PrimeCounselingCompletedAt: handlers.FmtDateTimePtr(moveTaskOrder.PrimeCounselingCompletedAt),
 		ExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightQualifiedAt),
-		ExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
-		ExcessWeightUploadID:       handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
-		OrderID:                    strfmt.UUID(moveTaskOrder.OrdersID.String()),
-		Order:                      Order(&moveTaskOrder.Orders),
-		ReferenceID:                *moveTaskOrder.ReferenceID,
-		PaymentRequests:            *paymentRequests,
-		MtoShipments:               *mtoShipments,
-		UpdatedAt:                  strfmt.DateTime(moveTaskOrder.UpdatedAt),
-		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		ExcessUnaccompaniedBaggageWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessUnaccompaniedBaggageWeightQualifiedAt),
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessUnaccompaniedBaggageWeightAcknowledgedAt),
+		ExcessWeightAcknowledgedAt:                     handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
+		ExcessWeightUploadID:                           handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
+		OrderID:                                        strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		Order:                                          Order(&moveTaskOrder.Orders),
+		DestinationGBLOC:                               destGbloc,
+		DestinationPostalCode:                          destZip,
+		ReferenceID:                                    *moveTaskOrder.ReferenceID,
+		PaymentRequests:                                *paymentRequests,
+		MtoShipments:                                   *mtoShipments,
+		UpdatedAt:                                      strfmt.DateTime(moveTaskOrder.UpdatedAt),
+		ETag:                                           etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
 	if moveTaskOrder.PPMType != nil {
@@ -63,21 +79,36 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 }
 
 // ListMove payload
-func ListMove(move *models.Move, moveOrderAmendmentsCount *services.MoveOrderAmendmentAvailableSinceCount) *primemessages.ListMove {
+func ListMove(move *models.Move, appCtx appcontext.AppContext, moveOrderAmendmentsCount *services.MoveOrderAmendmentAvailableSinceCount) *primemessages.ListMove {
 	if move == nil {
 		return nil
 	}
 
+	db := appCtx.DB()
+
+	var destGbloc, destZip string
+	var err error
+	destGbloc, err = move.GetDestinationGBLOC(db)
+	if err != nil {
+		destGbloc = ""
+	}
+	destZip, err = move.GetDestinationPostalCode(db)
+	if err != nil {
+		destZip = ""
+	}
+
 	payload := &primemessages.ListMove{
-		ID:                 strfmt.UUID(move.ID.String()),
-		MoveCode:           move.Locator,
-		CreatedAt:          strfmt.DateTime(move.CreatedAt),
-		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
-		ApprovedAt:         handlers.FmtDateTimePtr(move.ApprovedAt),
-		OrderID:            strfmt.UUID(move.OrdersID.String()),
-		ReferenceID:        *move.ReferenceID,
-		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
-		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		ID:                    strfmt.UUID(move.ID.String()),
+		MoveCode:              move.Locator,
+		CreatedAt:             strfmt.DateTime(move.CreatedAt),
+		AvailableToPrimeAt:    handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ApprovedAt:            handlers.FmtDateTimePtr(move.ApprovedAt),
+		DestinationGBLOC:      destGbloc,
+		DestinationPostalCode: destZip,
+		OrderID:               strfmt.UUID(move.OrdersID.String()),
+		ReferenceID:           *move.ReferenceID,
+		UpdatedAt:             strfmt.DateTime(move.UpdatedAt),
+		ETag:                  etag.GenerateEtag(move.UpdatedAt),
 		Amendments: &primemessages.Amendments{
 			Total:          handlers.FmtInt64(0),
 			AvailableSince: handlers.FmtInt64(0),
@@ -97,7 +128,7 @@ func ListMove(move *models.Move, moveOrderAmendmentsCount *services.MoveOrderAme
 }
 
 // ListMoves payload
-func ListMoves(moves *models.Moves, moveOrderAmendmentAvailableSinceCounts services.MoveOrderAmendmentAvailableSinceCounts) []*primemessages.ListMove {
+func ListMoves(moves *models.Moves, appCtx appcontext.AppContext, moveOrderAmendmentAvailableSinceCounts services.MoveOrderAmendmentAvailableSinceCounts) []*primemessages.ListMove {
 	payload := make(primemessages.ListMoves, len(*moves))
 
 	moveOrderAmendmentsFilterCountMap := make(map[uuid.UUID]services.MoveOrderAmendmentAvailableSinceCount, len(*moves))
@@ -108,9 +139,9 @@ func ListMoves(moves *models.Moves, moveOrderAmendmentAvailableSinceCounts servi
 	for i, m := range *moves {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		if value, ok := moveOrderAmendmentsFilterCountMap[m.ID]; ok {
-			payload[i] = ListMove(&copyOfM, &value)
+			payload[i] = ListMove(&copyOfM, appCtx, &value)
 		} else {
-			payload[i] = ListMove(&copyOfM, nil)
+			payload[i] = ListMove(&copyOfM, appCtx, nil)
 		}
 	}
 
@@ -863,6 +894,8 @@ func ExcessWeightRecord(appCtx appcontext.AppContext, storer storage.FileStorer,
 		MoveID:                         handlers.FmtUUIDPtr(&move.ID),
 		MoveExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
 		MoveExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
+		MoveExcessUnaccompaniedBaggageWeightQualifiedAt:    handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightQualifiedAt),
+		MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt: handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt),
 	}
 
 	upload := Upload(appCtx, storer, move.ExcessWeightUpload)
