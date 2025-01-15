@@ -1840,6 +1840,22 @@ func init() {
             "moveId"
           ],
           "properties": {
+            "moveExcessUnaccompaniedBaggageWeightAcknowledgedAt": {
+              "description": "The date and time when the TOO acknowledged the excess unaccompanied baggage weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
+            "moveExcessUnaccompaniedBaggageWeightQualifiedAt": {
+              "description": "The date and time when the sum of all the move's unaccompanied baggage shipments met the excess weight qualification threshold. The system monitors these weights and will update this field automatically.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
             "moveExcessWeightAcknowledgedAt": {
               "description": "The date and time when the TOO acknowledged the excess weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
               "type": "string",
@@ -2874,6 +2890,20 @@ func init() {
         },
         "eTag": {
           "type": "string",
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "excessWeightAcknowledgedAt": {
@@ -6759,6 +6789,22 @@ func init() {
             "moveId"
           ],
           "properties": {
+            "moveExcessUnaccompaniedBaggageWeightAcknowledgedAt": {
+              "description": "The date and time when the TOO acknowledged the excess unaccompanied baggage weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
+            "moveExcessUnaccompaniedBaggageWeightQualifiedAt": {
+              "description": "The date and time when the sum of all the move's unaccompanied baggage shipments met the excess weight qualification threshold. The system monitors these weights and will update this field automatically.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
             "moveExcessWeightAcknowledgedAt": {
               "description": "The date and time when the TOO acknowledged the excess weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
               "type": "string",
@@ -7793,6 +7839,20 @@ func init() {
         },
         "eTag": {
           "type": "string",
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "excessWeightAcknowledgedAt": {
