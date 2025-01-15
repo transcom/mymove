@@ -112,6 +112,7 @@ func (suite *notificationReceiverSuite) TestSuccessPath() {
 				},
 			},
 		}, nil)
+		mockedSqs.On("DeleteMessage", mock.Anything, mock.AnythingOfType("*sqs.DeleteMessageInput")).Return(&sqs.DeleteMessageOutput{}, nil)
 		mockedSqs.On("DeleteQueue", mock.Anything, mock.AnythingOfType("*sqs.DeleteQueueInput")).Return(&sqs.DeleteQueueOutput{}, nil)
 		mockedSqs.On("ListQueues", mock.Anything, mock.AnythingOfType("*sqs.ListQueuesInput")).Return(&sqs.ListQueuesOutput{}, nil)
 

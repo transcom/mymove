@@ -69,7 +69,7 @@ func (suite *InternalAPISuite) TestUploads() {
 			fakeS3.EmptyTags = true
 		}
 		go func() {
-			time.Sleep(2 * time.Second)
+			time.Sleep(3 * time.Second)
 			if ok && fakeS3 != nil {
 				fakeS3.EmptyTags = false
 			}

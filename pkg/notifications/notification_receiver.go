@@ -61,6 +61,7 @@ type SnsClient interface {
 type SqsClient interface {
 	CreateQueue(ctx context.Context, params *sqs.CreateQueueInput, optFns ...func(*sqs.Options)) (*sqs.CreateQueueOutput, error)
 	ReceiveMessage(ctx context.Context, params *sqs.ReceiveMessageInput, optFns ...func(*sqs.Options)) (*sqs.ReceiveMessageOutput, error)
+	DeleteMessage(ctx context.Context, params *sqs.DeleteMessageInput, optFns ...func(*sqs.Options)) (*sqs.DeleteMessageOutput, error)
 	DeleteQueue(ctx context.Context, params *sqs.DeleteQueueInput, optFns ...func(*sqs.Options)) (*sqs.DeleteQueueOutput, error)
 	ListQueues(ctx context.Context, params *sqs.ListQueuesInput, optFns ...func(*sqs.Options)) (*sqs.ListQueuesOutput, error)
 }
@@ -188,6 +189,14 @@ func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContex
 			MessageId: *value.MessageId,
 			Body:      value.Body,
 		}
+
+		_, err := n.sqsService.DeleteMessage(recCtx, &sqs.DeleteMessageInput{
+			QueueUrl:      &queueUrl,
+			ReceiptHandle: value.ReceiptHandle,
+		})
+		if err != nil {
+			appCtx.Logger().Info("Couldn't delete message from queue. Error: %v\n", zap.Error(err))
+		}
 	}
 
 	return receivedMessages, recCtx.Err()
@@ -195,7 +204,7 @@ func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContex
 
 // CloseoutQueue stops receiving messages and cleans up the queue and its subscriptions
 func (n NotificationReceiverContext) CloseoutQueue(appCtx appcontext.AppContext, queueUrl string) error {
-	appCtx.Logger().Info("Closing out queue: %v", zap.String("queueUrl", queueUrl))
+	appCtx.Logger().Info("Closing out queue: ", zap.String("queueUrl", queueUrl))
 
 	if cancelFunc, exists := n.receiverCancelMap[queueUrl]; exists {
 		cancelFunc()
