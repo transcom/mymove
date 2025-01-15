@@ -1047,6 +1047,7 @@
 20241122155416_total_dependents_calculation.up.sql
 20241122220314_create_port_and_port_location_test_data.up.sql
 20241126222026_add_sort_column_to_re_service_items.up.sql
+20241127125545_add_excess_ub_weight_columns_to_move.up.sql
 20241127133504_add_indexes_speed_up_counseling_offices.up.sql
 20241202163059_create_test_sequence_dev_env.up.sql
 20241203024453_add_ppm_max_incentive_column.up.sql
@@ -1067,3 +1068,4 @@
 20241230190638_remove_AK_zips_from_zip3.up.sql
 20241230190647_add_missing_AK_zips_to_zip3_distances.up.sql
 20250103180420_update_pricing_proc_to_use_local_price_variable.up.sql
+20250110214012_homesafeconnect_cert.up.sql
