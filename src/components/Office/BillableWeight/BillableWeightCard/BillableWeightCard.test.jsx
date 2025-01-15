@@ -224,7 +224,7 @@ describe('BillableWeightCard', () => {
     const shipments = [
       {
         id: '0001',
-        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS',
         calculatedBillableWeight: 1000,
         estimatedWeight: 5600,
         ntsRecordedWeight: 1234,
@@ -257,7 +257,7 @@ describe('BillableWeightCard', () => {
     const shipments = [
       {
         id: '0001',
-        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS',
         calculatedBillableWeight: 1000,
         estimatedWeight: 5600,
         ntsRecordedWeight: 4000,
@@ -265,7 +265,7 @@ describe('BillableWeightCard', () => {
       },
       {
         id: '0002',
-        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS',
         calculatedBillableWeight: 3200,
         estimatedWeight: 5000,
         ntsRecordedWeight: 500,
