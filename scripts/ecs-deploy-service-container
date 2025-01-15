@@ -105,11 +105,11 @@ put_metric() {
 # get current task definiton (for rollback)
 blue_task_def_arn=$(aws ecs describe-services --services "${name}" --cluster "${cluster}" --query 'services[0].taskDefinition' | jq -r .)
 
-# Set TMPFS_FLAG for app and client-tls to account for pdfcpu needing a mutable directory
-# This flag allows the ECS definition to mount a mutable, in-memory directory
-TMPFS_FLAG=""
+# If name equals "app-client-tls", then set EPHEMERAL_FLAG
+# This allows the ECS definition to mount a mutable volume
+EPHEMERAL_FLAG=""
 if [[ "$name" == "app-client-tls" || "$name" == "app" ]]; then
-  TMPFS_FLAG="--mount-tmpfs=true"
+  EPHEMERAL_FLAG="--mount-ephemeral-volume=true"
 fi
 
 # create new task definition with the given image
@@ -126,7 +126,7 @@ green_task_def_date_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --cpu "${SERVICE_RESERVATION_CPU}" \
   --memory "${SERVICE_RESERVATION_MEM}" \
   --register \
-  $TMPFS_FLAG)
+  $EPHEMERAL_FLAG)
 # shellcheck disable=SC2181
 if [ "$?" != "0" ]; then echo "$green_task_def_date_arn"; exit 1; fi
 set -e
