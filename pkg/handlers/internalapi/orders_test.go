@@ -116,6 +116,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			orderID := okResponse.Payload.ID.String()
 			createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
 			var createdEntitlement models.Entitlement
+			createdEntitlement.AdminRestrictedWeightLocation = models.BoolPointer(false)
 			err := suite.DB().Find(&createdEntitlement, createdOrder.EntitlementID)
 			suite.NoError(err)
 			suite.NotEmpty(createdEntitlement)

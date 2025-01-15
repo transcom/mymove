@@ -43,6 +43,10 @@ const validationSchema = Yup.object({
     .min(0, 'Storage in transit (days) must be greater than or equal to 0')
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
+  weightRestriction: Yup.number()
+    .min(0, 'Weight restriction must be greater than or equal to 0')
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .notRequired(),
 });
 
 const MoveAllowances = () => {
@@ -98,6 +102,8 @@ const MoveAllowances = () => {
       organizationalClothingAndIndividualEquipment,
       storageInTransit,
       gunSafe,
+      adminRestrictedWeightLocation,
+      weightRestriction,
       accompaniedTour,
       dependentsTwelveAndOver,
       dependentsUnderTwelve,
@@ -118,6 +124,8 @@ const MoveAllowances = () => {
       organizationalClothingAndIndividualEquipment,
       storageInTransit: Number(storageInTransit),
       gunSafe,
+      adminRestrictedWeightLocation,
+      weightRestriction: Number(weightRestriction),
       accompaniedTour,
       dependentsTwelveAndOver: Number(dependentsTwelveAndOver),
       dependentsUnderTwelve: Number(dependentsUnderTwelve),
@@ -133,6 +141,8 @@ const MoveAllowances = () => {
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
     gunSafe,
+    adminRestrictedWeightLocation,
+    weightRestriction,
     storageInTransit,
     dependentsUnderTwelve,
     dependentsTwelveAndOver,
@@ -148,6 +158,8 @@ const MoveAllowances = () => {
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
     organizationalClothingAndIndividualEquipment,
     gunSafe,
+    adminRestrictedWeightLocation,
+    weightRestriction: `${weightRestriction}`,
     storageInTransit: `${storageInTransit}`,
     accompaniedTour,
     dependentsUnderTwelve: `${dependentsUnderTwelve}`,

@@ -588,6 +588,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			AdminRestrictedWeightLocation:  models.BoolPointer(false),
+			WeightRestriction:              int64(*models.IntPointer(0)),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -630,6 +632,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 			AccompaniedTour:                models.BoolPointer(true),
 			DependentsTwelveAndOver:        models.Int64Pointer(2),
 			DependentsUnderTwelve:          models.Int64Pointer(4),
+			AdminRestrictedWeightLocation:  models.BoolPointer(false),
+			WeightRestriction:              int64(*models.IntPointer(0)),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -675,6 +679,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			AdminRestrictedWeightLocation:  models.BoolPointer(false),
+			WeightRestriction:              int64(*models.IntPointer(0)),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -747,6 +753,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			AccompaniedTour:                models.BoolPointer(true),
 			DependentsTwelveAndOver:        models.Int64Pointer(1),
 			DependentsUnderTwelve:          models.Int64Pointer(2),
+			AdminRestrictedWeightLocation:  models.BoolPointer(false),
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -784,6 +792,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			AdminRestrictedWeightLocation:  models.BoolPointer(false),
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -829,6 +839,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			AdminRestrictedWeightLocation:  models.BoolPointer(false),
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -878,6 +890,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			AdminRestrictedWeightLocation:  models.BoolPointer(false),
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), orderWithoutDefaults.ID, payload, eTag)
@@ -929,6 +943,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			AdminRestrictedWeightLocation:  models.BoolPointer(false),
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -965,6 +981,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			AdminRestrictedWeightLocation:  models.BoolPointer(false),
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)

@@ -17,6 +17,7 @@ func makeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	ordersType := assertions.Order.OrdersType
 	proGearWeight := 2000
 	proGearWeightSpouse := 500
+	falsePtr := false
 
 	if grade == nil || *grade == "" {
 		grade = models.ServiceMemberGradeE1.Pointer()
@@ -32,6 +33,7 @@ func makeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 		ProGearWeightSpouse:                          proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight:               rmeWeight,
 		OrganizationalClothingAndIndividualEquipment: ocie,
+		AdminRestrictedWeightLocation:                &falsePtr,
 	}
 	entitlement.SetWeightAllotment(string(*grade), ordersType)
 	dBAuthorizedWeight := entitlement.AuthorizedWeight()

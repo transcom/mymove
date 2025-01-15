@@ -1726,6 +1726,9 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      adminRestrictedWeightLocation:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -1759,6 +1762,10 @@ definitions:
       totalDependents:
         example: 2
         type: integer
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-formatting: weight
       eTag:
         type: string
         readOnly: true
