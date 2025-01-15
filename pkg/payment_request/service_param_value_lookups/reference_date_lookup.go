@@ -20,7 +20,7 @@ func (r ReferenceDateLookup) lookup(_ appcontext.AppContext, _ *ServiceItemParam
 
 	// Most shipment types should use RequestedPickupDate, but there are exceptions.
 	switch r.MTOShipment.ShipmentType {
-	case models.MTOShipmentTypeHHGOutOfNTSDom:
+	case models.MTOShipmentTypeHHGOutOfNTS:
 		actualPickupDate := r.MTOShipment.ActualPickupDate
 		if actualPickupDate == nil || actualPickupDate.IsZero() {
 			return "", fmt.Errorf("could not find a valid actual pickup date for MTOShipmentID [%s]", r.MTOShipment.ID)

@@ -210,7 +210,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		models.MTOShipmentTypeHHG,
 		models.MTOShipmentTypeHHGIntoNTS,
-		models.MTOShipmentTypeHHGOutOfNTSDom,
+		models.MTOShipmentTypeHHGOutOfNTS,
 		models.MTOShipmentTypePPM,
 	}
 
