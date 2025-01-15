@@ -73,7 +73,7 @@ const MoveDetails = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const errorIfMissing = {
     HHG_INTO_NTS: [{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }],
-    HHG_OUTOF_NTS_DOMESTIC: [
+    HHG_OUTOF_NTS: [
       { fieldName: 'storageFacility' },
       { fieldName: 'ntsRecordedWeight' },
       { fieldName: 'serviceOrderNumber' },
@@ -115,7 +115,7 @@ const MoveDetails = ({
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
     errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
-    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
+    errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
   }
 
   let sections = useMemo(() => {

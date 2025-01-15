@@ -46,9 +46,9 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 	setupPickupAndDelivery := true
 	hasStorageFacilityCustom := findValidCustomization(customs, StorageFacility) != nil
 	buildStorageFacility :=
-		cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom ||
+		cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS ||
 			cMtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS
-	shipmentHasPickupDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
+	shipmentHasPickupDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
 	shipmentHasDeliveryDetails := cMtoShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTS && cMtoShipment.ShipmentType != models.MTOShipmentTypePPM
 	addPrimeActualWeight := true
 	switch buildType {
@@ -59,7 +59,7 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		shipmentHasPickupDetails = true
 		shipmentHasDeliveryDetails = false
 	case mtoShipmentNTSR:
-		defaultShipmentType = models.MTOShipmentTypeHHGOutOfNTSDom
+		defaultShipmentType = models.MTOShipmentTypeHHGOutOfNTS
 		defaultStatus = models.MTOShipmentStatusDraft
 		buildStorageFacility = hasStorageFacilityCustom
 		addPrimeActualWeight = false
