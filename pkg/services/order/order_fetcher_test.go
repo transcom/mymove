@@ -582,15 +582,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 	})
 
 	suite.Run("task order queue does not return move with ONLY a destination address update request", func() {
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		session := auth.Session{
-			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
-			OfficeUserID:    officeUser.ID,
-			IDToken:         "fake_token",
-			AccessToken:     "fakeAccessToken",
-		}
-		// build a move with a destination address request, should NOT appear in Task Order Queue
+		officeUser, _, session := setupTestData()
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -631,20 +623,10 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
 		suite.NotNil(shipmentAddressUpdate)
 
-		// build a second move
-		move2 := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-					Show:   models.BoolPointer(true),
-				},
-			}}, nil)
-		suite.NotNil(move2)
-
 		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 
 		suite.FatalNoError(err)
-		// even though 2 moves were created, only one will be returned from the call to List Orders since we filter out
+		// even though 2 moves were created, (one by setupTestData(), only one will be returned from the call to List Orders since we filter out
 		// the one with only a shipment address update to be routed to the destination requests queue
 		suite.Equal(1, moveCount)
 		suite.Equal(1, len(moves))
@@ -723,6 +705,78 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.FatalNoError(err)
 		// even though 2 moves were created, only one will be returned from the call to List Orders since we filter out
 		// the one with only destination service items
+		suite.Equal(1, moveCount)
+		suite.Equal(1, len(moves))
+	})
+
+	suite.Run("task order queue returns a move with excess weight flagged for review", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		now := time.Now()
+		// build a move with a non null ExcessWeightQualifiedAt
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:                  models.MoveStatusAPPROVALSREQUESTED,
+					Show:                    models.BoolPointer(true),
+					ExcessWeightQualifiedAt: &now,
+				},
+			}}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.NotNil(shipment)
+
+		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
+		suite.Equal(1, len(moves))
+	})
+
+	suite.Run("task order queue returns a move with unaccompanied baggage excess weight flagged for review", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		now := time.Now()
+		// build a move with a non null ExcessUnaccompaniedBaggageWeightQualifiedAt
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+					ExcessUnaccompaniedBaggageWeightQualifiedAt: &now,
+				},
+			}}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.NotNil(shipment)
+
+		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
+
+		suite.FatalNoError(err)
 		suite.Equal(1, moveCount)
 		suite.Equal(1, len(moves))
 	})
