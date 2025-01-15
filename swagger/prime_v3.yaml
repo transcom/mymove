@@ -663,6 +663,25 @@ definitions:
         required:
           - reason
           - reServiceCode
+  MTOServiceItemInternationalFuelSurcharge:
+    description: >-
+      Describes a international Port of Embarkation/Debarkation fuel surcharge
+      service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >-
+              A unique code for the service item. Indicates if the service is
+              for Port of Embarkation (POEFSC) or Port of Debarkation (PODFSC).
+            enum:
+              - PODFSC
+              - POEFSC
+          portCode:
+            description: A unique code for a Port
+            type: string
   CreateMTOShipment:
     type: object
     properties:
@@ -3608,6 +3627,18 @@ definitions:
           - FULL
       ppmEstimatedWeight:
         type: integer
+      excessUnaccompaniedBaggageWeightQualifiedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      excessUnaccompaniedBaggageWeightAcknowledgedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
       excessWeightQualifiedAt:
         type: string
         format: date-time
