@@ -44,6 +44,13 @@ type OfficeUser struct {
 	RejectionReason                 *string                         `json:"rejection_reason" db:"rejection_reason"`
 }
 
+type OfficeUserWithWorkload struct {
+	ID        uuid.UUID `json:"id" db:"id"`
+	FirstName string    `json:"first_name" db:"first_name"`
+	LastName  string    `json:"last_name" db:"last_name"`
+	Workload  int       `json:"workload" db:"workload"`
+}
+
 // TableName overrides the table name used by Pop.
 func (o OfficeUser) TableName() string {
 	return "office_users"
