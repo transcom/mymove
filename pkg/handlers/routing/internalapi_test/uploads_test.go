@@ -3,6 +3,7 @@ package internalapi_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -70,7 +71,26 @@ func (suite *InternalAPISuite) TestUploads() {
 
 		fakeS3.EmptyTags = true
 		go func() {
-			time.Sleep(8 * time.Second)
+			ch := make(chan bool)
+
+			go func() {
+				time.Sleep(10 * time.Second)
+				ch <- true
+			}()
+
+			for !strings.Contains(rr.Body.String(), "PROCESSING") {
+				suite.Logger().Info(rr.Body.String())
+
+				select {
+				case <-ch:
+					fakeS3.EmptyTags = false
+					close(ch)
+					return
+				default:
+					time.Sleep(1 * time.Second)
+				}
+			}
+
 			fakeS3.EmptyTags = false
 		}()
 
