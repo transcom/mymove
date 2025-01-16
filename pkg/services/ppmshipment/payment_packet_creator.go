@@ -141,28 +141,7 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 
 	// It was discovered during implementation of B-21938 that watermarks were not functional.
 	// This is because the watermark func was using bookmarks, not watermarks.
-	// The func has been removed until this functionality is needed again.
-	//
-	// watermarks, err := buildWaterMarks(bookmarks, p.pdfGenerator)
-	// if err != nil {
-	// 	errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate watermarks for PDF")
-	// 	appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-	// 	return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-	// }
-
-	// Apply bookmarks and watermarks based on flag
-	// if addWatermarks && len(watermarks) > 0 {
-	// 	pdfWithWatermarks, err := p.pdfGenerator.AddWatermarks(finalMergePdf, watermarks)
-	// 	if err != nil {
-	// 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to add watermarks to PDF")
-	// 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-	// 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-	// 	}
-	// 	if addBookmarks {
-	// 		return p.pdfGenerator.AddPdfBookmarks(pdfWithWatermarks, bookmarks)
-	// 	}
-	// 	return pdfWithWatermarks, nil
-	// }
+	// See https://github.com/transcom/mymove/pull/14496 for removal
 
 	if addBookmarks {
 		return p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks)
