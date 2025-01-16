@@ -248,8 +248,18 @@ export const WithPaymentReviewedApproved = () => (
         amount: 5678.05,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
+      {
+        amount: 54.89,
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+        mtoServiceItemName: serviceItemCodes.MS,
+      },
+      {
+        amount: 61.32,
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+        mtoServiceItemName: serviceItemCodes.CS,
+      },
     ]}
-    curCardIndex={1}
+    curCardIndex={3}
     requestReviewed
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
