@@ -855,8 +855,8 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// we will compare data here to see if we even need to update the pricing
 		if newShipment.MarketCode == models.MarketCodeInternational &&
 			(newShipment.PrimeEstimatedWeight != nil ||
-				newShipment.PickupAddress != nil && newShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode ||
-				newShipment.DestinationAddress != nil && newShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode ||
+				newShipment.PickupAddress != nil && dbShipment.PickupAddress != nil && newShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode ||
+				newShipment.DestinationAddress != nil && dbShipment.DestinationAddress != nil && newShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode ||
 				newShipment.RequestedPickupDate != nil && newShipment.RequestedPickupDate.Format("2006-01-02") != dbShipment.RequestedPickupDate.Format("2006-01-02")) {
 
 			portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), newShipment.ID)
@@ -1110,9 +1110,9 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
 
 	// international shipment service items are created in the shipment_approver
-	switch shipment.ShipmentType {
-	case models.MTOShipmentTypeHHG:
-		if shipment.MarketCode != models.MarketCodeInternational {
+	if shipment.MarketCode != models.MarketCodeInternational {
+		switch shipment.ShipmentType {
+		case models.MTOShipmentTypeHHG:
 			originZIP3 := shipment.PickupAddress.PostalCode[0:3]
 			destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
 
@@ -1136,9 +1136,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 				models.ReServiceCodeDPK,
 				models.ReServiceCodeDUPK,
 			}
-		}
-	case models.MTOShipmentTypeHHGIntoNTS:
-		if shipment.MarketCode != models.MarketCodeInternational {
+		case models.MTOShipmentTypeHHGIntoNTS:
 			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing
 			return []models.ReServiceCode{
 				models.ReServiceCodeDLH,
@@ -1147,42 +1145,42 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 				models.ReServiceCodeDDP,
 				models.ReServiceCodeDNPK,
 			}
-		}
-	case models.MTOShipmentTypeHHGOutOfNTSDom:
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDUPK,
-		}
-	case models.MTOShipmentTypeMobileHome:
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDMHF,
-		}
-	case models.MTOShipmentTypeBoatHaulAway:
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDBHF,
-		}
-	case models.MTOShipmentTypeBoatTowAway:
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Tow Away Boat Factor
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDBTF,
+		case models.MTOShipmentTypeHHGOutOfNTSDom:
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
+			return []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDUPK,
+			}
+		case models.MTOShipmentTypeMobileHome:
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
+			return []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDMHF,
+			}
+		case models.MTOShipmentTypeBoatHaulAway:
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
+			return []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDBHF,
+			}
+		case models.MTOShipmentTypeBoatTowAway:
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Tow Away Boat Factor
+			return []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDBTF,
+			}
 		}
 	}
 
