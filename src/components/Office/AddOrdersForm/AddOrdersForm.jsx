@@ -57,6 +57,9 @@ const AddOrdersForm = ({
       .required('Required'),
     hasDependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     originDutyLocation: Yup.object().nullable().required('Required'),
+    counselingOfficeId: currentDutyLocation.provides_services_counseling
+      ? Yup.string().required('Required')
+      : Yup.string().notRequired(),
     newDutyLocation: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     accompaniedTour: showAccompaniedTourField

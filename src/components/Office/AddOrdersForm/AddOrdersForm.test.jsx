@@ -452,4 +452,36 @@ describe('AddOrdersForm - With Counseling Office', () => {
     const nextBtn = screen.getByRole('button', { name: 'Next' });
     expect(nextBtn.getAttribute('disabled')).toBeFalsy();
   });
+
+  it('disabled submit if counseling office is required and blank', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await userEvent.selectOptions(await screen.findByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2024');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2024');
+    await userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+
+    // Test Current Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Scott/);
+    await userEvent.click(selectedOptionCurrent);
+
+    // Test New Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
+    screen.getByLabelText(/New duty location/).blurElement();
+
+    const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
+    expect(counselingOfficeLabel).toBeTruthy(); // If the field is visible then it it required
+
+    const nextBtn = await screen.getByRole('button', { name: 'Next' });
+    expect(nextBtn.getAttribute('disabled')).toBeTruthy();
+  });
 });
