@@ -35,6 +35,7 @@ import {
   searchCustomers,
   getGBLOCs,
   getBulkAssignmentData,
+  getDestinationRequestsQueue,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -575,6 +576,28 @@ export const useMovesQueueQueries = ({
   const { data = {}, ...movesQueueQuery } = useQuery(
     [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
     ({ queryKey }) => getMovesQueue(...queryKey),
+  );
+  const { isLoading, isError, isSuccess } = movesQueueQuery;
+  const { queueMoves, ...dataProps } = data;
+  return {
+    queueResult: { data: queueMoves, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useDestinationRequestsQueueQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
+}) => {
+  const { data = {}, ...movesQueueQuery } = useQuery(
+    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
+    ({ queryKey }) => getDestinationRequestsQueue(...queryKey),
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
   const { queueMoves, ...dataProps } = data;
