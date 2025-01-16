@@ -35,6 +35,9 @@ COPY swagger/* /swagger/
 COPY build /build
 COPY public/static/react-file-viewer /public/static/react-file-viewer
 
+# Keep the tmp!
+VOLUME ["/tmp"]
+
 ENTRYPOINT ["/bin/milmove"]
 
 CMD ["serve", "--logging-level=debug"]
