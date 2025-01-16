@@ -119,23 +119,12 @@ func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
 	tmpDir := os.TempDir()
-	if isDirMutable(tmpDir) {
-		err := api.EnsureDefaultConfigAt(tmpDir)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		// tmp dir wasn't mutable, try ephemeral
-		ephemeralPath := "/ephemeral-dir" // TODO: make this a const
-		if isDirMutable(ephemeralPath) {
-			err := api.EnsureDefaultConfigAt(ephemeralPath)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			// Neither directory is mutable
-			return nil, fmt.Errorf("both tmp directory (%s) and ephemeral directory (%s) are not mutable, cannot configure default pdfcpu generator settings", tmpDir, ephemeralPath)
-		}
+	if !isDirMutable(tmpDir) {
+		return nil, fmt.Errorf("tmp directory (%s) is not mutable, cannot configure default pdfcpu generator settings", tmpDir)
+	}
+	err := api.EnsureDefaultConfigAt(tmpDir)
+	if err != nil {
+		return nil, err
 	}
 
 	pdfConfig := api.LoadConfiguration() // As long as our config was set properly, this will load it and not create a new default config

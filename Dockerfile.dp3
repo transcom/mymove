@@ -1,9 +1,6 @@
 FROM debian:stable AS build-env
 
-## Give full perms to ephemeral dir
-RUN mkdir -p /ephemeral-dir && chmod 777 /ephemeral-dir
-
-## Give full perms to ephemeral dir
+## Give full perms to tmp for the server to have a read/write location
 RUN mkdir -p /tmp && chmod 777 /tmp
 
 # hadolint ignore=DL3007
@@ -14,10 +11,7 @@ COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 
 COPY bin/milmove /bin/milmove
 
-# Ephemeral volume
-COPY --from=build-env --chown=nonroot:nonroot /ephemeral-dir /ephemeral-dir
-
-# Ephemeral volume
+# Pull in full perms tmp
 COPY --from=build-env --chown=nonroot:nonroot /tmp /tmp
 
 # Demo Environment certs
@@ -35,9 +29,6 @@ COPY config/tls/api.exp.dp3.us.crt /config/tls/api.exp.dp3.us.crt
 COPY swagger/* /swagger/
 COPY build /build
 COPY public/static/react-file-viewer /public/static/react-file-viewer
-
-VOLUME ["/ephemeral-dir"]
-VOLUME ["/tmp"]
 
 ENTRYPOINT ["/bin/milmove"]
 
