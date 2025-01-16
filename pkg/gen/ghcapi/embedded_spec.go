@@ -10135,7 +10135,7 @@ func init() {
       "enum": [
         "HHG",
         "HHG_INTO_NTS",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
@@ -10147,7 +10147,7 @@ func init() {
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS": "NTS",
-        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
+        "HHG_OUTOF_NTS": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
@@ -13141,7 +13141,7 @@ func init() {
             "BOAT_TOW_AWAY",
             "HHG",
             "HHG_INTO_NTS",
-            "HHG_OUTOF_NTS_DOMESTIC",
+            "HHG_OUTOF_NTS",
             "MOBILE_HOME",
             "PPM",
             "UNACCOMPANIED_BAGGAGE"
@@ -27341,7 +27341,7 @@ func init() {
       "enum": [
         "HHG",
         "HHG_INTO_NTS",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
@@ -27353,7 +27353,7 @@ func init() {
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS": "NTS",
-        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
+        "HHG_OUTOF_NTS": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
@@ -30423,7 +30423,7 @@ func init() {
             "BOAT_TOW_AWAY",
             "HHG",
             "HHG_INTO_NTS",
-            "HHG_OUTOF_NTS_DOMESTIC",
+            "HHG_OUTOF_NTS",
             "MOBILE_HOME",
             "PPM",
             "UNACCOMPANIED_BAGGAGE"
