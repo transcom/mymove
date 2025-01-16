@@ -22,9 +22,3 @@ type WeightRestrictor interface {
 	ApplyWeightRestrictionToEntitlement(appCtx appcontext.AppContext, entitlement models.Entitlement, weightRestriction int, eTag string) (*models.Entitlement, error)
 	RemoveWeightRestrictionFromEntitlement(appCtx appcontext.AppContext, entitlement models.Entitlement, eTag string) (*models.Entitlement, error)
 }
-
-// The weight allotment saver helps apply weight restrictions to entitlements
-//
-//go:generate mockery --name WeightRestrictor
-type WeightAllotmentSaver interface {
-}

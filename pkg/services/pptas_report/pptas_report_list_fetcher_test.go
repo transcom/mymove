@@ -20,7 +20,6 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 
 	reportListFetcher := NewPPTASReportListFetcher(&ppmEstimator, &moveFetcher, &tacFetcher, &loaFetcher, waf)
-	// defaultSearchParams := services.MoveTaskOrderFetcherParams{}
 
 	appCtx := suite.AppContextForTest()
 
