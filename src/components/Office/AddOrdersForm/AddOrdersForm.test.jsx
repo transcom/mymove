@@ -232,6 +232,26 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     });
   });
 });
+describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
+  it('disables orders type when safety move is selected', async () => {
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} isSafetyMoveSelected />
+      </Provider>,
+    );
+
+    expect(screen.getByLabelText('Orders type')).toBeDisabled();
+  });
+
+  it('disables orders type when bluebark move is selected', async () => {
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} isBluebarkMoveSelected />
+      </Provider>,
+    );
+    expect(screen.getByLabelText('Orders type')).toBeDisabled();
+  });
+});
 
 describe('AddOrdersForm - With Counseling Office', () => {
   it('displays the counseling office dropdown', async () => {

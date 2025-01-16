@@ -24,7 +24,14 @@ import { showCounselingOffices } from 'services/ghcApi';
 
 let originMeta;
 let newDutyMeta = '';
-const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isSafetyMoveSelected }) => {
+const AddOrdersForm = ({
+  onSubmit,
+  ordersTypeOptions,
+  initialValues,
+  onBack,
+  isSafetyMoveSelected,
+  isBluebarkMoveSelected,
+}) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
@@ -143,7 +150,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
                 name="ordersType"
                 options={ordersTypeOptions}
                 required
-                isDisabled={isSafetyMoveSelected}
+                isDisabled={isSafetyMoveSelected || isBluebarkMoveSelected}
               />
               <DatePickerInput name="issueDate" label="Orders date" required />
               <DatePickerInput name="reportByDate" label="Report by date" required />
