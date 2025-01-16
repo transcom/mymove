@@ -9,7 +9,7 @@ import (
 
 const (
 	// ReceiverBackend is the Receiver Backend Flag
-	ReceiverBackendFlag string = "receiver-backend"
+	ReceiverBackendFlag string = "receiver_backend"
 	// SNSTagsUpdatedTopicFlag is the SNS Tags Updated Topic Flag
 	SNSTagsUpdatedTopicFlag string = "sns-tags-updated-topic"
 	// SNSRegionFlag is the SNS Region flag
@@ -31,7 +31,7 @@ func CheckReceiver(v *viper.Viper) error {
 
 	receiverBackend := v.GetString(ReceiverBackendFlag)
 	if !stringSliceContains([]string{"local", "sns_sqs"}, receiverBackend) {
-		return fmt.Errorf("invalid receiver-backend %s, expecting local or sns_sqs", receiverBackend)
+		return fmt.Errorf("invalid receiver_backend %s, expecting local or sns_sqs", receiverBackend)
 	}
 
 	if receiverBackend == "sns_sqs" {
