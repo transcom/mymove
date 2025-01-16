@@ -576,3 +576,148 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 		}
 	})
 }
+
+func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Po_Box_Zip() {
+	setupDataForDutyLocationSearch := func(postalCode string, dutyLocationName string) models.DutyLocation {
+		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NotNil(us_country)
+		suite.Nil(err)
+
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), postalCode)
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
+		address := models.Address{
+			StreetAddress1:     "n/a",
+			City:               "SomeCity",
+			State:              "VA",
+			PostalCode:         postalCode,
+			County:             models.StringPointer("SomeCounty"),
+			IsOconus:           models.BoolPointer(true),
+			UsPostRegionCityID: &usprc.ID,
+			CountryId:          models.UUIDPointer(us_country.ID),
+		}
+		suite.MustSave(&address)
+
+		origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name:                       dutyLocationName,
+					AddressID:                  address.ID,
+					ProvidesServicesCounseling: true,
+				},
+			},
+		}, nil)
+		origDutyLocation.Affiliation = nil
+		suite.MustSave(&origDutyLocation)
+
+		found_duty_location, _ := models.FetchDutyLocation(suite.DB(), origDutyLocation.ID)
+
+		return found_duty_location
+	}
+
+	const poBoxPostalCode = "92137"
+	const nonPoBoxPostalCode = "23690"
+	const nonPoBoxPostalCode2 = "88101"
+	testDutyLocationName := "test case"
+	testDutyLocationName2 := "test case 2"
+	testDutyLocationName3 := "test case 3"
+
+	suite.Run("test search by duty location name - 1 with po box and 2 without po box", func() {
+
+		// duty location with a po box
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+
+		// duty location without a po box
+		nonPoBoxDutyLocation := setupDataForDutyLocationSearch(nonPoBoxPostalCode, testDutyLocationName2)
+		nonPoBoxDutyLocation2 := setupDataForDutyLocationSearch(nonPoBoxPostalCode2, testDutyLocationName3)
+
+		tests := []struct {
+			query         string
+			dutyLocations []string
+		}{
+			{query: "search duty locations by name test", dutyLocations: []string{testDutyLocationName}},
+		}
+
+		expectedDutyLocationNames := []string{nonPoBoxDutyLocation.Name, nonPoBoxDutyLocation2.Name}
+
+		for _, ts := range tests {
+			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), testDutyLocationName, []string{})
+			suite.NoError(err)
+			suite.Require().Equal(2, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+			for _, o := range dutyLocations {
+				suite.True(slices.Contains(expectedDutyLocationNames, o.Name))
+			}
+		}
+	})
+
+	suite.Run("test search by duty location name - only po box", func() {
+
+		// duty location with a po box
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+
+		tests := []struct {
+			query         string
+			dutyLocations []string
+		}{
+			{query: "search duty locations by name test", dutyLocations: []string{testDutyLocationName}},
+		}
+
+		for _, ts := range tests {
+			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), testDutyLocationName, []string{})
+			suite.NoError(err)
+			suite.Require().Equal(0, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+		}
+	})
+
+	suite.Run("test search by zip - a po box zip", func() {
+
+		// duty location with a po box
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+
+		// duty location without a po box
+		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode, testDutyLocationName2)
+		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode2, testDutyLocationName3)
+
+		tests := []struct {
+			query         string
+			dutyLocations []string
+		}{
+			{query: "search duty locations by name test", dutyLocations: []string{testDutyLocationName}},
+		}
+
+		for _, ts := range tests {
+			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), poBoxPostalCode, []string{})
+			suite.NoError(err)
+			suite.Require().Equal(0, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+		}
+	})
+
+	suite.Run("test search by zip - not a po box zip", func() {
+
+		// duty location with a po box
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+
+		// duty location without a po box
+		nonPoBoxDutyLocation := setupDataForDutyLocationSearch(nonPoBoxPostalCode, testDutyLocationName2)
+		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode2, testDutyLocationName3)
+
+		tests := []struct {
+			query         string
+			dutyLocations []string
+		}{
+			{query: "search duty locations by name test", dutyLocations: []string{testDutyLocationName}},
+		}
+
+		expectedDutyLocationNames := []string{nonPoBoxDutyLocation.Name}
+
+		for _, ts := range tests {
+			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), nonPoBoxPostalCode, []string{})
+			suite.NoError(err)
+			suite.Require().Equal(1, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+			for _, o := range dutyLocations {
+				suite.True(slices.Contains(expectedDutyLocationNames, o.Name))
+			}
+		}
+	})
+}
