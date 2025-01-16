@@ -1,6 +1,9 @@
 package factory
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -46,7 +49,6 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 	ocie := true
 	proGearWeight := 2000
 	proGearWeightSpouse := 500
-	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 
 	// Create default Entitlement
 	entitlement := models.Entitlement{
@@ -61,7 +63,30 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 		OrganizationalClothingAndIndividualEquipment: ocie,
 	}
 	// Set default calculated values
-	entitlement.SetWeightAllotment(string(*grade), ordersType)
+	var hhgAllowance models.HHGAllowance
+	if db != nil && grade != nil {
+		err := db.
+			RawQuery(`
+          SELECT hhg_allowances.*
+          FROM hhg_allowances
+          INNER JOIN pay_grades ON hhg_allowances.pay_grade_id = pay_grades.id
+          WHERE pay_grades.grade = $1
+          LIMIT 1
+        `, grade).
+			First(&hhgAllowance)
+		if err != nil {
+			// The database must not be running or the data was truncated
+			log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data. pay grade: %s err: %w", *order.Grade, err))
+		}
+	}
+
+	allotment := models.WeightAllotment{
+		TotalWeightSelf:               hhgAllowance.TotalWeightSelf,
+		TotalWeightSelfPlusDependents: hhgAllowance.TotalWeightSelfPlusDependents,
+		ProGearWeight:                 hhgAllowance.ProGearWeight,
+		ProGearWeightSpouse:           hhgAllowance.ProGearWeightSpouse,
+	}
+	entitlement.WeightAllotted = &allotment
 	entitlement.DBAuthorizedWeight = entitlement.AuthorizedWeight()
 
 	// Overwrite default values with those from custom Entitlement

@@ -30,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -44,7 +45,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	moveTaskOrder := factory.BuildMove(suite.DB(), nil, nil)
 	factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 	factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeCS)
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := movetaskorderops.GetMoveTaskOrderParams{
 		HTTPRequest:     request,
@@ -53,7 +54,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	handlerConfig := suite.HandlerConfig()
 	handler := GetMoveTaskOrderHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	// Validate incoming payload: no body to validate

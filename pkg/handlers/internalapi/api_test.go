@@ -5,7 +5,9 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -23,6 +25,19 @@ func (suite *HandlerSuite) createS3HandlerConfig() handlers.HandlerConfig {
 // HandlerSuite is an abstraction of our original suite
 type HandlerSuite struct {
 	handlers.BaseHandlerTestSuite
+}
+
+func (suite *HandlerSuite) SetupSuite() {
+	suite.PreloadData(func() {
+		factory.FetchOrBuildCountry(suite.DB(), []factory.Customization{
+			{
+				Model: models.Country{
+					Country:     "US",
+					CountryName: "UNITED STATES",
+				},
+			},
+		}, nil)
+	})
 }
 
 // AfterTest completes tests by trying to close open files

@@ -9,6 +9,7 @@ import (
 	pptasops "github.com/transcom/mymove/pkg/gen/pptasapi/pptasoperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
 	"github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
@@ -18,6 +19,7 @@ import (
 
 func NewPPTASAPI(handlerConfig handlers.HandlerConfig) *pptasops.MymoveAPI {
 	pptasSpec, err := loads.Analyzed(pptasapi.SwaggerJSON, "")
+	waf := entitlements.NewWeightAllotmentFetcher()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -31,7 +33,7 @@ func NewPPTASAPI(handlerConfig handlers.HandlerConfig) *pptasops.MymoveAPI {
 
 	pptasAPI.MovesPptasReportsHandler = PPTASReportsHandler{
 		HandlerConfig:          handlerConfig,
-		PPTASReportListFetcher: report.NewPPTASReportListFetcher(ppmEstimator, moveFetcher, tacFetcher, loaFetcher),
+		PPTASReportListFetcher: report.NewPPTASReportListFetcher(ppmEstimator, moveFetcher, tacFetcher, loaFetcher, waf),
 	}
 
 	return pptasAPI

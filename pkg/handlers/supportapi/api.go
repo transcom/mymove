@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -40,6 +41,7 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	supportAPI := supportops.NewMymoveAPI(supportSpec)
 
@@ -47,7 +49,7 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 
 	supportAPI.MoveTaskOrderListMTOsHandler = ListMTOsHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
@@ -69,7 +71,7 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 
 	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher()}
+		movetaskorder.NewMoveTaskOrderFetcher(waf)}
 
 	supportAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
 		handlerConfig,

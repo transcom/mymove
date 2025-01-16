@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/move"
 	orderservice "github.com/transcom/mymove/pkg/services/order"
@@ -25,16 +26,6 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
-	suite.PreloadData(func() {
-		factory.FetchOrBuildCountry(suite.DB(), []factory.Customization{
-			{
-				Model: models.Country{
-					Country:     "US",
-					CountryName: "UNITED STATES",
-				},
-			},
-		}, nil)
-	})
 	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 	suite.Run("can create conus and oconus orders", func() {
 		testCases := []struct {
@@ -93,6 +84,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 				DepartmentIndicator:  internalmessages.NewDeptIndicator(deptIndicator),
 				Grade:                models.ServiceMemberGradeE1.Pointer(),
 			}
+
 			if tc.isOconus {
 				payload.AccompaniedTour = models.BoolPointer(true)
 				payload.DependentsTwelveAndOver = models.Int64Pointer(5)
@@ -584,7 +576,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("Can update CONUS and OCONUS orders", func() {
 		testCases := []struct {
 			isOconus bool
@@ -689,13 +681,15 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			suite.NoError(err)
 			suite.Equal(payload.Grade, updatedOrder.Grade)
 			suite.Equal(*okResponse.Payload.AuthorizedWeight, int64(7000)) // E4 authorized weight is 7000, make sure we return that in the response
-			expectedUpdatedOrderWeightAllotment := models.GetWeightAllotment(*updatedOrder.Grade, updatedOrder.OrdersType)
+			expectedUpdatedOrderWeightAllotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(*updatedOrder.Grade), updatedOrder.OrdersType)
+			suite.NoError(err)
 			expectedUpdatedOrderAuthorizedWeight := expectedUpdatedOrderWeightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				expectedUpdatedOrderAuthorizedWeight = expectedUpdatedOrderWeightAllotment.TotalWeightSelfPlusDependents
 			}
 
-			expectedOriginalOrderWeightAllotment := models.GetWeightAllotment(*order.Grade, updatedOrder.OrdersType)
+			expectedOriginalOrderWeightAllotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(*order.Grade), updatedOrder.OrdersType)
+			suite.NoError(err)
 			expectedOriginalOrderAuthorizedWeight := expectedOriginalOrderWeightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				expectedUpdatedOrderAuthorizedWeight = expectedOriginalOrderWeightAllotment.TotalWeightSelfPlusDependents
