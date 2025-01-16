@@ -232,7 +232,7 @@ func (n NotificationReceiverContext) CloseoutQueue(appCtx appcontext.AppContext,
 func (n NotificationReceiverContext) GetDefaultTopic() (string, error) {
 	topicName := n.viper.GetString(cli.SNSTagsUpdatedTopicFlag)
 	receiverBackend := n.viper.GetString(cli.ReceiverBackendFlag)
-	if topicName == "" && receiverBackend == "sns&sqs" {
+	if topicName == "" && receiverBackend == "sns_sqs" {
 		return "", errors.New("sns_tags_updated_topic key not available")
 	}
 	return topicName, nil
@@ -241,12 +241,12 @@ func (n NotificationReceiverContext) GetDefaultTopic() (string, error) {
 // InitReceiver initializes the receiver backend, only call this once
 func InitReceiver(v ViperType, logger *zap.Logger, wipeAllNotificationQueues bool) (NotificationReceiver, error) {
 
-	if v.GetString(cli.ReceiverBackendFlag) == "sns&sqs" {
+	if v.GetString(cli.ReceiverBackendFlag) == "sns_sqs" {
 		// Setup notification receiver service with SNS & SQS backend dependencies
 		awsSNSRegion := v.GetString(cli.SNSRegionFlag)
 		awsAccountId := v.GetString(cli.SNSAccountId)
 
-		logger.Info("Using aws sns&sqs receiver backend", zap.String("region", awsSNSRegion))
+		logger.Info("Using aws sns_sqs receiver backend", zap.String("region", awsSNSRegion))
 
 		cfg, err := config.LoadDefaultConfig(context.Background(),
 			config.WithRegion(awsSNSRegion),

@@ -3,6 +3,7 @@ package internalapi_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -68,12 +69,17 @@ func (suite *InternalAPISuite) TestUploads() {
 		suite.NotNil(fakeS3, "FileStorer should be fakeS3")
 
 		fakeS3.EmptyTags = true
+		go func() {
+			time.Sleep(12 * time.Second)
+			fakeS3.EmptyTags = false
+		}()
 
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
 		suite.Equal(http.StatusOK, rr.Code)
 		suite.Equal("text/event-stream", rr.Header().Get("content-type"))
 
+		suite.Contains(rr.Body.String(), "PROCESSING")
 		suite.Contains(rr.Body.String(), "CLEAN")
 		suite.Contains(rr.Body.String(), "Connection closed")
 	})

@@ -71,7 +71,7 @@ func (suite *notificationReceiverSuite) TestSuccessPath() {
 	suite.Run("aws backend - notification receiver InitReceiver", func() {
 		// Setup mocks
 		mockedViper := mocks.ViperType{}
-		mockedViper.On("GetString", cli.ReceiverBackendFlag).Return("sns&sqs")
+		mockedViper.On("GetString", cli.ReceiverBackendFlag).Return("sns_sqs")
 		mockedViper.On("GetString", cli.SNSRegionFlag).Return("us-gov-west-1")
 		mockedViper.On("GetString", cli.SNSAccountId).Return("12345")
 		mockedViper.On("GetString", cli.SNSTagsUpdatedTopicFlag).Return("fake_sns_topic")
@@ -88,7 +88,7 @@ func (suite *notificationReceiverSuite) TestSuccessPath() {
 	suite.Run("aws backend - notification receiver with mock services", func() {
 		// Setup mocks
 		mockedViper := mocks.ViperType{}
-		mockedViper.On("GetString", cli.ReceiverBackendFlag).Return("sns&sqs")
+		mockedViper.On("GetString", cli.ReceiverBackendFlag).Return("sns_sqs")
 		mockedViper.On("GetString", cli.SNSRegionFlag).Return("us-gov-west-1")
 		mockedViper.On("GetString", cli.SNSAccountId).Return("12345")
 		mockedViper.On("GetString", cli.SNSTagsUpdatedTopicFlag).Return("fake_sns_topic")

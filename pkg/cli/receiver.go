@@ -20,7 +20,7 @@ const (
 
 // InitReceiverFlags initializes Storage command line flags
 func InitReceiverFlags(flag *pflag.FlagSet) {
-	flag.String(ReceiverBackendFlag, "local", "Receiver backend to use, either local or sns&sqs.")
+	flag.String(ReceiverBackendFlag, "local", "Receiver backend to use, either local or sns_sqs.")
 	flag.String(SNSTagsUpdatedTopicFlag, "", "SNS Topic for receiving event messages")
 	flag.String(SNSRegionFlag, "", "Region used for SNS and SQS")
 	flag.String(SNSAccountId, "", "SNS account Id")
@@ -30,11 +30,11 @@ func InitReceiverFlags(flag *pflag.FlagSet) {
 func CheckReceiver(v *viper.Viper) error {
 
 	receiverBackend := v.GetString(ReceiverBackendFlag)
-	if !stringSliceContains([]string{"local", "sns&sqs"}, receiverBackend) {
-		return fmt.Errorf("invalid receiver-backend %s, expecting local or sns&sqs", receiverBackend)
+	if !stringSliceContains([]string{"local", "sns_sqs"}, receiverBackend) {
+		return fmt.Errorf("invalid receiver-backend %s, expecting local or sns_sqs", receiverBackend)
 	}
 
-	if receiverBackend == "sns&sqs" {
+	if receiverBackend == "sns_sqs" {
 		r := v.GetString(SNSRegionFlag)
 		if r == "" {
 			return fmt.Errorf("invalid value for %s: %s", SNSRegionFlag, r)
