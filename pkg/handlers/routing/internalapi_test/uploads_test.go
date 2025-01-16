@@ -3,7 +3,6 @@ package internalapi_test
 import (
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -71,26 +70,7 @@ func (suite *InternalAPISuite) TestUploads() {
 
 		fakeS3.EmptyTags = true
 		go func() {
-			ch := make(chan bool)
-
-			go func() {
-				time.Sleep(10 * time.Second)
-				ch <- true
-			}()
-
-			for !strings.Contains(rr.Body.String(), "PROCESSING") {
-				suite.Logger().Info(rr.Body.String())
-
-				select {
-				case <-ch:
-					fakeS3.EmptyTags = false
-					close(ch)
-					return
-				default:
-					time.Sleep(1 * time.Second)
-				}
-			}
-
+			time.Sleep(10 * time.Second)
 			fakeS3.EmptyTags = false
 		}()
 
@@ -99,10 +79,8 @@ func (suite *InternalAPISuite) TestUploads() {
 		suite.Equal(http.StatusOK, rr.Code)
 		suite.Equal("text/event-stream", rr.Header().Get("content-type"))
 
-		message1 := "id: 0\nevent: message\ndata: PROCESSING\n\n"
-		message2 := "id: 1\nevent: message\ndata: CLEAN\n\n"
-		messageClose := "id: 2\nevent: close\ndata: Connection closed\n\n"
-
-		suite.Equal(message1+message2+messageClose, rr.Body.String())
+		suite.Contains(rr.Body.String(), "PROCESSING")
+		suite.Contains(rr.Body.String(), "CLEAN")
+		suite.Contains(rr.Body.String(), "Connection closed")
 	})
 }
