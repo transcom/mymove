@@ -200,8 +200,8 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	shipmentTypeTestCases := []models.MTOShipmentType{
 
 		models.MTOShipmentTypeHHG,
-		models.MTOShipmentTypeHHGIntoNTSDom,
-		models.MTOShipmentTypeHHGOutOfNTSDom,
+		models.MTOShipmentTypeHHGIntoNTS,
+		models.MTOShipmentTypeHHGOutOfNTS,
 		models.MTOShipmentTypePPM,
 	}
 

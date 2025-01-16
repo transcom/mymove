@@ -2655,7 +2655,7 @@ func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *up
 	mtoShipment3 := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 			},
 		},
 		{

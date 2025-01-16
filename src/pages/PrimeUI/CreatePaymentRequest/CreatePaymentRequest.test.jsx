@@ -40,7 +40,7 @@ const moveTaskOrder = {
     },
     {
       id: '3',
-      shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+      shipmentType: 'HHG_INTO_NTS',
       requestedPickupDate: '2021-12-01',
       pickupAddress: { streetAddress1: '800 Madison Avenue', city: 'New York', state: 'NY', postalCode: '10002' },
       destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },

@@ -16,6 +16,36 @@ type ExcessWeightRiskManager struct {
 	mock.Mock
 }
 
+// AcknowledgeExcessUnaccompaniedBaggageWeightRisk provides a mock function with given fields: appCtx, moveID, eTag
+func (_m *ExcessWeightRiskManager) AcknowledgeExcessUnaccompaniedBaggageWeightRisk(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string) (*models.Move, error) {
+	ret := _m.Called(appCtx, moveID, eTag)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AcknowledgeExcessUnaccompaniedBaggageWeightRisk")
+	}
+
+	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.Move, error)); ok {
+		return rf(appCtx, moveID, eTag)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) *models.Move); ok {
+		r0 = rf(appCtx, moveID, eTag)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Move)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
+		r1 = rf(appCtx, moveID, eTag)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // AcknowledgeExcessWeightRisk provides a mock function with given fields: appCtx, moveID, eTag
 func (_m *ExcessWeightRiskManager) AcknowledgeExcessWeightRisk(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveID, eTag)

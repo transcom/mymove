@@ -382,38 +382,35 @@ describe('PrimeUIShipmentCreateForm', () => {
     },
   );
 
-  it.each(['HHG', 'HHG_INTO_NTS_DOMESTIC', 'HHG_OUTOF_NTS_DOMESTIC'])(
-    'renders the initial form, selecting %s',
-    async (shipmentType) => {
-      isBooleanFlagEnabled.mockResolvedValue(false);
-      expect(await screen.queryByText('BOAT_HAUL_AWAY')).not.toBeInTheDocument();
-      expect(await screen.queryByText('BOAT_TOW_AWAY')).not.toBeInTheDocument();
-      const shipmentTypeInput = await screen.findByLabelText('Shipment type');
-      expect(shipmentTypeInput).toBeInTheDocument();
+  it.each(['HHG', 'HHG_INTO_NTS', 'HHG_OUTOF_NTS'])('renders the initial form, selecting %s', async (shipmentType) => {
+    isBooleanFlagEnabled.mockResolvedValue(false);
+    expect(await screen.queryByText('BOAT_HAUL_AWAY')).not.toBeInTheDocument();
+    expect(await screen.queryByText('BOAT_TOW_AWAY')).not.toBeInTheDocument();
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    expect(shipmentTypeInput).toBeInTheDocument();
 
-      // Select the shipment type
-      await userEvent.selectOptions(shipmentTypeInput, [shipmentType]);
+    // Select the shipment type
+    await userEvent.selectOptions(shipmentTypeInput, [shipmentType]);
 
-      // Make sure than a PPM-specific field is not visible.
-      expect(await screen.queryByLabelText('Expected Departure Date')).not.toBeInTheDocument();
+    // Make sure than a PPM-specific field is not visible.
+    expect(await screen.queryByLabelText('Expected Departure Date')).not.toBeInTheDocument();
 
-      expect(await screen.findByText('Shipment Dates')).toBeInTheDocument();
-      expect(await screen.findByLabelText('Requested pickup')).toHaveValue(initialValues.requestedPickupDate);
+    expect(await screen.findByText('Shipment Dates')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Requested pickup')).toHaveValue(initialValues.requestedPickupDate);
 
-      expect(await screen.findByRole('heading', { name: 'Diversion', level: 2 })).toBeInTheDocument();
-      expect(await screen.findByLabelText('Diversion')).not.toBeChecked();
+    expect(await screen.findByRole('heading', { name: 'Diversion', level: 2 })).toBeInTheDocument();
+    expect(await screen.findByLabelText('Diversion')).not.toBeChecked();
 
-      expect(await screen.findByText('Shipment Weights')).toBeInTheDocument();
-      expect(await screen.findByLabelText('Estimated weight (lbs)')).toHaveValue(initialValues.estimatedWeight);
+    expect(await screen.findByText('Shipment Weights')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Estimated weight (lbs)')).toHaveValue(initialValues.estimatedWeight);
 
-      expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
-      expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
+    expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
+    expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
 
-      expect(await screen.findByText('Delivery Address')).toBeInTheDocument();
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
-    },
-  );
+    expect(await screen.findByText('Delivery Address')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
+  });
 
   it('renders secondary/tertiary address', async () => {
     renderShipmentCreateForm();
