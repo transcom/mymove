@@ -294,9 +294,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		suite.NoError(err2)
 
 		expectedReserviceCodes := []models.ReServiceCode{
+			models.ReServiceCodePOEFSC,
 			models.ReServiceCodeISLH,
-			models.ReServiceCodePODFSC,
-			models.ReServiceCodeINPK,
+			models.ReServiceCodeIHPK,
+			models.ReServiceCodeIHUPK,
 		}
 
 		suite.Equal(len(expectedReserviceCodes), len(serviceItems))
