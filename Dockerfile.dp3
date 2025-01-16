@@ -42,6 +42,7 @@ COPY build /build
 COPY public/static/react-file-viewer /public/static/react-file-viewer
 
 VOLUME ["/ephemeral-dir"]
+VOLUME ["/tmp/tmp"]
 
 ENTRYPOINT ["/bin/milmove"]
 
