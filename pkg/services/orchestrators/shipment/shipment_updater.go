@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -33,7 +32,7 @@ func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipm
 }
 
 // UpdateShipment updates a shipment, taking into account different shipment types and their needs.
-func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string, planner route.Planner) (*models.MTOShipment, error) {
+func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error) {
 	if err := validateShipment(appCtx, *shipment, s.checks...); err != nil {
 		return nil, err
 	}
@@ -156,11 +155,7 @@ func AddPricingEstimatesToMTOServiceItems(appCtx appcontext.AppContext, shipment
 		serviceItemEstimatedPrice, err := shipmentUpdater.mtoServiceItemCreator.FindEstimatedPrice(appCtx, &serviceItem, *mtoShipment)
 
 		if serviceItemEstimatedPrice != 0 && err == nil {
-
-			// multiply price by 110% of estimated weight
-			priceResult := serviceItemEstimatedPrice.MultiplyFloat64(1.1)
-
-			mtoShipmentCopy.MTOServiceItems[index].PricingEstimate = &priceResult
+			mtoShipmentCopy.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
 		}
 		if err != nil {
 			return mtoShipmentCopy, err
