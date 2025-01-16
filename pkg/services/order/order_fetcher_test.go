@@ -626,7 +626,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 
 		suite.FatalNoError(err)
-		// even though 2 moves were created, (one by setupTestData(), only one will be returned from the call to List Orders since we filter out
+		// even though 2 moves were created, one by setupTestData(), only one will be returned from the call to List Orders since we filter out
 		// the one with only a shipment address update to be routed to the destination requests queue
 		suite.Equal(1, moveCount)
 		suite.Equal(1, len(moves))
@@ -642,7 +642,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			AccessToken:     "fakeAccessToken",
 		}
 
-		// build a move with a only origin service items
+		// build a move with only origin service items
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -671,7 +671,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		}, nil)
 		suite.NotNil(originSITServiceItem)
 
-		// build a move with a both origin and destination service items
+		// build a move with both origin and destination service items
 		move2 := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -720,7 +720,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		}
 
 		now := time.Now()
-		// build a move with a non null ExcessWeightQualifiedAt
+		// build a move with a ExcessWeightQualifiedAt value
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -756,7 +756,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		}
 
 		now := time.Now()
-		// build a move with a non null ExcessUnaccompaniedBaggageWeightQualifiedAt
+		// build a move with a ExcessUnaccompaniedBaggageWeightQualifiedAt value
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
