@@ -383,6 +383,56 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 	return totalCost, params, nil
 }
 
+func priceInternationalShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, market models.Market) (unit.Cents, services.PricingDisplayParams, error) {
+	if shuttlingCode != models.ReServiceCodeIOSHUT && shuttlingCode != models.ReServiceCodeIDSHUT {
+		return 0, nil, fmt.Errorf("unsupported international shuttling code of %s", shuttlingCode)
+	}
+	// Validate parameters
+	if len(contractCode) == 0 {
+		return 0, nil, errors.New("ContractCode is required")
+	}
+	if referenceDate.IsZero() {
+		return 0, nil, errors.New("ReferenceDate is required")
+	}
+	if weight < minDomesticWeight {
+		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minInternationalWeight)
+	}
+	if market == "" {
+		return 0, nil, errors.New("Market is required")
+	}
+
+	// look up rate for international accessorial price
+	internationalAccessorialPrice, err := fetchInternationalAccessorialPrice(appCtx, contractCode, shuttlingCode, market)
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not lookup International Accessorial Area Price: %w", err)
+	}
+
+	basePrice := internationalAccessorialPrice.PerUnitCents.Float64()
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, internationalAccessorialPrice.ContractID, referenceDate, false, basePrice)
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
+	}
+
+	escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
+	totalCost := unit.Cents(math.Round(escalatedPrice))
+
+	params := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(internationalAccessorialPrice.PerUnitCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+	return totalCost, params, nil
+}
+
 func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCode, contractCode string, referenceDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int, standaloneCrate bool, standaloneCrateCap unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
 	if code != models.ReServiceCodeDCRT && code != models.ReServiceCodeDUCRT {
 		return 0, nil, fmt.Errorf("unsupported domestic crating code of %s", code)

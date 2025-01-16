@@ -9,6 +9,9 @@ import (
 // minDomesticWeight is the minimum weight used in domestic calculations (weights below this are upgraded to the min)
 const minDomesticWeight = unit.Pound(500)
 
+// minInternationalWeight is the minimum weight used in international calculations (weights below this are upgraded to the min)
+const minInternationalWeight = unit.Pound(500)
+
 // minIntlWeightHHG is the minimum weight used in intl calculations (weights below this are upgraded to the min)
 const minIntlWeightHHG = unit.Pound(500)
 
