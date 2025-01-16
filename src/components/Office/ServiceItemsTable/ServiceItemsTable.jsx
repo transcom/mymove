@@ -55,7 +55,7 @@ function sortServiceItems(items) {
         !destinationServiceItemCodes.includes(item.code) &&
         !originServiceItemCodes.includes(item.code),
     )
-    .sort((a, b) => a.sort.localeCompare(b.sort));
+    .sort((a, b) => (a.sort || 'z').localeCompare(b.sort || 'z'));
 
   return [
     ...sortedHaulTypeServiceItems,
