@@ -1060,5 +1060,4 @@
 20241227153723_remove_empty_string_emplid_values.up.sql
 20241230190638_remove_AK_zips_from_zip3.up.sql
 20241230190647_add_missing_AK_zips_to_zip3_distances.up.sql
-20250110160244_update_ordering_service_items.up.sql
 20250113152050_rename_ubp.up.sql

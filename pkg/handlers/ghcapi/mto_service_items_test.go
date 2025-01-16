@@ -129,7 +129,28 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			},
 		}, nil)
 
-		serviceItems := models.MTOServiceItems{serviceItem, originSit, destinationSit}
+		poeFsc := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+		}, nil)
+
+		serviceItems := models.MTOServiceItems{serviceItem, originSit, destinationSit, poeFsc}
 
 		return requestUser, serviceItems
 	}
@@ -178,7 +199,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 		fmt.Println(okResponse.Payload)
 
-		suite.Len(okResponse.Payload, 3)
+		suite.Len(okResponse.Payload, 4)
 		for _, serviceItem := range serviceItems {
 			for _, payload := range okResponse.Payload {
 				// Validate that the Customer Contacts were included in the payload
@@ -198,6 +219,13 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 						suite.NotEqual(string(uploadPayload.URL), "")
 					}
 				}
+			}
+		}
+
+		// Validate that sort field is populated for service items which have it (ie. POEFSC)
+		for _, payload := range okResponse.Payload {
+			if payload.ReServiceCode != nil && *payload.ReServiceCode == models.ReServiceCodePOEFSC.String() {
+				suite.Equal("2", *payload.Sort)
 			}
 		}
 	})
