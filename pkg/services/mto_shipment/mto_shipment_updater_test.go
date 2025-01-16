@@ -3461,10 +3461,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateDomesticServiceItems() {
 	var mto models.Move
 
 	setupTestData := func() {
-		for i := range expectedReServiceCodes {
-			factory.FetchReServiceByCode(suite.DB(), expectedReServiceCodes[i])
-		}
-
 		pickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
