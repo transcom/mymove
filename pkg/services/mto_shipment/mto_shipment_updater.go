@@ -877,7 +877,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 					destZip = newShipment.DestinationAddress.PostalCode
 				}
 				// we need to get the mileage from DTOD first, the db proc will consume that
-				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
 				if err != nil {
 					return err
 				}
@@ -1204,13 +1204,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 
 	internationalShipment := marketCode == models.MarketCodeInternational
 
-	// DTOD is only needed if either address is alaska and the other is CONUS
-	useDTOD, err := FetchDTODDecision(appCtx, pickupAddress, destinationAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, useDTOD, internationalShipment)
+	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, internationalShipment)
 	if err != nil {
 		return nil, err
 	}
@@ -1361,11 +1355,11 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 			if TOOApprovalRequired {
 				if serviceItem.SITDestinationOriginalAddress != nil {
 					// if TOO approval was required, shipment destination address has been updated at this point
-					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false, false)
+					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false)
 				}
 			} else {
 				// if TOO approval was not required, use the newAddress
-				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false, false)
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false)
 			}
 			if err != nil {
 				return err
@@ -1432,53 +1426,4 @@ func updateAuthorizedWeight(appCtx appcontext.AppContext, shipment *models.MTOSh
 	}
 
 	return nil
-}
-
-// All full OCONUS use DTOD
-// AK is the exception to this rule
-// only use DTOD if either address is Alaska
-func ShouldUseDtod(pickup models.Address, destination models.Address) bool {
-	isPickupOCONUS := models.EvaluateIsOconus(pickup)
-	isDestinationOCONUS := models.EvaluateIsOconus(destination)
-	return isPickupOCONUS || isDestinationOCONUS
-}
-
-func LookupCountryForAddress(appCtx appcontext.AppContext, lookupAddress models.Address) (models.Country, error) {
-	var LookupCountry models.Country
-	var err error
-	//if there is no country ID, likely CONUS so use zip code
-	if lookupAddress.CountryId == nil {
-		err = appCtx.DB().Q().
-			Join("v_locations", "v_locations.country_id = re_countries.id").Where("v_locations.uspr_zip_id = ?", lookupAddress.PostalCode).First(&LookupCountry)
-	} else {
-		err = appCtx.DB().Q().
-			Join("v_locations", "v_locations.country_id = re_countries.id").Where("v_locations.country_id = ?", lookupAddress.CountryId).First(&LookupCountry)
-	}
-	if err != nil {
-		return LookupCountry, err
-	}
-
-	return LookupCountry, nil
-}
-func FetchDTODDecision(appCtx appcontext.AppContext, pickupAddress models.Address, destinationAddress models.Address) (bool, error) {
-	// Get a distance calculation between pickup and destination addresses.
-	if pickupAddress.Country == nil {
-		lookupCountry, err := LookupCountryForAddress(appCtx, pickupAddress)
-		if err == nil {
-			pickupAddress.Country = &lookupCountry
-		} else {
-			return false, err
-		}
-	}
-	if destinationAddress.Country == nil {
-		lookupCountry, err := LookupCountryForAddress(appCtx, destinationAddress)
-		if err == nil {
-			destinationAddress.Country = &lookupCountry
-		} else {
-			return false, err
-		}
-	}
-
-	// DTOD is only needed if either address is alaska and the other is CONUS
-	return ShouldUseDtod(pickupAddress, destinationAddress), nil
 }
