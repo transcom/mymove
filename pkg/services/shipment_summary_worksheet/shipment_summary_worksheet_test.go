@@ -1698,7 +1698,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+			ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
 			ShipmentLocator:      &locator,
 			RequestedPickupDate:  &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1707,7 +1707,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
 			ShipmentLocator:      &locator,
 			RequestedPickupDate:  &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1809,9 +1809,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 			if index == 0 {
 				if shipment.ShipmentType == models.MTOShipmentTypePPM {
 					suite.Equal(fmt.Sprintf("%s %s", locator, string(shipment.ShipmentType)), value)
-				} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+				} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 					suite.Equal(fmt.Sprintf("%s %s", locator, "NTS Release"), value)
-				} else if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+				} else if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS {
 					suite.Equal(fmt.Sprintf("%s %s", locator, "NTS"), value)
 				} else if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
 					suite.Equal(fmt.Sprintf("%s %s", locator, "Mobile Home"), value)

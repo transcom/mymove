@@ -31,6 +31,7 @@ import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { DEFAULT_EMPTY_VALUE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import handleQueueAssignment from 'utils/queues';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter = true) => {
   const cols = [
@@ -157,7 +158,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
               {row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}
             </div>
           ) : (
-            <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol}>
+            <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol} key={row.id}>
               <Dropdown
                 defaultValue={row.assignedTo?.officeUserId}
                 onChange={(e) => {
@@ -190,12 +191,15 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
   return cols;
 };
 
-const PaymentRequestQueue = ({ isQueueManagementFFEnabled }) => {
+const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmentFFEnabled }) => {
   const { queueType } = useParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
+  const supervisor = userPrivileges
+    ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
+    : false;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -328,6 +332,8 @@ const PaymentRequestQueue = ({ isQueueManagementFFEnabled }) => {
           csvExportQueueFetcherKey="queuePaymentRequests"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
         />
       </div>
     );

@@ -45,7 +45,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				return movetaskorderops.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			payload := payloads.ListMoves(&mtos, amendmentCountInfo)
+			payload := payloads.ListMoves(&mtos, appCtx, amendmentCountInfo)
 
 			return movetaskorderops.NewListMovesOK().WithPayload(payload), nil
 		})
@@ -141,7 +141,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			}
 			/** End of Feature Flag **/
 
-			moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+			moveTaskOrderPayload := payloads.MoveTaskOrder(appCtx, mto)
 
 			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
 		})
@@ -250,7 +250,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 				}
 			}
 
-			mtoPayload := payloads.MoveTaskOrder(mto)
+			mtoPayload := payloads.MoveTaskOrder(appCtx, mto)
 
 			/* Don't send prime related emails on BLUEBARK moves */
 			if mto.Orders.CanSendEmailWithOrdersType() {

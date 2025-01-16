@@ -77,6 +77,8 @@ const ServicesCounselingMoveDetails = ({
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
+  const [enableNTS, setEnableNTS] = useState(false);
+  const [enableNTSR, setEnableNTSR] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -103,16 +105,16 @@ const ServicesCounselingMoveDetails = ({
   // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
   // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
   const showWhenCollapsed = {
-    HHG_INTO_NTS_DOMESTIC: ['counselorRemarks'],
-    HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'],
+    HHG_INTO_NTS: ['counselorRemarks'],
+    HHG_OUTOF_NTS: ['counselorRemarks'],
   }; // add any additional fields that we also want to always show
   const neverShow = {
-    HHG_INTO_NTS_DOMESTIC: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility', 'requestedDeliveryDate'],
-    HHG_OUTOF_NTS_DOMESTIC: ['requestedPickupDate'],
+    HHG_INTO_NTS: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility', 'requestedDeliveryDate'],
+    HHG_OUTOF_NTS: ['requestedPickupDate'],
   };
   const warnIfMissing = {
-    HHG_INTO_NTS_DOMESTIC: [{ fieldName: 'tacType' }, { fieldName: 'sacType' }],
-    HHG_OUTOF_NTS_DOMESTIC: [
+    HHG_INTO_NTS: [{ fieldName: 'tacType' }, { fieldName: 'sacType' }],
+    HHG_OUTOF_NTS: [
       { fieldName: 'ntsRecordedWeight' },
       { fieldName: 'serviceOrderNumber' },
       { fieldName: 'tacType' },
@@ -120,7 +122,7 @@ const ServicesCounselingMoveDetails = ({
     ],
   };
   const errorIfMissing = {
-    HHG_OUTOF_NTS_DOMESTIC: [{ fieldName: 'storageFacility' }],
+    HHG_OUTOF_NTS: [{ fieldName: 'storageFacility' }],
     PPM: [
       {
         fieldName: 'advanceStatus',
@@ -166,6 +168,8 @@ const ServicesCounselingMoveDetails = ({
       setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
       setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
       setEnableUB(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE));
+      setEnableNTS(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS));
+      setEnableNTSR(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR));
     };
     fetchData();
   }, []);
@@ -186,7 +190,7 @@ const ServicesCounselingMoveDetails = ({
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
     errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
-    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
+    errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
   }
 
   if (
@@ -632,8 +636,8 @@ const ServicesCounselingMoveDetails = ({
           HHG
         </option>
         <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
+        {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
         {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
@@ -753,7 +757,7 @@ const ServicesCounselingMoveDetails = ({
                 </div>
               )}
             </Grid>
-            <Grid row col={12}>
+            <Grid row col={12} className={scMoveDetailsStyles.scFinancialReviewWrapper}>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
                   <FinancialReviewButton
