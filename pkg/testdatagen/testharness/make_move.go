@@ -7352,7 +7352,7 @@ func MakeNTSRMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.S
 		{
 			Model: models.MTOShipment{
 				Status:                models.MTOShipmentStatusApproved,
-				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTSDom,
+				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTS,
 				NTSRecordedWeight:     &NTSRecordedWeight,
 				ServiceOrderNumber:    &serviceOrderNumber,
 				RequestedPickupDate:   &requestedPickupDate,
