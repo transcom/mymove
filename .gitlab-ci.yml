@@ -40,7 +40,7 @@ variables:
   SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
 
   #RUNNER_TAG: &runner_tag milmove
-  RUNNER_TAG: &runner_tag eks_cluster_runner
+  RUNNER_TAG: &runner_tag milmove
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
 
   postgres: &postgres postgres:16.4
@@ -185,6 +185,7 @@ stages:
         - yarn.lock
     paths:
       - .cache/yarn
+    policy: pull-push
 
 .go_cache: &go_cache
     key:
@@ -193,6 +194,7 @@ stages:
     paths:
       - $GOPATH/pkg/mod
       - /builds/milmove/mymove/bin
+    policy: pull-push
 
 .setup_generic_app_env_variables: &setup_generic_app_env_variables
   - |
@@ -315,6 +317,7 @@ pre_deps_golang:
     - *announce_failure
   cache:
     - <<: *go_cache
+      policy: pull
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/
@@ -338,6 +341,7 @@ pre_deps_yarn:
      - *install_yarn
   cache:
     - <<: *yarn_cache
+      policy: pull
   after_script:
       - *announce_failure
 
@@ -423,6 +427,7 @@ build_storybook:
     - anti_virus
   cache:
     - <<: *yarn_cache
+      policy: pull
   before_script:
     - *setup_milmove_env
     - *install_yarn
@@ -464,6 +469,7 @@ compile_app_client:
   image: $DOCKER_APP_IMAGE
   cache:
     - <<: *yarn_cache
+      policy: pull
   variables:
     KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "8Gi"
@@ -495,7 +501,9 @@ compile_app_server:
   image: $DOCKER_APP_IMAGE
   cache:
     - <<: *go_cache
+      policy: pull
     - <<: *yarn_cache
+      policy: pull
   variables:
     KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
@@ -541,7 +549,9 @@ pre_test:
   image: $DOCKER_APP_IMAGE
   cache:
     - <<: *go_cache
+      policy: pull
     - <<: *yarn_cache
+      policy: pull
   needs:
     - pre_deps_golang
     - pre_deps_yarn
@@ -703,6 +713,7 @@ client_test:
     - pre_deps_yarn
   cache:
     - <<: *yarn_cache
+      policy: pull
   before_script:
     - *setup_milmove_env
     - *install_yarn
