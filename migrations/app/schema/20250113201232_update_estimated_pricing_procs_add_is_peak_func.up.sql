@@ -180,7 +180,7 @@ BEGIN
                 escalated_price := calculate_escalated_price(o_rate_area_id, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
+                    estimated_price := ROUND((escalated_price * shipment.prime_estimated_weight / 100), 2) * 100;
                     RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
@@ -195,7 +195,7 @@ BEGIN
                 escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
+                    estimated_price := ROUND((escalated_price * shipment.prime_estimated_weight / 100), 2) * 100;
                     RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
@@ -210,7 +210,7 @@ BEGIN
                 escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
+                    estimated_price := ROUND((escalated_price * shipment.prime_estimated_weight / 100), 2) * 100;
                     RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
