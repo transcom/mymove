@@ -316,7 +316,6 @@ pre_deps_golang:
     - *announce_failure
   cache:
     - <<: *go_cache
-      policy: pull
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/
@@ -340,7 +339,6 @@ pre_deps_yarn:
      - *install_yarn
   cache:
     - <<: *yarn_cache
-      policy: pull
   after_script:
       - *announce_failure
 
