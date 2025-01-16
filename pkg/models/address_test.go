@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	m "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestBasicAddressInstantiation() {
@@ -217,34 +218,17 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 			},
 		}, nil)
 
-		contract := m.ReContract{
-			Code: "Test_create_oconus_order_code",
-			Name: "Test_create_oconus_order",
-		}
-		verrs, err := suite.AppContextForTest().DB().ValidateAndSave(&contract)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(verrs.Error())
-		}
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-		rateArea := m.ReRateArea{
-			ID:         uuid.Must(uuid.NewV4()),
-			ContractID: contract.ID,
-			IsOconus:   true,
-			Code:       rateAreaCode,
-			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
-			Contract:   contract,
-		}
-		verrs, err = suite.DB().ValidateAndCreate(&rateArea)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(err.Error())
-		}
+		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+			ReRateArea: m.ReRateArea{
+				ContractID: contract.ID,
+				IsOconus:   true,
+				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+				Contract:   contract,
+			},
+		})
 
 		us_country, err := m.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)
@@ -257,7 +241,7 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 			UsPostRegionCityId: usprc.ID,
 			Active:             true,
 		}
-		verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+		verrs, err := suite.DB().ValidateAndCreate(&oconusRateArea)
 		if verrs.HasAny() {
 			suite.Fail(verrs.Error())
 		}
@@ -272,7 +256,7 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99707")
 
 		airForce := m.AffiliationAIRFORCE
-		defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
+		defaultDepartmentIndicator := m.DepartmentIndicatorAIRANDSPACEFORCE.String()
 		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: m.ServiceMember{
@@ -294,17 +278,17 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		}
 		suite.MustSave(&gblocAors)
 
-		gbloc, err := m.FetchOconusAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
+		gbloc, err := m.FetchAddressPostalCodeGbloc(suite.DB(), originDutyLocation.Address, originDutyLocation.Address.PostalCode, serviceMember)
 		suite.NoError(err)
 		suite.NotNil(gbloc)
-		suite.Equal(gbloc.Gbloc, "MBFL")
+		suite.Equal(gbloc, "MBFL")
 	})
 
 	suite.Run("fetches duty location GBLOC for AK address, Zone II Army", func() {
 		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99707")
 
 		army := m.AffiliationARMY
-		defaultDepartmentIndicator := "ARMY"
+		defaultDepartmentIndicator := m.DepartmentIndicatorARMY.String()
 		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: m.ServiceMember{
@@ -326,17 +310,17 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		}
 		suite.MustSave(&gblocAors)
 
-		gbloc, err := m.FetchOconusAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
+		gbloc, err := m.FetchAddressPostalCodeGbloc(suite.DB(), originDutyLocation.Address, originDutyLocation.Address.PostalCode, serviceMember)
 		suite.NoError(err)
 		suite.NotNil(gbloc)
-		suite.Equal(gbloc.Gbloc, "JEAT")
+		suite.Equal(gbloc, "JEAT")
 	})
 
 	suite.Run("fetches duty location GBLOC for AK Cordova address, Zone IV", func() {
 		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99574")
 
 		army := m.AffiliationARMY
-		defaultDepartmentIndicator := "ARMY"
+		defaultDepartmentIndicator := m.DepartmentIndicatorARMY.String()
 		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: m.ServiceMember{
@@ -358,17 +342,17 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		}
 		suite.MustSave(&gblocAors)
 
-		gbloc, err := m.FetchOconusAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
+		gbloc, err := m.FetchAddressPostalCodeGbloc(suite.DB(), originDutyLocation.Address, originDutyLocation.Address.PostalCode, serviceMember)
 		suite.NoError(err)
 		suite.NotNil(gbloc)
-		suite.Equal(gbloc.Gbloc, "MAPS")
+		suite.Equal(gbloc, "MAPS")
 	})
 
 	suite.Run("fetches duty location GBLOC for AK NOT Cordova address, Zone IV", func() {
 		_, oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99803")
 
 		army := m.AffiliationARMY
-		defaultDepartmentIndicator := "ARMY"
+		defaultDepartmentIndicator := m.DepartmentIndicatorARMY.String()
 		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: m.ServiceMember{
@@ -390,9 +374,9 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		}
 		suite.MustSave(&gblocAors)
 
-		gbloc, err := m.FetchOconusAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
+		gbloc, err := m.FetchAddressPostalCodeGbloc(suite.DB(), originDutyLocation.Address, originDutyLocation.Address.PostalCode, serviceMember)
 		suite.NoError(err)
 		suite.NotNil(gbloc)
-		suite.Equal(gbloc.Gbloc, "MAPK")
+		suite.Equal(gbloc, "MAPK")
 	})
 }

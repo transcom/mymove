@@ -218,41 +218,21 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
-			var newDutyLocationGBLOC *string
-			if *newDutyLocation.Address.IsOconus {
-				newDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), newDutyLocation.Address, serviceMember)
-				if err != nil {
-					return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
-				}
-				newDutyLocationGBLOC = &newDutyLocationGBLOCOconus.Gbloc
-			} else {
-				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
-				if err != nil {
-					err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
-					appCtx.Logger().Error(err.Error())
-					return orderop.NewCreateOrderUnprocessableEntity(), err
-				}
-				newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
+			destinationGBLOC, err := models.FetchAddressPostalCodeGbloc(appCtx.DB(), newDutyLocation.Address, newDutyLocation.Address.PostalCode, serviceMember)
+			if err != nil {
+				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
-			var originDutyLocationGBLOC *string
-			if *originDutyLocation.Address.IsOconus {
-				originDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), originDutyLocation.Address, serviceMember)
-				if err != nil {
-					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
+			originDutyLocationGBLOC, err := models.FetchAddressPostalCodeGbloc(appCtx.DB(), originDutyLocation.Address, originDutyLocation.Address.PostalCode, serviceMember)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location FetchAddressPostalCodeGbloc")
+				default:
+					return nil, apperror.NewQueryError("FetchAddressPostalCodeGbloc", err, "")
 				}
-				originDutyLocationGBLOC = &originDutyLocationGBLOCOconus.Gbloc
-			} else {
-				originDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
-				if err != nil {
-					switch err {
-					case sql.ErrNoRows:
-						return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
-					default:
-						return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
-					}
-				}
-				originDutyLocationGBLOC = &originDutyLocationGBLOCConus.GBLOC
 			}
 
 			grade := (internalmessages.OrderPayGrade)(*payload.Grade)
@@ -333,7 +313,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				&entitlement,
 				originDutyLocationGBLOC,
 				packingAndShippingInstructions,
-				newDutyLocationGBLOC,
+				destinationGBLOC,
 			)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

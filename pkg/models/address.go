@@ -212,34 +212,17 @@ func EvaluateIsOconus(address Address) bool {
 	}
 }
 
-type oconusGbloc struct {
-	Gbloc string `db:"gbloc" rw:"r"`
-}
+// Fetches the GBLOC for a specific Address or Postal Code
+// OCONUS will always use Address, while CONUS will use Postal Code
+func FetchAddressPostalCodeGbloc(db *pop.Connection, address Address, postalCode string, serviceMember ServiceMember) (*string, error) {
+	var gbloc *string
 
-func FetchOconusAddressGbloc(appCtx *pop.Connection, address Address, serviceMember ServiceMember) (*oconusGbloc, error) {
-	oconusGbloc := oconusGbloc{}
+	err := db.RawQuery("SELECT * FROM get_address_gbloc($1, $2, $3)", address.ID, postalCode, serviceMember.Affiliation.String()).
+		First(&gbloc)
 
-	sqlQuery := `
-    	SELECT j.code gbloc
-    	FROM addresses a,
-    	re_oconus_rate_areas o,
-    	jppso_regions j,
-    	gbloc_aors g
-    	WHERE a.us_post_region_cities_id = o.us_post_region_cities_id
-    	and o.id = g.oconus_rate_area_id
-    	and j.id = g.jppso_regions_id
-		and a.id = $1 `
-
-	if serviceMember.Affiliation.String() == "AIR_FORCE" || serviceMember.Affiliation.String() == "SPACE_FORCE" {
-		sqlQuery += `
-		and g.department_indicator = 'AIR_AND_SPACE_FORCE' `
-	}
-
-	err := appCtx.Q().RawQuery(sqlQuery, address.ID).First(&oconusGbloc)
 	if err != nil {
 		return nil, err
 	}
 
-	return &oconusGbloc, nil
-
+	return gbloc, nil
 }

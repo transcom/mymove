@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/move"
 	orderservice "github.com/transcom/mymove/pkg/services/order"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -155,34 +156,17 @@ func (suite *HandlerSuite) TestCreateOrder() {
 
 		dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 
-		contract := models.ReContract{
-			Code: "Test_create_oconus_order_code",
-			Name: "Test_create_oconus_order",
-		}
-		verrs, err := suite.AppContextForTest().DB().ValidateAndSave(&contract)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(verrs.Error())
-		}
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-		rateArea := models.ReRateArea{
-			ID:         uuid.Must(uuid.NewV4()),
-			ContractID: contract.ID,
-			IsOconus:   true,
-			Code:       rateAreaCode,
-			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
-			Contract:   contract,
-		}
-		verrs, err = suite.DB().ValidateAndCreate(&rateArea)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(err.Error())
-		}
+		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+			ReRateArea: models.ReRateArea{
+				ContractID: contract.ID,
+				IsOconus:   true,
+				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+				Contract:   contract,
+			},
+		})
 
 		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)
@@ -195,7 +179,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			UsPostRegionCityId: usprc.ID,
 			Active:             true,
 		}
-		verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+		verrs, err := suite.DB().ValidateAndCreate(&oconusRateArea)
 		if verrs.HasAny() {
 			suite.Fail(verrs.Error())
 		}
@@ -307,34 +291,17 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		}, nil)
 
 		dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-		contract := models.ReContract{
-			Code: "Test_create_oconus_entitlement_code",
-			Name: "Test_create_oconus_entitlement",
-		}
-		verrs, err := suite.AppContextForTest().DB().ValidateAndSave(&contract)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(verrs.Error())
-		}
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-		rateArea := models.ReRateArea{
-			ID:         uuid.Must(uuid.NewV4()),
-			ContractID: contract.ID,
-			IsOconus:   true,
-			Code:       rateAreaCode,
-			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
-			Contract:   contract,
-		}
-		verrs, err = suite.DB().ValidateAndCreate(&rateArea)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(err.Error())
-		}
+		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+			ReRateArea: models.ReRateArea{
+				ContractID: contract.ID,
+				IsOconus:   true,
+				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+				Contract:   contract,
+			},
+		})
 
 		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)
@@ -347,7 +314,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			UsPostRegionCityId: usprc.ID,
 			Active:             true,
 		}
-		verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+		verrs, err := suite.DB().ValidateAndCreate(&oconusRateArea)
 		if verrs.HasAny() {
 			suite.Fail(verrs.Error())
 		}
@@ -934,34 +901,17 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 
 		newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
-		contract := models.ReContract{
-			Code: "Test_create_oconus_order_code",
-			Name: "Test_create_oconus_order",
-		}
-		verrs, err := suite.AppContextForTest().DB().ValidateAndSave(&contract)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(verrs.Error())
-		}
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-		rateArea := models.ReRateArea{
-			ID:         uuid.Must(uuid.NewV4()),
-			ContractID: contract.ID,
-			IsOconus:   true,
-			Code:       rateAreaCode,
-			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
-			Contract:   contract,
-		}
-		verrs, err = suite.DB().ValidateAndCreate(&rateArea)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(err.Error())
-		}
+		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+			ReRateArea: models.ReRateArea{
+				ContractID: contract.ID,
+				IsOconus:   true,
+				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+				Contract:   contract,
+			},
+		})
 
 		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)
@@ -974,7 +924,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			UsPostRegionCityId: usprc.ID,
 			Active:             true,
 		}
-		verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+		verrs, err := suite.DB().ValidateAndCreate(&oconusRateArea)
 		if verrs.HasAny() {
 			suite.Fail(verrs.Error())
 		}
