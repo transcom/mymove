@@ -344,7 +344,6 @@ pre_deps_yarn:
       policy: pull
   after_script:
       - *announce_failure
-      - *announce_failure
 
 check_generated_code:
   stage: pre_checks
@@ -467,7 +466,6 @@ compile_app_client:
   stage: build
   tags:
     - $RUNNER_TAG
-
   image: $DOCKER_APP_IMAGE
   cache:
     - <<: *yarn_cache
@@ -1235,7 +1233,6 @@ build_push_tasks_stg:
     - *announce_failure
   rules:
   - *check_main
-  - *check_main
 
 push_otel_collector_image_stg:
   stage: push
@@ -1267,7 +1264,6 @@ push_otel_collector_image_stg:
   after_script:
     - *announce_failure
   rules:
-    - *check_main
     - *check_main
 
 deploy_migrations_stg:
@@ -1497,8 +1493,6 @@ build_push_tasks_prd:
   before_script:
     - *setup_aws_vars_prd
     - *setup_release_prd
-    - *setup_aws_vars_prd
-    - *setup_release_prd
     - *kaniko_before_setup
   script:
     - echo "Building tasks Docker image..."
@@ -1599,7 +1593,6 @@ deploy_tasks_prd:
     - *announce_failure
   rules:
     - *check_main
-    - *check_main
 
 deploy_app_client_tls_prd:
   stage: deploy_prd
@@ -1612,16 +1605,12 @@ deploy_app_client_tls_prd:
   needs:
     - deploy_migrations_prd
     - push_otel_collector_image_prd
-    - deploy_migrations_prd
-    - push_otel_collector_image_prd
     - compile_app_server
     - compile_app_client
   variables:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
-    - *setup_aws_vars_prd
-    - *setup_release_prd
     - *setup_aws_vars_prd
     - *setup_release_prd
   script:
@@ -1654,8 +1643,6 @@ deploy_app_prd:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - build_push_app_prd
-    - deploy_migrations_prd
     - build_push_app_prd
     - deploy_migrations_prd
     - compile_app_server
