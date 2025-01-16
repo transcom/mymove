@@ -61,6 +61,30 @@ const serviceItemWithDetails = {
   },
 };
 
+const serviceItemUBP = {
+  id: 'ubp123',
+  createdAt: '2025-01-15',
+  serviceItem: 'International UB price',
+  code: 'UBP',
+  sort: '1',
+};
+
+const serviceItemIUBPK = {
+  id: 'iubpk123',
+  createdAt: '2025-01-15',
+  serviceItem: 'International UB pack',
+  code: 'IUBPK',
+  sort: '3',
+};
+
+const serviceItemIUBUPK = {
+  id: 'iubupk123',
+  createdAt: '2025-01-15',
+  serviceItem: 'International UB unpack',
+  code: 'IUBUPK',
+  sort: '4',
+};
+
 const testDetails = (wrapper) => {
   const detailTypes = wrapper.find('.detailType');
   const detailDefinitions = wrapper.find('.detail dd');
@@ -225,5 +249,22 @@ describe('RequestedServiceItemsTable', () => {
     expect(approveTextButton.at(0).text().includes('Approve')).toBe(true);
     expect(approveTextButton.at(1).text().includes('Approve')).toBe(true);
     expect(approveTextButton.at(2).text().includes('Approve')).toBe(true);
+  });
+
+  it('displays sorted service items in order', () => {
+    const serviceItems = [serviceItemIUBPK, serviceItemUBP, serviceItemIUBUPK];
+    const wrapper = mount(
+      <MockProviders>
+        <RequestedServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('.codeName').at(0).text()).toBe('International UB price');
+    expect(wrapper.find('.codeName').at(1).text()).toBe('International UB pack');
+    expect(wrapper.find('.codeName').at(2).text()).toBe('International UB unpack');
   });
 });

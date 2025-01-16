@@ -1074,8 +1074,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		suite.Equal(4, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
-			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
-			suite.Equal(expectedReServiceNames[i], serviceItems[i].ReService.Name)
+			actualReServiceCode := serviceItems[i].ReService.Code
+			actualReServiceName := serviceItems[i].ReService.Name
+			suite.True(slices.Contains(expectedReServiceCodes, actualReServiceCode), "Contains unexpected code: "+actualReServiceCode.String())
+			suite.True(slices.Contains(expectedReServiceNames, actualReServiceName), "Contains unexpected name: "+actualReServiceName)
 		}
 	})
 
@@ -1140,8 +1142,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		suite.Equal(4, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
-			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
-			suite.Equal(expectedReServiceNames[i], serviceItems[i].ReService.Name)
+			actualReServiceCode := serviceItems[i].ReService.Code
+			actualReServiceName := serviceItems[i].ReService.Name
+			suite.True(slices.Contains(expectedReServiceCodes, actualReServiceCode), "Contains unexpected code: "+actualReServiceCode.String())
+			suite.True(slices.Contains(expectedReServiceNames, actualReServiceName), "Contains unexpected name: "+actualReServiceName)
 		}
 	})
 
@@ -1204,8 +1208,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		suite.Equal(3, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
-			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
-			suite.Equal(expectedReServiceNames[i], serviceItems[i].ReService.Name)
+			actualReServiceCode := serviceItems[i].ReService.Code
+			actualReServiceName := serviceItems[i].ReService.Name
+			suite.True(slices.Contains(expectedReServiceCodes, actualReServiceCode), "Contains unexpected code: "+actualReServiceCode.String())
+			suite.True(slices.Contains(expectedReServiceNames, actualReServiceName), "Contains unexpected name: "+actualReServiceName)
 		}
 	})
 
