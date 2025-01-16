@@ -3,6 +3,7 @@ import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-r
 import { connect } from 'react-redux';
 import { Button, Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useMutation, useQueryClient } from 'react-query';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -26,11 +27,13 @@ import {
   useUserQueries,
   useMoveSearchQueries,
   useCustomerSearchQueries,
+  useBulkAssignmentQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingOriginLocations,
   getServicesCounselingQueue,
   getServicesCounselingPPMQueue,
+  saveBulkAssignmentData,
 } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
@@ -513,6 +516,24 @@ const ServicesCounselingQueue = ({
     navigate(generatePath(servicesCounselingRoutes.CREATE_CUSTOMER_PATH));
   };
 
+  const { bulkAssignmentData } = useBulkAssignmentQueries('COUNSELING');
+  console.log(bulkAssignmentData);
+
+  const queryClient = useQueryClient();
+  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
+    onSuccess: () => {
+      queryClient.setQueryData(['COUNSELING', {}], data);
+      console.log('success');
+      // setAlertMessage('Bulk Assignment Successful');
+      // setAlertType('success');
+    },
+    onError: () => {
+      console.log('error');
+      // setAlertMessage('There was a problem cancelling the move. Please try again later.');
+      // setAlertType('error');
+    },
+  });
+
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
@@ -693,6 +714,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          handleBulkAssignmentSave={mutateBulkAssignment}
         />
       </div>
     );

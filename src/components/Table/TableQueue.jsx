@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { GridContainer, Button } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
+import { useMutation } from 'react-query';
 
 import styles from './TableQueue.module.scss';
 import TableCSVExportButton from './TableCSVExportButton';
@@ -27,7 +28,6 @@ import {
   getSelectionOptionLabel,
 } from 'components/Table/utils';
 import { roleTypes } from 'constants/userRoles';
-import { SetBulkAssignmentSaveQueries } from 'hooks/queries';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -57,6 +57,7 @@ const TableQueue = ({
   isBulkAssignmentFFEnabled,
   officeUser,
   activeRole,
+  handleBulkAssignmentSave,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -323,7 +324,7 @@ const TableQueue = ({
         {isBulkAssignModalVisible && (
           <BulkAssignmentModal
             isOpen={isBulkAssignModalVisible}
-            // onSubmit={SetBulkAssignmentSaveQueries('COUNSELING', {})}
+            // onSubmit={handleBulkAssignmentSave}
             onClose={handleCloseBulkAssignModal}
           />
         )}
