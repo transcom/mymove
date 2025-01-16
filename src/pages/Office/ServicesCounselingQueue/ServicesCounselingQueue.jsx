@@ -3,7 +3,7 @@ import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-r
 import { connect } from 'react-redux';
 import { Button, Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -524,11 +524,9 @@ const ServicesCounselingQueue = ({
     onSuccess: () => {
       queryClient.setQueryData(['COUNSELING', {}], data);
       console.log('success');
-      // setAlertMessage('Bulk Assignment Successful');
-      // setAlertType('success');
     },
-    onError: () => {
-      console.log('error');
+    onError: (e) => {
+      console.log('error', e);
       // setAlertMessage('There was a problem cancelling the move. Please try again later.');
       // setAlertType('error');
     },

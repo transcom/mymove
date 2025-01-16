@@ -324,7 +324,7 @@ const TableQueue = ({
         {isBulkAssignModalVisible && (
           <BulkAssignmentModal
             isOpen={isBulkAssignModalVisible}
-            // onSubmit={handleBulkAssignmentSave}
+            onSubmit={handleBulkAssignmentSave}
             onClose={handleCloseBulkAssignModal}
           />
         )}
