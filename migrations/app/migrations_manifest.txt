@@ -1070,3 +1070,4 @@
 20250103180420_update_pricing_proc_to_use_local_price_variable.up.sql
 20250110001339_update_nts_release_enum_name.up.sql
 20250110214012_homesafeconnect_cert.up.sql
+20250116200912_disable_homesafe_stg_cert.up.sql
