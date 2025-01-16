@@ -999,37 +999,68 @@ func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
 	return func(query *pop.Query) {
 		if role == roles.RoleTypeTOO {
 			baseQuery := `
-				NOT (
+			-- check for moves with destination requests and NOT origin requests, then return the inverse for the TOO queue with the NOT wrapped around the query
+			NOT (
+				(
+					-- check for moves with destination requests
 					(
-						-- moves with destination requests (submitted destination re_services codes)
+						-- moves with destination SIT or shuttle submitted service items
 						EXISTS (
+							-- Destination service items
 							SELECT 1
 							FROM mto_service_items msi
 							JOIN re_services rs ON msi.re_service_id = rs.id
 							WHERE msi.mto_shipment_id = mto_shipments.id
 							AND msi.status = 'SUBMITTED'
-							AND rs.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')
+							AND rs.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC',
+											'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')
 						)
-						-- moves with destination requests (destination address update requested)
-						OR
-						EXISTS (
+						-- requested shipment address update
+						OR EXISTS (
+							-- Shipment address updates (destination address update requested)
 							SELECT 1
 							FROM shipment_address_updates sau
 							WHERE sau.shipment_id = mto_shipments.id
 							AND sau.status = 'REQUESTED'
 						)
 					)
-
-					-- moves with origin requests (submitted origin re_services codes)
-					AND NOT EXISTS (
-						SELECT 1
-						FROM mto_service_items msi
-						JOIN re_services rs ON msi.re_service_id = rs.id
-						WHERE msi.mto_shipment_id = mto_shipments.id
-						AND msi.status = 'SUBMITTED'
-						AND rs.code NOT IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')
+					-- check for moves with origin requests or conditions where move should appear in TOO queue
+					AND NOT (
+						-- moves with origin submitted service items
+						EXISTS (
+							SELECT 1
+							FROM mto_service_items msi
+							JOIN re_services rs ON msi.re_service_id = rs.id
+							WHERE msi.mto_shipment_id = mto_shipments.id
+							AND msi.status = 'SUBMITTED'
+							AND rs.code IN ('ICRT', 'IUBPK', 'IOFSIT', 'IOASIT', 'IOPSIT', 'IOSHUT',
+											'IHUPK', 'IUCRT', 'DCRT', 'MS', 'CS', 'DOFSIT', 'DOASIT',
+											'DOPSIT', 'DOSFSC', 'IOSFSC', 'DUPK', 'DUCRT', 'DOSHUT',
+											'FSC', 'DMHF', 'DBTF', 'DBHF', 'IBTF', 'IBHF', 'DCRTSA',
+											'DLH', 'DOP', 'DPK', 'DSH', 'DNPK', 'INPK', 'UBP',
+											'ISLH', 'POEFSC', 'PODFSC', 'IHPK')
+						)
+						OR (
+							-- moves with excess weight risk to acknowledge
+							moves.excess_weight_qualified_at IS NOT NULL
+							AND moves.excess_weight_acknowledged_at IS NULL
+						)
+						OR (
+							-- moves with UB excess weight risk to acknowledge
+							moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
+							AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
+						)
+						OR EXISTS (
+							-- moves with SIT extension to review
+							SELECT 1
+							FROM sit_extensions se
+							WHERE se.mto_shipment_id = mto_shipments.id
+							AND se.status = 'PENDING'
+						)
 					)
 				)
+			)
+
             `
 			query.Where(baseQuery)
 		}
