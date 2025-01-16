@@ -267,4 +267,22 @@ describe('RequestedServiceItemsTable', () => {
     expect(wrapper.find('.codeName').at(1).text()).toBe('International UB pack');
     expect(wrapper.find('.codeName').at(2).text()).toBe('International UB unpack');
   });
+
+  it('displays sorted service items in order along with non-sorted service items', () => {
+    const serviceItems = [serviceItemIUBPK, serviceItemUBP, serviceItemWithCrating, serviceItemIUBUPK];
+    const wrapper = mount(
+      <MockProviders>
+        <RequestedServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('.codeName').at(0).text()).toBe('International UB price');
+    expect(wrapper.find('.codeName').at(1).text()).toBe('International UB pack');
+    expect(wrapper.find('.codeName').at(2).text()).toBe('International UB unpack');
+    expect(wrapper.find('.codeName').at(3).text()).toBe('Domestic crating');
+  });
 });
