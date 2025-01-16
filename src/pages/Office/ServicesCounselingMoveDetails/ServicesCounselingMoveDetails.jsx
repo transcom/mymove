@@ -106,15 +106,15 @@ const ServicesCounselingMoveDetails = ({
   // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
   const showWhenCollapsed = {
     HHG_INTO_NTS: ['counselorRemarks'],
-    HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'],
+    HHG_OUTOF_NTS: ['counselorRemarks'],
   }; // add any additional fields that we also want to always show
   const neverShow = {
     HHG_INTO_NTS: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility', 'requestedDeliveryDate'],
-    HHG_OUTOF_NTS_DOMESTIC: ['requestedPickupDate'],
+    HHG_OUTOF_NTS: ['requestedPickupDate'],
   };
   const warnIfMissing = {
     HHG_INTO_NTS: [{ fieldName: 'tacType' }, { fieldName: 'sacType' }],
-    HHG_OUTOF_NTS_DOMESTIC: [
+    HHG_OUTOF_NTS: [
       { fieldName: 'ntsRecordedWeight' },
       { fieldName: 'serviceOrderNumber' },
       { fieldName: 'tacType' },
@@ -122,7 +122,7 @@ const ServicesCounselingMoveDetails = ({
     ],
   };
   const errorIfMissing = {
-    HHG_OUTOF_NTS_DOMESTIC: [{ fieldName: 'storageFacility' }],
+    HHG_OUTOF_NTS: [{ fieldName: 'storageFacility' }],
     PPM: [
       {
         fieldName: 'advanceStatus',
@@ -190,7 +190,7 @@ const ServicesCounselingMoveDetails = ({
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
     errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
-    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
+    errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
   }
 
   if (
