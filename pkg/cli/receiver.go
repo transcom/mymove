@@ -9,7 +9,7 @@ import (
 
 const (
 	// ReceiverBackend is the Receiver Backend Flag
-	ReceiverBackendFlag string = "receiver_backend"
+	ReceiverBackendFlag string = "receiver-backend"
 	// SNSTagsUpdatedTopicFlag is the SNS Tags Updated Topic Flag
 	SNSTagsUpdatedTopicFlag string = "sns-tags-updated-topic"
 	// SNSRegionFlag is the SNS Region flag
