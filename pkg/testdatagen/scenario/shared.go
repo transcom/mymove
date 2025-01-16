@@ -4116,7 +4116,7 @@ func createNTSRMove(appCtx appcontext.AppContext) {
 		},
 		{
 			Model: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 			},
 		},
 	}, nil)
@@ -6520,7 +6520,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 				ID:                   uuid.Must(uuid.NewV4()),
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				ActualPickupDate:     models.TimePointer(time.Now()),
 				Status:               models.MTOShipmentStatusApproved,
@@ -7202,7 +7202,7 @@ func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRoute
 			Model: models.MTOShipment{
 				ID:                   uuid.Must(uuid.NewV4()),
 				PrimeEstimatedWeight: &estimatedWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				Status:               models.MTOShipmentStatusSubmitted,
 			},
@@ -7630,7 +7630,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 				ID:                   uuid.Must(uuid.NewV4()),
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+				ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				Status:               models.MTOShipmentStatusApproved,
 			},
@@ -10902,7 +10902,7 @@ func CreateNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, orde
 		},
 		{
 			Model: models.MTOShipment{
-				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTSDom,
+				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTS,
 				RequestedDeliveryDate: &requestedDeliveryDate,
 			},
 		},

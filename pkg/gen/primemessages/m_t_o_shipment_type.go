@@ -19,7 +19,7 @@ import (
 // The type of shipment.
 //   - `HHG` = Household goods move
 //   - `HHG_INTO_NTS` = HHG into Non-temporary storage (NTS)
-//   - `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
+//   - `HHG_OUTOF_NTS` = HHG out of Non-temporary storage (NTS Release)
 //   - `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
 //   - `BOAT_HAUL_AWAY` = Boat shipment that requires additional equipment to haul it to it's destination
 //   - `BOAT_TOW_AWAY` = Boat shipment that has a road-worthy trailer
@@ -53,8 +53,8 @@ const (
 	// MTOShipmentTypeHHGINTONTS captures enum value "HHG_INTO_NTS"
 	MTOShipmentTypeHHGINTONTS MTOShipmentType = "HHG_INTO_NTS"
 
-	// MTOShipmentTypeHHGOUTOFNTSDOMESTIC captures enum value "HHG_OUTOF_NTS_DOMESTIC"
-	MTOShipmentTypeHHGOUTOFNTSDOMESTIC MTOShipmentType = "HHG_OUTOF_NTS_DOMESTIC"
+	// MTOShipmentTypeHHGOUTOFNTS captures enum value "HHG_OUTOF_NTS"
+	MTOShipmentTypeHHGOUTOFNTS MTOShipmentType = "HHG_OUTOF_NTS"
 
 	// MTOShipmentTypeMOBILEHOME captures enum value "MOBILE_HOME"
 	MTOShipmentTypeMOBILEHOME MTOShipmentType = "MOBILE_HOME"
@@ -71,7 +71,7 @@ var mTOShipmentTypeEnum []interface{}
 
 func init() {
 	var res []MTOShipmentType
-	if err := json.Unmarshal([]byte(`["BOAT_HAUL_AWAY","BOAT_TOW_AWAY","HHG","HHG_INTO_NTS","HHG_OUTOF_NTS_DOMESTIC","MOBILE_HOME","PPM","UNACCOMPANIED_BAGGAGE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BOAT_HAUL_AWAY","BOAT_TOW_AWAY","HHG","HHG_INTO_NTS","HHG_OUTOF_NTS","MOBILE_HOME","PPM","UNACCOMPANIED_BAGGAGE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

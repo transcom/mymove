@@ -41,7 +41,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					UsesExternalVendor: true,
 				},
 			},
@@ -735,7 +735,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					UsesExternalVendor: true,
 				},
 			},
