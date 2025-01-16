@@ -183,6 +183,9 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         {
           id: 'assignedTo',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
+          },
         },
       ),
     );

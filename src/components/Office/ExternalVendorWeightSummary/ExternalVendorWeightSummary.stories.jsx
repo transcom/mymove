@@ -21,15 +21,15 @@ export const WithMultipleNTSRShipments = () => (
     shipments={[
       {
         ntsRecordedWeight: 1000,
-        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS',
       },
       {
         ntsRecordedWeight: 2000,
-        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS',
       },
       {
         ntsRecordedWeight: 1500,
-        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS',
       },
     ]}
   />
@@ -57,18 +57,18 @@ export const WithMultipleShipmentsOfBothTypes = () => (
     shipments={[
       {
         ntsRecordedWeight: 1000,
-        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS',
       },
       {
         ntsRecordedWeight: 2000,
-        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS',
       },
       {
         shipmentType: 'HHG_INTO_NTS',
       },
       {
         ntsRecordedWeight: 1500,
-        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS',
       },
       {
         shipmentType: 'HHG_INTO_NTS',
@@ -92,7 +92,7 @@ export const WithOneNTSRShipment = () => (
     shipments={[
       {
         ntsRecordedWeight: 1500,
-        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        shipmentType: 'HHG_OUTOF_NTS',
       },
     ]}
   />

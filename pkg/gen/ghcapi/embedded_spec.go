@@ -1911,7 +1911,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n* Location of the POE/POD\n",
         "consumes": [
           "application/json"
         ],
@@ -9986,6 +9986,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "podLocation": {
+          "$ref": "#/definitions/Port"
+        },
+        "poeLocation": {
+          "$ref": "#/definitions/Port"
+        },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
@@ -10129,7 +10135,7 @@ func init() {
       "enum": [
         "HHG",
         "HHG_INTO_NTS",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
@@ -10141,7 +10147,7 @@ func init() {
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS": "NTS",
-        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
+        "HHG_OUTOF_NTS": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
@@ -12569,6 +12575,115 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
+    "Port": {
+      "description": "A port that is used to move an international shipment.",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "example": "PORTLAND"
+        },
+        "country": {
+          "description": "Two-letter country code",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "example": "US"
+        },
+        "county": {
+          "type": "string",
+          "example": "MULTNOMAH"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "portCode": {
+          "description": "3 or 4 digit port code",
+          "type": "string",
+          "example": "0431"
+        },
+        "portName": {
+          "description": "Name of the port",
+          "type": "string",
+          "example": "PORTLAND INTL"
+        },
+        "portType": {
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "S"
+          ]
+        },
+        "state": {
+          "description": "US state",
+          "type": "string",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "example": "OR"
+        },
+        "zip": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "99501"
+        }
+      }
+    },
     "PostDocumentPayload": {
       "type": "object",
       "properties": {
@@ -13026,7 +13141,7 @@ func init() {
             "BOAT_TOW_AWAY",
             "HHG",
             "HHG_INTO_NTS",
-            "HHG_OUTOF_NTS_DOMESTIC",
+            "HHG_OUTOF_NTS",
             "MOBILE_HOME",
             "PPM",
             "UNACCOMPANIED_BAGGAGE"
@@ -17965,7 +18080,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n* Location of the POE/POD\n",
         "consumes": [
           "application/json"
         ],
@@ -27077,6 +27192,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "podLocation": {
+          "$ref": "#/definitions/Port"
+        },
+        "poeLocation": {
+          "$ref": "#/definitions/Port"
+        },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
@@ -27220,7 +27341,7 @@ func init() {
       "enum": [
         "HHG",
         "HHG_INTO_NTS",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
@@ -27232,7 +27353,7 @@ func init() {
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS": "NTS",
-        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
+        "HHG_OUTOF_NTS": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
@@ -29734,6 +29855,115 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
+    "Port": {
+      "description": "A port that is used to move an international shipment.",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "example": "PORTLAND"
+        },
+        "country": {
+          "description": "Two-letter country code",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "example": "US"
+        },
+        "county": {
+          "type": "string",
+          "example": "MULTNOMAH"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "portCode": {
+          "description": "3 or 4 digit port code",
+          "type": "string",
+          "example": "0431"
+        },
+        "portName": {
+          "description": "Name of the port",
+          "type": "string",
+          "example": "PORTLAND INTL"
+        },
+        "portType": {
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "S"
+          ]
+        },
+        "state": {
+          "description": "US state",
+          "type": "string",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "example": "OR"
+        },
+        "zip": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "99501"
+        }
+      }
+    },
     "PostDocumentPayload": {
       "type": "object",
       "properties": {
@@ -30193,7 +30423,7 @@ func init() {
             "BOAT_TOW_AWAY",
             "HHG",
             "HHG_INTO_NTS",
-            "HHG_OUTOF_NTS_DOMESTIC",
+            "HHG_OUTOF_NTS",
             "MOBILE_HOME",
             "PPM",
             "UNACCOMPANIED_BAGGAGE"
