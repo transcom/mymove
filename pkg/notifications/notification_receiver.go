@@ -2,7 +2,6 @@ package notifications
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -191,8 +190,7 @@ func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContex
 			Body:      value.Body,
 		}
 
-		val, _ := json.Marshal(value)
-		appCtx.Logger().Info("messages incoming", zap.ByteString("message", val))
+		appCtx.Logger().Info("Message received.", zap.String("messageId", *value.MessageId))
 
 		_, err := n.sqsService.DeleteMessage(recCtx, &sqs.DeleteMessageInput{
 			QueueUrl:      &queueUrl,

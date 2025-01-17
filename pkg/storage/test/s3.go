@@ -96,6 +96,7 @@ func (fake *FakeS3Storage) Tags(_ string) (map[string]string, error) {
 	}
 	if fake.EmptyTags {
 		tags = map[string]string{}
+		fake.EmptyTags = false
 	}
 	return tags, nil
 }
