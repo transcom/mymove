@@ -31,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -107,20 +108,83 @@ func (suite *HandlerSuite) TestCreateOrder() {
 }
 
 func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
-	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
-	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-
-	originDutyLocation := factory.BuildDutyLocation(suite.AppContextForTest().DB(), []factory.Customization{
+	customAffiliation := models.AffiliationARMY
+	sm := factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
 		{
-			Model: models.DutyLocation{
-				Name: "Not Yuma AFB",
+			Model: models.ServiceMember{
+				Affiliation: &customAffiliation,
 			},
 		},
 	}, nil)
-	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
-	factory.FetchOrBuildPostalCodeToGBLOC(suite.AppContextForTest().DB(), dutyLocation.Address.PostalCode, "KKFA")
-	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
+	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
+	usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
+
+	address := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				IsOconus:           models.BoolPointer(true),
+				UsPostRegionCityID: &usprc.ID,
+			},
+		},
+	}, nil)
+
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:      factory.MakeRandomString(8),
+				AddressID: address.ID,
+			},
+		},
+	}, nil)
+
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
+
+	contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+	rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+	rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+		ReRateArea: models.ReRateArea{
+			ContractID: contract.ID,
+			IsOconus:   true,
+			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+			Contract:   contract,
+		},
+	})
+
+	us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+	suite.NotNil(us_country)
+	suite.Nil(err)
+
+	oconusRateArea := models.OconusRateArea{
+		ID:                 uuid.Must(uuid.NewV4()),
+		RateAreaId:         rateArea.ID,
+		CountryId:          us_country.ID,
+		UsPostRegionCityId: usprc.ID,
+		Active:             true,
+	}
+	verrs, err := suite.DB().ValidateAndCreate(&oconusRateArea)
+	if verrs.HasAny() {
+		suite.Fail(verrs.Error())
+	}
+	if err != nil {
+		suite.Fail(err.Error())
+	}
+	jppsoRegion := models.JppsoRegions{
+		Name: "USCG Base Ketchikan",
+		Code: "MAPK",
+	}
+	suite.MustSave(&jppsoRegion)
+
+	gblocAors := models.GblocAors{
+		JppsoRegionID:    jppsoRegion.ID,
+		OconusRateAreaID: oconusRateArea.ID,
+	}
+	suite.MustSave(&gblocAors)
+
+	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
 	req := httptest.NewRequest("POST", "/orders", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
@@ -172,6 +236,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.CustomerID.String())
 	suite.Assertions.Equal(ordersType, okResponse.Payload.OrderType)
 	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrderNumber)
+	suite.Assertions.Equal(ghcmessages.GBLOC("MAPK"), okResponse.Payload.OriginDutyLocationGBLOC)
 	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
