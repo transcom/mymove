@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/move"
 	orderservice "github.com/transcom/mymove/pkg/services/order"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -487,7 +488,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
-	orderUpdater := orderservice.NewOrderUpdater(move.NewMoveRouter())
+	orderUpdater := orderservice.NewOrderUpdater(move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()))
 
 	setUpRequestAndParams := func(orders models.Order) *ordersop.UploadAmendedOrdersParams {
 		endpoint := fmt.Sprintf("/orders/%v/upload_amended_orders", orders.ID.String())
