@@ -11,8 +11,13 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	moveservices "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -36,6 +41,11 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		fakeError error
 	}
 
+	planner := &routemocks.Planner{}
+	moveRouter := moveservices.NewMoveRouter()
+	builder := query.NewQueryBuilder()
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
 	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool, returnErrorForBoatShipment bool, returnErrorForMobileHomeShipment bool) (subtestData subtestDataObjects) {
 		mockMTOShipmentUpdater := mocks.MTOShipmentUpdater{}
 		subtestData.mockMTOShipmentUpdater = &mockMTOShipmentUpdater
@@ -49,9 +59,8 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		mockMobileHomeShipmentUpdater := mocks.MobileHomeShipmentUpdater{}
 		subtestData.mockMobileHomeShipmentUpdater = &mockMobileHomeShipmentUpdater
 
-		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater, subtestData.mockBoatShipmentUpdater, subtestData.mockMobileHomeShipmentUpdater)
-
-		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater, subtestData.mockBoatShipmentUpdater, subtestData.mockMobileHomeShipmentUpdater)
+		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater, subtestData.mockBoatShipmentUpdater, subtestData.mockMobileHomeShipmentUpdater, mtoServiceItemCreator)
+		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater, subtestData.mockBoatShipmentUpdater, subtestData.mockMobileHomeShipmentUpdater, mtoServiceItemCreator)
 
 		if returnErrorForMTOShipment {
 			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Pickup date missing")
@@ -188,7 +197,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		// Set invalid data, can't pass in blank to the generator above (it'll default to HHG if blank) so we're setting it afterward.
 		shipment.ShipmentType = ""
 
-		updatedShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
+		updatedShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test", nil)
 
 		suite.Nil(updatedShipment)
 
@@ -236,7 +245,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 			// Need to start a transaction so we can assert the call with the correct appCtx
 			err := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
-				mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(txAppCtx, &shipment, eTag, "test")
+				mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(txAppCtx, &shipment, eTag, "test", nil)
 
 				suite.NoError(err)
 				suite.NotNil(mtoShipment)
@@ -299,7 +308,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		shipment.PPMShipment.AdvanceAmountReceived = models.CentPointer(unit.Cents(55000))
 		shipment.PPMShipment.HasReceivedAdvance = models.BoolPointer(true)
 
-		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
+		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test", nil)
 
 		suite.NoError(err)
 		suite.NotNil(mtoShipment)
@@ -338,7 +347,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		shipment.BoatShipment.LengthInInches = models.IntPointer(20)
 		shipment.BoatShipment.HasTrailer = models.BoolPointer(false)
 
-		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
+		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test", nil)
 
 		suite.NoError(err)
 
@@ -417,7 +426,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 				}, nil)
 			}
 
-			mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
+			mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test", nil)
 
 			suite.Nil(mtoShipment)
 
@@ -441,7 +450,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
-		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, eTag, "test")
+		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, eTag, "test", nil)
 
 		suite.Nil(mtoShipment)
 

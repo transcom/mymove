@@ -409,7 +409,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
 			}
 
-			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "ghc")
+			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "ghc", nil)
 			if err != nil {
 				return handleError(err)
 			}
@@ -1124,7 +1124,7 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 
 			existingETag := etag.GenerateEtag(updatedShipment.UpdatedAt)
 
-			updatedShipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
+			updatedShipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", nil)
 			if err != nil {
 				return handleError(err)
 			}
@@ -1371,7 +1371,7 @@ func (h CreateApprovedSITDurationUpdateHandler) Handle(params shipmentops.Create
 
 			existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
-			shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
+			shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", nil)
 			if err != nil {
 				return handleError(err)
 			}
