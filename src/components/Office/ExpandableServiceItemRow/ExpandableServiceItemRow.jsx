@@ -103,10 +103,14 @@ const ExpandableServiceItemRow = ({
               shipmentType={serviceItem.mtoShipmentType}
             />
           </td>
-          {serviceItem.rejectionReason !== undefined && (
+          {serviceItem.rejectionReason && (
             <td colSpan={2} className={styles.rejectionReasonTd}>
-              <h4 className={styles.title}>Rejection Reason</h4>
-              <small>{serviceItem.rejectionReason}</small>
+              <div className={styles.rejectionReasonContainer}>
+                <FontAwesomeIcon icon="times" />
+                <h4 className={styles.title}>Rejection Reason</h4>
+                <div className={styles.break} />
+                <small className={styles.reasonText}>{serviceItem.rejectionReason}</small>
+              </div>
             </td>
           )}
         </tr>
