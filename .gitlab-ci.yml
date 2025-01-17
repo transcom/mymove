@@ -884,7 +884,7 @@ integration_tests:
 integration_test_mtls:
   stage: test
   tags:
-    - $RUNNER_TAG
+    - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   services:
     - name: docker:dind
@@ -917,80 +917,22 @@ integration_test_mtls:
     - *setup_milmove_env
     - *setup_env_intergration_mtls
   script:
+    - echo "TODO Add steps"
+    - echo "integration_test_mtls"
     - echo "Waiting for server to start"
     - dockerize -wait http://milmovelocal:4000 -timeout 5m
     - echo "Running E2E mTLS tests"
     - ./scripts/run-e2e-mtls-test
-    - echo "TODO Add steps"
-    - echo "integration_test_mtls"
   allow_failure: true
   after_script:
     - *announce_failure
   rules:
-    - *check_integration_mtls_ignore_branch
+   - *check_integration_mtls_ignore_branch
 
 integration_test_admin:
   stage: test
   tags:
-    - $RUNNER_TAG
-  image: $DOCKER_APP_IMAGE
-  services:
-    - name: docker:dind
-      alias: docker
-    - name: $postgres
-    - name: $redis
-  variables:
-    DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
-    DOCKER_TLS_CERTDIR: ""
-    APPLICATION: app
-    DB_PASSWORD: mysecretpassword
-    DB_USER_LOW_PRIV: crud
-    DB_PASSWORD_LOW_PRIV: mysecretpassword
-    DB_USER: postgres
-    DB_HOST: localhost
-    DB_PORT: 5432
-    DB_NAME: dev_db
-    DB_NAME_DEV: dev_db
-    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
-    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
-    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-    ENVIRONMENT: development
-    DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
-    POSTGRES_PASSWORD: mysecretpassword
-    POSTGRES_DB: test_db
-  needs:
-    - pre_deps_yarn
-    - pre_deps_golang
-    - compile_app_client
-    - compile_app_server
-  before_script: 
-      - *setup_milmove_env
-      - *e2e_tests_playwright
-  script:
-    - echo "TODO Add steps"
-    - echo "integration_test_admin"
-    - echo "Running integration tests for Admin"
-    - ./node_modules/.bin/playwright test playwright/tests/admin \
-        --reporter=html,junit \
-        --trace=on \
-        --workers=1
-  allow_failure: true
-  artifacts:
-    paths:
-      - playwright-report/
-      - complete-playwright-report.zip
-      - playwright-results.xml
-    when: always
-  after_script:
-    - *announce_failure
-  rules:
-   - *check_integration_ignore_branch
-
-
-integration_test_my:
-  stage: test
-  tags:
-    - $RUNNER_TAG
+    - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   services:
     - name: docker:dind
@@ -1025,30 +967,29 @@ integration_test_my:
       - *setup_milmove_env
       - *e2e_tests_playwright
   script:
-    - echo "Running integration tests for My"
-    - ./node_modules/.bin/playwright test playwright/tests/my \
+    - echo "TODO Add steps"
+    - echo "integration_test_admin"
+    - echo "Running integration tests for Admin"
+    - ./node_modules/.bin/playwright test playwright/tests/admin \
         --reporter=html,junit \
         --trace=on \
-        --workers=1 \
-        --shard="$CI_NODE_INDEX/$CI_NODE_TOTAL"
-    - echo "TODO Add steps"
-    - echo "integration_test_my"
-  allow_failure: true
+        --workers=1
   artifacts:
     paths:
       - playwright-report/
       - complete-playwright-report.zip
       - playwright-results.xml
     when: always
+  allow_failure: true
   after_script:
     - *announce_failure
   rules:
    - *check_integration_ignore_branch
 
-integration_test_office:
+integration_test_my:
   stage: test
   tags:
-    - $RUNNER_TAG
+    - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   services:
     - name: docker:dind
@@ -1079,24 +1020,81 @@ integration_test_office:
     - pre_deps_golang
     - compile_app_client
     - compile_app_server
-  before_script: 
+  before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
   script:
     - echo "TODO Add steps"
-    - echo "integration_test_office"
-    - echo "Running integration tests for Office"
-    - ./node_modules/.bin/playwright test playwright/tests/office \
+    - echo "integration_test_my"
+    - echo "Running integration tests for My"
+    - ./node_modules/.bin/playwright test playwright/tests/my \
         --reporter=html,junit \
         --trace=on \
-        --workers=1
-  allow_failure: true
+        --workers=1 \
+        --shard="$CI_NODE_INDEX/$CI_NODE_TOTAL"
   artifacts:
     paths:
       - playwright-report/
       - complete-playwright-report.zip
       - playwright-results.xml
     when: always
+  allow_failure: true
+  after_script:
+    - *announce_failure
+  rules:
+   - *check_integration_ignore_branch
+
+integration_test_office:
+  stage: test
+  tags:
+    - $DOCKER_RUNNER_TAG
+  image: $DOCKER_APP_IMAGE
+  services:
+    - name: docker:dind
+      alias: docker
+    - name: $postgres
+    - name: $redis
+  variables:
+    DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
+    DOCKER_TLS_CERTDIR: ""
+    APPLICATION: app
+    DB_PASSWORD: mysecretpassword
+    DB_USER_LOW_PRIV: crud
+    DB_PASSWORD_LOW_PRIV: mysecretpassword
+    DB_USER: postgres
+    DB_HOST: localhost
+    DB_PORT: 5432
+    DB_NAME: dev_db
+    DB_NAME_DEV: dev_db
+    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+    ENVIRONMENT: development
+    DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_DB: test_db
+  needs:
+    - pre_deps_yarn
+    - pre_deps_golang
+    - compile_app_client
+    - compile_app_server
+  before_script:
+      - *setup_milmove_env
+      - *e2e_tests_playwright
+  script:
+    - echo "TODO Add steps"
+    - echo "integration_test_office"
+    - ./node_modules/.bin/playwright test playwright/tests/office \
+        --reporter=html,junit \
+        --trace=on \
+        --workers=1
+  artifacts:
+    paths:
+      - playwright-report/
+      - complete-playwright-report.zip
+      - playwright-results.xml
+    when: always
+  allow_failure: true
   after_script:
     - *announce_failure
   rules:
@@ -1242,6 +1240,7 @@ deploy_tasks_dp3:
   stage: deploy
   tags:
     - $RUNNER_TAG
+  environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -1283,6 +1282,7 @@ deploy_app_client_tls_dp3:
     HEALTH_CHECK: "true"
   before_script:
     - *setup_aws_vars_dp3
+    - *setup_tls_vars_dp3
     - *setup_release_dp3
   script:
     # - echo "Comparing against deployed commit"
@@ -1295,11 +1295,11 @@ deploy_app_client_tls_dp3:
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
   after_script:
     - *announce_failure
   rules:
@@ -1322,6 +1322,7 @@ deploy_app_dp3:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_tls_vars_dp3
     - *setup_aws_vars_dp3
     - *setup_release_dp3
   script:
@@ -1344,11 +1345,11 @@ deploy_app_dp3:
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+    - bin/health-checker --schemes https --hosts my.$DP3_ENV.dp3.us,office.$DP3_ENV.dp3.us,admin.$DP3_ENV.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts my.$DP3_ENV.dp3.us,office.$DP3_ENV.dp3.us,admin.$DP3_ENV.dp3.us --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "my.$DP3_ENV.dp3.us,office.$DP3_ENV.dp3.us,admin.$DP3_ENV.dp3.us" "$CI_COMMIT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1533,6 +1534,7 @@ deploy_app_client_tls_stg:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_tls_vars_stg
     - *setup_aws_vars_stg
     - *setup_release_stg
   script:
@@ -1545,12 +1547,13 @@ deploy_app_client_tls_stg:
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
   after_script:
     - *announce_failure
   rules:
@@ -1573,6 +1576,7 @@ deploy_app_stg:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_tls_vars_stg
     - *setup_aws_vars_stg
     - *setup_release_stg
   script:
@@ -1594,12 +1598,13 @@ deploy_app_stg:
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1804,6 +1809,7 @@ deploy_app_client_tls_prd:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_tls_vars_prd
     - *setup_aws_vars_prd
     - *setup_release_prd
   script:
@@ -1816,12 +1822,13 @@ deploy_app_client_tls_prd:
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
   after_script:
     - *announce_failure
   rules:
@@ -1844,6 +1851,7 @@ deploy_app_prd:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_tls_vars_prd
     - *setup_aws_vars_prd
     - *setup_release_prd
   script:
@@ -1865,12 +1873,13 @@ deploy_app_prd:
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA"
   after_script:
     - *announce_failure
   rules:
