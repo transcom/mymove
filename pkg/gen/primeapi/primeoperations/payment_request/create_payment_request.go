@@ -383,6 +383,32 @@ Just like domestic shipments & service items, if `WeightBilled` is not provided 
 	]
 
 ```
+
+**IUBPK - International UB Pack**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+	**IUBUPK - International UB Unpack**
+
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
 ---
 */
 type CreatePaymentRequest struct {
