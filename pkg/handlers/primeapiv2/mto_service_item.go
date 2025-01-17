@@ -26,6 +26,7 @@ var CreateableServiceItemMap = map[primev2messages.MTOServiceItemModelType]bool{
 	primev2messages.MTOServiceItemModelTypeMTOServiceItemOriginSIT:            true,
 	primev2messages.MTOServiceItemModelTypeMTOServiceItemDestSIT:              true,
 	primev2messages.MTOServiceItemModelTypeMTOServiceItemShuttle:              true,
+	primev2messages.MTOServiceItemModelTypeMTOServiceItemInternationalShuttle: true,
 	primev2messages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:      true,
 	primev2messages.MTOServiceItemModelTypeMTOServiceItemInternationalCrating: true,
 }
