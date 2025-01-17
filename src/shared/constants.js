@@ -236,4 +236,9 @@ const ADDRESS_LABELS_MAP = {
   [ADDRESS_TYPES.THIRD_DESTINATION]: 'Third Delivery Address',
 };
 
+export const INTL_PPM_PORT_INFO = {
+  portName: 'Tacoma, WA',
+  portZip: '98424',
+};
+
 export const getAddressLabel = (type) => ADDRESS_LABELS_MAP[type];

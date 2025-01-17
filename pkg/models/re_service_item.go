@@ -3,7 +3,10 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/apperror"
 )
 
 type ReServiceItem struct {
@@ -24,3 +27,12 @@ func (r ReServiceItem) TableName() string {
 
 // ReServiceItems is a slice of ReServiceItem
 type ReServiceItems []ReServiceItem
+
+func FetchReServiceByCode(db *pop.Connection, code ReServiceCode) (*ReService, error) {
+	reService := ReService{}
+	err := db.Where("code = ?", code).First(&reService)
+	if err != nil {
+		return nil, apperror.NewQueryError("ReService", err, "")
+	}
+	return &reService, err
+}
