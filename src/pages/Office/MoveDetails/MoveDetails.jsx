@@ -77,6 +77,7 @@ const MoveDetails = ({
       { fieldName: 'storageFacility' },
       { fieldName: 'ntsRecordedWeight' },
       { fieldName: 'serviceOrderNumber' },
+      { fieldName: 'requestedDeliveryDate' },
       { fieldName: 'tacType' },
     ],
     PPM: [

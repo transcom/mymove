@@ -138,7 +138,8 @@ const NTSRShipmentInfoList = ({
     <div className={requestedDeliveryDateElementFlags.classes}>
       <dt>Requested delivery date</dt>
       <dd data-testid="requestedDeliveryDate">
-        {(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) || '—'}
+        {(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) ||
+          getMissingOrDash('requestedDeliveryDate')}
       </dd>
     </div>
   );
