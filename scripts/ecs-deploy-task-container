@@ -31,11 +31,6 @@ if [[ "${name}" == "connect-to-gex-via-sftp" ]] && [[ "${environment}" != "prd" 
 fi
 
 echo "Checking for existence of variables file"
-echo "Checking for existence of variables file at: ${DIR}/../config/env/${environment}.${name}.env"
-if [[ "${name}" == "process-tpps" ]] && [[ "${environment}" == "exp" ]]; then
-  echo "Checking for existence of specifically process-tpps variables file at: ${DIR}/../config/env/${environment}.${name}.env"
-  exit 0
-fi
 
 variables_file="${DIR}/../config/env/${environment}.${name}.env"
 if [ ! -f "${variables_file}" ]; then
