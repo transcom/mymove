@@ -161,6 +161,9 @@ type MTOServiceItem struct {
 	// Format: date
 	SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
 
+	// Sort order for service items to be displayed for a given shipment type.
+	Sort *string `json:"sort,omitempty"`
+
 	// standalone crate
 	StandaloneCrate *bool `json:"standaloneCrate,omitempty"`
 

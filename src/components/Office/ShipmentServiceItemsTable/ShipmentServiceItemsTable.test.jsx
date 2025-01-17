@@ -25,7 +25,7 @@ const reServiceItemResponse = [
     isAutoApproved: true,
     marketCode: 'i',
     serviceCode: 'UBP',
-    serviceName: 'International UB',
+    serviceName: 'International UB price',
     shipmentType: 'UNACCOMPANIED_BAGGAGE',
   },
   {
@@ -370,7 +370,7 @@ describe('Shipment Service Items Table', () => {
 
   describe('renders the intl UB shipment type (CONUS -> OCONUS) with service items', () => {
     it.each([
-      ['International UB'],
+      ['International UB price'],
       ['International POE Fuel Surcharge'],
       ['International UB pack'],
       ['International UB unpack'],
@@ -385,7 +385,7 @@ describe('Shipment Service Items Table', () => {
 
   describe('renders the intl UB shipment type (OCONUS -> CONUS) with service items', () => {
     it.each([
-      ['International UB'],
+      ['International UB price'],
       ['International POD Fuel Surcharge'],
       ['International UB pack'],
       ['International UB unpack'],
@@ -399,7 +399,7 @@ describe('Shipment Service Items Table', () => {
   });
 
   describe('renders the intl UB shipment type (OCONUS -> OCONUS) with service items', () => {
-    it.each([['International UB'], ['International UB pack'], ['International UB unpack']])(
+    it.each([['International UB price'], ['International UB pack'], ['International UB unpack']])(
       'expects %s to be in the document',
       async (serviceItem) => {
         render(<ShipmentServiceItemsTable shipment={intlUbOconusToOconusShipment} />);
