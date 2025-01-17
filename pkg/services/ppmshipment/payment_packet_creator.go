@@ -3,12 +3,9 @@ package ppmshipment
 import (
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
@@ -142,26 +139,9 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	watermarks, err := buildWaterMarks(bookmarks, p.pdfGenerator)
-	if err != nil {
-		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate watermarks for PDF")
-		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-	}
-
-	// Apply bookmarks and watermarks based on flag
-	if addWatermarks && len(watermarks) > 0 {
-		pdfWithWatermarks, err := p.pdfGenerator.AddWatermarks(finalMergePdf, watermarks)
-		if err != nil {
-			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to add watermarks to PDF")
-			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-			return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-		}
-		if addBookmarks {
-			return p.pdfGenerator.AddPdfBookmarks(pdfWithWatermarks, bookmarks)
-		}
-		return pdfWithWatermarks, nil
-	}
+	// It was discovered during implementation of B-21938 that watermarks were not functional.
+	// This is because the watermark func was using bookmarks, not watermarks.
+	// See https://github.com/transcom/mymove/pull/14496 for removal
 
 	if addBookmarks {
 		return p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks)
@@ -208,51 +188,6 @@ func buildBookMarks(fileNamesToMerge []string, sortedPaymentPacketItems map[int]
 		bookmarks = append(bookmarks, pdfcpu.Bookmark{PageFrom: pageFrom, PageThru: pageThru, Title: item.Label})
 	}
 	return bookmarks, nil
-}
-
-// generate watermarks which will serve as page footer labels
-func buildWaterMarks(bookMarks []pdfcpu.Bookmark, pdfGenerator paperwork.Generator) (map[int][]*model.Watermark, error) {
-	m := make(map[int][]*model.Watermark)
-
-	opacity := 1.0
-	onTop := true
-	update := false
-	unit := types.POINTS
-
-	desc := fmt.Sprintf("font:Times-Italic, points:10, sc:1 abs, pos:bc, off:0 8, rot:0, op:%f", opacity)
-
-	creationTimeStamp := time.Now().UTC().Format("2006-01-02T15:04:05.000Z")
-	totalPages := bookMarks[len(bookMarks)-1].PageThru
-	currentPage := 1
-	bookMarkIndex := 0
-	for _, bm := range bookMarks {
-		cnt := bm.PageThru - bm.PageFrom
-		for j := 0; j <= cnt; j++ {
-			// do not add watermark on SSW pages
-			if currentPage < 4 {
-				currentPage++
-				continue
-			}
-			wmText := bm.Title
-			// we really can't use the bookmark title for the SSW+Orders.
-			// we will just label it as only Orders
-			if currentPage > 3 && bookMarkIndex == 0 {
-				wmText = "Orders"
-			}
-			wms := make([]*model.Watermark, 0)
-			pagingInfo := fmt.Sprintf("Page %d of %d", currentPage, totalPages)
-			text := fmt.Sprintf("%s - Payment Packet[%s] (Creation Date: %v)", pagingInfo, wmText, creationTimeStamp)
-
-			wm, _ := pdfGenerator.CreateTextWatermark(text, desc, onTop, update, unit)
-			wms = append(wms, wm)
-			// note: use current page because map is 1 based
-			m[currentPage] = wms
-			currentPage++
-		}
-		bookMarkIndex++
-	}
-
-	return m, nil
 }
 
 func buildPaymentPacketItemsMap(ppmShipment *models.PPMShipment) map[int]paymentPacketItem {

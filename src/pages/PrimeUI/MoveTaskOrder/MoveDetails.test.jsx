@@ -40,7 +40,7 @@ const moveTaskOrder = {
     },
     {
       id: '3',
-      shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+      shipmentType: 'HHG_INTO_NTS',
       requestedPickupDate: '2021-12-01',
       pickupAddress: { streetAddress1: '800 Madison Avenue', city: 'New York', state: 'NY', postalCode: '10002' },
       destinationAddress: {
@@ -75,6 +75,32 @@ const moveTaskOrder = {
       shipmentType: 'PPM',
       status: 'APPROVED',
       updatedAt: '2022-05-24T21:07:21.067Z',
+    },
+    {
+      id: '5',
+      shipmentType: 'HHG',
+      requestedPickupDate: '2024-12-27',
+      pickupAddress: { streetAddress1: '100 1st Avenue', city: 'New York', state: 'NY', postalCode: '10001' },
+      destinationAddress: {
+        streetAddress1: '123 East',
+        streetAddress2: 'Apt 215H',
+        city: 'Juneau',
+        state: 'AK',
+        postalCode: '99801',
+      },
+    },
+    {
+      id: '6',
+      shipmentType: 'HHG',
+      requestedPickupDate: '2024-12-27',
+      pickupAddress: { streetAddress1: '123 East', city: 'Juneau', state: 'NY', postalCode: '99801' },
+      destinationAddress: {
+        streetAddress1: '100 1st Avenue',
+        streetAddress2: 'Apt 215H',
+        city: 'New York',
+        state: 'NY',
+        postalCode: '10001',
+      },
     },
   ],
   paymentRequests: [
@@ -144,6 +170,24 @@ const moveTaskOrder = {
       moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
       mtoShipmentID: '2',
       reServiceName: "Domestic destination add'l SIT",
+      status: 'APPROVED',
+    },
+    {
+      reServiceCode: 'PODFSC',
+      eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy45NjAwMTha',
+      id: 'serviceItemPOEFSC',
+      moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+      mtoShipmentID: '6',
+      reServiceName: 'International POD Fuel Surcharge',
+      status: 'APPROVED',
+    },
+    {
+      reServiceCode: 'POEFSC',
+      eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy45NjAwMTha',
+      id: 'serviceItemPOEFSC',
+      moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+      mtoShipmentID: '5',
+      reServiceName: 'International POE Fuel Surcharge',
       status: 'APPROVED',
     },
   ],
@@ -334,14 +378,14 @@ describe('PrimeUI MoveDetails page', () => {
       );
     });
 
-    it('shows edit button next to the right destination SIT service items', async () => {
+    it('shows edit button next to the right service items', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
 
       renderWithProviders(<MoveDetails />);
 
       // Check for Edit buttons
       const editButtons = screen.getAllByRole('link', { name: 'Edit' });
-      expect(editButtons).toHaveLength(3);
+      expect(editButtons).toHaveLength(5);
     });
   });
 });

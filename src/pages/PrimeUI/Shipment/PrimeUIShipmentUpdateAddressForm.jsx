@@ -29,25 +29,27 @@ const PrimeUIShipmentUpdateAddressForm = ({
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={updateShipmentAddressSchema}>
-      {({ isValid, isSubmitting, handleSubmit, errors }) => (
-        <Form className={classnames(formStyles.form)}>
-          <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
-            <SectionWrapper className={formStyles.formSection}>
-              <h2>{addressLocation}</h2>
-              <AddressFields name={name} />
-            </SectionWrapper>
-            <WizardNavigation
-              editMode
-              className={formStyles.formActions}
-              aria-label="Update Shipment Address"
-              type="submit"
-              disableNext={isSubmitting || !isValid}
-              onCancelClick={handleClose}
-              onNextClick={handleSubmit}
-            />
-          </FormGroup>
-        </Form>
-      )}
+      {({ isValid, isSubmitting, handleSubmit, errors, ...formikProps }) => {
+        return (
+          <Form className={classnames(formStyles.form)}>
+            <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
+              <SectionWrapper className={formStyles.formSection}>
+                <h2>{addressLocation}</h2>
+                <AddressFields name={name} locationLookup formikProps={formikProps} />
+              </SectionWrapper>
+              <WizardNavigation
+                editMode
+                className={formStyles.formActions}
+                aria-label="Update Shipment Address"
+                type="submit"
+                disableNext={isSubmitting || !isValid}
+                onCancelClick={handleClose}
+                onNextClick={handleSubmit}
+              />
+            </FormGroup>
+          </Form>
+        );
+      }}
     </Formik>
   );
 };

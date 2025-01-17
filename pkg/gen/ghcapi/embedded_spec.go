@@ -1911,7 +1911,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n* Location of the POE/POD\n",
         "consumes": [
           "application/json"
         ],
@@ -3167,6 +3167,66 @@ func init() {
         }
       ]
     },
+    "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk": {
+      "post": {
+        "description": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "operationId": "acknowledgeExcessUnaccompaniedBaggageWeightRisk",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/orders/{orderID}/acknowledge-excess-weight-risk": {
       "post": {
         "description": "Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert",
@@ -4301,6 +4361,50 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/queues/bulk-assignment": {
+      "get": {
+        "description": "Supervisor office users are able to bulk assign moves. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the moves that are available to be assigned\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets data for bulk assignment modal",
+        "operationId": "getBulkAssignmentData",
+        "parameters": [
+          {
+            "enum": [
+              "COUNSELING",
+              "CLOSEOUT",
+              "TASK_ORDER",
+              "PAYMENT_REQUEST"
+            ],
+            "type": "string",
+            "description": "A string corresponding to the queue type",
+            "name": "queueType",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned bulk assignment data",
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentData"
+            }
+          },
+          "401": {
             "$ref": "#/responses/PermissionDenied"
           },
           "404": {
@@ -6403,6 +6507,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -6687,6 +6796,9 @@ func init() {
         "firstName": {
           "type": "string"
         },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
         "lastName": {
           "type": "string"
         },
@@ -6694,6 +6806,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "workload": {
+          "type": "integer"
         }
       }
     },
@@ -6815,6 +6930,28 @@ func init() {
         }
       },
       "x-nullable": true
+    },
+    "BulkAssignmentData": {
+      "type": "object",
+      "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "bulkAssignmentMoveIDs": {
+          "$ref": "#/definitions/BulkAssignmentMoveIDs"
+        }
+      }
+    },
+    "BulkAssignmentMoveID": {
+      "type": "string",
+      "format": "uuid",
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
+    "BulkAssignmentMoveIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
     },
     "ClientError": {
       "type": "object",
@@ -8949,6 +9086,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationGBLOC": {
+          "type": "string",
+          "example": "AGFM"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "example": "90210"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -9686,6 +9831,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "podLocation": {
+          "$ref": "#/definitions/Port"
+        },
+        "poeLocation": {
+          "$ref": "#/definitions/Port"
+        },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
@@ -9828,8 +9979,8 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_INTO_NTS",
+        "HHG_OUTOF_NTS",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
@@ -9840,8 +9991,8 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "HHG_INTO_NTS_DOMESTIC": "NTS",
-        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
+        "HHG_INTO_NTS": "NTS",
+        "HHG_OUTOF_NTS": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
@@ -9970,6 +10121,18 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "description": "Timestamp of when the TOO acknowledged the excess unaccompanied baggage weight risk by either dismissing the alert or updating the max billable weight",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "description": "Timestamp of when the sum of estimated or actual unaccompanied baggage shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "excess_weight_acknowledged_at": {
           "description": "Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight",
@@ -12257,6 +12420,115 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
+    "Port": {
+      "description": "A port that is used to move an international shipment.",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "example": "PORTLAND"
+        },
+        "country": {
+          "description": "Two-letter country code",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "example": "US"
+        },
+        "county": {
+          "type": "string",
+          "example": "MULTNOMAH"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "portCode": {
+          "description": "3 or 4 digit port code",
+          "type": "string",
+          "example": "0431"
+        },
+        "portName": {
+          "description": "Name of the port",
+          "type": "string",
+          "example": "PORTLAND INTL"
+        },
+        "portType": {
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "S"
+          ]
+        },
+        "state": {
+          "description": "US state",
+          "type": "string",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "example": "OR"
+        },
+        "zip": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "99501"
+        }
+      }
+    },
     "PostDocumentPayload": {
       "type": "object",
       "properties": {
@@ -12713,8 +12985,8 @@ func init() {
             "BOAT_HAUL_AWAY",
             "BOAT_TOW_AWAY",
             "HHG",
-            "HHG_INTO_NTS_DOMESTIC",
-            "HHG_OUTOF_NTS_DOMESTIC",
+            "HHG_INTO_NTS",
+            "HHG_OUTOF_NTS",
             "MOBILE_HOME",
             "PPM",
             "UNACCOMPANIED_BAGGAGE"
@@ -13153,15 +13425,15 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
         },
         "edipi": {
           "type": "string",
@@ -17653,7 +17925,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n* Location of the POE/POD\n",
         "consumes": [
           "application/json"
         ],
@@ -19155,6 +19427,81 @@ func init() {
         }
       ]
     },
+    "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk": {
+      "post": {
+        "description": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "operationId": "acknowledgeExcessUnaccompaniedBaggageWeightRisk",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/orders/{orderID}/acknowledge-excess-weight-risk": {
       "post": {
         "description": "Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert",
@@ -20643,6 +20990,59 @@ func init() {
             }
           },
           "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/queues/bulk-assignment": {
+      "get": {
+        "description": "Supervisor office users are able to bulk assign moves. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the moves that are available to be assigned\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets data for bulk assignment modal",
+        "operationId": "getBulkAssignmentData",
+        "parameters": [
+          {
+            "enum": [
+              "COUNSELING",
+              "CLOSEOUT",
+              "TASK_ORDER",
+              "PAYMENT_REQUEST"
+            ],
+            "type": "string",
+            "description": "A string corresponding to the queue type",
+            "name": "queueType",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned bulk assignment data",
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentData"
+            }
+          },
+          "401": {
             "description": "The request was denied",
             "schema": {
               "$ref": "#/definitions/Error"
@@ -23148,6 +23548,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -23432,6 +23837,9 @@ func init() {
         "firstName": {
           "type": "string"
         },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
         "lastName": {
           "type": "string"
         },
@@ -23439,6 +23847,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "workload": {
+          "type": "integer"
         }
       }
     },
@@ -23560,6 +23971,28 @@ func init() {
         }
       },
       "x-nullable": true
+    },
+    "BulkAssignmentData": {
+      "type": "object",
+      "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "bulkAssignmentMoveIDs": {
+          "$ref": "#/definitions/BulkAssignmentMoveIDs"
+        }
+      }
+    },
+    "BulkAssignmentMoveID": {
+      "type": "string",
+      "format": "uuid",
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
+    "BulkAssignmentMoveIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
     },
     "ClientError": {
       "type": "object",
@@ -25698,6 +26131,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationGBLOC": {
+          "type": "string",
+          "example": "AGFM"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "example": "90210"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -26435,6 +26876,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "podLocation": {
+          "$ref": "#/definitions/Port"
+        },
+        "poeLocation": {
+          "$ref": "#/definitions/Port"
+        },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
@@ -26577,8 +27024,8 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_INTO_NTS",
+        "HHG_OUTOF_NTS",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
@@ -26589,8 +27036,8 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "HHG_INTO_NTS_DOMESTIC": "NTS",
-        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
+        "HHG_INTO_NTS": "NTS",
+        "HHG_OUTOF_NTS": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
@@ -26719,6 +27166,18 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "description": "Timestamp of when the TOO acknowledged the excess unaccompanied baggage weight risk by either dismissing the alert or updating the max billable weight",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "description": "Timestamp of when the sum of estimated or actual unaccompanied baggage shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "excess_weight_acknowledged_at": {
           "description": "Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight",
@@ -29080,6 +29539,115 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
+    "Port": {
+      "description": "A port that is used to move an international shipment.",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "example": "PORTLAND"
+        },
+        "country": {
+          "description": "Two-letter country code",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "example": "US"
+        },
+        "county": {
+          "type": "string",
+          "example": "MULTNOMAH"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "portCode": {
+          "description": "3 or 4 digit port code",
+          "type": "string",
+          "example": "0431"
+        },
+        "portName": {
+          "description": "Name of the port",
+          "type": "string",
+          "example": "PORTLAND INTL"
+        },
+        "portType": {
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "S"
+          ]
+        },
+        "state": {
+          "description": "US state",
+          "type": "string",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "example": "OR"
+        },
+        "zip": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "99501"
+        }
+      }
+    },
     "PostDocumentPayload": {
       "type": "object",
       "properties": {
@@ -29538,8 +30106,8 @@ func init() {
             "BOAT_HAUL_AWAY",
             "BOAT_TOW_AWAY",
             "HHG",
-            "HHG_INTO_NTS_DOMESTIC",
-            "HHG_OUTOF_NTS_DOMESTIC",
+            "HHG_INTO_NTS",
+            "HHG_OUTOF_NTS",
             "MOBILE_HOME",
             "PPM",
             "UNACCOMPANIED_BAGGAGE"
@@ -30028,15 +30596,15 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
         },
         "edipi": {
           "type": "string",
