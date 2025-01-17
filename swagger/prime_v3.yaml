@@ -3544,14 +3544,14 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
-      originRateArea:
-        $ref: '#/definitions/RateArea'
-      destinationRateArea:
-        $ref: '#/definitions/RateArea'
       portOfDebarkation:
         $ref: '#/definitions/Port'
       portOfEmbarkation:
         $ref: '#/definitions/Port'
+      originRateArea:
+        $ref: '#/definitions/RateArea'
+      destinationRateArea:
+        $ref: '#/definitions/RateArea'
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

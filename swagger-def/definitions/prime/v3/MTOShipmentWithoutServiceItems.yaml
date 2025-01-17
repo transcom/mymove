@@ -245,11 +245,11 @@ properties:
       - 'i'
     example: 'd'
     description: 'Single-letter designator for domestic (d) or international (i) shipments'
-  originRateArea:
-    $ref: 'RateArea.yaml'
-  destinationRateArea:
-    $ref: 'RateArea.yaml'
   portOfDebarkation:
     $ref: '../../Port.yaml'
   portOfEmbarkation:
     $ref: '../../Port.yaml'
+  originRateArea:
+    $ref: 'RateArea.yaml'
+  destinationRateArea:
+    $ref: 'RateArea.yaml'
