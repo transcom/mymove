@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './MoveQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
-import { useMovesQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
+import { useMovesQueueQueries, useUserQueries, useMoveSearchQueries, useBulkAssignmentQueries } from 'hooks/queries';
 import { getMovesQueue } from 'services/ghcApi';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
@@ -161,13 +161,17 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
           ) : (
             <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol} key={row.id}>
               <Dropdown
-                defaultValue={row.assignedTo?.officeUserId}
+                key={row.id}
                 onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.TOO)}
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
                 {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => (
-                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                  <option
+                    value={officeUserId}
+                    key={officeUserId}
+                    selected={row.assignedTo?.officeUserId === officeUserId}
+                  >
                     {`${lastName}, ${firstName}`}
                   </option>
                 ))}
@@ -194,6 +198,7 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
+  const { bulkAssignmentData } = useBulkAssignmentQueries('TASK_ORDER');
   const supervisor = userPrivileges
     ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
     : false;
@@ -334,6 +339,8 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          queueType="TASK_ORDER"
+          bulkAssignmentData={bulkAssignmentData}
         />
       </div>
     );

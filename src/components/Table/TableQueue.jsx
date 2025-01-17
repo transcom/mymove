@@ -56,6 +56,7 @@ const TableQueue = ({
   isBulkAssignmentFFEnabled,
   officeUser,
   activeRole,
+  bulkAssignmentData,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -204,7 +205,6 @@ const TableQueue = ({
 
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
   const isDateFilterValue = (value) => {
     return !Number.isNaN(Date.parse(value));
   };
@@ -320,7 +320,11 @@ const TableQueue = ({
     <div className={styles.tabContent}>
       <div className={styles.container}>
         {isBulkAssignModalVisible && (
-          <BulkAssignmentModal isOpen={isBulkAssignModalVisible} onClose={handleCloseBulkAssignModal} />
+          <BulkAssignmentModal
+            isOpen={isBulkAssignModalVisible}
+            onClose={handleCloseBulkAssignModal}
+            bulkAssignmentData={bulkAssignmentData || {}}
+          />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
           <div className={styles.queueHeader}>
