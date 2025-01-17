@@ -20,8 +20,9 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     entitlements?.dependentsTwelveAndOver ||
     entitlements?.dependentsUnderTwelve
   );
-  const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(false);
-
+  const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(
+    entitlements?.adminRestrictedWeightLocation || false,
+  );
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
@@ -33,6 +34,29 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     };
     checkUBFeatureFlag();
   }, []);
+
+  useEffect(() => {
+    if (!isAdminWeightLocationChecked) {
+      // Find the weight restriction input and reset its value to 0
+      const weightRestrictionInput = document.getElementById('weightRestrictionId');
+      if (weightRestrictionInput) {
+        weightRestrictionInput.value = '0';
+      }
+    }
+  }, [isAdminWeightLocationChecked]);
+
+  const handleAdminWeightLocationChange = (e) => {
+    setIsAdminWeightLocationChecked(e.target.checked);
+    if (!e.target.checked) {
+      const weightRestrictionInput = document.querySelector('input[name="weightRestriction"]');
+      if (weightRestrictionInput) {
+        weightRestrictionInput.value = '0';
+        // Trigger change event to ensure form state is updated
+        const event = new Event('input', { bubbles: true });
+        weightRestrictionInput.dispatchEvent(event);
+      }
+    }
+  };
 
   return (
     <div className={styles.AllowancesDetailForm}>
@@ -148,6 +172,10 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
         lazy={false} // immediate masking evaluation
         isDisabled={formIsDisabled}
       />
+      <dl>
+        <dt>Standard Weight allowance</dt>
+        <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
+      </dl>
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
           data-testid="ocieInput"
@@ -171,23 +199,26 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           data-testid="adminWeightLocation"
           id="adminWeightLocation"
           name="adminRestrictedWeightLocation"
-          label="Admin Restricted Weight Location"
+          label="Admin restricted weight location"
           isDisabled={formIsDisabled}
-          onChange={(e) => setIsAdminWeightLocationChecked(e.target.checked)}
+          onChange={handleAdminWeightLocationChange}
         />
-        {isAdminWeightLocationChecked && (
-          <MaskedTextField
-            data-testid="weightRestrictionInput"
-            name="weightRestriction"
-            label="Weight Restriction"
-            isDisabled={formIsDisabled}
-          />
-        )}
       </div>
-      <dl>
-        <dt>Standard Weight allowance</dt>
-        <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
-      </dl>
+      {isAdminWeightLocationChecked && (
+        <MaskedTextField
+          data-testid="weightRestrictionInput"
+          id="weightRestrictionId"
+          defaultValue="0"
+          name="weightRestriction"
+          label="Weight Restriction (lbs)"
+          mask={Number}
+          scale={0} // digits after point, 0 for integers
+          signed={false} // disallow negative
+          thousandsSeparator=","
+          lazy={false} // immediate masking evaluation
+          isDisabled={formIsDisabled}
+        />
+      )}
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
           id="dependentsAuthorizedInput"

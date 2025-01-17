@@ -16,7 +16,6 @@ const AllowancesList = ({ info, showVisualCues }) => {
   const visualCuesStyle = classNames(descriptionListStyles.row, {
     [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
   });
-
   useEffect(() => {
     const checkUBFeatureFlag = async () => {
       const enabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
@@ -110,13 +109,14 @@ const AllowancesList = ({ info, showVisualCues }) => {
         </div>
         <div className={visualCuesStyle}>
           <dt>Weight Restriction</dt>
-          <dd data-testid="weightRestriction">-</dd>
+          <dd data-testid="weightRestriction">
+            {info.weightRestriction ? formatWeight(info.weightRestriction) : DEFAULT_EMPTY_VALUE}
+          </dd>
         </div>
       </dl>
     </div>
   );
 };
-
 AllowancesList.propTypes = {
   info: PropTypes.shape({
     branch: PropTypes.string,

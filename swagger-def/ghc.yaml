@@ -648,7 +648,7 @@ paths:
           $ref: "#/responses/ServerError"
       x-permissions:
         - update.excessWeightRisk
-  '/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk':
+  "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk":
     parameters:
       - description: ID of order to use
         in: path
@@ -672,20 +672,20 @@ paths:
           type: string
           required: true
       responses:
-        '200':
+        "200":
           description: updated Move
           schema:
-            $ref: '#/definitions/Move'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
+            $ref: "#/definitions/Move"
+        "403":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "412":
+          $ref: "#/responses/PreconditionFailed"
+        "422":
+          $ref: "#/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/responses/ServerError"
       x-permissions:
         - update.excessWeightRisk
   "/orders/{orderID}/update-billable-weight":
@@ -3542,7 +3542,7 @@ paths:
             - TASK_ORDER
             - PAYMENT_REQUEST
       responses:
-        '200':
+        "200":
           description: Successfully returned bulk assignment data
           schema:
             $ref: '#/definitions/BulkAssignmentData'
@@ -5044,6 +5044,11 @@ definitions:
       adminRestrictedWeightLocation:
         type: boolean
         example: false
+      weightRestriction:
+        type: integer
+        example: 1500
+        x-formatting: weight
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -5919,6 +5924,11 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: Indicates the weight restriction for the move to a particular location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6015,6 +6025,11 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: Indicates the weight restriction for a move to a particular location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -7095,7 +7110,7 @@ definitions:
   BulkAssignmentMoveIDs:
     type: array
     items:
-      $ref: '#/definitions/BulkAssignmentMoveID'
+      $ref: "#/definitions/BulkAssignmentMoveID"
   BulkAssignmentMoveID:
     type: string
     format: uuid
@@ -7123,9 +7138,9 @@ definitions:
     type: object
     properties:
       availableOfficeUsers:
-        $ref: '#/definitions/AvailableOfficeUsers'
+        $ref: "#/definitions/AvailableOfficeUsers"
       bulkAssignmentMoveIDs:
-        $ref: '#/definitions/BulkAssignmentMoveIDs'
+        $ref: "#/definitions/BulkAssignmentMoveIDs"
   QueueMoves:
     type: array
     items:
