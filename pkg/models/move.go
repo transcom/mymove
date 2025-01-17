@@ -224,11 +224,11 @@ func (m Move) GetDestinationGBLOC(db *pop.Connection) (string, error) {
 			}
 			return "", err
 		}
-		newGBLOCOconus, err := FetchOconusAddressGbloc(db, *destinationAddress, m.Orders.ServiceMember)
+		newGBLOCOconus, err := FetchAddressGbloc(db, *destinationAddress, m.Orders.ServiceMember)
 		if err != nil {
 			return "", err
 		}
-		newGBLOC = newGBLOCOconus.Gbloc
+		newGBLOC = *newGBLOCOconus
 	} else {
 		newGBLOCConus, err := FetchGBLOCForPostalCode(db, destinationAddress.PostalCode)
 		if err != nil {

@@ -169,11 +169,11 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 			var newDutyLocationGBLOC *string
 			if *newDutyLocation.Address.IsOconus {
-				newDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), newDutyLocation.Address, serviceMember)
+				newDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), newDutyLocation.Address, serviceMember)
 				if err != nil {
 					return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
 				}
-				newDutyLocationGBLOC = &newDutyLocationGBLOCOconus.Gbloc
+				newDutyLocationGBLOC = newDutyLocationGBLOCOconus
 			} else {
 				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
 				if err != nil {
@@ -195,11 +195,11 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 			var originDutyLocationGBLOC *string
 			if *originDutyLocation.Address.IsOconus {
-				originDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), originDutyLocation.Address, serviceMember)
+				originDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), originDutyLocation.Address, serviceMember)
 				if err != nil {
 					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
 				}
-				originDutyLocationGBLOC = &originDutyLocationGBLOCOconus.Gbloc
+				originDutyLocationGBLOC = originDutyLocationGBLOCOconus
 			} else {
 				originDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
 				if err != nil {
@@ -385,11 +385,11 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 			var newDutyLocationGBLOC *string
 			if *dutyLocation.Address.IsOconus {
-				newDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), dutyLocation.Address, order.ServiceMember)
+				newDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), dutyLocation.Address, order.ServiceMember)
 				if err != nil {
 					return nil, apperror.NewNotFoundError(dutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
 				}
-				newDutyLocationGBLOC = &newDutyLocationGBLOCOconus.Gbloc
+				newDutyLocationGBLOC = newDutyLocationGBLOCOconus
 			} else {
 				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
 				if err != nil {
@@ -414,11 +414,11 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 				var originDutyLocationGBLOC *string
 				if *originDutyLocation.Address.IsOconus {
-					originDutyLocationGBLOCOconus, err := models.FetchOconusAddressGbloc(appCtx.DB(), originDutyLocation.Address, order.ServiceMember)
+					originDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), originDutyLocation.Address, order.ServiceMember)
 					if err != nil {
 						return handlers.ResponseForError(appCtx.Logger(), err), err
 					}
-					originDutyLocationGBLOC = &originDutyLocationGBLOCOconus.Gbloc
+					originDutyLocationGBLOC = originDutyLocationGBLOCOconus
 				} else {
 					originDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
 					if err != nil {
