@@ -81,8 +81,22 @@ const createCompleteProGearWeightTicketWithConstructedWeight = (
   return weightTicket;
 };
 
+const createRejectedProGearWeightTicket = ({ serviceMemberId, creationDate } = {}, fieldOverrides = {}) => {
+  const fullFieldOverrides = {
+    belongsToSelf: true,
+    description: 'Laptop',
+    hasWeightTickets: true,
+    weight: 150,
+    ...fieldOverrides,
+  };
+  const weightTicket = createBaseProGearWeightTicket({ serviceMemberId, creationDate }, fullFieldOverrides);
+  weightTicket.status = 'REJECTED';
+  return weightTicket;
+};
+
 export {
   createBaseProGearWeightTicket,
   createCompleteProGearWeightTicket,
   createCompleteProGearWeightTicketWithConstructedWeight,
+  createRejectedProGearWeightTicket,
 };

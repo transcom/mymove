@@ -34,7 +34,7 @@ export const getDisplayWeight = (shipment, weightAdjustment = 1.0) => {
 };
 
 export const calculateNetWeightForProGearWeightTicket = (weightTicket) => {
-  if (weightTicket.weight == null || Number.isNaN(Number(weightTicket.weight))) {
+  if (weightTicket.weight == null || Number.isNaN(Number(weightTicket.weight)) || weightTicket.status === 'REJECTED') {
     return 0;
   }
 
