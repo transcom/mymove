@@ -238,33 +238,29 @@ const PPMShipmentInfoList = ({
   );
 
   const aoaPacketElement = (
-    <div>
+    <div className={styles.row}>
       <dt>AOA Packet</dt>
       <dd data-testid="aoaPacketDownload">
-        <p className={styles.downloadLink}>
-          <AsyncPacketDownloadLink
-            id={shipment?.ppmShipment?.id}
-            label="Download AOA Paperwork (PDF)"
-            asyncRetrieval={downloadPPMAOAPacket}
-            onFailure={onErrorModalToggle}
-          />
-        </p>
+        <AsyncPacketDownloadLink
+          id={shipment?.ppmShipment?.id}
+          label="Download AOA Paperwork (PDF)"
+          asyncRetrieval={downloadPPMAOAPacket}
+          onFailure={onErrorModalToggle}
+        />
       </dd>
     </div>
   );
 
   const paymentPacketElement = (
-    <div>
+    <div className={styles.row}>
       <dt>Payment Packet</dt>
       <dd data-testid="paymentPacketDownload">
-        <p className={styles.downloadLink}>
-          <AsyncPacketDownloadLink
-            id={shipment?.ppmShipment?.id}
-            label="Download Payment Packet (PDF)"
-            asyncRetrieval={downloadPPMPaymentPacket}
-            onFailure={onErrorModalToggle}
-          />
-        </p>
+        <AsyncPacketDownloadLink
+          id={shipment?.ppmShipment?.id}
+          label="Download Payment Packet (PDF)"
+          asyncRetrieval={downloadPPMPaymentPacket}
+          onFailure={onErrorModalToggle}
+        />
       </dd>
     </div>
   );

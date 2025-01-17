@@ -14,11 +14,96 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func TestOrder(_ *testing.T) {
 	order := &models.Order{}
 	Order(order)
+}
+
+func (suite *PayloadsSuite) TestOrderWithMove() {
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	moves := models.Moves{}
+	moves = append(moves, move)
+	order := factory.BuildOrder(nil, []factory.Customization{
+		{
+			Model: models.Order{
+				ID:            uuid.Must(uuid.NewV4()),
+				HasDependents: *models.BoolPointer(true),
+				Moves:         moves,
+			},
+		},
+	}, nil)
+	Order(&order)
+}
+
+func (suite *PayloadsSuite) TestBoatShipment() {
+	boat := factory.BuildBoatShipment(suite.DB(), nil, nil)
+	boatShipment := BoatShipment(nil, &boat)
+	suite.NotNil(boatShipment)
+
+}
+
+func (suite *PayloadsSuite) TestMobileHomeShipment() {
+	mobileHome := factory.BuildMobileHomeShipment(suite.DB(), nil, nil)
+	mobileHomeShipment := MobileHomeShipment(nil, &mobileHome)
+	suite.NotNil(mobileHomeShipment)
+}
+
+func (suite *PayloadsSuite) TestMovingExpense() {
+	contractExpense := models.MovingExpenseReceiptTypeContractedExpense
+	weightStored := 2000
+	sitLocation := models.SITLocationTypeDestination
+	sitReimburseableAmount := 500
+
+	movingExpense := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	movingExpenseValues := MovingExpense(nil, &movingExpense)
+	suite.NotNil(movingExpenseValues)
+}
+
+func (suite *PayloadsSuite) TestMovingExpenses() {
+	contractExpense := models.MovingExpenseReceiptTypeContractedExpense
+	weightStored := 2000
+	sitLocation := models.SITLocationTypeDestination
+	sitReimburseableAmount := 500
+	movingExpenses := models.MovingExpenses{}
+
+	movingExpense := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	movingExpenseTwo := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	movingExpenses = append(movingExpenses, movingExpense, movingExpenseTwo)
+	movingExpensesValue := MovingExpenses(nil, movingExpenses)
+	suite.NotNil(movingExpensesValue)
 }
 
 // TestMove makes sure zero values/optional fields are handled
@@ -27,6 +112,27 @@ func TestMove(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
+}
+
+func (suite *PayloadsSuite) TestExcessWeightInMovePayload() {
+	now := time.Now()
+
+	suite.Run("successfully converts excess weight in model to payload", func() {
+		move := models.Move{
+
+			ExcessWeightQualifiedAt:                        &now,
+			ExcessUnaccompaniedBaggageWeightQualifiedAt:    &now,
+			ExcessUnaccompaniedBaggageWeightAcknowledgedAt: &now,
+			ExcessWeightAcknowledgedAt:                     &now,
+		}
+
+		payload, err := Move(&move, &test.FakeS3Storage{})
+		suite.NoError(err)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt), payload.ExcessWeightQualifiedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightQualifiedAt), payload.ExcessUnaccompaniedBaggageWeightQualifiedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt), payload.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt), payload.ExcessWeightAcknowledgedAt)
+	})
 }
 
 func (suite *PayloadsSuite) TestPaymentRequestQueue() {
@@ -640,6 +746,81 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 	})
 }
 
+func (suite *PayloadsSuite) TestMoveTaskOrder() {
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	moveTaskOrder := MoveTaskOrder(&move)
+	suite.NotNil(moveTaskOrder)
+}
+
+func (suite *PayloadsSuite) TestTransportationOffice() {
+	office := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	transportationOffice := TransportationOffice(&office)
+	suite.NotNil(transportationOffice)
+}
+func (suite *PayloadsSuite) TestTransportationOffices() {
+	office := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	officeTwo := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	transportationOfficeList := models.TransportationOffices{}
+	transportationOfficeList = append(transportationOfficeList, office, officeTwo)
+	value := TransportationOffices(transportationOfficeList)
+	suite.NotNil(value)
+}
+func (suite *PayloadsSuite) TestListMove() {
+
+	marines := models.AffiliationMARINES
+	listMove := ListMove(nil)
+
+	suite.Nil(listMove)
+	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
+			},
+		},
+	}, nil)
+
+	listMove = ListMove(&moveUSMC)
+	suite.NotNil(listMove)
+}
+
+func (suite *PayloadsSuite) TestListMoves() {
+	list := models.Moves{}
+
+	marines := models.AffiliationMARINES
+	spaceForce := models.AffiliationSPACEFORCE
+	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
+			},
+		},
+	}, nil)
+	moveSF := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &spaceForce,
+			},
+		},
+	}, nil)
+	list = append(list, moveUSMC, moveSF)
+	value := ListMoves(&list)
+	suite.NotNil(value)
+}
 func (suite *PayloadsSuite) TestSearchMoves() {
 	appCtx := suite.AppContextForTest()
 
@@ -653,7 +834,7 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 	}, nil)
 
 	moves := models.Moves{moveUSMC}
-	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
+	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Marine move with no shipments", func() {
 		payload := SearchMoves(appCtx, moves)
 
 		suite.IsType(payload, &ghcmessages.SearchMoves{})
@@ -725,16 +906,16 @@ func (suite *PayloadsSuite) TestReServiceItems() {
 		marketCodeInternational := models.MarketCodeInternational
 		marketCodeDomestic := models.MarketCodeDomestic
 		poefscReServiceCode := models.ReServiceCodePOEFSC
-		poedscReServiceCode := models.ReServiceCodePODFSC
+		podfscReServiceCode := models.ReServiceCodePODFSC
 		poefscServiceName := "International POE Fuel Surcharge"
-		poedscServiceName := "International POD Fuel Surcharge"
+		podfscServiceName := "International POD Fuel Surcharge"
 		poefscService := models.ReService{
 			Code: poefscReServiceCode,
 			Name: poefscServiceName,
 		}
 		podfscService := models.ReService{
-			Code: poedscReServiceCode,
-			Name: poedscServiceName,
+			Code: podfscReServiceCode,
+			Name: podfscServiceName,
 		}
 		hhgShipmentType := models.MTOShipmentTypeHHG
 		ubShipmentType := models.MTOShipmentTypeUnaccompaniedBaggage
@@ -1036,5 +1217,140 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
 		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
 		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
+	})
+}
+
+func (suite *PayloadsSuite) TestPort() {
+
+	suite.Run("returns nil when PortLocation is nil", func() {
+		var mtoServiceItems models.MTOServiceItems = nil
+		result := Port(mtoServiceItems, "POE")
+		suite.Nil(result, "Expected result to be nil when Port Location is nil")
+	})
+
+	suite.Run("Success - Maps PortLocation to Port payload", func() {
+		// Use the factory to create a port location
+		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		mtoServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		// Actual
+		mtoServiceItems := models.MTOServiceItems{mtoServiceItem}
+		result := Port(mtoServiceItems, "POE")
+
+		// Assert
+		suite.IsType(&ghcmessages.Port{}, result)
+		suite.Equal(strfmt.UUID(portLocation.ID.String()), result.ID)
+		suite.Equal(portLocation.Port.PortType.String(), result.PortType)
+		suite.Equal(portLocation.Port.PortCode, result.PortCode)
+		suite.Equal(portLocation.Port.PortName, result.PortName)
+		suite.Equal(portLocation.City.CityName, result.City)
+		suite.Equal(portLocation.UsPostRegionCity.UsprcCountyNm, result.County)
+		suite.Equal(portLocation.UsPostRegionCity.UsPostRegion.State.StateName, result.State)
+		suite.Equal(portLocation.UsPostRegionCity.UsprZipID, result.Zip)
+		suite.Equal(portLocation.Country.CountryName, result.Country)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
+	suite.Run("Only POE Location is set", func() {
+		// Create mock data for MTOServiceItems with POE and POD
+		poePortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		poefscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code:     models.ReServiceCodePOEFSC,
+					Priority: 1,
+				},
+			},
+			{
+				Model:    poePortLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MTOServiceItems: models.MTOServiceItems{poefscServiceItem},
+				},
+			},
+		}, nil)
+
+		payload := MTOShipment(nil, &mtoShipment, nil)
+
+		// Assertions
+		suite.NotNil(payload, "Expected payload to not be nil")
+		suite.NotNil(payload.PoeLocation, "Expected POELocation to not be nil")
+		suite.Equal("PDX", payload.PoeLocation.PortCode, "Expected POE Port Code to match")
+		suite.Equal("PORTLAND INTL", payload.PoeLocation.PortName, "Expected POE Port Name to match")
+		suite.Nil(payload.PodLocation, "Expected PODLocation to be nil when POELocation is set")
+	})
+
+	suite.Run("Only POD Location is set", func() {
+		// Create mock data for MTOServiceItems with POE and POD
+		podPortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		podfscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code:     models.ReServiceCodePODFSC,
+					Priority: 1,
+				},
+			},
+			{
+				Model:    podPortLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfDebarkation,
+			},
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MTOServiceItems: models.MTOServiceItems{podfscServiceItem},
+				},
+			},
+		}, nil)
+
+		payload := MTOShipment(nil, &mtoShipment, nil)
+
+		// Assertions
+		suite.NotNil(payload, "Expected payload to not be nil")
+		suite.NotNil(payload.PodLocation, "Expected PODLocation to not be nil")
+		suite.Equal("PDX", payload.PodLocation.PortCode, "Expected POD Port Code to match")
+		suite.Equal("PORTLAND INTL", payload.PodLocation.PortName, "Expected POD Port Name to match")
+		suite.Nil(payload.PoeLocation, "Expected PODLocation to be nil when PODLocation is set")
 	})
 }
