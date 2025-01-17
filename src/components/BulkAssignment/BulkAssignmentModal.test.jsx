@@ -39,7 +39,7 @@ describe('BulkAssignmentModal', () => {
   it('renders the component', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} bulkAssignmentData={data} />);
 
-    expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment (5)' })).toBeInTheDocument();
   });
 
   it('closes the modal when close icon is clicked', async () => {
@@ -78,7 +78,6 @@ describe('BulkAssignmentModal', () => {
     const userTable = await screen.findByRole('table');
 
     expect(userTable).toBeInTheDocument();
-    expect(screen.getByText('Select/Deselect All')).toBeInTheDocument();
     expect(screen.getByText('User')).toBeInTheDocument();
     expect(screen.getByText('Workload')).toBeInTheDocument();
     expect(screen.getByText('Assignment')).toBeInTheDocument();
