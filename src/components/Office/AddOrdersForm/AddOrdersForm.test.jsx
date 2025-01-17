@@ -170,7 +170,7 @@ describe('CreateMoveCustomerInfo Component', () => {
       </Provider>,
     );
 
-    const ordersTypeDropdown = getByLabelText('Orders type');
+    const ordersTypeDropdown = getByLabelText(/Orders type/);
     expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
     await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
@@ -261,27 +261,6 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
   });
 });
 
-describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
-  it('disables orders type when safety move is selected', async () => {
-    render(
-      <Provider store={mockStore.store}>
-        <AddOrdersForm {...testProps} isSafetyMoveSelected />
-      </Provider>,
-    );
-
-    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
-  });
-
-  it('disables orders type when bluebark move is selected', async () => {
-    render(
-      <Provider store={mockStore.store}>
-        <AddOrdersForm {...testProps} isBluebarkMoveSelected />
-      </Provider>,
-    );
-    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
-  });
-});
-
 describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () => {
   it('has dependents is yes and disabled when order type is student travel', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
@@ -292,7 +271,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
       </Provider>,
     );
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.STUDENT_TRAVEL);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
 
     const hasDependentsYes = screen.getByLabelText('Yes');
     const hasDependentsNo = screen.getByLabelText('No');
@@ -313,7 +292,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
       </Provider>,
     );
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
     const hasDependentsYes = screen.getByLabelText('Yes');
     const hasDependentsNo = screen.getByLabelText('No');
 
@@ -333,7 +312,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
       </Provider>,
     );
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
     const hasDependentsYesPermChg = screen.getByLabelText('Yes');
     const hasDependentsNoPermChg = screen.getByLabelText('No');
@@ -346,7 +325,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     });
 
     // set order type to value that disables and defaults "has dependents"
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.STUDENT_TRAVEL);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
 
     const hasDependentsYesStudent = screen.getByLabelText('Yes');
     const hasDependentsNoStudent = screen.getByLabelText('No');
@@ -358,7 +337,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     });
 
     // set order type to value the re-enables "has dependents"
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.LOCAL_MOVE);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.LOCAL_MOVE);
 
     const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
     const hasDependentsNoLocalMove = screen.getByLabelText('No');
@@ -380,7 +359,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
       </Provider>,
     );
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
     const hasDependentsYesPermChg = screen.getByLabelText('Yes');
     const hasDependentsNoPermChg = screen.getByLabelText('No');
@@ -393,7 +372,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     });
 
     // set order type to value that disables and defaults "has dependents"
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
     const hasDependentsYesEarly = screen.getByLabelText('Yes');
     const hasDependentsNoEarly = screen.getByLabelText('No');
@@ -405,7 +384,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     });
 
     // set order type to value the re-enables "has dependents"
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.LOCAL_MOVE);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.LOCAL_MOVE);
 
     const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
     const hasDependentsNoLocalMove = screen.getByLabelText('No');
@@ -416,6 +395,27 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
       expect(hasDependentsNoLocalMove).not.toBeChecked();
       expect(hasDependentsNoLocalMove).toBeEnabled();
     });
+  });
+});
+
+describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
+  it('disables orders type when safety move is selected', async () => {
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} isSafetyMoveSelected />
+      </Provider>,
+    );
+
+    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
+  });
+
+  it('disables orders type when bluebark move is selected', async () => {
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} isBluebarkMoveSelected />
+      </Provider>,
+    );
+    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
   });
 });
 
@@ -483,25 +483,5 @@ describe('AddOrdersForm - With Counseling Office', () => {
 
     const nextBtn = await screen.getByRole('button', { name: 'Next' }, { delay: 100 });
     expect(nextBtn).toBeDisabled();
-  });
-});
-describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
-  it('disables orders type when safety move is selected', async () => {
-    render(
-      <Provider store={mockStore.store}>
-        <AddOrdersForm {...testProps} isSafetyMoveSelected />
-      </Provider>,
-    );
-
-    expect(screen.getByLabelText('Orders type')).toBeDisabled();
-  });
-
-  it('disables orders type when bluebark move is selected', async () => {
-    render(
-      <Provider store={mockStore.store}>
-        <AddOrdersForm {...testProps} isBluebarkMoveSelected />
-      </Provider>,
-    );
-    expect(screen.getByLabelText('Orders type')).toBeDisabled();
   });
 });
