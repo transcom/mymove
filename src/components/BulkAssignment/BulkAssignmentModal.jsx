@@ -11,38 +11,35 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
     <Modal className={styles.BulkModal}>
       <ModalClose handleClick={() => onClose()} />
       <ModalTitle>
-        <h3>{title}</h3>
+        <h3>
+          {title} (
+          {bulkAssignmentData.bulkAssignmentMoveIDs == null ? 0 : bulkAssignmentData.bulkAssignmentMoveIDs.length})
+        </h3>
       </ModalTitle>
       <div className={styles.BulkAssignmentTable}>
         <table>
           <tr>
-            <th>Select/Deselect All </th>
             <th>User</th>
             <th>Workload</th>
             <th>Assignment</th>
           </tr>
-          {Object.prototype.hasOwnProperty.call(bulkAssignmentData, 'availableOfficeUsers')
-            ? bulkAssignmentData.availableOfficeUsers.map((user) => {
-                return (
-                  <tr key={user}>
-                    <td className={styles.BulkAssignmentDataCenter}>
-                      <input type="checkbox" />
-                    </td>
-                    <td>
-                      <p data-testid="bulkAssignmentUser">
-                        {user.lastName}, {user.firstName}
-                      </p>
-                    </td>
-                    <td className={styles.BulkAssignmentDataCenter}>
-                      <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
-                    </td>
-                    <td className={styles.BulkAssignmentDataCenter}>
-                      <input className={styles.BulkAssignmentAssignment} type="number" />
-                    </td>
-                  </tr>
-                );
-              })
-            : null}
+          {bulkAssignmentData?.availableOfficeUsers?.map((user) => {
+            return (
+              <tr key={user}>
+                <td>
+                  <p data-testid="bulkAssignmentUser">
+                    {user.lastName}, {user.firstName}
+                  </p>
+                </td>
+                <td className={styles.BulkAssignmentDataCenter}>
+                  <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
+                </td>
+                <td className={styles.BulkAssignmentDataCenter}>
+                  <input className={styles.BulkAssignmentAssignment} type="number" />
+                </td>
+              </tr>
+            );
+          })}
         </table>
       </div>
       <ModalActions autofocus="true">
