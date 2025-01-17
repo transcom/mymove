@@ -39,6 +39,7 @@ type HandlerConfig interface {
 	) http.Handler
 	FileStorer() storage.FileStorer
 	NotificationSender() notifications.NotificationSender
+	NotificationReceiver() notifications.NotificationReceiver
 	HHGPlanner() route.Planner
 	DTODPlanner() route.Planner
 	CookieSecret() string
@@ -66,6 +67,7 @@ type Config struct {
 	dtodPlanner           route.Planner
 	storage               storage.FileStorer
 	notificationSender    notifications.NotificationSender
+	notificationReceiver  notifications.NotificationReceiver
 	iwsPersonLookup       iws.PersonLookup
 	sendProductionInvoice bool
 	senderToGex           services.GexSender
@@ -86,6 +88,7 @@ func NewHandlerConfig(
 	dtodPlanner route.Planner,
 	storage storage.FileStorer,
 	notificationSender notifications.NotificationSender,
+	notificationReceiver notifications.NotificationReceiver,
 	iwsPersonLookup iws.PersonLookup,
 	sendProductionInvoice bool,
 	senderToGex services.GexSender,
@@ -103,6 +106,7 @@ func NewHandlerConfig(
 		dtodPlanner:           dtodPlanner,
 		storage:               storage,
 		notificationSender:    notificationSender,
+		notificationReceiver:  notificationReceiver,
 		iwsPersonLookup:       iwsPersonLookup,
 		sendProductionInvoice: sendProductionInvoice,
 		senderToGex:           senderToGex,
@@ -245,6 +249,16 @@ func (c *Config) NotificationSender() notifications.NotificationSender {
 // SetNotificationSender is a simple setter for AWS SES private field
 func (c *Config) SetNotificationSender(sender notifications.NotificationSender) {
 	c.notificationSender = sender
+}
+
+// NotificationReceiver returns the sender to use in the current context
+func (c *Config) NotificationReceiver() notifications.NotificationReceiver {
+	return c.notificationReceiver
+}
+
+// SetNotificationSender is a simple setter for AWS SQS private field
+func (c *Config) SetNotificationReceiver(receiver notifications.NotificationReceiver) {
+	c.notificationReceiver = receiver
 }
 
 // SetPlanner is a simple setter for the route.Planner private field

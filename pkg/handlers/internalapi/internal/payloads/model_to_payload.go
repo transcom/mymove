@@ -453,12 +453,15 @@ func PayloadForUploadModel(
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
+
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
 		uploadPayload.Status = "PROCESSING"
 	} else {
 		uploadPayload.Status = tags["av-status"]
+		// TODO: update db with the tags
 	}
+
 	return uploadPayload
 }
 
