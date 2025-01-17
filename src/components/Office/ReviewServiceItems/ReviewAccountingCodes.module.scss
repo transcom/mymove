@@ -43,3 +43,36 @@
 .SAC{
   word-wrap: break-word;
 }
+
+.MoveLevelServiceItems {
+  @include u-margin-bottom(1);
+  @include u-padding-y(1.5);
+  @include u-padding-x(1);
+  border: solid 1px $base-lighter;
+  border-left: solid 5px $base-lighter;
+  border-radius: 4px;
+  line-height: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .MoveLevelServiceItemsAmount {
+    float: right;
+  }
+
+  .MoveLevelServiceItemsName {
+    @include u-text('bold');
+    @include u-text('base-darker');
+  }
+
+  > div:not(:last-child) {
+    @include u-border-bottom('1px');
+    @include u-border-color('base-lighter');
+    @include u-padding-top(.5);
+    @include u-padding-bottom(1.5);
+  }
+
+  > div:last-child {
+    @include u-padding-top(.5);
+  }
+}
