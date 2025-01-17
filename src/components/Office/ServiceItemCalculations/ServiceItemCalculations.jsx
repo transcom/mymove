@@ -14,7 +14,6 @@ import {
 } from 'constants/serviceItems';
 
 const times = <FontAwesomeIcon className={styles.icon} icon="times" />;
-const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
 
 const ServiceItemCalculations = ({
   itemCode,
@@ -35,10 +34,6 @@ const ServiceItemCalculations = ({
 
     if (index > 0 && index !== length - 1) {
       return times;
-    }
-
-    if (index === length - 1) {
-      return equals;
     }
 
     return null;
