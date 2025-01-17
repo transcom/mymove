@@ -127,7 +127,8 @@ const NTSRShipmentInfoList = ({
       <div className={requestedPickupDateElementFlags.classes}>
         <dt>Requested pickup date</dt>
         <dd data-testid="requestedPickupDate">
-          {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) || '—'}
+          {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) ||
+            getMissingOrDash('requestedPickupDate')}
         </dd>
       </div>
     </Restricted>
@@ -138,8 +139,7 @@ const NTSRShipmentInfoList = ({
     <div className={requestedDeliveryDateElementFlags.classes}>
       <dt>Requested delivery date</dt>
       <dd data-testid="requestedDeliveryDate">
-        {(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) ||
-          getMissingOrDash('requestedDeliveryDate')}
+        {(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) || '—'}
       </dd>
     </div>
   );
