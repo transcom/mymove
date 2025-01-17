@@ -1012,8 +1012,7 @@ export class CustomerPpmPage extends CustomerPage {
   async submitExpensePage(options = { isEditExpense: false }) {
     const expenseType = this.page.locator('select[name="expenseType"]');
     if (!options?.isEditExpense) {
-      const expenseTypeValue = await expenseType.textContent();
-      await expect(expenseTypeValue === '' || expenseTypeValue === null).toBeTruthy();
+      expect(expenseType).toBe('');
     }
     // this section was frequently flaky with the page closing, waiting for page to load before proceeding
     await this.page.waitForLoadState('networkidle');
