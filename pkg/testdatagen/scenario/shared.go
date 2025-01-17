@@ -4294,7 +4294,7 @@ func createHHGWithOriginSITServiceItems(
 		false,
 		false,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -4562,7 +4562,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		false,
 		false,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
@@ -5046,7 +5046,7 @@ func createHHGWithPaymentServiceItems(
 		false,
 		false,
 	).Return(400, nil)
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -10461,7 +10461,8 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 
 	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
 	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	regularMTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
+
+	factory.BuildMTOShipment(db, []factory.Customization{
 		{
 			Model:    move,
 			LinkOnly: true,
@@ -10492,29 +10493,6 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			},
 		},
 	}, nil)
-
-	if shipmentType == models.MTOShipmentTypeMobileHome {
-		factory.BuildMobileHomeShipment(appCtx.DB(), []factory.Customization{
-			{
-				Model: models.MobileHome{
-					Year:           models.IntPointer(2000),
-					Make:           models.StringPointer("Boat Make"),
-					Model:          models.StringPointer("Boat Model"),
-					LengthInInches: models.IntPointer(300),
-					WidthInInches:  models.IntPointer(108),
-					HeightInInches: models.IntPointer(72),
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    regularMTOShipment,
-				LinkOnly: true,
-			},
-		}, nil)
-	}
 
 	return move
 }

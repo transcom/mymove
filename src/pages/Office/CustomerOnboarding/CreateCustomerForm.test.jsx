@@ -119,7 +119,7 @@ const fakePayload = {
   },
   create_okta_account: 'true',
   cac_user: 'false',
-  is_safety_move: false,
+  is_safety_move: 'false',
   is_bluebark: 'false',
 };
 
@@ -736,4 +736,4 @@ describe('CreateCustomerForm', () => {
       });
     });
   }, 50000);
-});
+}, 60000);

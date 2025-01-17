@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 )
 
 // ShipmentCreator creates a shipment, taking into account different shipment types and their needs.
@@ -16,5 +17,5 @@ type ShipmentCreator interface {
 //
 //go:generate mockery --name ShipmentUpdater
 type ShipmentUpdater interface {
-	UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error)
+	UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string, planner route.Planner) (*models.MTOShipment, error)
 }
