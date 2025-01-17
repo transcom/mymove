@@ -108,6 +108,8 @@ BEGIN
             END;
         END LOOP;
     END LOOP;
+
+    UPDATE moves SET status = ''APPROVALS REQUESTED'' WHERE id = ''5ca35025-caf9-4803-b851-8081df3f9e6c'';
 END;
 '
 LANGUAGE plpgsql;
