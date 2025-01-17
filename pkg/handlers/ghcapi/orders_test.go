@@ -399,7 +399,6 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
