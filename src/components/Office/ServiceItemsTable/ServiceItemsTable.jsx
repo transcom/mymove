@@ -19,6 +19,7 @@ import { selectDateFieldByStatus, selectDatePrefixByStatus } from 'utils/dates';
 import { useGHCGetMoveHistory, useMovePaymentRequestsQueries } from 'hooks/queries';
 import ToolTip from 'shared/ToolTip/ToolTip';
 import { ShipmentShape } from 'types';
+import { nullSafeStringCompare } from 'shared/utils';
 
 // Sorts service items in an order preferred by the customer
 // Currently only SIT & shorthaul/linehaul receives special sorting
@@ -48,12 +49,14 @@ function sortServiceItems(items) {
   );
 
   // Filter all service items that are not specifically sorted
-  const remainingServiceItems = items.filter(
-    (item) =>
-      !haulTypeServiceItemCodes.includes(item.code) &&
-      !destinationServiceItemCodes.includes(item.code) &&
-      !originServiceItemCodes.includes(item.code),
-  );
+  const remainingServiceItems = items
+    .filter(
+      (item) =>
+        !haulTypeServiceItemCodes.includes(item.code) &&
+        !destinationServiceItemCodes.includes(item.code) &&
+        !originServiceItemCodes.includes(item.code),
+    )
+    .sort((a, b) => nullSafeStringCompare(a.sort, b.sort));
 
   return [
     ...sortedHaulTypeServiceItems,
