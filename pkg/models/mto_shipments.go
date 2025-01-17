@@ -22,7 +22,7 @@ const (
 	// NTSRaw is the raw string value of the NTS Shipment Type
 	NTSRaw = "HHG_INTO_NTS"
 	// NTSrRaw is the raw string value of the NTSr Shipment Type
-	NTSrRaw = "HHG_OUTOF_NTS_DOMESTIC"
+	NTSrRaw = "HHG_OUTOF_NTS"
 )
 
 // Market code indicator of international or domestic
@@ -38,8 +38,8 @@ const (
 	MTOShipmentTypeHHG MTOShipmentType = "HHG"
 	// MTOShipmentTypeHHGIntoNTS is an HHG Shipment Type for going into NTS
 	MTOShipmentTypeHHGIntoNTS MTOShipmentType = NTSRaw
-	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
-	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = NTSrRaw
+	// MTOShipmentTypeHHGOutOfNTS is an HHG Shipment Type for going out of NTS
+	MTOShipmentTypeHHGOutOfNTS MTOShipmentType = NTSrRaw
 	// MTOShipmentTypeMobileHome is a Shipment Type for MobileHome
 	MTOShipmentTypeMobileHome MTOShipmentType = "MOBILE_HOME"
 	// MTOShipmentTypeBoatHaulAway is a Shipment Type for Boat Haul Away
@@ -342,7 +342,7 @@ func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
 				shipment.MarketCode = MarketCodeInternational
 			}
 		}
-	case MTOShipmentTypeHHGOutOfNTSDom:
+	case MTOShipmentTypeHHGOutOfNTS:
 		if shipment.StorageFacility != nil && shipment.DestinationAddress != nil &&
 			shipment.StorageFacility.Address.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
 			if isDomestic(&shipment.StorageFacility.Address, shipment.DestinationAddress) {
