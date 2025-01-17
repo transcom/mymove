@@ -81,7 +81,7 @@ require (
 	go.flipt.io/flipt/sdk/go v0.5.0
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.18.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.55.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.56.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.53.0
 	go.opentelemetry.io/contrib/propagators/aws v1.18.0
 	go.opentelemetry.io/otel v1.31.0

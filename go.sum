@@ -659,8 +659,8 @@ go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352 h1:CCriYyAfq1Br1aIYettdH
 go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352/go.mod h1:SNgMg+EgDFwmvSmLRTNKC5fegJjB7v23qTQ0XLGUNHk=
 go.opentelemetry.io/contrib/detectors/aws/ecs v1.18.0 h1:orZCNoMPHeYfDo0QFdSK29yYF8n7YoY9eSoZpPT7g/Y=
 go.opentelemetry.io/contrib/detectors/aws/ecs v1.18.0/go.mod h1:9dUe4hRrmnbdfc7sx711L35isi51mJOisRlyghiTLzI=
-go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.55.0 h1:ZIg3ZT/aQ7AfKqdwp7ECpOK6vHqquXXuyTjIO8ZdmPs=
-go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.55.0/go.mod h1:DQAwmETtZV00skUwgD6+0U89g80NKsJE3DCKeLLPQMI=
+go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.56.0 h1:UP6IpuHFkUgOQL9FFQFrZ+5LiwhhYRbi7VZSIx6Nj5s=
+go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.56.0/go.mod h1:qxuZLtbq5QDtdeSHsS7bcf6EH6uO6jUAgk764zd3rhM=
 go.opentelemetry.io/contrib/instrumentation/runtime v0.53.0 h1:nOlJEAJyrcy8hexK65M+dsCHIx7CVVbybcFDNkcTcAc=
 go.opentelemetry.io/contrib/instrumentation/runtime v0.53.0/go.mod h1:u79lGGIlkg3Ryw425RbMjEkGYNxSnXRyR286O840+u4=
 go.opentelemetry.io/contrib/propagators/aws v1.18.0 h1:8SFScyYfxZK/MaW1iW17h/RhHNogbDtpwNJ6Ce95h0A=
