@@ -1865,6 +1865,10 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 			serviceRequestDocs[i] = payload
 		}
 	}
+	var sort *string = nil
+	if s.ReService.ReServiceItem != nil {
+		sort = s.ReService.ReServiceItem.Sort
+	}
 	payload := &ghcmessages.MTOServiceItem{
 		ID:                            handlers.FmtUUID(s.ID),
 		MoveTaskOrderID:               handlers.FmtUUID(s.MoveTaskOrderID),
@@ -1880,6 +1884,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDepartureDate:              handlers.FmtDateTimePtr(s.SITDepartureDate),
 		SitCustomerContacted:          handlers.FmtDatePtr(s.SITCustomerContacted),
 		SitRequestedDelivery:          handlers.FmtDatePtr(s.SITRequestedDelivery),
+		Sort:                          sort,
 		Status:                        ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:                   handlers.FmtStringPtr(s.Description),
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
