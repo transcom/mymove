@@ -613,11 +613,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 				Status: models.MTOServiceItemStatusSubmitted,
 			},
 		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDOFSIT,
-			},
-		},
 	}, nil)
 
 	// Service Counseling Completed Move
