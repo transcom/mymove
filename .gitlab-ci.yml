@@ -915,7 +915,7 @@ build_push_app_dp3:
   stage: push
   tags:
     - $RUNNER_TAG
-  environment: DP3_ENV
+  environment: $DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -938,7 +938,7 @@ build_push_migrations_dp3:
   stage: push
   tags:
     - $RUNNER_TAG
-  environment: DP3_ENV
+  environment: $DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -961,7 +961,7 @@ build_push_tasks_dp3:
   stage: push
   tags:
     - $RUNNER_TAG
-  environment: DP3_ENV
+  environment: $DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -984,7 +984,7 @@ push_otel_collector_image_dp3:
   stage: push
   tags:
     - $RUNNER_TAG
-  environment: DP3_ENV
+  environment: $DP3_ENV
   before_script:
     - *setup_aws_vars_dp3
     - *setup_release_dp3
@@ -1016,7 +1016,7 @@ deploy_migrations_dp3:
   stage: deploy
   tags:
     - $RUNNER_TAG
-  environment: DP3_ENV
+  environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -1047,6 +1047,7 @@ deploy_tasks_dp3:
   stage: deploy
   tags:
     - $RUNNER_TAG
+  environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -1074,7 +1075,7 @@ deploy_app_client_tls_dp3:
   stage: deploy
   tags:
     - $RUNNER_TAG
-  environment: DP3_ENV
+  environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -1088,6 +1089,7 @@ deploy_app_client_tls_dp3:
     HEALTH_CHECK: "true"
   before_script:
     - *setup_aws_vars_dp3
+    - *setup_tls_vars_dp3
     - *setup_release_dp3
   script:
     # - echo "Comparing against deployed commit"
@@ -1100,11 +1102,11 @@ deploy_app_client_tls_dp3:
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
   after_script:
     - *announce_failure
   rules:
@@ -1114,7 +1116,7 @@ deploy_app_dp3:
   stage: deploy
   tags:
     - $RUNNER_TAG
-  environment: DP3_ENV
+  environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -1127,6 +1129,7 @@ deploy_app_dp3:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_tls_vars_dp3
     - *setup_aws_vars_dp3
     - *setup_release_dp3
   script:
@@ -1149,11 +1152,11 @@ deploy_app_dp3:
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+    - bin/health-checker --schemes https --hosts my.$DP3_ENV.dp3.us,office.$DP3_ENV.dp3.us,admin.$DP3_ENV.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts my.$DP3_ENV.dp3.us,office.$DP3_ENV.dp3.us,admin.$DP3_ENV.dp3.us --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "my.$DP3_ENV.dp3.us,office.$DP3_ENV.dp3.us,admin.$DP3_ENV.dp3.us" "$CI_COMMIT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1338,6 +1341,7 @@ deploy_app_client_tls_stg:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_tls_vars_stg
     - *setup_aws_vars_stg
     - *setup_release_stg
   script:
@@ -1350,12 +1354,13 @@ deploy_app_client_tls_stg:
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
   after_script:
     - *announce_failure
   rules:
@@ -1378,6 +1383,7 @@ deploy_app_stg:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_tls_vars_stg
     - *setup_aws_vars_stg
     - *setup_release_stg
   script:
@@ -1399,12 +1405,13 @@ deploy_app_stg:
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1609,6 +1616,7 @@ deploy_app_client_tls_prd:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_tls_vars_prd
     - *setup_aws_vars_prd
     - *setup_release_prd
   script:
@@ -1621,12 +1629,13 @@ deploy_app_client_tls_prd:
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
   after_script:
     - *announce_failure
   rules:
@@ -1649,6 +1658,7 @@ deploy_app_prd:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_tls_vars_prd
     - *setup_aws_vars_prd
     - *setup_release_prd
   script:
@@ -1670,12 +1680,13 @@ deploy_app_prd:
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    # - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
-    # - echo "Running TLS Check"
-    # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
-    # - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA"
   after_script:
     - *announce_failure
   rules:
