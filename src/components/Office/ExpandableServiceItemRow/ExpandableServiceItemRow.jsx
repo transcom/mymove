@@ -94,7 +94,7 @@ const ExpandableServiceItemRow = ({
       </tr>
       {isExpanded && (
         <tr data-testid="serviceItemCaclulations" data-groupdid={index} className={tableDetailClasses}>
-          <td colSpan={3}>
+          <td colSpan={1}>
             <ServiceItemCalculations
               itemCode={serviceItem.mtoServiceItemCode}
               totalAmountRequested={serviceItem.priceCents}
@@ -103,6 +103,12 @@ const ExpandableServiceItemRow = ({
               shipmentType={serviceItem.mtoShipmentType}
             />
           </td>
+          {serviceItem.rejectionReason !== undefined && (
+            <td colSpan={2} className={styles.rejectionReasonTd}>
+              <h4 className={styles.title}>Rejection Reason</h4>
+              <small>{serviceItem.rejectionReason}</small>
+            </td>
+          )}
         </tr>
       )}
     </>

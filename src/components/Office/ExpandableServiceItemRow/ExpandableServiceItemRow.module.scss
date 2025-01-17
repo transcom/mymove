@@ -72,4 +72,30 @@
   &.expandedDetail td {
     padding: 0;
   }
+
+  .rejectionReasonCol {
+    @include u-padding(2);
+    border: 1px solid $base-lighter;
+    border-radius: 3px;
+    background-color: $bg-gray;
+  }
+
+  .title {
+    font-weight: bold;
+    margin-top: 0;
+    @include u-margin-bottom(2);
+    @include u-padding-top(2);
+  }
+
+  td {
+    background-color: $bg-gray;
+  }
+
+  td[colspan='2']:nth-of-type(2).rejectionReasonTd {
+    vertical-align: top;
+    text-align: start;
+    word-break: break-all;
+    padding-right: 2rem;
+    border-left: 1px solid #dfe1e2;
+  }
 }
