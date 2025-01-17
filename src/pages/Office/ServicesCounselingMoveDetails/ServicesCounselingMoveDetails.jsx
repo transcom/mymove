@@ -53,8 +53,8 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServicesCounselingMoveDetails = ({
   infoSavedAlert,
@@ -878,7 +878,7 @@ const ServicesCounselingMoveDetails = ({
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
-              <OrdersList ordersInfo={ordersInfo} moveInfo={move} />
+              <OrdersList ordersInfo={ordersInfo} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">

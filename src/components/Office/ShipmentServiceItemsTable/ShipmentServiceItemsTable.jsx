@@ -59,12 +59,12 @@ function filterPortFuelSurcharge(shipment, autoApprovedItems) {
   const { destinationAddress, pickupAddress } = shipment;
   let filteredPortFuelSurchargeList = autoApprovedItems;
   if (pickupAddress.isOconus) {
-    filteredPortFuelSurchargeList = filteredPortFuelSurchargeList.filter((serviceItem) => {
+    filteredPortFuelSurchargeList = autoApprovedItems.filter((serviceItem) => {
       return serviceItem.serviceCode !== SERVICE_ITEM_CODES.POEFSC;
     });
   }
   if (destinationAddress.isOconus) {
-    filteredPortFuelSurchargeList = filteredPortFuelSurchargeList.filter((serviceItem) => {
+    filteredPortFuelSurchargeList = autoApprovedItems.filter((serviceItem) => {
       return serviceItem.serviceCode !== SERVICE_ITEM_CODES.PODFSC;
     });
   }

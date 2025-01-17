@@ -291,6 +291,61 @@ test.describe('Services counselor user', () => {
       await scPage.navigateToMove(move.locator);
     });
 
+    /**
+     * This test is being temporarily skipped until flakiness issues
+     * can be resolved. It was skipped in cypress and is not part of
+     * the initial playwright conversion. - ahobson 2023-01-12
+     */
+    test.skip('is able to edit allowances', () => {
+      //   // TOO Moves queue
+      //   cy.wait(['@getSortedMoves']);
+      //   await expect(page.getByText(moveLocator).click()).toBeVisible();
+      //   cy.url().should('include', `/moves/${moveLocator}/details`);
+      //   // Move Details page
+      //   cy.watest(['@getMoves', '@getOrders', '@getMTOShipments', async ({page}) => {
+      //   // Navigate to Edit allowances page
+      //   await expect(page.locator('[data-testid="edit-allowances"]')).toContainText('Edit allowances').click();
+      //   // Toggle between Edit Allowances and Edit Orders page
+      //   await page.locator('[data-testid="view-orders"]').click();
+      //   cy.url().should('include', `/moves/${moveLocator}/orders`);
+      //   await page.locator('[data-testid="view-allowances"]').click();
+      //   cy.url().should('include', `/moves/${moveLocator}/allowances`);
+      //   cy.watest(['@getMoves', async ({page}) => {
+      //   await page.locator('form').within(($form) => {
+      //     // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
+      //     await page.locator('input[name="proGearWeight"]').fill('1999');
+      //     await page.locator('input[name="proGearWeightSpouse"]').fill('499');
+      //     await page.locator('input[name="requiredMedicalEquipmentWeight"]').fill('999');
+      //     await page.locator('input[name="storageInTransit"]').fill('199');
+      //     await page.locator('input[name="organizationalClothingAndIndividualEquipment"]').siblings('label[for="ocieInput"]').click();
+      //     // Edit grade and authorized weight
+      //     await expect(page.locator('select[name=agency]')).toContainText('Army');
+      //     await page.locator('select[name=agency]').selectOption({ label: 'Navy'});
+      //     await expect(page.locator('select[name="grade"]')).toContainText('E-1');
+      //     await page.locator('select[name="grade"]').selectOption({ label: 'W-2'});
+      //     //Edit DependentsAuthorized
+      //     await page.locator('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();
+      //     // Edit allowances page | Save
+      //     await expect(page.locator('[data-testid="scAllowancesSave"]')).toBeEnabled().click();
+      //   });
+      //   cy.wait(['@patchAllowances']);
+      //   // Verify edited values are saved
+      //   cy.url().should('include', `/moves/${moveLocator}/details`);
+      //   cy.watest(['@getMoves', '@getOrders', '@getMTOShipments', async ({page}) => {
+      //   await expect(page.locator('[data-testid="progear"]')).toContainText('1,999');
+      //   await expect(page.locator('[data-testid="spouseProgear"]')).toContainText('499');
+      //   await expect(page.locator('[data-testid="rme"]')).toContainText('999');
+      //   await expect(page.locator('[data-testid="storageInTransit"]')).toContainText('199');
+      //   await expect(page.locator('[data-testid="ocie"]')).toContainText('Unauthorized');
+      //   await expect(page.locator('[data-testid="branchGrade"]')).toContainText('Navy');
+      //   await expect(page.locator('[data-testid="branchGrade"]')).toContainText('W-2');
+      //   await expect(page.locator('[data-testid="dependents"]')).toContainText('Unauthorized');
+      //   // Edit allowances page | Cancel
+      //   await expect(page.locator('[data-testid="edit-allowances"]')).toContainText('Edit allowances').click();
+      //   await expect(page.locator('button')).toContainText('Cancel').click();
+      //   cy.url().should('include', `/moves/${moveLocator}/details`);
+    });
+
     test('is able to see and use the left navigation', async ({ page }) => {
       await expect(page.locator('a[href*="#shipments"]')).toContainText('Shipments');
       await expect(page.locator('a[href*="#orders"]')).toContainText('Orders');
@@ -361,8 +416,6 @@ test.describe('Services counselor user', () => {
       // Edit the shipment so that the tag disappears
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
-      await page.getByLabel('Requested pickup date').fill('16 Mar 2022');
-
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
 
@@ -400,8 +453,6 @@ test.describe('Services counselor user', () => {
 
     await page.getByRole('button', { name: 'Confirm' }).click();
     await scPage.waitForPage.moveDetails();
-
-    await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
 
     // Navigate to the "View documents" page
     await expect(page.getByRole('button', { name: /View documents/i })).toBeVisible();

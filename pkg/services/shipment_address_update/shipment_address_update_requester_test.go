@@ -15,43 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/address"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/unit"
 )
-
-func (suite *ShipmentAddressUpdateServiceSuite) setupServiceItemData() {
-	startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-	endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
-
-	testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			StartDate: startDate,
-			EndDate:   endDate,
-		},
-	})
-
-	originalDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.AppContextForTest().DB(), testdatagen.Assertions{
-		ReDomesticServiceArea: models.ReDomesticServiceArea{
-			ServiceArea:      "004",
-			ServicesSchedule: 2,
-		},
-		ReContract: testdatagen.FetchOrMakeReContract(suite.AppContextForTest().DB(), testdatagen.Assertions{}),
-	})
-
-	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
-		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
-			Contract:              originalDomesticServiceArea.Contract,
-			ContractID:            originalDomesticServiceArea.ContractID,
-			DomesticServiceArea:   originalDomesticServiceArea,
-			DomesticServiceAreaID: originalDomesticServiceArea.ID,
-			WeightLower:           unit.Pound(500),
-			WeightUpper:           unit.Pound(9999),
-			MilesLower:            500,
-			MilesUpper:            9999,
-			PriceMillicents:       unit.Millicents(606800),
-			IsPeakPeriod:          false,
-		},
-	})
-}
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddressUpdate() {
 	setupTestData := func() models.Move {
@@ -102,7 +66,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 	moveRouter := moveservices.NewMoveRouter()
 	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
-	suite.Run("Successfully create ShipmentAddressUpdate for a domestic shipment", func() {
+	suite.Run("Successfully create ShipmentAddressUpdate", func() {
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
@@ -141,142 +105,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		suite.Equal(newAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(newAddress.PostalCode, updatedShipment.DestinationAddress.PostalCode)
 		suite.Equal(newAddress.State, updatedShipment.DestinationAddress.State)
-		suite.Equal(newAddress.City, updatedShipment.DestinationAddress.City)
-	})
-
-	suite.Run("Successfully create ShipmentAddressUpdate for an international shipment that requires approval", func() {
-		mockPlanner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			"90210",
-			"94535",
-			false,
-			false,
-		).Return(2500, nil).Twice()
-		mockPlanner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			"94535",
-			"94535",
-			false,
-			false,
-		).Return(2500, nil).Once()
-		move := setupTestData()
-
-		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "Tester Address",
-					City:           "Des Moines",
-					State:          "IA",
-					PostalCode:     "50314",
-					IsOconus:       models.BoolPointer(false),
-				},
-			},
-		}, nil)
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "JBER",
-					City:           "Anchorage",
-					State:          "AK",
-					PostalCode:     "99505",
-					IsOconus:       models.BoolPointer(true),
-				},
-			},
-		}, nil)
-		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					MarketCode:           models.MarketCodeInternational,
-					PickupAddressID:      &pickupAddress.ID,
-					DestinationAddressID: &destinationAddress.ID,
-				},
-			},
-		}, nil)
-
-		newAddress := models.Address{
-			StreetAddress1: "Colder Ave.",
-			City:           "Klawock",
-			State:          "AK",
-			PostalCode:     "99925",
-		}
-		suite.NotEmpty(move.MTOShipments)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
-		suite.NoError(err)
-		suite.NotNil(update)
-		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
-
-		// Make sure the destination address on the shipment was NOT updated
-		var updatedShipment models.MTOShipment
-		err = suite.DB().EagerPreload("DestinationAddress").Find(&updatedShipment, shipment.ID)
-		suite.NoError(err)
-
-		suite.NotEqual(newAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
-		suite.NotEqual(newAddress.PostalCode, updatedShipment.DestinationAddress.PostalCode)
-		suite.NotEqual(newAddress.City, updatedShipment.DestinationAddress.City)
-	})
-
-	suite.Run("Successfully create ShipmentAddressUpdate for an international shipment that requires approval", func() {
-		mockPlanner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			"99505",
-			"99506",
-			false,
-			true,
-		).Return(49, nil)
-		move := setupTestData()
-
-		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "Tester Address",
-					City:           "Des Moines",
-					State:          "IA",
-					PostalCode:     "50314",
-					IsOconus:       models.BoolPointer(false),
-				},
-			},
-		}, nil)
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "JBER",
-					City:           "Anchorage",
-					State:          "AK",
-					PostalCode:     "99505",
-					IsOconus:       models.BoolPointer(true),
-				},
-			},
-		}, nil)
-		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					MarketCode:           models.MarketCodeInternational,
-					PickupAddressID:      &pickupAddress.ID,
-					DestinationAddressID: &destinationAddress.ID,
-				},
-			},
-		}, nil)
-
-		// this shouldn't change the rate area
-		newAddress := models.Address{
-			StreetAddress1: "Elsewhere Ave.",
-			City:           "Anchorage",
-			State:          "AK",
-			PostalCode:     "99506",
-		}
-		suite.NotEmpty(move.MTOShipments)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
-		suite.NoError(err)
-		suite.NotNil(update)
-		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
-
-		// Make sure the destination address on the shipment was updated
-		var updatedShipment models.MTOShipment
-		err = suite.DB().EagerPreload("DestinationAddress").Find(&updatedShipment, shipment.ID)
-		suite.NoError(err)
-
-		suite.Equal(newAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
-		suite.Equal(newAddress.PostalCode, updatedShipment.DestinationAddress.PostalCode)
 		suite.Equal(newAddress.City, updatedShipment.DestinationAddress.City)
 	})
 
@@ -815,8 +643,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("TOO approves address change", func() {
-
-		suite.setupServiceItemData()
 
 		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
@@ -1523,9 +1349,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
-
-		suite.setupServiceItemData()
-
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -1596,9 +1419,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
-
-		suite.setupServiceItemData()
-
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -1654,9 +1474,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 	suite.Run("Service items are not rejected when pricing type does not change post TOO approval", func() {
 		move := setupTestData()
-
-		suite.setupServiceItemData()
-
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		//Generate service items to test their statuses upon approval
@@ -1714,9 +1531,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
-
-		suite.setupServiceItemData()
-
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -1788,9 +1602,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			PostalCode:     "90210",
 		}
 		move := setupTestData()
-
-		suite.setupServiceItemData()
-
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{

@@ -25,15 +25,4 @@ describe('when given a update service item status, update move history record', 
       expect(screen.getByText(value)).toBeInTheDocument();
     });
   });
-
-  it('displays correct details when a TOO is unassigned', () => {
-    historyRecord.changedValues = {
-      ...historyRecord.changedValues,
-      too_assigned_id: null,
-    };
-    const template = getTemplate(historyRecord);
-
-    render(template.getDetails(historyRecord));
-    expect(screen.getByText('Task Ordering Officer Unassigned')).toBeInTheDocument();
-  });
 });

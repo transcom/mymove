@@ -294,13 +294,6 @@ const intlUbOconusToConusShipment = {
   destinationAddress,
 };
 
-const intlUbOconusToOconusShipment = {
-  shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
-  marketCode: MARKET_CODES.INTERNATIONAL,
-  pickupAddress: oconusPickupAddress,
-  destinationAddress: oconusDestinationAddress,
-};
-
 describe('Shipment Service Items Table', () => {
   describe('renders the hhg longhaul shipment type with service items', () => {
     it.each([
@@ -396,18 +389,5 @@ describe('Shipment Service Items Table', () => {
       ).toBeInTheDocument();
       expect(screen.getByText(serviceItem)).toBeInTheDocument();
     });
-  });
-
-  describe('renders the intl UB shipment type (OCONUS -> OCONUS) with service items', () => {
-    it.each([['International UB'], ['International UB pack'], ['International UB unpack']])(
-      'expects %s to be in the document',
-      async (serviceItem) => {
-        render(<ShipmentServiceItemsTable shipment={intlUbOconusToOconusShipment} />);
-        expect(
-          await screen.findByRole('heading', { name: 'Service items for this shipment 3 items', level: 4 }),
-        ).toBeInTheDocument();
-        expect(screen.getByText(serviceItem)).toBeInTheDocument();
-      },
-    );
   });
 });

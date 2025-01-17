@@ -788,7 +788,6 @@ const ShipmentForm = (props) => {
                   if (status === ADDRESS_UPDATE_STATUS.APPROVED) {
                     setValues({
                       ...values,
-                      hasDeliveryAddress: 'yes',
                       delivery: {
                         ...values.delivery,
                         address: mtoShipment.deliveryAddressUpdate.newAddress,
@@ -891,8 +890,8 @@ const ShipmentForm = (props) => {
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
-                {isBoat && (
-                  <BoatShipmentForm
+                {isMobileHome && (
+                  <MobileHomeShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}
@@ -904,8 +903,8 @@ const ShipmentForm = (props) => {
                   />
                 )}
 
-                {isMobileHome && (
-                  <MobileHomeShipmentForm
+                {isBoat && (
+                  <BoatShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}

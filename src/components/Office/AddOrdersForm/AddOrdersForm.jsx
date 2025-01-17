@@ -13,14 +13,13 @@ import ToolTip from 'shared/ToolTip/ToolTip';
 import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
-import { showCounselingOffices } from 'services/ghcApi';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 let originMeta;
 let newDutyMeta = '';
@@ -33,7 +32,6 @@ const AddOrdersForm = ({
   isBluebarkMoveSelected,
 }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
-  const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
   const [showAccompaniedTourField, setShowAccompaniedTourField] = useState(false);
@@ -41,9 +39,6 @@ const AddOrdersForm = ({
   const [hasDependents, setHasDependents] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
-  const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
-  const [prevOrderType, setPrevOrderType] = useState('');
-  const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
 
   const validationSchema = Yup.object().shape({
     ordersType: Yup.mixed()
@@ -81,17 +76,6 @@ const AddOrdersForm = ({
   }, []);
 
   useEffect(() => {
-    if (currentDutyLocation?.id) {
-      showCounselingOffices(currentDutyLocation.id).then((fetchedData) => {
-        if (fetchedData.body) {
-          const counselingOffices = fetchedData.body.map((item) => ({
-            key: item.id,
-            value: item.name,
-          }));
-          setCounselingOfficeOptions(counselingOffices);
-        }
-      });
-    }
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
       setIsOconusMove(true);
@@ -111,71 +95,28 @@ const AddOrdersForm = ({
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const alaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
-
-      const updatedOptions = alaskaEnabled
-        ? ordersTypeOptions
-        : ordersTypeOptions.filter(
-            (e) => e.key !== ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS && e.key !== ORDERS_TYPE.STUDENT_TRAVEL,
-          );
-
-      setFilteredOrderTypeOptions(updatedOptions);
-    };
-    fetchData();
-  }, [ordersTypeOptions]);
-
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ values, isValid, isSubmitting, handleSubmit, handleChange, touched, setFieldValue, setValues }) => {
+      {({ values, isValid, isSubmitting, handleSubmit, touched, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.ordersType);
         if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
         else originMeta = null;
-
-        const handleCounselingOfficeChange = () => {
-          setValues({
-            ...values,
-            counselingOfficeId: null,
-          });
-          setCounselingOfficeOptions(null);
-        };
 
         if (!values.newDutyLocation && touched.newDutyLocation) newDutyMeta = 'Required';
         else newDutyMeta = null;
         const handleHasDependentsChange = (e) => {
           // Declare a duplicate local scope of the field value
           // for the form to prevent state race conditions
-          if (e.target.value === '') {
-            setFieldValue('hasDependents', '');
+          const fieldValueHasDependents = e.target.value === 'yes';
+          setHasDependents(e.target.value === 'yes');
+          setFieldValue('hasDependents', fieldValueHasDependents ? 'yes' : 'no');
+          if (fieldValueHasDependents && isOconusMove && enableUB) {
+            setShowAccompaniedTourField(true);
+            setShowDependentAgeFields(true);
           } else {
-            const fieldValueHasDependents = e.target.value === 'yes';
-            setHasDependents(e.target.value === 'yes');
-            setFieldValue('hasDependents', fieldValueHasDependents ? 'yes' : 'no');
-            if (fieldValueHasDependents && isOconusMove && enableUB) {
-              setShowAccompaniedTourField(true);
-              setShowDependentAgeFields(true);
-            } else {
-              setShowAccompaniedTourField(false);
-              setShowDependentAgeFields(false);
-            }
+            setShowAccompaniedTourField(false);
+            setShowDependentAgeFields(false);
           }
-        };
-        const handleOrderTypeChange = (e) => {
-          const { value } = e.target;
-          if (value === ORDERS_TYPE.STUDENT_TRAVEL || value === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS) {
-            setHasDependentsDisabled(true);
-            handleHasDependentsChange({ target: { value: 'yes' } });
-          } else {
-            setHasDependentsDisabled(false);
-            if (
-              prevOrderType === ORDERS_TYPE.STUDENT_TRAVEL ||
-              prevOrderType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
-            ) {
-              handleHasDependentsChange({ target: { value: '' } });
-            }
-          }
-          setPrevOrderType(value);
         };
         return (
           <Form className={`${formStyles.form}`}>
@@ -186,12 +127,8 @@ const AddOrdersForm = ({
               <DropdownInput
                 label="Orders type"
                 name="ordersType"
-                options={filteredOrderTypeOptions}
+                options={ordersTypeOptions}
                 required
-                onChange={(e) => {
-                  handleChange(e);
-                  handleOrderTypeChange(e);
-                }}
                 isDisabled={isSafetyMoveSelected || isBluebarkMoveSelected}
               />
               <DatePickerInput name="issueDate" label="Orders date" required />
@@ -203,29 +140,10 @@ const AddOrdersForm = ({
                 id="originDutyLocation"
                 onDutyLocationChange={(e) => {
                   setCurrentDutyLocation(e);
-                  handleCounselingOfficeChange();
                 }}
                 metaOverride={originMeta}
                 required
               />
-              {currentDutyLocation.provides_services_counseling && (
-                <div>
-                  <Label>
-                    Select an origin duty location that most closely represents the customers current physical location,
-                    not where their shipment will originate, if different. This will allow a nearby transportation
-                    office to assist them.
-                  </Label>
-                  <DropdownInput
-                    label="Counseling office"
-                    name="counselingOfficeId"
-                    id="counselingOfficeId"
-                    data-testid="counselingOfficeSelect"
-                    hint="Required"
-                    required
-                    options={counselingOfficeOptions}
-                  />
-                </div>
-              )}
 
               {isRetirementOrSeparation ? (
                 <>
@@ -288,7 +206,6 @@ const AddOrdersForm = ({
                     onChange={(e) => {
                       handleHasDependentsChange(e);
                     }}
-                    disabled={isHasDependentsDisabled}
                   />
                   <Field
                     as={Radio}
@@ -302,7 +219,6 @@ const AddOrdersForm = ({
                     onChange={(e) => {
                       handleHasDependentsChange(e);
                     }}
-                    disabled={isHasDependentsDisabled}
                   />
                 </div>
               </FormGroup>

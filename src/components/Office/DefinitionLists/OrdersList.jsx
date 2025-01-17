@@ -15,7 +15,7 @@ import {
   ordersTypeDetailReadable,
 } from 'utils/formatters';
 
-const OrdersList = ({ ordersInfo, moveInfo, showMissingWarnings }) => {
+const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
   const { ordersType } = ordersInfo;
   const isRetiree = ordersType === 'RETIREMENT';
   const isSeparatee = ordersType === 'SEPARATION';
@@ -57,12 +57,6 @@ const OrdersList = ({ ordersInfo, moveInfo, showMissingWarnings }) => {
           <dt>Current duty location</dt>
           <dd data-testid="currentDutyLocation">{ordersInfo.currentDutyLocation?.name}</dd>
         </div>
-        <div className={descriptionListStyles.row}>
-          <dt>Counseling office</dt>
-          <dd data-testid="counselingOffice">
-            {moveInfo?.counselingOffice?.name ? moveInfo.counselingOffice.name : '—'}
-          </dd>
-        </div>
         <div
           className={classnames(descriptionListStyles.row, {
             [styles.missingInfoError]: !ordersInfo.newDutyLocation?.name,
@@ -72,7 +66,7 @@ const OrdersList = ({ ordersInfo, moveInfo, showMissingWarnings }) => {
             {isRetiree || isSeparatee ? 'HOR, HOS, or PLEAD' : 'New duty location'}
           </dt>
           <dd data-testid="newDutyLocation">
-            {ordersInfo.newDutyLocation?.name ? ordersInfo.newDutyLocation?.name : '—'}
+            {ordersInfo.newDutyLocation?.name ? ordersInfo.newDutyLocation?.name : '-'}
           </dd>
         </div>
         <div
@@ -141,7 +135,6 @@ OrdersList.defaultProps = {
 
 OrdersList.propTypes = {
   ordersInfo: OrdersInfoShape.isRequired,
-  moveInfo: PropTypes.object.isRequired,
   showMissingWarnings: PropTypes.bool,
 };
 

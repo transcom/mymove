@@ -192,23 +192,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		postalcodeservice.NewPostalCodeValidator(clock.New()),
 	}
 
-	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
-		handlerConfig.HHGPlanner(),
-		builder,
-		moveRouter,
-		ghcrateengine.NewDomesticUnpackPricer(),
-		ghcrateengine.NewDomesticPackPricer(),
-		ghcrateengine.NewDomesticLinehaulPricer(),
-		ghcrateengine.NewDomesticShorthaulPricer(),
-		ghcrateengine.NewDomesticOriginPricer(),
-		ghcrateengine.NewDomesticDestinationPricer(),
-		ghcrateengine.NewFuelSurchargePricer())
-
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoServiceItemCreator,
+		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator,
 	)
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
@@ -244,7 +232,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		ppmShipmentUpdater,
 		boatShipmentUpdater,
 		mobileHomeShipmentUpdater,
-		mtoServiceItemCreator,
 	)
 
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{

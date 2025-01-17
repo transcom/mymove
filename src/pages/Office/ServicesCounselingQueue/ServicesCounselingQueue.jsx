@@ -221,9 +221,6 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
         {
           id: 'assignedTo',
           isFilterable: true,
-          exportValue: (row) => {
-            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
-          },
         },
       ),
     );
@@ -418,9 +415,6 @@ export const closeoutColumns = (
         {
           id: 'assignedTo',
           isFilterable: true,
-          exportValue: (row) => {
-            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
-          },
         },
       ),
     );
@@ -609,7 +603,7 @@ const ServicesCounselingQueue = ({
     return <TabNav className={styles.tableTabs} items={navTabs()} />;
   };
 
-  if (queueType === generalRoutes.QUEUE_SEARCH_PATH) {
+  if (queueType === 'Search') {
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}

@@ -252,10 +252,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 		auditHistoryContains := func(auditHistories models.AuditHistories, keyword string) func() (success bool) {
 			return func() (success bool) {
 				for _, record := range auditHistories {
-					if record.ChangedData != nil {
-						if strings.Contains(*record.ChangedData, keyword) {
-							return true
-						}
+					if strings.Contains(*record.ChangedData, keyword) {
+						return true
 					}
 				}
 				return false
@@ -380,7 +378,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			false,
 			false,
 		).Return(400, nil)
-		updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{

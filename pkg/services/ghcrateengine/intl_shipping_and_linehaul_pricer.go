@@ -43,18 +43,19 @@ func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contr
 		return 0, nil, fmt.Errorf("could not find contract with code: %s: %w", contractCode, err)
 	}
 
-	// getting the contract year so we can use the escalation compounded value
-	contractYear, err := fetchContractYear(appCtx, contract.ID, referenceDate)
+	basePrice := float64(perUnitCents)
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(
+		appCtx,
+		contract.ID,
+		referenceDate,
+		true,
+		basePrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("could not find contract year with contract ID: %s and date: %s: %w", contract.ID, referenceDate, err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	basePrice := float64(perUnitCents)
-	escalatedPrice := basePrice * contractYear.EscalationCompounded
-	escalatedPrice = math.Round(escalatedPrice) // round before multiplying with the weight
-
 	escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
-	totalPriceCents := unit.Cents(escalatedPrice)
+	totalPriceCents := unit.Cents(math.Round(escalatedPrice))
 
 	params := services.PricingDisplayParams{
 		{

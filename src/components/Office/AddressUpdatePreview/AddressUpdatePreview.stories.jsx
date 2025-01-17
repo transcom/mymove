@@ -2,8 +2,6 @@ import React from 'react';
 
 import AddressUpdatePreview from './AddressUpdatePreview';
 
-import { MARKET_CODES } from 'shared/constants';
-
 const mockDeliveryAddressUpdate = {
   contractorRemarks: 'Test Contractor Remark',
   id: 'c49f7921-5a6e-46b4-bb39-022583574453',
@@ -28,10 +26,6 @@ const mockDeliveryAddressUpdate = {
   status: 'REQUESTED',
 };
 
-const mockShipment = {
-  marketCode: MARKET_CODES.DOMESTIC,
-};
-
 const destinationSITServiceItems = ['DDDSIT', 'DDFSIT', 'DDASIT', 'DDSFSC'];
 
 export default {
@@ -45,7 +39,6 @@ export const preview = {
       <AddressUpdatePreview
         deliveryAddressUpdate={mockDeliveryAddressUpdate}
         destSitServiceItems={destinationSITServiceItems}
-        shipment={mockShipment}
       />
       ,
     </div>

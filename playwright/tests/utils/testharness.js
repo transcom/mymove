@@ -284,14 +284,6 @@ export class TestHarness {
   }
 
   /**
-   * Use testharness to build hhg move for TOO with Alaska address
-   * @returns {Promise<Move>}
-   */
-  async buildInternationalAlaskaBasicHHGMoveForTOO() {
-    return this.buildDefault('InternationalAlaskaBasicHHGMoveForTOO');
-  }
-
-  /**
    * Use testharness to build hhg move with international crating service items for TOO
    * @returns {Promise<Move>}
    */
@@ -377,14 +369,6 @@ export class TestHarness {
    */
   async buildHHGMoveWithServiceItemsandPaymentRequestsForTIO() {
     return this.buildDefault('HHGMoveWithServiceItemsandPaymentRequestsForTIO');
-  }
-
-  /**
-   * Use testharness to build hhg move for TIO
-   * @returns {Promise<Move>}
-   */
-  async buildnternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO() {
-    return this.buildDefault('InternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO');
   }
 
   /**

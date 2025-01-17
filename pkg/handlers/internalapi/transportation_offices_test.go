@@ -153,6 +153,7 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 			},
 		},
 	}, nil)
+	suite.MustSave(&origDutyLocation)
 
 	path := fmt.Sprintf("/transportation_offices/%v/counseling_offices", origDutyLocation.ID.String())
 	req := httptest.NewRequest("GET", path, nil)

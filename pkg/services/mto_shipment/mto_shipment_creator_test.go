@@ -286,41 +286,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal("failed to create pickup address - the country GB is not supported at this time - only US is allowed", err.Error())
 	})
 
-	suite.Run("If the shipment has an international address it should be returned", func() {
-		subtestData := suite.createSubtestData(nil)
-		creator := subtestData.shipmentCreator
-
-		internationalAddress := factory.BuildAddress(nil, []factory.Customization{
-			{
-				Model: models.Country{
-					Country:     "GB",
-					CountryName: "UNITED KINGDOM",
-				},
-			},
-		}, nil)
-		// stubbed countries need an ID
-		internationalAddress.ID = uuid.Must(uuid.NewV4())
-
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-			{
-				Model:    subtestData.move,
-				LinkOnly: true,
-			},
-			{
-				Model:    internationalAddress,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
-
-		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-
-		suite.Error(err)
-		suite.Equal("failed to create pickup address - the country GB is not supported at this time - only US is allowed", err.Error())
-	})
-
 	suite.Run("If the shipment is created successfully it should return ShipmentLocator", func() {
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
@@ -1205,84 +1170,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildShipment)
 		suite.Error(err)
-	})
-
-	suite.Run("InvalidInputError - NTS shipment cannot specify a secondary delivery address", func() {
-		subtestData := suite.createSubtestData(nil)
-		creator := subtestData.shipmentCreator
-
-		pickupAddress := factory.BuildDefaultAddress(suite.DB())
-		deliveryAddress := factory.BuildDefaultAddress(suite.DB())
-		secondaryDeliveryAddress := factory.BuildDefaultAddress(suite.DB())
-
-		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model:    pickupAddress,
-				Type:     &factory.Addresses.PickupAddress,
-				LinkOnly: true,
-			},
-			{
-				Model:    deliveryAddress,
-				Type:     &factory.Addresses.DeliveryAddress,
-				LinkOnly: true,
-			},
-			{
-				Model:    secondaryDeliveryAddress,
-				Type:     &factory.Addresses.SecondaryDeliveryAddress,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
-				},
-			},
-		}, nil)
-		clearShipmentIDFields(&shipment)
-
-		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), &shipment)
-
-		suite.Error(err)
-		suite.Equal("Secondary delivery address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGIntoNTS), err.Error())
-		suite.IsType(apperror.InvalidInputError{}, err)
-	})
-
-	suite.Run("InvalidInputError - NTSR shipment cannot specify a secondary pickup address", func() {
-		subtestData := suite.createSubtestData(nil)
-		creator := subtestData.shipmentCreator
-
-		pickupAddress := factory.BuildDefaultAddress(suite.DB())
-		deliveryAddress := factory.BuildDefaultAddress(suite.DB())
-		secondaryPickupAddress := factory.BuildDefaultAddress(suite.DB())
-
-		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model:    pickupAddress,
-				Type:     &factory.Addresses.PickupAddress,
-				LinkOnly: true,
-			},
-			{
-				Model:    deliveryAddress,
-				Type:     &factory.Addresses.DeliveryAddress,
-				LinkOnly: true,
-			},
-			{
-				Model:    secondaryPickupAddress,
-				Type:     &factory.Addresses.SecondaryPickupAddress,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
-				},
-			},
-		}, nil)
-		clearShipmentIDFields(&shipment)
-
-		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), &shipment)
-
-		suite.Error(err)
-		suite.Equal("Secondary pickup address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGOutOfNTS), err.Error())
-		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 }
 

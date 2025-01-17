@@ -32,16 +32,9 @@ const ordersInfo = {
   payGrade: 'E_7',
 };
 
-const moveInfo = {
-  counselingOffice: {
-    name: 'PPPO Los Angeles SFB - USAF',
-  },
-};
-
 // what ordersInfo from above should be rendered as
 const expectedRenderedOrdersInfo = {
   currentDutyLocation: 'JBSA Lackland',
-  counselingOffice: 'PPPO Los Angeles SFB - USAF',
   newDutyLocation: 'JB Lewis-McChord',
   issuedDate: '08 Mar 2020',
   reportByDate: '01 Apr 2020',
@@ -72,7 +65,7 @@ const ordersInfoMissing = {
 
 describe('OrdersList', () => {
   it('renders formatted orders info', () => {
-    render(<OrdersList ordersInfo={ordersInfo} moveInfo={moveInfo} />);
+    render(<OrdersList ordersInfo={ordersInfo} />);
     Object.keys(expectedRenderedOrdersInfo).forEach((key) => {
       expect(screen.getByText(expectedRenderedOrdersInfo[key])).toBeInTheDocument();
     });

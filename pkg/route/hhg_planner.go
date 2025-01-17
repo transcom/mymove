@@ -58,8 +58,7 @@ func (p *hhgPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source str
 	sourceZip3 := sourceZip5[0:3]
 	destZip3 := destZip5[0:3]
 
-	// we want to use DTOD for international shipments & same ZIPs for accuracy
-	if sourceZip3 == destZip3 || useDTOD || isInternationalShipment {
+	if sourceZip3 == destZip3 || useDTOD {
 		if sourceZip5 == destZip5 {
 			return 1, nil
 		}
