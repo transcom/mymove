@@ -140,5 +140,5 @@ type CheckForLockedMovesAndUnlockHandler interface {
 //
 //go:generate mockery --name MoveAssigner
 type MoveAssigner interface {
-	BulkMoveAssignment(appCtx appcontext.AppContext, queueType string, officeUsers []models.OfficeUserWithWorkload, movesToAssign models.Moves) (*models.Moves, error)
+	BulkMoveAssignment(appCtx appcontext.AppContext, queueType string, officeUserData []*ghcmessages.BulkAssignmentForUser, movesToAssign models.Moves) (*models.Moves, error)
 }

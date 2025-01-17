@@ -275,9 +275,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveMoveCancelerHandler: move.MoveCancelerHandlerFunc(func(params move.MoveCancelerParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.MoveCanceler has not yet been implemented")
 		}),
-		QueuesPostBulkAssignmentDataHandler: queues.PostBulkAssignmentDataHandlerFunc(func(params queues.PostBulkAssignmentDataParams) middleware.Responder {
-			return middleware.NotImplemented("operation queues.PostBulkAssignmentData has not yet been implemented")
-		}),
 		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
 		}),
@@ -295,6 +292,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ShipmentReviewShipmentAddressUpdateHandler: shipment.ReviewShipmentAddressUpdateHandlerFunc(func(params shipment.ReviewShipmentAddressUpdateParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ReviewShipmentAddressUpdate has not yet been implemented")
+		}),
+		QueuesSaveBulkAssignmentDataHandler: queues.SaveBulkAssignmentDataHandlerFunc(func(params queues.SaveBulkAssignmentDataParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.SaveBulkAssignmentData has not yet been implemented")
 		}),
 		EvaluationReportsSaveEvaluationReportHandler: evaluation_reports.SaveEvaluationReportHandlerFunc(func(params evaluation_reports.SaveEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")
@@ -577,8 +577,6 @@ type MymoveAPI struct {
 	QueuesListPrimeMovesHandler queues.ListPrimeMovesHandler
 	// MoveMoveCancelerHandler sets the operation handler for the move canceler operation
 	MoveMoveCancelerHandler move.MoveCancelerHandler
-	// QueuesPostBulkAssignmentDataHandler sets the operation handler for the post bulk assignment data operation
-	QueuesPostBulkAssignmentDataHandler queues.PostBulkAssignmentDataHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
 	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
 	// LinesOfAccountingRequestLineOfAccountingHandler sets the operation handler for the request line of accounting operation
@@ -591,6 +589,8 @@ type MymoveAPI struct {
 	ShipmentRequestShipmentReweighHandler shipment.RequestShipmentReweighHandler
 	// ShipmentReviewShipmentAddressUpdateHandler sets the operation handler for the review shipment address update operation
 	ShipmentReviewShipmentAddressUpdateHandler shipment.ReviewShipmentAddressUpdateHandler
+	// QueuesSaveBulkAssignmentDataHandler sets the operation handler for the save bulk assignment data operation
+	QueuesSaveBulkAssignmentDataHandler queues.SaveBulkAssignmentDataHandler
 	// EvaluationReportsSaveEvaluationReportHandler sets the operation handler for the save evaluation report operation
 	EvaluationReportsSaveEvaluationReportHandler evaluation_reports.SaveEvaluationReportHandler
 	// CustomerSearchCustomersHandler sets the operation handler for the search customers operation
@@ -944,9 +944,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.MoveMoveCancelerHandler == nil {
 		unregistered = append(unregistered, "move.MoveCancelerHandler")
 	}
-	if o.QueuesPostBulkAssignmentDataHandler == nil {
-		unregistered = append(unregistered, "queues.PostBulkAssignmentDataHandler")
-	}
 	if o.ShipmentRejectShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
 	}
@@ -964,6 +961,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentReviewShipmentAddressUpdateHandler == nil {
 		unregistered = append(unregistered, "shipment.ReviewShipmentAddressUpdateHandler")
+	}
+	if o.QueuesSaveBulkAssignmentDataHandler == nil {
+		unregistered = append(unregistered, "queues.SaveBulkAssignmentDataHandler")
 	}
 	if o.EvaluationReportsSaveEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.SaveEvaluationReportHandler")
@@ -1431,10 +1431,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/queues/bulk-assignment/assign"] = queues.NewPostBulkAssignmentData(o.context, o.QueuesPostBulkAssignmentDataHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
 	o.handlers["POST"]["/shipments/{shipmentID}/reject"] = shipment.NewRejectShipment(o.context, o.ShipmentRejectShipmentHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1456,6 +1452,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/shipments/{shipmentID}/review-shipment-address-update"] = shipment.NewReviewShipmentAddressUpdate(o.context, o.ShipmentReviewShipmentAddressUpdateHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/queues/bulk-assignment/assign"] = queues.NewSaveBulkAssignmentData(o.context, o.QueuesSaveBulkAssignmentDataHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

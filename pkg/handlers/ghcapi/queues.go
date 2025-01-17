@@ -617,16 +617,16 @@ func (h GetBulkAssignmentDataHandler) Handle(
 		})
 }
 
-// PostBulkAssignmentDataHandler saves the bulk assignment data
-type PostBulkAssignmentDataHandler struct {
+// SaveBulkAssignmentDataHandler saves the bulk assignment data
+type SaveBulkAssignmentDataHandler struct {
 	handlers.HandlerConfig
 	services.OfficeUserFetcherPop
 	services.MoveFetcher
 	services.MoveAssigner
 }
 
-func (h PostBulkAssignmentDataHandler) Handle(
-	params queues.PostBulkAssignmentDataParams,
+func (h SaveBulkAssignmentDataHandler) Handle(
+	params queues.SaveBulkAssignmentDataParams,
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -656,17 +656,6 @@ func (h PostBulkAssignmentDataHandler) Handle(
 
 			queueType := params.QueueType
 
-			// fetch the Services Counselors who work at their office
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
-				appCtx,
-				roles.RoleTypeServicesCounselor,
-				officeUser.TransportationOfficeID,
-			)
-			if err != nil {
-				appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
-				return queues.NewGetBulkAssignmentDataInternalServerError(), err
-			}
-
 			// fetch the moves available to be assigned to their office users
 			movesForAssignment, err := h.MoveFetcher.FetchMovesByIdArray(appCtx, params.BulkAssignmentSavePayload.MoveData)
 			if err != nil {
@@ -674,7 +663,7 @@ func (h PostBulkAssignmentDataHandler) Handle(
 				return queues.NewGetBulkAssignmentDataInternalServerError(), err
 			}
 
-			_, err = h.MoveAssigner.BulkMoveAssignment(appCtx, *queueType, officeUsers, movesForAssignment)
+			_, err = h.MoveAssigner.BulkMoveAssignment(appCtx, *queueType, params.BulkAssignmentSavePayload.UserData, movesForAssignment)
 			if err != nil {
 				appCtx.Logger().Error("Error assigning moves", zap.Error(err))
 				return queues.NewGetBulkAssignmentDataInternalServerError(), err

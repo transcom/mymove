@@ -3507,7 +3507,7 @@ paths:
       summary: Assigns one or more moves to one or more office users
       description: >
         Supervisor office users are able to assign moves. This endpoint saves office user assignments to multiple moves.
-      operationId: postBulkAssignmentData
+      operationId: saveBulkAssignmentData
       tags:
         - queues
       parameters:

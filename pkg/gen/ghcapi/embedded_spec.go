@@ -4363,7 +4363,7 @@ func init() {
           "queues"
         ],
         "summary": "Assigns one or more moves to one or more office users",
-        "operationId": "postBulkAssignmentData",
+        "operationId": "saveBulkAssignmentData",
         "parameters": [
           {
             "name": "bulkAssignmentSavePayload",
@@ -20885,7 +20885,7 @@ func init() {
           "queues"
         ],
         "summary": "Assigns one or more moves to one or more office users",
-        "operationId": "postBulkAssignmentData",
+        "operationId": "saveBulkAssignmentData",
         "parameters": [
           {
             "name": "bulkAssignmentSavePayload",
