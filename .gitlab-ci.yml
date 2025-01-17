@@ -923,6 +923,10 @@ integration_test_mtls:
     - dockerize -wait http://milmovelocal:4000 -timeout 5m
     - echo "Running E2E mTLS tests"
     - ./scripts/run-e2e-mtls-test
+  artifacts:
+    paths:
+      - test-results/
+    when: always
   allow_failure: true
   after_script:
     - *announce_failure
