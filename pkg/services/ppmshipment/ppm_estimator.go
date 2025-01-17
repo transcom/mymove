@@ -209,23 +209,25 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		return nil, nil, err
 	}
 
+	calculateSITEstimate := shouldCalculateSITCost(newPPMShipment, &oldPPMShipment)
+
+	// Clear out any previously calculated SIT estimated costs, if SIT is no longer expected
+	if newPPMShipment.SITExpected != nil && !*newPPMShipment.SITExpected {
+		newPPMShipment.SITEstimatedCost = nil
+	}
+
+	skipCalculatingEstimatedIncentive := shouldSkipEstimatingIncentive(newPPMShipment, &oldPPMShipment)
+
+	if skipCalculatingEstimatedIncentive && !calculateSITEstimate {
+		return oldPPMShipment.EstimatedIncentive, newPPMShipment.SITEstimatedCost, nil
+	}
+
+	estimatedIncentive := oldPPMShipment.EstimatedIncentive
+	estimatedSITCost := oldPPMShipment.SITEstimatedCost
+
 	// if the PPM is international, we will use a db func
 	if newPPMShipment.Shipment.MarketCode != models.MarketCodeInternational {
 
-		calculateSITEstimate := shouldCalculateSITCost(newPPMShipment, &oldPPMShipment)
-
-		// Clear out any previously calculated SIT estimated costs, if SIT is no longer expected
-		if newPPMShipment.SITExpected != nil && !*newPPMShipment.SITExpected {
-			newPPMShipment.SITEstimatedCost = nil
-		}
-
-		skipCalculatingEstimatedIncentive := shouldSkipEstimatingIncentive(newPPMShipment, &oldPPMShipment)
-
-		if skipCalculatingEstimatedIncentive && !calculateSITEstimate {
-			return oldPPMShipment.EstimatedIncentive, newPPMShipment.SITEstimatedCost, nil
-		}
-
-		estimatedIncentive := oldPPMShipment.EstimatedIncentive
 		if !skipCalculatingEstimatedIncentive {
 			// Clear out advance and advance requested fields when the estimated incentive is reset.
 			newPPMShipment.HasRequestedAdvance = nil
@@ -237,7 +239,6 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 			}
 		}
 
-		estimatedSITCost := oldPPMShipment.SITEstimatedCost
 		if calculateSITEstimate {
 			estimatedSITCost, err = CalculateSITCost(appCtx, newPPMShipment, contract)
 			if err != nil {
@@ -251,12 +252,35 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		pickupAddress := newPPMShipment.PickupAddress
 		destinationAddress := newPPMShipment.DestinationAddress
 
-		estimatedIncentive, err := f.calculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newPPMShipment.EstimatedWeight.Int(), false, false, true)
-		if err != nil {
-			return nil, nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
+		if !skipCalculatingEstimatedIncentive {
+			// Clear out advance and advance requested fields when the estimated incentive is reset.
+			newPPMShipment.HasRequestedAdvance = nil
+			newPPMShipment.AdvanceAmountRequested = nil
+
+			estimatedIncentive, err = f.calculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newPPMShipment.EstimatedWeight.Int(), false, false, true)
+			if err != nil {
+				return nil, nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
+			}
 		}
 
-		return estimatedIncentive, nil, nil
+		if calculateSITEstimate {
+			var sitAddress models.Address
+			isOrigin := *newPPMShipment.SITLocation == models.SITLocationTypeOrigin
+			if isOrigin {
+				sitAddress = *newPPMShipment.PickupAddress
+			} else if !isOrigin {
+				sitAddress = *newPPMShipment.DestinationAddress
+			} else {
+				return estimatedIncentive, estimatedSITCost, nil
+			}
+			daysInSIT := additionalDaysInSIT(*newPPMShipment.SITEstimatedEntryDate, *newPPMShipment.SITEstimatedDepartureDate)
+			estimatedSITCost, err = f.calculateOCONUSSITCosts(appCtx, newPPMShipment.ID, sitAddress.ID, isOrigin, contractDate, newPPMShipment.EstimatedWeight.Int(), daysInSIT)
+			if err != nil {
+				return nil, nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
+			}
+		}
+
+		return estimatedIncentive, estimatedSITCost, nil
 	}
 }
 
@@ -419,7 +443,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	logger := appCtx.Logger()
 
 	zeroTotal := false
-	serviceItemsToPrice := BaseServiceItems(ppmShipment.ShipmentID)
+	serviceItemsToPrice := BaseServiceItems(*ppmShipment)
 
 	var move models.Move
 	err := appCtx.DB().Q().Eager(
@@ -509,7 +533,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(appCtx, mtoShipment, serviceItem)
 
 		// This is the struct that gets passed to every param lookup() method that was initialized above
-		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(f.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code)
+		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(f.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code, contract.ID)
 
 		// The distance value gets saved to the mto shipment model to reduce repeated api calls.
 		var shipmentWithDistance models.MTOShipment
@@ -587,7 +611,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 	var unpacking unit.Cents
 	var storage unit.Cents
 
-	serviceItemsToPrice := BaseServiceItems(ppmShipment.ShipmentID)
+	serviceItemsToPrice := BaseServiceItems(*ppmShipment)
 
 	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
 	var pickupPostal, destPostal string
@@ -672,7 +696,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(appCtx, mtoShipment, serviceItem)
 
 		// This is the struct that gets passed to every param lookup() method that was initialized above
-		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(f.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code)
+		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(f.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code, contract.ID)
 
 		// The distance value gets saved to the mto shipment model to reduce repeated api calls.
 		var shipmentWithDistance models.MTOShipment
@@ -783,12 +807,29 @@ func (f *estimatePPM) calculateOCONUSIncentive(appCtx appcontext.AppContext, ppm
 	return (*unit.Cents)(&incentive.TotalIncentive), nil
 }
 
+func (f *estimatePPM) calculateOCONUSSITCosts(appCtx appcontext.AppContext, ppmID uuid.UUID, addressID uuid.UUID, isOrigin bool, moveDate time.Time, weight int, sitDays int) (*unit.Cents, error) {
+	if sitDays <= 0 {
+		return nil, fmt.Errorf("SIT days must be greater than zero")
+	}
+
+	if weight <= 0 {
+		return nil, fmt.Errorf("weight must be greater than zero")
+	}
+
+	sitCosts, err := models.CalculatePPMSITCost(appCtx.DB(), ppmID, addressID, isOrigin, moveDate, weight, sitDays)
+	if err != nil {
+		return nil, fmt.Errorf("failed to calculate SIT costs: %w", err)
+	}
+
+	return (*unit.Cents)(&sitCosts.TotalSITCost), nil
+}
+
 func CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
 	additionalDaysInSIT := additionalDaysInSIT(*ppmShipment.SITEstimatedEntryDate, *ppmShipment.SITEstimatedDepartureDate)
 
-	serviceItemsToPrice := StorageServiceItems(ppmShipment.ShipmentID, *ppmShipment.SITLocation, additionalDaysInSIT)
+	serviceItemsToPrice := StorageServiceItems(*ppmShipment, *ppmShipment.SITLocation, additionalDaysInSIT)
 
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
@@ -826,7 +867,7 @@ func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models
 
 	additionalDaysInSIT := additionalDaysInSIT(*ppmShipment.SITEstimatedEntryDate, *ppmShipment.SITEstimatedDepartureDate)
 
-	serviceItemsToPrice := StorageServiceItems(ppmShipment.ShipmentID, *ppmShipment.SITLocation, additionalDaysInSIT)
+	serviceItemsToPrice := StorageServiceItems(*ppmShipment, *ppmShipment.SITLocation, additionalDaysInSIT)
 
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
@@ -1037,10 +1078,14 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 // expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
 func MapPPMShipmentEstimatedFields(appCtx appcontext.AppContext, ppmShipment models.PPMShipment) (models.MTOShipment, error) {
 
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+	ppmShipment.Shipment.ShipmentType = models.MTOShipmentTypePPM
 	ppmShipment.Shipment.ActualPickupDate = &ppmShipment.ExpectedDepartureDate
 	ppmShipment.Shipment.RequestedPickupDate = &ppmShipment.ExpectedDepartureDate
-	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode}
-	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode}
+	ppmShipment.Shipment.PickupAddress = ppmShipment.PickupAddress
+	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: *ppmShipment.ActualPickupPostalCode}
+	ppmShipment.Shipment.DestinationAddress = ppmShipment.DestinationAddress
+	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: *ppmShipment.ActualDestinationPostalCode}
 	ppmShipment.Shipment.PrimeActualWeight = ppmShipment.EstimatedWeight
 
 	return ppmShipment.Shipment, nil
@@ -1076,9 +1121,13 @@ func MapPPMShipmentMaxIncentiveFields(appCtx appcontext.AppContext, ppmShipment 
 // expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
 func MapPPMShipmentFinalFields(ppmShipment models.PPMShipment, totalWeight unit.Pound) models.MTOShipment {
 
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+	ppmShipment.Shipment.ShipmentType = models.MTOShipmentTypePPM
 	ppmShipment.Shipment.ActualPickupDate = ppmShipment.ActualMoveDate
 	ppmShipment.Shipment.RequestedPickupDate = ppmShipment.ActualMoveDate
+	ppmShipment.Shipment.PickupAddress = ppmShipment.PickupAddress
 	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: *ppmShipment.ActualPickupPostalCode}
+	ppmShipment.Shipment.DestinationAddress = ppmShipment.DestinationAddress
 	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: *ppmShipment.ActualDestinationPostalCode}
 	ppmShipment.Shipment.PrimeActualWeight = &totalWeight
 
@@ -1087,19 +1136,35 @@ func MapPPMShipmentFinalFields(ppmShipment models.PPMShipment, totalWeight unit.
 
 // baseServiceItems returns a list of the MTOServiceItems that makeup the price of the estimated incentive.  These
 // are the same non-accesorial service items that get auto-created and approved when the TOO approves an HHG shipment.
-func BaseServiceItems(mtoShipmentID uuid.UUID) []models.MTOServiceItem {
-	return []models.MTOServiceItem{
-		{ReService: models.ReService{Code: models.ReServiceCodeDLH}, MTOShipmentID: &mtoShipmentID},
-		{ReService: models.ReService{Code: models.ReServiceCodeFSC}, MTOShipmentID: &mtoShipmentID},
-		{ReService: models.ReService{Code: models.ReServiceCodeDOP}, MTOShipmentID: &mtoShipmentID},
-		{ReService: models.ReService{Code: models.ReServiceCodeDDP}, MTOShipmentID: &mtoShipmentID},
-		{ReService: models.ReService{Code: models.ReServiceCodeDPK}, MTOShipmentID: &mtoShipmentID},
-		{ReService: models.ReService{Code: models.ReServiceCodeDUPK}, MTOShipmentID: &mtoShipmentID},
+func BaseServiceItems(ppmShipment models.PPMShipment) []models.MTOServiceItem {
+	mtoShipmentID := ppmShipment.ShipmentID
+	isInternationalShipment := ppmShipment.Shipment.MarketCode == models.MarketCodeInternational
+
+	if isInternationalShipment {
+		return []models.MTOServiceItem{
+			{ReService: models.ReService{Code: models.ReServiceCodeFSC}, MTOShipmentID: &mtoShipmentID},
+			{ReService: models.ReService{Code: models.ReServiceCodeIHPK}, MTOShipmentID: &mtoShipmentID},
+			{ReService: models.ReService{Code: models.ReServiceCodeIHUPK}, MTOShipmentID: &mtoShipmentID},
+			{ReService: models.ReService{Code: models.ReServiceCodeISLH}, MTOShipmentID: &mtoShipmentID},
+		}
+	} else {
+		return []models.MTOServiceItem{
+			{ReService: models.ReService{Code: models.ReServiceCodeDLH}, MTOShipmentID: &mtoShipmentID},
+			{ReService: models.ReService{Code: models.ReServiceCodeFSC}, MTOShipmentID: &mtoShipmentID},
+			{ReService: models.ReService{Code: models.ReServiceCodeDOP}, MTOShipmentID: &mtoShipmentID},
+			{ReService: models.ReService{Code: models.ReServiceCodeDDP}, MTOShipmentID: &mtoShipmentID},
+			{ReService: models.ReService{Code: models.ReServiceCodeDPK}, MTOShipmentID: &mtoShipmentID},
+			{ReService: models.ReService{Code: models.ReServiceCodeDUPK}, MTOShipmentID: &mtoShipmentID},
+		}
 	}
 }
 
-func StorageServiceItems(mtoShipmentID uuid.UUID, locationType models.SITLocationType, additionalDaysInSIT int) []models.MTOServiceItem {
-	if locationType == models.SITLocationTypeOrigin {
+func StorageServiceItems(ppmShipment models.PPMShipment, locationType models.SITLocationType, additionalDaysInSIT int) []models.MTOServiceItem {
+	mtoShipmentID := ppmShipment.ShipmentID
+	isInternationalShipment := ppmShipment.Shipment.MarketCode == models.MarketCodeInternational
+
+	// domestic shipments
+	if locationType == models.SITLocationTypeOrigin && !isInternationalShipment {
 		if additionalDaysInSIT > 0 {
 			return []models.MTOServiceItem{
 				{ReService: models.ReService{Code: models.ReServiceCodeDOFSIT}, MTOShipmentID: &mtoShipmentID},
@@ -1110,15 +1175,41 @@ func StorageServiceItems(mtoShipmentID uuid.UUID, locationType models.SITLocatio
 			{ReService: models.ReService{Code: models.ReServiceCodeDOFSIT}, MTOShipmentID: &mtoShipmentID}}
 	}
 
-	if additionalDaysInSIT > 0 {
-		return []models.MTOServiceItem{
-			{ReService: models.ReService{Code: models.ReServiceCodeDDFSIT}, MTOShipmentID: &mtoShipmentID},
-			{ReService: models.ReService{Code: models.ReServiceCodeDDASIT}, MTOShipmentID: &mtoShipmentID},
+	if locationType == models.SITLocationTypeDestination && !isInternationalShipment {
+		if additionalDaysInSIT > 0 {
+			return []models.MTOServiceItem{
+				{ReService: models.ReService{Code: models.ReServiceCodeDDFSIT}, MTOShipmentID: &mtoShipmentID},
+				{ReService: models.ReService{Code: models.ReServiceCodeDDASIT}, MTOShipmentID: &mtoShipmentID},
+			}
 		}
+		return []models.MTOServiceItem{
+			{ReService: models.ReService{Code: models.ReServiceCodeDDFSIT}, MTOShipmentID: &mtoShipmentID}}
 	}
 
-	return []models.MTOServiceItem{
-		{ReService: models.ReService{Code: models.ReServiceCodeDDFSIT}, MTOShipmentID: &mtoShipmentID}}
+	// international shipments
+	if locationType == models.SITLocationTypeOrigin && isInternationalShipment {
+		if additionalDaysInSIT > 0 {
+			return []models.MTOServiceItem{
+				{ReService: models.ReService{Code: models.ReServiceCodeIOFSIT}, MTOShipmentID: &mtoShipmentID},
+				{ReService: models.ReService{Code: models.ReServiceCodeIOASIT}, MTOShipmentID: &mtoShipmentID},
+			}
+		}
+		return []models.MTOServiceItem{
+			{ReService: models.ReService{Code: models.ReServiceCodeIOFSIT}, MTOShipmentID: &mtoShipmentID}}
+	}
+
+	if locationType == models.SITLocationTypeDestination && isInternationalShipment {
+		if additionalDaysInSIT > 0 {
+			return []models.MTOServiceItem{
+				{ReService: models.ReService{Code: models.ReServiceCodeIDFSIT}, MTOShipmentID: &mtoShipmentID},
+				{ReService: models.ReService{Code: models.ReServiceCodeIDASIT}, MTOShipmentID: &mtoShipmentID},
+			}
+		}
+		return []models.MTOServiceItem{
+			{ReService: models.ReService{Code: models.ReServiceCodeDDFSIT}, MTOShipmentID: &mtoShipmentID}}
+	}
+
+	return nil
 }
 
 // paramsForServiceCode filters the list of all service params for service items, to only those matching the service

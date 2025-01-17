@@ -1313,6 +1313,9 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		Ddp:                   handlers.FmtCost(ppmCloseout.DDP),
 		PackPrice:             handlers.FmtCost(ppmCloseout.PackPrice),
 		UnpackPrice:           handlers.FmtCost(ppmCloseout.UnpackPrice),
+		IntlPackPrice:         handlers.FmtCost((ppmCloseout.IntlPackPrice)),
+		IntlUnpackPrice:       handlers.FmtCost((ppmCloseout.IntlUnpackPrice)),
+		IntlLinehaulPrice:     handlers.FmtCost((ppmCloseout.IntlLinehaulPrice)),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
 	}
 

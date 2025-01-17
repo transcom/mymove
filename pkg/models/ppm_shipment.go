@@ -40,10 +40,9 @@ type PPMCloseout struct {
 	DDP                   *unit.Cents
 	PackPrice             *unit.Cents
 	UnpackPrice           *unit.Cents
-	IHPKPrice             *unit.Cents
-	IHUPKPrice            *unit.Cents
-	ISLHPrice             *unit.Cents
-	FSCPrice              *unit.Cents
+	IntlPackPrice         *unit.Cents
+	IntlUnpackPrice       *unit.Cents
+	IntlLinehaulPrice     *unit.Cents
 	SITReimbursement      *unit.Cents
 }
 
@@ -333,12 +332,11 @@ type PPMIncentive struct {
 	PriceFSC       int `db:"price_fsc"`
 }
 
-// a db stored proc that will handle updating the estimated_incentive value
+// a db function that will handle updating the estimated_incentive value
 // this simulates pricing of a basic iHHG shipment with ISLH, IHPK, IHUPK, and the CONUS portion for a FSC
 func CalculatePPMIncentive(db *pop.Connection, ppmID uuid.UUID, pickupAddressID uuid.UUID, destAddressID uuid.UUID, moveDate time.Time, mileage int, weight int, isEstimated bool, isActual bool, isMax bool) (*PPMIncentive, error) {
 	var incentive PPMIncentive
 
-	// Run the stored procedure and scan the results into the struct
 	err := db.RawQuery("SELECT * FROM calculate_ppm_incentive($1, $2, $3, $4, $5, $6, $7, $8, $9)", ppmID, pickupAddressID, destAddressID, moveDate, mileage, weight, isEstimated, isActual, isMax).
 		First(&incentive)
 	if err != nil {
@@ -346,4 +344,23 @@ func CalculatePPMIncentive(db *pop.Connection, ppmID uuid.UUID, pickupAddressID 
 	}
 
 	return &incentive, nil
+}
+
+type PPMSITCosts struct {
+	TotalSITCost     int `db:"total_cost"`
+	PriceFirstDaySIT int `db:"price_first_day"`
+	PriceAddlDaySIT  int `db:"price_addl_day"`
+}
+
+// a db function that will handle calculating and returning the SIT costs related to a PPM shipment
+func CalculatePPMSITCost(db *pop.Connection, ppmID uuid.UUID, addressID uuid.UUID, isOrigin bool, moveDate time.Time, weight int, sitDays int) (*PPMSITCosts, error) {
+	var costs PPMSITCosts
+
+	err := db.RawQuery("SELECT * FROM calculate_ppm_SIT_cost($1, $2, $3, $4, $5, $6)", ppmID, addressID, isOrigin, moveDate, weight, sitDays).
+		First(&costs)
+	if err != nil {
+		return nil, fmt.Errorf("error calculating PPM SIT costs for PPM ID %s: %w", ppmID, err)
+	}
+
+	return &costs, nil
 }

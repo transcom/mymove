@@ -36,6 +36,9 @@ type serviceItemPrices struct {
 	haulPrice                 *unit.Cents
 	haulFSC                   *unit.Cents
 	haulType                  models.HaulType
+	intlPackPrice             *unit.Cents
+	intlUnpackPrice           *unit.Cents
+	intlLinehaulPrice         *unit.Cents
 }
 
 func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper, estimator services.PPMEstimator) services.PPMCloseoutFetcher {
@@ -119,6 +122,9 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.DDP = serviceItems.ddp
 	ppmCloseoutObj.PackPrice = serviceItems.packPrice
 	ppmCloseoutObj.UnpackPrice = serviceItems.unpackPrice
+	ppmCloseoutObj.IntlLinehaulPrice = serviceItems.intlLinehaulPrice
+	ppmCloseoutObj.IntlUnpackPrice = serviceItems.intlUnpackPrice
+	ppmCloseoutObj.IntlPackPrice = serviceItems.intlPackPrice
 	ppmCloseoutObj.SITReimbursement = serviceItems.storageReimbursementCosts
 
 	return &ppmCloseoutObj, nil
@@ -317,12 +323,13 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		return serviceItemPrices{}, err
 	}
 
-	serviceItemsToPrice = ppmshipment.BaseServiceItems(ppmShipment.ShipmentID)
+	isInternationalShipment := ppmShipment.Shipment.MarketCode == models.MarketCodeInternational
+	serviceItemsToPrice = ppmshipment.BaseServiceItems(ppmShipment)
 
-	// Change DLH to DSH if move within same Zip3
 	actualPickupPostal := *ppmShipment.ActualPickupPostalCode
 	actualDestPostal := *ppmShipment.ActualDestinationPostalCode
-	if actualPickupPostal[0:3] == actualDestPostal[0:3] {
+	// Change DLH to DSH if move within same Zip3
+	if !isInternationalShipment && actualPickupPostal[0:3] == actualDestPostal[0:3] {
 		serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
 	}
 	contractDate := ppmShipment.ExpectedDepartureDate
@@ -335,7 +342,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	if paramErr != nil {
 		return serviceItemPrices{}, paramErr
 	}
-	var totalPrice, packPrice, unpackPrice, destinationPrice, originPrice, haulPrice, haulFSC unit.Cents
+	var totalPrice, packPrice, unpackPrice, destinationPrice, originPrice, haulPrice, haulFSC, intlPackPrice, intlUnpackPrice, intlLinehaulPrice unit.Cents
 	var totalWeight unit.Pound
 	var ppmToMtoShipment models.MTOShipment
 
@@ -374,13 +381,16 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	}
 
 	validCodes := map[models.ReServiceCode]string{
-		models.ReServiceCodeDPK:  "DPK",
-		models.ReServiceCodeDUPK: "DUPK",
-		models.ReServiceCodeDOP:  "DOP",
-		models.ReServiceCodeDDP:  "DDP",
-		models.ReServiceCodeDSH:  "DSH",
-		models.ReServiceCodeDLH:  "DLH",
-		models.ReServiceCodeFSC:  "FSC",
+		models.ReServiceCodeDPK:   "DPK",
+		models.ReServiceCodeDUPK:  "DUPK",
+		models.ReServiceCodeDOP:   "DOP",
+		models.ReServiceCodeDDP:   "DDP",
+		models.ReServiceCodeDSH:   "DSH",
+		models.ReServiceCodeDLH:   "DLH",
+		models.ReServiceCodeFSC:   "FSC",
+		models.ReServiceCodeISLH:  "ISLH",
+		models.ReServiceCodeIHPK:  "IHPK",
+		models.ReServiceCodeIHUPK: "IHUPK",
 	}
 
 	// If service item is of a type we need for a specific calculation, get its price
@@ -402,11 +412,11 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(appCtx, ppmToMtoShipment, serviceItem)
 
 		// This is the struct that gets passed to every param lookup() method that was initialized above
-		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(p.planner, serviceItemLookups, serviceItem, ppmToMtoShipment, contract.Code)
+		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(p.planner, serviceItemLookups, serviceItem, ppmToMtoShipment, contract.Code, contract.ID)
 
 		// The distance value gets saved to the mto shipment model to reduce repeated api calls.
 		var shipmentWithDistance models.MTOShipment
-		err = appCtx.DB().Find(&shipmentWithDistance, ppmShipment.Shipment.ID)
+		err = appCtx.DB().Eager("PPMShipment").Find(&shipmentWithDistance, ppmShipment.Shipment.ID)
 		if err != nil {
 			logger.Error("could not find shipment in the database")
 			return serviceItemPrices{}, err
@@ -419,7 +429,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		for _, param := range paramsForServiceCode(serviceItem.ReService.Code, paramsForServiceItems) {
 			paramKey := param.ServiceItemParamKey
 			// This is where the lookup() method of each service item param is actually evaluated
-			paramValue, serviceParamErr := keyData.ServiceParamValue(appCtx, paramKey.Key) // Fails with "DistanceZip" param?
+			paramValue, serviceParamErr := keyData.ServiceParamValue(appCtx, paramKey.Key)
 			if serviceParamErr != nil {
 				logger.Error("could not calculate param value lookup", zap.Error(serviceParamErr))
 				return serviceItemPrices{}, serviceParamErr
@@ -452,6 +462,12 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		totalPrice = totalPrice.AddCents(centsValue)
 
 		switch serviceItem.ReService.Code {
+		case models.ReServiceCodeIHPK:
+			intlPackPrice += centsValue
+		case models.ReServiceCodeIHUPK:
+			intlUnpackPrice += centsValue
+		case models.ReServiceCodeISLH:
+			intlLinehaulPrice += centsValue
 		case models.ReServiceCodeDPK:
 			packPrice += centsValue
 		case models.ReServiceCodeDUPK:
@@ -488,6 +504,9 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	returnPriceObj.storageReimbursementCosts = &sitCosts
 	returnPriceObj.haulPrice = &haulPrice
 	returnPriceObj.haulFSC = &haulFSC
+	returnPriceObj.intlLinehaulPrice = &intlLinehaulPrice
+	returnPriceObj.intlPackPrice = &intlPackPrice
+	returnPriceObj.intlUnpackPrice = &intlUnpackPrice
 
 	return returnPriceObj, nil
 }

@@ -62,6 +62,9 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
   const isCivilian = grade === 'CIVILIAN_EMPLOYEE';
 
   const renderHaulType = (haulType) => {
+    if (haulType === '') {
+      return null;
+    }
     return haulType === HAUL_TYPES.LINEHAUL ? 'Linehaul' : 'Shorthaul';
   };
   // check if the itemName is one of the items recalulated after item edit(updatedItemName).
@@ -268,16 +271,18 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
     case sectionTypes.incentiveFactors:
       return (
         <div className={classnames(styles.Details)}>
-          <div>
-            <Label>{renderHaulType(sectionInfo.haulType)} Price</Label>
-            <span data-testid="haulPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('haulPrice') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.haulPrice)}`
-              )}
-            </span>
-          </div>
+          {sectionInfo.haulPrice > 0 ?? (
+            <div>
+              <Label>{renderHaulType(sectionInfo.haulType)} Price</Label>
+              <span data-testid="haulPrice" className={styles.light}>
+                {isFetchingItems && isRecalulatedItem('haulPrice') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.haulPrice)}`
+                )}
+              </span>
+            </div>
+          )}
           <div>
             <Label>{renderHaulType(sectionInfo.haulType)} Fuel Rate Adjustment</Label>
             <span data-testid="haulFSC" className={styles.light}>
@@ -291,52 +296,92 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               )}
             </span>
           </div>
+          {sectionInfo.packPrice > 0 ?? (
+            <div>
+              <Label>Packing Charge</Label>
+              <span data-testid="packPrice" className={styles.light}>
+                {isFetchingItems && isRecalulatedItem('packPrice') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.packPrice)}`
+                )}
+              </span>
+            </div>
+          )}
+          {sectionInfo.unpackPrice > 0 ?? (
+            <div>
+              <Label>Unpacking Charge</Label>
+              <span data-testid="unpackPrice" className={styles.light}>
+                {isFetchingItems && isRecalulatedItem('unpackPrice') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.unpackPrice)}`
+                )}
+              </span>
+            </div>
+          )}
+          {sectionInfo.dop > 0 ?? (
+            <div>
+              <Label>Origin Price</Label>
+              <span data-testid="originPrice" className={styles.light}>
+                {isFetchingItems && isRecalulatedItem('dop') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.dop)}`
+                )}
+              </span>
+            </div>
+          )}
+          {sectionInfo.ddp > 0 ?? (
+            <div>
+              <Label>Destination Price</Label>
+              <span data-testid="destinationPrice" className={styles.light}>
+                {isFetchingItems && isRecalulatedItem('ddp') ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  `$${formatCents(sectionInfo.ddp)}`
+                )}
+              </span>
+            </div>
+          )}
           <div>
-            <Label>Packing Charge</Label>
-            <span data-testid="packPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('packPrice') ? (
+            <Label>International Packing Charge</Label>
+            <span data-testid="intlPackPrice" className={styles.light}>
+              {isFetchingItems && isRecalulatedItem('intlPackPrice') ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
-                `$${formatCents(sectionInfo.packPrice)}`
+                `$${formatCents(sectionInfo.intlPackPrice)}`
               )}
             </span>
           </div>
           <div>
-            <Label>Unpacking Charge</Label>
-            <span data-testid="unpackPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('unpackPrice') ? (
+            <Label>International Unpacking Charge</Label>
+            <span data-testid="intlUnpackPrice" className={styles.light}>
+              {isFetchingItems && isRecalulatedItem('intlUnpackPrice') ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
-                `$${formatCents(sectionInfo.unpackPrice)}`
+                `$${formatCents(sectionInfo.intlUnpackPrice)}`
               )}
             </span>
           </div>
           <div>
-            <Label>Origin Price</Label>
-            <span data-testid="originPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('dop') ? (
+            <Label>International Shipping & Linehaul Charge</Label>
+            <span data-testid="intlLinehaulPrice" className={styles.light}>
+              {isFetchingItems && isRecalulatedItem('intlLinehaulPrice') ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
-                `$${formatCents(sectionInfo.dop)}`
+                `$${formatCents(sectionInfo.intlLinehaulPrice)}`
               )}
             </span>
           </div>
-          <div>
-            <Label>Destination Price</Label>
-            <span data-testid="destinationPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('ddp') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.ddp)}`
-              )}
-            </span>
-          </div>
-          <div>
-            <Label>SIT Reimbursement</Label>
-            <span data-testid="sitReimbursement" className={styles.light}>
-              ${formatCents(sectionInfo.sitReimbursement)}
-            </span>
-          </div>
+          {sectionInfo.sitReimbursement > 0 ?? (
+            <div>
+              <Label>SIT Reimbursement</Label>
+              <span data-testid="sitReimbursement" className={styles.light}>
+                ${formatCents(sectionInfo.sitReimbursement)}
+              </span>
+            </div>
+          )}
         </div>
       );
 
