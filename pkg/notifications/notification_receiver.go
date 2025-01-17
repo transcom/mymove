@@ -274,7 +274,7 @@ func InitReceiver(v ViperType, logger *zap.Logger, wipeAllNotificationQueues boo
 		return notificationReceiver, nil
 	}
 
-	logger.Info("Using local sns_sqs receiver backend", zap.String("receiver_backend", v.GetString(cli.ReceiverBackendFlag)))
+	logger.Info("Using local notification receiver backend", zap.String("receiver_backend", v.GetString(cli.ReceiverBackendFlag)))
 
 	return NewStubNotificationReceiver(), nil
 }
