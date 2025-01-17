@@ -212,12 +212,11 @@ func EvaluateIsOconus(address Address) bool {
 	}
 }
 
-// Fetches the GBLOC for a specific Address or Postal Code
-// OCONUS will always use Address, while CONUS will use Postal Code
-func FetchAddressPostalCodeGbloc(db *pop.Connection, address Address, postalCode string, serviceMember ServiceMember) (*string, error) {
+// Fetches the GBLOC for a specific Address (for now this will be used for OCONUS)
+func FetchAddressGbloc(db *pop.Connection, address Address, serviceMember ServiceMember) (*string, error) {
 	var gbloc *string
 
-	err := db.RawQuery("SELECT * FROM get_address_gbloc($1, $2, $3)", address.ID, postalCode, serviceMember.Affiliation.String()).
+	err := db.RawQuery("SELECT * FROM get_address_gbloc($1, $2)", address.ID, serviceMember.Affiliation.String()).
 		First(&gbloc)
 
 	if err != nil {

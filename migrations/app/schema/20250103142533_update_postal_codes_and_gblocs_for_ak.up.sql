@@ -44,9 +44,9 @@ SELECT move_id, gbloc FROM (
 
 
 DROP FUNCTION IF EXISTS get_address_gbloc;
+
 CREATE OR REPLACE FUNCTION public.get_address_gbloc(
     address_id  UUID,
-    postal_code TEXT,
     affiliation	TEXT,
     OUT gbloc   TEXT
 )
@@ -56,13 +56,8 @@ DECLARE
     v_count	  		INT;
     v_bos_count		INT;
     v_dept_ind		TEXT;
-	v_postal_code	TEXT;
-begin
-	IF address_id IS NOT NULL THEN
-		is_oconus := get_is_oconus(address_id);
-	ELSE
-		is_oconus := false;
-	END IF;
+BEGIN
+    is_oconus := get_is_oconus(address_id);
 
    	IF affiliation in ('AIR_FORCE','SPACE_FORCE') THEN
    		v_dept_ind := 'AIR_AND_SPACE_FORCE';
@@ -146,28 +141,20 @@ begin
 
 	ELSE	--is conus
 
-		IF postal_code IS NULL THEN
-
-			SELECT o.uspr_zip_id
-			  INTO v_postal_code
-			  FROM addresses a, v_locations o
- 			 WHERE a.us_post_region_cities_id = o.uprc_id
-			   AND a.id = address_id;
-
-		ELSE
-			v_postal_code := postal_code;
-		END IF;
-
 		SELECT j.gbloc
 		  INTO gbloc
-    	  FROM postal_code_to_gblocs j
-    	 WHERE j.postal_code = v_postal_code;
+    	  FROM addresses a,
+    		   v_locations o,
+    	       postal_code_to_gblocs j
+    	 WHERE a.us_post_region_cities_id = o.uprc_id
+    	   and o.uspr_zip_id = j.postal_code
+    	   and a.id = address_id;
 
 	END IF;
 
     -- Raise an exception if no rate area is found
     IF gbloc IS NULL THEN
-        RAISE EXCEPTION 'GBLOC not found for address ID % for affiliation % postal_code % ', address_id, affiiation, postal_code;
+        RAISE EXCEPTION 'GBLOC not found for address ID % for affiliation %', address_id, affiiation;
     END IF;
 END;
 $$ LANGUAGE plpgsql;

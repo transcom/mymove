@@ -278,10 +278,10 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		}
 		suite.MustSave(&gblocAors)
 
-		gbloc, err := m.FetchAddressPostalCodeGbloc(suite.DB(), originDutyLocation.Address, originDutyLocation.Address.PostalCode, serviceMember)
+		gbloc, err := m.FetchAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
 		suite.NoError(err)
 		suite.NotNil(gbloc)
-		suite.Equal(gbloc, "MBFL")
+		suite.Equal(string(*gbloc), "MBFL")
 	})
 
 	suite.Run("fetches duty location GBLOC for AK address, Zone II Army", func() {
@@ -310,10 +310,10 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		}
 		suite.MustSave(&gblocAors)
 
-		gbloc, err := m.FetchAddressPostalCodeGbloc(suite.DB(), originDutyLocation.Address, originDutyLocation.Address.PostalCode, serviceMember)
+		gbloc, err := m.FetchAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
 		suite.NoError(err)
 		suite.NotNil(gbloc)
-		suite.Equal(gbloc, "JEAT")
+		suite.Equal(string(*gbloc), "JEAT")
 	})
 
 	suite.Run("fetches duty location GBLOC for AK Cordova address, Zone IV", func() {
@@ -342,10 +342,10 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		}
 		suite.MustSave(&gblocAors)
 
-		gbloc, err := m.FetchAddressPostalCodeGbloc(suite.DB(), originDutyLocation.Address, originDutyLocation.Address.PostalCode, serviceMember)
+		gbloc, err := m.FetchAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
 		suite.NoError(err)
 		suite.NotNil(gbloc)
-		suite.Equal(gbloc, "MAPS")
+		suite.Equal(string(*gbloc), "MAPS")
 	})
 
 	suite.Run("fetches duty location GBLOC for AK NOT Cordova address, Zone IV", func() {
@@ -374,9 +374,9 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		}
 		suite.MustSave(&gblocAors)
 
-		gbloc, err := m.FetchAddressPostalCodeGbloc(suite.DB(), originDutyLocation.Address, originDutyLocation.Address.PostalCode, serviceMember)
+		gbloc, err := m.FetchAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
 		suite.NoError(err)
 		suite.NotNil(gbloc)
-		suite.Equal(gbloc, "MAPK")
+		suite.Equal(string(*gbloc), "MAPK")
 	})
 }

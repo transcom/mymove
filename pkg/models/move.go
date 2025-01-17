@@ -215,19 +215,29 @@ func (m Move) GetDestinationGBLOC(db *pop.Connection) (string, error) {
 		return "", err
 	}
 
-	err = db.Load(&m.Orders, "ServiceMember")
-	if err != nil {
-		if err.Error() == RecordNotFoundErrorString {
-			return "", errors.WithMessage(err, "No Service Member found in the DB associated with moveID "+m.ID.String())
+	var newGBLOC string
+	if *destinationAddress.IsOconus {
+		err := db.Load(&m.Orders, "ServiceMember")
+		if err != nil {
+			if err.Error() == RecordNotFoundErrorString {
+				return "", errors.WithMessage(err, "No Service Member found in the DB associated with moveID "+m.ID.String())
+			}
+			return "", err
 		}
-		return "", err
-	}
-	newGBLOC, err := FetchAddressPostalCodeGbloc(db, *destinationAddress, destinationAddress.PostalCode, m.Orders.ServiceMember)
-	if err != nil {
-		return "", err
+		newGBLOCOconus, err := FetchAddressGbloc(db, *destinationAddress, m.Orders.ServiceMember)
+		if err != nil {
+			return "", err
+		}
+		newGBLOC = *newGBLOCOconus
+	} else {
+		newGBLOCConus, err := FetchGBLOCForPostalCode(db, destinationAddress.PostalCode)
+		if err != nil {
+			return "", err
+		}
+		newGBLOC = newGBLOCConus.GBLOC
 	}
 
-	return *newGBLOC, err
+	return newGBLOC, err
 }
 
 // GetDestinationAddress returns the address for the move. This ensures that business logic is centralized.

@@ -695,16 +695,27 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		order.OriginDutyLocationID = &originDutyLocation.ID
 		order.OriginDutyLocation = &originDutyLocation
 
-		dutyLocationGBLOC, err2 := models.FetchAddressPostalCodeGbloc(appCtx.DB(), originDutyLocation.Address, originDutyLocation.Address.PostalCode, order.ServiceMember)
-		if err2 != nil {
-			switch err2 {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
-			default:
-				return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+		var originDutyLocationGBLOC *string
+		if *originDutyLocation.Address.IsOconus {
+			originDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), originDutyLocation.Address, order.ServiceMember)
+			if err != nil {
+				return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
 			}
+			originDutyLocationGBLOC = originDutyLocationGBLOCOconus
+		} else {
+			originDutyLocationGBLOCConus, err2 := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+			if err2 != nil {
+				switch err2 {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
+				default:
+					return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+				}
+			}
+			originDutyLocationGBLOC = &originDutyLocationGBLOCConus.GBLOC
 		}
-		order.OriginDutyLocationGBLOC = dutyLocationGBLOC
+
+		order.OriginDutyLocationGBLOC = originDutyLocationGBLOC
 	}
 
 	if order.Grade != nil || order.OriginDutyLocationID != nil {
@@ -727,14 +738,24 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 			}
 		}
 
-		newDestinationGBLOC, err := models.FetchAddressPostalCodeGbloc(appCtx.DB(), newDutyLocation.Address, newDutyLocation.Address.PostalCode, order.ServiceMember)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(order.NewDutyLocationID, "while looking for DestinationGBLOC")
-			default:
-				return nil, apperror.NewQueryError("DestinationGBLOC", err, "")
+		var newDestinationGBLOC *string
+		if *newDutyLocation.Address.IsOconus {
+			newDestinationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), newDutyLocation.Address, order.ServiceMember)
+			if err != nil {
+				return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for DestinationGBLOC Oconus")
 			}
+			newDestinationGBLOC = newDestinationGBLOCOconus
+		} else {
+			newDestinationGBLOCConus, err2 := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
+			if err2 != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(order.NewDutyLocationID, "while looking for DestinationGBLOC")
+				default:
+					return nil, apperror.NewQueryError("DestinationGBLOC", err, "")
+				}
+			}
+			newDestinationGBLOC = &newDestinationGBLOCConus.GBLOC
 		}
 
 		order.NewDutyLocationID = newDutyLocation.ID
