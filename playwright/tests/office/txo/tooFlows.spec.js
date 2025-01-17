@@ -469,65 +469,6 @@ test.describe('TOO user', () => {
       await expect(cancelAlert).not.toBeVisible();
     });
 
-    /**
-     * This test is being temporarily skipped until flakiness issues
-     * can be resolved. It was skipped in cypress and is not part of
-     * the initial playwright conversion. - ahobson 2023-01-10
-     */
-    test.skip('is able to edit allowances', async ({ page }) => {
-      // Navigate to Edit allowances page
-      await expect(page.getByTestId('edit-allowances')).toContainText('Edit allowances');
-      await page.getByText('Edit allowances').click();
-
-      // // Toggle between Edit Allowances and Edit Orders page
-      // await page.locator('[data-testid="view-orders"]').click();
-      // cy.url().should('include', `/moves/${moveLocator}/orders`);
-      // await page.locator('[data-testid="view-allowances"]').click();
-      // cy.url().should('include', `/moves/${moveLocator}/allowances`);
-
-      // await page.locator('form').within(($form) => {
-      //   // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
-      //   await page.locator('input[name="proGearWeight"]').fill('1999');
-      //   await page.locator('input[name="proGearWeightSpouse"]').fill('499');
-      //   await page.locator('input[name="requiredMedicalEquipmentWeight"]').fill('999');
-      //   await page.locator('input[name="storageInTransit"]').fill('199');
-      //   await page.locator('input[name="organizationalClothingAndIndividualEquipment"]').siblings('label[for="ocieInput"]').click();
-
-      //   // Edit grade and authorized weight
-      //   await expect(page.locator('select[name=agency]')).toContainText('Army');
-      //   await page.locator('select[name=agency]').selectOption({ label: 'Navy'});
-      //   await expect(page.locator('select[name="grade"]')).toContainText('E-1');
-      //   await page.locator('select[name="grade"]').selectOption({ label: 'W-2'});
-      //   await page.locator('input[name="authorizedWeight"]').fill('11111');
-
-      //   //Edit DependentsAuthorized
-      //   await page.locator('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();
-
-      //   // Edit allowances page | Save
-      //   await expect(page.locator('button').contains('Save')).toBeEnabled().click();
-
-      // cy.wait(['@patchAllowances']);
-
-      // // Verify edited values are saved
-      // cy.url().should('include', `/moves/${moveLocator}/details`);
-
-      // await expect(page.locator('[data-testid="progear"]')).toContainText('1,999');
-      // await expect(page.locator('[data-testid="spouseProgear"]')).toContainText('499');
-      // await expect(page.locator('[data-testid="rme"]')).toContainText('999');
-      // await expect(page.locator('[data-testid="storageInTransit"]')).toContainText('199');
-      // await expect(page.locator('[data-testid="ocie"]')).toContainText('Unauthorized');
-
-      // await expect(page.locator('[data-testid="authorizedWeight"]')).toContainText('11,111');
-      // await expect(page.locator('[data-testid="branchGrade"]')).toContainText('Navy');
-      // await expect(page.locator('[data-testid="branchGrade"]')).toContainText('W-2');
-      // await expect(page.locator('[data-testid="dependents"]')).toContainText('Unauthorized');
-
-      // // Edit allowances page | Cancel
-      // await expect(page.locator('[data-testid="edit-allowances"]')).toContainText('Edit allowances').click();
-      // await expect(page.locator('button')).toContainText('Cancel').click();
-      // cy.url().should('include', `/moves/${moveLocator}/details`);
-    });
-
     test('is able to edit shipment', async ({ page }) => {
       const deliveryDate = new Date().toLocaleDateString('en-US');
       const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
