@@ -29,7 +29,7 @@ COPY swagger/* /swagger/
 COPY build /build
 COPY public/static/react-file-viewer /public/static/react-file-viewer
 
-# Keep the tmp!
+# Mount mutable tmp for app packages like pdfcpu
 VOLUME ["/tmp"]
 
 ENTRYPOINT ["/bin/milmove"]
