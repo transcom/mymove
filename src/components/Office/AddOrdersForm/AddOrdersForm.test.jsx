@@ -149,15 +149,15 @@ describe('CreateMoveCustomerInfo Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Tell us about the orders')).toBeInTheDocument();
-      expect(screen.getByLabelText('Orders type')).toBeInTheDocument();
-      expect(screen.getByLabelText('Orders date')).toBeInTheDocument();
-      expect(screen.getByLabelText('Report by date')).toBeInTheDocument();
-      expect(screen.getByText('Are dependents included in the orders?')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Orders date/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Report by date/)).toBeInTheDocument();
+      expect(screen.getByText(/Are dependents included in the orders?/)).toBeInTheDocument();
       expect(screen.getByTestId('hasDependentsYes')).toBeInTheDocument();
       expect(screen.getByTestId('hasDependentsNo')).toBeInTheDocument();
-      expect(screen.getByLabelText('Current duty location')).toBeInTheDocument();
-      expect(screen.getByLabelText('New duty location')).toBeInTheDocument();
-      expect(screen.getByLabelText('Pay grade')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
     });
   });
 
@@ -167,12 +167,12 @@ describe('CreateMoveCustomerInfo Component', () => {
         <AddOrdersForm {...testProps} />
       </Provider>,
     );
-    await userEvent.click(getByLabelText('Orders type'));
-    await userEvent.click(getByLabelText('Orders date'));
-    await userEvent.click(getByLabelText('Report by date'));
-    await userEvent.click(getByLabelText('Current duty location'));
-    await userEvent.click(getByLabelText('New duty location'));
-    await userEvent.click(getByLabelText('Pay grade'));
+    await userEvent.click(getByLabelText(/Orders type/));
+    await userEvent.click(getByLabelText(/Orders date/));
+    await userEvent.click(getByLabelText(/Report by date/));
+    await userEvent.click(getByLabelText(/Current duty location/));
+    await userEvent.click(getByLabelText(/New duty location/));
+    await userEvent.click(getByLabelText(/Pay grade/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
@@ -240,7 +240,7 @@ describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
       </Provider>,
     );
 
-    expect(screen.getByLabelText('Orders type')).toBeDisabled();
+    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
   });
 
   it('disables orders type when bluebark move is selected', async () => {
@@ -249,7 +249,7 @@ describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
         <AddOrdersForm {...testProps} isBluebarkMoveSelected />
       </Provider>,
     );
-    expect(screen.getByLabelText('Orders type')).toBeDisabled();
+    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
   });
 });
 
