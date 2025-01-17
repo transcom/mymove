@@ -170,7 +170,7 @@ describe('CreateMoveCustomerInfo Component', () => {
       </Provider>,
     );
 
-    const ordersTypeDropdown = getByLabelText('Orders type');
+    const ordersTypeDropdown = getByLabelText(/Orders type/);
     expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
     await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
@@ -277,7 +277,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
       </Provider>,
     );
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.STUDENT_TRAVEL);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
 
     const hasDependentsYes = screen.getByLabelText('Yes');
     const hasDependentsNo = screen.getByLabelText('No');
@@ -298,7 +298,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
       </Provider>,
     );
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
     const hasDependentsYes = screen.getByLabelText('Yes');
     const hasDependentsNo = screen.getByLabelText('No');
 
@@ -318,7 +318,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
       </Provider>,
     );
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
     const hasDependentsYesPermChg = screen.getByLabelText('Yes');
     const hasDependentsNoPermChg = screen.getByLabelText('No');
@@ -331,7 +331,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     });
 
     // set order type to value that disables and defaults "has dependents"
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.STUDENT_TRAVEL);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
 
     const hasDependentsYesStudent = screen.getByLabelText('Yes');
     const hasDependentsNoStudent = screen.getByLabelText('No');
@@ -343,7 +343,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     });
 
     // set order type to value the re-enables "has dependents"
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.LOCAL_MOVE);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.LOCAL_MOVE);
 
     const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
     const hasDependentsNoLocalMove = screen.getByLabelText('No');
@@ -365,7 +365,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
       </Provider>,
     );
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
     const hasDependentsYesPermChg = screen.getByLabelText('Yes');
     const hasDependentsNoPermChg = screen.getByLabelText('No');
@@ -378,7 +378,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     });
 
     // set order type to value that disables and defaults "has dependents"
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
     const hasDependentsYesEarly = screen.getByLabelText('Yes');
     const hasDependentsNoEarly = screen.getByLabelText('No');
@@ -390,7 +390,7 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     });
 
     // set order type to value the re-enables "has dependents"
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.LOCAL_MOVE);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.LOCAL_MOVE);
 
     const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
     const hasDependentsNoLocalMove = screen.getByLabelText('No');
