@@ -7139,6 +7139,11 @@ func init() {
         "grade": {
           "$ref": "#/definitions/Grade"
         },
+        "hasDependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?",
+          "x-nullable": true
+        },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
           "type": "string",
@@ -24242,6 +24247,11 @@ func init() {
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "hasDependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?",
+          "x-nullable": true
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
