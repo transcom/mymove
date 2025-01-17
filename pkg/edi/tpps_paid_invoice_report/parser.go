@@ -43,7 +43,7 @@ func VerifyHeadersParsedCorrectly(parsedHeadersFromFile TPPSData) bool {
 	return allHeadersWereProcessedCorrectly
 }
 
-// ProcessTPPSReportEntryForOneRow takes one tab-delimited data row, cleans it, and parses it into a string representation of the TPPSData struct
+// ParseTPPSReportEntryForOneRow takes one tab-delimited data row, cleans it, and parses it into a string representation of the TPPSData struct
 func ParseTPPSReportEntryForOneRow(row []string, columnIndexes map[string]int, headerIndicesNeedDefined bool) (TPPSData, map[string]int, bool) {
 	tppsReportEntryForOnePaymentRequest := strings.Split(row[0], "\t")
 	var tppsData TPPSData
