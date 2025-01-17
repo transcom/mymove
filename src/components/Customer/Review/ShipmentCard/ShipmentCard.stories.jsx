@@ -84,7 +84,7 @@ const ntsDefaultProps = {
 const ntsrDefaultProps = {
   moveId: 'testMove123',
   shipmentNumber: 1,
-  shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+  shipmentType: 'HHG_OUTOF_NTS',
   shipmentId: 'ABC123K',
   showEditAndDeleteBtn: true,
   onEditClick: noop,

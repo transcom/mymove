@@ -30,7 +30,7 @@ describe('addShipmentNumbersToTableData', () => {
 
 describe('determineTableRowClassname', () => {
   it.each([
-    ['HHG_OUTOF_NTS_DOMESTIC', styles[`review-shipment-weights-table-row-NTS-release`]],
+    ['HHG_OUTOF_NTS', styles[`review-shipment-weights-table-row-NTS-release`]],
     ['HHG_INTO_NTS', styles[`review-shipment-weights-table-row-NTS`]],
     ['PPM', styles[`review-shipment-weights-table-row-PPM`]],
     ['HHG', styles[`review-shipment-weights-table-row-HHG`]],
@@ -43,7 +43,7 @@ describe('determineTableRowClassname', () => {
 describe('shipmentTypeCellDisplayHelper', () => {
   it.each([
     [{ shipmentType: 'PPM', showNumber: false }, 'PPM'],
-    [{ shipmentType: 'HHG_OUTOF_NTS_DOMESTIC', showNumber: true, shipmentNumber: 123 }, 'NTS-release 123'],
+    [{ shipmentType: 'HHG_OUTOF_NTS', showNumber: true, shipmentNumber: 123 }, 'NTS-release 123'],
     [{ shipmentType: 'HHG', showNumber: true, shipmentNumber: 8 }, 'HHG 8'],
   ])('renders the correct Shipment Type Cell', (row, expectedResult) => {
     render(<ShipmentTypeCell row={row} />);
@@ -53,7 +53,7 @@ describe('shipmentTypeCellDisplayHelper', () => {
 
 describe('estimatedWeightDisplayHelper', () => {
   it.each([
-    [{ shipmentType: 'HHG_OUTOF_NTS_DOMESTIC' }, 'N/A'],
+    [{ shipmentType: 'HHG_OUTOF_NTS' }, 'N/A'],
     [{ shipmentType: 'HHG_INTO_NTS', ntsRecordedWeight: 1234, primeEstimatedWeight: 9876 }, '1,234 lbs'],
     [{ shipmentType: 'HHG', ntsRecordedWeight: 1234, primeEstimatedWeight: 9876 }, '9,876 lbs'],
     [{ shipmentType: 'HHG', primeEstimatedWeight: 0 }, DASH],
@@ -64,7 +64,7 @@ describe('estimatedWeightDisplayHelper', () => {
 
 describe('actualWeightDisplayHelper', () => {
   it.each([
-    [{ shipmentType: 'HHG_OUTOF_NTS_DOMESTIC' }, DASH],
+    [{ shipmentType: 'HHG_OUTOF_NTS' }, DASH],
     [{ primeActualWeight: 1234 }, '1,234 lbs'],
     [{ reweigh: { weight: 9876 } }, '9,876 lbs'],
     [{ primeActualWeight: 1234, reweigh: { weight: 9876 } }, '1,234 lbs'],

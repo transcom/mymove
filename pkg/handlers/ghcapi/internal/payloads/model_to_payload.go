@@ -88,38 +88,40 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 	}
 
 	payload := &ghcmessages.Move{
-		ID:                           strfmt.UUID(move.ID.String()),
-		AvailableToPrimeAt:           handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
-		ApprovedAt:                   handlers.FmtDateTimePtr(move.ApprovedAt),
-		ContractorID:                 handlers.FmtUUIDPtr(move.ContractorID),
-		Contractor:                   Contractor(move.Contractor),
-		Locator:                      move.Locator,
-		OrdersID:                     strfmt.UUID(move.OrdersID.String()),
-		Orders:                       Order(&move.Orders),
-		ReferenceID:                  handlers.FmtStringPtr(move.ReferenceID),
-		Status:                       ghcmessages.MoveStatus(move.Status),
-		ExcessWeightQualifiedAt:      handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
-		BillableWeightsReviewedAt:    handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
-		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
-		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
-		ApprovalsRequestedAt:         handlers.FmtDateTimePtr(move.ApprovalsRequestedAt),
-		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
-		ETag:                         etag.GenerateEtag(move.UpdatedAt),
-		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
-		ExcessWeightAcknowledgedAt:   handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
-		TioRemarks:                   handlers.FmtStringPtr(move.TIORemarks),
-		FinancialReviewFlag:          move.FinancialReviewFlag,
-		FinancialReviewRemarks:       move.FinancialReviewRemarks,
-		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
-		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
-		ShipmentGBLOC:                gbloc,
-		LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
-		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
-		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
-		AdditionalDocuments:          additionalDocumentsPayload,
-		SCAssignedUser:               AssignedOfficeUser(move.SCAssignedUser),
-		TOOAssignedUser:              AssignedOfficeUser(move.TOOAssignedUser),
-		TIOAssignedUser:              AssignedOfficeUser(move.TIOAssignedUser),
+		ID:                      strfmt.UUID(move.ID.String()),
+		AvailableToPrimeAt:      handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ApprovedAt:              handlers.FmtDateTimePtr(move.ApprovedAt),
+		ContractorID:            handlers.FmtUUIDPtr(move.ContractorID),
+		Contractor:              Contractor(move.Contractor),
+		Locator:                 move.Locator,
+		OrdersID:                strfmt.UUID(move.OrdersID.String()),
+		Orders:                  Order(&move.Orders),
+		ReferenceID:             handlers.FmtStringPtr(move.ReferenceID),
+		Status:                  ghcmessages.MoveStatus(move.Status),
+		ExcessWeightQualifiedAt: handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
+		ExcessUnaccompaniedBaggageWeightQualifiedAt: handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightQualifiedAt),
+		BillableWeightsReviewedAt:                   handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
+		CreatedAt:                                   strfmt.DateTime(move.CreatedAt),
+		SubmittedAt:                                 handlers.FmtDateTimePtr(move.SubmittedAt),
+		ApprovalsRequestedAt:                        handlers.FmtDateTimePtr(move.ApprovalsRequestedAt),
+		UpdatedAt:                                   strfmt.DateTime(move.UpdatedAt),
+		ETag:                                        etag.GenerateEtag(move.UpdatedAt),
+		ServiceCounselingCompletedAt:                handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt),
+		ExcessWeightAcknowledgedAt:                     handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
+		TioRemarks:                                     handlers.FmtStringPtr(move.TIORemarks),
+		FinancialReviewFlag:                            move.FinancialReviewFlag,
+		FinancialReviewRemarks:                         move.FinancialReviewRemarks,
+		CloseoutOfficeID:                               handlers.FmtUUIDPtr(move.CloseoutOfficeID),
+		CloseoutOffice:                                 TransportationOffice(move.CloseoutOffice),
+		ShipmentGBLOC:                                  gbloc,
+		LockedByOfficeUserID:                           handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+		LockedByOfficeUser:                             OfficeUser(move.LockedByOfficeUser),
+		LockExpiresAt:                                  handlers.FmtDateTimePtr(move.LockExpiresAt),
+		AdditionalDocuments:                            additionalDocumentsPayload,
+		SCAssignedUser:                                 AssignedOfficeUser(move.SCAssignedUser),
+		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
+		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 	}
 
 	return payload, nil
@@ -1521,6 +1523,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
+		PoeLocation:                 Port(mtoShipment.MTOServiceItems, "POE"),
+		PodLocation:                 Port(mtoShipment.MTOServiceItems, "POD"),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -2159,6 +2163,30 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 	return &availableOfficeUsers
 }
 
+func BulkAssignmentData(appCtx appcontext.AppContext, moves []models.MoveWithEarliestDate, officeUsers []models.OfficeUserWithWorkload, officeId uuid.UUID) ghcmessages.BulkAssignmentData {
+	availableOfficeUsers := make(ghcmessages.AvailableOfficeUsers, len(officeUsers))
+	availableMoves := make(ghcmessages.BulkAssignmentMoveIDs, len(moves))
+
+	for i, officeUser := range officeUsers {
+		availableOfficeUsers[i] = &ghcmessages.AvailableOfficeUser{
+			LastName:     officeUser.LastName,
+			FirstName:    officeUser.FirstName,
+			OfficeUserID: *handlers.FmtUUID(officeUser.ID),
+			Workload:     int64(officeUser.Workload),
+		}
+	}
+	for i, move := range moves {
+		availableMoves[i] = ghcmessages.BulkAssignmentMoveID(strfmt.UUID(move.ID.String()))
+	}
+
+	bulkAssignmentData := &ghcmessages.BulkAssignmentData{
+		AvailableOfficeUsers:  availableOfficeUsers,
+		BulkAssignmentMoveIDs: availableMoves,
+	}
+
+	return *bulkAssignmentData
+}
+
 func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.AssignedOfficeUser, isCloseoutQueue bool, officeUser models.OfficeUser, ppmCloseoutGblocs bool) bool {
 	// default to false
 	isAssignable := false
@@ -2707,4 +2735,34 @@ func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceI
 		payload[i] = ReServiceItem(&copyOfReServiceItem)
 	}
 	return payload
+}
+
+func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.Port {
+	if mtoServiceItems == nil {
+		return nil
+	}
+
+	for _, mtoServiceItem := range mtoServiceItems {
+		var portLocation *models.PortLocation
+		if portType == "POE" && mtoServiceItem.POELocation != nil {
+			portLocation = mtoServiceItem.POELocation
+		} else if portType == "POD" && mtoServiceItem.PODLocation != nil {
+			portLocation = mtoServiceItem.PODLocation
+		}
+
+		if portLocation != nil {
+			return &ghcmessages.Port{
+				ID:       strfmt.UUID(portLocation.ID.String()),
+				PortType: portLocation.Port.PortType.String(),
+				PortCode: portLocation.Port.PortCode,
+				PortName: portLocation.Port.PortName,
+				City:     portLocation.City.CityName,
+				County:   portLocation.UsPostRegionCity.UsprcCountyNm,
+				State:    portLocation.UsPostRegionCity.UsPostRegion.State.StateName,
+				Zip:      portLocation.UsPostRegionCity.UsprZipID,
+				Country:  portLocation.Country.CountryName,
+			}
+		}
+	}
+	return nil
 }
