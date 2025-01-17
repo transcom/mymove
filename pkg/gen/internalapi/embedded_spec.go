@@ -555,6 +555,9 @@ func init() {
             "schema": {
               "$ref": "#/definitions/IndexEntitlements"
             }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -9247,6 +9250,9 @@ func init() {
             "schema": {
               "$ref": "#/definitions/IndexEntitlements"
             }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }

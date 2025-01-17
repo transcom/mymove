@@ -11,6 +11,7 @@ import (
 	paperwork "github.com/transcom/mymove/pkg/paperwork"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/move"
@@ -41,13 +42,15 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	if err != nil {
 		log.Fatalln(err)
 	}
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	primeAPI := primeoperations.NewMymoveAPI(primeSpec)
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
-	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
@@ -79,12 +82,12 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.MoveTaskOrderListMovesHandler = ListMovesHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	primeAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	primeAPI.MoveTaskOrderCreateExcessWeightRecordHandler = CreateExcessWeightRecordHandler{
@@ -187,7 +190,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	primeAPI.MoveTaskOrderDownloadMoveOrderHandler = DownloadMoveOrderHandler{
 		handlerConfig,
 		move.NewMoveSearcher(),
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		primeDownloadMoveUploadPDFGenerator,
 	}
 

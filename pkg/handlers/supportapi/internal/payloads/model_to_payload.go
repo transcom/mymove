@@ -85,9 +85,6 @@ func Order(order *models.Order) *supportmessages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	uploadedOrders := Document(&order.UploadedOrders)
-	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
-	}
 
 	reportByDate := strfmt.Date(order.ReportByDate)
 	issueDate := strfmt.Date(order.IssueDate)

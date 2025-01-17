@@ -798,7 +798,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	var shipmentNeedsCloseout models.PPMShipment
 	var needsCloseoutSM models.ServiceMember
 
-	suite.PreloadData(func() {
+	setupPPMData := func() {
 		shipmentNeedsResubmitted = factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), userUploader, nil)
 		shipmentNeedsResubmitted.SubmittedAt = &submissionTime
 		suite.NoError(suite.DB().Save(&shipmentNeedsResubmitted))
@@ -806,7 +806,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 		shipmentNeedsCloseout = factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 		needsCloseoutSM = shipmentNeedsCloseout.Shipment.MoveTaskOrder.Orders.ServiceMember
-	})
+	}
 
 	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, serviceMember models.ServiceMember, payload *internalmessages.SavePPMShipmentSignedCertification) (ppmops.ResubmitPPMShipmentDocumentationParams, ResubmitPPMShipmentDocumentationHandler) {
 		endpoint := fmt.Sprintf(
@@ -840,6 +840,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	}
 
 	suite.Run("Returns an error if the PPM shipment is not found", func() {
+		setupPPMData()
 		shipmentWithUnknownID := models.PPMShipment{
 			ID: uuid.Must(uuid.NewV4()),
 			SignedCertification: &models.SignedCertification{
@@ -863,6 +864,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Returns an error if the signed certification is not found", func() {
+		setupPPMData()
 		shipmentWithUnknownSignedCert := models.PPMShipment{
 			ID: shipmentNeedsResubmitted.ID,
 			SignedCertification: &models.SignedCertification{
@@ -886,6 +888,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Returns an error if the PPM shipment is not in the right status", func() {
+		setupPPMData()
 		params, handler := setUpParamsAndHandler(shipmentNeedsCloseout, needsCloseoutSM, &internalmessages.SavePPMShipmentSignedCertification{
 			CertificationText: handlers.FmtString("certification text"),
 			Signature:         handlers.FmtString("signature"),
@@ -909,6 +912,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Can successfully resubmit a PPM shipment for close out", func() {
+		setupPPMData()
 		newCertText := "new certification text"
 		newSignature := "new signature"
 		newSignDate := time.Now().AddDate(0, 0, 1)

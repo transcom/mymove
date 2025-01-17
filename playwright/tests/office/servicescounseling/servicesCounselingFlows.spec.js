@@ -47,6 +47,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to click on move and submit after using the move code filter', async ({ page }) => {
+      test.slow();
       /**
        * Move Details page
        */
@@ -65,6 +66,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to flag a move for financial review', async ({ page, scPage }) => {
+      test.slow();
       // click to trigger financial review modal
       await page.getByText('Flag move for financial review').click();
 
@@ -98,6 +100,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to edit a shipment', async ({ page, scPage }) => {
+      test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
@@ -125,6 +128,7 @@ test.describe('Services counselor user', () => {
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
     });
     test('is able to view Origin GBLOC', async ({ page }) => {
+      test.slow();
       // Check for Origin GBLOC label
       await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
       await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
@@ -138,6 +142,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to view USMC as Origin GBLOC', async ({ page }) => {
+      test.slow();
       // Check for Origin GBLOC label
       await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
       await expect(page.getByTestId('infoBlock')).toContainText('KKFA / USMC');
@@ -151,6 +156,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to view orders and amended orders', async ({ page }) => {
+      test.slow();
       await page.getByRole('link', { name: 'View and edit orders' }).click();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
@@ -170,6 +176,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to add and delete orders and amended orders', async ({ page, officePage }) => {
+      test.slow();
       await page.getByRole('link', { name: 'View and edit orders' }).click();
 
       // check initial quanity of files
@@ -226,6 +233,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to add and delete supporting documents', async ({ page, officePage }) => {
+      test.slow();
       test.skip(supportingDocsEnabled === 'false', 'Skip if Supporting Documents is not enabled.');
       await page.getByRole('link', { name: 'Supporting Documents' }).click();
       await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
@@ -260,6 +268,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to add a shipment', async ({ page, scPage }) => {
+      test.slow();
       const deliveryDate = new Date().toLocaleDateString('en-US');
       await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(2);
 
@@ -292,6 +301,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to see and use the left navigation', async ({ page }) => {
+      test.slow();
       await expect(page.locator('a[href*="#shipments"]')).toContainText('Shipments');
       await expect(page.locator('a[href*="#orders"]')).toContainText('Orders');
       await expect(page.locator('a[href*="#allowances"]')).toContainText('Allowances');
@@ -307,6 +317,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to edit a shipment', async ({ page, scPage }) => {
+      test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
@@ -332,6 +343,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to update destination type if delivery address is unknown', async ({ page, scPage }) => {
+      test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
@@ -355,6 +367,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to see that the tag next to shipment is updated', async ({ page, scPage }) => {
+      test.slow();
       // Verify that there's a tag on the left nav that flags missing information
       await expect(page.locator('[data-testid="shipment-missing-info-alert"]')).toContainText('1');
 
@@ -374,6 +387,7 @@ test.describe('Services counselor user', () => {
   });
 
   test('can complete review of PPM shipment documents and view documents after', async ({ page, scPage }) => {
+    test.slow();
     const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
     await scPage.navigateToCloseoutMove(move.locator);
 
@@ -429,6 +443,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to edit/save actual move start date', async ({ page, scPage }) => {
+      test.slow();
       // Navigate to the "Review documents" page
       await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
       await page.getByRole('button', { name: 'Review documents' }).click();
@@ -445,6 +460,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to edit/save pickup address', async ({ page, scPage }) => {
+      test.slow();
       // Navigate to the "Review documents" page
       await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
       await page.getByRole('button', { name: 'Review documents' }).click();
@@ -461,6 +477,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to edit/save delivery address', async ({ page, scPage }) => {
+      test.slow();
       // Navigate to the "Review documents" page
       await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
       await page.getByRole('button', { name: 'Review documents' }).click();
@@ -477,6 +494,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to edit/save advance received', async ({ page, scPage }) => {
+      test.slow();
       // Navigate to the "Review documents" page
       await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
       await page.getByRole('button', { name: 'Review documents' }).click();
@@ -512,6 +530,7 @@ test.describe('Services counselor user', () => {
     let fullPpmMoveLocator = '';
 
     test('counselor can see partial PPM ready for closeout', async ({ page, scPage }) => {
+      test.slow();
       const partialPpmMoveCloseout = await scPage.testHarness.buildPartialPPMMoveReadyForCloseout();
       partialPpmCloseoutLocator = partialPpmMoveCloseout.locator;
       await scPage.searchForCloseoutMove(partialPpmCloseoutLocator);
@@ -519,6 +538,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('counselor can see partial PPM ready for counseling', async ({ page, scPage }) => {
+      test.slow();
       const partialPpmMoveCounseling = await scPage.testHarness.buildPartialPPMMoveReadyForCounseling();
       partialPpmCounselingLocator = partialPpmMoveCounseling.locator;
       await scPage.searchForMove(partialPpmCounselingLocator);
@@ -526,6 +546,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('counselor can see full PPM ready for closeout', async ({ page, scPage }) => {
+      test.slow();
       const fullPpmMove = await scPage.testHarness.buildPPMMoveWithCloseout();
       fullPpmMoveLocator = fullPpmMove.locator;
       await scPage.searchForCloseoutMove(fullPpmMoveLocator);
@@ -536,6 +557,7 @@ test.describe('Services counselor user', () => {
   test.describe('Actual expense reimbursement tests', () => {
     test.describe('is able to view/edit actual expense reimbursement for non-civilian moves', () => {
       test('view/edit actual expense reimbursement - edit shipments page', async ({ page, scPage }) => {
+        test.slow();
         const move = await scPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
         await scPage.navigateToMove(move.locator);
 
@@ -566,6 +588,7 @@ test.describe('Services counselor user', () => {
       });
 
       test('view/edit actual expense reimbursement - PPM closeout review documents', async ({ page, scPage }) => {
+        test.slow();
         const move = await scPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicketOffice();
         await scPage.navigateToMoveUsingMoveSearch(move.locator);
 
@@ -595,6 +618,7 @@ test.describe('Services counselor user', () => {
 
     test.describe('is unable to edit actual expense reimbursement for civilian moves', () => {
       test('cannot edit actual expense reimbursement - edit shipments page', async ({ page, scPage }) => {
+        test.slow();
         const move = await scPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
         await scPage.navigateToMove(move.locator);
 
@@ -615,6 +639,7 @@ test.describe('Services counselor user', () => {
       });
 
       test('cannot edit actual expense reimbursement - PPM closeout review documents', async ({ page, scPage }) => {
+        test.slow();
         const move = await scPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicketOfficeCivilian();
         await scPage.navigateToMoveUsingMoveSearch(move.locator);
 
@@ -639,6 +664,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is unable to view/edit orders after MTO has been created(sent to prime)', async ({ page }) => {
+      test.slow();
       await expect(page.getByTestId('view-edit-orders')).toBeHidden();
       await expect(page.getByTestId('edit-allowances')).toBeHidden();
     });

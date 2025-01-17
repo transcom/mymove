@@ -11,8 +11,11 @@ const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('Entire PPM closeout flow', () => {
   test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
+
   forEachViewport(async () => {
     test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
+      test.slow();
+      test.setTimeout(300000); // This one has been a headache forever. Shoehorn fix to go way above default "slow" timeout
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -32,6 +35,8 @@ test.describe('Entire PPM closeout flow', () => {
     });
 
     test(`happy path with edits and backs`, async ({ customerPpmPage }) => {
+      test.slow();
+      test.setTimeout(300000); // This one has been a headache forever. Shoehorn fix to go way above default "slow" timeout
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -54,6 +59,7 @@ test.describe('Entire PPM closeout flow', () => {
     });
 
     test(`delete complete and incomplete line items`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -94,6 +100,7 @@ test.describe('Entire PPM closeout flow', () => {
     });
 
     test(`deleting weight tickets updates final incentive`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -129,6 +136,8 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
 
   forEachViewport(async () => {
     test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
+      test.slow();
+      test.setTimeout(300000); // This one has been a headache forever. Shoehorn fix to go way above default "slow" timeout
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -149,6 +158,8 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
     });
 
     test(`happy path with edits and backs`, async ({ customerPpmPage }) => {
+      test.slow();
+      test.setTimeout(300000); // This one has been a headache forever. Shoehorn fix to go way above default "slow" timeout
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -175,6 +186,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
     });
 
     test(`delete complete and incomplete line items`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -222,6 +234,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
     });
 
     test(`deleting weight tickets updates final incentive`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);

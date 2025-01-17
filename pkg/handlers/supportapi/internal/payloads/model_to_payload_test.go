@@ -6,22 +6,36 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/services/entitlements"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-func TestOrder(_ *testing.T) {
-	order := &models.Order{}
-	Order(order)
+// HandlerSuite is an abstraction of our original suite
+type PayloadsSuite struct {
+	handlers.BaseHandlerTestSuite
 }
 
-func TestEntitlement(t *testing.T) {
+// TestHandlerSuite creates our test suite
+func TestHandlerSuite(t *testing.T) {
+	hs := &PayloadsSuite{
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("milmovelocal"), testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction()),
+	}
 
-	t.Run("Success - Returns the entitlement payload with only required fields", func(t *testing.T) {
+	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
+}
+
+func (suite *PayloadsSuite) TestEntitlement() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+	suite.Run("Success - Returns the entitlement payload with only required fields", func() {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           nil,
@@ -41,27 +55,27 @@ func TestEntitlement(t *testing.T) {
 
 		payload := Entitlement(&entitlement)
 
-		assert.Equal(t, strfmt.UUID(entitlement.ID.String()), payload.ID)
-		assert.Equal(t, int64(0), payload.RequiredMedicalEquipmentWeight)
-		assert.Equal(t, false, payload.OrganizationalClothingAndIndividualEquipment)
-		assert.Equal(t, int64(0), payload.ProGearWeight)
-		assert.Equal(t, int64(0), payload.ProGearWeightSpouse)
-		assert.NotEmpty(t, payload.ETag)
-		assert.Equal(t, etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
+		suite.Equal(strfmt.UUID(entitlement.ID.String()), payload.ID)
+		suite.Equal(int64(0), payload.RequiredMedicalEquipmentWeight)
+		suite.Equal(false, payload.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(int64(0), payload.ProGearWeight)
+		suite.Equal(int64(0), payload.ProGearWeightSpouse)
+		suite.NotEmpty(payload.ETag)
+		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
 
-		assert.Nil(t, payload.AuthorizedWeight)
-		assert.Nil(t, payload.DependentsAuthorized)
-		assert.Nil(t, payload.NonTemporaryStorage)
-		assert.Nil(t, payload.PrivatelyOwnedVehicle)
+		suite.Nil(payload.AuthorizedWeight)
+		suite.Nil(payload.DependentsAuthorized)
+		suite.Nil(payload.NonTemporaryStorage)
+		suite.Nil(payload.PrivatelyOwnedVehicle)
 
 		/* These fields are defaulting to zero if they are nil in the model */
-		assert.Equal(t, int64(0), payload.StorageInTransit)
-		assert.Equal(t, int64(0), payload.TotalDependents)
-		assert.Equal(t, int64(0), payload.TotalWeight)
-		assert.Equal(t, int64(0), *payload.UnaccompaniedBaggageAllowance)
+		suite.Equal(int64(0), payload.StorageInTransit)
+		suite.Equal(int64(0), payload.TotalDependents)
+		suite.Equal(int64(0), payload.TotalWeight)
+		suite.Equal(int64(0), *payload.UnaccompaniedBaggageAllowance)
 	})
 
-	t.Run("Success - Returns the entitlement payload with all optional fields populated", func(t *testing.T) {
+	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           handlers.FmtBool(true),
@@ -81,28 +95,30 @@ func TestEntitlement(t *testing.T) {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 
 		payload := Entitlement(&entitlement)
 
-		assert.Equal(t, strfmt.UUID(entitlement.ID.String()), payload.ID)
-		assert.True(t, *payload.DependentsAuthorized)
-		assert.Equal(t, int64(2), payload.TotalDependents)
-		assert.True(t, *payload.NonTemporaryStorage)
-		assert.True(t, *payload.PrivatelyOwnedVehicle)
-		assert.Equal(t, int64(10000), *payload.AuthorizedWeight)
-		assert.Equal(t, int64(400), *payload.UnaccompaniedBaggageAllowance)
-		assert.Equal(t, int64(9000), payload.TotalWeight)
-		assert.Equal(t, int64(45), payload.StorageInTransit)
-		assert.Equal(t, int64(500), payload.RequiredMedicalEquipmentWeight)
-		assert.Equal(t, true, payload.OrganizationalClothingAndIndividualEquipment)
-		assert.Equal(t, int64(1000), payload.ProGearWeight)
-		assert.Equal(t, int64(750), payload.ProGearWeightSpouse)
-		assert.NotEmpty(t, payload.ETag)
-		assert.Equal(t, etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
+		suite.Equal(strfmt.UUID(entitlement.ID.String()), payload.ID)
+		suite.True(*payload.DependentsAuthorized)
+		suite.Equal(int64(2), payload.TotalDependents)
+		suite.True(*payload.NonTemporaryStorage)
+		suite.True(*payload.PrivatelyOwnedVehicle)
+		suite.Equal(int64(10000), *payload.AuthorizedWeight)
+		suite.Equal(int64(400), *payload.UnaccompaniedBaggageAllowance)
+		suite.Equal(int64(9000), payload.TotalWeight)
+		suite.Equal(int64(45), payload.StorageInTransit)
+		suite.Equal(int64(500), payload.RequiredMedicalEquipmentWeight)
+		suite.Equal(true, payload.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(int64(1000), payload.ProGearWeight)
+		suite.Equal(int64(750), payload.ProGearWeightSpouse)
+		suite.NotEmpty(payload.ETag)
+		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
 	})
 
-	t.Run("Success - Returns the entitlement payload with total weight self when dependents are not authorized", func(t *testing.T) {
+	suite.Run("Success - Returns the entitlement payload with total weight self when dependents are not authorized", func() {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           handlers.FmtBool(false),
@@ -122,24 +138,26 @@ func TestEntitlement(t *testing.T) {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 
 		payload := Entitlement(&entitlement)
 
-		assert.Equal(t, strfmt.UUID(entitlement.ID.String()), payload.ID)
-		assert.False(t, *payload.DependentsAuthorized)
-		assert.Equal(t, int64(2), payload.TotalDependents)
-		assert.True(t, *payload.NonTemporaryStorage)
-		assert.True(t, *payload.PrivatelyOwnedVehicle)
-		assert.Equal(t, int64(10000), *payload.AuthorizedWeight)
-		assert.Equal(t, int64(400), *payload.UnaccompaniedBaggageAllowance)
-		assert.Equal(t, int64(7000), payload.TotalWeight)
-		assert.Equal(t, int64(45), payload.StorageInTransit)
-		assert.Equal(t, int64(500), payload.RequiredMedicalEquipmentWeight)
-		assert.Equal(t, true, payload.OrganizationalClothingAndIndividualEquipment)
-		assert.Equal(t, int64(1000), payload.ProGearWeight)
-		assert.Equal(t, int64(750), payload.ProGearWeightSpouse)
-		assert.NotEmpty(t, payload.ETag)
-		assert.Equal(t, etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
+		suite.Equal(strfmt.UUID(entitlement.ID.String()), payload.ID)
+		suite.False(*payload.DependentsAuthorized)
+		suite.Equal(int64(2), payload.TotalDependents)
+		suite.True(*payload.NonTemporaryStorage)
+		suite.True(*payload.PrivatelyOwnedVehicle)
+		suite.Equal(int64(10000), *payload.AuthorizedWeight)
+		suite.Equal(int64(400), *payload.UnaccompaniedBaggageAllowance)
+		suite.Equal(int64(7000), payload.TotalWeight)
+		suite.Equal(int64(45), payload.StorageInTransit)
+		suite.Equal(int64(500), payload.RequiredMedicalEquipmentWeight)
+		suite.Equal(true, payload.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(int64(1000), payload.ProGearWeight)
+		suite.Equal(int64(750), payload.ProGearWeightSpouse)
+		suite.NotEmpty(payload.ETag)
+		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
 	})
 }

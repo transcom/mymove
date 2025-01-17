@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -10,12 +11,13 @@ import (
 
 // ApplicationParameters is a model representing application parameters and holds parameter values and parameter names stored in the database
 type ApplicationParameters struct {
-	ID             uuid.UUID `json:"id" db:"id"`
-	ValidationCode *string   `json:"validation_code" db:"validation_code"`
-	ParameterName  *string   `json:"parameter_name" db:"parameter_name"`
-	ParameterValue *string   `json:"parameter_value" db:"parameter_value"`
-	CreatedAt      time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
+	ID             uuid.UUID        `json:"id" db:"id"`
+	ValidationCode *string          `json:"validation_code" db:"validation_code"`
+	ParameterName  *string          `json:"parameter_name" db:"parameter_name"`
+	ParameterValue *string          `json:"parameter_value" db:"parameter_value"`
+	ParameterJson  *json.RawMessage `json:"parameter_json" db:"parameter_json"`
+	CreatedAt      time.Time        `json:"created_at" db:"created_at"`
+	UpdatedAt      time.Time        `json:"updated_at" db:"updated_at"`
 }
 
 func (a ApplicationParameters) TableName() string {
