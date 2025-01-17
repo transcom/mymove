@@ -4,6 +4,16 @@ import (
 	"testing"
 )
 
+func TestMillicents_Int64(t *testing.T) {
+	millicents := Millicents(250000)
+	result := millicents.Int64()
+
+	expected := int64(250000)
+	if result != expected {
+		t.Errorf("wrong number of Millicents: expected %v, got %v", expected, result)
+	}
+}
+
 func TestMillicents_Float64(t *testing.T) {
 	millicents := Millicents(250000)
 	result := millicents.Float64()
