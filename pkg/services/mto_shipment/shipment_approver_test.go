@@ -757,7 +757,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 				Model: models.MTOShipment{
 					Status:             models.MTOShipmentStatusSubmitted,
 					UsesExternalVendor: true,
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 				},
 			},
 		}, nil)
@@ -813,7 +813,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		// 2. The shipment must already have the following fields present:
 		// MTOShipmentTypeHHG: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, DestinationAddress
 		// MTOShipmentTypeHHGIntoNTS: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, StorageFacility
-		// MTOShipmentTypeHHGOutOfNTSDom: ScheduledPickupDate, NTSRecordedWeight, StorageFacility, DestinationAddress
+		// MTOShipmentTypeHHGOutOfNTS: ScheduledPickupDate, NTSRecordedWeight, StorageFacility, DestinationAddress
 		// 3. The shipment must not already have a Required Delivery Date
 		// Note that MakeMTOShipment will automatically add a Required Delivery Date if the ScheduledPickupDate
 		// is present, therefore we need to use MakeMTOShipmentMinimal and add the Pickup and Destination addresses
@@ -879,7 +879,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:        models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
 					ScheduledPickupDate: &testdatagen.DateInsidePeakRateCycle,
 					NTSRecordedWeight:   &estimatedWeight,
 					Status:              models.MTOShipmentStatusSubmitted,

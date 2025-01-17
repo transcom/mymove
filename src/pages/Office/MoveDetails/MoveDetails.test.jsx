@@ -677,7 +677,7 @@ const requestedMoveDetailsMissingInfoQuery = {
       },
       requestedPickupDate: '2018-03-15',
       scheduledPickupDate: '2018-03-16',
-      shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+      shipmentType: 'HHG_OUTOF_NTS',
       status: 'SUBMITTED',
       updatedAt: '2020-06-10T15:58:02.404031Z',
     },
