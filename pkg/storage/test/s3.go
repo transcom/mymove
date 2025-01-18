@@ -18,6 +18,7 @@ type FakeS3Storage struct {
 	willSucceed bool
 	fs          *afero.Afero
 	tempFs      *afero.Afero
+	EmptyTags   bool
 }
 
 // Delete removes a file.
@@ -95,7 +96,12 @@ func (fake *FakeS3Storage) TempFileSystem() *afero.Afero {
 // Tags returns the tags for a specified key
 func (fake *FakeS3Storage) Tags(_ string) (map[string]string, error) {
 	tags := map[string]string{
-		"tagName": "tagValue",
+		"tagName":   "tagValue",
+		"av-status": "CLEAN", // Assume anti-virus run
+	}
+	if fake.EmptyTags {
+		tags = map[string]string{}
+		fake.EmptyTags = false
 	}
 	return tags, nil
 }
