@@ -15,6 +15,10 @@ const LoggedOutHeader = ({ app }) => {
     navigate(generalRoutes.REQUEST_ACCOUNT);
   };
 
+  const handleSignUp = () => {
+    navigate(generalRoutes.SIGN_UP_PATH);
+  };
+
   return (
     <>
       <ConnectedEulaModal
@@ -27,6 +31,7 @@ const LoggedOutHeader = ({ app }) => {
       <MilMoveHeader>
         <LoggedOutUserInfo
           handleLogin={() => setShowEula(true)}
+          handleSignUp={() => handleSignUp()}
           handleRequestAccount={() => handleRequestAccount()}
           app={app}
         />

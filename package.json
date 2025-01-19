@@ -55,6 +55,7 @@
     "react-filepond": "^7.1.2",
     "react-idle-timer": "^5.7.2",
     "react-imask": "^7.6.1",
+    "react-loader-spinner": "^6.1.6",
     "react-markdown": "^8.0.7",
     "react-query": "^3.39.2",
     "react-rangeslider": "^2.2.0",

@@ -1,0 +1,34 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+.center {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    text-align: center;
+  }
+
+.styledLine {
+    width: 75%;
+    height: 2px;
+    background-color: $base-dark;
+    margin: 30px auto;
+    border-radius: 1px;
+}
+
+// .formContainer {
+//     width: 40vw;
+// }
+
+.noTopMargin {
+    @media (max-width: $tablet) {
+        margin-top: 0;
+    }
+}
+
+.buttonRow {
+    @include u-display('flex');
+    @include u-margin-y(3);
+}

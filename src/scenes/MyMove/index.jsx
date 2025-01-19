@@ -61,6 +61,7 @@ import OktaErrorBanner from 'components/OktaErrorBanner/OktaErrorBanner';
 import MaintenancePage from 'pages/Maintenance/MaintenancePage';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
+const SignUp = lazy(() => import('pages/SignUp/SignUp'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
 const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
 const EditServiceInfo = lazy(() => import('pages/MyMove/Profile/EditServiceInfo'));
@@ -201,6 +202,7 @@ export class CustomerApp extends Component {
             {!userIsLoggedIn && (
               <Routes>
                 <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
+                <Route path={generalRoutes.SIGN_UP_PATH} element={<SignUp />} />
                 <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
                 <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
                 <Route
@@ -238,6 +240,7 @@ export class CustomerApp extends Component {
                   <Routes>
                     {/* no auth routes should still exist */}
                     <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
+                    <Route path={generalRoutes.SIGN_UP_PATH} element={<SignUp />} />
                     <Route path={generalRoutes.MULTI_MOVES_LANDING_PAGE} element={<MultiMovesLandingPage />} />
                     <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
                     <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
@@ -336,6 +339,7 @@ export class CustomerApp extends Component {
                   <Routes>
                     {/* no auth routes should still exist */}
                     <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
+                    <Route path={generalRoutes.SIGN_UP_PATH} element={<SignUp />} />
                     <Route path={generalRoutes.MULTI_MOVES_LANDING_PAGE} element={<MultiMovesLandingPage />} />
                     <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
                     <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />

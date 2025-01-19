@@ -20,6 +20,9 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
   const location = useLocation();
   const [showEula, setShowEula] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
+
   const navigate = useNavigate();
 
   const { error } = qs.parse(location.search);
@@ -40,7 +43,11 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
       <ConnectedEulaModal
         isOpen={showEula}
         acceptTerms={() => {
-          window.location.href = '/auth/okta';
+          if (isSigningIn) {
+            window.location.href = '/auth/okta';
+          } else if (isSigningUp) {
+            window.location.href = '/sign-up';
+          }
         }}
         closeModal={() => setShowEula(false)}
       />
@@ -65,6 +72,14 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
             <div>
               <Alert type="success" heading="You have signed out of MilMove">
                 Sign in again when you&apos;re ready to start a new session.
+              </Alert>
+            </div>
+          )}
+          {location.state && location.state.noValidCAC && (
+            <div>
+              <Alert type="error" heading="CAC Validation is required at first sign-in">
+                If you do not have a CAC do not request your account here. You must visit your nearest personal property
+                office and they will assist you with creating your MilMove account.
               </Alert>
             </div>
           )}
@@ -110,11 +125,31 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
                 aria-label="Sign In"
                 className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
                 data-testid="signin"
-                onClick={() => setShowEula(!showEula)}
+                onClick={() => {
+                  setIsSigningUp(false);
+                  setIsSigningIn(true);
+                  setShowEula(!showEula);
+                }}
                 type="button"
               >
                 Sign in
               </Button>
+
+              {siteName === 'my.move.mil' ? (
+                <Button
+                  aria-label="Sign Up"
+                  className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
+                  data-testid="signUp"
+                  onClick={() => {
+                    setIsSigningIn(false);
+                    setIsSigningUp(true);
+                    setShowEula(!showEula);
+                  }}
+                  type="button"
+                >
+                  Sign up
+                </Button>
+              ) : null}
 
               {showLocalDevLogin && (
                 <a className="usa-button" data-testid="devlocal-signin" href="/devlocal-auth/login">
