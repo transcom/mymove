@@ -492,9 +492,19 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 		return apperror.NewConflictError(orders.ID, "Invalid Order, must have NewDutyLocation")
 	}
 
-	destPostalCodeToGbloc, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), destinationDutyLocation.Address.PostalCode)
-	if gblocErr != nil {
-		return apperror.NewInvalidInputError(destinationDutyLocation.ID, gblocErr, nil, "unable to determine GBLOC for duty location postal code")
+	var destPostalCodeToGbloc *string
+	if *destinationDutyLocation.Address.IsOconus {
+		destPostalCodeToGblocOconus, gblocErr := models.FetchAddressGbloc(appCtx.DB(), destinationDutyLocation.Address, orders.ServiceMember)
+		if gblocErr != nil {
+			return apperror.NewInvalidInputError(destinationDutyLocation.ID, gblocErr, nil, "unable to determine GBLOC for Oconus duty location postal code")
+		}
+		destPostalCodeToGbloc = destPostalCodeToGblocOconus
+	} else {
+		ddestPostalCodeToGblocConus, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), destinationDutyLocation.Address.PostalCode)
+		if gblocErr != nil {
+			return apperror.NewInvalidInputError(destinationDutyLocation.ID, gblocErr, nil, "unable to determine GBLOC for duty location postal code")
+		}
+		destPostalCodeToGbloc = &ddestPostalCodeToGblocConus.GBLOC
 	}
 
 	// destination name
@@ -502,7 +512,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 		EntityIdentifierCode:        "ST",
 		Name:                        truncateStr(destinationDutyLocation.Name, maxLocationlength),
 		IdentificationCodeQualifier: "10",
-		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, destPostalCodeToGbloc.GBLOC),
+		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, *destPostalCodeToGbloc),
 	}
 
 	// destination address
