@@ -2,9 +2,11 @@ package uploader
 
 import (
 	"io"
+	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -55,6 +57,15 @@ func CreateUserUploadForDocumentWrapper(
 		return nil, "", verrs, err
 	}
 
+	if storer.StorageType() == "S3" {
+		// If the file storer is S3 then wait for AV to complete
+		s3Key := newUserUpload.Upload.StorageKey
+		pollErr := waitForAVScanToComplete(appCtx, storer, s3Key)
+		if pollErr != nil {
+			return nil, "", &validate.Errors{}, pollErr
+		}
+	}
+
 	url, err := userUploader.PresignedURL(appCtx, newUserUpload)
 	if err != nil {
 		appCtx.Logger().Error("failed to get presigned url", zap.Error(err))
@@ -62,4 +73,57 @@ func CreateUserUploadForDocumentWrapper(
 	}
 
 	return newUserUpload, url, &validate.Errors{}, err
+}
+
+// This is a blocking poller that will not consider the upload as "complete" until the anti virus has scanned it.
+// This function should only be called in AWS environments, and is not a great permanent solution.
+func waitForAVScanToComplete(
+	appCtx appcontext.AppContext,
+	storer storage.FileStorer,
+	s3Key string,
+) error {
+	maxWait := 2 * time.Minute
+	pollInterval := 5 * time.Second
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+
+	timer := time.NewTimer(maxWait)
+	defer timer.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			tags, err := storer.Tags(s3Key)
+			if err != nil {
+				appCtx.Logger().Error("Failed to get S3 object tags", zap.Error(err))
+				return err
+			}
+
+			status, ok := tags["av-status"]
+			if !ok {
+				// Bleh, keep looping AV isn't done yet
+				status = "SCANNING"
+			}
+
+			switch status {
+			case "CLEAN":
+				// Pack it up, we're done here
+				return nil
+
+			case "INFECTED":
+				err := errors.New("S3 object is infected")
+				appCtx.Logger().Error("Uploaded S3 object is infected",
+					zap.String("path", s3Key),
+					zap.Error(err),
+				)
+				return err
+			}
+
+		case <-timer.C:
+			// Timed out
+			errMsg := "timed out waiting for AV scan"
+			appCtx.Logger().Error(errMsg, zap.String("s3Key", s3Key))
+			return errors.New(errMsg)
+		}
+	}
 }
