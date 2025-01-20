@@ -479,7 +479,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	}
 
 	// Notification Receiver
-	notificationReceiver, err := notifications.InitReceiver(v, appCtx.Logger(), true)
+	notificationReceiver, err := notifications.InitReceiver(v, appCtx.Logger(), false)
 	if err != nil {
 		appCtx.Logger().Fatal("notification receiver not enabled", zap.Error(err))
 	}
