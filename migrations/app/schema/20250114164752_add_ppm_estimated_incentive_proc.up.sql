@@ -22,9 +22,15 @@ INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,u
 DELETE FROM service_params
 WHERE service_item_param_key_id = '6d44624c-b91b-4226-8fcd-98046e2f433d';
 
+DELETE FROM service_item_param_keys
+WHERE key = 'PriceAreaIntlOrigin';
+
 -- remove PriceAreaIntlDest, we don't need it
 DELETE FROM service_params
 WHERE service_item_param_key_id = '4736f489-dfda-4df1-a303-8c434a120d5d';
+
+DELETE FROM service_item_param_keys
+WHERE key = 'PriceAreaIntlDest';
 
 -- func to fetch a service id from re_services by providing the service code
 CREATE OR REPLACE FUNCTION get_service_id(service_code TEXT) RETURNS UUID AS $$

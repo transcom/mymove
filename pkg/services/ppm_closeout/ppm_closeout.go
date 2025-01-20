@@ -255,53 +255,6 @@ func (p *ppmCloseoutFetcher) GetExpenseStoragePrice(appCtx appcontext.AppContext
 	return storageExpensePrice, err
 }
 
-func (p *ppmCloseoutFetcher) GetEntitlement(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.Entitlement, error) {
-	var moveModel models.Move
-	err := appCtx.DB().EagerPreload(
-		"OrdersID",
-	).Find(&moveModel, moveID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(moveID, "while looking for Move")
-		default:
-			return nil, apperror.NewQueryError("Move", err, "unable to find Move")
-		}
-	}
-
-	var order models.Order
-	orderID := &moveModel.OrdersID
-	errOrder := appCtx.DB().EagerPreload(
-		"EntitlementID",
-	).Find(&order, orderID)
-
-	if errOrder != nil {
-		switch errOrder {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(*orderID, "while looking for Order")
-		default:
-			return nil, apperror.NewQueryError("Order", errOrder, "unable to find Order")
-		}
-	}
-
-	var entitlement models.Entitlement
-	entitlementID := order.EntitlementID
-	errEntitlement := appCtx.DB().EagerPreload(
-		"DBAuthorizedWeight",
-	).Find(&entitlement, entitlementID)
-
-	if errEntitlement != nil {
-		switch errEntitlement {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(*entitlementID, "while looking for Entitlement")
-		default:
-			return nil, apperror.NewQueryError("Entitlement", errEntitlement, "unable to find Entitlement")
-		}
-	}
-	return &entitlement, nil
-}
-
 func paramsForServiceCode(code models.ReServiceCode, serviceParams models.ServiceParams) models.ServiceParams {
 	var serviceItemParams models.ServiceParams
 	for _, serviceParam := range serviceParams {
@@ -318,17 +271,12 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	var returnPriceObj serviceItemPrices
 	logger := appCtx.Logger()
 
-	err := appCtx.DB().Where("mto_shipment_id = ?", ppmShipment.ShipmentID).All(&serviceItemsToPrice)
-	if err != nil {
-		return serviceItemPrices{}, err
-	}
-
 	isInternationalShipment := ppmShipment.Shipment.MarketCode == models.MarketCodeInternational
 	serviceItemsToPrice = ppmshipment.BaseServiceItems(ppmShipment)
 
 	actualPickupPostal := *ppmShipment.ActualPickupPostalCode
 	actualDestPostal := *ppmShipment.ActualDestinationPostalCode
-	// Change DLH to DSH if move within same Zip3
+	// Change DLH to DSH if move within same Zip3 (only for domestic shipments - intl uses ISLH)
 	if !isInternationalShipment && actualPickupPostal[0:3] == actualDestPostal[0:3] {
 		serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
 	}
@@ -342,10 +290,12 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	if paramErr != nil {
 		return serviceItemPrices{}, paramErr
 	}
+
 	var totalPrice, packPrice, unpackPrice, destinationPrice, originPrice, haulPrice, haulFSC, intlPackPrice, intlUnpackPrice, intlLinehaulPrice unit.Cents
 	var totalWeight unit.Pound
 	var ppmToMtoShipment models.MTOShipment
 
+	// adding all the weight tickets together to get the total weight of the moved PPM
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
 			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
@@ -380,6 +330,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		return serviceItemPrices{}, err
 	}
 
+	// combo of domestic & int'l service items
 	validCodes := map[models.ReServiceCode]string{
 		models.ReServiceCodeDPK:   "DPK",
 		models.ReServiceCodeDUPK:  "DUPK",
@@ -462,11 +413,11 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		totalPrice = totalPrice.AddCents(centsValue)
 
 		switch serviceItem.ReService.Code {
-		case models.ReServiceCodeIHPK:
+		case models.ReServiceCodeIHPK: // Int'l pack
 			intlPackPrice += centsValue
-		case models.ReServiceCodeIHUPK:
+		case models.ReServiceCodeIHUPK: // Int'l unpack
 			intlUnpackPrice += centsValue
-		case models.ReServiceCodeISLH:
+		case models.ReServiceCodeISLH: // Int'l shipping & linehaul
 			intlLinehaulPrice += centsValue
 		case models.ReServiceCodeDPK:
 			packPrice += centsValue

@@ -324,7 +324,7 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 	return &ppmShipment, nil
 }
 
-type PPMIncentive struct {
+type PPMIncentiveOCONUS struct {
 	TotalIncentive int `db:"total_incentive"`
 	PriceISLH      int `db:"price_islh"`
 	PriceIHPK      int `db:"price_ihpk"`
@@ -334,8 +334,8 @@ type PPMIncentive struct {
 
 // a db function that will handle updating the estimated_incentive value
 // this simulates pricing of a basic iHHG shipment with ISLH, IHPK, IHUPK, and the CONUS portion for a FSC
-func CalculatePPMIncentive(db *pop.Connection, ppmID uuid.UUID, pickupAddressID uuid.UUID, destAddressID uuid.UUID, moveDate time.Time, mileage int, weight int, isEstimated bool, isActual bool, isMax bool) (*PPMIncentive, error) {
-	var incentive PPMIncentive
+func CalculatePPMIncentive(db *pop.Connection, ppmID uuid.UUID, pickupAddressID uuid.UUID, destAddressID uuid.UUID, moveDate time.Time, mileage int, weight int, isEstimated bool, isActual bool, isMax bool) (*PPMIncentiveOCONUS, error) {
+	var incentive PPMIncentiveOCONUS
 
 	err := db.RawQuery("SELECT * FROM calculate_ppm_incentive($1, $2, $3, $4, $5, $6, $7, $8, $9)", ppmID, pickupAddressID, destAddressID, moveDate, mileage, weight, isEstimated, isActual, isMax).
 		First(&incentive)

@@ -257,7 +257,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 			newPPMShipment.HasRequestedAdvance = nil
 			newPPMShipment.AdvanceAmountRequested = nil
 
-			estimatedIncentive, err = f.calculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newPPMShipment.EstimatedWeight.Int(), false, false, true)
+			estimatedIncentive, err = f.CalculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newPPMShipment.EstimatedWeight.Int(), false, false, true)
 			if err != nil {
 				return nil, nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 			}
@@ -274,7 +274,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 				return estimatedIncentive, estimatedSITCost, nil
 			}
 			daysInSIT := additionalDaysInSIT(*newPPMShipment.SITEstimatedEntryDate, *newPPMShipment.SITEstimatedDepartureDate)
-			estimatedSITCost, err = f.calculateOCONUSSITCosts(appCtx, newPPMShipment.ID, sitAddress.ID, isOrigin, contractDate, newPPMShipment.EstimatedWeight.Int(), daysInSIT)
+			estimatedSITCost, err = f.CalculateOCONUSSITCosts(appCtx, newPPMShipment.ID, sitAddress.ID, isOrigin, contractDate, newPPMShipment.EstimatedWeight.Int(), daysInSIT)
 			if err != nil {
 				return nil, nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 			}
@@ -330,7 +330,7 @@ func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment 
 		pickupAddress := orders.OriginDutyLocation.Address
 		destinationAddress := orders.NewDutyLocation.Address
 
-		maxIncentive, err := f.calculateOCONUSIncentive(appCtx, newPPMShipment.ID, pickupAddress, destinationAddress, contractDate, *orders.Entitlement.DBAuthorizedWeight, false, false, true)
+		maxIncentive, err := f.CalculateOCONUSIncentive(appCtx, newPPMShipment.ID, pickupAddress, destinationAddress, contractDate, *orders.Entitlement.DBAuthorizedWeight, false, false, true)
 		if err != nil {
 			return nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 		}
@@ -395,7 +395,7 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 
 		// we can't calculate actual incentive without the weight
 		if newTotalWeight != 0 {
-			finalIncentive, err := f.calculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newTotalWeight.Int(), false, true, false)
+			finalIncentive, err := f.CalculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newTotalWeight.Int(), false, true, false)
 			if err != nil {
 				return nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 			}
@@ -767,7 +767,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 // function for calculating incentives for OCONUS PPM shipments
 // this uses a db function that takes in values needed to come up with the estimated/actual/max incentives
 // this simulates the reimbursement for an iHHG move with ISLH, IHPK, IHUPK, and CONUS portion of FSC
-func (f *estimatePPM) calculateOCONUSIncentive(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, pickupAddress models.Address, destinationAddress models.Address, moveDate time.Time, weight int, isEstimated bool, isActual bool, isMax bool) (*unit.Cents, error) {
+func (f *estimatePPM) CalculateOCONUSIncentive(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, pickupAddress models.Address, destinationAddress models.Address, moveDate time.Time, weight int, isEstimated bool, isActual bool, isMax bool) (*unit.Cents, error) {
 	var mileage int
 	ppmPort, err := models.FetchPortLocationByCode(appCtx.DB(), "3002") // Tacoma, WA port
 	if err != nil {
@@ -807,7 +807,7 @@ func (f *estimatePPM) calculateOCONUSIncentive(appCtx appcontext.AppContext, ppm
 	return (*unit.Cents)(&incentive.TotalIncentive), nil
 }
 
-func (f *estimatePPM) calculateOCONUSSITCosts(appCtx appcontext.AppContext, ppmID uuid.UUID, addressID uuid.UUID, isOrigin bool, moveDate time.Time, weight int, sitDays int) (*unit.Cents, error) {
+func (f *estimatePPM) CalculateOCONUSSITCosts(appCtx appcontext.AppContext, ppmID uuid.UUID, addressID uuid.UUID, isOrigin bool, moveDate time.Time, weight int, sitDays int) (*unit.Cents, error) {
 	if sitDays <= 0 {
 		return nil, fmt.Errorf("SIT days must be greater than zero")
 	}
