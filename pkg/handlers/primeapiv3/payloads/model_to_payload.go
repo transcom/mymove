@@ -317,10 +317,6 @@ func MTOAgent(mtoAgent *models.MTOAgent) *primev3messages.MTOAgent {
 		return nil
 	}
 
-	if mtoAgent.DeletedAt != nil {
-		return nil
-	}
-
 	return &primev3messages.MTOAgent{
 		AgentType:     primev3messages.MTOAgentType(mtoAgent.MTOAgentType),
 		FirstName:     mtoAgent.FirstName,
@@ -341,11 +337,13 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev3messages.MTOAgents {
 		return nil
 	}
 
-	agents := make(primev3messages.MTOAgents, len(*mtoAgents))
+	var agents primev3messages.MTOAgents
 
-	for i, m := range *mtoAgents {
-		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		agents[i] = MTOAgent(&copyOfM)
+	for _, m := range *mtoAgents {
+		if m.DeletedAt == nil {
+			copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+			agents = append(agents, MTOAgent(&copyOfM))
+		}
 	}
 
 	return &agents
