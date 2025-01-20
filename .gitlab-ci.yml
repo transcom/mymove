@@ -57,190 +57,190 @@ stages:
 - push_prd
 - deploy_prd
 
-#anchors
-#set safe directory and path
-.setup_milmove_env: &setup_milmove_env
-    - git config --global --add safe.directory /builds/milmove/mymove
-    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
-    - export REACT_APP_ERROR_LOGGING=otel
+.anchor_group:
+  #set safe directory and path
+  .setup_milmove_env: &setup_milmove_env
+      - git config --global --add safe.directory /builds/milmove/mymove
+      - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
+      - export REACT_APP_ERROR_LOGGING=otel
 
-.announce_failure: &announce_failure
-  #- if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
-  - echo $CI_COMMIT_BRANCH
-  - echo $CI_JOB_STATUS
-  - echo "Announcing broken branch in GitLab CI"
-  # fi
+  .announce_failure: &announce_failure
+    #- if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+    - echo $CI_COMMIT_BRANCH
+    - echo $CI_JOB_STATUS
+    - echo "Announcing broken branch in GitLab CI"
+    # fi
 
-.setup_tls_vars_dp3: &setup_tls_vars_dp3
-  - |
-    if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
-      export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
-      export TLS_CERT=$(eval echo \$${ENV}_DP3_CERT);
-      export TLS_KEY=$(eval echo \$${ENV}_DP3_KEY);
-      export TLS_CA=$(eval echo \$${ENV}_DP3_CA);
-    fi
-
-.setup_aws_vars_dp3: &setup_aws_vars_dp3
-  - |
-    if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
-      export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
-      export AWS_DEFAULT_REGION=$(eval echo \$${ENV}_REGION);
-      export AWS_ACCOUNT_ID=$(eval echo \$${ENV}_ACCOUNT_ID);
-      export AWS_ACCESS_KEY_ID=$(eval echo \$${ENV}_ACCESS_KEY_ID);
-      export AWS_SECRET_ACCESS_KEY=$(eval echo \$${ENV}_SECRET_ACCESS_KEY);
-    fi
-
-.setup_release_dp3: &setup_release_dp3
-  - |
-    if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
-      export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
-      export AWS_DEFAULT_REGION=$(eval echo \$${ENV}_REGION);
-      export AWS_ACCOUNT_ID=$(eval echo \$${ENV}_ACCOUNT_ID);
-      export ECR_REPOSITORY_URI=$(echo ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com)
-      export APP_DOCKER_FILE=Dockerfile.dp3
-      export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
-      export APP_ENVIRONMENT=$DP3_ENV
-    fi
-
-.setup_aws_vars_stg: &setup_aws_vars_stg
-  - export AWS_DEFAULT_REGION=$STG_REGION
-  - export AWS_ACCOUNT_ID=$STG_ACCOUNT_ID
-  - export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID
-  - export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY
-  - export SERVICE_RESERVATION_CPU=2048
-  - export SERVICE_RESERVATION_MEM=4096
-
-.setup_tls_vars_stg: &setup_tls_vars_stg
-  - export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT
-  - export TLS_KEY=$STG_MOVE_MIL_DOD_TLS_KEY
-  - export TLS_CA=$STG_MOVE_MIL_DOD_TLS_CA
-
-.setup_aws_vars_prd: &setup_aws_vars_prd
-  - export AWS_DEFAULT_REGION=$PRD_REGION
-  - export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID
-  - export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID
-  - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
-
-.setup_tls_vars_prd: &setup_tls_vars_prd
-  - export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT
-  - export TLS_KEY=$PRD_MOVE_MIL_DOD_TLS_KEY
-  - export TLS_CA=$PRD_MOVE_MIL_DOD_TLS_CA
-
-.setup_release_stg: &setup_release_stg
-  #if main
-  - export ECR_REPOSITORY_URI=${STG_ACCOUNT_ID}.dkr.ecr.${STG_REGION}.amazonaws.com
-  - export APP_DOCKER_FILE=Dockerfile.dp3
-  - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
-  #TODO: update demo to stg
-  - export APP_ENVIRONMENT=demo
-
-.setup_release_prd: &setup_release_prd
-  #build off prd variables
-  - export ECR_REPOSITORY_URI=${PRD_ACCOUNT_ID}.dkr.ecr.${PRD_REGION}.amazonaws.com
-  - export APP_DOCKER_FILE=Dockerfile.dp3
-  - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
-  #TODO: update exp to prod
-  - export APP_ENVIRONMENT=exp
-
-.kaniko_before_setup: &kaniko_before_setup
-  # prep login for kaniko
-  mkdir -p /kaniko/.docker
-  echo "Simulating Docker image build setup..."
-  echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
-
-.check_dp3: &check_dp3
-  - if: $DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo"
-
-.check_main: &check_main
-  - if: '$CI_COMMIT_BRANCH == "main"'
-
-.check_debug: &check_debug
-  - if: '$debug == "true"'
-
-.check_integration_ignore_branch: &check_integration_ignore_branch
-  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $INTEGRATION_IGNORE_BRANCH'
-
-.check_integration_mtls_ignore_branch: &check_integration_mtls_ignore_branch
-  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $INTEGRATION_MTLS_IGNORE_BRANCH'
-
-.check_client_ignore_branch: &check_client_ignore_branch
-  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $CLIENT_IGNORE_BRANCH'
-
-.check_server_ignore_branch: &check_server_ignore_branch
-  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $SERVER_IGNORE_BRANCH'
-
-
-.install_yarn: &install_yarn
-  - |
-    mkdir -p /builds/milmove/mymove/.cache
-    mkdir -p /builds/milmove/mymove/.cache/yarn
-    yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
-    scripts/check-generated-code yarn.lock
-    echo "yarn check dependencies"
-    ./scripts/rebuild-dependencies-without-binaries
-
-.yarn_cache: &yarn_cache
-    key:
-      files:
-        - yarn.lock
-    paths:
-      - .cache/yarn
-    policy: pull-push
-
-.go_cache: &go_cache
-    key:
-      files:
-        - go.sum
-    paths:
-      - $GOPATH/pkg/mod
-      - /builds/milmove/mymove/bin
-    policy: pull-push
-
-.setup_generic_app_env_variables: &setup_generic_app_env_variables
-  - |
-      export APPLICATION=app
-      export DB_PASSWORD=mysecretpassword
-      export DB_USER_LOW_PRIV=crud
-      export DB_PASSWORD_LOW_PRIV=mysecretpassword
-      export DB_USER=postgres
-      export DB_HOST=localhost
-      export DB_PORT=5432
-      export MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
-      export MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
-      export EIA_KEY=db2522a43820268a41a802a16ae9fd26
-
-.setup_devseed_env_variables: &setup_devseed_env_variables
-  - |
-      export DB_NAME=dev_db
-      export DB_NAME_DEV=dev_db
-      export ENVIRONMENT=development
-      export DOD_CA_PACKAGE=/builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
-
-.setup_server_env_variables: &setup_server_env_variables
+  .setup_tls_vars_dp3: &setup_tls_vars_dp3
     - |
-      echo "make server_test_build for app"
-      export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
-      export OKTA_CUST_CLIENT_ID=notrealkey
-      export OKTA_CUSTOMER_SECRET_KEY=notrealkey
-      export OKTA_OFFICE_SECRET_KEY=notrealkey1
-      export OKTA_ADMIN_SECRET_KEY=notrealkey2
-      export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
-      export GOTEST_PARALLEL=8
-      export DB_PORT_TEST=5433
-      export DB_NAME=test_db
-      export DB_NAME_TEST=test_db
-      export DTOD_USE_MOCK='true'
-      export ENV=test
-      export ENVIRONMENT=test
-      export SERVER_REPORT=1
-      export COVERAGE=1
-      export SERVE_API_INTERNAL='true'
-      export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
-      export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
-      export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
-      export OKTA_API_KEY=notrealapikey8675309
-      export OKTA_OFFICE_GROUP_ID=notrealgroupId
-      export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+      if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
+        export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
+        export TLS_CERT=$(eval echo \$${ENV}_DP3_CERT);
+        export TLS_KEY=$(eval echo \$${ENV}_DP3_KEY);
+        export TLS_CA=$(eval echo \$${ENV}_DP3_CA);
+      fi
+
+  .setup_aws_vars_dp3: &setup_aws_vars_dp3
+    - |
+      if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
+        export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
+        export AWS_DEFAULT_REGION=$(eval echo \$${ENV}_REGION);
+        export AWS_ACCOUNT_ID=$(eval echo \$${ENV}_ACCOUNT_ID);
+        export AWS_ACCESS_KEY_ID=$(eval echo \$${ENV}_ACCESS_KEY_ID);
+        export AWS_SECRET_ACCESS_KEY=$(eval echo \$${ENV}_SECRET_ACCESS_KEY);
+      fi
+
+  .setup_release_dp3: &setup_release_dp3
+    - |
+      if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
+        export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
+        export AWS_DEFAULT_REGION=$(eval echo \$${ENV}_REGION);
+        export AWS_ACCOUNT_ID=$(eval echo \$${ENV}_ACCOUNT_ID);
+        export ECR_REPOSITORY_URI=$(echo ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com)
+        export APP_DOCKER_FILE=Dockerfile.dp3
+        export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
+        export APP_ENVIRONMENT=$DP3_ENV
+      fi
+
+  .setup_aws_vars_stg: &setup_aws_vars_stg
+    - export AWS_DEFAULT_REGION=$STG_REGION
+    - export AWS_ACCOUNT_ID=$STG_ACCOUNT_ID
+    - export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID
+    - export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY
+    - export SERVICE_RESERVATION_CPU=2048
+    - export SERVICE_RESERVATION_MEM=4096
+
+  .setup_tls_vars_stg: &setup_tls_vars_stg
+    - export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT
+    - export TLS_KEY=$STG_MOVE_MIL_DOD_TLS_KEY
+    - export TLS_CA=$STG_MOVE_MIL_DOD_TLS_CA
+
+  .setup_aws_vars_prd: &setup_aws_vars_prd
+    - export AWS_DEFAULT_REGION=$PRD_REGION
+    - export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID
+    - export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID
+    - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
+
+  .setup_tls_vars_prd: &setup_tls_vars_prd
+    - export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT
+    - export TLS_KEY=$PRD_MOVE_MIL_DOD_TLS_KEY
+    - export TLS_CA=$PRD_MOVE_MIL_DOD_TLS_CA
+
+  .setup_release_stg: &setup_release_stg
+    #if main
+    - export ECR_REPOSITORY_URI=${STG_ACCOUNT_ID}.dkr.ecr.${STG_REGION}.amazonaws.com
+    - export APP_DOCKER_FILE=Dockerfile.dp3
+    - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
+    #TODO: update demo to stg
+    - export APP_ENVIRONMENT=demo
+
+  .setup_release_prd: &setup_release_prd
+    #build off prd variables
+    - export ECR_REPOSITORY_URI=${PRD_ACCOUNT_ID}.dkr.ecr.${PRD_REGION}.amazonaws.com
+    - export APP_DOCKER_FILE=Dockerfile.dp3
+    - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
+    #TODO: update exp to prod
+    - export APP_ENVIRONMENT=exp
+
+  .kaniko_before_setup: &kaniko_before_setup
+    # prep login for kaniko
+    mkdir -p /kaniko/.docker
+    echo "Simulating Docker image build setup..."
+    echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
+
+  .check_dp3: &check_dp3
+    - if: (($DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo") && $DP3_BRANCH == $CI_COMMIT_BRANCH)
+
+  .check_main: &check_main
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  .check_debug: &check_debug
+    - if: '$debug == "true"'
+
+  .check_integration_ignore_branch: &check_integration_ignore_branch
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $INTEGRATION_IGNORE_BRANCH'
+
+  .check_integration_mtls_ignore_branch: &check_integration_mtls_ignore_branch
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $INTEGRATION_MTLS_IGNORE_BRANCH'
+
+  .check_client_ignore_branch: &check_client_ignore_branch
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $CLIENT_IGNORE_BRANCH'
+
+  .check_server_ignore_branch: &check_server_ignore_branch
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $SERVER_IGNORE_BRANCH'
+
+
+  .install_yarn: &install_yarn
+    - |
+      mkdir -p /builds/milmove/mymove/.cache
+      mkdir -p /builds/milmove/mymove/.cache/yarn
+      yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
+      scripts/check-generated-code yarn.lock
+      echo "yarn check dependencies"
+      ./scripts/rebuild-dependencies-without-binaries
+
+  .yarn_cache: &yarn_cache
+      key:
+        files:
+          - yarn.lock
+      paths:
+        - .cache/yarn
+      policy: pull-push
+
+  .go_cache: &go_cache
+      key:
+        files:
+          - go.sum
+      paths:
+        - $GOPATH/pkg/mod
+        - /builds/milmove/mymove/bin
+      policy: pull-push
+
+  .setup_generic_app_env_variables: &setup_generic_app_env_variables
+    - |
+        export APPLICATION=app
+        export DB_PASSWORD=mysecretpassword
+        export DB_USER_LOW_PRIV=crud
+        export DB_PASSWORD_LOW_PRIV=mysecretpassword
+        export DB_USER=postgres
+        export DB_HOST=localhost
+        export DB_PORT=5432
+        export MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+        export MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+        export EIA_KEY=db2522a43820268a41a802a16ae9fd26
+
+  .setup_devseed_env_variables: &setup_devseed_env_variables
+    - |
+        export DB_NAME=dev_db
+        export DB_NAME_DEV=dev_db
+        export ENVIRONMENT=development
+        export DOD_CA_PACKAGE=/builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+
+  .setup_server_env_variables: &setup_server_env_variables
+      - |
+        echo "make server_test_build for app"
+        export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+        export OKTA_CUST_CLIENT_ID=notrealkey
+        export OKTA_CUSTOMER_SECRET_KEY=notrealkey
+        export OKTA_OFFICE_SECRET_KEY=notrealkey1
+        export OKTA_ADMIN_SECRET_KEY=notrealkey2
+        export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
+        export GOTEST_PARALLEL=8
+        export DB_PORT_TEST=5433
+        export DB_NAME=test_db
+        export DB_NAME_TEST=test_db
+        export DTOD_USE_MOCK='true'
+        export ENV=test
+        export ENVIRONMENT=test
+        export SERVER_REPORT=1
+        export COVERAGE=1
+        export SERVE_API_INTERNAL='true'
+        export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
+        export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
+        export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
+        export OKTA_API_KEY=notrealapikey8675309
+        export OKTA_OFFICE_GROUP_ID=notrealgroupId
+        export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
 
 sast:
   stage: pre_checks
