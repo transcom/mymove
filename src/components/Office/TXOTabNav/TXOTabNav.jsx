@@ -53,7 +53,7 @@ const TXOTabNav = ({
     moveTaskOrderTagCount += unapprovedServiceItemCount;
   }
   if (excessWeightRiskCount > 0) {
-    moveTaskOrderTagCount += 1;
+    moveTaskOrderTagCount += excessWeightRiskCount;
   }
   if (unapprovedSITExtensionCount > 0) {
     moveTaskOrderTagCount += unapprovedSITExtensionCount;

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -52,6 +53,9 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 	}
 	documentPayload := showResponse.Payload
 
+	// Double quote the filename to be able to handle filenames with commas in them
+	quotedFilename := strconv.Quote(userUpload.Upload.Filename)
+
 	// Validate outgoing payload
 	suite.NoError(documentPayload.Validate(strfmt.Default))
 
@@ -67,7 +71,74 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 	uploadPayload := documentPayload.Uploads[0]
 	values := url.Values{}
 	values.Add("response-content-type", uploader.FileTypePDF)
-	values.Add("response-content-disposition", "attachment; filename="+userUpload.Upload.Filename)
+	values.Add("response-content-disposition", "attachment; filename="+quotedFilename)
+	values.Add("signed", "test")
+	expectedURL := fmt.Sprintf("https://example.com/dir/%s?", userUpload.Upload.StorageKey) + values.Encode()
+	if (uploadPayload.URL).String() != expectedURL {
+		t.Errorf("wrong URL for upload, expected %s, got %s", expectedURL, uploadPayload.URL)
+	}
+}
+
+func (suite *HandlerSuite) TestGetDocumentHandlerForFilenamesWithCommas() {
+	t := suite.T()
+
+	userUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+		{
+			Model: models.Upload{
+				Filename: "FIRST, LAST - ISM AUTHORIZATION",
+			},
+		},
+	}, nil)
+
+	documentID := userUpload.DocumentID
+	var document models.Document
+
+	err := suite.DB().Eager("ServiceMember.User").Find(&document, documentID)
+	if err != nil {
+		suite.Fail("could not load document: %s", err)
+	}
+
+	params := documentop.NewGetDocumentParams()
+	params.DocumentID = strfmt.UUID(documentID.String())
+
+	req := &http.Request{}
+	req = suite.AuthenticateRequest(req, document.ServiceMember)
+	params.HTTPRequest = req
+
+	handlerConfig := suite.HandlerConfig()
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	handlerConfig.SetFileStorer(fakeS3)
+	handler := GetDocumentHandler{handlerConfig}
+
+	// Validate incoming payload: no body to validate
+
+	response := handler.Handle(params)
+
+	showResponse, ok := response.(*documentop.GetDocumentOK)
+	if !ok {
+		suite.Fail("Request failed: %#v", response)
+	}
+	documentPayload := showResponse.Payload
+
+	// Validate outgoing payload
+	suite.NoError(documentPayload.Validate(strfmt.Default))
+
+	responseDocumentUUID := documentPayload.ID.String()
+	if responseDocumentUUID != documentID.String() {
+		t.Errorf("wrong document uuid, expected %v, got %v", documentID, responseDocumentUUID)
+	}
+
+	if len(documentPayload.Uploads) != 1 {
+		t.Errorf("wrong number of uploads, expected 1, got %d", len(documentPayload.Uploads))
+	}
+
+	// Double quote the filename to be able to handle filenames with commas in them
+	quotedFilename := strconv.Quote(userUpload.Upload.Filename)
+
+	uploadPayload := documentPayload.Uploads[0]
+	values := url.Values{}
+	values.Add("response-content-type", uploader.FileTypePDF)
+	values.Add("response-content-disposition", "attachment; filename="+quotedFilename)
 	values.Add("signed", "test")
 	expectedURL := fmt.Sprintf("https://example.com/dir/%s?", userUpload.Upload.StorageKey) + values.Encode()
 	if (uploadPayload.URL).String() != expectedURL {
