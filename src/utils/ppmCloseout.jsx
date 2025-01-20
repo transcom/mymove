@@ -166,7 +166,10 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
 };
 
 export const calculateTotalMovingExpensesAmount = (movingExpenses = []) => {
+  const excludedExpenseStatuses = ['EXCLUDED', 'REJECTED']; //  EXCLUDED and REJECTED expenses aren't included in the total.
   return movingExpenses.reduce((prev, curr) => {
-    return curr.amount && !Number.isNaN(Number(curr.amount)) ? prev + curr.amount : prev;
+    return curr.amount && !Number.isNaN(Number(curr.amount)) && !excludedExpenseStatuses.includes(curr.status)
+      ? prev + curr.amount
+      : prev;
   }, 0);
 };
