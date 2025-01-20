@@ -62,6 +62,7 @@ func initProcessTPPSFlags(flag *pflag.FlagSet) {
 }
 
 func processTPPS(_ *cobra.Command, _ []string) error {
+
 	v := viper.New()
 
 	logger, _, err := logging.Config(
@@ -72,6 +73,9 @@ func processTPPS(_ *cobra.Command, _ []string) error {
 	if err != nil {
 		logger.Fatal("Failed to initialized Zap logging for process-tpps")
 	}
+
+	logger.Info("Reaching process_tpps.go line 78")
+
 	zap.ReplaceGlobals(logger)
 
 	startTime := time.Now()
@@ -147,7 +151,7 @@ func processTPPS(_ *cobra.Command, _ []string) error {
 		previousDay := yesterday.Format("20220702")
 		tppsFilename = fmt.Sprintf("MILMOVE-en%s.csv", previousDay)
 		previousDayFormatted := yesterday.Format("July 02, 2022")
-		appCtx.Logger().Info(fmt.Sprintf("Starting transfer of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
+		logger.Info(fmt.Sprintf("Starting transfer of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
 	} else {
 		// if customFilePathToProcess != MILMOVE-enYYYYMMDD.csv (meaning we have given an ACTUAL specific filename we want processed instead of placeholder MILMOVE-enYYYYMMDD.csv)
 		// then append customFilePathToProcess to the s3 bucket path and process that INSTEAD OF
