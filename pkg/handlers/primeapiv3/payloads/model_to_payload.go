@@ -1084,17 +1084,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primev3messages.MTOShipment {
 	return payload
 }
 
-// PostalCodeToRateArea converts postalCode into RateArea model to payload
-func PostalCodeToRateArea(postalCode *string, shipmentPostalCodeRateAreaMap map[string]services.ShipmentPostalCodeRateArea) *primev3messages.RateArea {
-	if postalCode == nil {
-		return nil
-	}
-	if ra, ok := shipmentPostalCodeRateAreaMap[*postalCode]; ok {
-		return &primev3messages.RateArea{ID: handlers.FmtUUID(ra.RateArea.ID), RateAreaID: &ra.RateArea.Code, RateAreaName: &ra.RateArea.Name}
-	}
-	return nil
-}
-
 // Takes the Port Location from the MTO Service item and sets it on the MTOShipmentsWithoutServiceObjects payload
 func setPortsOnShipments(mtoServiceItems *models.MTOServiceItems, mtoShipments *primev3messages.MTOShipmentsWithoutServiceObjects) {
 	shipmentPodMap := make(map[string]*models.PortLocation)
@@ -1136,4 +1125,15 @@ func Port(portLocation *models.PortLocation) *primev3messages.Port {
 		Zip:      portLocation.UsPostRegionCity.UsprZipID,
 		Country:  portLocation.Country.CountryName,
 	}
+}
+
+// PostalCodeToRateArea converts postalCode into RateArea model to payload
+func PostalCodeToRateArea(postalCode *string, shipmentPostalCodeRateAreaMap map[string]services.ShipmentPostalCodeRateArea) *primev3messages.RateArea {
+	if postalCode == nil {
+		return nil
+	}
+	if ra, ok := shipmentPostalCodeRateAreaMap[*postalCode]; ok {
+		return &primev3messages.RateArea{ID: handlers.FmtUUID(ra.RateArea.ID), RateAreaID: &ra.RateArea.Code, RateAreaName: &ra.RateArea.Name}
+	}
+	return nil
 }

@@ -23,6 +23,9 @@ COPY swagger/* /swagger/
 COPY build /build
 COPY public/static/react-file-viewer /public/static/react-file-viewer
 
+# Mount mutable tmp for app packages like pdfcpu
+VOLUME ["/tmp"]
+
 ENTRYPOINT ["/bin/milmove"]
 
 CMD ["serve", "--logging-level=debug"]

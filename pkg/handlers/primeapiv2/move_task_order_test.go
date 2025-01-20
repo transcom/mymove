@@ -237,7 +237,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					UsesExternalVendor: true,
 				},
 			},
@@ -433,7 +433,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 					Status:       models.MTOShipmentStatusApproved,
 				},
 			},
