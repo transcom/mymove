@@ -23,11 +23,11 @@ const ReviewAccountingCodesItem = ({ shipmentId, shipmentType, tac, sac, amount 
 //  Renders Move level services such as Move management (MS) and Counseling(CS) that not associated to a shipment.
 const ReviewMoveLevelServiceItems = ({ services }) => {
   return (
-    <div className={`${styles.Shipment}`}>
+    <div className={`${styles.MoveLevelServiceItems}`}>
       {services.map((item) => (
         <div key={item.id}>
-          <div className={styles.ShipmentAmount}>{toDollarString(item.amount)}</div>
-          <div className={styles.ShipmentType}>{item.mtoServiceItemName} Fee</div>
+          <div className={styles.MoveLevelServiceItemsAmount}>{toDollarString(item.amount)}</div>
+          <div className={styles.MoveLevelServiceItemsName}>{item.mtoServiceItemName} fee</div>
         </div>
       ))}
     </div>

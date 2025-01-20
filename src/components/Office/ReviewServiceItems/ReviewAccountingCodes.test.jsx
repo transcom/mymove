@@ -188,9 +188,9 @@ describe('components/Office/ReviewServiceItems/ReviewAccountingCodes', () => {
       );
 
       expect(screen.getByRole('heading', { level: 4, name: 'Accounting codes' })).toBeInTheDocument();
-      expect(screen.getByText('Move management Fee')).toBeInTheDocument();
+      expect(screen.getByText('Move management fee')).toBeInTheDocument();
       expect(screen.getByText('$44.33')).toBeInTheDocument();
-      expect(screen.getByText('Counseling Fee')).toBeInTheDocument();
+      expect(screen.getByText('Counseling fee')).toBeInTheDocument();
       expect(screen.getByText('$20.00')).toBeInTheDocument();
     });
 
@@ -239,9 +239,9 @@ describe('components/Office/ReviewServiceItems/ReviewAccountingCodes', () => {
       expect(within(secondShipment).getByText('TAC: 5678 (NTS)')).toBeInTheDocument();
       expect(within(secondShipment).getByText('SAC: AB12 (HHG)')).toBeInTheDocument();
       expect(within(secondShipment).getByText('$20.00')).toBeInTheDocument();
-      expect(screen.getByText('Move management Fee')).toBeInTheDocument();
+      expect(screen.getByText('Move management fee')).toBeInTheDocument();
       expect(screen.getByText('$44.33')).toBeInTheDocument();
-      expect(screen.getByText('Counseling Fee')).toBeInTheDocument();
+      expect(screen.getByText('Counseling fee')).toBeInTheDocument();
       expect(screen.getByText('$20.65')).toBeInTheDocument();
     });
   });
