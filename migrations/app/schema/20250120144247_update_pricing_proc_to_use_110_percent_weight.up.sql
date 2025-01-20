@@ -1,4 +1,4 @@
--- updating to use the shipment.requested_pickup_date value to refine search to get more accurate prices
+-- updating to multiply by 110% of prime estimated weight
 CREATE OR REPLACE PROCEDURE update_service_item_pricing(
     shipment_id UUID,
     mileage INT
