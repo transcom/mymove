@@ -203,8 +203,8 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 
 		//Shipment Types -- HHG, NTS, NTSR
 		hhg := models.MTOShipmentTypeHHG
-		nts := models.MTOShipmentTypeHHGIntoNTSDom
-		ntsR := models.MTOShipmentTypeHHGOutOfNTSDom
+		nts := models.MTOShipmentTypeHHGIntoNTS
+		ntsR := models.MTOShipmentTypeHHGOutOfNTS
 
 		//Destination Types -- PLEAD, HOR, HOS, OTHER
 		plead := models.DestinationTypePlaceEnteredActiveDuty
@@ -593,8 +593,8 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 
 		//shipment type
 		hhg := models.MTOShipmentTypeHHG
-		nts := models.MTOShipmentTypeHHGIntoNTSDom
-		ntsR := models.MTOShipmentTypeHHGOutOfNTSDom
+		nts := models.MTOShipmentTypeHHGIntoNTS
+		ntsR := models.MTOShipmentTypeHHGOutOfNTS
 
 		//orders type
 		retirement := internalmessages.OrdersTypeRETIREMENT
