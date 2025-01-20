@@ -317,6 +317,10 @@ func MTOAgent(mtoAgent *models.MTOAgent) *primev3messages.MTOAgent {
 		return nil
 	}
 
+	if mtoAgent.DeletedAt != nil {
+		return nil
+	}
+
 	return &primev3messages.MTOAgent{
 		AgentType:     primev3messages.MTOAgentType(mtoAgent.MTOAgentType),
 		FirstName:     mtoAgent.FirstName,
