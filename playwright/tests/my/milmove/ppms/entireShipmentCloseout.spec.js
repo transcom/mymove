@@ -9,6 +9,20 @@ import { test, forEachViewport } from './customerPpmTestFixture';
 
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
+async function waitForNetworkIdle(page, timeout = 1000, maxFailedAttempts = 3) {
+  let failedAttempts = 0;
+  while (failedAttempts < maxFailedAttempts) {
+    try {
+      await page.waitForTimeout(timeout);
+      await page.waitForRequest(() => true, { timeout: 100 }).catch(() => null);
+      return true; // If we reach this point, no requests were made for 'timeout' ms
+    } catch (error) {
+      failedAttempts += 1;
+    }
+  }
+  return false; // Network did not become idle
+}
+
 test.describe('Entire PPM closeout flow', () => {
   test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   test.afterEach(async ({ customerPpmPage }) => {
@@ -19,7 +33,7 @@ test.describe('Entire PPM closeout flow', () => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
 
       await customerPpmPage.signInForPPMWithMove(move);
-      await customerPpmPage.page.waitForLoadState('networkidle');
+      await expect(waitForNetworkIdle(customerPpmPage.page)).resolves.toBe(true);
       await customerPpmPage.navigateToAboutPage();
       await customerPpmPage.submitWeightTicketPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToProGearPage();
