@@ -75,8 +75,8 @@ describe('EvaluationReports', () => {
       const h1 = await screen.getByRole('heading', { name: 'Quality assurance reports', level: 1 });
       expect(h1).toBeInTheDocument();
 
-      expect(await screen.getByRole('heading', { name: 'Counseling QAE reports (0)', level: 2 })).toBeInTheDocument();
       expect(await screen.getByRole('heading', { name: 'Shipment QAE reports (0)', level: 2 })).toBeInTheDocument();
+      expect(await screen.getByRole('heading', { name: 'Counseling QAE reports (0)', level: 2 })).toBeInTheDocument();
     });
 
     it('create report button is disabled when move is locked', async () => {

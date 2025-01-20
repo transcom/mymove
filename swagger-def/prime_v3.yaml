@@ -128,7 +128,7 @@ paths:
                 value:
                   {
                     'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'shipmentType': 'HHG_OUTOF_NTS_DOMESTIC',
+                    'shipmentType': 'HHG_OUTOF_NTS',
                     'agents':
                       [
                         {
@@ -348,6 +348,8 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
+  MTOServiceItemInternationalFuelSurcharge: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalFuelSurcharge.yaml'
   CreateMTOShipment:
     type: object
     properties:
@@ -907,6 +909,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
+      portOfEmbarkation:
+        $ref: 'definitions/Port.yaml'
+      portOfDebarkation:
+        $ref: 'definitions/Port.yaml'
   UpdateMTOShipmentStatus:
     description: Contains the statuses available to the Prime when updating the state of a shipment.
     type: object

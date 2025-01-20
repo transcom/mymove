@@ -143,6 +143,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.PODLocation.Port",
+		"MTOServiceItems.POELocation.Port",
 		"MTOServiceItems.SITDestinationFinalAddress",
 		"MTOServiceItems.SITOriginHHGOriginalAddress",
 		"MTOServiceItems.SITOriginHHGActualAddress",
@@ -194,10 +196,12 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 	}
 
-	// Due to a bug in Pop for EagerPreload the New Address of the DeliveryAddressUpdate must be loaded manually.
+	// Due to a bug in Pop for EagerPreload the New Address of the DeliveryAddressUpdate and the PortLocation (City, Country, UsPostRegionCity.UsPostRegion.State") must be loaded manually.
 	// The bug occurs in EagerPreload when there are two or more eager paths with 3+ levels
 	// where the first 2 levels match.  For example:
 	//   "MTOShipments.DeliveryAddressUpdate.OriginalAddress" and "MTOShipments.DeliveryAddressUpdate.NewAddress"
+	//   "MTOServiceItems.PODLocation.Port", "MTOServiceItems.PODLocation.City, "MTOServiceItems.PODLocation.Country","MTOServiceItems.PODLocation.UsPostRegionCity.UsPostRegion.State""
+	//   "MTOServiceItems.POELocation.Port", "MTOServiceItems.POELocation.City, "MTOServiceItems.POELocation.Country","MTOServiceItems.POELocation.UsPostRegionCity.UsPostRegion.State""
 	// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
 	// in the EagerPreload above and request the second one explicitly with a separate Load call.
 	// For more, see: https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#associations-with-3-path-elements-where-the-first-2-path-elements-match
@@ -208,6 +212,21 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		loadErr := appCtx.DB().Load(mto.MTOShipments[i].DeliveryAddressUpdate, "NewAddress")
 		if loadErr != nil {
 			return &models.Move{}, apperror.NewQueryError("DeliveryAddressUpdate", loadErr, "")
+		}
+	}
+
+	for _, serviceItem := range mto.MTOServiceItems {
+		if serviceItem.PODLocation != nil {
+			loadErr := appCtx.DB().Load(serviceItem.PODLocation, "City", "Country", "UsPostRegionCity.UsPostRegion.State")
+			if loadErr != nil {
+				return &models.Move{}, apperror.NewQueryError("PODLocation", loadErr, "")
+			}
+		}
+		if serviceItem.POELocation != nil {
+			loadErr := appCtx.DB().Load(serviceItem.POELocation, "City", "Country", "UsPostRegionCity.UsPostRegion.State")
+			if loadErr != nil {
+				return &models.Move{}, apperror.NewQueryError("POELocation", loadErr, "")
+			}
 		}
 	}
 
@@ -257,6 +276,18 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			)
 			if loadErrMH != nil {
 				return &models.Move{}, apperror.NewQueryError("MobileHomeShipment", loadErrMH, "")
+			}
+		}
+		// we need to get the destination GBLOC associated with a shipment's destination address
+		// USMC always goes to the USMC GBLOC
+		if mto.MTOShipments[i].DestinationAddress != nil {
+			if *mto.Orders.ServiceMember.Affiliation == models.AffiliationMARINES {
+				mto.MTOShipments[i].DestinationAddress.DestinationGbloc = models.StringPointer("USMC")
+			} else {
+				mto.MTOShipments[i].DestinationAddress.DestinationGbloc, err = models.GetDestinationGblocForShipment(appCtx.DB(), mto.MTOShipments[i].ID)
+				if err != nil {
+					return &models.Move{}, apperror.NewQueryError("Error getting shipment GBLOC", err, "")
+				}
 			}
 		}
 		filteredShipments = append(filteredShipments, mto.MTOShipments[i])

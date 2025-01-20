@@ -36,6 +36,10 @@ type Address struct {
 	// Example: LOS ANGELES
 	County *string `json:"county,omitempty"`
 
+	// destination gbloc
+	// Pattern: ^[A-Z]{4}$
+	DestinationGbloc *string `json:"destinationGbloc,omitempty"`
+
 	// e tag
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
@@ -91,6 +95,10 @@ func (m *Address) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationGbloc(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -132,6 +140,18 @@ func (m *Address) validateCountry(formats strfmt.Registry) error {
 	}
 
 	if err := validate.Pattern("country", "body", *m.Country, `^[A-Z]{2}$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Address) validateDestinationGbloc(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationGbloc) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("destinationGbloc", "body", *m.DestinationGbloc, `^[A-Z]{4}$`); err != nil {
 		return err
 	}
 

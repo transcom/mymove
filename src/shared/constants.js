@@ -78,7 +78,7 @@ export const SHIPMENT_OPTIONS = {
   HHG: 'HHG',
   PPM: 'PPM',
   NTS: 'HHG_INTO_NTS',
-  NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
+  NTSR: 'HHG_OUTOF_NTS',
   BOAT: 'BOAT',
   BOAT_HAUL_AWAY: 'BOAT',
   BOAT_TOW_AWAY: 'BOAT',
@@ -95,7 +95,7 @@ export const SHIPMENT_TYPES = {
   HHG: 'HHG',
   PPM: 'PPM',
   NTS: 'HHG_INTO_NTS',
-  NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
+  NTSR: 'HHG_OUTOF_NTS',
   BOAT_HAUL_AWAY: 'BOAT_HAUL_AWAY',
   BOAT_TOW_AWAY: 'BOAT_TOW_AWAY',
   MOBILE_HOME: 'MOBILE_HOME',
@@ -209,6 +209,7 @@ export const FEATURE_FLAG_KEYS = {
   MOBILE_HOME: 'mobile_home',
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
   ENABLE_ALASKA: 'enable_alaska',
+  BULK_ASSIGNMENT: 'bulk_assignment',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
