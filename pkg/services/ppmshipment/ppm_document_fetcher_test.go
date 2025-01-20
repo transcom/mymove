@@ -14,7 +14,7 @@ import (
 
 func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 	// Set up a fake S3 storage that we'll use to manage uploads
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
 

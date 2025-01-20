@@ -2119,7 +2119,7 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForUnapprovedMove() (s
 }
 
 func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowledgedAmendedOrders() (string, models.MTOServiceItem, models.Move) {
-	storer := storageTest.NewFakeS3Storage(true)
+	storer := storageTest.NewFakeS3Storage(true, nil)
 	userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 	suite.NoError(err)
 	amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)

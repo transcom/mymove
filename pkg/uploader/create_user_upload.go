@@ -57,7 +57,7 @@ func CreateUserUploadForDocumentWrapper(
 		return nil, "", verrs, err
 	}
 
-	if _, ok := userUploader.uploader.Storer.(*storage.S3); ok {
+	if storer.StorageType() == "S3" {
 		// If the file storer is S3 then wait for AV to complete
 		s3Key := newUserUpload.Upload.StorageKey
 		pollErr := waitForAVScanToComplete(appCtx, storer, s3Key)

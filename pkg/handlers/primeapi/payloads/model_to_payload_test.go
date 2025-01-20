@@ -148,7 +148,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 	suite.Require().NoError(err, "Unexpected error when generating new UUID")
 
 	now := time.Now()
-	fakeFileStorer := test.NewFakeS3Storage(true)
+	fakeFileStorer := test.NewFakeS3Storage(true, nil)
 
 	suite.Run("Success - all data populated", func() {
 		// Get stubbed upload with ID and timestamps
@@ -190,7 +190,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 }
 
 func (suite *PayloadsSuite) TestUpload() {
-	fakeFileStorer := test.NewFakeS3Storage(true)
+	fakeFileStorer := test.NewFakeS3Storage(true, nil)
 	// Get stubbed upload with ID and timestamps
 	upload := factory.BuildUpload(nil, []factory.Customization{
 		{
