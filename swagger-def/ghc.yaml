@@ -3504,6 +3504,10 @@ paths:
           $ref: '#/responses/ServerError'
   /queues/bulk-assignment/assign:
     post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
       summary: Assigns one or more moves to one or more office users
       description: >
         Supervisor office users are able to assign moves. This endpoint saves office user assignments to multiple moves.

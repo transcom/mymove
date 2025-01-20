@@ -587,15 +587,6 @@ export const useMovesQueueQueries = ({
   };
 };
 
-export const useBulkAssignmentSaveQueries = ({ queueType, bulkAssignmentSavePayload }) => {
-  const { data = {}, ...bulkAssignmentSaveQuery } = useQuery(
-    [{ queueType, bulkAssignmentSavePayload }],
-    ({ queryKey }) => saveBulkAssignmentData(...queryKey),
-  );
-  const { isLoading, isError, isSuccess } = bulkAssignmentSaveQuery;
-  return { data, isLoading, isError, isSuccess };
-};
-
 export const useServicesCounselingQueuePPMQueries = ({
   sort,
   order,

@@ -58,6 +58,7 @@ const TableQueue = ({
   officeUser,
   activeRole,
   handleBulkAssignmentSave,
+  bulkAssignmentData,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -326,6 +327,7 @@ const TableQueue = ({
             isOpen={isBulkAssignModalVisible}
             onSubmit={handleBulkAssignmentSave}
             onClose={handleCloseBulkAssignModal}
+            bulkAssignmentData={bulkAssignmentData || {}}
           />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>

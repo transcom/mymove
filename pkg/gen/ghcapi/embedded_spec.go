@@ -4359,6 +4359,12 @@ func init() {
     "/queues/bulk-assignment/assign": {
       "post": {
         "description": "Supervisor office users are able to assign moves. This endpoint saves office user assignments to multiple moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "queues"
         ],
@@ -20881,6 +20887,12 @@ func init() {
     "/queues/bulk-assignment/assign": {
       "post": {
         "description": "Supervisor office users are able to assign moves. This endpoint saves office user assignments to multiple moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "queues"
         ],

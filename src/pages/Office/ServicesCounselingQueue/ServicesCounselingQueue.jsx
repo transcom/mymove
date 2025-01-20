@@ -28,7 +28,6 @@ import {
   useMoveSearchQueries,
   useCustomerSearchQueries,
   useBulkAssignmentQueries,
-  useBulkAssignmentSaveQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingOriginLocations,
@@ -517,35 +516,24 @@ const ServicesCounselingQueue = ({
     navigate(generatePath(servicesCounselingRoutes.CREATE_CUSTOMER_PATH));
   };
 
-  const { bulkAssignmentData } = useBulkAssignmentQueries('COUNSELING');
-  console.log(bulkAssignmentData);
+  const closeoutBulkAssignmentData = useBulkAssignmentQueries('CLOSEOUT');
+  const counselingBulkAssignmentData = useBulkAssignmentQueries('COUNSELING');
 
   // const queryClient = useQueryClient();
-  // const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
-  //   onSuccess: () => {
-  //     queryClient.setQueryData(
-  //       [
-  //         'COUNSELING',
-  //         {
-  //           userData: [
-  //             {
-  //               userId: '1cc7ce3a-c4ef-4582-a58a-e70665b412b0',
-  //               moveAssignments: 2,
-  //             },
-  //           ],
-  //           moveData: ['b3baf6ce-f43b-437c-85be-e1145c0ddb96', 'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed3'],
-  //         },
-  //       ],
-  //       data,
-  //     );
-  //     console.log('success');
-  //   },
-  //   onError: (e) => {
-  //     console.log('error', e);
-  //     // setAlertMessage('There was a problem cancelling the move. Please try again later.');
-  //     // setAlertType('error');
-  //   },
-  // });
+  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
+    onSuccess: () => {
+      // refetch queue
+    },
+    onError: (e) => {
+      console.log('error', e);
+      // setAlertMessage('There was a problem cancelling the move. Please try again later.');
+      // setAlertType('error');
+    },
+  });
+
+  const onSubmitBulk = (qType, bulkAssignmentSavePayload) => {
+    mutateBulkAssignment({ queueType: 'COUNSELING', bulkAssignmentSavePayload });
+  };
 
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
@@ -698,6 +686,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          bulkAssignmentData={closeoutBulkAssignmentData.bulkAssignmentData || {}}
         />
       </div>
     );
@@ -727,7 +716,8 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
-          handleBulkAssignmentSave={saveBulkAssignmentData}
+          handleBulkAssignmentSave={onSubmitBulk}
+          bulkAssignmentData={counselingBulkAssignmentData.bulkAssignmentData || {}}
         />
       </div>
     );
