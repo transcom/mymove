@@ -267,18 +267,6 @@ type CustomGetUploadStatusResponse struct {
 	storer     storage.FileStorer
 }
 
-// AVStatusType represents the type of the anti-virus status, whether it is still processing, clean or infected
-type AVStatusType string
-
-const (
-	// AVStatusTypePROCESSING string PROCESSING
-	AVStatusTypePROCESSING AVStatusType = "PROCESSING"
-	// AVStatusTypeCLEAN string CLEAN
-	AVStatusTypeCLEAN AVStatusType = "CLEAN"
-	// AVStatusTypeINFECTED string INFECTED
-	AVStatusTypeINFECTED AVStatusType = "INFECTED"
-)
-
 func (o *CustomGetUploadStatusResponse) writeEventStreamMessage(rw http.ResponseWriter, producer runtime.Producer, id int, event string, data string) {
 	resProcess := []byte(fmt.Sprintf("id: %s\nevent: %s\ndata: %s\n\n", strconv.Itoa(id), event, data))
 	if produceErr := producer.Produce(rw, resProcess); produceErr != nil {
@@ -293,19 +281,17 @@ func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, pr
 
 	// Check current tag before event-driven wait for anti-virus
 	tags, err := o.storer.Tags(o.storageKey)
-	var uploadStatus AVStatusType
-	if err != nil || len(tags) == 0 {
-		uploadStatus = AVStatusTypePROCESSING
-	} else if _, exists := tags["av-status"]; exists {
-		uploadStatus = AVStatusType(tags["av-status"])
+	var uploadStatus models.AVStatusType
+	if err != nil {
+		uploadStatus = models.AVStatusPROCESSING
 	} else {
-		uploadStatus = AVStatusTypePROCESSING
+		uploadStatus = models.GetAVStatusFromTags(tags)
 	}
 
 	// Limitation: once the status code header has been written (first response), we are not able to update the status for subsequent responses.
 	// Standard 200 OK used with common SSE paradigm
 	rw.WriteHeader(http.StatusOK)
-	if uploadStatus == AVStatusTypeCLEAN || uploadStatus == AVStatusTypeINFECTED {
+	if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED {
 		o.writeEventStreamMessage(rw, producer, 0, "message", string(uploadStatus))
 		o.writeEventStreamMessage(rw, producer, 1, "close", "Connection closed")
 		return // skip notification loop since object already tagged from anti-virus
@@ -379,17 +365,15 @@ func (o *CustomGetUploadStatusResponse) WriteResponse(rw http.ResponseWriter, pr
 
 				tags, err := o.storer.Tags(o.storageKey)
 
-				if err != nil || len(tags) == 0 {
-					uploadStatus = AVStatusTypePROCESSING
-				} else if _, exists := tags["av-status"]; exists {
-					uploadStatus = AVStatusType(tags["av-status"])
+				if err != nil {
+					uploadStatus = models.AVStatusPROCESSING
 				} else {
-					uploadStatus = AVStatusTypePROCESSING
+					uploadStatus = models.GetAVStatusFromTags(tags)
 				}
 
 				o.writeEventStreamMessage(rw, producer, id_counter, "message", string(uploadStatus))
 
-				if uploadStatus == AVStatusTypeCLEAN || uploadStatus == AVStatusTypeINFECTED {
+				if uploadStatus == models.AVStatusCLEAN || uploadStatus == models.AVStatusINFECTED {
 					return errors.New("connection_closed")
 				}
 

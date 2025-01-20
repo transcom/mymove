@@ -18,7 +18,7 @@ type FakeS3Storage struct {
 	willSucceed bool
 	fs          *afero.Afero
 	tempFs      *afero.Afero
-	EmptyTags   bool
+	EmptyTags   bool // Used for testing only
 }
 
 // Delete removes a file.
@@ -101,7 +101,7 @@ func (fake *FakeS3Storage) Tags(_ string) (map[string]string, error) {
 	}
 	if fake.EmptyTags {
 		tags = map[string]string{}
-		fake.EmptyTags = false
+		fake.EmptyTags = false // Reset after initial return, so future calls (tests) have filled tags
 	}
 	return tags, nil
 }
