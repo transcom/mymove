@@ -15,7 +15,7 @@ DECLARE
     service_code TEXT;
     o_zip_code TEXT;
     d_zip_code TEXT;
-    distance NUMERIC;  -- This will be replaced by mileage
+    distance NUMERIC;
     estimated_fsc_multiplier NUMERIC;
     fuel_price NUMERIC;
     cents_above_baseline NUMERIC;
@@ -106,7 +106,6 @@ BEGIN
 
                 price_difference := calculate_price_difference(fuel_price);
 
-                -- calculate estimated price, return as cents
                 IF estimated_fsc_multiplier IS NOT NULL AND distance IS NOT NULL THEN
                     cents_above_baseline := distance * estimated_fsc_multiplier;
                     RAISE NOTICE ''Distance: % * FSC Multipler: % = $% cents above baseline of $2.50'', distance, estimated_fsc_multiplier, cents_above_baseline;
