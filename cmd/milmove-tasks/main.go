@@ -84,6 +84,7 @@ func main() {
 		RunE:         processTPPS,
 		SilenceUsage: true,
 	}
+	initProcessTPPSFlags(processTPPSCommand.Flags())
 	root.AddCommand(processTPPSCommand)
 
 	completionCommand := &cobra.Command{

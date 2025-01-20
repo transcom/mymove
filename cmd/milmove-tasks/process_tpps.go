@@ -81,7 +81,7 @@ func processTPPS(_ *cobra.Command, _ []string) error {
 	}()
 
 	flag := pflag.CommandLine
-	initProcessTPPSFlags(flag)
+	// initProcessTPPSFlags(flag)
 	err = flag.Parse(os.Args[1:])
 	if err != nil {
 		log.Fatal("failed to parse flags", zap.Error(err))
