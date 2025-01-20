@@ -50,3 +50,25 @@ describe('calculateTotalMovingExpensesAmount', () => {
     expect(calculateTotalMovingExpensesAmount(expenses)).toEqual(expectedTotal);
   });
 });
+
+describe('calculateTotalMovingExpensesAmount with reject and excluded amount', () => {
+  it('rejected and excluded expenses are not included in total amount', () => {
+    const approvedMovingExpense1 = createCompleteMovingExpense({}, { status: 'APPROVED', amount: 350 });
+    const approvedMovingExpense2 = createCompleteMovingExpense({}, { status: 'APPROVED', amount: 650 });
+    const approveAmountTotal = approvedMovingExpense1.amount + approvedMovingExpense2.amount;
+    const rejectedMovingExpense = createCompleteMovingExpense({}, { status: 'REJECTED', amount: 123 });
+    const excludedMovingExpense = createCompleteMovingExpense({}, { status: 'EXCLUDED', amount: 456 });
+    expect(approvedMovingExpense1.amount).toBeGreaterThan(0);
+    expect(approvedMovingExpense2.amount).toBeGreaterThan(0);
+    expect(rejectedMovingExpense.amount).toBeGreaterThan(0);
+    expect(excludedMovingExpense.amount).toBeGreaterThan(0);
+    expect(
+      calculateTotalMovingExpensesAmount([
+        approvedMovingExpense1,
+        approvedMovingExpense2,
+        rejectedMovingExpense,
+        excludedMovingExpense,
+      ]),
+    ).toEqual(approveAmountTotal);
+  });
+});
