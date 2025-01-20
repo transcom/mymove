@@ -384,6 +384,8 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onUploadStart
                       files={amendedDocuments}
                       documentType={MOVE_DOCUMENT_TYPE.AMENDMENTS}
                       updateAmendedDocument={updateAmendedDocument}
+                      onUploadStarted={onUploadStarted}
+                      onUploadEnded={onUploadEnded}
                     />
                   </Restricted>
                 </div>

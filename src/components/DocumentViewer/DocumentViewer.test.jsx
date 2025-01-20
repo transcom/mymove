@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import { React, act } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import sampleJPG from './sample.jpg';
 import samplePNG from './sample2.png';
 import sampleGIF from './sample3.gif';
 
+import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS } from 'shared/constants';
 import { bulkDownloadPaymentRequest } from 'services/ghcApi';
 
 const toggleMenuClass = () => {
@@ -67,6 +68,10 @@ jest.mock('services/ghcApi', () => ({
   bulkDownloadPaymentRequest: jest.fn(),
 }));
 
+jest.mock('./DocumentViewer', () => ({
+  ...jest.requireActual('./DocumentViewer'),
+  setFileStatus: jest.fn(),
+}));
 jest.mock('./Content/Content', () => ({
   __esModule: true,
   default: ({ id, filename, contentType, url, createdAt, rotation, filePath, onError }) => {
@@ -267,5 +272,43 @@ describe('DocumentViewer component', () => {
         expect(bulkDownloadPaymentRequest).toHaveBeenCalledTimes(1);
       });
     });
+  });
+});
+
+describe('File upload status', () => {
+  const setup = async (fileStatus, isFileUploading = false) => {
+    await act(async () => {
+      render(<DocumentViewer files={mockFiles[0]} isFileUploading={isFileUploading} />);
+    });
+    act(() => {
+      switch (fileStatus) {
+        case UPLOAD_SCAN_STATUS.PROCESSING:
+          DocumentViewer.setFileStatus(UPLOAD_DOC_STATUS.SCANNING);
+          break;
+        case UPLOAD_SCAN_STATUS.CLEAN:
+          DocumentViewer.setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
+          break;
+        case UPLOAD_SCAN_STATUS.INFECTED:
+          DocumentViewer.setFileStatus(UPLOAD_DOC_STATUS.INFECTED);
+          break;
+        default:
+          break;
+      }
+    });
+  };
+
+  it('renders SCANNING status', () => {
+    setup(UPLOAD_SCAN_STATUS.PROCESSING);
+    expect(screen.getByText('Scanning')).toBeInTheDocument();
+  });
+
+  it('renders ESTABLISHING status', () => {
+    setup(UPLOAD_SCAN_STATUS.CLEAN);
+    expect(screen.getByText('Establishing Document for View')).toBeInTheDocument();
+  });
+
+  it('renders INFECTED status', () => {
+    setup(UPLOAD_SCAN_STATUS.INFECTED);
+    expect(screen.getByText('Ask for a new file')).toBeInTheDocument();
   });
 });

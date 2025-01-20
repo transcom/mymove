@@ -9,7 +9,7 @@ import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { permissionTypes } from 'constants/permissions';
 import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
 
-const SupportingDocuments = ({ move, uploads }) => {
+const SupportingDocuments = ({ move, uploads, onUploadStarted, onUploadEnded }) => {
   const filteredAndSortedUploads = Object.values(uploads || {})
     ?.filter((file) => {
       return !file.deletedAt;
@@ -36,6 +36,8 @@ const SupportingDocuments = ({ move, uploads }) => {
                 documentId={move.additionalDocuments?.id}
                 files={filteredAndSortedUploads}
                 documentType={MOVE_DOCUMENT_TYPE.SUPPORTING}
+                onUploadStarted={onUploadStarted}
+                onUploadEnded={onUploadEnded}
               />
             </div>
           </div>

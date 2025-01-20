@@ -118,7 +118,7 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
   }, [selectedFile, isFileUploading]);
 
   useEffect(() => {
-    if (fileStatus === 'ESTABLISHING') {
+    if (fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
       new Promise((resolve) => {
         setTimeout(resolve, 5000);
       }).then(() => setFileStatus(UPLOAD_DOC_STATUS.LOADED));
@@ -126,15 +126,26 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
   }, [fileStatus]);
 
   const fileType = useRef(selectedFile?.contentType);
-
-  if (
-    (!selectedFile && fileStatus !== UPLOAD_DOC_STATUS.UPLOADING) ||
-    !fileStatus ||
-    selectedFile?.status === UPLOAD_SCAN_STATUS.INFECTED
-  ) {
-    return <Alert heading="File Not Found" />;
+  if (!selectedFile) {
+    return (
+      <Alert type="info" className="usa-width-one-whole" heading="Document Status">
+        File Not Found
+      </Alert>
+    );
   }
 
+  if (
+    isFileUploading &&
+    ((selectedFile && selectedFile?.status !== null && selectedFile?.status === UPLOAD_SCAN_STATUS.INFECTED) ||
+      (fileStatus !== null && fileStatus === UPLOAD_SCAN_STATUS.INFECTED))
+  ) {
+    return (
+      <Alert type="error" className="usa-width-one-whole" heading="Ask for a new file">
+        Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a
+        photo of the original document instead.
+      </Alert>
+    );
+  }
   const openMenu = () => {
     setMenuOpen(true);
   };
@@ -147,7 +158,7 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
     closeMenu();
   };
 
-  if (fileStatus !== 'LOADED') {
+  if (fileStatus !== UPLOAD_DOC_STATUS.LOADED) {
     return (
       <Alert type="info" className="usa-width-one-whole" heading="Document Status">
         {fileStatus === UPLOAD_DOC_STATUS.UPLOADING && 'Uploading'}
