@@ -429,8 +429,8 @@ describe('AddOrdersForm - With Counseling Office', () => {
     );
 
     await userEvent.selectOptions(await screen.findByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
-    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
-    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+    await userEvent.paste(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await userEvent.paste(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
@@ -451,5 +451,25 @@ describe('AddOrdersForm - With Counseling Office', () => {
 
     const nextBtn = screen.getByRole('button', { name: 'Next' });
     expect(nextBtn.getAttribute('disabled')).toBeFalsy();
+  });
+});
+describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
+  it('disables orders type when safety move is selected', async () => {
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} isSafetyMoveSelected />
+      </Provider>,
+    );
+
+    expect(screen.getByLabelText('Orders type')).toBeDisabled();
+  });
+
+  it('disables orders type when bluebark move is selected', async () => {
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} isBluebarkMoveSelected />
+      </Provider>,
+    );
+    expect(screen.getByLabelText('Orders type')).toBeDisabled();
   });
 });
