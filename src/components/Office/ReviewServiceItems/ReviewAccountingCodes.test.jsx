@@ -64,8 +64,8 @@ describe('components/Office/ReviewServiceItems/ReviewAccountingCodes', () => {
         />,
       );
 
-      expect(screen.queryByText('Move management Fee')).not.toBeInTheDocument();
-      expect(screen.getByText('Counseling Fee')).toBeInTheDocument();
+      expect(screen.queryByText('Move management fee')).not.toBeInTheDocument();
+      expect(screen.getByText('Counseling fee')).toBeInTheDocument();
       expect(screen.getByText('$20.65')).toBeInTheDocument();
     });
 
@@ -82,8 +82,8 @@ describe('components/Office/ReviewServiceItems/ReviewAccountingCodes', () => {
         />,
       );
 
-      expect(screen.queryByText('Counseling Fee')).not.toBeInTheDocument();
-      expect(screen.getByText('Move management Fee')).toBeInTheDocument();
+      expect(screen.queryByText('Counseling fee')).not.toBeInTheDocument();
+      expect(screen.getByText('Move management fee')).toBeInTheDocument();
       expect(screen.getByText('$44.33')).toBeInTheDocument();
     });
   });
