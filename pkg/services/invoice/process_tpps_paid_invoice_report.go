@@ -61,10 +61,17 @@ func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 	}
 	tppsPaidInvoiceReport := tppsReponse.TPPSData{}
 
-	// TODO have a blank parameter stored in s3 (customFilePathToProcess) that we could modify to have a specific date, should we need to rerun a filename from a specific day
-	// The param will normally be blank, so have a check in this function for if it's blank
-	// if customFilePathToProcess is blank, process the filename for yesterday's date (like the TPPS lambda does)
-	// if customFilePathToProcess is not blank, then append customFilePathToProcess to the s3 bucket path and process that INSTEAD OF
+	// TODO have a parameter stored in s3 (customFilePathToProcess) that we could modify to have a specific date, should we need to rerun a filename from a specific day
+	// the parameter value will be 'MILMOVE-enYYYYMMDD.csv' so that it's easy to look at the param value and know
+	// the filepath format needed to grab files from the SFTP server (example filename = MILMOVE-en20241227.csv)
+
+	// The param will normally be MILMOVE-enYYYYMMDD.csv, so have a check in this function for if it's MILMOVE-enYYYYMMDD.csv
+
+	// if customFilePathToProcess = MILMOVE-enYYYYMMDD.csv
+	// process the filename for yesterday's date (like the TPPS lambda does)
+
+	// if customFilePathToProcess != MILMOVE-enYYYYMMDD.csv (meaning we have given an ACTUAL specific filename we want processed instead of placeholder MILMOVE-enYYYYMMDD.csv)
+	// then append customFilePathToProcess to the s3 bucket path and process that INSTEAD OF
 	// processing the filename for yesterday's date
 
 	// the previous day's TPPS payment file should be available on external server
