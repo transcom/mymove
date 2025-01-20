@@ -33,8 +33,9 @@ func (p PortZipLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItem
 				return "", fmt.Errorf("unable to find port zip with code %s", "3002")
 			}
 			return portLocation.UsPostRegionCity.UsprZipID, nil
+		} else {
+			return "", nil
 		}
-		return "", fmt.Errorf("unable to find port zip for service item id: %s", p.ServiceItem.ID)
 	}
 	var portLocation models.PortLocation
 	err := appCtx.DB().Q().

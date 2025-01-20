@@ -1,20 +1,21 @@
--- inserting params for IDFSIT
+-- IDFSIT PerUnitCents
 INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,updated_at,is_optional) VALUES
     ('fb7925e7-ebfe-49d9-9cf4-7219e68ec686'::uuid,'bd6064ca-e780-4ab4-a37b-0ae98eebb244','597bb77e-0ce7-4ba2-9624-24300962625f','2024-01-17 15:55:50.041957','2024-01-17 15:55:50.041957',false); -- PerUnitCents
 
--- IDASIT
+-- IDASIT PerUnitCents
 INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,updated_at,is_optional) VALUES
     ('51393ee1-f505-4f7b-96c4-135f771af814'::uuid,'806c6d59-57ff-4a3f-9518-ebf29ba9cb10','597bb77e-0ce7-4ba2-9624-24300962625f','2024-01-17 15:55:50.041957','2024-01-17 15:55:50.041957',false); -- PerUnitCents
 
--- IOFSIT
+-- IOFSIT PerUnitCents
 INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,updated_at,is_optional) VALUES
     ('7518ec84-0c40-4c17-86dd-3ce04e2fe701'::uuid,'b488bf85-ea5e-49c8-ba5c-e2fa278ac806','597bb77e-0ce7-4ba2-9624-24300962625f','2024-01-17 15:55:50.041957','2024-01-17 15:55:50.041957',false); -- PerUnitCents
 
--- IOASIT
+-- IOASIT PerUnitCents
 INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,updated_at,is_optional) VALUES
     ('cff34123-e2a5-40ed-9cf3-451701850a26'::uuid,'bd424e45-397b-4766-9712-de4ae3a2da36','597bb77e-0ce7-4ba2-9624-24300962625f','2024-01-17 15:55:50.041957','2024-01-17 15:55:50.041957',false); -- PerUnitCents
 
--- inserting params for FSC
+-- inserting PortZip param for FSC
+-- we need this for international PPMs since they only get reimbursed for the CONUS -> Port portion
 INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,updated_at,is_optional) VALUES
 	 ('bb53e034-80c2-420e-8492-f54d2018fff1'::uuid,'4780b30c-e846-437a-b39a-c499a6b09872','d9ad3878-4b94-4722-bbaf-d4b8080f339d','2024-01-17 15:55:50.041957','2024-01-17 15:55:50.041957',true); -- PortZip
 

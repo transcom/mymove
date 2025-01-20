@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -44,4 +45,37 @@ func (r *ReIntlOtherPrice) Validate(_ *pop.Connection) (*validate.Errors, error)
 		&validators.UUIDIsPresent{Field: r.RateAreaID, Name: "RateAreaID"},
 		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: -1},
 	), nil
+}
+
+// fetches a row from re_intl_other_prices using passed in parameters
+// gets the rate_area_id & is_peak_period based on values provided
+func FetchReIntlOtherPrice(db *pop.Connection, addressID uuid.UUID, serviceID uuid.UUID, contractID uuid.UUID, referenceDate *time.Time) (*ReIntlOtherPrice, error) {
+	if addressID != uuid.Nil && serviceID != uuid.Nil && contractID != uuid.Nil && referenceDate != nil {
+		// need to get the rate area first
+		rateAreaID, err := FetchRateAreaID(db, addressID, serviceID, contractID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching rate area id for shipment ID: %s, service ID %s, and contract ID: %s: %s", addressID, serviceID, contractID, err)
+		}
+
+		var isPeakPeriod bool
+		err = db.RawQuery("SELECT is_peak_period($1)", referenceDate).First(&isPeakPeriod)
+		if err != nil {
+			return nil, fmt.Errorf("error checking if date is peak period with date: %s: %s", contractID, err)
+		}
+
+		var reIntlOtherPrice ReIntlOtherPrice
+		err = db.Q().
+			Where("contract_id = ?", contractID).
+			Where("service_id = ?", serviceID).
+			Where("is_peak_period = ?", isPeakPeriod).
+			Where("rate_area_id = ?", rateAreaID).
+			First(&reIntlOtherPrice)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching row from re_int_other_prices using rateAreaID %s, service ID %s, and contract ID: %s: %s", rateAreaID, serviceID, contractID, err)
+		}
+
+		return &reIntlOtherPrice, nil
+	}
+
+	return nil, fmt.Errorf("error value from re_intl_other_prices - required parameters not provided")
 }
