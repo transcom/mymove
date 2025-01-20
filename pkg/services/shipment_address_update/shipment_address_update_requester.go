@@ -245,7 +245,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	if shipment.MoveTaskOrder.AvailableToPrimeAt == nil {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
-	if shipment.ShipmentType != models.MTOShipmentTypeHHG && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+	if shipment.ShipmentType != models.MTOShipmentTypeHHG && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG and NTS-Release shipments")
 	}
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
@@ -344,7 +344,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			if err != nil {
 				return nil, err
 			}
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err
@@ -360,7 +360,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			if err != nil {
 				return nil, err
 			}
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err
@@ -479,7 +479,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			if err != nil {
 				return nil, err
 			}
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 			haulPricingTypeHasChanged, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
@@ -547,7 +547,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 		// handling NTS shipments that don't have a pickup address
 		var pickupAddress models.Address
-		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 			pickupAddress = shipment.StorageFacility.Address
 		} else {
 			pickupAddress = *shipment.PickupAddress
