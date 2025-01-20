@@ -53,38 +53,17 @@ func NewTPPSPaidInvoiceReportProcessor() services.SyncadaFileProcessor {
 }
 
 // ProcessFile parses a TPPS paid invoice report response and updates the payment request status
-func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContext, TPPSPaidInvoiceReportFilePathS3Bucket string, stringTPPSPaidInvoiceReport string) error {
+func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContext, TPPSPaidInvoiceReportFilePath string, stringTPPSPaidInvoiceReport string) error {
 
-	if TPPSPaidInvoiceReportFilePathS3Bucket == "" {
-		appCtx.Logger().Info("No valid filepath found to process TPPS Paid Invoice Report", zap.String("TPPSPaidInvoiceReportFilePath", TPPSPaidInvoiceReportFilePathS3Bucket))
+	if TPPSPaidInvoiceReportFilePath == "" {
+		appCtx.Logger().Info("No valid filepath found to process TPPS Paid Invoice Report", zap.String("TPPSPaidInvoiceReportFilePath", TPPSPaidInvoiceReportFilePath))
 		return nil
 	}
 	tppsPaidInvoiceReport := tppsReponse.TPPSData{}
 
-	// TODO have a parameter stored in s3 (customFilePathToProcess) that we could modify to have a specific date, should we need to rerun a filename from a specific day
-	// the parameter value will be 'MILMOVE-enYYYYMMDD.csv' so that it's easy to look at the param value and know
-	// the filepath format needed to grab files from the SFTP server (example filename = MILMOVE-en20241227.csv)
+	appCtx.Logger().Info(fmt.Sprintf("Processing filepath: %s\n", TPPSPaidInvoiceReportFilePath))
 
-	// The param will normally be MILMOVE-enYYYYMMDD.csv, so have a check in this function for if it's MILMOVE-enYYYYMMDD.csv
-
-	// if customFilePathToProcess = MILMOVE-enYYYYMMDD.csv
-	// process the filename for yesterday's date (like the TPPS lambda does)
-
-	// if customFilePathToProcess != MILMOVE-enYYYYMMDD.csv (meaning we have given an ACTUAL specific filename we want processed instead of placeholder MILMOVE-enYYYYMMDD.csv)
-	// then append customFilePathToProcess to the s3 bucket path and process that INSTEAD OF
-	// processing the filename for yesterday's date
-
-	// the previous day's TPPS payment file should be available on external server
-	yesterday := time.Now().AddDate(0, 0, -1)
-	previousDay := yesterday.Format("20220702")
-	tppsFilename := fmt.Sprintf("MILMOVE-en%s.csv", previousDay)
-	previousDayFormatted := yesterday.Format("July 02, 2022")
-	appCtx.Logger().Info(fmt.Sprintf("Starting transfer of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
-
-	TPPSPaidInvoiceReportFullFilePath := TPPSPaidInvoiceReportFilePathS3Bucket + tppsFilename
-	appCtx.Logger().Info(fmt.Sprintf("Processing filepath: %s\n", TPPSPaidInvoiceReportFullFilePath))
-
-	tppsData, err := tppsPaidInvoiceReport.Parse(TPPSPaidInvoiceReportFullFilePath, "")
+	tppsData, err := tppsPaidInvoiceReport.Parse(TPPSPaidInvoiceReportFilePath, "")
 	if err != nil {
 		appCtx.Logger().Error("unable to parse TPPS paid invoice report", zap.Error(err))
 		return fmt.Errorf("unable to parse TPPS paid invoice report")
