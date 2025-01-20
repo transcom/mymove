@@ -1,3 +1,5 @@
+import waitForNetworkIdle from '../../utils/waitForNetworkIdle';
+
 import { test, expect } from './servicesCounselingTestFixture';
 
 test('A service counselor can approve/reject moving expenses', async ({ page, scPage }) => {
@@ -8,24 +10,29 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
   // Navigate to the "Review documents" page
   await page.getByRole('button', { name: /Review documents/i }).click();
   await scPage.waitForPage.reviewWeightTicket();
+  await expect(waitForNetworkIdle(scPage.page)).resolves.toBe(true);
   // Weight ticket is first in the order of docs. Click "Accept" on the weight ticket, then proceed
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
 
   // Next is packing materials expense ticket here. Click "Accept" on the expense, then proceed
   await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
+  await expect(waitForNetworkIdle(scPage.page)).resolves.toBe(true);
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
 
   // Next is storage expense ticket. Click "Accept", then proceed
   await scPage.waitForPage.reviewExpenseTicket('Storage', 2, 1);
+  await expect(waitForNetworkIdle(scPage.page)).resolves.toBe(true);
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
   await scPage.waitForPage.reviewDocumentsConfirmation();
+  await expect(waitForNetworkIdle(scPage.page)).resolves.toBe(true);
 
   // Click "Confirm" on confirmation page, returning to move details page
   await page.getByRole('button', { name: 'Confirm' }).click();
   await scPage.waitForPage.moveDetails();
+  await expect(waitForNetworkIdle(scPage.page)).resolves.toBe(true);
 
   // NOTE: Code below is commented out because the feature for the SC to be able to review documents AFTER it has been submitted will be picked up at a future date.
   // Currently SC is unable to re-review documents after it has been submitted, so these tests were failing.
