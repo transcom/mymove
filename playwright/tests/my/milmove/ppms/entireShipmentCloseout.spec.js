@@ -19,6 +19,7 @@ test.describe('Entire PPM closeout flow', () => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
 
       await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.page.waitForLoadState('networkidle');
       await customerPpmPage.navigateToAboutPage();
       await customerPpmPage.submitWeightTicketPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToProGearPage();
