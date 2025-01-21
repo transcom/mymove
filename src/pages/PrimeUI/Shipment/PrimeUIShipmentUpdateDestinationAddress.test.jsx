@@ -1,12 +1,14 @@
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { generatePath } from 'react-router-dom';
 
 import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
 import { updateShipmentDestinationAddress } from '../../../services/primeApi';
 
 import PrimeUIShipmentUpdateDestinationAddress from './PrimeUIShipmentUpdateDestinationAddress';
 
+import { setFlashMessage } from 'store/flash/actions';
 import { ReactQueryWrapper, MockProviders } from 'testUtils';
 import { primeSimulatorRoutes } from 'constants/routes';
 
@@ -97,6 +99,12 @@ const testShipmentReturnValue = {
   isError: false,
 };
 
+const mockDispatch = jest.fn();
+
+const movePath = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, {
+  moveCodeOrID: 'LN4T89',
+});
+
 const renderComponent = () => {
   render(
     <ReactQueryWrapper>
@@ -107,7 +115,7 @@ const renderComponent = () => {
   );
 };
 
-describe('PrimeUIShipmentUpdateAddress page', () => {
+describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
   describe('check loading and error component states', () => {
     const loadingReturnValue = {
       moveTaskOrder: undefined,
@@ -253,5 +261,27 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
         ).toBeInTheDocument();
       });
     });
+  });
+
+  it('routes to the review page when the user clicks save', async () => {
+    updateShipmentDestinationAddress.mockResolvedValue({});
+    render(
+      <MockProviders path={primeSimulatorRoutes.SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH} params={routingParams}>
+        <PrimeUIShipmentUpdateDestinationAddress />
+      </MockProviders>,
+    );
+
+    const addressChange = screen.getByLabelText('Address 1');
+    const contractorRemarks = screen.getByLabelText('Contractor Remarks');
+    const saveButton = await screen.findByRole('button', { name: 'Save' });
+
+    await act(() => userEvent.type(addressChange, 'Address Tester'));
+    await act(() => userEvent.type(contractorRemarks, 'testing contractor remarks'));
+    await act(() => userEvent.click(saveButton));
+
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith(movePath));
+    expect(mockDispatch).toHaveBeenCalledWith(
+      setFlashMessage('SHIPMENT_SUBMIT_SUCCESS', 'success', 'Successfully updated shipment', ''),
+    );
   });
 });
