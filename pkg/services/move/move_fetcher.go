@@ -196,9 +196,9 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentTaskOrder(appCtx a
 			internalmessages.OrdersTypeBLUEBARK,
 			internalmessages.OrdersTypeWOUNDEDWARRIOR,
 			internalmessages.OrdersTypeSAFETY,
-			models.MTOShipmentTypeHHGOutOfNTSDom,
+			models.MTOShipmentTypeHHGOutOfNTS,
 			gbloc,
-			models.MTOShipmentTypeHHGOutOfNTSDom,
+			models.MTOShipmentTypeHHGOutOfNTS,
 			gbloc).
 		All(&moves)
 
