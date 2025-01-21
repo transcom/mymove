@@ -1072,3 +1072,9 @@
 20250110001339_update_nts_release_enum_name.up.sql
 20250110214012_homesafeconnect_cert.up.sql
 20250116200912_disable_homesafe_stg_cert.up.sql
+20250120191945_add_re_intl_other_prices_prod.up.sql
+20250121154046_upd_contract.up.sql
+20250121154059_upd_contract_loadtest.up.sql
+20250121154108_upd_contract_stg.up.sql
+20250121154124_modify_re_intl_other_prices.up.sql
+20250121154545_insert_re_intl_other_prices.up.sql
