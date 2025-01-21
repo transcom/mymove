@@ -1,8 +1,10 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 )
 
@@ -17,4 +19,28 @@ type JppsoRegions struct {
 // TableName overrides the table name used by Pop.
 func (c JppsoRegions) TableName() string {
 	return "jppso_regions"
+}
+
+func FetchJppsoRegionByCode(db *pop.Connection, code string) (*JppsoRegions, error) {
+	// var jppsoRegions JppsoRegions
+	// err := db.Q().
+	// 	Where("jppso_regions.code = ?", code).
+	// 	First(&jppsoRegions)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return &jppsoRegions, nil
+	fmt.Println("*** code")
+	fmt.Println(code)
+	var jppsoRegions JppsoRegions
+
+	err := db.RawQuery("SELECT * FROM jppso_regions WHERE code = 'MAPK'").
+		First(&jppsoRegions)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return &jppsoRegions, nil
 }

@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 )
 
@@ -18,4 +19,26 @@ type OconusRateArea struct {
 
 func (o OconusRateArea) TableName() string {
 	return "re_oconus_rate_areas"
+}
+
+func FetchOconusRateAreaByCityId(db *pop.Connection, usprc string) (*OconusRateArea, error) {
+	// var reOconusRateArea OconusRateArea
+	// err := db.Q().
+	// 	Where("re_oconus_rate_areas.us_post_region_cities_id = ?", usprc).
+	// 	First(&reOconusRateArea)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return &reOconusRateArea, nil
+
+	var reOconusRateArea OconusRateArea
+
+	err := db.RawQuery("SELECT * FROM re_oconus_rate_areas WHERE us_post_region_cities_id = ?", usprc).
+		First(&reOconusRateArea)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &reOconusRateArea, nil
 }
