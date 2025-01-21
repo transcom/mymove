@@ -52,7 +52,7 @@ func (r *ReIntlOtherPrice) Validate(_ *pop.Connection) (*validate.Errors, error)
 func FetchReIntlOtherPrice(db *pop.Connection, addressID uuid.UUID, serviceID uuid.UUID, contractID uuid.UUID, referenceDate *time.Time) (*ReIntlOtherPrice, error) {
 	if addressID != uuid.Nil && serviceID != uuid.Nil && contractID != uuid.Nil && referenceDate != nil {
 		// need to get the rate area first
-		rateAreaID, err := FetchRateAreaID(db, addressID, serviceID, contractID)
+		rateAreaID, err := FetchRateAreaID(db, addressID, &serviceID, contractID)
 		if err != nil {
 			return nil, fmt.Errorf("error fetching rate area id for shipment ID: %s, service ID %s, and contract ID: %s: %s", addressID, serviceID, contractID, err)
 		}
