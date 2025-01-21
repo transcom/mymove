@@ -8,6 +8,8 @@ VALUES
     ('bf76fb0f-408a-4391-8aa7-92908f3c027a', '9f3d551a-0725-430e-897e-80ee9add3ae9' ,'HHG_OUTOF_NTS', 'i', true, now(), now(), 1),
     --PODFSC International POD Fuel Surcharge
     ('db2106c8-887c-4304-aad2-c7413de13cc4', '388115e8-abe9-441d-96cf-a39f24baa0a3' ,'HHG_OUTOF_NTS', 'i', true, now(), now(), 2),
+	--POEFSC International POD Fuel Surcharge
+    ('509a491d-cddd-476c-9ba0-65077cf93e58', 'f75758d8-2fcd-40ba-9432-3ff3032a71d1' ,'HHG_OUTOF_NTS', 'i', true, now(), now(), 2),
     --INPK International NTS packing
     ('4d348ec0-a278-4038-b061-6a4e17ea6721', '874cb86a-bc39-4f57-a614-53ee3fcacf14' ,'HHG_OUTOF_NTS', 'i', true, now(), now(), 3),
     --ICRT International crating
