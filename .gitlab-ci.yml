@@ -772,13 +772,14 @@ client_test:
     - pre_deps_yarn
   script:
     - echo "client test coverage"
-    - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false >> $CI_PROJECT_DIR/coverage.output
+    - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false | tee $CI_PROJECT_DIR/coverage.output
   artifacts:
     when: always
     reports:
       junit:
         - jest-junit-reports/junit.xml
     paths:
+      - /builds/milmove/mymove/coverage.output
       - /builds/milmove/mymove/coverage
       - /builds/milmove/mymove/jest-junit-reports
   after_script:
