@@ -1110,6 +1110,10 @@ func init() {
     "Entitlement": {
       "type": "object",
       "properties": {
+        "adminRestrictedWeightLocation": {
+          "type": "boolean",
+          "example": false
+        },
         "authorizedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -1183,6 +1187,11 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -3977,6 +3986,10 @@ func init() {
     "Entitlement": {
       "type": "object",
       "properties": {
+        "adminRestrictedWeightLocation": {
+          "type": "boolean",
+          "example": false
+        },
         "authorizedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -4050,6 +4063,11 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },

@@ -5270,6 +5270,14 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      adminRestrictedWeightLocation:
+        type: boolean
+        example: false
+      weightRestriction:
+        type: integer
+        example: 1500
+        x-formatting: weight
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -6189,6 +6197,12 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      adminRestrictedWeightLocation:
+        description: >-
+          Indicates if the customer is restricted to a specific location for
+          their admin restricted weight.
+        type: boolean
+        x-nullable: true
       accompaniedTour:
         type: boolean
         example: true
@@ -6215,6 +6229,13 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the weight restriction for the move to a particular
+          location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6292,6 +6313,12 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      adminRestrictedWeightLocation:
+        description: >-
+          Indicates if the customer is restricted to a specific location for
+          their admin restricted weight.
+        type: boolean
+        x-nullable: true
       accompaniedTour:
         type: boolean
         example: true
@@ -6318,6 +6345,11 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: Indicates the weight restriction for a move to a particular location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:

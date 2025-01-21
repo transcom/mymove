@@ -19,6 +19,10 @@ import (
 // swagger:model Entitlement
 type Entitlement struct {
 
+	// admin restricted weight location
+	// Example: false
+	AdminRestrictedWeightLocation bool `json:"adminRestrictedWeightLocation,omitempty"`
+
 	// authorized weight
 	// Example: 2000
 	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
@@ -81,6 +85,10 @@ type Entitlement struct {
 	// The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.
 	// Example: 3
 	UnaccompaniedBaggageAllowance *int64 `json:"unaccompaniedBaggageAllowance,omitempty"`
+
+	// weight restriction
+	// Example: 1500
+	WeightRestriction *int64 `json:"weightRestriction,omitempty"`
 }
 
 // Validate validates this entitlement

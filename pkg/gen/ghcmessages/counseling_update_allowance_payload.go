@@ -23,6 +23,9 @@ type CounselingUpdateAllowancePayload struct {
 	// Example: true
 	AccompaniedTour *bool `json:"accompaniedTour,omitempty"`
 
+	// Indicates if the customer is restricted to a specific location for their admin restricted weight.
+	AdminRestrictedWeightLocation *bool `json:"adminRestrictedWeightLocation,omitempty"`
+
 	// agency
 	Agency *Affiliation `json:"agency,omitempty"`
 
@@ -70,6 +73,10 @@ type CounselingUpdateAllowancePayload struct {
 	// ub allowance
 	// Example: 500
 	UbAllowance *int64 `json:"ubAllowance,omitempty"`
+
+	// Indicates the weight restriction for a move to a particular location.
+	// Example: 1500
+	WeightRestriction *int64 `json:"weightRestriction,omitempty"`
 }
 
 // Validate validates this counseling update allowance payload

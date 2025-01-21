@@ -953,6 +953,13 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      adminRestrictedWeightLocation:
+        type: boolean
+        example: false
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
