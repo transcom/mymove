@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	shipmentmocks "github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -85,6 +86,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	router := NewShipmentRouter()
 
 	builder := query.NewQueryBuilder()
+	waf := entitlements.NewWeightAllotmentFetcher()
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -95,7 +97,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	subtestData.planner = &mocks.Planner{}
-	subtestData.moveWeights = moverouter.NewMoveWeights(NewShipmentReweighRequester())
+	subtestData.moveWeights = moverouter.NewMoveWeights(NewShipmentReweighRequester(), waf)
 
 	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner, subtestData.moveWeights)
 	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner, subtestData.moveWeights)
@@ -257,7 +259,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		})
 
 		shipmentRouter := NewShipmentRouter()
-		moveWeights := moverouter.NewMoveWeights(NewShipmentReweighRequester())
+		waf := entitlements.NewWeightAllotmentFetcher()
+		moveWeights := moverouter.NewMoveWeights(NewShipmentReweighRequester(), waf)
 		var serviceItemCreator services.MTOServiceItemCreator
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,

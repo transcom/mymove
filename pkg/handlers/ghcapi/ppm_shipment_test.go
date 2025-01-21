@@ -26,7 +26,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 	var ppmShipment models.PPMShipment
 	newFakeSITEstimatedCost := models.CentPointer(unit.Cents(25500))
 
-	setupPricerData := func() {
+	suite.PreloadData(func() {
 		testdatagen.FetchOrMakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
 			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
 				FuelPriceInMillicents: unit.Millicents(281400),
@@ -342,10 +342,9 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 				PriceCents:            63,
 			},
 		})
-	}
+	})
 
-	suite.PreloadData(func() {
-		setupPricerData()
+	setupData := func() {
 		sitLocationDestination := models.SITLocationTypeDestination
 		entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -387,9 +386,9 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 
 		ppmShipment.DestinationAddress = destinationAddress
 		mockedPlanner := &routemocks.Planner{}
-		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813", false).Return(2294, nil)
-	})
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "30813", false).Return(2294, nil)
+	}
+	setupData()
 
 	setUpGetCostRequestAndParams := func() ppmsitops.GetPPMSITEstimatedCostParams {
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/sit_location/%s/sit-estimated-cost", ppmShipment.ID.String(), *ppmShipment.SITLocation)
