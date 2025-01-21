@@ -86,7 +86,7 @@ type Entitlements struct {
 
 	// weight restriction
 	// Example: 1500
-	WeightRestriction int64 `json:"weightRestriction,omitempty"`
+	WeightRestriction *int64 `json:"weightRestriction,omitempty"`
 }
 
 // Validate validates this entitlements

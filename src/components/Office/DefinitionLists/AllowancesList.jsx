@@ -16,7 +16,6 @@ const AllowancesList = ({ info, showVisualCues }) => {
   const visualCuesStyle = classNames(descriptionListStyles.row, {
     [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
   });
-
   useEffect(() => {
     const checkUBFeatureFlag = async () => {
       const enabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
@@ -118,7 +117,6 @@ const AllowancesList = ({ info, showVisualCues }) => {
     </div>
   );
 };
-
 AllowancesList.propTypes = {
   info: PropTypes.shape({
     branch: PropTypes.string,

@@ -92,7 +92,7 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 		OriginDutyLocationPhoneLine:   originDutyLocationPhoneLine,
 		Locator:                       move.Locator,
 		MyMoveLink:                    MyMoveLink,
-		AdminRestrictedWeightLocation: *orders.Entitlement.AdminRestrictedWeightLocation,
+		AdminRestrictedWeightLocation: orders.Entitlement.AdminRestrictedWeightLocation,
 	})
 
 	if err != nil {

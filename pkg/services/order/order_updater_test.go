@@ -589,7 +589,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
 			AdminRestrictedWeightLocation:  models.BoolPointer(false),
-			WeightRestriction:              int64(*models.IntPointer(0)),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -633,7 +632,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 			DependentsTwelveAndOver:        models.Int64Pointer(2),
 			DependentsUnderTwelve:          models.Int64Pointer(4),
 			AdminRestrictedWeightLocation:  models.BoolPointer(false),
-			WeightRestriction:              int64(*models.IntPointer(0)),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -680,7 +678,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
 			AdminRestrictedWeightLocation:  models.BoolPointer(false),
-			WeightRestriction:              int64(*models.IntPointer(0)),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)

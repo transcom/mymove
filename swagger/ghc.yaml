@@ -685,6 +685,50 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.excessWeightRisk
+  /orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk:
+    parameters:
+      - description: ID of order to use
+        in: path
+        name: orderID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: >-
+        Saves the date and time a TOO acknowledged the excess unaccompanied
+        baggage weight risk by dismissing the alert
+      description: >-
+        Saves the date and time a TOO acknowledged the excess unaccompanied
+        baggage weight risk by dismissing the alert
+      operationId: acknowledgeExcessUnaccompaniedBaggageWeightRisk
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated Move
+          schema:
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.excessWeightRisk
   /orders/{orderID}/update-billable-weight:
     parameters:
       - description: ID of order to use
@@ -1069,6 +1113,7 @@ paths:
         * Releasing / Receiving agents
         * Actual Pro Gear Weight
         * Actual Spouse Pro Gear Weight
+        * Location of the POE/POD
       consumes:
         - application/json
       produces:
@@ -5202,6 +5247,11 @@ definitions:
       adminRestrictedWeightLocation:
         type: boolean
         example: false
+      weightRestriction:
+        type: integer
+        example: 1500
+        x-formatting: weight
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -5265,12 +5315,6 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
-      weightRestriction:
-        type: integer
-        example: 1500
-        description: >-
-          The amount of weight in pounds that the move is restricted to for a
-          particular location.
       eTag:
         type: string
     type: object
@@ -5388,6 +5432,21 @@ definitions:
         x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
+      excessUnaccompaniedBaggageWeightQualifiedAt:
+        type: string
+        format: date-time
+        description: >-
+          Timestamp of when the sum of estimated or actual unaccompanied baggage
+          shipment weights of the move reached 90% of the weight allowance
+        x-nullable: true
+      excessUnaccompaniedBaggageWeightAcknowledgedAt:
+        type: string
+        format: date-time
+        description: >-
+          Timestamp of when the TOO acknowledged the excess unaccompanied
+          baggage weight risk by either dismissing the alert or updating the max
+          billable weight
+        x-nullable: true
       excess_weight_qualified_at:
         type: string
         format: date-time
@@ -6129,6 +6188,10 @@ definitions:
       weightRestriction:
         example: 1500
         type: integer
+        x-nullable: true
+        description: >-
+          Indicates the weight restriction for the move to a particular
+          location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6241,9 +6304,8 @@ definitions:
       weightRestriction:
         example: 1500
         type: integer
-        description: unit is in lbs
-        x-formatting: weight
         x-nullable: true
+        description: Indicates the weight restriction for a move to a particular location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -8922,7 +8984,7 @@ definitions:
     enum:
       - HHG
       - HHG_INTO_NTS
-      - HHG_OUTOF_NTS_DOMESTIC
+      - HHG_OUTOF_NTS
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
@@ -8931,7 +8993,7 @@ definitions:
     x-display-value:
       HHG: HHG
       HHG_INTO_NTS: NTS
-      HHG_OUTOF_NTS_DOMESTIC: NTS Release
+      HHG_OUTOF_NTS: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
@@ -10479,6 +10541,102 @@ definitions:
       - originalAddress
       - newAddress
       - contractorRemarks
+  Port:
+    description: A port that is used to move an international shipment.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      portType:
+        type: string
+        description: Port type A (Air), B (Border Crossing), S (Sea)
+        enum:
+          - A
+          - B
+          - S
+      portCode:
+        type: string
+        description: 3 or 4 digit port code
+        example: '0431'
+      portName:
+        type: string
+        description: Name of the port
+        example: PORTLAND INTL
+      city:
+        type: string
+        example: PORTLAND
+      county:
+        type: string
+        example: MULTNOMAH
+      state:
+        type: string
+        description: US state
+        example: OR
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      zip:
+        type: string
+        format: zip
+        title: ZIP
+        example: '99501'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        example: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -10709,6 +10867,10 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
+      podLocation:
+        $ref: '#/definitions/Port'
+      poeLocation:
+        $ref: '#/definitions/Port'
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -11759,7 +11921,7 @@ definitions:
           - BOAT_TOW_AWAY
           - HHG
           - HHG_INTO_NTS
-          - HHG_OUTOF_NTS_DOMESTIC
+          - HHG_OUTOF_NTS
           - MOBILE_HOME
           - PPM
           - UNACCOMPANIED_BAGGAGE

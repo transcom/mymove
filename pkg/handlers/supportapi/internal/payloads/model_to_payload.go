@@ -85,9 +85,6 @@ func Order(order *models.Order) *supportmessages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	uploadedOrders := Document(&order.UploadedOrders)
-	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
-	}
 
 	reportByDate := strfmt.Date(order.ReportByDate)
 	issueDate := strfmt.Date(order.IssueDate)
@@ -163,11 +160,10 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
 		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		StorageInTransit:  sit,
-		TotalDependents:   totalDependents,
-		TotalWeight:       totalWeight,
-		WeightRestriction: int64(*entitlement.WeightRestriction),
-		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
+		StorageInTransit: sit,
+		TotalDependents:  totalDependents,
+		TotalWeight:      totalWeight,
+		ETag:             etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 

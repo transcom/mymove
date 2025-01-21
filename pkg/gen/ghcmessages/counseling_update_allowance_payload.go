@@ -74,7 +74,7 @@ type CounselingUpdateAllowancePayload struct {
 	// Example: 500
 	UbAllowance *int64 `json:"ubAllowance,omitempty"`
 
-	// unit is in lbs
+	// Indicates the weight restriction for a move to a particular location.
 	// Example: 1500
 	WeightRestriction *int64 `json:"weightRestriction,omitempty"`
 }

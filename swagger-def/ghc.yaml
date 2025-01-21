@@ -648,6 +648,46 @@ paths:
           $ref: "#/responses/ServerError"
       x-permissions:
         - update.excessWeightRisk
+  "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk":
+    parameters:
+      - description: ID of order to use
+        in: path
+        name: orderID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert
+      description: Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert
+      operationId: acknowledgeExcessUnaccompaniedBaggageWeightRisk
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        "200":
+          description: updated Move
+          schema:
+            $ref: "#/definitions/Move"
+        "403":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "412":
+          $ref: "#/responses/PreconditionFailed"
+        "422":
+          $ref: "#/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/responses/ServerError"
+      x-permissions:
+        - update.excessWeightRisk
   "/orders/{orderID}/update-billable-weight":
     parameters:
       - description: ID of order to use
@@ -1030,6 +1070,7 @@ paths:
         * Releasing / Receiving agents
         * Actual Pro Gear Weight
         * Actual Spouse Pro Gear Weight
+        * Location of the POE/POD
       consumes:
         - application/json
       produces:
@@ -3501,7 +3542,7 @@ paths:
             - TASK_ORDER
             - PAYMENT_REQUEST
       responses:
-        '200':
+        "200":
           description: Successfully returned bulk assignment data
           schema:
             $ref: '#/definitions/BulkAssignmentData'
@@ -5003,6 +5044,11 @@ definitions:
       adminRestrictedWeightLocation:
         type: boolean
         example: false
+      weightRestriction:
+        type: integer
+        example: 1500
+        x-formatting: weight
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -5057,10 +5103,6 @@ definitions:
         example: 3
         x-nullable: true
         description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
-      weightRestriction:
-        type: integer
-        example: 1500
-        description: The amount of weight in pounds that the move is restricted to for a particular location.
       eTag:
         type: string
     type: object
@@ -5178,6 +5220,16 @@ definitions:
         x-nullable: true
       status:
         $ref: "#/definitions/MoveStatus"
+      excessUnaccompaniedBaggageWeightQualifiedAt:
+        type: string
+        format: date-time
+        description: Timestamp of when the sum of estimated or actual unaccompanied baggage shipment weights of the move reached 90% of the weight allowance
+        x-nullable: true
+      excessUnaccompaniedBaggageWeightAcknowledgedAt:
+        type: string
+        format: date-time
+        description: Timestamp of when the TOO acknowledged the excess unaccompanied baggage weight risk by either dismissing the alert or updating the max billable weight
+        x-nullable: true
       excess_weight_qualified_at:
         type: string
         format: date-time
@@ -5875,6 +5927,8 @@ definitions:
       weightRestriction:
         example: 1500
         type: integer
+        x-nullable: true
+        description: Indicates the weight restriction for the move to a particular location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -5974,9 +6028,8 @@ definitions:
       weightRestriction:
         example: 1500
         type: integer
-        description: unit is in lbs
-        x-formatting: weight
         x-nullable: true
+        description: Indicates the weight restriction for a move to a particular location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -7057,7 +7110,7 @@ definitions:
   BulkAssignmentMoveIDs:
     type: array
     items:
-      $ref: '#/definitions/BulkAssignmentMoveID'
+      $ref: "#/definitions/BulkAssignmentMoveID"
   BulkAssignmentMoveID:
     type: string
     format: uuid
@@ -7085,9 +7138,9 @@ definitions:
     type: object
     properties:
       availableOfficeUsers:
-        $ref: '#/definitions/AvailableOfficeUsers'
+        $ref: "#/definitions/AvailableOfficeUsers"
       bulkAssignmentMoveIDs:
-        $ref: '#/definitions/BulkAssignmentMoveIDs'
+        $ref: "#/definitions/BulkAssignmentMoveIDs"
   QueueMoves:
     type: array
     items:

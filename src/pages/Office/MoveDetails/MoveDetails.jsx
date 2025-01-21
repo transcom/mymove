@@ -73,7 +73,7 @@ const MoveDetails = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const errorIfMissing = {
     HHG_INTO_NTS: [{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }],
-    HHG_OUTOF_NTS_DOMESTIC: [
+    HHG_OUTOF_NTS: [
       { fieldName: 'storageFacility' },
       { fieldName: 'ntsRecordedWeight' },
       { fieldName: 'serviceOrderNumber' },
@@ -115,7 +115,7 @@ const MoveDetails = ({
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
     errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
-    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
+    errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
   }
 
   let sections = useMemo(() => {
@@ -277,13 +277,37 @@ const MoveDetails = ({
   useEffect(() => {
     const estimatedWeight = calculateEstimatedWeight(mtoShipments);
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
+    const riskOfExcessUnaccompaniedBaggageAcknowledged = !!move?.excessUnaccompaniedBaggageWeightAcknowledgedAt;
+    const riskOfExcessUnaccompaniedBaggageQualifiedAt = !!move?.excessUnaccompaniedBaggageWeightQualifiedAt;
+    const qualifiedAfterAcknowledged =
+      move?.excessUnaccompaniedBaggageWeightQualifiedAt &&
+      move?.excessUnaccompaniedBaggageWeightAcknowledgedAt &&
+      new Date(move.excessUnaccompaniedBaggageWeightQualifiedAt) >
+        new Date(move.excessUnaccompaniedBaggageWeightAcknowledgedAt);
 
+    let excessBillableWeightCount = 0;
     if (hasRiskOfExcess(estimatedWeight, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
-      setExcessWeightRiskCount(1);
-    } else {
-      setExcessWeightRiskCount(0);
+      excessBillableWeightCount += 1;
     }
-  }, [move?.excess_weight_acknowledged_at, mtoShipments, order?.entitlement.totalWeight, setExcessWeightRiskCount]);
+    // Make sure that the risk of UB is NOT acknowledged AND that it is qualified before showing the alert
+    // Also, if the timestamp of acknowledgement is BEFORE its qualified timestamp, then we should show the alert
+    const showUnaccompaniedBaggageWeightAlert =
+      !riskOfExcessUnaccompaniedBaggageAcknowledged &&
+      riskOfExcessUnaccompaniedBaggageQualifiedAt &&
+      (!riskOfExcessUnaccompaniedBaggageAcknowledged || qualifiedAfterAcknowledged);
+
+    if (showUnaccompaniedBaggageWeightAlert) {
+      excessBillableWeightCount += 1;
+    }
+    setExcessWeightRiskCount(excessBillableWeightCount);
+  }, [
+    move?.excess_weight_acknowledged_at,
+    mtoShipments,
+    order?.entitlement.totalWeight,
+    setExcessWeightRiskCount,
+    move?.excessUnaccompaniedBaggageWeightAcknowledgedAt,
+    move?.excessUnaccompaniedBaggageWeightQualifiedAt,
+  ]);
 
   useEffect(() => {
     const checkShipmentsForUnapprovedSITExtensions = (shipmentsWithStatus) => {
@@ -407,11 +431,11 @@ const MoveDetails = ({
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
     adminRestrictedWeightLocation: allowances.adminRestrictedWeightLocation,
+    weightRestriction: allowances.weightRestriction,
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,
     ubAllowance: allowances.unaccompaniedBaggageAllowance,
-    weightRestriction: allowances.weightRestriction,
   };
 
   const customerInfo = {

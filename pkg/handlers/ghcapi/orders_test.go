@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -36,6 +37,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
 	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -83,7 +85,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	createHandler := CreateOrderHandler{handlerConfig}
+	createHandler := CreateOrderHandler{handlerConfig, waf}
 
 	response := createHandler.Handle(params)
 
@@ -106,6 +108,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 }
 
 func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
 	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -159,7 +163,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	createHandler := CreateOrderHandler{handlerConfig}
+	createHandler := CreateOrderHandler{handlerConfig, waf}
 
 	response := createHandler.Handle(params)
 
@@ -186,7 +190,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	order := move.Orders
 	request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
@@ -199,7 +203,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	handlerConfig := suite.HandlerConfig()
 	handler := GetOrdersHandler{
 		handlerConfig,
-		orderservice.NewOrderFetcher(),
+		orderservice.NewOrderFetcher(waf),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -234,7 +238,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 
 func (suite *HandlerSuite) TestWeightAllowances() {
 	suite.Run("With E-1 rank and no dependents", func() {
-		order := factory.BuildOrder(nil, []factory.Customization{
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
 					ID:            uuid.Must(uuid.NewV4()),
@@ -288,7 +292,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 	})
 
 	suite.Run("With E-1 rank and dependents", func() {
-		order := factory.BuildOrder(nil, []factory.Customization{
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
 					ID:            uuid.Must(uuid.NewV4()),
@@ -2177,6 +2181,179 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 
 		suite.IsType(&orderop.AcknowledgeExcessWeightRiskUnprocessableEntity{}, response)
 		payload := response.(*orderop.AcknowledgeExcessWeightRiskUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+}
+
+func (suite *HandlerSuite) TestacknowledgeExcessUnaccompaniedBaggageWeightRiskHandler() {
+	request := httptest.NewRequest("POST", "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk", nil)
+
+	suite.Run("Returns 200 when all validations pass", func() {
+		handlerConfig := suite.HandlerConfig()
+		now := time.Now()
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessUnaccompaniedBaggageWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
+		order := move.Orders
+
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
+		}
+
+		router := moverouter.NewMoveRouter()
+		handler := AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler{
+			handlerConfig,
+			orderservice.NewExcessWeightRiskManager(router),
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskOK{}, response)
+		moveOK := response.(*orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskOK)
+		movePayload := moveOK.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
+
+		suite.Equal(move.ID.String(), movePayload.ID.String())
+		suite.NotNil(movePayload.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)
+	})
+
+	suite.Run("Returns 404 when updater returns NotFoundError", func() {
+		handlerConfig := suite.HandlerConfig()
+		now := time.Now()
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessUnaccompaniedBaggageWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
+		order := move.Orders
+
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler{
+			handlerConfig,
+			updater,
+		}
+
+		updater.On("AcknowledgeExcessUnaccompaniedBaggageWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, params.IfMatch).Return(nil, apperror.NotFoundError{})
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskNotFound{}, response)
+		payload := response.(*orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
+	})
+
+	suite.Run("Returns 412 when eTag does not match", func() {
+		handlerConfig := suite.HandlerConfig()
+		now := time.Now()
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessUnaccompaniedBaggageWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
+		order := move.Orders
+
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     "",
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler{
+			handlerConfig,
+			updater,
+		}
+
+		updater.On("AcknowledgeExcessUnaccompaniedBaggageWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, params.IfMatch).Return(nil, apperror.PreconditionFailedError{})
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskPreconditionFailed{}, response)
+		payload := response.(*orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 422 when updater service returns validation errors", func() {
+		handlerConfig := suite.HandlerConfig()
+		now := time.Now()
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessUnaccompaniedBaggageWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
+		order := move.Orders
+
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler{
+			handlerConfig,
+			updater,
+		}
+
+		verrs := validate.NewErrors()
+		verrs.Add("some key", "some validation error")
+		invalidInputError := apperror.NewInvalidInputError(order.ID, nil, verrs, "")
+		updater.On("AcknowledgeExcessUnaccompaniedBaggageWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, params.IfMatch).Return(nil, invalidInputError)
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskUnprocessableEntity{}, response)
+		payload := response.(*orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskUnprocessableEntity).Payload
 
 		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))

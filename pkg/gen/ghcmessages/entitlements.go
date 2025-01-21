@@ -95,9 +95,9 @@ type Entitlements struct {
 	// Example: 3
 	UnaccompaniedBaggageAllowance *int64 `json:"unaccompaniedBaggageAllowance,omitempty"`
 
-	// The amount of weight in pounds that the move is restricted to for a particular location.
+	// weight restriction
 	// Example: 1500
-	WeightRestriction int64 `json:"weightRestriction,omitempty"`
+	WeightRestriction *int64 `json:"weightRestriction,omitempty"`
 }
 
 // Validate validates this entitlements

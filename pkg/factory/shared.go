@@ -53,6 +53,8 @@ var CustomerSupportRemark CustomType = "CustomerSupportRemark"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
+var HHGAllowance CustomType = "HHGAllowance"
+var PayGrade CustomType = "PayGrade"
 var UBAllowance CustomType = "UBAllowances"
 var EvaluationReport CustomType = "EvaluationReport"
 var LineOfAccounting CustomType = "LineOfAccounting"
@@ -121,6 +123,8 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Document":                                 Document,
 	"models.DutyLocation":                             DutyLocation,
 	"models.Entitlement":                              Entitlement,
+	"models.PayGrade":                                 PayGrade,
+	"models.HHGAllowance":                             HHGAllowance,
 	"models.UBAllowances":                             UBAllowance,
 	"models.EvaluationReport":                         EvaluationReport,
 	"models.LineOfAccounting":                         LineOfAccounting,
@@ -274,11 +278,15 @@ var TransportationOffices = transportationOfficeGroup{
 }
 
 type officeUserGroup struct {
-	SCAssignedUser CustomType
+	SCAssignedUser  CustomType
+	TIOAssignedUser CustomType
+	TOOAssignedUser CustomType
 }
 
 var OfficeUsers = officeUserGroup{
-	SCAssignedUser: "SCAssignedUser",
+	SCAssignedUser:  "SCAssignedUser",
+	TIOAssignedUser: "TIOAssignedUser",
+	TOOAssignedUser: "TOOAssignedUser",
 }
 
 // uploadGroup is a grouping of all the upload related fields

@@ -881,6 +881,10 @@ definitions:
       adminRestrictedWeightLocation:
         type: boolean
         example: false
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -915,9 +919,6 @@ definitions:
         x-formatting: weight
       totalDependents:
         example: 2
-        type: integer
-      weightRestriction:
-        example: 1500
         type: integer
       eTag:
         type: string
@@ -1499,7 +1500,7 @@ definitions:
     enum:
       - HHG
       - HHG_INTO_NTS
-      - HHG_OUTOF_NTS_DOMESTIC
+      - HHG_OUTOF_NTS
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
@@ -1508,7 +1509,7 @@ definitions:
     x-display-value:
       HHG: HHG
       HHG_INTO_NTS: NTS
-      HHG_OUTOF_NTS_DOMESTIC: NTS Release
+      HHG_OUTOF_NTS: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away

@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -194,17 +195,22 @@ func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool, ordersType internalmessages.OrdersType) models.SSWMaxWeightEntitlement {
+func SSWGetEntitlement(appCtx appcontext.AppContext, grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool, ordersType internalmessages.OrdersType) (models.SSWMaxWeightEntitlement, error) {
 	sswEntitlements := SSWMaxWeightEntitlement{}
-	entitlements := models.GetWeightAllotment(grade, ordersType)
+	waf := entitlements.NewWeightAllotmentFetcher()
+	entitlements, err := waf.GetWeightAllotment(appCtx, string(grade), ordersType)
+	if err != nil {
+		return models.SSWMaxWeightEntitlement{}, nil
+	}
+	//entitlements := models.GetWeightAllotment(grade, ordersType)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
 	sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
 	if !hasDependents {
 		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
-		return models.SSWMaxWeightEntitlement(sswEntitlements)
+		return models.SSWMaxWeightEntitlement(sswEntitlements), nil
 	}
 	sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
-	return models.SSWMaxWeightEntitlement(sswEntitlements)
+	return models.SSWMaxWeightEntitlement(sswEntitlements), nil
 }
 
 // Calculates cost for the Remaining PPM Incentive (pre-tax) field on page 2 of SSW form.
@@ -458,7 +464,7 @@ func formatAdditionalShipments(ssfd models.ShipmentSummaryFormData) (map[string]
 			}
 			// PPM Status instead of shipment status
 			page3Map[fmt.Sprintf("AddShipmentStatus%d", i)] = FormatCurrentPPMStatus(*shipment.PPMShipment)
-		case shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom:
+		case shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS Release"
 		case shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS"
@@ -1074,7 +1080,10 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, errors.New("order for requested shipment summary worksheet data does not have a pay grade attached")
 	}
 
-	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear, ppmShipment.Shipment.MoveTaskOrder.Orders.OrdersType)
+	weightAllotment, err := SSWGetEntitlement(appCtx, *ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear, ppmShipment.Shipment.MoveTaskOrder.Orders.OrdersType)
+	if err != nil {
+		return nil, err
+	}
 
 	maxSit, err := CalculateShipmentSITAllowance(appCtx, ppmShipment.Shipment)
 	if err != nil {
