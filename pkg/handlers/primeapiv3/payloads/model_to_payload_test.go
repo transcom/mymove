@@ -1176,6 +1176,51 @@ func (suite *PayloadsSuite) TestMTOAgentPayload() {
 	suite.NotNil(payload)
 }
 
+func (suite *PayloadsSuite) TestMTOAgentDeleted() {
+	deletedAgent := models.MTOAgent{
+		MTOAgentType: models.MTOAgentReceiving,
+		DeletedAt:    models.TimePointer(time.Now()),
+	}
+	agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{Model: deletedAgent},
+	}, nil)
+	mtoAgents := models.MTOAgents{agent}
+
+	result := MTOAgents(&mtoAgents)
+	suite.Nil(*result)
+}
+
+func (suite *PayloadsSuite) TestMTOAgentOneActiveOneDeleted() {
+	deletedAgentData := models.MTOAgent{
+		MTOAgentType: models.MTOAgentReceiving,
+		DeletedAt:    models.TimePointer(time.Now()),
+	}
+	activeAgentData := models.MTOAgent{
+		FirstName:    models.StringPointer("John"),
+		LastName:     models.StringPointer("Doe"),
+		Email:        models.StringPointer("John.doe@example.com"),
+		Phone:        models.StringPointer("222-222-2222"),
+		MTOAgentType: models.MTOAgentReleasing,
+	}
+	builtDeletedAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{Model: deletedAgentData},
+	}, nil)
+	builtActiveAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{Model: activeAgentData},
+	}, nil)
+	mtoAgentsPayload := models.MTOAgents{builtDeletedAgent, builtActiveAgent}
+
+	result := MTOAgents(&mtoAgentsPayload)
+	actualAgent := (*result)[0]
+	suite.NotNil(result, "Expected result not to be nil")
+	suite.Len(*result, 1, "Expected only one active agent in the result")
+	suite.Equal(activeAgentData.FirstName, actualAgent.FirstName, "First names should match")
+	suite.Equal(activeAgentData.LastName, actualAgent.LastName, "Last names should match")
+	suite.Equal(activeAgentData.Email, actualAgent.Email, "Emails should match")
+	suite.Equal(activeAgentData.Phone, actualAgent.Phone, "Phone numbers should match")
+	suite.Equal(string(activeAgentData.MTOAgentType), string(actualAgent.AgentType), "Agent types should match")
+}
+
 func (suite *PayloadsSuite) TestStorageFacility() {
 	storageFacilityID := uuid.Must(uuid.NewV4())
 	updatedAt := time.Now()
