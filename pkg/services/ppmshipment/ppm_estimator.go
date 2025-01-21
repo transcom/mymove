@@ -1360,7 +1360,7 @@ func StorageServiceItems(ppmShipment models.PPMShipment, locationType models.SIT
 			}
 		}
 		return []models.MTOServiceItem{
-			{ReService: models.ReService{Code: models.ReServiceCodeDDFSIT}, MTOShipmentID: &mtoShipmentID}}
+			{ReService: models.ReService{Code: models.ReServiceCodeIDFSIT}, MTOShipmentID: &mtoShipmentID}}
 	}
 
 	return nil

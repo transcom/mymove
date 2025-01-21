@@ -47,7 +47,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- db proc that will calculate a PPM's incentive
+-- db func that will calculate a PPM's incentives
 -- this is used for estimated/final/max incentives
 CREATE OR REPLACE FUNCTION calculate_ppm_incentive(
     ppm_id UUID,
@@ -164,7 +164,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- db proc that will calculate a PPM's SIT cost
+-- db func that will calculate a PPM's SIT cost
 -- returns a table with total cost and the cost of each first day/add'l day SIT service item
 CREATE OR REPLACE FUNCTION calculate_ppm_sit_cost(
     ppm_id UUID,
@@ -185,30 +185,27 @@ DECLARE
     sit_rate_area_id UUID;
     service_id UUID;
 BEGIN
-    -- Validate SIT days
+    -- make sure we validate parameters
     IF sit_days IS NULL OR sit_days < 0 THEN
         RAISE EXCEPTION 'SIT days must be a positive integer. Provided value: %', sit_days;
     END IF;
 
-    -- Validate PPM existence
     SELECT ppms.id INTO ppm FROM ppm_shipments ppms WHERE ppms.id = ppm_id;
     IF ppm IS NULL THEN
         RAISE EXCEPTION 'PPM with ID % not found', ppm_id;
     END IF;
 
-    -- Get contract ID
     contract_id := get_contract_id(move_date);
     IF contract_id IS NULL THEN
         RAISE EXCEPTION 'Contract not found for date: %', move_date;
     END IF;
 
-    -- Get rate area
     sit_rate_area_id := get_rate_area_id(address_id, NULL, contract_id);
     IF sit_rate_area_id IS NULL THEN
         RAISE EXCEPTION 'Rate area is NULL for address ID % and contract ID %', address_id, contract_id;
     END IF;
 
-    -- Calculate first day SIT cost
+    -- calculate first day SIT cost
     service_id := get_service_id(CASE WHEN is_origin THEN 'IOFSIT' ELSE 'IDFSIT' END);
     price_first_day := (
         calculate_escalated_price(
@@ -221,7 +218,7 @@ BEGIN
         ) * (weight / 100)::NUMERIC * 100
     )::INT;
 
-    -- Calculate additional day SIT cost
+    -- calculate additional day SIT cost
     service_id := get_service_id(CASE WHEN is_origin THEN 'IOASIT' ELSE 'IDASIT' END);
     price_addl_day := (
         calculate_escalated_price(
@@ -234,10 +231,9 @@ BEGIN
         ) * (weight / 100)::NUMERIC * 100 * sit_days
     )::INT;
 
-    -- Calculate total SIT cost
+    -- add em up
     total_cost := price_first_day + price_addl_day;
 
-    -- Return the breakdown for SIT costs
     RETURN QUERY SELECT total_cost, price_first_day, price_addl_day;
 END;
 $$ LANGUAGE plpgsql;
