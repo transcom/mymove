@@ -164,6 +164,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.PPMShipment",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.ResidentialAddress.Country",
+		"Orders.ServiceMember.BackupContacts",
 		"Orders.Entitlement",
 		"Orders.DestinationGBLOC",
 		"Orders.NewDutyLocation.Address.Country",
