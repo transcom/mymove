@@ -1186,27 +1186,34 @@ func (suite *PayloadsSuite) TestMTOAgentDeleted() {
 }
 
 func (suite *PayloadsSuite) TestMTOAgentOneActiveOneDeleted() {
-	oldAgent := models.MTOAgent{
-		MTOAgentType: models.MTOAgentReleasing,
+	deletedAgentData := models.MTOAgent{
+		MTOAgentType: models.MTOAgentReceiving,
 		DeletedAt:    models.TimePointer(time.Now()),
 	}
-	newAgent := models.MTOAgent{
+	activeAgentData := models.MTOAgent{
 		FirstName:    models.StringPointer("John"),
 		LastName:     models.StringPointer("Doe"),
 		Email:        models.StringPointer("John.doe@example.com"),
 		Phone:        models.StringPointer("222-222-2222"),
 		MTOAgentType: models.MTOAgentReleasing,
 	}
-	deletedAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
-		{Model: oldAgent},
+	builtDeletedAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{Model: deletedAgentData},
 	}, nil)
-	activeAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
-		{Model: newAgent},
+	builtActiveAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{Model: activeAgentData},
 	}, nil)
-	var mtoAgents models.MTOAgents
-	mtoAgents = append(mtoAgents, deletedAgent, activeAgent)
-	result := MTOAgents(&mtoAgents)
-	suite.NotNil(result)
+	mtoAgentsPayload := models.MTOAgents{builtDeletedAgent, builtActiveAgent}
+
+	result := MTOAgents(&mtoAgentsPayload)
+	actualAgent := (*result)[0]
+	suite.NotNil(result, "Expected result not to be nil")
+	suite.Len(*result, 1, "Expected only one active agent in the result")
+	suite.Equal(activeAgentData.FirstName, actualAgent.FirstName, "First names should match")
+	suite.Equal(activeAgentData.LastName, actualAgent.LastName, "Last names should match")
+	suite.Equal(activeAgentData.Email, actualAgent.Email, "Emails should match")
+	suite.Equal(activeAgentData.Phone, actualAgent.Phone, "Phone numbers should match")
+	suite.Equal(string(activeAgentData.MTOAgentType), string(actualAgent.AgentType), "Agent types should match")
 }
 
 func (suite *PayloadsSuite) TestStorageFacility() {
