@@ -148,13 +148,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			"90210",
 			"94535",
 			false,
-			false,
 		).Return(2500, nil).Twice()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
-			false,
 			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
@@ -218,7 +216,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"99505",
 			"99506",
-			false,
 			true,
 		).Return(49, nil)
 		move := setupTestData()
