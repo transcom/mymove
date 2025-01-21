@@ -257,7 +257,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 			newPPMShipment.HasRequestedAdvance = nil
 			newPPMShipment.AdvanceAmountRequested = nil
 
-			estimatedIncentive, err = f.CalculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newPPMShipment.EstimatedWeight.Int(), false, false, true)
+			estimatedIncentive, err = f.CalculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newPPMShipment.EstimatedWeight.Int(), true, false, false)
 			if err != nil {
 				return nil, nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 			}
