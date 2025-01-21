@@ -170,7 +170,7 @@ func init() {
                       "streetAddress1": "204 South Prospect Lane"
                     },
                     "requestedPickupDate": "2022-12-31",
-                    "shipmentType": "HHG_INTO_NTS_DOMESTIC"
+                    "shipmentType": "HHG_INTO_NTS"
                   }
                 },
                 "nts-r": {
@@ -186,7 +186,7 @@ func init() {
                       }
                     ],
                     "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
+                    "shipmentType": "HHG_OUTOF_NTS"
                   }
                 },
                 "ppm": {
@@ -404,6 +404,11 @@ func init() {
           "title": "County",
           "x-nullable": true,
           "example": "LOS ANGELES"
+        },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
         },
         "eTag": {
           "type": "string",
@@ -1636,6 +1641,31 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalFuelSurcharge": {
+      "description": "Describes a international Port of Embarkation/Debarkation fuel surcharge service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "portCode": {
+              "description": "A unique code for a Port",
+              "type": "string"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for Port of Embarkation (POEFSC) or Port of Debarkation (PODFSC).",
+              "type": "string",
+              "enum": [
+                "PODFSC",
+                "POEFSC"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
       "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
@@ -1792,15 +1822,15 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
         "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_INTO_NTS",
+        "HHG_OUTOF_NTS",
         "MOBILE_HOME",
         "PPM",
         "UNACCOMPANIED_BAGGAGE"
@@ -1809,8 +1839,8 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
         "BOAT_TOW_AWAY": "Boat shipment that has a road-worthy trailer",
         "HHG": "Household goods move (HHG)",
-        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
+        "HHG_INTO_NTS": "HHG into Non-temporary storage (NTS)",
+        "HHG_OUTOF_NTS": "HHG out of Non-temporary storage (NTS Release)",
         "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
@@ -1889,6 +1919,9 @@ func init() {
             }
           ]
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "destinationSitAuthEndDate": {
           "description": "The SIT authorized end date for destination SIT.",
           "type": "string",
@@ -1952,6 +1985,9 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "originSitAuthEndDate": {
           "description": "The SIT authorized end date for origin SIT.",
@@ -2185,8 +2221,32 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationGBLOC": {
+          "type": "string",
+          "readOnly": true,
+          "example": "KKFA"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "90210"
+        },
         "eTag": {
           "type": "string",
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "excessWeightAcknowledgedAt": {
@@ -2621,6 +2681,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/PPMDestinationAddress"
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
@@ -2703,6 +2766,9 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -3121,6 +3187,32 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ProofOfServiceDoc"
+      }
+    },
+    "RateArea": {
+      "description": "Rate area info for OCONUS postal code",
+      "type": "object",
+      "required": [
+        "id",
+        "rateAreaId",
+        "rateAreaName"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rateAreaId": {
+          "description": "Rate area code",
+          "type": "string",
+          "example": "US8101000"
+        },
+        "rateAreaName": {
+          "description": "Rate area name",
+          "type": "string",
+          "example": "Alaska (Zone) I"
+        }
       }
     },
     "ReServiceCode": {
@@ -4387,7 +4479,7 @@ func init() {
                       "streetAddress1": "204 South Prospect Lane"
                     },
                     "requestedPickupDate": "2022-12-31",
-                    "shipmentType": "HHG_INTO_NTS_DOMESTIC"
+                    "shipmentType": "HHG_INTO_NTS"
                   }
                 },
                 "nts-r": {
@@ -4403,7 +4495,7 @@ func init() {
                       }
                     ],
                     "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
+                    "shipmentType": "HHG_OUTOF_NTS"
                   }
                 },
                 "ppm": {
@@ -4658,6 +4750,11 @@ func init() {
           "title": "County",
           "x-nullable": true,
           "example": "LOS ANGELES"
+        },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
         },
         "eTag": {
           "type": "string",
@@ -5890,6 +5987,31 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalFuelSurcharge": {
+      "description": "Describes a international Port of Embarkation/Debarkation fuel surcharge service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "portCode": {
+              "description": "A unique code for a Port",
+              "type": "string"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for Port of Embarkation (POEFSC) or Port of Debarkation (PODFSC).",
+              "type": "string",
+              "enum": [
+                "PODFSC",
+                "POEFSC"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
       "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
@@ -6046,15 +6168,15 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
         "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_INTO_NTS",
+        "HHG_OUTOF_NTS",
         "MOBILE_HOME",
         "PPM",
         "UNACCOMPANIED_BAGGAGE"
@@ -6063,8 +6185,8 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
         "BOAT_TOW_AWAY": "Boat shipment that has a road-worthy trailer",
         "HHG": "Household goods move (HHG)",
-        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
+        "HHG_INTO_NTS": "HHG into Non-temporary storage (NTS)",
+        "HHG_OUTOF_NTS": "HHG out of Non-temporary storage (NTS Release)",
         "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
@@ -6143,6 +6265,9 @@ func init() {
             }
           ]
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "destinationSitAuthEndDate": {
           "description": "The SIT authorized end date for destination SIT.",
           "type": "string",
@@ -6206,6 +6331,9 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "originSitAuthEndDate": {
           "description": "The SIT authorized end date for origin SIT.",
@@ -6439,8 +6567,32 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationGBLOC": {
+          "type": "string",
+          "readOnly": true,
+          "example": "KKFA"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "90210"
+        },
         "eTag": {
           "type": "string",
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "excessWeightAcknowledgedAt": {
@@ -6875,6 +7027,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/PPMDestinationAddress"
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
@@ -6957,6 +7112,9 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -7375,6 +7533,32 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ProofOfServiceDoc"
+      }
+    },
+    "RateArea": {
+      "description": "Rate area info for OCONUS postal code",
+      "type": "object",
+      "required": [
+        "id",
+        "rateAreaId",
+        "rateAreaName"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rateAreaId": {
+          "description": "Rate area code",
+          "type": "string",
+          "example": "US8101000"
+        },
+        "rateAreaName": {
+          "description": "Rate area name",
+          "type": "string",
+          "example": "Alaska (Zone) I"
+        }
       }
     },
     "ReServiceCode": {

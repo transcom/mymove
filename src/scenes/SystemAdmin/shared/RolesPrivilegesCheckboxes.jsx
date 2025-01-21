@@ -36,11 +36,8 @@ const RolesPrivilegesCheckboxInput = (props) => {
   };
 
   const parseRolesCheckboxInput = (input) => {
-    if (
-      privilegesSelected.includes(elevatedPrivilegeTypes.SUPERVISOR) ||
-      privilegesSelected.includes(elevatedPrivilegeTypes.SAFETY)
-    ) {
-      var index;
+    let index;
+    if (privilegesSelected.includes(elevatedPrivilegeTypes.SUPERVISOR)) {
       if (input.includes(roleTypes.CUSTOMER)) {
         index = input.indexOf(roleTypes.CUSTOMER);
         if (index !== -1) {
@@ -53,16 +50,66 @@ const RolesPrivilegesCheckboxInput = (props) => {
           input.splice(index, 1);
         }
       }
-    }
-
-    if (!isHeadquartersRoleFF && input.includes(roleTypes.HQ)) {
+      if (input.includes(roleTypes.PRIME_SIMULATOR)) {
+        index = input.indexOf(roleTypes.PRIME_SIMULATOR);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+      if (input.includes(roleTypes.QAE)) {
+        index = input.indexOf(roleTypes.QAE);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+      if (input.includes(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE)) {
+        index = input.indexOf(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+      if (input.includes(roleTypes.GSR)) {
+        index = input.indexOf(roleTypes.GSR);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
       if (input.includes(roleTypes.HQ)) {
         index = input.indexOf(roleTypes.HQ);
         if (index !== -1) {
           input.splice(index, 1);
         }
       }
-    } else if (isHeadquartersRoleFF && privilegesSelected.includes(elevatedPrivilegeTypes.SAFETY)) {
+    }
+
+    if (privilegesSelected.includes(elevatedPrivilegeTypes.SAFETY)) {
+      if (input.includes(roleTypes.CUSTOMER)) {
+        index = input.indexOf(roleTypes.CUSTOMER);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+      if (input.includes(roleTypes.CONTRACTING_OFFICER)) {
+        index = input.indexOf(roleTypes.CONTRACTING_OFFICER);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+      if (input.includes(roleTypes.PRIME_SIMULATOR)) {
+        index = input.indexOf(roleTypes.PRIME_SIMULATOR);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+      if (input.includes(roleTypes.GSR)) {
+        index = input.indexOf(roleTypes.GSR);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+    }
+
+    if (!isHeadquartersRoleFF && input.includes(roleTypes.HQ)) {
       if (input.includes(roleTypes.HQ)) {
         index = input.indexOf(roleTypes.HQ);
         if (index !== -1) {
@@ -93,24 +140,29 @@ const RolesPrivilegesCheckboxInput = (props) => {
   };
 
   const parsePrivilegesCheckboxInput = (input) => {
-    if (rolesSelected.includes(roleTypes.CUSTOMER) || rolesSelected.includes(roleTypes.CONTRACTING_OFFICER)) {
-      var index;
+    let index;
+    if (
+      rolesSelected.includes(roleTypes.CUSTOMER) ||
+      rolesSelected.includes(roleTypes.CONTRACTING_OFFICER) ||
+      rolesSelected.includes(roleTypes.PRIME_SIMULATOR) ||
+      rolesSelected.includes(roleTypes.QAE) ||
+      rolesSelected.includes(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) ||
+      rolesSelected.includes(roleTypes.GSR) ||
+      rolesSelected.includes(roleTypes.HQ)
+    ) {
       if (input.includes(elevatedPrivilegeTypes.SUPERVISOR)) {
         index = input.indexOf(elevatedPrivilegeTypes.SUPERVISOR);
         if (index !== -1) {
           input.splice(index, 1);
         }
       }
-
-      if (input.includes(elevatedPrivilegeTypes.SAFETY)) {
-        index = input.indexOf(elevatedPrivilegeTypes.SAFETY);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
     }
-
-    if (isHeadquartersRoleFF && rolesSelected.includes(roleTypes.HQ)) {
+    if (
+      rolesSelected.includes(roleTypes.CUSTOMER) ||
+      rolesSelected.includes(roleTypes.CONTRACTING_OFFICER) ||
+      rolesSelected.includes(roleTypes.PRIME_SIMULATOR) ||
+      rolesSelected.includes(roleTypes.GSR)
+    ) {
       if (input.includes(elevatedPrivilegeTypes.SAFETY)) {
         index = input.indexOf(elevatedPrivilegeTypes.SAFETY);
         if (index !== -1) {
@@ -126,7 +178,6 @@ const RolesPrivilegesCheckboxInput = (props) => {
       return privilegesArray;
     }, []);
   };
-
   // filter the privileges to exclude the Safety Moves checkbox if the admin user is NOT a super admin
   const filteredPrivileges = officeUserPrivileges.filter((privilege) => {
     if (privilege.privilegeType === elevatedPrivilegeTypes.SAFETY && !adminUser?.super) {
@@ -154,7 +205,12 @@ const RolesPrivilegesCheckboxInput = (props) => {
         optionValue="privilegeType"
       />
       <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold' }}>
-        Privileges cannot be selected with Customer or Contracting Officer roles.
+        The Supervisor privilege can only be selected for the following roles: Task Ordering Officer, Task Invoicing
+        Officer, Services Counselor.
+      </span>
+      <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
+        The Safety Moves privilege can only be selected for the following roles: Task Ordering Officer, Task Invoicing
+        Officer, Services Counselor, Quality Assurance Evaluator, Customer Service Representative, and Headquarters.
       </span>
     </>
   );

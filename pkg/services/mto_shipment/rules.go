@@ -248,7 +248,7 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 		// If it's expired, they can no longer update it.
 		latestEstimatedWeight := older.PrimeEstimatedWeight
 		if newer.PrimeEstimatedWeight != nil {
-			if newer.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+			if newer.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 				verrs.Add("primeEstimatedWeight", "cannot be updated for nts-release shipments, please contact the TOO directly to request updates to this field")
 			}
 			if older.PrimeEstimatedWeight != nil {
@@ -270,7 +270,7 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 		}
 
 		if newer.NTSRecordedWeight != nil {
-			if newer.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+			if newer.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 				verrs.Add("ntsRecordedWeight", "cannot be updated for nts-release shipments, please contact the TOO directly to request updates to this field")
 			}
 		}
@@ -288,7 +288,7 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 		var latestDestinationAddress *models.Address
 
 		switch older.ShipmentType {
-		case models.MTOShipmentTypeHHGIntoNTSDom:
+		case models.MTOShipmentTypeHHGIntoNTS:
 			if older.StorageFacility == nil {
 				// latestDestinationAddress is only used for calculating RDD.
 				// We don't want to block an update because we're missing info to calculate RDD
@@ -296,7 +296,7 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 			}
 			latestPickupAddress = older.PickupAddress
 			latestDestinationAddress = &older.StorageFacility.Address
-		case models.MTOShipmentTypeHHGOutOfNTSDom:
+		case models.MTOShipmentTypeHHGOutOfNTS:
 			if older.StorageFacility == nil {
 				// latestPickupAddress is only used for calculating RDD.
 				// We don't want to block an update because we're missing info to calculate RDD
@@ -336,14 +336,14 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 		}
 
 		// If we have all the data, calculate RDD
-		if latestSchedPickupDate != nil && (latestEstimatedWeight != nil || (older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom &&
+		if latestSchedPickupDate != nil && (latestEstimatedWeight != nil || (older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS &&
 			older.NTSRecordedWeight != nil)) && latestPickupAddress != nil && latestDestinationAddress != nil {
 			weight := latestEstimatedWeight
-			if older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && older.NTSRecordedWeight != nil {
+			if older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && older.NTSRecordedWeight != nil {
 				weight = older.NTSRecordedWeight
 			}
 			requiredDeliveryDate, err := CalculateRequiredDeliveryDate(appCtx, planner, *latestPickupAddress,
-				*latestDestinationAddress, *latestSchedPickupDate, weight.Int())
+				*latestDestinationAddress, *latestSchedPickupDate, weight.Int(), older.MarketCode)
 			if err != nil {
 				verrs.Add("requiredDeliveryDate", err.Error())
 			}

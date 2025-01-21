@@ -51,6 +51,30 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		scAssignedUser = BuildOfficeUser(db, tempSCAssignedUserCustoms, nil)
 	}
 
+	var tooAssignedUser models.OfficeUser
+	tempTOOAssignedUserCustoms := customs
+	tooAssignedUserResult := findValidCustomization(customs, OfficeUsers.TOOAssignedUser)
+	if tooAssignedUserResult != nil {
+		tempTOOAssignedUserCustoms = convertCustomizationInList(tempTOOAssignedUserCustoms, OfficeUsers.TOOAssignedUser, OfficeUser)
+		tooAssignedUser = BuildOfficeUser(db, tempTOOAssignedUserCustoms, nil)
+	}
+
+	var tioAssignedUser models.OfficeUser
+	tempTIOAssignedUserCustoms := customs
+	tioAssignedUserResult := findValidCustomization(customs, OfficeUsers.TIOAssignedUser)
+	if tioAssignedUserResult != nil {
+		tempTIOAssignedUserCustoms = convertCustomizationInList(tempTIOAssignedUserCustoms, OfficeUsers.TIOAssignedUser, OfficeUser)
+		tioAssignedUser = BuildOfficeUser(db, tempTIOAssignedUserCustoms, nil)
+	}
+
+	var counselingOffice models.TransportationOffice
+	tempCounselingOfficeCustoms := customs
+	counselingOfficeResult := findValidCustomization(customs, TransportationOffices.CounselingOffice)
+	if counselingOfficeResult != nil {
+		tempCounselingOfficeCustoms = convertCustomizationInList(tempCounselingOfficeCustoms, TransportationOffices.CounselingOffice, TransportationOffice)
+		counselingOffice = BuildTransportationOffice(db, tempCounselingOfficeCustoms, nil)
+	}
+
 	var defaultReferenceID string
 	var err error
 	if db != nil {
@@ -87,6 +111,16 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 	if closeoutOfficeResult != nil {
 		move.CloseoutOffice = &closeoutOffice
 		move.CloseoutOfficeID = &closeoutOffice.ID
+	}
+
+	if tooAssignedUserResult != nil {
+		move.TOOAssignedUser = &tooAssignedUser
+		move.TOOAssignedID = &tooAssignedUser.ID
+	}
+
+	if tioAssignedUserResult != nil {
+		move.TIOAssignedUser = &tioAssignedUser
+		move.TIOAssignedID = &tioAssignedUser.ID
 	}
 
 	if counselingOfficeResult != nil {
