@@ -445,6 +445,8 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
+		submittedAt := time.Now()
+
 		// create non USMC/USCG/NAVY ppm in need closeout status
 		factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
 			{
@@ -454,7 +456,8 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			},
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
+					Status:      models.PPMShipmentStatusNeedsCloseout,
+					SubmittedAt: &submittedAt,
 				},
 			},
 			{
@@ -473,7 +476,8 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			},
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusWaitingOnCustomer,
+					Status:      models.PPMShipmentStatusWaitingOnCustomer,
+					SubmittedAt: &submittedAt,
 				},
 			},
 			{
@@ -497,7 +501,8 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			},
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
+					Status:      models.PPMShipmentStatusNeedsCloseout,
+					SubmittedAt: &submittedAt,
 				},
 			},
 			{
