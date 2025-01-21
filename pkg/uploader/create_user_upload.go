@@ -121,7 +121,7 @@ func waitForAVScanToComplete(
 	}
 }
 
-// Returns a bool indiciated the scan is done and the err if any
+// Returns a bool indicating the scan is done and the err if any
 func checkAVScanStatus(appCtx appcontext.AppContext, storer storage.FileStorer, s3Key string) (bool, error) {
 	tags, err := storer.Tags(s3Key)
 	if err != nil {
