@@ -2,6 +2,8 @@ package ghcrateengine
 
 import (
 	"time"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *GHCRateEngineServiceSuite) TestIsPeakPeriod() {
@@ -38,4 +40,10 @@ func (suite *GHCRateEngineServiceSuite) TestIsPeakPeriod() {
 		date := time.Date(2019, dateInYear.month, 1, 0, 0, 0, 0, time.UTC)
 		suite.False(IsPeakPeriod(date))
 	})
+}
+
+func (suite *GHCRateEngineServiceSuite) TestGetDomesticWeight() {
+	domesticWeight := GetMinDomesticWeight()
+	suite.NotNil(domesticWeight)
+	suite.Equal(domesticWeight, unit.Pound(500))
 }
