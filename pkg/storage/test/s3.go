@@ -94,9 +94,16 @@ func (fake *FakeS3Storage) TempFileSystem() *afero.Afero {
 }
 
 // Tags returns the tags for a specified key
+// The following tags must be present for S3 user uploading
+// "av-status": "CLEAN"
+// OR
+// "av-status": "INFECTED"
+// The upload function will hang, attempting to poll the uploaded file until one of these
+// tags are found
 func (fake *FakeS3Storage) Tags(_ string) (map[string]string, error) {
 	if fake.tagsToReturn == nil {
-		return nil, nil
+		// Default to clean file upload
+		return map[string]string{"av-status": "CLEAN"}, nil
 	}
 	return fake.tagsToReturn, nil
 }

@@ -90,40 +90,63 @@ func waitForAVScanToComplete(
 	timer := time.NewTimer(maxWait)
 	defer timer.Stop()
 
+	// Immediate AV scan check outside the routine
+	done, err := checkAVScanStatus(appCtx, storer, s3Key)
+	if err != nil {
+		return err
+	}
+	if done {
+		// Scan has completed with no errors
+		return nil
+	}
+
 	for {
 		select {
 		case <-ticker.C:
-			tags, err := storer.Tags(s3Key)
+			// Execute ticker
+			done, err := checkAVScanStatus(appCtx, storer, s3Key)
 			if err != nil {
-				appCtx.Logger().Error("Failed to get S3 object tags", zap.Error(err))
 				return err
 			}
-
-			status, ok := tags["av-status"]
-			if !ok {
-				// Bleh, keep looping AV isn't done yet
-				status = "SCANNING"
-			}
-
-			switch status {
-			case "CLEAN":
-				// Pack it up, we're done here
+			if done {
+				// Scan has completed with no errors
 				return nil
-
-			case "INFECTED":
-				err := errors.New("S3 object is infected")
-				appCtx.Logger().Error("Uploaded S3 object is infected",
-					zap.String("path", s3Key),
-					zap.Error(err),
-				)
-				return err
 			}
-
 		case <-timer.C:
-			// Timed out
+			// Timer has finished before the AV scan could
 			errMsg := "timed out waiting for AV scan"
 			appCtx.Logger().Error(errMsg, zap.String("s3Key", s3Key))
 			return errors.New(errMsg)
 		}
 	}
+}
+
+// Returns a bool indiciated the scan is done and the err if any
+func checkAVScanStatus(appCtx appcontext.AppContext, storer storage.FileStorer, s3Key string) (bool, error) {
+	tags, err := storer.Tags(s3Key)
+	if err != nil {
+		appCtx.Logger().Error("Failed to get S3 object tags", zap.Error(err))
+		return false, err
+	}
+
+	status, ok := tags["av-status"]
+	if !ok {
+		// Bleh, keep looping AV isn't done yet
+		status = "SCANNING"
+	}
+
+	switch status {
+	case "CLEAN":
+		// Pack it up, we're done here
+		return true, nil
+
+	case "INFECTED":
+		err := errors.New("S3 object is infected")
+		appCtx.Logger().Error("Uploaded S3 object is infected",
+			zap.String("path", s3Key),
+			zap.Error(err),
+		)
+		return true, err
+	}
+	return false, nil
 }
