@@ -180,7 +180,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		suite.NotNil(oconusRateArea)
 		suite.Nil(err)
 
-		jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), string("MAPK"))
+		jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MAPK")
 		suite.NotNil(jppsoRegion)
 		suite.Nil(err)
 
