@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -22,25 +21,12 @@ func (c JppsoRegions) TableName() string {
 }
 
 func FetchJppsoRegionByCode(db *pop.Connection, code string) (*JppsoRegions, error) {
-	// var jppsoRegions JppsoRegions
-	// err := db.Q().
-	// 	Where("jppso_regions.code = ?", code).
-	// 	First(&jppsoRegions)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// return &jppsoRegions, nil
-	fmt.Println("*** code")
-	fmt.Println(code)
 	var jppsoRegions JppsoRegions
-
-	err := db.RawQuery("SELECT * FROM jppso_regions WHERE code = 'MAPK'").
+	err := db.Q().
+		Where("jppso_regions.code = ?", code).
 		First(&jppsoRegions)
-
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
-
 	return &jppsoRegions, nil
 }

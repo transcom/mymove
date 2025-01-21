@@ -35,23 +35,23 @@ func FetchOconusRateArea(db *pop.Connection, zip string) (*OconusRateArea, error
 }
 
 func FetchOconusRateAreaByCityId(db *pop.Connection, usprc string) (*OconusRateArea, error) {
-	// var reOconusRateArea OconusRateArea
-	// err := db.Q().
-	// 	Where("re_oconus_rate_areas.us_post_region_cities_id = ?", usprc).
-	// 	First(&reOconusRateArea)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// return &reOconusRateArea, nil
-
 	var reOconusRateArea OconusRateArea
-
-	err := db.RawQuery("SELECT * FROM re_oconus_rate_areas WHERE us_post_region_cities_id = ?", usprc).
+	err := db.Q().
+		Where("re_oconus_rate_areas.us_post_region_cities_id = ?", usprc).
 		First(&reOconusRateArea)
-
 	if err != nil {
 		return nil, err
 	}
-
 	return &reOconusRateArea, nil
+
+	// var reOconusRateArea OconusRateArea
+
+	// err := db.RawQuery("SELECT * FROM re_oconus_rate_areas WHERE us_post_region_cities_id = ?", usprc).
+	// 	First(&reOconusRateArea)
+
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return &reOconusRateArea, nil
 }

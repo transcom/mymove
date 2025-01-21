@@ -184,7 +184,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		suite.NotNil(jppsoRegion)
 		suite.Nil(err)
 
-		gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID.String(), oconusRateArea.ID.String(), models.DepartmentIndicatorARMY.String())
+		gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorARMY.String())
 		suite.NotNil(gblocAors)
 		suite.Nil(err)
 
@@ -308,7 +308,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		suite.NotNil(jppsoRegion)
 		suite.Nil(err)
 
-		gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID.String(), oconusRateArea.ID.String(), models.DepartmentIndicatorARMY.String())
+		gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorARMY.String())
 		suite.NotNil(gblocAors)
 		suite.Nil(err)
 
@@ -906,7 +906,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		suite.NotNil(jppsoRegion)
 		suite.Nil(err)
 
-		gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID.String(), oconusRateArea.ID.String(), models.DepartmentIndicatorARMY.String())
+		gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorARMY.String())
 		suite.NotNil(gblocAors)
 		suite.Nil(err)
 

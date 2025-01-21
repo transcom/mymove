@@ -152,36 +152,24 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 			Contract:   contract,
 		},
 	})
+	suite.NotNil(rateArea)
+	suite.Nil(err)
 
 	us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 	suite.NotNil(us_country)
 	suite.Nil(err)
 
-	oconusRateArea := models.OconusRateArea{
-		ID:                 uuid.Must(uuid.NewV4()),
-		RateAreaId:         rateArea.ID,
-		CountryId:          us_country.ID,
-		UsPostRegionCityId: usprc.ID,
-		Active:             true,
-	}
-	verrs, err := suite.DB().ValidateAndCreate(&oconusRateArea)
-	if verrs.HasAny() {
-		suite.Fail(verrs.Error())
-	}
-	if err != nil {
-		suite.Fail(err.Error())
-	}
-	jppsoRegion := models.JppsoRegions{
-		Name: "USCG Base Ketchikan",
-		Code: "MAPK",
-	}
-	suite.MustSave(&jppsoRegion)
+	oconusRateArea, err := models.FetchOconusRateAreaByCityId(suite.DB(), usprc.ID.String())
+	suite.NotNil(oconusRateArea)
+	suite.Nil(err)
 
-	gblocAors := models.GblocAors{
-		JppsoRegionID:    jppsoRegion.ID,
-		OconusRateAreaID: oconusRateArea.ID,
-	}
-	suite.MustSave(&gblocAors)
+	jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MAPK")
+	suite.NotNil(jppsoRegion)
+	suite.Nil(err)
+
+	gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorARMY.String())
+	suite.NotNil(gblocAors)
+	suite.Nil(err)
 
 	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
 	req := httptest.NewRequest("POST", "/orders", nil)

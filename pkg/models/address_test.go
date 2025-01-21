@@ -259,7 +259,7 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		suite.NotNil(jppsoRegion)
 		suite.Nil(err)
 
-		gblocAors, err := m.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID.String(), oconusRateArea.ID.String(), m.DepartmentIndicatorAIRANDSPACEFORCE.String())
+		gblocAors, err := m.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, m.DepartmentIndicatorAIRANDSPACEFORCE.String())
 		suite.NotNil(gblocAors)
 		suite.Nil(err)
 
@@ -285,7 +285,7 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		suite.NotNil(jppsoRegion)
 		suite.Nil(err)
 
-		gblocAors, err := m.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID.String(), oconusRateArea.ID.String(), m.DepartmentIndicatorARMY.String())
+		gblocAors, err := m.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, m.DepartmentIndicatorARMY.String())
 		suite.NotNil(gblocAors)
 		suite.Nil(err)
 
@@ -296,8 +296,47 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 	})
 
 	suite.Run("fetches duty location GBLOC for AK Cordova address, Zone IV", func() {
-		oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99574")
+		usprc, err := m.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99574", "CORDOVA")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
 
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: m.Address{
+					IsOconus:           m.BoolPointer(true),
+					UsPostRegionCityID: &usprc.ID,
+				},
+			},
+		}, nil)
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DutyLocationAddress,
+			},
+		}, nil)
+
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+			ReRateArea: m.ReRateArea{
+				ContractID: contract.ID,
+				IsOconus:   true,
+				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+				Contract:   contract,
+			},
+		})
+		suite.NotNil(rateArea)
+		suite.Nil(err)
+
+		us_country, err := m.FetchCountryByCode(suite.DB(), "US")
+		suite.NotNil(us_country)
+		suite.Nil(err)
+
+		oconusRateArea, err := m.FetchOconusRateAreaByCityId(suite.DB(), usprc.ID.String())
+		suite.NotNil(oconusRateArea)
+		suite.Nil(err)
 		army := m.AffiliationARMY
 		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
@@ -311,7 +350,7 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		suite.NotNil(jppsoRegion)
 		suite.Nil(err)
 
-		gblocAors, err := m.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID.String(), oconusRateArea.ID.String(), m.DepartmentIndicatorARMY.String())
+		gblocAors, err := m.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, m.DepartmentIndicatorARMY.String())
 		suite.NotNil(gblocAors)
 		suite.Nil(err)
 
@@ -325,7 +364,6 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		oconusRateArea, _, originDutyLocation := setupDataForOconusDutyLocation("99803")
 
 		army := m.AffiliationARMY
-		defaultDepartmentIndicator := m.DepartmentIndicatorARMY.String()
 		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: m.ServiceMember{
@@ -334,18 +372,13 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 			},
 		}, nil)
 
-		jppsoRegion := m.JppsoRegions{
-			Name: "USCG Base Ketchikan",
-			Code: "MAPK",
-		}
-		suite.MustSave(&jppsoRegion)
+		jppsoRegion, err := m.FetchJppsoRegionByCode(suite.DB(), "MAPK")
+		suite.NotNil(jppsoRegion)
+		suite.Nil(err)
 
-		gblocAors := m.GblocAors{
-			JppsoRegionID:       jppsoRegion.ID,
-			OconusRateAreaID:    oconusRateArea.ID,
-			DepartmentIndicator: &defaultDepartmentIndicator,
-		}
-		suite.MustSave(&gblocAors)
+		gblocAors, err := m.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, m.DepartmentIndicatorARMY.String())
+		suite.NotNil(gblocAors)
+		suite.Nil(err)
 
 		gbloc, err := m.FetchAddressGbloc(suite.DB(), originDutyLocation.Address, serviceMember)
 		suite.NoError(err)
