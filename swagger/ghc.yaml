@@ -1474,7 +1474,6 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - shipment
-        - shipment_address_updates
       description: >-
         This endpoint is used to approve a address update request. Office
         remarks are required. Approving the address update will update the
@@ -4289,7 +4288,7 @@ paths:
         - transportationOffice
       responses:
         '200':
-          description: Successfully retrieved GBLOCs
+          description: Successfully retrieved transportation offices
           schema:
             $ref: '#/definitions/GBLOCs'
         '400':
@@ -8196,14 +8195,14 @@ definitions:
         type: string
         format: date-time
         readOnly: true
-  TransportationOffices:
-    type: array
-    items:
-      $ref: '#/definitions/TransportationOffice'
   ReServiceItems:
     type: array
     items:
       $ref: '#/definitions/ReServiceItem'
+  TransportationOffices:
+    type: array
+    items:
+      $ref: '#/definitions/TransportationOffice'
   VLocations:
     type: array
     items:

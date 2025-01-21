@@ -3545,13 +3545,13 @@ paths:
         "200":
           description: Successfully returned bulk assignment data
           schema:
-            $ref: '#/definitions/BulkAssignmentData'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '500':
-          $ref: '#/responses/ServerError'
+            $ref: "#/definitions/BulkAssignmentData"
+        "401":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "500":
+          $ref: "#/responses/ServerError"
   /queues/counseling/origin-list:
     get:
       produces:
@@ -4145,6 +4145,29 @@ paths:
           $ref: "#/responses/NotFound"
         "500":
           $ref: "#/responses/ServerError"
+  /transportation_offices/{dutyLocationId}/counseling_offices:
+    get:
+      summary: Returns the counseling locations in the GBLOC matching the duty location
+      description: Returns the counseling locations matching the GBLOC from the selected duty location
+      operationId: showCounselingOffices
+      tags:
+        - transportationOffice
+      parameters:
+        - in: path
+          name: dutyLocationId
+          format: uuid
+          type: string
+          required: true
+          description: UUID of the duty location
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully retrieved counseling offices
+          schema:
+            $ref: '#/definitions/CounselingOffices'
+        '500':
+          description: internal server error
   /uploads:
     post:
       summary: Create a new upload
@@ -5263,7 +5286,7 @@ definitions:
         description: The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members
         x-nullable: true
       counselingOffice:
-        $ref: 'definitions/TransportationOffice.yaml'
+        $ref: "definitions/TransportationOffice.yaml"
       counselingOfficeId:
         type: string
         format: uuid
@@ -5795,6 +5818,10 @@ definitions:
         $ref: definitions/NullableString.yaml
       grade:
         $ref: "#/definitions/Grade"
+      hasDependents:
+        type: boolean
+        title: Are dependents included in your orders?
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -7267,10 +7294,10 @@ definitions:
         format: uuid
         type: string
       destinationGBLOC:
-        example: 'AGFM'
+        example: "AGFM"
         type: string
       destinationPostalCode:
-        example: '90210'
+        example: "90210"
         type: string
       referenceId:
         example: 1001-3456
@@ -7819,6 +7846,10 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  ReServiceItems:
+    type: array
+    items:
+      $ref: "definitions/ReServiceItem.yaml"
   TransportationOffices:
     type: array
     items:
@@ -7834,7 +7865,7 @@ definitions:
   CounselingOffices:
     type: array
     items:
-      $ref: '#/definitions/CounselingOffice'
+      $ref: "#/definitions/CounselingOffice"
   CounselingOffice:
     type: object
     properties:

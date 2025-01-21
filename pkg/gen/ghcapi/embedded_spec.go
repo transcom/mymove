@@ -5775,8 +5775,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment",
-          "shipment_address_updates"
+          "shipment"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
@@ -6252,7 +6251,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved GBLOCs",
+            "description": "Successfully retrieved transportation offices",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }
@@ -22774,8 +22773,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment",
-          "shipment_address_updates"
+          "shipment"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
@@ -23368,7 +23366,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved GBLOCs",
+            "description": "Successfully retrieved transportation offices",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }
