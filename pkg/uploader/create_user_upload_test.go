@@ -70,11 +70,12 @@ func (suite *UploaderSuite) TestCreateUserUpload() {
 		// we use a goroutine to not hold up the processor thread from running other tests.
 		// This will place us in the processing queue (go routine) to come back later when ready
 		done := make(chan error, 1)
+		appCtx := suite.AppContextForTest()
 
 		go func() {
 			// This function call WILL timeout
 			_, _, verrs, err := uploader.CreateUserUploadForDocumentWrapper(
-				suite.AppContextForTest(),
+				appCtx,
 				user.ID,
 				fakeS3,
 				file,
@@ -103,7 +104,7 @@ func (suite *UploaderSuite) TestCreateUserUpload() {
 			// Case routine still running after 10 seconds
 			// This only occurs if it's timing out, otherwise the test runs much faster than
 			// 10 seconds
-			suite.T().Log("S3 upload exceeded 10 seconds without returning any errors, passing test")
+			suite.T().Skip("S3 upload exceeded 10 seconds without returning any errors, passing test")
 		}
 	})
 
