@@ -46,14 +46,6 @@ variables:
   #postgres: &postgres postgres:16.4
   redis: &redis redis:5.0.6
 
-  #RUNNER_TAG: &runner_tag milmove
-  RUNNER_TAG: &runner_tag milmove
-  DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
-
-  postgres: &postgres postgres:16.4
-  #postgres: &postgres postgres:16.4
-  redis: &redis redis:5.0.6
-
 stages:
 - pre_checks
 - build
@@ -299,6 +291,7 @@ stages:
      echo "Installing Playwright dependencies"
      yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
      ./node_modules/.bin/playwright install
+
 
 sast:
   stage: pre_checks
