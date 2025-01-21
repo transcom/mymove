@@ -71,7 +71,7 @@ func (r *ReContractYear) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-// a db stored proc that takes requested pickup date to get the contract
+// This function uses a raw query that calls db function get_contract to get the reContractYearId in respects to the requestedPickupDate
 func FetchContractId(db *pop.Connection, requestedPickupDate time.Time) (uuid.UUID, error) {
 	if !requestedPickupDate.IsZero() {
 		var reContractYearId uuid.UUID
