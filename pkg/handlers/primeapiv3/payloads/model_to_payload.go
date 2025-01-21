@@ -336,16 +336,18 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev3messages.MTOAgents {
 	if mtoAgents == nil {
 		return nil
 	}
-
 	var agents primev3messages.MTOAgents
-
 	for _, m := range *mtoAgents {
+		// Remove agents that have been deleted from the slice
 		if m.DeletedAt == nil {
 			copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 			agents = append(agents, MTOAgent(&copyOfM))
 		}
 	}
-
+	// Return nil if there are no agents in the array
+	if len(agents) == 0 {
+		return nil
+	}
 	return &agents
 }
 

@@ -1171,6 +1171,44 @@ func (suite *PayloadsSuite) TestMTOAgentPayload() {
 	suite.NotNil(payload)
 }
 
+func (suite *PayloadsSuite) TestMTOAgentDeleted() {
+	deletedAgent := models.MTOAgent{
+		MTOAgentType: models.MTOAgentReceiving,
+		DeletedAt:    models.TimePointer(time.Now()),
+	}
+	agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{Model: deletedAgent},
+	}, nil)
+	var mtoAgents models.MTOAgents
+	mtoAgents = append(mtoAgents, agent)
+	result := MTOAgents(&mtoAgents)
+	suite.Nil(result)
+}
+
+func (suite *PayloadsSuite) TestMTOAgentOneActiveOneDeleted() {
+	oldAgent := models.MTOAgent{
+		MTOAgentType: models.MTOAgentReleasing,
+		DeletedAt:    models.TimePointer(time.Now()),
+	}
+	newAgent := models.MTOAgent{
+		FirstName:    models.StringPointer("John"),
+		LastName:     models.StringPointer("Doe"),
+		Email:        models.StringPointer("John.doe@example.com"),
+		Phone:        models.StringPointer("222-222-2222"),
+		MTOAgentType: models.MTOAgentReleasing,
+	}
+	deletedAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{Model: oldAgent},
+	}, nil)
+	activeAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+		{Model: newAgent},
+	}, nil)
+	var mtoAgents models.MTOAgents
+	mtoAgents = append(mtoAgents, deletedAgent, activeAgent)
+	result := MTOAgents(&mtoAgents)
+	suite.NotNil(result)
+}
+
 func (suite *PayloadsSuite) TestStorageFacility() {
 	storageFacilityID := uuid.Must(uuid.NewV4())
 	updatedAt := time.Now()
