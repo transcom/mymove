@@ -85,7 +85,76 @@ func (suite *ServiceParamValueLookupsSuite) TestPortZipLookup() {
 		suite.Equal(portZip, port.UsPostRegionCity.UsprZipID)
 	})
 
-	suite.Run("failure - no port zip on service item", func() {
+	suite.Run("success - returns PortZip value for Port Code 3002 for PPMs", func() {
+		port := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "3002",
+				},
+			},
+		}, nil)
+
+		contractYear := testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ActualPickupDate: models.TimePointer(time.Now()),
+					MarketCode:       models.MarketCodeInternational,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "Tester Address",
+					City:           "Tulsa",
+					State:          "OK",
+					PostalCode:     "74133",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "JBER",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		portZipLookup := PortZipLookup{
+			ServiceItem: mtoServiceItem,
+		}
+
+		appContext := suite.AppContextForTest()
+		portZip, err := portZipLookup.lookup(appContext, &ServiceItemParamKeyData{
+			planner:       suite.planner,
+			mtoShipmentID: &ppm.ShipmentID,
+			ContractID:    contractYear.ContractID,
+		})
+		suite.NoError(err)
+		suite.Equal(portZip, port.UsPostRegionCity.UsprZipID)
+	})
+
+	suite.Run("returns nothing if shipment is HHG and service item does not have port info", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
@@ -108,7 +177,8 @@ func (suite *ServiceParamValueLookupsSuite) TestPortZipLookup() {
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
+		portZip, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.NoError(err)
+		suite.Equal(portZip, "")
 	})
 }
