@@ -319,7 +319,7 @@ commands:
             echo "export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY" >> $BASH_ENV
             # override default cpu/memory for production
             echo "export SERVICE_RESERVATION_CPU=2048" >> $BASH_ENV
-            echo "export SERVICE_RESERVATION_MEM=4096" >> $BASH_ENV
+            echo "export SERVICE_RESERVATION_MEM=8192" >> $BASH_ENV
             source $BASH_ENV
   tls_vars_prd:
     steps:
