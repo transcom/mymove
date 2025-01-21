@@ -492,46 +492,6 @@ func (o Order) GetDestinationAddressForAssociatedMoves(db *pop.Connection) (*Add
 	return &destinationAddress, nil
 }
 
-// UpdateDestinationGBLOC updates the destination GBLOC for the associated Order in the DB
-func (o Order) UpdateDestinationGBLOC(db *pop.Connection) error {
-	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
-	if uuid.UUID.IsNil(o.ID) {
-		return errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before updating the destination GBLOC.")
-	}
-
-	var dbOrder Order
-	err := db.Find(&dbOrder, o.ID)
-	if err != nil {
-		if err.Error() == RecordNotFoundErrorString {
-			return errors.WithMessage(err, "No Order was found for the order ID "+o.ID.String())
-		}
-		return err
-	}
-
-	err = db.Load(&o, "NewDutyLocation.Address.PostalCode")
-	if err != nil {
-		if err.Error() == RecordNotFoundErrorString {
-			return errors.WithMessage(err, "No New Duty Location Address Postal Code was found for the order ID "+o.ID.String())
-		}
-		return err
-	}
-
-	var gblocResult PostalCodeToGBLOC
-	gblocResult, err = FetchGBLOCForPostalCode(db, o.NewDutyLocation.Address.PostalCode)
-	if err != nil {
-		return errors.WithMessage(err, "Could not get GBLOC for postal code "+o.NewDutyLocation.Address.PostalCode)
-	}
-
-	dbOrder.DestinationGBLOC = &gblocResult.GBLOC
-
-	err = db.Save(&dbOrder)
-	if err != nil {
-		return errors.WithMessage(err, "Could not save the updated destination GBLOC for order ID "+o.ID.String())
-	}
-
-	return nil
-}
-
 // IsCompleteForGBL checks if orders have all fields necessary to generate a GBL
 func (o *Order) IsCompleteForGBL() bool {
 
