@@ -646,6 +646,25 @@ WITH move AS (
 		JOIN gsr_appeals ON gsr_appeals.id = audit_history.object_id
 		WHERE audit_history.table_name = 'gsr_appeals'
 	),
+	shipment_address_updates AS (
+		SELECT shipment_address_updates.*,
+			jsonb_agg(jsonb_build_object(
+				'status', shipment_address_updates.status
+				)
+			)::TEXT AS context
+		FROM shipment_address_updates
+		JOIN move_shipments ON shipment_address_updates.shipment_id = move_shipments.id
+		GROUP BY shipment_address_updates.id
+	),
+	shipment_address_updates_logs as (
+		SELECT audit_history.*,
+			shipment_address_updates.context AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN shipment_address_updates ON shipment_address_updates.id = audit_history.object_id
+		WHERE audit_history.table_name = 'shipment_address_updates'
+	),
 	combined_logs AS (
 		SELECT
 			*
@@ -736,6 +755,11 @@ WITH move AS (
 			*
 		FROM
 			gsr_appeals_logs
+		UNION
+		SELECT
+        	*
+    	FROM
+			shipment_address_updates_logs
 
 
 	)

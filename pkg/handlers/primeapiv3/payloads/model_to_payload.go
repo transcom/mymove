@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/primev3messages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -17,7 +18,8 @@ import (
 )
 
 // MoveTaskOrder payload
-func MoveTaskOrder(moveTaskOrder *models.Move) *primev3messages.MoveTaskOrder {
+func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *primev3messages.MoveTaskOrder {
+	db := appCtx.DB()
 	if moveTaskOrder == nil {
 		return nil
 	}
@@ -27,6 +29,17 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev3messages.MoveTaskOrder {
 
 	setPortsOnShipments(&moveTaskOrder.MTOServiceItems, mtoShipments)
 
+	var destGbloc, destZip string
+	var err error
+	destGbloc, err = moveTaskOrder.GetDestinationGBLOC(db)
+	if err != nil {
+		destGbloc = ""
+	}
+	destZip, err = moveTaskOrder.GetDestinationPostalCode(db)
+	if err != nil {
+		destZip = ""
+	}
+
 	payload := &primev3messages.MoveTaskOrder{
 		ID:                         strfmt.UUID(moveTaskOrder.ID.String()),
 		MoveCode:                   moveTaskOrder.Locator,
@@ -34,16 +47,20 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev3messages.MoveTaskOrder {
 		AvailableToPrimeAt:         handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		PrimeCounselingCompletedAt: handlers.FmtDateTimePtr(moveTaskOrder.PrimeCounselingCompletedAt),
 		ExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightQualifiedAt),
-		ExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
-		ExcessWeightUploadID:       handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
-		OrderID:                    strfmt.UUID(moveTaskOrder.OrdersID.String()),
-		Order:                      Order(&moveTaskOrder.Orders),
-		ReferenceID:                *moveTaskOrder.ReferenceID,
-		PaymentRequests:            *paymentRequests,
-		MtoShipments:               *mtoShipments,
-		ContractNumber:             moveTaskOrder.Contractor.ContractNumber,
-		UpdatedAt:                  strfmt.DateTime(moveTaskOrder.UpdatedAt),
-		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		ExcessUnaccompaniedBaggageWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessUnaccompaniedBaggageWeightQualifiedAt),
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessUnaccompaniedBaggageWeightAcknowledgedAt),
+		ExcessWeightAcknowledgedAt:                     handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
+		ExcessWeightUploadID:                           handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
+		OrderID:                                        strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		Order:                                          Order(&moveTaskOrder.Orders),
+		DestinationGBLOC:                               destGbloc,
+		DestinationPostalCode:                          destZip,
+		ReferenceID:                                    *moveTaskOrder.ReferenceID,
+		PaymentRequests:                                *paymentRequests,
+		MtoShipments:                                   *mtoShipments,
+		ContractNumber:                                 moveTaskOrder.Contractor.ContractNumber,
+		UpdatedAt:                                      strfmt.DateTime(moveTaskOrder.UpdatedAt),
+		ETag:                                           etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
 	if moveTaskOrder.PPMType != nil {
@@ -61,9 +78,9 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev3messages.MoveTaskOrder {
 	return payload
 }
 
-func MoveTaskOrderWithShipmentOconusRateArea(moveTaskOrder *models.Move, shipmentRateArea *[]services.ShipmentPostalCodeRateArea) *primev3messages.MoveTaskOrder {
+func MoveTaskOrderWithShipmentOconusRateArea(appCtx appcontext.AppContext, moveTaskOrder *models.Move, shipmentRateArea *[]services.ShipmentPostalCodeRateArea) *primev3messages.MoveTaskOrder {
 	// create default payload
-	var payload = MoveTaskOrder(moveTaskOrder)
+	var payload = MoveTaskOrder(appCtx, moveTaskOrder)
 
 	// decorate payload with oconus rateArea information
 	if payload != nil && shipmentRateArea != nil {
@@ -230,18 +247,25 @@ func Address(address *models.Address) *primev3messages.Address {
 	if address == nil {
 		return nil
 	}
-	return &primev3messages.Address{
-		ID:             strfmt.UUID(address.ID.String()),
-		StreetAddress1: &address.StreetAddress1,
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
-		City:           &address.City,
-		State:          &address.State,
-		PostalCode:     &address.PostalCode,
-		Country:        Country(address.Country),
-		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         address.County,
+	payloadAddress := &primev3messages.Address{
+		ID:               strfmt.UUID(address.ID.String()),
+		StreetAddress1:   &address.StreetAddress1,
+		StreetAddress2:   address.StreetAddress2,
+		StreetAddress3:   address.StreetAddress3,
+		City:             &address.City,
+		State:            &address.State,
+		PostalCode:       &address.PostalCode,
+		Country:          Country(address.Country),
+		ETag:             etag.GenerateEtag(address.UpdatedAt),
+		County:           address.County,
+		DestinationGbloc: address.DestinationGbloc,
 	}
+
+	if address.UsPostRegionCityID != nil && address.UsPostRegionCityID != &uuid.Nil {
+		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
+	}
+
+	return payloadAddress
 }
 
 // PPM Destination payload
@@ -829,6 +853,19 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
 			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
+
+	case models.ReServiceCodePODFSC, models.ReServiceCodePOEFSC:
+		var portCode string
+		if mtoServiceItem.POELocation != nil {
+			portCode = mtoServiceItem.POELocation.Port.PortCode
+		} else if mtoServiceItem.PODLocation != nil {
+			portCode = mtoServiceItem.PODLocation.Port.PortCode
+		}
+		payload = &primev3messages.MTOServiceItemInternationalFuelSurcharge{
+			ReServiceCode: string(mtoServiceItem.ReService.Code),
+			PortCode:      portCode,
+		}
+
 	default:
 		// otherwise, basic service item
 		payload = &primev3messages.MTOServiceItemBasic{

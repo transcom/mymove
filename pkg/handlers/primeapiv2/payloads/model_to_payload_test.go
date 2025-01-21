@@ -23,7 +23,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	primeTime := time.Now()
 	submittedAt := time.Now()
 	excessWeightQualifiedAt := time.Now()
+	excessUnaccompaniedBaggageWeightQualifiedAt := time.Now()
 	excessWeightAcknowledgedAt := time.Now()
+	excessUnaccompaniedBaggageWeightAcknowledgedAt := time.Now()
 	excessWeightUploadID := uuid.Must(uuid.NewV4())
 	ordersType := primev2messages.OrdersTypeRETIREMENT
 	originDutyGBLOC := "KKFA"
@@ -44,17 +46,19 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			NAICS:                          models.NAICS,
 			PackingAndShippingInstructions: packingInstructions,
 		},
-		ReferenceID:                &referenceID,
-		PaymentRequests:            models.PaymentRequests{},
-		SubmittedAt:                &submittedAt,
-		UpdatedAt:                  time.Now(),
-		Status:                     models.MoveStatusAPPROVED,
-		SignedCertifications:       models.SignedCertifications{},
-		MTOServiceItems:            models.MTOServiceItems{},
-		MTOShipments:               models.MTOShipments{},
-		ExcessWeightQualifiedAt:    &excessWeightQualifiedAt,
-		ExcessWeightAcknowledgedAt: &excessWeightAcknowledgedAt,
-		ExcessWeightUploadID:       &excessWeightUploadID,
+		ReferenceID:             &referenceID,
+		PaymentRequests:         models.PaymentRequests{},
+		SubmittedAt:             &submittedAt,
+		UpdatedAt:               time.Now(),
+		Status:                  models.MoveStatusAPPROVED,
+		SignedCertifications:    models.SignedCertifications{},
+		MTOServiceItems:         models.MTOServiceItems{},
+		MTOShipments:            models.MTOShipments{},
+		ExcessWeightQualifiedAt: &excessWeightQualifiedAt,
+		ExcessUnaccompaniedBaggageWeightQualifiedAt:    &excessUnaccompaniedBaggageWeightQualifiedAt,
+		ExcessWeightAcknowledgedAt:                     &excessWeightAcknowledgedAt,
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: &excessUnaccompaniedBaggageWeightAcknowledgedAt,
+		ExcessWeightUploadID:                           &excessWeightUploadID,
 		Contractor: &models.Contractor{
 			ContractNumber: factory.DefaultContractNumber,
 		},
@@ -64,7 +68,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	}
 
 	suite.Run("Success - Returns a basic move payload with no payment requests, service items or shipments", func() {
-		returnedModel := MoveTaskOrder(&basicMove)
+		returnedModel := MoveTaskOrder(suite.AppContextForTest(), &basicMove)
 
 		suite.IsType(&primev2messages.MoveTaskOrder{}, returnedModel)
 		suite.Equal(strfmt.UUID(basicMove.ID.String()), returnedModel.ID)
@@ -78,7 +82,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
 		suite.NotEmpty(returnedModel.ETag)
 		suite.True(returnedModel.ExcessWeightQualifiedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightQualifiedAt)))
+		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightQualifiedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightQualifiedAt)))
 		suite.True(returnedModel.ExcessWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightAcknowledgedAt)))
+		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)))
 		suite.Require().NotNil(returnedModel.ExcessWeightUploadID)
 		suite.Equal(strfmt.UUID(basicMove.ExcessWeightUploadID.String()), *returnedModel.ExcessWeightUploadID)
 		suite.Equal(factory.DefaultContractNumber, returnedModel.ContractNumber)
@@ -86,6 +92,55 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(models.MethodOfPayment, returnedModel.Order.MethodOfPayment)
 		suite.Equal(models.NAICS, returnedModel.Order.Naics)
 		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
+	})
+}
+
+func (suite *PayloadsSuite) TestDestinationPostalCodeAndGBLOC() {
+	moveID := uuid.Must(uuid.NewV4())
+	moveLocator := "TESTTEST"
+	primeTime := time.Now()
+	ordersID := uuid.Must(uuid.NewV4())
+	refID := "123456"
+	contractNum := "HTC-123-456"
+	address := models.Address{PostalCode: "35023"}
+	shipment := models.MTOShipment{
+		ID:                 uuid.Must(uuid.NewV4()),
+		DestinationAddress: &address,
+	}
+	shipments := models.MTOShipments{shipment}
+	contractor := models.Contractor{
+		ContractNumber: contractNum,
+	}
+
+	basicMove := models.Move{
+		ID:                   moveID,
+		Locator:              moveLocator,
+		CreatedAt:            primeTime,
+		ReferenceID:          &refID,
+		AvailableToPrimeAt:   &primeTime,
+		ApprovedAt:           &primeTime,
+		OrdersID:             ordersID,
+		Contractor:           &contractor,
+		PaymentRequests:      models.PaymentRequests{},
+		SubmittedAt:          &primeTime,
+		UpdatedAt:            primeTime,
+		Status:               models.MoveStatusAPPROVED,
+		SignedCertifications: models.SignedCertifications{},
+		MTOServiceItems:      models.MTOServiceItems{},
+		MTOShipments:         shipments,
+	}
+
+	suite.Run("Returns values needed to get the destination postal code and GBLOC", func() {
+		returnedModel := MoveTaskOrder(suite.AppContextForTest(), &basicMove)
+
+		suite.IsType(&primev2messages.MoveTaskOrder{}, returnedModel)
+		suite.Equal(strfmt.UUID(basicMove.ID.String()), returnedModel.ID)
+		suite.Equal(basicMove.Locator, returnedModel.MoveCode)
+		suite.Equal(strfmt.DateTime(basicMove.CreatedAt), returnedModel.CreatedAt)
+		suite.Equal(handlers.FmtDateTimePtr(basicMove.AvailableToPrimeAt), returnedModel.AvailableToPrimeAt)
+		suite.Equal(strfmt.UUID(basicMove.OrdersID.String()), returnedModel.OrderID)
+		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
+		suite.NotEmpty(returnedModel.ETag)
 	})
 }
 
@@ -885,4 +940,31 @@ func (suite *PayloadsSuite) TestMarketCode() {
 		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
 		suite.Equal("i", result, "Expected result to be 'i' for international market code")
 	})
+}
+
+func (suite *PayloadsSuite) TestAddress() {
+	usprcId := uuid.Must(uuid.NewV4())
+	shipmentAddress := &models.Address{
+		ID:                 uuid.Must(uuid.NewV4()),
+		StreetAddress1:     "400 Drive St",
+		City:               "Charleston",
+		County:             models.StringPointer("Charleston"),
+		State:              "SC",
+		PostalCode:         "29404",
+		UsPostRegionCityID: &usprcId,
+	}
+
+	result := Address(shipmentAddress)
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(shipmentAddress.ID.String()), result.ID)
+	suite.Equal(strfmt.UUID(usprcId.String()), result.UsPostRegionCitiesID)
+
+	result = Address(nil)
+	suite.Nil(result)
+
+	usprcId = uuid.Nil
+	shipmentAddress.UsPostRegionCityID = &uuid.Nil
+	result = Address(shipmentAddress)
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(""), result.UsPostRegionCitiesID)
 }
