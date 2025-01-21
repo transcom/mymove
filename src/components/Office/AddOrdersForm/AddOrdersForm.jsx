@@ -57,6 +57,9 @@ const AddOrdersForm = ({
       .required('Required'),
     hasDependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     originDutyLocation: Yup.object().nullable().required('Required'),
+    counselingOfficeId: currentDutyLocation.provides_services_counseling
+      ? Yup.string().required('Required')
+      : Yup.string().notRequired(),
     newDutyLocation: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     accompaniedTour: showAccompaniedTourField
@@ -193,9 +196,10 @@ const AddOrdersForm = ({
                   handleOrderTypeChange(e);
                 }}
                 isDisabled={isSafetyMoveSelected || isBluebarkMoveSelected}
+                hint="Required"
               />
-              <DatePickerInput name="issueDate" label="Orders date" required />
-              <DatePickerInput name="reportByDate" label="Report by date" required />
+              <DatePickerInput name="issueDate" label="Orders date" required hint="Required" />
+              <DatePickerInput name="reportByDate" label="Report by date" required hint="Required" />
 
               <DutyLocationInput
                 label="Current duty location"
@@ -207,6 +211,7 @@ const AddOrdersForm = ({
                 }}
                 metaOverride={originMeta}
                 required
+                hint="Required"
               />
               {currentDutyLocation.provides_services_counseling && (
                 <div>
@@ -256,6 +261,7 @@ const AddOrdersForm = ({
                     displayAddress={false}
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
+                    hint="Required"
                     onDutyLocationChange={(e) => {
                       setNewDutyLocation(e);
                     }}
@@ -266,6 +272,7 @@ const AddOrdersForm = ({
                   name="newDutyLocation"
                   label="New duty location"
                   required
+                  hint="Required"
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
                     setNewDutyLocation(e);
@@ -274,7 +281,7 @@ const AddOrdersForm = ({
               )}
 
               <FormGroup>
-                <Label>Are dependents included in the orders?</Label>
+                <Label hint="Required">Are dependents included in the orders?</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -309,7 +316,7 @@ const AddOrdersForm = ({
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label>Is this an accompanied tour?</Label>
+                  <Label hint="Required">Is this an accompanied tour?</Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -383,7 +390,14 @@ const AddOrdersForm = ({
                 </FormGroup>
               )}
 
-              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
+              <DropdownInput
+                label="Pay grade"
+                name="grade"
+                id="grade"
+                required
+                options={payGradeOptions}
+                hint="Required"
+              />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
