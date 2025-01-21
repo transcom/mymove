@@ -10,7 +10,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMCloseoutQuery } from 'hooks/queries';
 import { formatCustomerContactFullAddress } from 'utils/formatters';
-import { INTL_PPM_PORT_INFO } from 'shared/constants';
 
 const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemName, readOnly }) => {
   const { ppmCloseout, isLoading, isError } = usePPMCloseoutQuery(ppmShipmentInfo.id);
@@ -79,7 +78,6 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, sh
       : '—',
     pickupAddressObj: ppmShipmentInfo.pickupAddress,
     destinationAddressObj: ppmShipmentInfo.destinationAddress,
-    port: INTL_PPM_PORT_INFO,
     miles: ppmShipmentInfo.miles,
     estimatedWeight: ppmShipmentInfo.estimatedWeight,
     actualWeight: ppmShipmentInfo.actualWeight,

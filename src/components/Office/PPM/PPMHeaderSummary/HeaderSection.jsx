@@ -271,7 +271,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
     case sectionTypes.incentiveFactors:
       return (
         <div className={classnames(styles.Details)}>
-          {sectionInfo.haulPrice > 0 ?? (
+          {sectionInfo.haulPrice > 0 && (
             <div>
               <Label>{renderHaulType(sectionInfo.haulType)} Price</Label>
               <span data-testid="haulPrice" className={styles.light}>
@@ -296,54 +296,48 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               )}
             </span>
           </div>
-          {sectionInfo.packPrice > 0 ?? (
-            <div>
-              <Label>Packing Charge</Label>
-              <span data-testid="packPrice" className={styles.light}>
-                {isFetchingItems && isRecalulatedItem('packPrice') ? (
-                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-                ) : (
-                  `$${formatCents(sectionInfo.packPrice)}`
-                )}
-              </span>
-            </div>
-          )}
-          {sectionInfo.unpackPrice > 0 ?? (
-            <div>
-              <Label>Unpacking Charge</Label>
-              <span data-testid="unpackPrice" className={styles.light}>
-                {isFetchingItems && isRecalulatedItem('unpackPrice') ? (
-                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-                ) : (
-                  `$${formatCents(sectionInfo.unpackPrice)}`
-                )}
-              </span>
-            </div>
-          )}
-          {sectionInfo.dop > 0 ?? (
-            <div>
-              <Label>Origin Price</Label>
-              <span data-testid="originPrice" className={styles.light}>
-                {isFetchingItems && isRecalulatedItem('dop') ? (
-                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-                ) : (
-                  `$${formatCents(sectionInfo.dop)}`
-                )}
-              </span>
-            </div>
-          )}
-          {sectionInfo.ddp > 0 ?? (
-            <div>
-              <Label>Destination Price</Label>
-              <span data-testid="destinationPrice" className={styles.light}>
-                {isFetchingItems && isRecalulatedItem('ddp') ? (
-                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-                ) : (
-                  `$${formatCents(sectionInfo.ddp)}`
-                )}
-              </span>
-            </div>
-          )}
+          <div>
+            <Label>Packing Charge</Label>
+            <span data-testid="packPrice" className={styles.light}>
+              {isFetchingItems && isRecalulatedItem('packPrice') ? (
+                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+              ) : (
+                `$${formatCents(sectionInfo.packPrice)}`
+              )}
+            </span>
+          </div>
+          <div>
+            <Label>Unpacking Charge</Label>
+            <span data-testid="unpackPrice" className={styles.light}>
+              {isFetchingItems && isRecalulatedItem('unpackPrice') ? (
+                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+              ) : (
+                `$${formatCents(sectionInfo.unpackPrice)}`
+              )}
+            </span>
+          </div>
+
+          <div>
+            <Label>Origin Price</Label>
+            <span data-testid="originPrice" className={styles.light}>
+              {isFetchingItems && isRecalulatedItem('dop') ? (
+                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+              ) : (
+                `$${formatCents(sectionInfo.dop)}`
+              )}
+            </span>
+          </div>
+
+          <div>
+            <Label>Destination Price</Label>
+            <span data-testid="destinationPrice" className={styles.light}>
+              {isFetchingItems && isRecalulatedItem('ddp') ? (
+                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+              ) : (
+                `$${formatCents(sectionInfo.ddp)}`
+              )}
+            </span>
+          </div>
           <div>
             <Label>International Packing Charge</Label>
             <span data-testid="intlPackPrice" className={styles.light}>
@@ -374,14 +368,12 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               )}
             </span>
           </div>
-          {sectionInfo.sitReimbursement > 0 ?? (
-            <div>
-              <Label>SIT Reimbursement</Label>
-              <span data-testid="sitReimbursement" className={styles.light}>
-                ${formatCents(sectionInfo.sitReimbursement)}
-              </span>
-            </div>
-          )}
+          <div>
+            <Label>SIT Reimbursement</Label>
+            <span data-testid="sitReimbursement" className={styles.light}>
+              ${formatCents(sectionInfo.sitReimbursement)}
+            </span>
+          </div>
         </div>
       );
 
