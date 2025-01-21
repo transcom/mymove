@@ -1077,5 +1077,3 @@
 20250121154046_upd_contract.up.sql
 20250121154059_upd_contract_loadtest.up.sql
 20250121154108_upd_contract_stg.up.sql
-20250121154124_modify_re_intl_other_prices.up.sql
-20250121154545_insert_re_intl_other_prices.up.sql
