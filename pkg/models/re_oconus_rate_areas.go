@@ -43,15 +43,4 @@ func FetchOconusRateAreaByCityId(db *pop.Connection, usprc string) (*OconusRateA
 		return nil, err
 	}
 	return &reOconusRateArea, nil
-
-	// var reOconusRateArea OconusRateArea
-
-	// err := db.RawQuery("SELECT * FROM re_oconus_rate_areas WHERE us_post_region_cities_id = ?", usprc).
-	// 	First(&reOconusRateArea)
-
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// return &reOconusRateArea, nil
 }
