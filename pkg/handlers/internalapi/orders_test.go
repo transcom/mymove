@@ -134,8 +134,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 
 	suite.Run("can create oconus orders", func() {
 		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
-		fmt.Println("*** usprc")
-		fmt.Println(usprc.ID.String())
 		suite.NotNil(usprc)
 		suite.FatalNoError(err)
 
