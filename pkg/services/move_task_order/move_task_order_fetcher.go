@@ -230,6 +230,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 	}
 
+	// Load the backup contacts outside of the EagerPreload query, due to issue referenced in
+	// https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#associations-with-3-path-elements-where-the-first-2-path-elements-match
 	if mto.Orders.ServiceMember.ID != uuid.Nil {
 		loadErr := appCtx.DB().Load(&mto.Orders.ServiceMember, "BackupContacts")
 		if loadErr != nil {
