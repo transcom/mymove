@@ -163,7 +163,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.DeliveryAddressUpdate.OriginalAddress.Country",
 		"MTOShipments.PPMShipment",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.BackupContacts",
 		"Orders.ServiceMember.ResidentialAddress.Country",
 		"Orders.Entitlement",
 		"Orders.DestinationGBLOC",
@@ -228,6 +227,18 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("POELocation", loadErr, "")
 			}
+		}
+	}
+
+	if mto.Orders.ServiceMember.ID != uuid.Nil {
+		loadErr := appCtx.DB().Load(&mto.Orders.ServiceMember, "BackupContacts")
+		if loadErr != nil {
+			return &models.Move{}, apperror.NewQueryError("BackupContacts", loadErr, "")
+		}
+		if len(mto.Orders.ServiceMember.BackupContacts) == 0 {
+			appCtx.Logger().Warn("No backup contacts found for service member")
+		} else {
+			appCtx.Logger().Info("Successfully loaded %d backup contacts", zap.Int("count", len(mto.Orders.ServiceMember.BackupContacts)))
 		}
 	}
 
