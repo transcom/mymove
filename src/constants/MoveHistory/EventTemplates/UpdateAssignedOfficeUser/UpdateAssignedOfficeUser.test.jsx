@@ -11,6 +11,9 @@ describe('When given a move that has been assigned', () => {
     changedValues: {
       sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
     },
+    oldValues: {
+      sc_assigned_id: null,
+    },
     context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
   };
 
@@ -36,6 +39,7 @@ describe('When given a move that has been assigned', () => {
     });
     it('task ordering officer', () => {
       historyRecord.changedValues = { too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137' };
+      historyRecord.oldValues = { too_assigned_id: null };
       historyRecord.context = [
         { assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' },
       ];
@@ -48,6 +52,7 @@ describe('When given a move that has been assigned', () => {
     });
     it('task invoicing officer', () => {
       historyRecord.changedValues = { tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137' };
+      historyRecord.oldValues = { tio_assigned_id: null };
       historyRecord.context = [{ assigned_office_user_last_name: 'Luvu', assigned_office_user_first_name: 'Frankie' }];
 
       const template = getTemplate(historyRecord);
