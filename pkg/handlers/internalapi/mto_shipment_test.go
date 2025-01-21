@@ -489,7 +489,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		params := subtestData.params
 
 		// Set fields appropriately for NTS-Release
-		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTSDOMESTIC
+		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTS
 		params.Body.ShipmentType = &ntsrShipmentType
 		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
 		params.Body.PickupAddress = nil

@@ -353,7 +353,7 @@ func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) e
 		rightX := tableX + labelWidth + valueWidth + gap
 		leftAddressLabel := ""
 		rightAddressLabel := ""
-		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 			leftAddressLabel = vals.StorageFacilityName
 			rightAddressLabel = "DELIVERY ADDRESS"
 		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS {
@@ -610,7 +610,7 @@ func (f *EvaluationReportFormFiller) formatShipmentType(shipmentType models.MTOS
 		return "PPM"
 	} else if shipmentType == models.MTOShipmentTypeHHGIntoNTS {
 		return "NTS"
-	} else if shipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+	} else if shipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 		return "NTS-R"
 	} else if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 		return "UB"

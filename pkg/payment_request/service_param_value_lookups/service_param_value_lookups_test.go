@@ -818,7 +818,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 				},
 			},
 		}, nil)

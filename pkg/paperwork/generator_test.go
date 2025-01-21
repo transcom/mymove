@@ -264,7 +264,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 	ctx, err := api.ReadContext(file, generator.pdfConfig)
 	suite.FatalNil(err)
 
-	err = validate.XRefTable(ctx.XRefTable)
+	err = validate.XRefTable(ctx)
 	suite.FatalNil(err)
 
 	suite.Equal(3, ctx.PageCount)
@@ -292,7 +292,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDFByContents() {
 	ctx, err := api.ReadContext(file, generator.pdfConfig)
 	suite.FatalNil(err)
 
-	err = validate.XRefTable(ctx.XRefTable)
+	err = validate.XRefTable(ctx)
 	suite.FatalNil(err)
 
 	suite.Equal(2, ctx.PageCount)
