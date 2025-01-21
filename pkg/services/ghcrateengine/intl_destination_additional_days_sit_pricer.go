@@ -26,12 +26,12 @@ func (p intlDestinationAdditionalDaySITPricer) PriceUsingParams(appCtx appcontex
 		return unit.Cents(0), nil, err
 	}
 
-	numberOfDaysInSIT, err := getParamInt(params, models.ServiceItemParamNameNumberDaysSIT)
+	referenceDate, err := getParamTime(params, models.ServiceItemParamNameReferenceDate)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
 
-	referenceDate, err := getParamTime(params, models.ServiceItemParamNameReferenceDate)
+	numberOfDaysInSIT, err := getParamInt(params, models.ServiceItemParamNameNumberDaysSIT)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}

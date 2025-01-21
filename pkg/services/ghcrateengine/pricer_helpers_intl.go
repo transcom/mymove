@@ -67,7 +67,7 @@ func priceIntlPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReS
 
 func priceIntlFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, services.PricingDisplayParams, error) {
 	if firstDaySITCode != models.ReServiceCodeIOFSIT && firstDaySITCode != models.ReServiceCodeIDFSIT {
-		return 0, nil, fmt.Errorf("unsupported pack/unpack code of %s", firstDaySITCode)
+		return 0, nil, fmt.Errorf("unsupported first day SIT code of %s", firstDaySITCode)
 	}
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -119,7 +119,7 @@ func priceIntlFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode models.R
 
 func priceIntlAdditionalDaySIT(appCtx appcontext.AppContext, additionalDaySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, numberOfDaysInSIT int, weight unit.Pound, perUnitCents int) (unit.Cents, services.PricingDisplayParams, error) {
 	if additionalDaySITCode != models.ReServiceCodeIOASIT && additionalDaySITCode != models.ReServiceCodeIDASIT {
-		return 0, nil, fmt.Errorf("unsupported additional day of SIT code of %s", additionalDaySITCode)
+		return 0, nil, fmt.Errorf("unsupported additional day SIT code of %s", additionalDaySITCode)
 	}
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
