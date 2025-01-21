@@ -38,10 +38,10 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 	}
 }
 
-func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx appcontext.AppContext, addressUpdate models.ShipmentAddressUpdate) (bool, error) {
+func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx appcontext.AppContext, addressUpdate models.ShipmentAddressUpdate, isInternationalShipment bool) (bool, error) {
 
-	//We calculate and set the distance between the old and new address
-	distance, err := f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, false, false)
+	// We calculate and set the distance between the old and new address
+	distance, err := f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, false, isInternationalShipment)
 	if err != nil {
 		return false, err
 	}
@@ -52,32 +52,62 @@ func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx ap
 	return true, nil
 }
 
-func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
-	var existingServiceArea models.ReZip3
-	var actualServiceArea models.ReZip3
+func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceOrRateArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address, shipment models.MTOShipment) (bool, error) {
+	// international shipments find their rate areas differently than domestic
+	if shipment.MarketCode == models.MarketCodeInternational {
+		// we already have the origin address in the db so we can check the rate area using the db func
+		originalRateArea, err := models.FetchRateAreaID(appCtx.DB(), originalDeliveryAddress.ID, nil, contractID)
+		if err != nil || originalRateArea == uuid.Nil {
+			return false, err
+		}
+		// since the new address isn't created yet we can't use the db func since it doesn't have an id,
+		// we need to manually find the rate area using the postal code
+		var updateRateArea uuid.UUID
+		newRateArea, err := models.FetchOconusRateArea(appCtx.DB(), newDeliveryAddress.PostalCode)
+		if err != nil && err != sql.ErrNoRows {
+			return false, err
+		} else if err == sql.ErrNoRows { // if we got no rows then the new address is likely CONUS
+			newRateArea, err := models.FetchConusRateAreaByPostalCode(appCtx.DB(), newDeliveryAddress.PostalCode, contractID)
+			if err != nil && err != sql.ErrNoRows {
+				return false, err
+			}
+			updateRateArea = newRateArea.ID
+		} else {
+			updateRateArea = newRateArea.RateAreaId
+		}
+		// if these are different, we need the TOO to approve this request since it will change ISLH pricing
+		if originalRateArea != updateRateArea {
+			return true, nil
+		} else {
+			return false, nil
+		}
+	} else {
+		var existingServiceArea models.ReZip3
+		var actualServiceArea models.ReZip3
 
-	originalZip := originalDeliveryAddress.PostalCode[0:3]
-	destinationZip := newDeliveryAddress.PostalCode[0:3]
+		originalZip := originalDeliveryAddress.PostalCode[0:3]
+		destinationZip := newDeliveryAddress.PostalCode[0:3]
 
-	if originalZip == destinationZip {
-		// If the ZIP hasn't changed, we must be in the same service area
+		if originalZip == destinationZip {
+			// If the ZIP hasn't changed, we must be in the same service area
+			return false, nil
+		}
+
+		err := appCtx.DB().Where("zip3 = ?", originalZip).Where("contract_id = ?", contractID).First(&existingServiceArea)
+		if err != nil {
+			return false, err
+		}
+
+		err = appCtx.DB().Where("zip3 = ?", destinationZip).Where("contract_id = ?", contractID).First(&actualServiceArea)
+		if err != nil {
+			return false, err
+		}
+
+		if existingServiceArea.DomesticServiceAreaID != actualServiceArea.DomesticServiceAreaID {
+			return true, nil
+		}
 		return false, nil
 	}
-
-	err := appCtx.DB().Where("zip3 = ?", originalZip).Where("contract_id = ?", contractID).First(&existingServiceArea)
-	if err != nil {
-		return false, err
-	}
-
-	err = appCtx.DB().Where("zip3 = ?", destinationZip).Where("contract_id = ?", contractID).First(&actualServiceArea)
-	if err != nil {
-		return false, err
-	}
-
-	if existingServiceArea.DomesticServiceAreaID != actualServiceArea.DomesticServiceAreaID {
-		return true, nil
-	}
-	return false, nil
 }
 
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageBracket(appCtx appcontext.AppContext, originalPickupAddress models.Address, originalDeliveryAddress, newDeliveryAddress models.Address) (bool, error) {
@@ -251,6 +281,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
 	}
+	isInternationalShipment := shipment.MarketCode == models.MarketCodeInternational
 
 	shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipment)
 
@@ -333,12 +364,13 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 
-	updateNeedsTOOReview, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress)
+	updateNeedsTOOReview, err := f.doesDeliveryAddressUpdateChangeServiceOrRateArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress, shipment)
 	if err != nil {
 		return nil, err
 	}
 
-	if !updateNeedsTOOReview {
+	// international shipments don't need to be concerned with shorthaul/linehaul
+	if !updateNeedsTOOReview && !isInternationalShipment {
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
 			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
@@ -354,7 +386,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		}
 	}
 
-	if !updateNeedsTOOReview {
+	if !updateNeedsTOOReview && !isInternationalShipment {
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
 			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
@@ -371,7 +403,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 
 	if !updateNeedsTOOReview {
-		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate)
+		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate, isInternationalShipment)
 		if err != nil {
 			return nil, err
 		}
@@ -390,7 +422,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error saving shipment address update request")
 		}
 
-		//Get the move
+		// Get the move
 		var move models.Move
 		err := txnAppCtx.DB().Find(&move, shipment.MoveTaskOrderID)
 		if err != nil {
@@ -463,6 +495,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	}
 
 	shipment = addressUpdate.Shipment
+	isInternationalShipment := shipment.MarketCode == models.MarketCodeInternational
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 		queryBuilder := query.NewQueryBuilder()
@@ -472,6 +505,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 		addressUpdate.OfficeRemarks = &tooRemarks
 		shipment.DestinationAddress = &addressUpdate.NewAddress
+		shipment.DestinationAddressID = &addressUpdate.NewAddressID
 
 		var haulPricingTypeHasChanged bool
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
@@ -499,7 +533,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 		// If the pricing type has changed then we automatically reject the DLH or DSH service item on the shipment since it is now inaccurate
 		var approvedPaymentRequestsExistsForServiceItem bool
-		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 {
+		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 && !isInternationalShipment {
 			serviceItems := shipment.MTOServiceItems
 			autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
 			var regeneratedServiceItems models.MTOServiceItems
@@ -605,7 +639,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		// if the shipment has an estimated weight, we need to update the service item pricing since we know the distances have changed
 		// this only applies to international shipments that the TOO is approving the address change for
 		if shipment.PrimeEstimatedWeight != nil &&
-			shipment.MarketCode == models.MarketCodeInternational &&
+			isInternationalShipment &&
 			tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 			portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), shipment.ID)
 			if err != nil {
