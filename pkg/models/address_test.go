@@ -328,7 +328,6 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 			},
 		})
 		suite.NotNil(rateArea)
-		suite.Nil(err)
 
 		us_country, err := m.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)

@@ -294,7 +294,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			},
 		})
 		suite.NotNil(rateArea)
-		suite.Nil(err)
 
 		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)
