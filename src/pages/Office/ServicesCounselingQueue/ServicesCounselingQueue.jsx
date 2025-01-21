@@ -533,7 +533,7 @@ const ServicesCounselingQueue = ({
 
   const onSubmitBulk = (bulkAssignmentSavePayload) => {
     console.log(bulkAssignmentSavePayload);
-    mutateBulkAssignment({ queueType: 'COUNSELING', bulkAssignmentSavePayload });
+    mutateBulkAssignment({ queueType: 'COUNSELING', ...bulkAssignmentSavePayload });
   };
 
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });

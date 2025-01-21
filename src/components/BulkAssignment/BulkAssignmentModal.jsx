@@ -39,8 +39,8 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
               let newUserAssignment;
               if (user.target.value !== '') {
                 newUserAssignment = {
-                  userId: user.target.id,
-                  moveAssignments: user.target.value,
+                  ID: user.target.id,
+                  moveAssignments: +user.target.value,
                 };
               } else {
                 newUserAssignment = {

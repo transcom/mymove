@@ -7,11 +7,13 @@ package ghcmessages
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // BulkAssignmentSavePayload bulk assignment save payload
@@ -22,6 +24,10 @@ type BulkAssignmentSavePayload struct {
 	// move data
 	MoveData []BulkAssignmentMoveData `json:"moveData"`
 
+	// A string corresponding to the queue type
+	// Enum: [COUNSELING CLOSEOUT TASK_ORDER PAYMENT_REQUEST]
+	QueueType string `json:"queueType,omitempty"`
+
 	// user data
 	UserData []*BulkAssignmentForUser `json:"userData"`
 }
@@ -31,6 +37,10 @@ func (m *BulkAssignmentSavePayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMoveData(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateQueueType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -60,6 +70,54 @@ func (m *BulkAssignmentSavePayload) validateMoveData(formats strfmt.Registry) er
 			return err
 		}
 
+	}
+
+	return nil
+}
+
+var bulkAssignmentSavePayloadTypeQueueTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["COUNSELING","CLOSEOUT","TASK_ORDER","PAYMENT_REQUEST"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		bulkAssignmentSavePayloadTypeQueueTypePropEnum = append(bulkAssignmentSavePayloadTypeQueueTypePropEnum, v)
+	}
+}
+
+const (
+
+	// BulkAssignmentSavePayloadQueueTypeCOUNSELING captures enum value "COUNSELING"
+	BulkAssignmentSavePayloadQueueTypeCOUNSELING string = "COUNSELING"
+
+	// BulkAssignmentSavePayloadQueueTypeCLOSEOUT captures enum value "CLOSEOUT"
+	BulkAssignmentSavePayloadQueueTypeCLOSEOUT string = "CLOSEOUT"
+
+	// BulkAssignmentSavePayloadQueueTypeTASKORDER captures enum value "TASK_ORDER"
+	BulkAssignmentSavePayloadQueueTypeTASKORDER string = "TASK_ORDER"
+
+	// BulkAssignmentSavePayloadQueueTypePAYMENTREQUEST captures enum value "PAYMENT_REQUEST"
+	BulkAssignmentSavePayloadQueueTypePAYMENTREQUEST string = "PAYMENT_REQUEST"
+)
+
+// prop value enum
+func (m *BulkAssignmentSavePayload) validateQueueTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, bulkAssignmentSavePayloadTypeQueueTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *BulkAssignmentSavePayload) validateQueueType(formats strfmt.Registry) error {
+	if swag.IsZero(m.QueueType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateQueueTypeEnum("queueType", "body", m.QueueType); err != nil {
+		return err
 	}
 
 	return nil

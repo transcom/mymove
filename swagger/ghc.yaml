@@ -3653,15 +3653,6 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/BulkAssignmentSavePayload'
-        - in: query
-          name: queueType
-          type: string
-          description: A string corresponding to the queue type
-          enum:
-            - COUNSELING
-            - CLOSEOUT
-            - TASK_ORDER
-            - PAYMENT_REQUEST
       responses:
         '200':
           description: Successfully returned bulk assignment data
@@ -7432,6 +7423,14 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/BulkAssignmentMoveData'
+      queueType:
+        type: string
+        description: A string corresponding to the queue type
+        enum:
+          - COUNSELING
+          - CLOSEOUT
+          - TASK_ORDER
+          - PAYMENT_REQUEST
   BulkAssignmentForUser:
     type: object
     properties:

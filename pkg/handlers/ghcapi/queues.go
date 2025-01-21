@@ -654,16 +654,18 @@ func (h SaveBulkAssignmentDataHandler) Handle(
 				return queues.NewSaveBulkAssignmentDataUnauthorized(), err
 			}
 
-			queueType := params.QueueType
+			queueType := params.BulkAssignmentSavePayload.QueueType
+			moveData := params.BulkAssignmentSavePayload.MoveData
+			userData := params.BulkAssignmentSavePayload.UserData
 
 			// fetch the moves available to be assigned to their office users
-			movesForAssignment, err := h.MoveFetcher.FetchMovesByIdArray(appCtx, params.BulkAssignmentSavePayload.MoveData)
+			movesForAssignment, err := h.MoveFetcher.FetchMovesByIdArray(appCtx, moveData)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving moves for assignment", zap.Error(err))
 				return queues.NewSaveBulkAssignmentDataInternalServerError(), err
 			}
 
-			_, err = h.MoveAssigner.BulkMoveAssignment(appCtx, *queueType, params.BulkAssignmentSavePayload.UserData, movesForAssignment)
+			_, err = h.MoveAssigner.BulkMoveAssignment(appCtx, queueType, userData, movesForAssignment)
 			if err != nil {
 				appCtx.Logger().Error("Error assigning moves", zap.Error(err))
 				return queues.NewGetBulkAssignmentDataInternalServerError(), err

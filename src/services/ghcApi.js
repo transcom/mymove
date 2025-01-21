@@ -147,12 +147,8 @@ export async function getBulkAssignmentData(queueType) {
 }
 
 export async function saveBulkAssignmentData({ queueType, bulkAssignmentSavePayload }) {
-  console.log(queueType, bulkAssignmentSavePayload);
-  return makeGHCRequest(
-    'queues.saveBulkAssignmentData',
-    { queueType, bulkAssignmentSavePayload },
-    { normalize: false },
-  );
+  const body = { queueType, ...bulkAssignmentSavePayload };
+  return makeGHCRequest('queues.saveBulkAssignmentData', { bulkAssignmentSavePayload: body }, { normalize: false });
 }
 
 export async function createCustomerSupportRemarkForMove({ body, locator }) {

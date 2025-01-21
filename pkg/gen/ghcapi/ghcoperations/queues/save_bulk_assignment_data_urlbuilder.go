@@ -13,11 +13,7 @@ import (
 
 // SaveBulkAssignmentDataURL generates an URL for the save bulk assignment data operation
 type SaveBulkAssignmentDataURL struct {
-	QueueType *string
-
 	_basePath string
-	// avoid unkeyed usage
-	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -46,18 +42,6 @@ func (o *SaveBulkAssignmentDataURL) Build() (*url.URL, error) {
 		_basePath = "/ghc/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
-
-	qs := make(url.Values)
-
-	var queueTypeQ string
-	if o.QueueType != nil {
-		queueTypeQ = *o.QueueType
-	}
-	if queueTypeQ != "" {
-		qs.Set("queueType", queueTypeQ)
-	}
-
-	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

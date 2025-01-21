@@ -4378,18 +4378,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/BulkAssignmentSavePayload"
             }
-          },
-          {
-            "enum": [
-              "COUNSELING",
-              "CLOSEOUT",
-              "TASK_ORDER",
-              "PAYMENT_REQUEST"
-            ],
-            "type": "string",
-            "description": "A string corresponding to the queue type",
-            "name": "queueType",
-            "in": "query"
           }
         ],
         "responses": {
@@ -6972,6 +6960,16 @@ func init() {
           "items": {
             "$ref": "#/definitions/BulkAssignmentMoveData"
           }
+        },
+        "queueType": {
+          "description": "A string corresponding to the queue type",
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CLOSEOUT",
+            "TASK_ORDER",
+            "PAYMENT_REQUEST"
+          ]
         },
         "userData": {
           "type": "array",
@@ -20906,18 +20904,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/BulkAssignmentSavePayload"
             }
-          },
-          {
-            "enum": [
-              "COUNSELING",
-              "CLOSEOUT",
-              "TASK_ORDER",
-              "PAYMENT_REQUEST"
-            ],
-            "type": "string",
-            "description": "A string corresponding to the queue type",
-            "name": "queueType",
-            "in": "query"
           }
         ],
         "responses": {
@@ -23903,6 +23889,16 @@ func init() {
           "items": {
             "$ref": "#/definitions/BulkAssignmentMoveData"
           }
+        },
+        "queueType": {
+          "description": "A string corresponding to the queue type",
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CLOSEOUT",
+            "TASK_ORDER",
+            "PAYMENT_REQUEST"
+          ]
         },
         "userData": {
           "type": "array",
