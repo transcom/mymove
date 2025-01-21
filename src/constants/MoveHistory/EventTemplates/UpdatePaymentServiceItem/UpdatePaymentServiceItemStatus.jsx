@@ -19,8 +19,16 @@ export default {
   action: a.UPDATE,
   eventName: o.updatePaymentServiceItemStatus,
   tableName: t.payment_service_items,
-  getEventNameDisplay: () => {
-    return <div>Updated Payment Service Item</div>;
+  getEventNameDisplay: (historyRecord) => {
+    let actionPrefix = '';
+    if (historyRecord.changedValues.status === 'DENIED') {
+      actionPrefix = 'Rejected';
+    } else if (historyRecord.changedValues.status === 'APPROVED') {
+      actionPrefix = 'Approved';
+    } else {
+      actionPrefix = 'Updated';
+    }
+    return <div>{actionPrefix} Payment Service Item</div>;
   },
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;

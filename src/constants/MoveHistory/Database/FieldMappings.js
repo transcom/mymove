@@ -148,4 +148,5 @@ export default {
   approvals_requested_at: 'Approvals requested at',
   approved_at: 'Approved at',
   counseling_office_name: 'Counseling office',
+  denied_at: 'Denied at',
 };
