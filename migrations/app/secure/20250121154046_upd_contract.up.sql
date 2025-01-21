@@ -1,0 +1,36 @@
+-- Local test migration.
+-- This will be run on development environments.
+-- It should mirror what you intend to apply on loadtest/demo/exp/stg/prd
+-- DO NOT include any sensitive data.
+
+--run re_intl_other_prices_prod.sql to populate prod data first
+
+--add prod contract id
+INSERT INTO public.re_contracts
+(id, code, "name", created_at, updated_at)
+VALUES('070f7c82-fad0-4ae8-9a83-5de87a56472e'::uuid, 'HTC711-22-D-R002', 'Global HHG Relocation Services', now(), now());
+
+--update all pricing for new contract id - re_intl_prices
+update re_domestic_accessorial_prices set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+update re_domestic_linehaul_prices set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+update re_domestic_other_prices set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+update re_domestic_service_area_prices set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+update re_domestic_service_areas set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+update re_intl_accessorial_prices set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+update re_intl_other_prices set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+update re_intl_prices set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+update re_rate_areas set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+update re_shipment_type_prices set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+update re_zip3s set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+update re_zip5_rate_areas set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
+
+--update current contract to old dates
+update re_contract_years 
+   set start_date = start_date - interval '5 years',
+   	   end_date = end_date - interval '5 years';
+   	   
+INSERT INTO public.re_contract_years
+(id, contract_id, "name", start_date, end_date, escalation, escalation_compounded, created_at, updated_at)
+SELECT uuid_generate_v4(), '070f7c82-fad0-4ae8-9a83-5de87a56472e'::uuid, name, start_date + interval '10 years', end_date + interval '10 years', escalation, escalation_compounded, now(), now()
+  FROM re_contract_years
+ where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';

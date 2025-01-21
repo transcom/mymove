@@ -1754,6 +1754,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.Len(payload.AvailableOfficeUsers, 1)
 		suite.Len(payload.BulkAssignmentMoveIDs, 1)
 	})
+
 	suite.Run("TOO: returns properly formatted bulk assignment data", func() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
