@@ -531,7 +531,8 @@ const ServicesCounselingQueue = ({
     },
   });
 
-  const onSubmitBulk = (qType, bulkAssignmentSavePayload) => {
+  const onSubmitBulk = (bulkAssignmentSavePayload) => {
+    console.log(bulkAssignmentSavePayload);
     mutateBulkAssignment({ queueType: 'COUNSELING', bulkAssignmentSavePayload });
   };
 

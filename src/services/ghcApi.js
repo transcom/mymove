@@ -147,6 +147,7 @@ export async function getBulkAssignmentData(queueType) {
 }
 
 export async function saveBulkAssignmentData({ queueType, bulkAssignmentSavePayload }) {
+  console.log(queueType, bulkAssignmentSavePayload);
   return makeGHCRequest(
     'queues.saveBulkAssignmentData',
     { queueType, bulkAssignmentSavePayload },

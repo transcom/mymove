@@ -25,15 +25,15 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 		for _, move := range movesToAssign {
 			for _, officeUser := range officeUserData {
 				if officeUser.MoveAssignments > 0 {
-					userId := uuid.FromStringOrNil(officeUser.UserID.String())
+					officeUserId := uuid.FromStringOrNil(officeUser.ID.String())
 
 					switch queueType {
 					case string(models.QueueTypeCounseling):
-						move.SCAssignedID = &userId
+						move.SCAssignedID = &officeUserId
 					case string(models.QueueTypeCloseout):
-						move.SCAssignedID = &userId
+						move.SCAssignedID = &officeUserId
 					case string(models.QueueTypeTaskOrder):
-						move.TOOAssignedID = &userId
+						move.TOOAssignedID = &officeUserId
 					}
 
 					officeUser.MoveAssignments -= 1

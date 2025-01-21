@@ -19,19 +19,19 @@ import (
 // swagger:model BulkAssignmentForUser
 type BulkAssignmentForUser struct {
 
+	// id
+	// Format: uuid
+	ID strfmt.UUID `json:"id,omitempty"`
+
 	// move assignments
 	MoveAssignments int64 `json:"moveAssignments,omitempty"`
-
-	// user Id
-	// Format: uuid
-	UserID strfmt.UUID `json:"userId,omitempty"`
 }
 
 // Validate validates this bulk assignment for user
 func (m *BulkAssignmentForUser) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateUserID(formats); err != nil {
+	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -41,12 +41,12 @@ func (m *BulkAssignmentForUser) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *BulkAssignmentForUser) validateUserID(formats strfmt.Registry) error {
-	if swag.IsZero(m.UserID) { // not required
+func (m *BulkAssignmentForUser) validateID(formats strfmt.Registry) error {
+	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("userId", "body", "uuid", m.UserID.String(), formats); err != nil {
+	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
 	}
 

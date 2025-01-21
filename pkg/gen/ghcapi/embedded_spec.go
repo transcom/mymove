@@ -6940,12 +6940,12 @@ func init() {
     "BulkAssignmentForUser": {
       "type": "object",
       "properties": {
-        "moveAssignments": {
-          "type": "integer"
-        },
-        "userId": {
+        "id": {
           "type": "string",
           "format": "uuid"
+        },
+        "moveAssignments": {
+          "type": "integer"
         }
       }
     },
@@ -23871,12 +23871,12 @@ func init() {
     "BulkAssignmentForUser": {
       "type": "object",
       "properties": {
-        "moveAssignments": {
-          "type": "integer"
-        },
-        "userId": {
+        "id": {
           "type": "string",
           "format": "uuid"
+        },
+        "moveAssignments": {
+          "type": "integer"
         }
       }
     },
