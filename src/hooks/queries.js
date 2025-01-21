@@ -35,7 +35,6 @@ import {
   searchCustomers,
   getGBLOCs,
   getBulkAssignmentData,
-  saveBulkAssignmentData,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';

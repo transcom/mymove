@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -9,26 +9,13 @@ import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'compo
 import { Form } from 'components/form';
 
 const initialValues = {
-  userData: [
-    // {
-    //   userId: '045c3048-df9a-4d44-88ed-8cd6e2100e08',
-    //   moveAssignments: 2,
-    // },
-    // {
-    //   userId: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42a',
-    //   moveAssignments: 1,
-    // },
-  ],
+  userData: [],
   moveData: [],
 };
 
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, bulkAssignmentData }) => {
   // adds move data to the initialValues obj
-  useEffect(() => {
-    console.log(initialValues);
-    initialValues.moveData = bulkAssignmentData.bulkAssignmentMoveIDs;
-    console.log(initialValues);
-  });
+  initialValues.moveData = bulkAssignmentData.bulkAssignmentMoveIDs;
 
   return (
     <Modal>
@@ -42,9 +29,8 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
       <div className={styles.BulkAssignmentTable}>
         <Formik
           onSubmit={(values) => {
-            onSubmit({
-              bulkAssignmentSavePayload: values,
-            });
+            const bulkAssignmentSavePayload = values;
+            onSubmit({ bulkAssignmentSavePayload });
           }}
           initialValues={initialValues}
         >
@@ -106,7 +92,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     className="usa-button--destructive"
                     type="submit"
                     data-testid="modalSubmitButton"
-                    onClick={(bulkAssignmentSavePayload) => onSubmit(bulkAssignmentSavePayload)}
                   >
                     {submitText}
                   </Button>

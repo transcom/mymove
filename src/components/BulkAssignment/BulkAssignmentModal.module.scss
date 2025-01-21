@@ -14,11 +14,12 @@
       text-align: center;
     }
     .BulkAssignmentAssignment {
-      width: 60px;
-      text-align: center;
+        width: 60px;
+        text-align: center;
     }
-    tr {
-      width: 99%;
-    }
+  }
+
+  form {
+    display: inherit;
   }
 }

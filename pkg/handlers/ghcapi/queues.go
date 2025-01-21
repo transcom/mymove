@@ -633,25 +633,25 @@ func (h SaveBulkAssignmentDataHandler) Handle(
 			if !appCtx.Session().IsOfficeUser() {
 				err := apperror.NewForbiddenError("not an office user")
 				appCtx.Logger().Error("Must be an office user", zap.Error(err))
-				return queues.NewGetBulkAssignmentDataUnauthorized(), err
+				return queues.NewSaveBulkAssignmentDataUnauthorized(), err
 			}
 
 			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
-				return queues.NewGetBulkAssignmentDataNotFound(), err
+				return queues.NewSaveBulkAssignmentDataNotFound(), err
 			}
 
 			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
-				return queues.NewGetBulkAssignmentDataNotFound(), err
+				return queues.NewSaveBulkAssignmentDataNotFound(), err
 			}
 
 			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
 			if !isSupervisor {
 				appCtx.Logger().Error("Unauthorized", zap.Error(err))
-				return queues.NewGetBulkAssignmentDataUnauthorized(), err
+				return queues.NewSaveBulkAssignmentDataUnauthorized(), err
 			}
 
 			queueType := params.QueueType
@@ -660,7 +660,7 @@ func (h SaveBulkAssignmentDataHandler) Handle(
 			movesForAssignment, err := h.MoveFetcher.FetchMovesByIdArray(appCtx, params.BulkAssignmentSavePayload.MoveData)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving moves for assignment", zap.Error(err))
-				return queues.NewGetBulkAssignmentDataInternalServerError(), err
+				return queues.NewSaveBulkAssignmentDataInternalServerError(), err
 			}
 
 			_, err = h.MoveAssigner.BulkMoveAssignment(appCtx, *queueType, params.BulkAssignmentSavePayload.UserData, movesForAssignment)
@@ -669,7 +669,13 @@ func (h SaveBulkAssignmentDataHandler) Handle(
 				return queues.NewGetBulkAssignmentDataInternalServerError(), err
 			}
 
-			return queues.NewGetBulkAssignmentDataOK().WithPayload(nil), nil
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+			}
+
+			return queues.NewSaveBulkAssignmentDataOK().WithPayload(nil), nil
 		})
 }
 
