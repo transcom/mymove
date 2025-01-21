@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 type InternationalTransitTime struct {
@@ -26,11 +27,11 @@ func (InternationalTransitTime) TableName() string {
 func FetchInternationalTransitTime(db *pop.Connection, originRateAreaId uuid.UUID, destinationRateAreaId uuid.UUID) (InternationalTransitTime, error) {
 	var internationalTransitTime InternationalTransitTime
 	err := db.
-		Where("origin_rate_area_id = $1 and destination_rate_area_id = $2", originRateAreaId, destinationRateAreaId).
+		Where("origin_rate_area_id = $1 and destination_rate_area_id = 3", originRateAreaId).
 		First(&internationalTransitTime)
 
 	if err != nil {
-		return internationalTransitTime, err
+		return internationalTransitTime, errors.Errorf("could not look up intl transit time")
 	}
 
 	return internationalTransitTime, nil

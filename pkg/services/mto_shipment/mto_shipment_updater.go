@@ -848,6 +848,15 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			newShipment = models.DetermineShipmentMarketCode(newShipment)
 		}
 
+		// RDD for UB shipments only need the pick up date, shipment origin address and destination address to determine required delivery date
+		if newShipment.ScheduledPickupDate != nil && !newShipment.ScheduledPickupDate.IsZero() && newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			calculatedRDD, err := CalculateRequiredDeliveryDateForInternationalShipment(appCtx, *newShipment.PickupAddress, *newShipment.DestinationAddress, *newShipment.ScheduledPickupDate, newShipment.ShipmentType)
+			if err != nil {
+				return err
+			}
+			newShipment.RequestedDeliveryDate = &calculatedRDD
+		}
+
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
 		}
@@ -919,7 +928,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		if t, ok := transactionError.(StaleIdentifierError); ok {
 			return apperror.NewPreconditionFailedError(dbShipment.ID, t)
 		}
-		return apperror.NewQueryError("mtoShipment", transactionError, "")
+		return apperror.NewQueryError("mtoShipment", transactionError, transactionError.Error())
 	}
 
 	if len(autoReweighShipments) > 0 {
