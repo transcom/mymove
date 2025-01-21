@@ -344,10 +344,6 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev3messages.MTOAgents {
 			agents = append(agents, MTOAgent(&copyOfM))
 		}
 	}
-	// Return nil if there are no agents in the array
-	if len(agents) == 0 {
-		return nil
-	}
 	return &agents
 }
 

@@ -1179,10 +1179,10 @@ func (suite *PayloadsSuite) TestMTOAgentDeleted() {
 	agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
 		{Model: deletedAgent},
 	}, nil)
-	var mtoAgents models.MTOAgents
-	mtoAgents = append(mtoAgents, agent)
+	mtoAgents := models.MTOAgents{agent}
+
 	result := MTOAgents(&mtoAgents)
-	suite.Nil(result)
+	suite.Nil(*result)
 }
 
 func (suite *PayloadsSuite) TestMTOAgentOneActiveOneDeleted() {
