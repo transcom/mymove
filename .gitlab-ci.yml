@@ -43,8 +43,7 @@ variables:
 
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
 
-  postgres: &postgres postgres:16.4
-  #postgres: &postgres postgres:16.4
+  postgres: &postgres postgres:16
   redis: &redis redis:5.0.6
 
 stages:
