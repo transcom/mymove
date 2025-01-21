@@ -96,7 +96,7 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 					pickupZip = mtoShipment.PPMShipment.PickupAddress.PostalCode
 					destinationZip = portLocation.UsPostRegionCity.UsprZipID
 				} else {
-					// OCONUS -> OCONUS mileage they don't get reimbursed for
+					// OCONUS -> OCONUS mileage they don't get reimbursed for this
 					return strconv.Itoa(0), nil
 				}
 			} else {

@@ -147,7 +147,7 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 			Where("contract_id = ?", contractID).
 			Where("service_id = ?", serviceID).
 			Where("is_peak_period = ?", isPeakPeriod).
-			Where("origin_rate_area_id = ?", originRateAreaID).
+			Where("rate_area_id = ?", originRateAreaID).
 			First(&reIntlOtherPrice)
 		if err != nil {
 			return "", fmt.Errorf("error fetching IOFSIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, originRateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, originRateAreaID, err)
@@ -166,7 +166,7 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 			Where("contract_id = ?", contractID).
 			Where("service_id = ?", serviceID).
 			Where("is_peak_period = ?", isPeakPeriod).
-			Where("origin_rate_area_id = ?", originRateAreaID).
+			Where("rate_area_id = ?", originRateAreaID).
 			First(&reIntlOtherPrice)
 		if err != nil {
 			return "", fmt.Errorf("error fetching IOASIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, originRateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, originRateAreaID, err)
@@ -185,7 +185,7 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 			Where("contract_id = ?", contractID).
 			Where("service_id = ?", serviceID).
 			Where("is_peak_period = ?", isPeakPeriod).
-			Where("destination_rate_area_id = ?", destRateAreaID).
+			Where("rate_area_id = ?", destRateAreaID).
 			First(&reIntlOtherPrice)
 		if err != nil {
 			return "", fmt.Errorf("error fetching IDFSIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, destRateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, destRateAreaID, err)
@@ -204,7 +204,7 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 			Where("contract_id = ?", contractID).
 			Where("service_id = ?", serviceID).
 			Where("is_peak_period = ?", isPeakPeriod).
-			Where("destination_rate_area_id = ?", destRateAreaID).
+			Where("rate_area_id = ?", destRateAreaID).
 			First(&reIntlOtherPrice)
 		if err != nil {
 			return "", fmt.Errorf("error fetching IDASIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, destRateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, destRateAreaID, err)
