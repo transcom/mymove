@@ -2542,5 +2542,109 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			suite.NotNil(estimatedSITCost)
 			suite.Equal(unit.Cents(41080), *estimatedSITCost)
 		})
+
+		suite.Run("CalculatePPMSITEstimatedCost - Success for OCONUS PPM", func() {
+			originLocation := models.SITLocationTypeDestination
+			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						EstimatedWeight:           models.PoundPointer(4000),
+						SITExpected:               models.BoolPointer(true),
+						SITLocation:               &originLocation,
+						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
+						SITEstimatedEntryDate:     &entryDate,
+						SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+
+			newPPM := ppm
+			newEstimatedWeight := models.PoundPointer(5500)
+			newPPM.SITEstimatedWeight = newEstimatedWeight
+			setupPricerData()
+
+			estimatedSITCost, err := ppmEstimator.CalculatePPMSITEstimatedCost(suite.AppContextForTest(), &ppm)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(estimatedSITCost)
+			suite.Equal(unit.Cents(20540), *estimatedSITCost)
+		})
+
+		suite.Run("CalculatePPMSITEstimatedCostBreakdown - Success for OCONUS PPM", func() {
+			originLocation := models.SITLocationTypeDestination
+			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						EstimatedWeight:           models.PoundPointer(4000),
+						SITExpected:               models.BoolPointer(true),
+						SITLocation:               &originLocation,
+						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
+						SITEstimatedEntryDate:     &entryDate,
+						SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+
+			newPPM := ppm
+			newEstimatedWeight := models.PoundPointer(5500)
+			newPPM.SITEstimatedWeight = newEstimatedWeight
+			setupPricerData()
+
+			sitCosts, err := ppmEstimator.CalculatePPMSITEstimatedCostBreakdown(suite.AppContextForTest(), &ppm)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(sitCosts)
+			suite.Equal(unit.Cents(20540), *sitCosts.EstimatedSITCost)
+			suite.Equal(unit.Cents(12140), *sitCosts.PriceFirstDaySIT)
+			suite.Equal(unit.Cents(8400), *sitCosts.PriceAdditionalDaySIT)
+		})
 	})
 }
