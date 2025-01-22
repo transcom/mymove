@@ -990,6 +990,78 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		suite.Contains(err.Error(), expError)
 		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected move to still be in NEEDS_SERVICE_COUNSELING status when routing has failed")
 	})
+
+	suite.Run("SignedCirtification created, Route PPM moves to the closest service counseling office and set status to NEEDS SERVICE COUNSELING", func() {
+		// Under test: MoveRouter.Submit Full PPM should route to service counselor
+		// Set up: Create moves and SignedCertification
+		// Expected outcome: signed cert is created
+		// Expected outcome: Move status is set to needs service counseling
+		tests := []struct {
+			desc                       string
+			ProvidesServicesCounseling bool
+			moveStatus                 models.MoveStatus
+		}{
+			{"Routes to Service Counseling", true, models.MoveStatusNeedsServiceCounseling},
+			{"Routes to Service Counseling", false, models.MoveStatusNeedsServiceCounseling},
+		}
+		for _, tt := range tests {
+			suite.Run(tt.desc, func() {
+				move := factory.BuildMove(suite.DB(), []factory.Customization{
+					{
+						Model: models.DutyLocation{
+							ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+						},
+						Type: &factory.DutyLocations.OriginDutyLocation,
+					},
+					{
+						Model: models.Move{
+							Status: models.MoveStatusDRAFT,
+						},
+					},
+				}, nil)
+
+				shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							Status:       models.MTOShipmentStatusDraft,
+							ShipmentType: models.MTOShipmentTypePPM,
+						},
+					},
+					{
+						Model:    move,
+						LinkOnly: true,
+					},
+				}, nil)
+
+				ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.PPMShipment{
+							Status: models.PPMShipmentStatusDraft,
+						},
+					},
+				}, nil)
+
+				move.MTOShipments = models.MTOShipments{shipment}
+				move.MTOShipments[0].PPMShipment = &ppmShipment
+
+				newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+					{
+						Model:    move,
+						LinkOnly: true,
+					},
+				}, nil)
+				err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+				suite.NoError(err)
+				err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
+				suite.NoError(err)
+				suite.NotNil(newSignedCertification)
+
+				err = suite.DB().Find(&move, move.ID)
+				suite.NoError(err)
+				suite.Equal(tt.moveStatus, move.Status)
+			})
+		}
+	})
 }
 
 func (suite *MoveServiceSuite) TestMoveCancellation() {
