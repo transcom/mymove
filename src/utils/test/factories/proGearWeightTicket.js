@@ -3,6 +3,7 @@ import { v4 } from 'uuid';
 
 import createUpload from 'utils/test/factories/upload';
 import { createDocumentWithoutUploads } from 'utils/test/factories/document';
+import { PPM_DOCUMENT_STATUS } from 'shared/constants';
 
 const createBaseProGearWeightTicket = ({ serviceMemberId, creationDate = new Date() } = {}, fieldOverrides = {}) => {
   const createdAt = creationDate.toISOString();
@@ -90,7 +91,7 @@ const createRejectedProGearWeightTicket = ({ serviceMemberId, creationDate } = {
     ...fieldOverrides,
   };
   const weightTicket = createBaseProGearWeightTicket({ serviceMemberId, creationDate }, fullFieldOverrides);
-  weightTicket.status = 'REJECTED';
+  weightTicket.status = PPM_DOCUMENT_STATUS.REJECTED;
   return weightTicket;
 };
 
