@@ -49,7 +49,7 @@ func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contr
 		return 0, nil, fmt.Errorf("could not find contract year with contract ID: %s and date: %s: %w", contract.ID, referenceDate, err)
 	}
 
-	basePrice := float64(perUnitCents)
+	basePrice := float64(perUnitCents) / 100
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
 	escalatedPrice = math.Round(escalatedPrice*100) / 100
 	totalEscalatedPrice := escalatedPrice * weight.ToCWTFloat64()
