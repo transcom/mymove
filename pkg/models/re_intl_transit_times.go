@@ -27,7 +27,7 @@ func (InternationalTransitTime) TableName() string {
 func FetchInternationalTransitTime(db *pop.Connection, originRateAreaId uuid.UUID, destinationRateAreaId uuid.UUID) (InternationalTransitTime, error) {
 	var internationalTransitTime InternationalTransitTime
 	err := db.
-		Where("origin_rate_area_id = $1 and destination_rate_area_id = 3", originRateAreaId).
+		Where("origin_rate_area_id = $1 and destination_rate_area_id = $2", originRateAreaId, destinationRateAreaId).
 		First(&internationalTransitTime)
 
 	if err != nil {
