@@ -102,8 +102,8 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		logger.Info(fmt.Sprintf("Duration of processTPPS task:: %v", elapsedTime))
 	}()
 
-	// flag := pflag.CommandLine
-	// // initProcessTPPSFlags(flag)
+	flag := pflag.CommandLine
+	initProcessTPPSFlags(flag)
 	// err = flag.Parse(os.Args[1:])
 	// if err != nil {
 	// 	log.Fatal("failed to parse flags", zap.Error(err))
