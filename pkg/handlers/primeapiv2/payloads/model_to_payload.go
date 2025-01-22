@@ -100,6 +100,7 @@ func Customer(customer *models.ServiceMember) *primev2messages.Customer {
 	if customer.PersonalEmail != nil {
 		payload.Email = *customer.PersonalEmail
 	}
+
 	if len(customer.BackupContacts) > 0 {
 		payload.BackupContact = BackupContact(&customer.BackupContacts[0])
 	}

@@ -909,7 +909,7 @@ func (suite *PayloadsSuite) TestMTOServiceItem() {
 	suite.Equal(mtoServiceItemDefault.MoveTaskOrderID.String(), basicItem.MoveTaskOrderID().String())
 }
 
-func (suite *PayloadsSuite) TestGetCustomerBackupContact() {
+func (suite *PayloadsSuite) TestGetCustomerContact() {
 	customerContacts := models.MTOServiceItemCustomerContacts{
 		models.MTOServiceItemCustomerContact{Type: models.CustomerContactTypeFirst},
 	}
