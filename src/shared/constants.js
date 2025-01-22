@@ -237,3 +237,9 @@ const ADDRESS_LABELS_MAP = {
 };
 
 export const getAddressLabel = (type) => ADDRESS_LABELS_MAP[type];
+
+export const PPM_DOCUMENT_STATUS = {
+  APPROVED: 'APPROVED',
+  EXCLUDED: 'EXCLUDED',
+  REJECTED: 'REJECTED',
+};
