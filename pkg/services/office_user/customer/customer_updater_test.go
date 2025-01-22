@@ -33,7 +33,7 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		backupContact := models.BackupContact{
 			Email: "newbackup@mail.com",
 			Name:  "New Backup Contact",
-			Phone: models.StringPointer("445-345-1212"),
+			Phone: "445-345-1212",
 		}
 		backupContacts = append(backupContacts, backupContact)
 
