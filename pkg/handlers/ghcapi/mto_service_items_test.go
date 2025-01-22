@@ -38,14 +38,12 @@ import (
 )
 
 func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
-	reServiceID, _ := uuid.NewV4()
-	serviceItemID, _ := uuid.NewV4()
-	mtoShipmentID, _ := uuid.NewV4()
-	var mtoID uuid.UUID
 
-	setupTestData := func() (models.User, models.MTOServiceItems) {
+	setupTestData := func() (models.User, models.MTOServiceItems, uuid.UUID) {
+		reServiceID, _ := uuid.NewV4()
+		serviceItemID, _ := uuid.NewV4()
+		mtoShipmentID, _ := uuid.NewV4()
 		mto := factory.BuildMove(suite.DB(), nil, nil)
-		mtoID = mto.ID
 		reService := factory.FetchReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
@@ -129,6 +127,25 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			},
 		}, nil)
 
+		serviceItems := models.MTOServiceItems{serviceItem, originSit, destinationSit}
+
+		return requestUser, serviceItems, mto.ID
+	}
+
+	setupIUBTestData := func() (models.User, models.MTOServiceItems, uuid.UUID) {
+		mtoShipmentID, _ := uuid.NewV4()
+		mto := factory.BuildMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID:           mtoShipmentID,
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+					MarketCode:   models.MarketCodeInternational,
+				},
+			},
+		}, nil)
+		requestUser := factory.BuildUser(nil, nil, nil)
+
 		poeFsc := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
@@ -150,13 +167,34 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			},
 		}, nil)
 
-		serviceItems := models.MTOServiceItems{serviceItem, originSit, destinationSit, poeFsc}
+		ubp := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeUBP,
+				},
+			},
+		}, nil)
 
-		return requestUser, serviceItems
+		serviceItems := models.MTOServiceItems{poeFsc, ubp}
+
+		return requestUser, serviceItems, mto.ID
 	}
 
 	suite.Run("Successful list fetch - Integration Test", func() {
-		requestUser, serviceItems := setupTestData()
+		requestUser, serviceItems, mtoID := setupTestData()
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -199,7 +237,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 		fmt.Println(okResponse.Payload)
 
-		suite.Len(okResponse.Payload, 4)
+		suite.Len(okResponse.Payload, 3)
 		for _, serviceItem := range serviceItems {
 			for _, payload := range okResponse.Payload {
 				// Validate that the Customer Contacts were included in the payload
@@ -221,17 +259,56 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 				}
 			}
 		}
+	})
 
-		// Validate that sort field is populated for service items which have it (ie. POEFSC)
+	suite.Run("Successful sorted serviceItems for UB", func() {
+		requestUser, serviceItems, mtoID := setupIUBTestData()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := mtoserviceitemop.ListMTOServiceItemsParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(serviceItems[0].MoveTaskOrderID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		listFetcher := fetch.NewListFetcher(queryBuilder)
+		fetcher := fetch.NewFetcher(queryBuilder)
+		counselingPricer := ghcrateengine.NewCounselingServicesPricer()
+		moveManagementPricer := ghcrateengine.NewManagementServicesPricer()
+		handler := ListMTOServiceItemsHandler{
+			suite.createS3HandlerConfig(),
+			listFetcher,
+			fetcher,
+			counselingPricer,
+			moveManagementPricer,
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsOK{}, response)
+		okResponse := response.(*mtoserviceitemop.ListMTOServiceItemsOK)
+
+		// Validate outgoing payload
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+		fmt.Println(okResponse.Payload)
+
+		suite.Len(okResponse.Payload, 2)
+		// Validate that sort field is populated for service items which have it.
+		// These test values can be updated to match any DB changes.
 		for _, payload := range okResponse.Payload {
 			if payload.ReServiceCode != nil && *payload.ReServiceCode == models.ReServiceCodePOEFSC.String() {
 				suite.Equal("2", *payload.Sort)
+			}
+			if payload.ReServiceCode != nil && *payload.ReServiceCode == models.ReServiceCodeUBP.String() {
+				suite.Equal("1", *payload.Sort)
 			}
 		}
 	})
 
 	suite.Run("Failure list fetch - Internal Server Error", func() {
-		requestUser, serviceItems := setupTestData()
+		requestUser, serviceItems, mtoID := setupTestData()
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -279,7 +356,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	})
 
 	suite.Run("Failure list fetch - 404 Not Found - Move Task Order ID", func() {
-		requestUser, serviceItems := setupTestData()
+		requestUser, serviceItems, mtoID := setupTestData()
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
