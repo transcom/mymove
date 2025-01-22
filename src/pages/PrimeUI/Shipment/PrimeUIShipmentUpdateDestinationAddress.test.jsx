@@ -120,10 +120,6 @@ const renderComponent = () => {
   );
 };
 
-beforeEach(() => {
-  jest.resetAllMocks();
-});
-
 describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
   describe('check loading and error component states', () => {
     const loadingReturnValue = {
@@ -233,7 +229,7 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
 
       await waitFor(() => {
         expect(mockSetFlashMessage).toHaveBeenCalledWith(
-          'MSG_UPDATE_SUCCESS4',
+          `MSG_UPDATE_SUCCESS${routingParams.shipmentId}`,
           'success',
           'Successfully updated shipment',
           '',
