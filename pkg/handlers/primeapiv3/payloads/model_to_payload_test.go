@@ -527,10 +527,12 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			StorageInTransit:               nil,
 			RequiredMedicalEquipmentWeight: 0,
 			OrganizationalClothingAndIndividualEquipment: false,
-			ProGearWeight:       0,
-			ProGearWeightSpouse: 0,
-			CreatedAt:           time.Now(),
-			UpdatedAt:           time.Now(),
+			ProGearWeight:                 0,
+			ProGearWeightSpouse:           0,
+			CreatedAt:                     time.Now(),
+			UpdatedAt:                     time.Now(),
+			AdminRestrictedWeightLocation: true,
+			WeightRestriction:             models.IntPointer(1000),
 		}
 
 		payload := Entitlement(&entitlement)
@@ -553,6 +555,8 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(int64(0), payload.TotalDependents)
 		suite.Equal(int64(0), payload.TotalWeight)
 		suite.Equal(int64(0), *payload.UnaccompaniedBaggageAllowance)
+		suite.Equal(true, payload.AdminRestrictedWeightLocation)
+		suite.Equal(int64(1000), *payload.WeightRestriction)
 	})
 
 	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {
