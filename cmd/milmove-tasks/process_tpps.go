@@ -28,11 +28,11 @@ func checkProcessTPPSConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
-	err = cli.CheckLogging(v)
-	if err != nil {
-		logger.Info("Reaching process_tpps.go line 36 in checkProcessTPPSConfig")
-		return err
-	}
+	// err = cli.CheckLogging(v)
+	// if err != nil {
+	// 	logger.Info("Reaching process_tpps.go line 36 in checkProcessTPPSConfig")
+	// 	return err
+	// }
 
 	// if err := cli.CheckCert(v); err != nil {
 	// 	logger.Info("Reaching process_tpps.go line 41 in checkProcessTPPSConfig")
@@ -55,12 +55,12 @@ func initProcessTPPSFlags(flag *pflag.FlagSet) {
 	cli.InitLoggingFlags(flag)
 
 	// Certificate
-	cli.InitCertFlags(flag)
+	// cli.InitCertFlags(flag)
 
-	// Entrust Certificates
-	cli.InitEntrustCertFlags(flag)
+	// // Entrust Certificates
+	// cli.InitEntrustCertFlags(flag)
 
-	cli.InitTPPSFlags(flag)
+	// cli.InitTPPSFlags(flag)
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -84,7 +84,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
 	logger, _, err := logging.Config(
-		logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)),
+		logging.WithEnvironment(dbEnv),
 		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
 		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
 	)
@@ -120,13 +120,15 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
+	logger.Info("Reaching process_tpps.go line 123")
+
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 	// dbEnv := v.GetString(cli.DbEnvFlag)
 
-	isDevOrTest := dbEnv == "experimental" || dbEnv == "development" || dbEnv == "test"
-	if isDevOrTest {
-		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
-	}
+	// isDevOrTest := dbEnv == "experimental" || dbEnv == "development" || dbEnv == "test"
+	// if isDevOrTest {
+	// 	logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
+	// }
 
 	// certLogger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	// if err != nil {
