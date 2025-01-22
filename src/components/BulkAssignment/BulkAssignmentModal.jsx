@@ -31,30 +31,11 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           onSubmit={(values) => {
             const bulkAssignmentSavePayload = values;
             onSubmit({ bulkAssignmentSavePayload });
+            onClose();
           }}
           initialValues={initialValues}
         >
-          {({ setValues, values }) => {
-            const addUserAssignment = (user) => {
-              let newUserAssignment;
-              if (user.target.value !== '') {
-                newUserAssignment = {
-                  ID: user.target.id,
-                  moveAssignments: +user.target.value,
-                };
-              } else {
-                newUserAssignment = {
-                  userId: user.target.id,
-                  moveAssignments: 0,
-                };
-              }
-
-              setValues({
-                ...values,
-                userData: [newUserAssignment],
-              });
-            };
-
+          {({ handleChange, setValues, values }) => {
             return (
               <Form>
                 <table>
@@ -63,7 +44,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     <th>Workload</th>
                     <th>Assignment</th>
                   </tr>
-                  {bulkAssignmentData?.availableOfficeUsers?.map((user) => {
+                  {bulkAssignmentData?.availableOfficeUsers?.map((user, i) => {
                     return (
                       <tr key={user.officeUserId}>
                         <td>
@@ -79,7 +60,30 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                             className={styles.BulkAssignmentAssignment}
                             type="number"
                             id={user.officeUserId}
-                            onChange={addUserAssignment}
+                            onChange={(event) => {
+                              handleChange(event);
+
+                              let newUserAssignment;
+                              if (event.target.value !== '') {
+                                newUserAssignment = {
+                                  ID: event.target.id,
+                                  moveAssignments: +event.target.value,
+                                };
+                              } else {
+                                newUserAssignment = {
+                                  ID: event.target.id,
+                                  moveAssignments: 0,
+                                };
+                              }
+
+                              const newValues = values;
+                              newValues.userData[i] = newUserAssignment;
+
+                              setValues({
+                                ...values,
+                                userData: newValues.userData,
+                              });
+                            }}
                           />
                         </td>
                       </tr>
