@@ -27,16 +27,6 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
-	suite.PreloadData(func() {
-		factory.FetchOrBuildCountry(suite.DB(), []factory.Customization{
-			{
-				Model: models.Country{
-					Country:     "US",
-					CountryName: "UNITED STATES",
-				},
-			},
-		}, nil)
-	})
 	customAffiliation := models.AffiliationARMY
 	sm := factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
 		{
