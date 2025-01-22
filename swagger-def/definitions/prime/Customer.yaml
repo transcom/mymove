@@ -34,3 +34,5 @@ properties:
   eTag:
     type: string
     readOnly: true
+  backupContact:
+    $ref: 'BackupContact.yaml'
