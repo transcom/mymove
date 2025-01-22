@@ -19,7 +19,7 @@ const info = {
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
   ubAllowance: 400,
-  weightRestriction: 1000,
+  weightRestriction: 1500,
 };
 
 const initialValuesOconusAdditions = {
@@ -179,6 +179,6 @@ describe('AllowancesList', () => {
   it('renders weight restriction', () => {
     const adminRestrictedWtLoc = { ...info, adminRestrictedWeightLocation: true };
     render(<AllowancesList info={adminRestrictedWtLoc} />);
-    expect(screen.getByTestId('weightRestriction').textContent).toEqual('1,000 lbs');
+    expect(screen.getByTestId('weightRestriction').textContent).toEqual('1,500 lbs');
   });
 });
