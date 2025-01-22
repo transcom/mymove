@@ -6842,7 +6842,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -23988,7 +23989,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
