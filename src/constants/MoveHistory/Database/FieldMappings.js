@@ -151,5 +151,4 @@ export default {
   assigned_sc: 'Counselor assigned',
   assigned_too: 'Task ordering officer assigned',
   assigned_tio: 'Task invoicing officer assigned',
-  denied_at: 'Denied at',
 };

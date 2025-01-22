@@ -12,7 +12,15 @@ const formatChangedValues = (historyRecord) => {
     ...getMtoShipmentLabel(historyRecord),
   };
 
-  return { ...historyRecord, changedValues: newChangedValues };
+  // Removed unneeded values to avoid clutter in audit log
+  if (newChangedValues.status === 'APPROVED') {
+    delete newChangedValues.rejection_reason;
+  }
+
+  delete newChangedValues.status;
+  const newHistoryRecord = { ...historyRecord };
+  delete newHistoryRecord.changedValues.status;
+  return { ...newHistoryRecord, changedValues: newChangedValues };
 };
 
 export default {
@@ -21,7 +29,7 @@ export default {
   tableName: t.payment_service_items,
   getEventNameDisplay: (historyRecord) => {
     let actionPrefix = '';
-    if (historyRecord.changedValues.status === 'DENIED') {
+    if (historyRecord.changedValues.rejection_reason !== null || historyRecord.changedValues.status === 'REJECTED') {
       actionPrefix = 'Rejected';
     } else if (historyRecord.changedValues.status === 'APPROVED') {
       actionPrefix = 'Approved';
