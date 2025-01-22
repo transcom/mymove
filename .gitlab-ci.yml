@@ -173,6 +173,7 @@ stages:
   - |
     mkdir -p /builds/milmove/mymove/.cache
     mkdir -p /builds/milmove/mymove/.cache/yarn
+    yarn config set network-timeout 600000 -g
     yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
     scripts/check-generated-code yarn.lock
     echo "yarn check dependencies"
@@ -756,7 +757,7 @@ client_test:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "8Gi"
     KUBERNETES_MEMORY_LIMIT: "8Gi"
   needs:
@@ -772,7 +773,7 @@ client_test:
     - pre_deps_yarn
   script:
     - echo "client test coverage"
-    - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false  --network-timeout 1000000 >> $CI_PROJECT_DIR/coverage.output
+    - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false  >> $CI_PROJECT_DIR/coverage.output
   artifacts:
     when: always
     reports:
