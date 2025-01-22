@@ -48,6 +48,42 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	return user
 }
 
+// BuildActiveUser creates a User
+// It does not create Roles or UsersRoles. To create a User associated with certain roles, use BuildUserAndUsersRoles
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB.
+func BuildActiveUser(db *pop.Connection, customs []Customization, traits []Trait) models.User {
+	customs = setupCustomizations(customs, traits)
+
+	// Find user assertion and convert to models user
+	var cUser models.User
+	if result := findValidCustomization(customs, User); result != nil {
+		cUser = result.Model.(models.User)
+		if result.LinkOnly {
+			return cUser
+		}
+	}
+
+	// create user
+	OktaID := MakeRandomString(20)
+	user := models.User{
+		OktaID:    OktaID,
+		OktaEmail: "first.last@okta.mil",
+		Active:    true,
+	}
+
+	// Overwrite values with those from assertions
+	testdatagen.MergeModels(&user, cUser)
+
+	// If db is false, it's a stub. No need to create in database
+	if db != nil {
+		mustCreate(db, &user)
+	}
+
+	return user
+}
+
 // BuildUserAndUsersRoles creates a User
 //   - If the user has Roles in the customizations, Roles and UsersRoles will also be created
 //

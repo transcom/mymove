@@ -135,7 +135,7 @@ const mtoShipments = [
 ];
 
 const ntsrShipmentMissingRequiredInfo = {
-  shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+  shipmentType: 'HHG_OUTOF_NTS',
   ntsRecordedWeight: 2000,
   id: 'ce01a5b8-9b44-8799-8a8d-edb60f2a4aee',
   serviceOrderNumber: '12341234',

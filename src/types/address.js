@@ -43,3 +43,11 @@ export const W2AddressShape = shape({
   postalCode: string,
   usPostRegionCitiesID: string,
 });
+
+export const PortLocationShape = shape({
+  portCode: string,
+  portName: string,
+  city: string,
+  state: string,
+  zip: string,
+});

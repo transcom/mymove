@@ -95,23 +95,25 @@ const ShipmentDisplay = ({
                   {displayInfo.heading}
                 </label>
               </h3>
-              <div>
+              <div className={styles.tagWrapper}>
                 {displayInfo.isActualExpenseReimbursement && (
                   <Tag data-testid="actualReimbursementTag">actual expense reimbursement</Tag>
                 )}
-                {displayInfo.isDiversion && <Tag>diversion</Tag>}
+                {displayInfo.isDiversion && <Tag className="usa-tag--diversion">diversion</Tag>}
                 {(displayInfo.shipmentStatus === shipmentStatuses.CANCELED ||
                   displayInfo.status === shipmentStatuses.CANCELED ||
                   displayInfo.ppmShipment?.status === ppmShipmentStatuses.CANCELED) && (
-                  <Tag className="usa-tag--red">canceled</Tag>
+                  <Tag className="usa-tag--cancellation">canceled</Tag>
                 )}
-                {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
+                {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
+                  <Tag className="usa-tag--diversion">diversion requested</Tag>
+                )}
                 {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
-                  <Tag>cancellation requested</Tag>
+                  <Tag className="usa-tag--cancellation">cancellation requested</Tag>
                 )}
                 {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
                 {displayInfo.ppmShipment?.status && (
-                  <Tag className={styles.ppmStatus} data-testid="ppmStatusTag">
+                  <Tag className="usa-tag--ppmStatus" data-testid="ppmStatusTag">
                     {ppmShipmentStatusLabels[displayInfo.ppmShipment?.status]}
                   </Tag>
                 )}

@@ -153,6 +153,15 @@ const propsForApprovedPPMShipment = {
     status: MOVE_STATUSES.APPROVED,
     submitted_at: '2020-12-24',
   },
+  orders: {
+    id: '12345',
+    origin_duty_location: {
+      name: 'NAS Norfolk',
+    },
+    new_duty_location: {
+      name: 'NAS Jacksonville',
+    },
+  },
 };
 
 const propsForCloseoutCompletePPMShipment = {

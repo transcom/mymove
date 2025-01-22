@@ -53,6 +53,7 @@ Optional fields include:
 * Releasing / Receiving agents
 * Actual Pro Gear Weight
 * Actual Spouse Pro Gear Weight
+* Location of the POE/POD
 */
 type UpdateMTOShipment struct {
 	Context *middleware.Context

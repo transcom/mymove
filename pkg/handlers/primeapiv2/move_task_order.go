@@ -104,7 +104,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			}
 			/** End of Feature Flag **/
 
-			moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+			moveTaskOrderPayload := payloads.MoveTaskOrder(appCtx, mto)
 
 			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
 		})

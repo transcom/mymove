@@ -400,6 +400,10 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.Entitlement.DBAuthorizedWeight = &weight
 	}
 
+	if payload.HasDependents != nil {
+		order.HasDependents = *payload.HasDependents
+	}
+
 	return order
 }
 

@@ -614,7 +614,7 @@ func appearedInTOOAtFilter(appearedInTOOAt *time.Time) QueryOption {
 func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	return func(query *pop.Query) {
 		if requestedMoveDate != nil {
-			query.Where("(mto_shipments.requested_pickup_date = ? OR ppm_shipments.expected_departure_date = ? OR (mto_shipments.shipment_type = 'HHG_OUTOF_NTS_DOMESTIC' AND mto_shipments.requested_delivery_date = ?))", *requestedMoveDate, *requestedMoveDate, *requestedMoveDate)
+			query.Where("(mto_shipments.requested_pickup_date = ? OR ppm_shipments.expected_departure_date = ? OR (mto_shipments.shipment_type = 'HHG_OUTOF_NTS' AND mto_shipments.requested_delivery_date = ?))", *requestedMoveDate, *requestedMoveDate, *requestedMoveDate)
 		}
 	}
 }
@@ -692,7 +692,7 @@ func gblocFilterForTOO(gbloc *string) QueryOption {
 		if gbloc != nil {
 			// Note: extra parens necessary to keep precedence correct when AND'ing all filters together.
 			query.Where("((mto_shipments.shipment_type != ? AND move_to_gbloc.gbloc = ?) OR (mto_shipments.shipment_type = ? AND orders.gbloc = ?))",
-				models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc, models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc)
+				models.MTOShipmentTypeHHGOutOfNTS, *gbloc, models.MTOShipmentTypeHHGOutOfNTS, *gbloc)
 		}
 	}
 }

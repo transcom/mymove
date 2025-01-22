@@ -15,6 +15,7 @@ import ConvertSITToCustomerExpenseModal from 'components/Office/ConvertSITToCust
 import ShipmentSITDisplay from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplay';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
+import PortTable from 'components/Office/PortTable/PortTable';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 import ShipmentRemarks from 'components/Office/ShipmentRemarks/ShipmentRemarks';
 import Restricted from 'components/Restricted/Restricted';
@@ -67,6 +68,8 @@ const ShipmentDetailsMain = ({
     storageInTransit,
     shipmentType,
     storageFacility,
+    poeLocation,
+    podLocation,
   } = shipment;
   const { originDutyLocationAddress, destinationDutyLocationAddress } = dutyLocationAddresses;
 
@@ -135,6 +138,8 @@ const ShipmentDetailsMain = ({
   let pickupActualDate;
   let plannedMoveDate;
   let actualMoveDate;
+  let displayPoeLocation;
+  let displayPodLocation;
 
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
@@ -144,6 +149,8 @@ const ShipmentDetailsMain = ({
       weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
+      displayPoeLocation = poeLocation;
+      displayPodLocation = podLocation;
       break;
     case SHIPMENT_OPTIONS.NTS:
       pickupRequestedDate = requestedPickupDate;
@@ -175,6 +182,8 @@ const ShipmentDetailsMain = ({
       weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
+      displayPoeLocation = poeLocation;
+      displayPodLocation = podLocation;
       break;
   }
 
@@ -261,6 +270,9 @@ const ShipmentDetailsMain = ({
         handleShowDiversionModal={handleShowDiversionModal}
         isMoveLocked={isMoveLocked}
       />
+      {(displayPoeLocation || displayPodLocation) && (
+        <PortTable poeLocation={displayPoeLocation} podLocation={displayPodLocation} />
+      )}
       <ShipmentWeightDetails
         estimatedWeight={weightResult}
         initialWeight={primeActualWeight}

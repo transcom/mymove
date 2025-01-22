@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -17,6 +18,7 @@ type FakeS3Storage struct {
 	willSucceed bool
 	fs          *afero.Afero
 	tempFs      *afero.Afero
+	EmptyTags   bool // Used for testing only
 }
 
 // Delete removes a file.
@@ -58,7 +60,11 @@ func (fake *FakeS3Storage) Fetch(key string) (io.ReadCloser, error) {
 // PresignedURL returns a URL that can be used to retrieve a file.
 func (fake *FakeS3Storage) PresignedURL(key string, contentType string, filename string) (string, error) {
 	filenameBuffer := make([]byte, 0)
-	for _, r := range filename {
+
+	// Double quote the filename to be able to handle filenames with commas in them
+	quotedFilename := strconv.Quote(filename)
+
+	for _, r := range quotedFilename {
 		if encodedRune, ok := charmap.ISO8859_1.EncodeRune(r); ok {
 			filenameBuffer = append(filenameBuffer, encodedRune)
 		}
@@ -92,6 +98,10 @@ func (fake *FakeS3Storage) Tags(_ string) (map[string]string, error) {
 	tags := map[string]string{
 		"tagName":   "tagValue",
 		"av-status": "CLEAN", // Assume anti-virus run
+	}
+	if fake.EmptyTags {
+		tags = map[string]string{}
+		fake.EmptyTags = false // Reset after initial return, so future calls (tests) have filled tags
 	}
 	return tags, nil
 }

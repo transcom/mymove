@@ -13,10 +13,10 @@ import (
 
 // makeMTOShipment creates a single MTOShipment and associated set relationships
 // It will make a move record, if one is not provided.
-// It will make pickup addresses if the shipment type is not one of (HHGOutOfNTSDom, PPM)
-// It will make delivery addresses if the shipment type is not one of (HHGOutOfNTSDom, PPM)
+// It will make pickup addresses if the shipment type is not one of (HHGOutOfNTS, PPM)
+// It will make delivery addresses if the shipment type is not one of (HHGOutOfNTS, PPM)
 // It will make a storage facility if the shipment type is
-// HHGOutOfNTSDom
+// HHGOutOfNTS
 //
 // Deprecated: use factory.BuildMTOShipment
 func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
@@ -38,8 +38,8 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		shipmentStatus = mtoShipment.Status
 	}
 
-	shipmentHasPickupDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && mtoShipment.ShipmentType != models.MTOShipmentTypePPM
-	shipmentHasDeliveryDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom && mtoShipment.ShipmentType != models.MTOShipmentTypePPM
+	shipmentHasPickupDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS && mtoShipment.ShipmentType != models.MTOShipmentTypePPM
+	shipmentHasDeliveryDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTS && mtoShipment.ShipmentType != models.MTOShipmentTypePPM
 
 	var pickupAddress, secondaryPickupAddress models.Address
 	if shipmentHasPickupDetails {
@@ -95,8 +95,8 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 	var storageFacilityID *uuid.UUID
 	var storageFacility models.StorageFacility
-	if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom ||
-		mtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+	if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS ||
+		mtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS {
 		if mtoShipment.StorageFacility != nil {
 			if isZeroUUID(mtoShipment.StorageFacility.ID) {
 				storageFacility = MakeStorageFacility(db, Assertions{

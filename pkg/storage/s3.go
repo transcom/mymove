@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"path"
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -116,9 +117,11 @@ func (s *S3) TempFileSystem() *afero.Afero {
 func (s *S3) PresignedURL(key string, contentType string, filename string) (string, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
 	presignClient := s3.NewPresignClient(s.client)
+	// Double quote the filename to be able to handle filenames with commas in them
+	quotedFilename := strconv.Quote(filename)
 
 	filenameBuffer := make([]byte, 0)
-	for _, r := range filename {
+	for _, r := range quotedFilename {
 		if encodedRune, ok := charmap.ISO8859_1.EncodeRune(r); ok {
 			filenameBuffer = append(filenameBuffer, encodedRune)
 		}

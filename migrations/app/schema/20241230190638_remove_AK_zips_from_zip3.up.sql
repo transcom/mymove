@@ -1,0 +1,1 @@
+DELETE FROM zip3_distances WHERE to_zip3 IN ('995','996','997','998','999');

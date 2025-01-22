@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import PrimeUIUpdateSitServiceItem from './PrimeUIUpdateSitServiceItem';
+import PrimeUIUpdateSitServiceItem from './PrimeUIUpdateServiceItem';
 
 import { MockProviders, ReactQueryWrapper } from 'testUtils';
 import { primeSimulatorRoutes } from 'constants/routes';

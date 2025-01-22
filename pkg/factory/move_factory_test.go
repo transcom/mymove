@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 func (suite *FactorySuite) TestBuildMove() {
@@ -258,6 +259,23 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.NotNil(move.AvailableToPrimeAt)
 		suite.NotNil(move.ApprovedAt)
 	})
+	suite.Run("Successful creation of a move with an assigned SC", func() {
+		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		move := BuildMoveWithShipment(suite.DB(), []Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &OfficeUsers.SCAssignedUser,
+			},
+		}, nil)
+		suite.Equal(officeUser.ID, *move.SCAssignedID)
+	})
 	suite.Run("Successful creation of move with shipment", func() {
 		// Under test:      BuildMoveWithShipment
 		// Set up:          Create a move using BuildMoveWithShipment
@@ -266,6 +284,59 @@ func (suite *FactorySuite) TestBuildMove() {
 		move := BuildMoveWithShipment(suite.DB(), nil, nil)
 		suite.NotEmpty(move.MTOShipments)
 		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status)
+	})
+	suite.Run("Successful creation of a move with an assigned SC", func() {
+		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		move := BuildMoveWithShipment(suite.DB(), []Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &OfficeUsers.SCAssignedUser,
+			},
+		}, nil)
+		suite.Equal(officeUser.ID, *move.SCAssignedID)
+	})
+
+	suite.Run("Successful creation of a move with an assigned TOO", func() {
+		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		move := BuildMoveWithShipment(suite.DB(), []Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &OfficeUsers.TOOAssignedUser,
+			},
+		}, nil)
+		suite.Equal(officeUser.ID, *move.TOOAssignedID)
+	})
+
+	suite.Run("Successful creation of a move with an assigned TIO", func() {
+		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
+
+		move := BuildMoveWithShipment(suite.DB(), []Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &OfficeUsers.TIOAssignedUser,
+			},
+		}, nil)
+		suite.Equal(officeUser.ID, *move.TIOAssignedID)
 	})
 
 	suite.Run("Successful creation of customized move with shipment", func() {

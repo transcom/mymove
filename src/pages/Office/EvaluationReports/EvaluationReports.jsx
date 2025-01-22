@@ -114,6 +114,24 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
           <h1>Quality assurance reports</h1>
         </Grid>
         <GridContainer className={evaluationReportsStyles.evaluationReportSection}>
+          <Grid row>
+            <ShipmentQAEReports
+              reports={shipmentEvaluationReports}
+              shipments={shipments}
+              moveCode={moveCode}
+              customerInfo={customerInfo}
+              grade={grade}
+              destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+              emptyText="No QAE reports have been submitted for this shipment"
+              setReportToDelete={setReportToDelete}
+              setIsDeleteModalOpen={setIsDeleteModalOpen}
+              isDeleteModalOpen={isDeleteModalOpen}
+              deleteReport={deleteReport}
+              isMoveLocked={isMoveLocked}
+            />
+          </Grid>
+        </GridContainer>
+        <GridContainer className={evaluationReportsStyles.evaluationReportSection}>
           <Grid row className={evaluationReportsStyles.counselingHeadingContainer}>
             <h2>Counseling QAE reports ({counselingEvaluationReports.length})</h2>
             <Restricted to={permissionTypes.createEvaluationReport}>
@@ -135,24 +153,6 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
               destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
               shipments={shipments}
               emptyText="No QAE reports have been submitted for counseling."
-              setReportToDelete={setReportToDelete}
-              setIsDeleteModalOpen={setIsDeleteModalOpen}
-              isDeleteModalOpen={isDeleteModalOpen}
-              deleteReport={deleteReport}
-              isMoveLocked={isMoveLocked}
-            />
-          </Grid>
-        </GridContainer>
-        <GridContainer className={evaluationReportsStyles.evaluationReportSection}>
-          <Grid row>
-            <ShipmentQAEReports
-              reports={shipmentEvaluationReports}
-              shipments={shipments}
-              moveCode={moveCode}
-              customerInfo={customerInfo}
-              grade={grade}
-              destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
-              emptyText="No QAE reports have been submitted for this shipment"
               setReportToDelete={setReportToDelete}
               setIsDeleteModalOpen={setIsDeleteModalOpen}
               isDeleteModalOpen={isDeleteModalOpen}

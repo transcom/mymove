@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -486,7 +487,7 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
 	handler := GetUploadStatusHandler{handlerConfig, uploadInformationFetcher}
 
 	response := handler.Handle(params)
-	_, ok := response.(*CustomNewUploadStatusOK)
+	_, ok := response.(*CustomGetUploadStatusResponse)
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}
@@ -525,7 +526,52 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerFailure() {
 		suite.Error(err)
 	})
 
-	// TODO: ADD A FORBIDDEN TEST
+	suite.Run("Error when attempting access to another service member's upload", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		localReceiver := notifications.StubNotificationReceiver{}
+
+		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		orders := factory.BuildOrder(suite.DB(), nil, nil)
+		uploadUser1 := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    orders.UploadedOrders,
+				LinkOnly: true,
+			},
+			{
+				Model: models.Upload{
+					Filename:    "FileName",
+					Bytes:       int64(15),
+					ContentType: uploader.FileTypePDF,
+				},
+			},
+		}, nil)
+
+		file := suite.Fixture(FixturePDF)
+		_, err := fakeS3.Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
+		suite.NoError(err)
+
+		params := uploadop.NewGetUploadStatusParams()
+		params.UploadID = strfmt.UUID(uploadUser1.Upload.ID.String())
+
+		req := &http.Request{}
+		req = suite.AuthenticateRequest(req, otherServiceMember)
+		params.HTTPRequest = req
+
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		handlerConfig.SetNotificationReceiver(localReceiver)
+		uploadInformationFetcher := upload.NewUploadInformationFetcher()
+		handler := GetUploadStatusHandler{handlerConfig, uploadInformationFetcher}
+
+		response := handler.Handle(params)
+		_, ok := response.(*uploadop.GetUploadStatusForbidden)
+		suite.True(ok)
+
+		queriedUpload := models.Upload{}
+		err = suite.DB().Find(&queriedUpload, uploadUser1.Upload.ID)
+		suite.NoError(err)
+	})
 }
 
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
@@ -542,6 +588,9 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		upload := models.Upload{}
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
 		suite.NoError(err)
 		suite.Equal("V/Q6K9rVdEPVzgKbh5cn2x4Oci4XDaG4fcG04R41Iz4=", upload.Checksum)
 
@@ -551,7 +600,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeExcel))
-		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+upload.Filename))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
 	})
 
 	suite.Run("uploads .xlsx file", func() {
@@ -567,6 +616,9 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		upload := models.Upload{}
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
 		suite.NoError(err)
 		suite.Equal("eRZ1Cr3Ms0692k03ftoEdqXpvd/CHcbxmhEGEQBYVdY=", upload.Checksum)
 
@@ -576,7 +628,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeExcelXLSX))
-		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+upload.Filename))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
 	})
 
 	suite.Run("uploads weight estimator .xlsx file (full weight)", func() {
@@ -594,6 +646,9 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 		suite.NoError(err)
 
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
 		// uploaded xlsx document should now be converted to a pdf so we check for pdf instead of xlsx
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Contains(createdResponse.Payload.Filename, WeightEstimatorPrefix)
@@ -601,7 +656,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypePDF))
-		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+upload.Filename))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
 	})
 
 	suite.Run("uploads file for a progear document", func() {
@@ -617,6 +672,9 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		upload := models.Upload{}
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
 		suite.NoError(err)
 		suite.Equal("/io1MRhLi2BFk9eF+lH1Ax+hyH+bPhlEK7A9/bqWlPY=", upload.Checksum)
 
@@ -626,7 +684,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypePNG))
-		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+upload.Filename))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
 	})
 
 	suite.Run("uploads file for an expense document", func() {
@@ -642,6 +700,9 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		upload := models.Upload{}
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
 		suite.NoError(err)
 		suite.Equal("ibKT78j4CJecDXC6CbGISkqWFG5eSjCjlZJHlaFRho4=", upload.Checksum)
 
@@ -651,7 +712,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeJPEG))
-		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+upload.Filename))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
 	})
 
 	suite.Run("uploads file with filename characters not supported by ISO8859_1", func() {
@@ -667,8 +728,11 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		upload := models.Upload{}
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
 		filenameBuffer := make([]byte, 0)
-		for _, r := range upload.Filename {
+		for _, r := range quotedFilename {
 			if encodedRune, ok := charmap.ISO8859_1.EncodeRune(r); ok {
 				filenameBuffer = append(filenameBuffer, encodedRune)
 			}

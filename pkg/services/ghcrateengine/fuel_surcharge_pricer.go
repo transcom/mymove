@@ -27,7 +27,7 @@ func NewFuelSurchargePricer() services.FuelSurchargePricer {
 	return &fuelSurchargePricer{}
 }
 
-// Price determines the price for a counseling service
+// Price determines the price for fuel surcharge
 func (p fuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {

@@ -161,7 +161,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 			{
 				Model: models.MTOShipment{
 					UsesExternalVendor: true,
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					Status:             models.MTOShipmentStatusSubmitted,
 				},
 			},

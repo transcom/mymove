@@ -22,6 +22,14 @@ properties:
     type: string
   order:
     $ref: 'Order.yaml'
+  destinationGBLOC:
+    type: string
+    example: 'KKFA'
+    readOnly: true
+  destinationPostalCode:
+    type: string
+    example: '90210'
+    readOnly: true
   referenceId:
     example: 1001-3456
     type: string
@@ -66,6 +74,18 @@ properties:
     x-omitempty: false
     x-nullable: true
   excessWeightAcknowledgedAt:
+    type: string
+    format: date-time
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  excessUnaccompaniedBaggageWeightQualifiedAt:
+    type: string
+    format: date-time
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  excessUnaccompaniedBaggageWeightAcknowledgedAt:
     type: string
     format: date-time
     readOnly: true

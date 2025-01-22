@@ -34,13 +34,13 @@ import { updateMTOShipment } from 'services/ghcApi';
 // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
 // Different things show when collapsed depending on if the shipment is an external vendor or not.
 const showWhenCollapsedWithExternalVendor = {
-  HHG_INTO_NTS_DOMESTIC: ['serviceOrderNumber', 'requestedDeliveryDate'],
-  HHG_OUTOF_NTS_DOMESTIC: ['serviceOrderNumber', 'requestedPickupDate'],
+  HHG_INTO_NTS: ['serviceOrderNumber', 'requestedDeliveryDate'],
+  HHG_OUTOF_NTS: ['serviceOrderNumber', 'requestedPickupDate'],
 };
 
 const showWhenCollapsedWithGHCPrime = {
-  HHG_INTO_NTS_DOMESTIC: ['tacType', 'requestedDeliveryDate'],
-  HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType', 'requestedPickupDate'],
+  HHG_INTO_NTS: ['tacType', 'requestedDeliveryDate'],
+  HHG_OUTOF_NTS: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType', 'requestedPickupDate'],
 };
 
 const SubmittedRequestedShipments = ({

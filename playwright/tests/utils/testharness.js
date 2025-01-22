@@ -18,10 +18,19 @@ export class TestHarness {
    */
 
   /**
+   * @typedef {Object} Admin
+   * @property {string} id
+   * @property {string} user_id
+   */
+
+  /**
    * @typedef {Object} Move
    * @property {string} id
    * @property {string} locator
    * @property {Object} Orders
+   * @property {Object} OriginDutyLocation
+   * @property {Object} OriginDutyLocation.Address
+   * @property {string} OriginDutyLocation.Address.PostalCode
    * @property {Object} Orders.NewDutyLocation
    * @property {string} Orders.NewDutyLocation.name
    * @property {Object} Orders.ServiceMember
@@ -75,6 +84,13 @@ export class TestHarness {
    */
   async buildDefaultAdminUser() {
     return this.buildDefault('DefaultAdminUser');
+  }
+
+  /**
+   * @returns {Promise<Admin>}
+   */
+  async buildDefaultSuperAdminUser() {
+    return this.buildDefault('SuperAdminUser');
   }
 
   /**
@@ -380,6 +396,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move needing SC approval in a non-default GBLOC
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveNeedsSCInOtherGBLOC() {
+    return this.buildDefault('HHGMoveNeedsSCOtherGBLOC');
+  }
+
+  /**
    * Use testharness to build hhg move as USMC needing SC approval
    * @returns {Promise<Move>}
    */
@@ -621,6 +645,38 @@ export class TestHarness {
 
   async buildBoatHaulAwayMoveNeedsTOOApproval() {
     return this.buildDefault('BoatHaulAwayMoveNeedsTOOApproval');
+  }
+
+  /**
+   * build office user with Customer role
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithCustomer() {
+    return this.buildDefault('OfficeUserWithCustomer');
+  }
+
+  /**
+   * build office user with Contracting Officer role
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithContractingOfficer() {
+    return this.buildDefault('OfficeUserWithContractingOfficer');
+  }
+
+  /**
+   * build office user with Prime Simulator role
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithPrimeSimulator() {
+    return this.buildDefault('OfficeUserWithPrimeSimulator');
+  }
+
+  /**
+   * build office user with GSR role
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithGSR() {
+    return this.buildDefault('OfficeUserWithGSR');
   }
 }
 export default TestHarness;

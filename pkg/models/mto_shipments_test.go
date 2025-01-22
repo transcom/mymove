@@ -104,7 +104,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 }
 
 func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
-	suite.Run("test MTOShipmentTypeHHGIntoNTSDom with domestic pickup and storage facility", func() {
+	suite.Run("test MTOShipmentTypeHHGIntoNTS with domestic pickup and storage facility", func() {
 		pickupAddress := models.Address{
 			IsOconus: models.BoolPointer(false),
 		}
@@ -112,7 +112,7 @@ func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
 			IsOconus: models.BoolPointer(false),
 		}
 		shipment := &models.MTOShipment{
-			ShipmentType:  models.MTOShipmentTypeHHGIntoNTSDom,
+			ShipmentType:  models.MTOShipmentTypeHHGIntoNTS,
 			PickupAddress: &pickupAddress,
 			StorageFacility: &models.StorageFacility{
 				Address: storageAddress,
@@ -123,12 +123,12 @@ func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
 		suite.Equal(models.MarketCodeDomestic, updatedShipment.MarketCode, "Expected MarketCode to be d")
 	})
 
-	suite.Run("test MTOShipmentTypeHHGIntoNTSDom with international pickup", func() {
+	suite.Run("test MTOShipmentTypeHHGIntoNTS with international pickup", func() {
 		pickupAddress := models.Address{
 			IsOconus: models.BoolPointer(true),
 		}
 		shipment := &models.MTOShipment{
-			ShipmentType:  models.MTOShipmentTypeHHGIntoNTSDom,
+			ShipmentType:  models.MTOShipmentTypeHHGIntoNTS,
 			PickupAddress: &pickupAddress,
 		}
 
@@ -136,7 +136,7 @@ func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
 		suite.Equal(models.MarketCodeInternational, updatedShipment.MarketCode, "Expected MarketCode to be i")
 	})
 
-	suite.Run("test MTOShipmentTypeHHGOutOfNTSDom with domestic storage and destination", func() {
+	suite.Run("test MTOShipmentTypeHHGOutOfNTS with domestic storage and destination", func() {
 		storageAddress := models.Address{
 			IsOconus: models.BoolPointer(false),
 		}
@@ -144,7 +144,7 @@ func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
 			IsOconus: models.BoolPointer(false),
 		}
 		shipment := &models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 			StorageFacility: &models.StorageFacility{
 				Address: storageAddress,
 			},
@@ -155,7 +155,7 @@ func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
 		suite.Equal(models.MarketCodeDomestic, updatedShipment.MarketCode, "Expected MarketCode to be d")
 	})
 
-	suite.Run("testMTOShipmentTypeHHGOutOfNTSDom with international destination", func() {
+	suite.Run("testMTOShipmentTypeHHGOutOfNTS with international destination", func() {
 		storageAddress := models.Address{
 			IsOconus: models.BoolPointer(false),
 		}
@@ -163,7 +163,7 @@ func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
 			IsOconus: models.BoolPointer(true),
 		}
 		shipment := &models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 			StorageFacility: &models.StorageFacility{
 				Address: storageAddress,
 			},
@@ -322,5 +322,166 @@ func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 
 		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &invalidShipment)
 		suite.Error(err)
+	})
+}
+
+func (suite *ModelSuite) TestFindShipmentByID() {
+	suite.Run("success - test find", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		_, err := models.FetchShipmentByID(suite.DB(), shipment.ID)
+		suite.NoError(err)
+	})
+
+	suite.Run("not found test find", func() {
+		notValidID := uuid.Must(uuid.NewV4())
+		_, err := models.FetchShipmentByID(suite.DB(), notValidID)
+		suite.Error(err)
+		suite.Equal(models.ErrFetchNotFound, err)
+	})
+}
+
+func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
+	suite.Run("success - get GBLOC for USAF in AK Zone II", func() {
+		// Create a USAF move in Alaska Zone II
+		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
+		// this should always return MBFL
+		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		suite.FatalNoError(err)
+		airForce := models.AffiliationAIRFORCE
+		postalCode := "99501"
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         postalCode,
+					UsPostRegionCityID: &zone2UUID,
+				},
+			},
+		}, nil)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &airForce,
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		gbloc, err := models.GetDestinationGblocForShipment(suite.DB(), shipment.ID)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(*gbloc, "MBFL")
+	})
+	suite.Run("success - get GBLOC for Army in AK Zone II", func() {
+		// Create an ARMY move in Alaska Zone II
+		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		suite.FatalNoError(err)
+		army := models.AffiliationARMY
+		postalCode := "99501"
+		// since we truncate the test db, we need to add the postal_code_to_gbloc value
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         postalCode,
+					UsPostRegionCityID: &zone2UUID,
+				},
+			},
+		}, nil)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		gbloc, err := models.GetDestinationGblocForShipment(suite.DB(), shipment.ID)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(*gbloc, "JEAT")
+	})
+	suite.Run("success - get GBLOC for USMC in AK Zone II", func() {
+		// Create a USMC move in Alaska Zone II
+		// this should always return USMC
+		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		suite.FatalNoError(err)
+		usmc := models.AffiliationMARINES
+		postalCode := "99501"
+		// since we truncate the test db, we need to add the postal_code_to_gbloc value
+		// this doesn't matter to the db function because it will check for USMC but we are just verifying it won't be JEAT despite the zip matching
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         postalCode,
+					UsPostRegionCityID: &zone2UUID,
+				},
+			},
+		}, nil)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &usmc,
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		gbloc, err := models.GetDestinationGblocForShipment(suite.DB(), shipment.ID)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(*gbloc, "USMC")
 	})
 }

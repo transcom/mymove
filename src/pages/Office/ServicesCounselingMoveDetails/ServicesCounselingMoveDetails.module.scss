@@ -25,9 +25,12 @@
     }
   }
 
+  .scFinancialReviewWrapper {
+    justify-content: end;
+  }
+
   .scFinancialReviewContainer {
     @include u-margin-top(1);
-    padding-left: 720px;
   }
 
   .scCancelMoveContainer {

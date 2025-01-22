@@ -86,4 +86,59 @@ describe('utils', () => {
       });
     });
   });
+
+  it('check if 2nd and 3rd addresses should be cleared from prime shipment create payload', () => {
+    const ppmValues = {
+      shipmentType: 'PPM',
+      ppmShipment: {
+        hasSecondaryPickupAddress: 'false',
+        hasTertiaryPickupAddress: 'false',
+        hasSecondaryDestinationAddress: 'false',
+        hasTertiaryDestinationAddress: 'false',
+        secondaryPickupAddress: '',
+        tertiaryPickupAddress: '',
+        secondaryDestinationAddress: '',
+        tertiaryDestinationAddress: '',
+      },
+    };
+    const hhgValues = {
+      shipmentType: 'HHG',
+      hasSecondaryPickupAddress: 'false',
+      hasTertiaryPickupAddress: 'false',
+      hasSecondaryDestinationAddress: 'false',
+      hasTertiaryDestinationAddress: 'false',
+      secondaryPickupAddress: '',
+      tertiaryPickupAddress: '',
+      secondaryDestinationAddress: '',
+      tertiaryDestinationAddress: '',
+    };
+
+    const updatedPPMValues = utils.checkAddressTogglesToClearAddresses(ppmValues);
+    expect(updatedPPMValues).toEqual({
+      shipmentType: 'PPM',
+      ppmShipment: {
+        hasSecondaryPickupAddress: 'false',
+        hasTertiaryPickupAddress: 'false',
+        hasSecondaryDestinationAddress: 'false',
+        hasTertiaryDestinationAddress: 'false',
+        secondaryPickupAddress: {},
+        tertiaryPickupAddress: {},
+        secondaryDestinationAddress: {},
+        tertiaryDestinationAddress: {},
+      },
+    });
+
+    const updatedHHGValues = utils.checkAddressTogglesToClearAddresses(hhgValues);
+    expect(updatedHHGValues).toEqual({
+      shipmentType: 'HHG',
+      hasSecondaryPickupAddress: 'false',
+      hasTertiaryPickupAddress: 'false',
+      hasSecondaryDestinationAddress: 'false',
+      hasTertiaryDestinationAddress: 'false',
+      secondaryPickupAddress: {},
+      tertiaryPickupAddress: {},
+      secondaryDestinationAddress: {},
+      tertiaryDestinationAddress: {},
+    });
+  });
 });

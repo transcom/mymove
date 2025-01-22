@@ -77,6 +77,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -488,7 +490,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		params := subtestData.params
 
 		// Set fields appropriately for NTS-Release
-		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTSDOMESTIC
+		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTS
 		params.Body.ShipmentType = &ntsrShipmentType
 		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
 		params.Body.PickupAddress = nil

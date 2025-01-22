@@ -92,13 +92,30 @@
       background-color: $error-light;
     }
 
+    .tagWrapper {
+      display: flex;
+      flex-wrap: wrap;
+      row-gap: .5rem;
+    }
+
     .headingTagWrapper {
       display: flex;
       align-items: center;
       flex-grow: 1;
+      flex-wrap: wrap;
+
       h5 {
         @include u-margin-top(0);
         @include u-margin-bottom(0);
+      }
+
+      label {
+        @include u-margin-right(1);
+      }
+
+      :global(.usa-tag) {
+        display: inline-block;
+        line-height: normal;
       }
     }
 

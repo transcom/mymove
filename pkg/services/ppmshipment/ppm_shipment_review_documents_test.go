@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
@@ -126,7 +127,6 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 
 	suite.Run("Can route the PPMShipment properly", func() {
 		existingPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
-
 		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -135,6 +135,43 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			FirstName:       "Nelson",
 			LastName:        "Muntz",
 		})
+		setupTestData := func() models.OfficeUser {
+
+			transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+				{
+					Model: models.TransportationOffice{
+						ProvidesCloseout: true,
+					},
+				},
+			}, nil)
+
+			officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+				{
+					Model:    transportationOffice,
+					LinkOnly: true,
+					Type:     &factory.TransportationOffices.CloseoutOffice,
+				},
+			}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+			return officeUser
+		}
+
+		officeUser := setupTestData()
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &factory.OfficeUsers.SCAssignedUser,
+			},
+		}, nil)
+
+		existingPPMShipment.Shipment.MoveTaskOrder = move
+		suite.NotNil(existingPPMShipment.Shipment.MoveTaskOrder.SCAssignedID)
 
 		router := setUpPPMShipperRouterMock(
 			func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
@@ -153,6 +190,9 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 				txAppCtx,
 				existingPPMShipment.ID,
 			)
+
+			//check removal of the SC Assigned User
+			suite.Nil(updatedPPMShipment.Shipment.MoveTaskOrder.SCAssignedID)
 
 			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
 				suite.Equal(models.PPMShipmentStatusCloseoutComplete, updatedPPMShipment.Status)

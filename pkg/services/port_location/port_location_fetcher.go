@@ -17,7 +17,7 @@ func NewPortLocationFetcher() services.PortLocationFetcher {
 
 func (p *portLocationFetcher) FetchPortLocationByPortCode(appCtx appcontext.AppContext, portCode string) (*models.PortLocation, error) {
 	portLocation := models.PortLocation{}
-	err := appCtx.DB().Eager("Port").Where("is_active = TRUE").InnerJoin("ports p", "port_id = p.id").Where("p.port_code = $1", portCode).First(&portLocation)
+	err := appCtx.DB().Eager("Port", "UsPostRegionCity").Where("is_active = TRUE").InnerJoin("ports p", "port_id = p.id").Where("p.port_code = $1", portCode).First(&portLocation)
 	if err != nil {
 		return nil, apperror.NewQueryError("PortLocation", err, "")
 	}

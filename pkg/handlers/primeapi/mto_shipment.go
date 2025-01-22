@@ -67,7 +67,7 @@ type DeleteMTOShipmentHandler struct {
 	services.ShipmentDeleter
 }
 
-// Handle handler that updates a mto shipment
+// Handle handler that deletes a mto shipment
 func (h DeleteMTOShipmentHandler) Handle(params mtoshipmentops.DeleteMTOShipmentParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {

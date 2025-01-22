@@ -10,7 +10,8 @@
   @include u-padding(0);
   border-width: 0px;
   outline: none !important;
-  height: 30px !important;
+  height: auto !important;
+  text-align: left;
 }
 
 :global(.usa-button).downloadButtonToLink:hover {

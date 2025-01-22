@@ -249,9 +249,9 @@ func PickShipmentCardLayout(shipmentType models.MTOShipmentType) []TableRow {
 		return HHGShipmentCardLayout
 	case models.MTOShipmentTypePPM:
 		return PPMShipmentCardLayout
-	case models.MTOShipmentTypeHHGIntoNTSDom:
+	case models.MTOShipmentTypeHHGIntoNTS:
 		return NTSShipmentCardLayout
-	case models.MTOShipmentTypeHHGOutOfNTSDom:
+	case models.MTOShipmentTypeHHGOutOfNTS:
 		return NTSRShipmentCardLayout
 	case models.MTOShipmentTypeMobileHome:
 		return []TableRow{}
@@ -342,10 +342,10 @@ func FormatValuesShipment(shipment models.MTOShipment) ShipmentValues {
 			vals.StorageFacility = *shipment.StorageFacility.Email
 		}
 
-		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 			vals.PickupAddress = formatSingleLineAddress(shipment.StorageFacility.Address)
 		}
-		if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+		if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS {
 			vals.DeliveryAddress = formatSingleLineAddress(shipment.StorageFacility.Address)
 		}
 		vals.StorageFacilityName = strings.ToUpper(shipment.StorageFacility.FacilityName)

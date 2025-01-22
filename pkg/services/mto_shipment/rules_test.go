@@ -164,7 +164,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					UsesExternalVendor: true,
 				},
 			},
@@ -437,8 +437,8 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 	suite.Run("checkPrimeDeleteAllowed for non-PPM shipments", func() {
 		testCases := map[models.MTOShipmentType]bool{
 			models.MTOShipmentTypeHHG:                  false,
-			models.MTOShipmentTypeHHGIntoNTSDom:        false,
-			models.MTOShipmentTypeHHGOutOfNTSDom:       false,
+			models.MTOShipmentTypeHHGIntoNTS:           false,
+			models.MTOShipmentTypeHHGOutOfNTS:          false,
 			models.MTOShipmentTypeMobileHome:           false,
 			models.MTOShipmentTypeBoatHaulAway:         false,
 			models.MTOShipmentTypeBoatTowAway:          false,

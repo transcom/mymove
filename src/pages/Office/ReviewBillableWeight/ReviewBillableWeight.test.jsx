@@ -148,7 +148,7 @@ const mockMtoNTSReleaseShipments = [
   {
     id: 1,
     status: shipmentStatuses.APPROVED,
-    shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+    shipmentType: 'HHG_OUTOF_NTS',
     calculatedBillableWeight: 3000,
     billableWeightCap: 1000,
     primeEstimatedWeight: 1000,

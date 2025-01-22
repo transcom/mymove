@@ -292,6 +292,16 @@ export const formatMoveHistoryAgent = (agent) => {
   return formattedAgentValues;
 };
 
+export const formatMoveHistoryMaxBillableWeight = (historyRecord) => {
+  const { changedValues } = historyRecord;
+  const newChangedValues = { ...changedValues };
+  if (changedValues.authorized_weight) {
+    newChangedValues.max_billable_weight = changedValues.authorized_weight;
+    delete newChangedValues.authorized_weight;
+  }
+  return { ...historyRecord, changedValues: newChangedValues };
+};
+
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
 };
@@ -401,8 +411,10 @@ export const formatAddressForPrimeAPI = (address) => {
     streetAddress2: address.streetAddress2,
     streetAddress3: address.streetAddress3,
     city: address.city,
+    county: address.county,
     state: address.state,
     postalCode: address.postalCode,
+    usPostRegionCitiesID: address.usPostRegionCitiesID,
   };
 };
 
@@ -414,8 +426,10 @@ export const formatExtraAddressForPrimeAPI = (address) => {
     streetAddress2: address.streetAddress2,
     streetAddress3: address.streetAddress3,
     city: address.city,
+    county: address.county,
     state: address.state,
     postalCode: address.postalCode,
+    usPostRegionCitiesID: address.usPostRegionCitiesID,
   };
 };
 
@@ -423,6 +437,7 @@ const emptyAddress = {
   streetAddress1: '',
   streetAddress2: '',
   city: '',
+  county: '',
   state: '',
   postalCode: '',
 };
@@ -436,8 +451,10 @@ export function fromPrimeAPIAddressFormat(address) {
     streetAddress2: address.streetAddress2,
     streetAddress3: address.streetAddress3,
     city: address.city,
+    county: address.county,
     state: address.state,
     postalCode: address.postalCode,
+    usPostRegionCitiesID: address.usPostRegionCitiesID,
   };
 }
 
@@ -583,3 +600,31 @@ export const constructSCOrderOconusFields = (values) => {
           null,
   };
 };
+
+/**
+ * @description Converts a string to title case (capitalizes the first letter of each word)
+ * @param {string} str - The input string to format.
+ * @returns {string} - the formatted string in the title case.
+ * */
+export function toTitleCase(str) {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
+ * @description This function is used to format the port in the
+ * ShipmentAddresses component.
+ * It displays only the port code, port name, city, state and zip code.
+ * */
+export function formatPortInfo(port) {
+  if (port) {
+    const formattedCity = toTitleCase(port.city);
+    const formattedState = toTitleCase(port.state);
+    return `${port.portCode} - ${port.portName}\n${formattedCity}, ${formattedState} ${port.zip}`;
+  }
+  return '-';
+}

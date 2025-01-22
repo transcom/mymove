@@ -40,6 +40,16 @@ class AdminPage extends BaseTestPage {
   }
 
   /**
+   * Create a new admin user and sign in as them
+   * @param {string} userId
+   * @returns {Promise<void>}
+   */
+  async signInAsExistingAdminUser(userId) {
+    await this.signInAsUserWithId(userId);
+    await this.waitForPage.adminPage();
+  }
+
+  /**
    * @param {import('aria-query').ARIARole} role
    * @param {Array<string>} labels
    * @param {Object} options

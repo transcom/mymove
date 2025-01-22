@@ -1,4 +1,5 @@
 export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
+export { default as acknowledgeExcessUnaccompaniedBaggageWeightRisk } from './AcknowledgeExcessUnaccompaniedBaggageWeightRisk/acknowledgeExcessUnaccompaniedBaggageWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
 export { default as approveShipmentDiversion } from './ApproveShipmentDiversion/approveShipmentDiversion';
 export { default as createBasicServiceItem } from './UpdateMoveTaskOrderStatus/createBasicServiceItem';
@@ -92,7 +93,7 @@ export { default as updateServiceItemStatusUpdateMove } from './UpdateServiceIte
 export { default as approveShipmentUpdateMove } from './ApproveShipment/approveShipmentUpdateMove';
 export { default as createSITExtension } from './CreateSITExtension/createSITExtension';
 export { default as updateAllowanceUpdateOrder } from './UpdateAllowances/updateAllowanceUpdateOrder';
-export { default as updateAllowanceUpdateMTOShipment } from './UpdateAllowances/updateAllowanceUpdateMTOShipment';
+export { default as updateMTOShipmentUpdateAllowance } from './UpdateMTOShipment/updateMTOShipmentUpdateAllowance';
 export { default as approveShipmentUpdateAllowances } from './ApproveShipment/approveShipmentUpdateAllowances';
 export { default as updateOrderUpdateAllowances } from './UpdateOrders/updateOrderUpdateAllowances';
 export { default as patchMTOShipment } from './UpdateMTOShipment/patchMTOShipment';

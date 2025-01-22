@@ -40,6 +40,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal(defaultPostalCode, address.PostalCode)
 		suite.Equal(country.ID, *address.CountryId)
 		suite.Equal(defaultCounty, *address.County)
+		suite.NotNil(*address.UsPostRegionCityID)
 	})
 
 	suite.Run("Successful creation of an address with customization", func() {
