@@ -1774,6 +1774,20 @@ definitions:
       - city
       - state
       - postalCode
+  BackupContact:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Bob Smith
+      phone:
+        type: string
+        format: telephone
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        example: fake@example.com
   Customer:
     type: object
     properties:
@@ -1811,6 +1825,8 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      backupContact:
+        $ref: '#/definitions/BackupContact'
   Entitlements:
     type: object
     properties:

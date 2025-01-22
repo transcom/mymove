@@ -741,17 +741,17 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		County:         models.StringPointer("WASHOE"),
 	}
 
-	phone := "444-555-6677"
 	backupContact := models.BackupContact{
 		Name:  "Billy Bob",
 		Email: "billBob@mail.mil",
-		Phone: &phone,
+		Phone: "444-555-6677",
 	}
 
 	firstName := "First"
 	lastName := "Last"
 	affiliation := models.AffiliationARMY
 	email := "dontEmailMe@gmail.com"
+	phone := "444-555-6677"
 	sm := models.ServiceMember{
 		ID:                   id,
 		UserID:               id2,
