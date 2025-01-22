@@ -147,7 +147,7 @@ type ReService struct {
 	Priority        int                  `db:"priority" rw:"r"`
 	Name            string               `json:"name" db:"name" rw:"r"`
 	ServiceLocation *ServiceLocationType `db:"service_location" rw:"r"`
-	ReServiceItem   *ReServiceItem       `has_one:"re_service_item" fk_id:"service_id"`
+	ReServiceItems  *ReServiceItems      `has_many:"re_service_items" fk_id:"service_id"`
 	CreatedAt       time.Time            `json:"created_at" db:"created_at" rw:"r"`
 	UpdatedAt       time.Time            `json:"updated_at" db:"updated_at" rw:"r"`
 }
