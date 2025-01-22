@@ -51,10 +51,9 @@ func (p intlShippingAndLinehaulPricer) Price(appCtx appcontext.AppContext, contr
 
 	basePrice := float64(perUnitCents)
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
-	escalatedPrice = math.Round(escalatedPrice) // round before multiplying with the weight
-
-	escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
-	totalPriceCents := unit.Cents(escalatedPrice)
+	escalatedPrice = math.Round(escalatedPrice*100) / 100
+	totalEscalatedPrice := escalatedPrice * weight.ToCWTFloat64()
+	totalPriceCents := unit.Cents(math.Round(totalEscalatedPrice * 100))
 
 	params := services.PricingDisplayParams{
 		{
