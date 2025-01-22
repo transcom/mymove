@@ -152,7 +152,6 @@ BEGIN
 
 	END IF;
 
-    -- Raise an exception if no rate area is found
     IF gbloc IS NULL THEN
         RAISE EXCEPTION 'GBLOC not found for address ID % for affiliation %', address_id, affiiation;
     END IF;
