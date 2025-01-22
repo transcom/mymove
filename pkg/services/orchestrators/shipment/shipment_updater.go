@@ -157,6 +157,12 @@ func AddPricingEstimatesToMTOServiceItems(appCtx appcontext.AppContext, shipment
 
 		//Calculate the price using 110% of recorded weight
 		estimatedWeightToUse = unit.Pound(estimatedWeightToUse.Float64() * 1.1)
+
+		// if the weight is less than 500, it should be priced at minimum of 500
+		if estimatedWeightToUse < 500 {
+			estimatedWeightToUse = 500
+		}
+
 		serviceItemEstimatedPrice, err := shipmentUpdater.mtoServiceItemCreator.FindEstimatedPrice(appCtx, &serviceItem, *mtoShipment)
 
 		// store actual captured weight
