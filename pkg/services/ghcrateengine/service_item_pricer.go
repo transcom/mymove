@@ -103,7 +103,7 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 		return NewPortFuelSurchargePricer(), nil
 	case models.ReServiceCodePODFSC:
 		return NewPortFuelSurchargePricer(), nil
-	case models.ReServiceCodeIOCUB:
+	case models.ReServiceCodeIUBPK:
 		return NewIntlUBPackPricer(), nil
 	case models.ReServiceCodeIUBUPK:
 		return NewIntlUBUnpackPricer(), nil
