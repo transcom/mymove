@@ -1,0 +1,13 @@
+type: object
+properties:
+  name:
+    type: string
+    example: Bob Smith
+  phone:
+    type: string
+    format: telephone
+  email:
+    type: string
+    format: x-email
+    pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    example: fake@example.com
