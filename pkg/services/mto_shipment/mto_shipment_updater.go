@@ -852,8 +852,9 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		if newShipment.ScheduledPickupDate != nil && !newShipment.ScheduledPickupDate.IsZero() && newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 			calculatedRDD, err := CalculateRequiredDeliveryDateForInternationalShipment(appCtx, *newShipment.PickupAddress, *newShipment.DestinationAddress, *newShipment.ScheduledPickupDate, newShipment.ShipmentType)
 			if err != nil {
-				return err
+				return apperror.NewInternalServerError(err.Error())
 			}
+
 			newShipment.RequestedDeliveryDate = &calculatedRDD
 		}
 
@@ -928,7 +929,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		if t, ok := transactionError.(StaleIdentifierError); ok {
 			return apperror.NewPreconditionFailedError(dbShipment.ID, t)
 		}
-		return apperror.NewQueryError("mtoShipment", transactionError, transactionError.Error())
+		return apperror.NewQueryError("mtoShipment", transactionError, "")
 	}
 
 	if len(autoReweighShipments) > 0 {
