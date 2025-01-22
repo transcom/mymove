@@ -5,7 +5,8 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/apperror"
 )
 
 type InternationalTransitTime struct {
@@ -31,7 +32,7 @@ func FetchInternationalTransitTime(db *pop.Connection, originRateAreaId uuid.UUI
 		First(&internationalTransitTime)
 
 	if err != nil {
-		return internationalTransitTime, errors.Errorf("could not look up intl transit time")
+		return internationalTransitTime, apperror.NewQueryError("InternationalTransitTime", err, "could not look up intl transit time")
 	}
 
 	return internationalTransitTime, nil

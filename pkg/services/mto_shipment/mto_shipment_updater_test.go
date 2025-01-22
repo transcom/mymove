@@ -238,6 +238,56 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
 
+	suite.Run("should error when unable to find IntlTransit time when updating UB Shipment", func() {
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().AddDate(-1, 0, 0),
+				EndDate:   time.Now().AddDate(1, 0, 0),
+			},
+		})
+
+		moveWithUb := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		testScheduledPickupDate := time.Now().AddDate(0, -5, 0)
+		testScheduledPickupDate2 := time.Now().AddDate(0, -2, 0)
+		primeEstimatedWeight = unit.Pound(9000)
+
+		oldUBMTOShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MarketCode:           models.MarketCodeInternational,
+					Status:               models.MTOShipmentStatusApproved,
+					ShipmentType:         models.MTOShipmentTypeUnaccompaniedBaggage,
+					PrimeEstimatedWeight: &primeEstimatedWeight,
+					ScheduledPickupDate:  &testScheduledPickupDate,
+				},
+			},
+			{
+				Model:    moveWithUb,
+				LinkOnly: true,
+			},
+		}, nil)
+		oldUBMTOShipment.ScheduledPickupDate = &testScheduledPickupDate
+		mtoShipment := models.MTOShipment{
+			ID:                  oldUBMTOShipment.ID,
+			ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+			ScheduledPickupDate: &testScheduledPickupDate2,
+		}
+
+		eTag := etag.GenerateEtag(oldUBMTOShipment.UpdatedAt)
+		session := auth.Session{}
+
+		updatedMTOShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment, eTag, "test")
+
+		suite.Error(err)
+		suite.Nil(updatedMTOShipment)
+		suite.IsType(apperror.QueryError{}, err)
+		queryErr := err.(apperror.QueryError)
+		wrappedErr := queryErr.Unwrap()
+		suite.IsType(apperror.QueryError{}, wrappedErr)
+		suite.Equal("could not look up intl transit time", wrappedErr.Error())
+	})
+
 	suite.Run("Successfully remove a secondary pickup address", func() {
 		setupTestData()
 

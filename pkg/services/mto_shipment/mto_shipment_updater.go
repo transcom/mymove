@@ -850,7 +850,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		if newShipment.ScheduledPickupDate != nil && !newShipment.ScheduledPickupDate.IsZero() && newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 			calculatedRDD, err := CalculateRequiredDeliveryDateForInternationalShipment(appCtx, *newShipment.PickupAddress, *newShipment.DestinationAddress, *newShipment.ScheduledPickupDate, newShipment.ShipmentType)
 			if err != nil {
-				return apperror.NewInternalServerError(err.Error())
+				return err
 			}
 
 			newShipment.RequestedDeliveryDate = &calculatedRDD
@@ -1290,17 +1290,8 @@ func CalculateRequiredDeliveryDateForInternationalShipment(appCtx appcontext.App
 		return rdd, err
 	}
 
-	if shipmentType == models.MTOShipmentTypeHHG {
-		// rdd plus the intl hhg transit time
-		return rdd.AddDate(0, 0, *internationalTransitTime.HhgTransitTime), nil
-	}
-
-	if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-		// rdd plus the intl ub transit time
-		return rdd.AddDate(0, 0, *internationalTransitTime.UbTransitTime), nil
-	}
-
-	return rdd, nil
+	// rdd plus the intl ub transit time
+	return rdd.AddDate(0, 0, *internationalTransitTime.UbTransitTime), nil
 }
 
 // This private function is used to generically construct service items when shipments are approved.
