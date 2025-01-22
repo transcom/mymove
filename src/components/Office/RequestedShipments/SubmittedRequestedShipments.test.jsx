@@ -177,7 +177,7 @@ describe('RequestedShipments', () => {
       moveCode: 'TE5TC0DE',
     };
 
-    it('should disable the counseling checkbox when full ppm shipment', () => {
+    it('should disable the counseling checkbox when all shipments are PPM', () => {
       const testPropsServiceItemsEmpty = {
         mtoServiceItems: serviceItemsEmpty,
         mtoShipments: ppmOnlyShipments,

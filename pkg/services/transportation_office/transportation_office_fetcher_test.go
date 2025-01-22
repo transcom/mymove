@@ -680,17 +680,12 @@ func (suite *TransportationOfficeServiceSuite) Test_GetTransportationOffice() {
 
 func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeCONUS() {
 	suite.toFetcher = NewTransportationOfficesFetcher()
-	customAddress1 := models.Address{
-		ID:             uuid.Must(uuid.NewV4()),
-		StreetAddress1: "123 Mayport St",
-		City:           "Mayport",
-		State:          "FL",
-		PostalCode:     "32228",
-		County:         models.StringPointer("Duval"),
-		IsOconus:       models.BoolPointer(false),
-	}
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: customAddress1, Type: &factory.Addresses.DutyLocationAddress},
+		{Model: models.Address{
+			ID:         uuid.Must(uuid.NewV4()),
+			PostalCode: "32228",
+			IsOconus:   models.BoolPointer(false),
+		}, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: false,
@@ -702,18 +697,11 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 			},
 		},
 	}, nil)
-
-	customAddress2 := models.Address{
-		ID:             uuid.Must(uuid.NewV4()),
-		StreetAddress1: "123 Mayport St",
-		City:           "Jacksonville",
-		State:          "FL",
-		PostalCode:     "32228",
-		County:         models.StringPointer("Duval"),
-		IsOconus:       models.BoolPointer(false),
-	}
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: customAddress2, Type: &factory.Addresses.DutyLocationAddress},
+		{Model: models.Address{
+			PostalCode: "32228",
+			IsOconus:   models.BoolPointer(false),
+		}, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -725,18 +713,12 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 			},
 		},
 	}, nil)
-
-	customAddress3 := models.Address{
-		ID:             uuid.Must(uuid.NewV4()),
-		StreetAddress1: "123 Mayport St",
-		City:           "Palm Valley",
-		State:          "FL",
-		PostalCode:     "32228",
-		County:         models.StringPointer("Duval"),
-		IsOconus:       models.BoolPointer(false),
-	}
 	origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: customAddress3, Type: &factory.Addresses.DutyLocationAddress},
+		{Model: models.Address{
+			ID:         uuid.Must(uuid.NewV4()),
+			PostalCode: "32228",
+			IsOconus:   models.BoolPointer(false),
+		}, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -750,18 +732,11 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 			},
 		},
 	}, nil)
-
-	customAddress4 := models.Address{
-		ID:             uuid.Must(uuid.NewV4()),
-		StreetAddress1: "123 Mayport St",
-		City:           "Fernandina",
-		State:          "FL",
-		PostalCode:     "32228",
-		County:         models.StringPointer("Duval"),
-		IsOconus:       models.BoolPointer(false),
-	}
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: customAddress4, Type: &factory.Addresses.DutyLocationAddress},
+		{Model: models.Address{
+			PostalCode: "32228",
+			IsOconus:   models.BoolPointer(false),
+		}, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -796,31 +771,10 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 		models.AffiliationSPACEFORCE}
 
 	setupServiceMember := func(serviceMemberAffiliation models.ServiceMemberAffiliation) models.ServiceMember {
-		customServiceMember := models.ServiceMember{
-			FirstName:          models.StringPointer("John"),
-			LastName:           models.StringPointer("Doe"),
-			Telephone:          models.StringPointer("999-999-9999"),
-			SecondaryTelephone: models.StringPointer("123-555-9999"),
-			PersonalEmail:      models.StringPointer("peyton@example.com"),
-			Edipi:              models.StringPointer("1000011111"),
-			Affiliation:        &serviceMemberAffiliation,
-			Suffix:             models.StringPointer("Random suffix string"),
-			PhoneIsPreferred:   models.BoolPointer(false),
-			EmailIsPreferred:   models.BoolPointer(false),
-		}
-
-		customAddress := models.Address{
-			StreetAddress1: "987 Another Street",
-		}
-
-		customUser := models.User{
-			OktaEmail: "test_email@email.com",
-		}
-
 		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
-			{Model: customServiceMember},
-			{Model: customAddress},
-			{Model: customUser},
+			{Model: models.ServiceMember{
+				Affiliation: &serviceMemberAffiliation,
+			}},
 		}, nil)
 
 		return serviceMember
@@ -919,7 +873,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 				},
 			},
 		}, nil)
-		suite.MustSave(&origDutyLocation)
 		found_duty_location, _ := models.FetchDutyLocation(suite.DB(), origDutyLocation.ID)
 		return rateArea, oconusRateArea, *usprc, found_duty_location
 	}

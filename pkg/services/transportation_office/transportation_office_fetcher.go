@@ -307,13 +307,13 @@ func findOconusGblocDepartmentIndicator(appCtx appcontext.AppContext, dutyLocati
 		serviceMember.Affiliation, dutyLocation.Name, *departmentIndicator, dutyLocation.Address.ID))
 }
 
-// Return the closeset transportation office in the GBLOC of the given duty location for oconus/conus duty locations
-func (o transportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (models.TransportationOffice, error) {
+// Return the closest transportation office in the GBLOC of the given duty location for oconus/conus duty locations
+func (o transportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffice, error) {
 	var closestOffice models.TransportationOffice
 	duty_location, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
 	if err != nil {
 		appCtx.Logger().Error("Failed to fetch duty location", zap.Error(err))
-		return closestOffice, err
+		return &closestOffice, err
 	}
 	var sqlQuery string
 
@@ -322,7 +322,7 @@ func (o transportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcont
 		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location)
 		if err != nil {
 			appCtx.Logger().Error("Failed to find OCONUS GBLOC department indicator", zap.Error(err))
-			return closestOffice, err
+			return &closestOffice, err
 		}
 
 		sqlQuery = `
@@ -357,10 +357,10 @@ func (o transportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcont
 		if err := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID, gblocDepartmentIndicator.Gbloc).First(&closestOffice); err != nil {
 			appCtx.Logger().Error("Failed to execute OCONUS SQL query", zap.Error(err))
 			if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
-				return closestOffice, err
+				return &closestOffice, err
 			}
 		}
-		return closestOffice, nil
+		return &closestOffice, nil
 	} else {
 
 		// Find for conus duty location
@@ -391,10 +391,10 @@ func (o transportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcont
 		if err := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID).First(&closestOffice); err != nil {
 			appCtx.Logger().Error("Failed to execute CONUS SQL query", zap.Error(err))
 			if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
-				return closestOffice, err
+				return &closestOffice, err
 			}
 		}
 	}
 
-	return closestOffice, nil
+	return &closestOffice, nil
 }

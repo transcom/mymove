@@ -238,7 +238,7 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 					appCtx.Logger().Error(msg, zap.Error(err))
 					return apperror.NewQueryError("Closest Counseling Office", err, "Failed to find counseling office that provides counseling")
 				}
-				move.CounselingOffice = &closestCounselingOffice
+				move.CounselingOffice = closestCounselingOffice
 			}
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
