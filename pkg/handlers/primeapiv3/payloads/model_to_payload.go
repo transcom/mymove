@@ -47,18 +47,20 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 		AvailableToPrimeAt:         handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		PrimeCounselingCompletedAt: handlers.FmtDateTimePtr(moveTaskOrder.PrimeCounselingCompletedAt),
 		ExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightQualifiedAt),
-		ExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
-		ExcessWeightUploadID:       handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
-		OrderID:                    strfmt.UUID(moveTaskOrder.OrdersID.String()),
-		Order:                      Order(&moveTaskOrder.Orders),
-		DestinationGBLOC:           destGbloc,
-		DestinationPostalCode:      destZip,
-		ReferenceID:                *moveTaskOrder.ReferenceID,
-		PaymentRequests:            *paymentRequests,
-		MtoShipments:               *mtoShipments,
-		ContractNumber:             moveTaskOrder.Contractor.ContractNumber,
-		UpdatedAt:                  strfmt.DateTime(moveTaskOrder.UpdatedAt),
-		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		ExcessUnaccompaniedBaggageWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessUnaccompaniedBaggageWeightQualifiedAt),
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessUnaccompaniedBaggageWeightAcknowledgedAt),
+		ExcessWeightAcknowledgedAt:                     handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
+		ExcessWeightUploadID:                           handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
+		OrderID:                                        strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		Order:                                          Order(&moveTaskOrder.Orders),
+		DestinationGBLOC:                               destGbloc,
+		DestinationPostalCode:                          destZip,
+		ReferenceID:                                    *moveTaskOrder.ReferenceID,
+		PaymentRequests:                                *paymentRequests,
+		MtoShipments:                                   *mtoShipments,
+		ContractNumber:                                 moveTaskOrder.Contractor.ContractNumber,
+		UpdatedAt:                                      strfmt.DateTime(moveTaskOrder.UpdatedAt),
+		ETag:                                           etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
 	if moveTaskOrder.PPMType != nil {
@@ -908,6 +910,19 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
 			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
+
+	case models.ReServiceCodePODFSC, models.ReServiceCodePOEFSC:
+		var portCode string
+		if mtoServiceItem.POELocation != nil {
+			portCode = mtoServiceItem.POELocation.Port.PortCode
+		} else if mtoServiceItem.PODLocation != nil {
+			portCode = mtoServiceItem.PODLocation.Port.PortCode
+		}
+		payload = &primev3messages.MTOServiceItemInternationalFuelSurcharge{
+			ReServiceCode: string(mtoServiceItem.ReService.Code),
+			PortCode:      portCode,
+		}
+
 	default:
 		// otherwise, basic service item
 		payload = &primev3messages.MTOServiceItemBasic{
