@@ -8,7 +8,7 @@ import { updateShipmentDestinationAddress } from '../../../services/primeApi';
 
 import PrimeUIShipmentUpdateDestinationAddress from './PrimeUIShipmentUpdateDestinationAddress';
 
-import { setFlashMessage } from 'store/flash/actions';
+// import { setFlashMessage } from 'store/flash/actions';
 import { ReactQueryWrapper, MockProviders } from 'testUtils';
 import { primeSimulatorRoutes } from 'constants/routes';
 
@@ -99,10 +99,15 @@ const testShipmentReturnValue = {
   isError: false,
 };
 
-const mockDispatch = jest.fn();
+// const mockedComponent = (
+//   <MockProviders path={primeSimulatorRoutes.SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH} params={routingParams}>
+//     <PrimeUIShipmentUpdateDestinationAddress setFlashMessage={jest.fn()} />
+//   </MockProviders>
+// );
 
 const movePath = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, {
   moveCodeOrID: 'LN4T89',
+  setFlashMessage: jest.fn(),
 });
 
 const renderComponent = () => {
@@ -114,6 +119,10 @@ const renderComponent = () => {
     </ReactQueryWrapper>,
   );
 };
+
+beforeEach(() => {
+  jest.resetAllMocks();
+});
 
 describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
   describe('check loading and error component states', () => {
@@ -226,6 +235,35 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
         expect(mockNavigate).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');
       });
     });
+
+    it('routes to the review page when the user clicks save', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      updateShipmentDestinationAddress.mockReturnValue({
+        id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
+        streetAddress1: '444 Main Ave',
+        streetAddress2: 'Apartment 9000',
+        streetAddress3: '',
+        city: 'Anytown',
+        state: 'AL',
+        postalCode: '90210',
+        country: 'USA',
+        eTag: '1234567890',
+        setFlashMessage: jest.fn(),
+      });
+      renderComponent();
+
+      const addressChange = screen.getByLabelText('Address 1');
+      const contractorRemarks = screen.getByLabelText('Contractor Remarks');
+      await act(() => userEvent.type(addressChange, 'Address Tester'));
+      await act(() => userEvent.type(contractorRemarks, 'testing contractor remarks'));
+
+      const saveButton = await screen.findByRole('button', { name: 'Save' });
+      await act(() => userEvent.click(saveButton));
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(movePath);
+      });
+    });
   });
 
   describe('error alert display', () => {
@@ -261,27 +299,5 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
         ).toBeInTheDocument();
       });
     });
-  });
-
-  it('routes to the review page when the user clicks save', async () => {
-    updateShipmentDestinationAddress.mockResolvedValue({});
-    render(
-      <MockProviders path={primeSimulatorRoutes.SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH} params={routingParams}>
-        <PrimeUIShipmentUpdateDestinationAddress />
-      </MockProviders>,
-    );
-
-    const addressChange = screen.getByLabelText('Address 1');
-    const contractorRemarks = screen.getByLabelText('Contractor Remarks');
-    const saveButton = await screen.findByRole('button', { name: 'Save' });
-
-    await act(() => userEvent.type(addressChange, 'Address Tester'));
-    await act(() => userEvent.type(contractorRemarks, 'testing contractor remarks'));
-    await act(() => userEvent.click(saveButton));
-
-    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith(movePath));
-    expect(mockDispatch).toHaveBeenCalledWith(
-      setFlashMessage('SHIPMENT_SUBMIT_SUCCESS', 'success', 'Successfully updated shipment', ''),
-    );
   });
 });

@@ -42,7 +42,6 @@ const PrimeUIShipmentUpdateDestinationAddress = ({ setFlashMessage }) => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
 
-  /* istanbul ignore next */
   const { mutate: updateShipmentDestinationAddressAPI } = useMutation(updateShipmentDestinationAddress, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
