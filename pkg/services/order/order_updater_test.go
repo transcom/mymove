@@ -808,7 +808,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
-		suite.Equal(payload.AdminRestrictedWeightLocation, true)
+		suite.Equal(payload.AdminRestrictedWeightLocation, models.BoolPointer(updatedOrder.Entitlement.AdminRestrictedWeightLocation))
 		suite.Equal(*payload.WeightRestriction, int64(*updatedOrder.Entitlement.WeightRestriction))
 	})
 
