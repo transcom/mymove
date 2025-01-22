@@ -179,6 +179,6 @@ describe('AllowancesList', () => {
   it('renders unauthorized ocie', () => {
     const adminRestrictedWtLoc = { ...info, adminRestrictedWeightLocation: true };
     render(<AllowancesList info={adminRestrictedWtLoc} />);
-    expect(screen.getByTestId('weightRestriction').textContent).toEqual(1000);
+    expect(screen.getByTestId('weightRestriction').textContent).toEqual('1,000 lbs');
   });
 });
