@@ -1356,7 +1356,7 @@ func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
 	})
 }
 
-func (suite *PayloadsSuite) TestPaymentServiceItem() {
+func (suite *PayloadsSuite) TestPaymentServiceItemPayload() {
 	mtoServiceItemID := uuid.Must(uuid.NewV4())
 	mtoShipmentID := uuid.Must(uuid.NewV4())
 	psID := uuid.Must(uuid.NewV4())
@@ -1425,7 +1425,7 @@ func (suite *PayloadsSuite) TestPaymentServiceItem() {
 	})
 }
 
-func (suite *PayloadsSuite) TestPaymentServiceItems() {
+func (suite *PayloadsSuite) TestPaymentServiceItemsPayload() {
 	mtoServiceItemID1 := uuid.Must(uuid.NewV4())
 	mtoServiceItemID2 := uuid.Must(uuid.NewV4())
 	psID1 := uuid.Must(uuid.NewV4())
@@ -1440,7 +1440,6 @@ func (suite *PayloadsSuite) TestPaymentServiceItems() {
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
-	// Mock PaymentServiceItems
 	paymentServiceItems := models.PaymentServiceItems{
 		{
 			ID:               psID1,
