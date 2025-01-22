@@ -479,7 +479,8 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	}
 
 	// Notification Receiver
-	notificationReceiver, err := notifications.InitReceiver(v, appCtx.Logger(), true)
+	runReceiverCleanup := v.GetBool(cli.ReceiverCleanupOnStartFlag) // Cleanup aws artifacts left over from previous runs
+	notificationReceiver, err := notifications.InitReceiver(v, appCtx.Logger(), runReceiverCleanup)
 	if err != nil {
 		appCtx.Logger().Fatal("notification receiver not enabled", zap.Error(err))
 	}

@@ -290,7 +290,7 @@ func (n *NotificationReceiverContext) wipeAllNotificationQueues(logger *zap.Logg
 		return err
 	}
 
-	logger.Info("Removing previous subscriptions...")
+	logger.Info("Receiver cleanup - Removing previous subscriptions...")
 	paginator := sns.NewListSubscriptionsByTopicPaginator(n.snsService, &sns.ListSubscriptionsByTopicInput{
 		TopicArn: aws.String(n.constructArn("sns", defaultTopic)),
 	})
@@ -314,7 +314,7 @@ func (n *NotificationReceiverContext) wipeAllNotificationQueues(logger *zap.Logg
 		}
 	}
 
-	logger.Info("Removing previous queues...")
+	logger.Info("Receiver cleanup - Removing previous queues...")
 	result, err := n.sqsService.ListQueues(context.Background(), &sqs.ListQueuesInput{
 		QueueNamePrefix: aws.String(string(QueuePrefixObjectTagsAdded)),
 	})
