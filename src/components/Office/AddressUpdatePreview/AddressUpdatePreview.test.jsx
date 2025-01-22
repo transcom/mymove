@@ -3,6 +3,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 
 import AddressUpdatePreview from './AddressUpdatePreview';
 
+import { MARKET_CODES } from 'shared/constants';
+
 const mockDeliveryAddressUpdateWithoutSIT = {
   contractorRemarks: 'Test Contractor Remark',
   id: 'c49f7921-5a6e-46b4-bb39-022583574453',
@@ -66,9 +68,53 @@ const mockDeliveryAddressUpdateWithSIT = {
   },
   status: 'REQUESTED',
 };
+
+const domesticShipment = {
+  marketCode: MARKET_CODES.DOMESTIC,
+};
+
+const internationalShipment = {
+  marketCode: MARKET_CODES.INTERNATIONAL,
+};
 describe('AddressUpdatePreview', () => {
-  it('renders all of the address preview information', async () => {
-    render(<AddressUpdatePreview deliveryAddressUpdate={mockDeliveryAddressUpdateWithoutSIT} />);
+  it('renders all of the address preview information for an international shipment', async () => {
+    render(
+      <AddressUpdatePreview
+        deliveryAddressUpdate={mockDeliveryAddressUpdateWithoutSIT}
+        shipment={internationalShipment}
+      />,
+    );
+    // Heading and alert present
+    expect(screen.getByRole('heading', { name: 'Delivery Address' })).toBeInTheDocument();
+    expect(screen.getByTestId('alert')).toBeInTheDocument();
+    expect(screen.getByTestId('alert')).toHaveTextContent(
+      'If approved, the requested update to the delivery address will change one or all of the following:' +
+        'The rate area for the international shipment destination address.' +
+        'Pricing for international shipping & linehaul.' +
+        'Pricing for POD Fuel Surcharge (if applicable).' +
+        'Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.',
+    );
+    const addressChangePreview = screen.getByTestId('address-change-preview');
+    expect(addressChangePreview).toBeInTheDocument();
+    const addresses = screen.getAllByTestId('two-line-address');
+    expect(addresses).toHaveLength(2);
+    // Original Address
+    expect(addressChangePreview).toHaveTextContent('Original Delivery Address');
+    expect(addresses[0]).toHaveTextContent('987 Any Avenue');
+    expect(addresses[0]).toHaveTextContent('Fairfield, CA 94535');
+    // New Address
+    expect(addressChangePreview).toHaveTextContent('Requested Delivery Address');
+    expect(addresses[1]).toHaveTextContent('123 Any Street');
+    expect(addresses[1]).toHaveTextContent('Beverly Hills, CA 90210');
+    // Request details (contractor remarks)
+    expect(addressChangePreview).toHaveTextContent('Update request details');
+    expect(addressChangePreview).toHaveTextContent('Contractor remarks: Test Contractor Remark');
+  });
+
+  it('renders all of the address preview information for a domestic shipment', async () => {
+    render(
+      <AddressUpdatePreview deliveryAddressUpdate={mockDeliveryAddressUpdateWithoutSIT} shipment={domesticShipment} />,
+    );
     // Heading and alert present
     expect(screen.getByRole('heading', { name: 'Delivery Address' })).toBeInTheDocument();
     expect(screen.getByTestId('alert')).toBeInTheDocument();
@@ -102,8 +148,11 @@ describe('AddressUpdatePreview', () => {
       expect(screen.queryByTestId('destSitAlert')).not.toBeInTheDocument();
     });
   });
+
   it('renders the destination SIT alert when shipment contains dest SIT service items', () => {
-    render(<AddressUpdatePreview deliveryAddressUpdate={mockDeliveryAddressUpdateWithSIT} />);
+    render(
+      <AddressUpdatePreview deliveryAddressUpdate={mockDeliveryAddressUpdateWithSIT} shipment={domesticShipment} />,
+    );
     // Heading and alert present
     expect(screen.getByRole('heading', { name: 'Delivery Address' })).toBeInTheDocument();
     expect(screen.getByTestId('destSitAlert')).toBeInTheDocument();
