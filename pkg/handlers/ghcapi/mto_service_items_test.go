@@ -40,29 +40,19 @@ import (
 func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 
 	setupTestData := func() (models.User, models.MTOServiceItems, uuid.UUID) {
-		reServiceID, _ := uuid.NewV4()
-		serviceItemID, _ := uuid.NewV4()
-		mtoShipmentID, _ := uuid.NewV4()
 		mto := factory.BuildMove(suite.DB(), nil, nil)
 		reService := factory.FetchReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
-					ID:   reServiceID,
 					Code: "TEST10000",
 				},
 			},
 		}, nil)
-		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{ID: mtoShipmentID},
-			},
-		}, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		requestUser := factory.BuildUser(nil, nil, nil)
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model: models.MTOServiceItem{
-					ID: serviceItemID,
-				},
+				Model: models.MTOServiceItem{},
 			},
 			{
 				Model:    mto,
@@ -133,12 +123,10 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	}
 
 	setupIUBTestData := func() (models.User, models.MTOServiceItems, uuid.UUID) {
-		mtoShipmentID, _ := uuid.NewV4()
 		mto := factory.BuildMove(suite.DB(), nil, nil)
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ID:           mtoShipmentID,
 					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
 					MarketCode:   models.MarketCodeInternational,
 				},

@@ -1866,7 +1866,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 	var sort *string = nil
 	if s.ReService.ReServiceItems != nil {
 		for _, reServiceItem := range *s.ReService.ReServiceItems {
-			if (s.MTOShipment.MarketCode == "" || s.MTOShipment.MarketCode == reServiceItem.MarketCode) && (s.MTOShipment.ShipmentType == "" || s.MTOShipment.ShipmentType == reServiceItem.ShipmentType) {
+			if s.MTOShipment.MarketCode == reServiceItem.MarketCode && s.MTOShipment.ShipmentType == reServiceItem.ShipmentType {
 				sort = reServiceItem.Sort
 				break
 			}
