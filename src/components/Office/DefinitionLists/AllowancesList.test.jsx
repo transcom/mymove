@@ -19,6 +19,7 @@ const info = {
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
   ubAllowance: 400,
+  weightRestriction: 1000,
 };
 
 const initialValuesOconusAdditions = {
@@ -174,5 +175,10 @@ describe('AllowancesList', () => {
     expect(screen.getByTestId('ordersDependentsTwelveAndOver')).toBeInTheDocument();
     expect(screen.getByTestId('unaccompaniedBaggageAllowance')).toBeInTheDocument();
     expect(screen.getByTestId('unaccompaniedBaggageAllowance').textContent).toEqual('400 lbs');
+  });
+  it('renders unauthorized ocie', () => {
+    const adminRestrictedWtLoc = { ...info, adminRestrictedWeightLocation: true };
+    render(<AllowancesList info={adminRestrictedWtLoc} />);
+    expect(screen.getByTestId('weightRestriction').textContent).toEqual(1000);
   });
 });
