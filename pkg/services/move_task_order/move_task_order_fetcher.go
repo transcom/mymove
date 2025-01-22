@@ -20,11 +20,14 @@ import (
 )
 
 type moveTaskOrderFetcher struct {
+	waf services.WeightAllotmentFetcher
 }
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
-func NewMoveTaskOrderFetcher() services.MoveTaskOrderFetcher {
-	return &moveTaskOrderFetcher{}
+func NewMoveTaskOrderFetcher(weightAllotmentFetcher services.WeightAllotmentFetcher) services.MoveTaskOrderFetcher {
+	return &moveTaskOrderFetcher{
+		waf: weightAllotmentFetcher,
+	}
 }
 
 // ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime, and may or may not be enabled.
@@ -194,6 +197,16 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		default:
 			return &models.Move{}, apperror.NewQueryError("Move", err, "")
 		}
+	}
+
+	// Now that we have the move and order, construct the allotment (hhg allowance)
+	// Only fetch if grade is not nil
+	if mto.Orders.Grade != nil {
+		allotment, err := f.waf.GetWeightAllotment(appCtx, string(*mto.Orders.Grade), mto.Orders.OrdersType)
+		if err != nil {
+			return nil, err
+		}
+		mto.Orders.Entitlement.WeightAllotted = &allotment
 	}
 
 	// Due to a bug in Pop for EagerPreload the New Address of the DeliveryAddressUpdate and the PortLocation (City, Country, UsPostRegionCity.UsPostRegion.State") must be loaded manually.
