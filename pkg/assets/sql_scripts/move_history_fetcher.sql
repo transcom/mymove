@@ -212,7 +212,8 @@ WITH move AS (
 				'shipment_id', move_shipments.id::TEXT,
 				'shipment_id_abbr', move_shipments.shipment_id_abbr,
 				'shipment_type', move_shipments.shipment_type,
-				'shipment_locator', move_shipments.shipment_locator
+				'shipment_locator', move_shipments.shipment_locator,
+				'rejection_reason', payment_service_items.rejection_reason
 				)
 			)::TEXT AS context,
 			payment_requests.id AS id,
@@ -246,9 +247,6 @@ WITH move AS (
 				'price', payment_service_items.price_cents::TEXT,
 				'status', payment_service_items.status,
 				'rejection_reason', payment_service_items.rejection_reason,
-				'requested_at', payment_service_items.requested_at,
-				'denied_at', payment_service_items.denied_at,
-				'sent_to_gex_at', payment_service_items.sent_to_gex_at,
 				'paid_at', payment_service_items.paid_at,
 				'shipment_id', move_shipments.id::TEXT,
 				'shipment_id_abbr', move_shipments.shipment_id_abbr,
