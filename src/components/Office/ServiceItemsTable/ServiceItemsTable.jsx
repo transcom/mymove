@@ -305,7 +305,7 @@ const ServiceItemsTable = ({
                           className="text-blue usa-button--unstyled margin-left-1"
                           disabled={hasPaymentRequestBeenMade || isMoveLocked}
                           onClick={() => {
-                            if (code === 'DDFSIT' || code === 'DOFSIT') {
+                            if (code === 'DDFSIT' || code === 'DOFSIT' || code === 'IDFSIT' || code === 'IOFSIT') {
                               handleShowEditSitEntryDateModal(id, mtoShipmentID);
                             } else {
                               handleShowEditSitAddressModal(id, mtoShipmentID);

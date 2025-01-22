@@ -1683,12 +1683,16 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemBasic.yaml'
   MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDestSIT.yaml'
+  MTOServiceItemInternationalDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalDestSIT.yaml'
   MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDomesticCrating.yaml'
   MTOServiceItemInternationalCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemInternationalCrating.yaml'
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
+  MTOServiceItemInternationalOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
   MTOServiceItemInternationalFuelSurcharge: # spectral oas2-unused-definition is OK here due to polymorphism
@@ -1773,6 +1777,14 @@ definitions:
         * DOFSIT - UpdateMTOServiceItemSIT
         * DOSFSC - UpdateMTOServiceItemSIT
         * DDSFSC - UpdateMTOServiceItemSIT
+        * IDDSIT - UpdateMTOServiceItemSIT
+        * IDFSIT - UpdateMTOServiceItemSIT
+        * IDASIT - UpdateMTOServiceItemSIT
+        * IOPSIT - UpdateMTOServiceItemSIT
+        * IOASIT - UpdateMTOServiceItemSIT
+        * IOFSIT - UpdateMTOServiceItemSIT
+        * IOSFSC - UpdateMTOServiceItemSIT
+        * IDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
         * PODFSC - UpdateMTOServiceItemInternationalPortFSC
@@ -1828,6 +1840,14 @@ definitions:
               - DOASIT # Domestic Origin Add'l Days SIT
               - DOFSIT # Domestic Origin 1st Day SIT
               - DOSFSC # Domestic Origin Fuel Surcharge
+              - IDDSIT # International Destination SIT Delivery
+              - IDASIT # International Destination Add'l Days SIT
+              - IDFSIT # International Destination 1st Day SIT
+              - IDSFSC # International Destination Fuel Surcharge
+              - IOPSIT # International Origin SIT Pickup
+              - IOASIT # International Origin Add'l Days SIT
+              - IOFSIT # International Origin 1st Day SIT
+              - IOSFSC # International Origin Fuel Surcharge
           sitDepartureDate:
             format: date
             type: string

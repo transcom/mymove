@@ -150,6 +150,14 @@ const SERVICE_ITEM_CODES = {
   IHPK: 'IHPK',
   IHUPK: 'IHUPK',
   ISLH: 'ISLH',
+  IDDSIT: 'IDDSIT',
+  IDASIT: 'IDASIT',
+  IOASIT: 'IOASIT',
+  IOFSIT: 'IOFSIT',
+  IOPSIT: 'IOPSIT',
+  IDFSIT: 'IDFSIT',
+  IOSFSC: 'IOSFSC',
+  IDSFSC: 'IDSFSC',
 };
 
 const SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM = [
@@ -177,6 +185,15 @@ const SIT_SERVICE_ITEMS_ALLOWED_UPDATE = [
   SERVICE_ITEM_CODES.DDFSIT,
   SERVICE_ITEM_CODES.DOSFSC,
   SERVICE_ITEM_CODES.DDSFSC,
+
+  SERVICE_ITEM_CODES.IDDSIT,
+  SERVICE_ITEM_CODES.IDASIT,
+  SERVICE_ITEM_CODES.IOASIT,
+  SERVICE_ITEM_CODES.IOFSIT,
+  SERVICE_ITEM_CODES.IOPSIT,
+  SERVICE_ITEM_CODES.IDFSIT,
+  SERVICE_ITEM_CODES.IOSFSC,
+  SERVICE_ITEM_CODES.IDSFSC,
 ];
 
 /**
@@ -195,6 +212,18 @@ const SIT_SERVICE_ITEM_CODES = {
   DDASIT: 'DDASIT',
   /** Domestic destination SIT delivery */
   DDDSIT: 'DDDSIT',
+  /** International origin 1st day SIT */
+  IOFSIT: 'IOFSIT',
+  /** International origin Additional day SIT */
+  IOASIT: 'IOASIT',
+  /** International origin SIT pickup */
+  IOPSIT: 'IOPSIT',
+  /** International destination 1st day SIT */
+  IDFSIT: 'IDFSIT',
+  /** International destination Additional day SIT */
+  IDASIT: 'IDASIT',
+  /** International destination SIT delivery */
+  IDDSIT: 'IDDSIT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented

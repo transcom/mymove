@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 
 import PrimeUIUpdateOriginSITForm from './PrimeUIUpdateOriginSITForm';
 import PrimeUIUpdateDestSITForm from './PrimeUIUpdateDestSITForm';
+import PrimeUIUpdateInternationalOriginSITForm from './PrimeUIUpdateInternationalOriginSITForm';
+import PrimeUIUpdateInternationalDestSITForm from './PrimeUIUpdateInternationalDestSITForm';
 
 import { updateMTOServiceItem } from 'services/primeApi';
 import scrollToTop from 'shared/scrollToTop';
@@ -131,6 +133,21 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
               ) : null}
               {modelType === 'MTOServiceItemOriginSIT' ? (
                 <PrimeUIUpdateOriginSITForm
+                  serviceItem={serviceItem}
+                  initialValues={initialValues}
+                  onSubmit={onSubmit}
+                />
+              ) : null}
+              {modelType === 'MTOServiceItemInternationalDestSIT' ? (
+                <PrimeUIUpdateInternationalDestSITForm
+                  name="sitDestinationFinalAddress"
+                  serviceItem={serviceItem}
+                  initialValues={initialValues}
+                  onSubmit={onSubmit}
+                />
+              ) : null}
+              {modelType === 'MTOServiceItemInternationalOriginSIT' ? (
+                <PrimeUIUpdateInternationalOriginSITForm
                   serviceItem={serviceItem}
                   initialValues={initialValues}
                   onSubmit={onSubmit}

@@ -2067,6 +2067,8 @@ definitions:
       corresponding to the service item type.
         * DOFSIT, DOASIT - MTOServiceItemOriginSIT
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
+        * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT
+        * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
         * ICRT, IUCRT - MTOServiceItemInternationalCrating
@@ -2078,6 +2080,8 @@ definitions:
       - MTOServiceItemBasic
       - MTOServiceItemOriginSIT
       - MTOServiceItemDestSIT
+      - MTOServiceItemInternationalOriginSIT
+      - MTOServiceItemInternationalDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
