@@ -257,6 +257,10 @@ func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 		logger.Debug(fmt.Sprintf("certificate chain from %s parsed", DbSSLRootCertFlag), zap.Any("count", len(tlsCerts)))
 	}
 
+	logger.Info("DbIamFlag", zap.String("DbIamFlag", v.GetString(DbIamFlag)))
+	logger.Info("DbRegionFlag", zap.String("DbIamFlag", v.GetString(DbRegionFlag)))
+	logger.Info("DbIamRoleFlag", zap.String("DbIamFlag", v.GetString(DbIamRoleFlag)))
+
 	// Check IAM Authentication
 	if v.GetBool(DbIamFlag) {
 		// DbRegionFlag must be set if IAM authentication is enabled.
