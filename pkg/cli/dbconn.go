@@ -258,8 +258,8 @@ func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	logger.Info("DbIamFlag", zap.String("DbIamFlag", v.GetString(DbIamFlag)))
-	logger.Info("DbRegionFlag", zap.String("DbIamFlag", v.GetString(DbRegionFlag)))
-	logger.Info("DbIamRoleFlag", zap.String("DbIamFlag", v.GetString(DbIamRoleFlag)))
+	logger.Info("DbRegionFlag", zap.String("DbRegionFlag", v.GetString(DbRegionFlag)))
+	logger.Info("DbIamRoleFlag", zap.String("DbIamRoleFlag", v.GetString(DbIamRoleFlag)))
 
 	// Check IAM Authentication
 	if v.GetBool(DbIamFlag) {
