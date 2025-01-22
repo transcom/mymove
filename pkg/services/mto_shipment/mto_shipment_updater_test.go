@@ -156,6 +156,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		eTag := etag.GenerateEtag(time.Now())
 
+		var testScheduledPickupDate time.Time
+		mtoShipment.ScheduledPickupDate = &testScheduledPickupDate
+
 		session := auth.Session{}
 		_, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment, eTag, "test")
 		suite.Error(err)
@@ -253,6 +256,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		primeEstimatedWeight = unit.Pound(9000)
 
 		eTag := etag.GenerateEtag(oldMTOShipment.UpdatedAt)
+		var testScheduledPickupDate time.Time
+		mtoShipment.ScheduledPickupDate = &testScheduledPickupDate
 
 		session := auth.Session{}
 		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment, eTag, "test")
