@@ -30,6 +30,7 @@ import (
 	portlocation "github.com/transcom/mymove/pkg/services/port_location"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -109,7 +110,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 	suite.Run("Successful POST - Integration Test", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -169,7 +170,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -309,7 +310,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	suite.Run("POST failure - 404 - MTO is not available to Prime", func() {
 		subtestData := makeSubtestData()
 		mtoNotAvailable := factory.BuildMove(suite.DB(), nil, nil)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -355,7 +356,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -459,7 +460,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 	suite.Run("POST failure - Shipment fetch not found", func() {
 		subtestData := makeSubtestDataWithPPMShipmentType(true)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -491,7 +492,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 	suite.Run("POST failure - 422 - PPM not allowed to create service item", func() {
 		subtestData := makeSubtestDataWithPPMShipmentType(true)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -570,7 +571,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 
 	suite.Run("Successful POST - Integration Test - Domestic Crating", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -609,7 +610,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 
 	suite.Run("Successful POST - Integration Test - Domestic Uncrating", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -734,7 +735,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		requestApprovalRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestApprovalRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOPSIT
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -782,7 +783,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		requestApprovalRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestApprovalRequestedStatus
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -853,7 +854,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}, nil)
 
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -939,7 +940,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		requstedApprovalsRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requstedApprovalsRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1051,7 +1052,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		requestedApprovalsRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestedApprovalsRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1226,7 +1227,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 	suite.Run("Successful POST - Integration Test", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1302,7 +1303,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			SITEntryDate:    &sitEntryDate,
 			Reason:          models.StringPointer("lorem ipsum"),
 		}
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1337,7 +1338,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 	suite.Run("Failure POST - Integration Test - Missing reason", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1395,7 +1396,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			HTTPRequest: subtestData.params.HTTPRequest,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1451,7 +1452,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			HTTPRequest: subtestData.params.HTTPRequest,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1489,7 +1490,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		// SETUP
 		// Create the payload
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDDDSIT
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
@@ -1648,7 +1649,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 
 		// Create the handler
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		addressCreator := address.NewAddressCreator()
 		portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -1831,7 +1832,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 	// Create the service item in the db for dofsit and DOPSIT
 	// Create the handler
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()

@@ -32,6 +32,7 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
@@ -209,7 +210,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		false,
 		false,
 	).Return(400, nil)
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
@@ -415,7 +416,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	setupTestData := func() DeleteMTOShipmentHandler {
 		builder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),

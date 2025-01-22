@@ -667,7 +667,7 @@ describe('RequestedShipments', () => {
       expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
     });
 
-    it('does not render the "Add service items to move" section or Counseling option when all shipments are PPM', () => {
+    it('should disable the counseling checkbox when all shipments are PPM', () => {
       const testPropsServiceItemsEmpty = {
         mtoServiceItems: serviceItemsEmpty,
         mtoShipments: ppmOnlyShipments,
@@ -675,10 +675,9 @@ describe('RequestedShipments', () => {
       };
       renderComponent(testPropsServiceItemsEmpty);
 
-      expect(screen.queryByText('Add service items to this move')).not.toBeInTheDocument();
+      expect(screen.queryByText('Add service items to this move')).toBeInTheDocument();
       expect(screen.getByText('Approve selected')).toBeInTheDocument();
-      expect(screen.queryByTestId('shipmentManagementFee')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('counselingFee')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('counselingFee')).toBeDisabled();
     });
   });
 });

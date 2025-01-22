@@ -26,6 +26,7 @@ import (
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -54,7 +55,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		false,
 		false,
 	).Return(1000, nil)
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
@@ -2190,7 +2191,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	}
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &mocks.Planner{}
 	var TransitDistancePickupArg string
 	var TransitDistanceDestinationArg string
@@ -2808,7 +2809,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
@@ -2879,7 +2880,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	planner := &mocks.Planner{}
 	waf := entitlements.NewWeightAllotmentFetcher()
 
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
@@ -3064,7 +3065,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
@@ -3203,7 +3204,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -3354,7 +3355,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 	}
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -3503,7 +3504,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateDomesticServiceItems() {
 	}
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),

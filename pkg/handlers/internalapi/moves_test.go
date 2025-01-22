@@ -281,7 +281,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// When: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter()}
+		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -332,7 +332,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// And: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter()}
+		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -385,7 +385,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		// When: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter()}
+		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -435,7 +435,7 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 		// And: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 
-		handler := SubmitAmendedOrdersHandler{handlerConfig, moverouter.NewMoveRouter()}
+		handler := SubmitAmendedOrdersHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code

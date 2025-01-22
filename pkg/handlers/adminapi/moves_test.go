@@ -22,6 +22,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *HandlerSuite) TestIndexMovesHandler() {
@@ -111,7 +112,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 	ppmEstimator := &mocks.PPMEstimator{}
 	setupHandler := func() UpdateMoveHandler {
 		builder := query.NewQueryBuilder()
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
