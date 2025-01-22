@@ -61,7 +61,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 
 	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
-	api.TextEventStreamProducer = runtime.ByteStreamProducer()
 	api.TextEventStreamProducer = runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
 		return errors.NotImplemented("textEventStream producer has not yet been implemented")
 	})

@@ -88,12 +88,18 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
     if (isFileUploading) return undefined;
 
     const handleFileProcessing = async (newStatus) => {
-      if (newStatus === UPLOAD_SCAN_STATUS.PROCESSING) {
-        setFileStatus(UPLOAD_DOC_STATUS.SCANNING);
-      } else if (newStatus === UPLOAD_SCAN_STATUS.CLEAN) {
-        setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
-      } else if (newStatus === UPLOAD_SCAN_STATUS.INFECTED) {
-        setFileStatus(UPLOAD_DOC_STATUS.INFECTED);
+      switch (newStatus) {
+        case UPLOAD_SCAN_STATUS.PROCESSING:
+          setFileStatus(UPLOAD_DOC_STATUS.SCANNING);
+          break;
+        case UPLOAD_SCAN_STATUS.CLEAN:
+          setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
+          break;
+        case UPLOAD_SCAN_STATUS.INFECTED:
+          setFileStatus(UPLOAD_DOC_STATUS.INFECTED);
+          break;
+        default:
+          throw new Error('unrecognized file status');
       }
     };
 
@@ -102,7 +108,11 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
       sse = new EventSource(`/internal/uploads/${selectedFile.id}/status`, { withCredentials: true });
       sse.onmessage = (event) => {
         handleFileProcessing(event.data);
-        if (event.data === UPLOAD_SCAN_STATUS.CLEAN || event.data === UPLOAD_SCAN_STATUS.INFECTED) {
+        if (
+          event.data === UPLOAD_SCAN_STATUS.CLEAN ||
+          event.data === UPLOAD_SCAN_STATUS.INFECTED ||
+          event.data === 'Connection closed'
+        ) {
           sse.close();
         }
       };
@@ -135,9 +145,8 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
   }
 
   if (
-    isFileUploading &&
-    ((selectedFile && selectedFile?.status !== null && selectedFile?.status === UPLOAD_SCAN_STATUS.INFECTED) ||
-      (fileStatus !== null && fileStatus === UPLOAD_SCAN_STATUS.INFECTED))
+    (selectedFile && selectedFile?.status !== null && selectedFile?.status === UPLOAD_SCAN_STATUS.INFECTED) ||
+    (fileStatus !== null && fileStatus === UPLOAD_SCAN_STATUS.INFECTED)
   ) {
     return (
       <Alert type="error" className="usa-width-one-whole" heading="Ask for a new file">
@@ -146,6 +155,7 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
       </Alert>
     );
   }
+
   const openMenu = () => {
     setMenuOpen(true);
   };
@@ -211,6 +221,24 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
     </div>
   );
 
+  if (fileStatus !== UPLOAD_DOC_STATUS.LOADED && fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
+    return (
+      <>
+        <Alert type="info" className="usa-width-one-whole" heading="Document Status">
+          Establishing Document for View
+        </Alert>
+        <Content
+          fileType={fileType.current}
+          filePath={selectedFile?.url}
+          rotationValue={rotationValue}
+          disableSaveButton={disableSaveButton}
+          setRotationValue={setRotationValue}
+          saveRotation={saveRotation}
+          onError={onContentError}
+        />
+      </>
+    );
+  }
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
