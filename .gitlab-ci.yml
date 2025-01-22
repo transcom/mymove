@@ -618,6 +618,7 @@ pre_test:
       [ -d ~/transcom/mymove/spectral ] && cp -r ~/transcom/mymove/spectral /tmp/spectral_baseline || echo "Skipping saving baseline"
     - rm -rf ~/transcom/mymove/spectral
     - *install_yarn
+    - ./scripts/pre-commit-go-mod || exit 0
     - echo "Run pre-commit tests without golangci-lint, eslint, or prettier"
     - SKIP=golangci-lint,eslint,prettier,ato-go-linter,gomod,appcontext-linter pre-commit run --all-files
     - |
@@ -642,7 +643,7 @@ pre_test:
     - yarn danger ci --failOnErrors
     -  echo "Run spectral linter on all files"
     - ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
-    - ./scripts/pre-commit-go-mod || exit 0
+
   allow_failure: true
   after_script:
     - *announce_failure
