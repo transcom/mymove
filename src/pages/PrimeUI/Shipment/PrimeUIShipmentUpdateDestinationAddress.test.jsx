@@ -8,7 +8,6 @@ import { updateShipmentDestinationAddress } from '../../../services/primeApi';
 
 import PrimeUIShipmentUpdateDestinationAddress from './PrimeUIShipmentUpdateDestinationAddress';
 
-// import { setFlashMessage } from 'store/flash/actions';
 import { ReactQueryWrapper, MockProviders } from 'testUtils';
 import { primeSimulatorRoutes } from 'constants/routes';
 
@@ -26,6 +25,13 @@ jest.mock('hooks/queries', () => ({
 jest.mock('services/primeApi', () => ({
   ...jest.requireActual('services/primeApi'),
   updateShipmentDestinationAddress: jest.fn(),
+}));
+
+const mockSetFlashMessage = jest.fn();
+
+jest.mock('react-redux', () => ({
+  ...jest.requireActual('react-redux'),
+  connect: jest.fn(() => (component) => (props) => component({ ...props, setFlashMessage: mockSetFlashMessage })),
 }));
 
 const routingParams = { moveCodeOrID: 'LN4T89', shipmentId: '4' };
@@ -99,13 +105,7 @@ const testShipmentReturnValue = {
   isError: false,
 };
 
-// const mockedComponent = (
-//   <MockProviders path={primeSimulatorRoutes.SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH} params={routingParams}>
-//     <PrimeUIShipmentUpdateDestinationAddress setFlashMessage={jest.fn()} />
-//   </MockProviders>
-// );
-
-const movePath = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, {
+const moveReviewPath = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, {
   moveCodeOrID: 'LN4T89',
   setFlashMessage: jest.fn(),
 });
@@ -232,36 +232,14 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
       });
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');
-      });
-    });
-
-    it('routes to the review page when the user clicks save', async () => {
-      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      updateShipmentDestinationAddress.mockReturnValue({
-        id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
-        streetAddress1: '444 Main Ave',
-        streetAddress2: 'Apartment 9000',
-        streetAddress3: '',
-        city: 'Anytown',
-        state: 'AL',
-        postalCode: '90210',
-        country: 'USA',
-        eTag: '1234567890',
-        setFlashMessage: jest.fn(),
-      });
-      renderComponent();
-
-      const addressChange = screen.getByLabelText('Address 1');
-      const contractorRemarks = screen.getByLabelText('Contractor Remarks');
-      await act(() => userEvent.type(addressChange, 'Address Tester'));
-      await act(() => userEvent.type(contractorRemarks, 'testing contractor remarks'));
-
-      const saveButton = await screen.findByRole('button', { name: 'Save' });
-      await act(() => userEvent.click(saveButton));
-
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(movePath);
+        expect(mockSetFlashMessage).toHaveBeenCalledWith(
+          'MSG_UPDATE_SUCCESS4',
+          'success',
+          'Successfully updated shipment',
+          '',
+          true,
+        );
+        expect(mockNavigate).toHaveBeenCalledWith(moveReviewPath);
       });
     });
   });
