@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/featureflag"
@@ -207,6 +208,20 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			return nil, err
 		}
 		mto.Orders.Entitlement.WeightAllotted = &allotment
+	}
+
+	for i := range mto.MTOShipments {
+		var nonDeletedAgents models.MTOAgents
+		loadErr := appCtx.DB().
+			Scope(utilities.ExcludeDeletedScope()).
+			Where("mto_shipment_id = ?", mto.MTOShipments[i].ID).
+			All(&nonDeletedAgents)
+
+		if loadErr != nil {
+			return &models.Move{}, apperror.NewQueryError("MTOAgents", loadErr, "")
+		}
+
+		mto.MTOShipments[i].MTOAgents = nonDeletedAgents
 	}
 
 	// Due to a bug in Pop for EagerPreload the New Address of the DeliveryAddressUpdate and the PortLocation (City, Country, UsPostRegionCity.UsPostRegion.State") must be loaded manually.
