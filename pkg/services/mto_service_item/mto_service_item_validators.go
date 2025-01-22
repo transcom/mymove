@@ -371,7 +371,6 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
 				"- unknown field or fields attempting to be updated.")
 		} else {
-			// Rejects the update if the original SIT does not have a REJECTED status
 			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
 				"- this shuttle service item cannot be updated because the status is not in an editable state.")
 		}
