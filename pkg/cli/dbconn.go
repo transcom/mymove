@@ -206,13 +206,22 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 // CheckDatabase validates DB command line flags
 func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 
+	logger.Info("Reaching dbconn.go line 209")
+
 	if err := ValidateHost(v, DbHostFlag); err != nil {
+		logger.Info("Reaching dbconn.go line 209")
 		return err
 	}
 
 	if err := ValidatePort(v, DbPortFlag); err != nil {
+		logger.Info("Reaching dbconn.go line 209")
 		return err
 	}
+
+	logger.Info("Reaching dbconn.go line 221 DbPoolFlag: ")
+	logger.Info(DbPoolFlag)
+	logger.Info("Reaching dbconn.go line 223 DbIdlePoolFlag: ")
+	logger.Info(DbIdlePoolFlag)
 
 	dbPool := v.GetInt(DbPoolFlag)
 	dbIdlePool := v.GetInt(DbIdlePoolFlag)

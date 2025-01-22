@@ -23,20 +23,26 @@ import (
 func checkProcessTPPSConfig(v *viper.Viper, logger *zap.Logger) error {
 	logger.Debug("checking config for process-tpps")
 
+	logger.Info("Reaching process_tpps.go line 26 in checkProcessTPPSConfig")
+
 	err := cli.CheckDatabase(v, logger)
 	if err != nil {
+		logger.Info("Reaching process_tpps.go line 30 in checkProcessTPPSConfig")
 		return err
 	}
 
 	err = cli.CheckLogging(v)
 	if err != nil {
+		logger.Info("Reaching process_tpps.go line 36 in checkProcessTPPSConfig")
 		return err
 	}
 
 	if err := cli.CheckCert(v); err != nil {
+		logger.Info("Reaching process_tpps.go line 41 in checkProcessTPPSConfig")
 		return err
 	}
 
+	logger.Info("Reaching process_tpps.go line 45 in checkProcessTPPSConfig")
 	return cli.CheckEntrustCert(v)
 }
 
@@ -74,7 +80,7 @@ func processTPPS(_ *cobra.Command, _ []string) error {
 		logger.Fatal("Failed to initialized Zap logging for process-tpps")
 	}
 
-	logger.Info("Reaching process_tpps.go line 78")
+	logger.Info("Reaching process_tpps.go line 77")
 
 	zap.ReplaceGlobals(logger)
 
