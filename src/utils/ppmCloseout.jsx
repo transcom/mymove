@@ -5,7 +5,7 @@ import moment from 'moment';
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
 import { isExpenseComplete, isWeightTicketComplete, isProGearComplete } from 'utils/shipments';
-import { PPM_DOCUMENT_STATUS } from 'shared/constants';
+import PPMDocumentsStatus from 'constants/ppms';
 
 export const getW2Address = (address) => {
   const addressLine1 = address?.streetAddress2
@@ -167,7 +167,7 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
 };
 
 export const calculateTotalMovingExpensesAmount = (movingExpenses = []) => {
-  const excludedExpenseStatuses = [PPM_DOCUMENT_STATUS.EXCLUDED, PPM_DOCUMENT_STATUS.REJECTED]; //  EXCLUDED and REJECTED expenses aren't included in the total.
+  const excludedExpenseStatuses = [PPMDocumentsStatus.EXCLUDED, PPMDocumentsStatus.REJECTED]; //  EXCLUDED and REJECTED expenses aren't included in the total.
   return movingExpenses.reduce((prev, curr) => {
     return curr.amount && !Number.isNaN(Number(curr.amount)) && !excludedExpenseStatuses.includes(curr.status)
       ? prev + curr.amount
