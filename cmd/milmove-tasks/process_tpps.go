@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -13,7 +11,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -37,13 +34,15 @@ func checkProcessTPPSConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
-	if err := cli.CheckCert(v); err != nil {
-		logger.Info("Reaching process_tpps.go line 41 in checkProcessTPPSConfig")
-		return err
-	}
+	// if err := cli.CheckCert(v); err != nil {
+	// 	logger.Info("Reaching process_tpps.go line 41 in checkProcessTPPSConfig")
+	// 	return err
+	// }
 
-	logger.Info("Reaching process_tpps.go line 45 in checkProcessTPPSConfig")
-	return cli.CheckEntrustCert(v)
+	// logger.Info("Reaching process_tpps.go line 45 in checkProcessTPPSConfig")
+	// return cli.CheckEntrustCert(v)
+
+	return nil
 }
 
 // initProcessTPPSFlags initializes TPPS processing flags
@@ -67,9 +66,22 @@ func initProcessTPPSFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func processTPPS(_ *cobra.Command, _ []string) error {
+func processTPPS(cmd *cobra.Command, args []string) error {
 
+	err := cmd.ParseFlags(args)
+	if err != nil {
+		return fmt.Errorf("could not parse args: %w", err)
+	}
+	flags := cmd.Flags()
 	v := viper.New()
+	err = v.BindPFlags(flags)
+	if err != nil {
+		return fmt.Errorf("could not bind flags: %w", err)
+	}
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	dbEnv := v.GetString(cli.DbEnvFlag)
 
 	logger, _, err := logging.Config(
 		logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)),
@@ -90,19 +102,12 @@ func processTPPS(_ *cobra.Command, _ []string) error {
 		logger.Info(fmt.Sprintf("Duration of processTPPS task:: %v", elapsedTime))
 	}()
 
-	flag := pflag.CommandLine
-	// initProcessTPPSFlags(flag)
-	err = flag.Parse(os.Args[1:])
-	if err != nil {
-		log.Fatal("failed to parse flags", zap.Error(err))
-	}
-
-	err = v.BindPFlags(flag)
-	if err != nil {
-		log.Fatal("failed to bind flags", zap.Error(err))
-	}
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
+	// flag := pflag.CommandLine
+	// // initProcessTPPSFlags(flag)
+	// err = flag.Parse(os.Args[1:])
+	// if err != nil {
+	// 	log.Fatal("failed to parse flags", zap.Error(err))
+	// }
 
 	err = checkProcessTPPSConfig(v, logger)
 	if err != nil {
@@ -116,21 +121,21 @@ func processTPPS(_ *cobra.Command, _ []string) error {
 	}
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
-	dbEnv := v.GetString(cli.DbEnvFlag)
+	// dbEnv := v.GetString(cli.DbEnvFlag)
 
 	isDevOrTest := dbEnv == "experimental" || dbEnv == "development" || dbEnv == "test"
 	if isDevOrTest {
 		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
 	}
 
-	certLogger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
-	if err != nil {
-		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
-	}
-	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
-	if certificates == nil || rootCAs == nil || err != nil {
-		logger.Fatal("Error in getting tls certs", zap.Error(err))
-	}
+	// certLogger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	// if err != nil {
+	// 	logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
+	// }
+	// certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
+	// if certificates == nil || rootCAs == nil || err != nil {
+	// 	logger.Fatal("Error in getting tls certs", zap.Error(err))
+	// }
 
 	tppsInvoiceProcessor := invoice.NewTPPSPaidInvoiceReportProcessor()
 
