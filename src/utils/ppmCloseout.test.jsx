@@ -51,7 +51,7 @@ describe('calculateTotalMovingExpensesAmount', () => {
   });
 });
 
-describe('calculateTotalMovingExpensesAmount with reject and excluded amount', () => {
+describe('calculateTotalMovingExpensesAmount with rejected and excluded amount', () => {
   it('rejected and excluded expenses are not included in total amount', () => {
     const approvedMovingExpense1 = createCompleteMovingExpense({}, { status: 'APPROVED', amount: 350 });
     const approvedMovingExpense2 = createCompleteMovingExpense({}, { status: 'APPROVED', amount: 650 });
