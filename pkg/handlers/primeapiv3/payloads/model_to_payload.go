@@ -35,9 +35,11 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 	if err != nil {
 		destGbloc = ""
 	}
-	destZip, err = moveTaskOrder.GetDestinationPostalCode(db)
+	destinationAddress, err := moveTaskOrder.GetDestinationAddress(appCtx.DB())
 	if err != nil {
 		destZip = ""
+	} else {
+		destZip = destinationAddress.PostalCode
 	}
 
 	payload := &primev3messages.MoveTaskOrder{
@@ -127,6 +129,25 @@ func Customer(customer *models.ServiceMember) *primev3messages.Customer {
 	if customer.PersonalEmail != nil {
 		payload.Email = *customer.PersonalEmail
 	}
+
+	if len(customer.BackupContacts) > 0 {
+		payload.BackupContact = BackupContact(&customer.BackupContacts[0])
+	}
+
+	return &payload
+}
+
+// BackupContact payload
+func BackupContact(backupContact *models.BackupContact) *primev3messages.BackupContact {
+	if backupContact == nil {
+		return nil
+	}
+	payload := primev3messages.BackupContact{
+		Name:  backupContact.Name,
+		Email: backupContact.Email,
+		Phone: backupContact.Phone,
+	}
+
 	return &payload
 }
 

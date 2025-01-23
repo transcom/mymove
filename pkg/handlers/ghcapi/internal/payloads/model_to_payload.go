@@ -593,7 +593,7 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 	bc := &ghcmessages.BackupContact{
 		Name:  &backupContact.Name,
 		Email: &backupContact.Email,
-		Phone: backupContact.Phone,
+		Phone: &backupContact.Phone,
 	}
 
 	payload := ghcmessages.CreatedCustomer{
@@ -867,11 +867,7 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 		contact := contacts[0]
 		name = contact.Name
 		email = contact.Email
-		phone = ""
-		contactPhone := contact.Phone
-		if contactPhone != nil {
-			phone = *contactPhone
-		}
+		phone = contact.Phone
 	}
 
 	return &ghcmessages.BackupContact{
@@ -2615,9 +2611,11 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 
 		// populates the destination postal code of the move
 		var destinationPostalCode string
-		destinationPostalCode, err = move.GetDestinationPostalCode(appCtx.DB())
+		destinationAddress, err := move.GetDestinationAddress(appCtx.DB())
 		if err != nil {
 			destinationPostalCode = ""
+		} else {
+			destinationPostalCode = destinationAddress.PostalCode
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{

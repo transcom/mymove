@@ -160,7 +160,7 @@ func (suite *FactorySuite) TestBuildServiceRequestDocumentUpload() {
 		// Mocked:          None
 		// Set up:          Create an upload with an uploader and default file
 		// Expected outcome:Upload filename should be the default file
-		storer := storageTest.NewFakeS3Storage(true)
+		storer := storageTest.NewFakeS3Storage(true, nil)
 		serviceRequestDocumentUploader, err := uploader.NewServiceRequestUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 
@@ -219,7 +219,7 @@ func (suite *FactorySuite) TestBuildServiceRequestDocumentUpload() {
 		// Set up:          Create a service request document upload with a user uploader
 		//                  but no appcontext
 		// Expected outcome:Should cause a panic
-		storer := storageTest.NewFakeS3Storage(true)
+		storer := storageTest.NewFakeS3Storage(true, nil)
 		serviceRequestDocumentUploader, err := uploader.NewServiceRequestUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 
@@ -241,7 +241,7 @@ func (suite *FactorySuite) TestBuildServiceRequestDocumentUpload() {
 		// Mocked:          None
 		// Set up:          Create a service request document upload with a specific file
 		// Expected outcome:ServiceRequestDocumentUpload should be created with default values
-		storer := storageTest.NewFakeS3Storage(true)
+		storer := storageTest.NewFakeS3Storage(true, nil)
 		serviceRequestDocumentUploader, err := uploader.NewServiceRequestUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 

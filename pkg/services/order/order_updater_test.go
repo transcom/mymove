@@ -1043,7 +1043,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 		upload, url, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
 			appCtx,
@@ -1074,7 +1074,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
@@ -1126,7 +1126,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 		_, _, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
 			appCtx,
@@ -1153,7 +1153,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
