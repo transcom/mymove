@@ -72,4 +72,17 @@ describe('When approving/rejecting a payment service item', () => {
     expect(screen.getByText('Reason')).toBeInTheDocument();
     expect(screen.getByText(': Some reason')).toBeInTheDocument();
   });
+
+  it('displays a cleared payment service item with no unneeded information', () => {
+    const clearedServiceItem = rejectPaymentServiceItemRecord;
+    clearedServiceItem.changedValues.status = 'REQUESTED';
+    const template = getTemplate(clearedServiceItem);
+
+    render(template.getEventNameDisplay(clearedServiceItem));
+    expect(screen.getByText('Updated Payment Service Item')).toBeInTheDocument();
+
+    render(template.getDetails(clearedServiceItem));
+    expect(screen.queryByText('Reason')).not.toBeInTheDocument();
+    expect(screen.queryByText(': Some reason')).not.toBeInTheDocument();
+  });
 });
