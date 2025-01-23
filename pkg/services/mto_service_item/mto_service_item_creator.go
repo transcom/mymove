@@ -674,7 +674,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				}
 			}
 
-			if requestedServiceItem.MTOShipment.MarketCode == models.MarketCodeInternational {
+			if mtoShipment.MarketCode == models.MarketCodeInternational {
 				err := models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), *serviceItem.MTOShipmentID, models.MTOServiceItems{*serviceItem})
 				if err != nil {
 					return err
