@@ -26,12 +26,12 @@ const originSITValidationSchema = Yup.object().shape({
   sitHHGActualOrigin: requiredAddressSchema,
 });
 
-const OriginSITServiceItemForm = ({ shipment, submission }) => {
+const OriginSITServiceItemForm = ({ shipment, submission, isDomestic }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
-    modelType: 'MTOServiceItemOriginSIT',
-    reServiceCode: 'DOFSIT',
+    modelType: isDomestic ? 'MTOServiceItemOriginSIT' : 'MTOServiceItemInternationalOriginSIT',
+    reServiceCode: isDomestic ? 'DOFSIT' : 'IOFSIT',
     reason: '',
     sitPostalCode: '',
     sitEntryDate: '',
@@ -105,6 +105,7 @@ const OriginSITServiceItemForm = ({ shipment, submission }) => {
 OriginSITServiceItemForm.propTypes = {
   shipment: ShipmentShape.isRequired,
   submission: PropTypes.func.isRequired,
+  isDomestic: PropTypes.bool.isRequired,
 };
 
 export default OriginSITServiceItemForm;
