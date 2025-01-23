@@ -223,7 +223,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			if *newDutyLocation.Address.IsOconus {
 				newDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), newDutyLocation.Address, serviceMember)
 				if err != nil {
-					return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
+					return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for New Duty Location Oconus GBLOC")
 				}
 				newDutyLocationGBLOC = newDutyLocationGBLOCOconus
 			} else {
@@ -253,7 +253,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				if err != nil {
 					switch err {
 					case sql.ErrNoRows:
-						return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
+						return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Origin Duty Location PostalCodeToGBLOC")
 					default:
 						return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
 					}

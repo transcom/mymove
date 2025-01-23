@@ -172,13 +172,20 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			if *newDutyLocation.Address.IsOconus {
 				newDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), newDutyLocation.Address, serviceMember)
 				if err != nil {
-					return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
+					return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for New Duty Location Oconus GBLOC")
 				}
 				newDutyLocationGBLOC = newDutyLocationGBLOCOconus
 			} else {
 				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
 				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err), err
+					switch err {
+					case sql.ErrNoRows:
+						return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for New Duty Location PostalCodeToGBLOC")
+					default:
+						err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+						appCtx.Logger().Error(err.Error())
+						return handlers.ResponseForError(appCtx.Logger(), err), err
+					}
 				}
 				newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
 			}
@@ -198,7 +205,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			if *originDutyLocation.Address.IsOconus {
 				originDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), originDutyLocation.Address, serviceMember)
 				if err != nil {
-					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
+					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Origin Duty Location Oconus GBLOC")
 				}
 				originDutyLocationGBLOC = originDutyLocationGBLOCOconus
 			} else {
@@ -206,7 +213,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				if err != nil {
 					switch err {
 					case sql.ErrNoRows:
-						return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
+						return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Origin Duty Location PostalCodeToGBLOC")
 					default:
 						return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
 					}
@@ -392,15 +399,20 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			if *dutyLocation.Address.IsOconus {
 				newDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), dutyLocation.Address, order.ServiceMember)
 				if err != nil {
-					return nil, apperror.NewNotFoundError(dutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
+					return nil, apperror.NewNotFoundError(dutyLocation.ID, "while looking for New Duty Location Oconus GBLOC")
 				}
 				newDutyLocationGBLOC = newDutyLocationGBLOCOconus
 			} else {
 				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
 				if err != nil {
-					err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
-					appCtx.Logger().Error(err.Error())
-					return handlers.ResponseForError(appCtx.Logger(), err), err
+					switch err {
+					case sql.ErrNoRows:
+						return nil, apperror.NewNotFoundError(dutyLocation.ID, "while looking for New Duty Location PostalCodeToGBLOC")
+					default:
+						err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+						appCtx.Logger().Error(err.Error())
+						return handlers.ResponseForError(appCtx.Logger(), err), err
+					}
 				}
 				newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
 			}
@@ -427,7 +439,12 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				} else {
 					originDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
 					if err != nil {
-						return handlers.ResponseForError(appCtx.Logger(), err), err
+						switch err {
+						case sql.ErrNoRows:
+							return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Origin Duty Location PostalCodeToGBLOC")
+						default:
+							return handlers.ResponseForError(appCtx.Logger(), err), err
+						}
 					}
 					originDutyLocationGBLOC = &originDutyLocationGBLOCConus.GBLOC
 				}
