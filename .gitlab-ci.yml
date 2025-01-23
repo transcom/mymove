@@ -662,11 +662,11 @@ server_test:
   - *setup_milmove_env
   - *setup_generic_app_env_variables
   - *setup_server_env_variables
-  services:
-    - name: docker:dind
-      alias: docker
-    - name: $postgres
-    - name: $redis
+  # services:
+  #   - name: docker:dind
+  #     alias: docker
+  #   - name: $postgres
+  #   - name: $redis
   variables:
     DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
     DOCKER_TLS_CERTDIR: ""
@@ -816,11 +816,11 @@ integration_test_devseed:
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
-  services:
-    - name: docker:dind
-      alias: docker
-    - name: $postgres
-    - name: $redis
+  # services:
+  #   - name: docker:dind
+  #     alias: docker
+  #   - name: $postgres
+  #   - name: $redis
   variables:
     DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
     DOCKER_TLS_CERTDIR: ""
