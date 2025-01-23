@@ -30,6 +30,7 @@ var CreateableServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
 	primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalOriginSIT: true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalDestSIT:   true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:                true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalShuttle:   true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:        true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalCrating:   true,
 }
@@ -111,7 +112,12 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 			if mtoAvailableToPrime {
 				mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
-				mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem)
+
+				if shipment.MarketCode == models.MarketCodeInternational {
+					mtoServiceItems, err = models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), shipment.ID, models.MTOServiceItems{*mtoServiceItem})
+				} else {
+					mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem)
+				}
 			} else if err == nil {
 				primeErr := apperror.NewNotFoundError(moveTaskOrderID, "primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
 				appCtx.Logger().Error(primeErr.Error())

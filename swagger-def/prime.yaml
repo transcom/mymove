@@ -808,9 +808,9 @@ paths:
 
         To create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
 
-        * Resubmitting rejected SIT service items: This endpoint will handle the logic of changing the status of rejected SIT service items from
+        * Resubmitting rejected SIT/Accessorial service items: This endpoint will handle the logic of changing the status of rejected SIT/Accessorial service items from
         REJECTED to SUBMITTED. Please provide the `requestedApprovalsRequestedStatus: true` when resubmitting as this will give attention to the TOO to
-        review the resubmitted SIT service item. Another note, `updateReason` must have a different value than the current `reason` value on the service item.
+        review the resubmitted SIT/Accessorial service item. Another note, `updateReason` must have a different value than the current `reason` value on the service item.
         If this value is not updated, then an error will be sent back.
 
         The following SIT service items can be resubmitted following a rejection:
@@ -823,7 +823,11 @@ paths:
         - DDSFSC
         - DOSFSC
 
-        At a MINIMUM, the payload for resubmitting a rejected SIT service item must look like this:
+        The following Accessorial service items can be resubmitted following a rejection:
+        - IOSHUT
+        - IDSHUT
+
+        At a MINIMUM, the payload for resubmitting a rejected SIT/Accessorial service item must look like this:
         ```json
         {
           "reServiceCode": "DDFSIT",
@@ -1234,6 +1238,29 @@ paths:
 
         **PODFSC - International Port of Debarkation Fuel Surcharge**
         **NOTE**: PODFSC requires `ActualPickupDate` to be updated on the shipment & `PODLocation` on the service item.
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+        ---
+
+        International Basic Service Items & Accepted Payment Request Parameters:
+        ---
+        **IOSHUT - International origin shuttle service**
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        **IDSHUT - International destination shuttle service**
         ```json
           "params": [
             {
@@ -1697,6 +1724,8 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
   MTOServiceItemInternationalFuelSurcharge: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemInternationalFuelSurcharge.yaml'
+  MTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalShuttle.yaml'
   MTOShipment:
     type: object
     properties:
@@ -1789,6 +1818,8 @@ definitions:
         * DOSHUT - UpdateMTOServiceItemShuttle
         * PODFSC - UpdateMTOServiceItemInternationalPortFSC
         * POEFSC - UpdateMTOServiceItemInternationalPortFSC
+        * IDSHUT - UpdateMTOServiceItemInternationalShuttle
+        * IOSHUT - UpdateMTOServiceItemInternationalShuttle
 
       The documentation will then update with the supported fields.
     type: string
@@ -1796,6 +1827,7 @@ definitions:
       - UpdateMTOServiceItemSIT
       - UpdateMTOServiceItemShuttle
       - UpdateMTOServiceItemInternationalPortFSC
+      - UpdateMTOServiceItemInternationalShuttle
   UpdateMTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
       Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
@@ -1821,6 +1853,35 @@ definitions:
             enum:
               - DDSHUT # Domestic Destination Shuttle
               - DOSHUT # Domestic Origin Shuttle
+  UpdateMTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: |
+      Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          actualWeight:
+            type: integer
+            example: 4000
+            description: Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT & IOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT & IOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - IDSHUT # Domestic Destination Shuttle
+              - IOSHUT # Domestic Origin Shuttle
   UpdateMTOServiceItemSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
       Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.

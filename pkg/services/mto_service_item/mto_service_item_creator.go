@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
-	"golang.org/x/exp/slices"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -445,11 +444,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 	}
 
-	err = validateSITServiceItem(mtoShipment, *serviceItem)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	// checking to see if the service item being created is a destination SIT
 	// if so, we want the destination address to be the same as the shipment's
 	// which will later populate the additional dest SIT service items as well
@@ -704,9 +698,16 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				}
 			}
 
-			verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
+			if mtoShipment.MarketCode == models.MarketCodeInternational {
+				_, err = models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), mtoShipment.ID, models.MTOServiceItems{*requestedServiceItem})
+				if err != nil {
+					return err
+				}
+			} else {
+				verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
+				if verrs != nil || err != nil {
+					return fmt.Errorf("%#v %e", verrs, err)
+				}
 			}
 
 			// need isOconus information for InternationalCrates in model_to_payload
@@ -973,43 +974,4 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 	}
 
 	return &extraServiceItems, nil
-}
-
-func validateSITServiceItem(mtoShipment models.MTOShipment, serviceItem models.MTOServiceItem) error {
-	marketToAllowableReServiceCodesMap := make(map[models.MarketCode][]models.ReServiceCode)
-	marketToAllowableReServiceCodesMap[models.MarketCodeDomestic] = []models.ReServiceCode{
-		models.ReServiceCodeDDDSIT,
-		models.ReServiceCodeDDASIT,
-		models.ReServiceCodeDDFSIT,
-		models.ReServiceCodeDDSFSC,
-		models.ReServiceCodeDOPSIT,
-		models.ReServiceCodeDOFSIT,
-		models.ReServiceCodeDOASIT,
-		models.ReServiceCodeDOSFSC,
-	}
-	marketToAllowableReServiceCodesMap[models.MarketCodeInternational] = []models.ReServiceCode{
-		models.ReServiceCodeIDDSIT,
-		models.ReServiceCodeIDASIT,
-		models.ReServiceCodeIDFSIT,
-		models.ReServiceCodeIDSFSC,
-		models.ReServiceCodeIOPSIT,
-		models.ReServiceCodeIOFSIT,
-		models.ReServiceCodeIOASIT,
-		models.ReServiceCodeIOSFSC,
-	}
-
-	values, contains := marketToAllowableReServiceCodesMap[mtoShipment.MarketCode]
-	if !contains {
-		return apperror.NewNotImplementedError(fmt.Sprintf("validateSITServiceItem - MarketCode: %s is not implemented", mtoShipment.MarketCode))
-	}
-
-	// check if there is miss match of ReServiceCode and marketCode of shipment(domestic or international). ie..cannot send in
-	// IOFSIT(international) when shipment is domestic.
-	if !slices.Contains(values, serviceItem.ReService.Code) {
-		return apperror.NewConflictError(
-			serviceItem.MoveTaskOrderID,
-			fmt.Sprintf("Cannot create service item due to mismatched market to provided ReServiceCode. Market:%s, ServiceItem.ReService.Code:%s", mtoShipment.MarketCode, serviceItem.ReService.Code),
-		)
-	}
-	return nil
 }

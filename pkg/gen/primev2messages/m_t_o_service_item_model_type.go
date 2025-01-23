@@ -22,6 +22,7 @@ import (
 //   - IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT
 //   - IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT
 //   - DOSHUT, DDSHUT - MTOServiceItemShuttle
+//   - IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle
 //   - DCRT, DUCRT - MTOServiceItemDomesticCrating
 //   - ICRT, IUCRT - MTOServiceItemInternationalCrating
 //   - PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge
@@ -60,6 +61,9 @@ const (
 	// MTOServiceItemModelTypeMTOServiceItemShuttle captures enum value "MTOServiceItemShuttle"
 	MTOServiceItemModelTypeMTOServiceItemShuttle MTOServiceItemModelType = "MTOServiceItemShuttle"
 
+	// MTOServiceItemModelTypeMTOServiceItemInternationalShuttle captures enum value "MTOServiceItemInternationalShuttle"
+	MTOServiceItemModelTypeMTOServiceItemInternationalShuttle MTOServiceItemModelType = "MTOServiceItemInternationalShuttle"
+
 	// MTOServiceItemModelTypeMTOServiceItemDomesticCrating captures enum value "MTOServiceItemDomesticCrating"
 	MTOServiceItemModelTypeMTOServiceItemDomesticCrating MTOServiceItemModelType = "MTOServiceItemDomesticCrating"
 
@@ -75,7 +79,7 @@ var mTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []MTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemOriginSIT","MTOServiceItemDestSIT","MTOServiceItemInternationalOriginSIT","MTOServiceItemInternationalDestSIT","MTOServiceItemShuttle","MTOServiceItemDomesticCrating","MTOServiceItemInternationalCrating","MTOSerivceItemInternationalFuelSurcharge"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemOriginSIT","MTOServiceItemDestSIT","MTOServiceItemInternationalOriginSIT","MTOServiceItemInternationalDestSIT","MTOServiceItemShuttle","MTOServiceItemInternationalShuttle","MTOServiceItemDomesticCrating","MTOServiceItemInternationalCrating","MTOSerivceItemInternationalFuelSurcharge"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
