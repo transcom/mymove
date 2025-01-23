@@ -29,7 +29,16 @@ export default {
   tableName: t.payment_service_items,
   getEventNameDisplay: (historyRecord) => {
     let actionPrefix = '';
-    if (historyRecord.changedValues.rejection_reason !== null || historyRecord.changedValues.status === 'REJECTED') {
+
+    /**
+     * IF there is a rejection_reason present in the changedValues, then either the reason was updated (in which case the status will be undefined)
+     * OR it was just rejected, wither way we want the rejected prefix, second || condition is a "just in case" check, not sure if there's a state
+     * where status would be updated but not rejection_reason
+     */
+    if (
+      ('rejection_reason' in historyRecord.changedValues && historyRecord.changedValues.rejection_reason !== null) ||
+      historyRecord.changedValues.status === 'REJECTED'
+    ) {
       actionPrefix = 'Rejected';
     } else if (historyRecord.changedValues.status === 'APPROVED') {
       actionPrefix = 'Approved';

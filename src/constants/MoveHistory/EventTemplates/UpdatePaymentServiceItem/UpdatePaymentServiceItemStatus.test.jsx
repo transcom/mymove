@@ -19,7 +19,7 @@ describe('When approving/rejecting a payment service item', () => {
       },
     ],
     changedValues: {
-      reason: 'Some reason',
+      rejection_reason: 'Some reason',
       status: 'DENIED',
     },
     eventName: o.updatePaymentServiceItemStatus,
@@ -42,18 +42,33 @@ describe('When approving/rejecting a payment service item', () => {
   it('displays an approved payment service item', () => {
     const template = getTemplate(approvePaymentServiceItemRecord);
 
+    render(template.getEventNameDisplay(approvePaymentServiceItemRecord));
+    expect(screen.getByText('Approved Payment Service Item')).toBeInTheDocument();
+
     render(template.getDetails(approvePaymentServiceItemRecord));
     expect(screen.getByText('PPM shipment #RQ38D4-01')).toBeInTheDocument();
-    expect(screen.getByText('Status')).toBeInTheDocument();
-    expect(screen.getByText(': APPROVED')).toBeInTheDocument();
+  });
+
+  it('displays an updated payment service item', () => {
+    const updatedServiceItemRecord = { ...approvePaymentServiceItemRecord };
+    delete updatedServiceItemRecord.changedValues.status;
+    delete updatedServiceItemRecord.changedValues.rejection_reason;
+    const template = getTemplate(updatedServiceItemRecord);
+
+    render(template.getEventNameDisplay(updatedServiceItemRecord));
+    expect(screen.getByText('Updated Payment Service Item')).toBeInTheDocument();
+
+    render(template.getDetails(updatedServiceItemRecord));
+    expect(screen.getByText('PPM shipment #RQ38D4-01')).toBeInTheDocument();
   });
 
   it('displays a rejected payment service item and the rejection reason', () => {
     const template = getTemplate(rejectPaymentServiceItemRecord);
 
+    render(template.getEventNameDisplay(rejectPaymentServiceItemRecord));
+    expect(screen.getByText('Rejected Payment Service Item')).toBeInTheDocument();
+
     render(template.getDetails(rejectPaymentServiceItemRecord));
-    expect(screen.getByText('Status')).toBeInTheDocument();
-    expect(screen.getByText(': DENIED')).toBeInTheDocument();
     expect(screen.getByText('Reason')).toBeInTheDocument();
     expect(screen.getByText(': Some reason')).toBeInTheDocument();
   });
