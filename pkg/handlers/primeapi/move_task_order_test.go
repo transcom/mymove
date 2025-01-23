@@ -726,6 +726,14 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			MoveID:      successMove.Locator,
 		}
 
+		backupContacts := models.BackupContacts{}
+		backupContacts = append(backupContacts, models.BackupContact{
+			Name:  "Backup contact name",
+			Phone: "555-555-5555",
+			Email: "backup@backup.com",
+		})
+		successMove.Orders.ServiceMember.BackupContacts = backupContacts
+
 		// Validate incoming payload: no body to validate
 
 		response := handler.Handle(params)
@@ -755,6 +763,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(orders.ServiceMember.ID.String(), ordersPayload.Customer.ID.String())
 		suite.Equal(*orders.ServiceMember.Edipi, ordersPayload.Customer.DodID)
 		suite.Equal(orders.ServiceMember.UserID.String(), ordersPayload.Customer.UserID.String())
+		suite.Equal(orders.ServiceMember.BackupContacts[0].Name, backupContacts[0].Name)
+		suite.Equal(orders.ServiceMember.BackupContacts[0].Phone, backupContacts[0].Phone)
+		suite.Equal(orders.ServiceMember.BackupContacts[0].Email, backupContacts[0].Email)
 
 		verifyAddressFields(orders.ServiceMember.ResidentialAddress, ordersPayload.Customer.CurrentAddress)
 
@@ -1561,7 +1572,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 	request := httptest.NewRequest("POST", "/move-task-orders/{moveTaskOrderID}", nil)
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 	suite.Run("Success - Created an excess weight record", func() {
 		handlerConfig := suite.HandlerConfig()
