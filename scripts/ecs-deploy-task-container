@@ -46,6 +46,17 @@ check_arn() {
 echo
 echo "Preparing ECS task definition for ${name}"
 
+start_time=$(date +%s)
+
+echo "ECS Task params:"
+echo "  AWS Account ID: ${AWS_ACCOUNT_ID}"
+echo "  AWS Region: ${AWS_DEFAULT_REGION}"
+echo "  Environment: ${environment}"
+echo "  Image: ${image}"
+echo "  CPU: ${RESERVATION_CPU}"
+echo "  Memory: ${RESERVATION_MEM}"
+echo "  Variables File: ${variables_file}"
+echo "  Entrypoint: /bin/milmove-tasks ${name}"
 dry_run_task_definition_date=$("${DIR}/../bin/ecs-deploy" task-def \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region "${AWS_DEFAULT_REGION}" \
@@ -58,7 +69,21 @@ dry_run_task_definition_date=$("${DIR}/../bin/ecs-deploy" task-def \
   --entrypoint "/bin/milmove-tasks ${name}" \
   --dry-run)
 
+end_time=$(date +%s)
+elapsed_time=$((end_time - start_time))
+
+echo "dry run task def completed in ${elapsed_time} seconds"
+echo "dry run raw output: ${dry_run_task_definition_date}"
+
 dry_run_task_definition=$(echo "${dry_run_task_definition_date}" | cut -d ' ' -f 3)
+echo "Extracted task definition: ${dry_run_task_definition}"
+
+if ! echo "${dry_run_task_definition}" | jq . > /dev/null 2>&1; then
+  echo "invalid JSON format in dry run task def"
+  exit 1
+else
+  echo "dry run task def JSON is valid"
+fi
 echo "${dry_run_task_definition}" | jq .
 
 echo
