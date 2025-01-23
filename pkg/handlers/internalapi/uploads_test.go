@@ -148,7 +148,7 @@ func makePPMRequest(suite *HandlerSuite, params ppmop.CreatePPMUploadParams, ser
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	t := suite.T()
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	document, params := createPrereqs(suite, FixturePDF)
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
@@ -172,7 +172,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	t := suite.T()
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	_, params := createPrereqs(suite, FixturePDF)
 
 	// Create a user that is not associated with the move
@@ -198,7 +198,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	t := suite.T()
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	document, params := createPrereqs(suite, FixturePDF)
 
 	// Make a document ID that is not actually associated with a document
@@ -224,7 +224,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	t := suite.T()
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	document, params := createPrereqs(suite, FixturePDF)
 
 	params.File = suite.Fixture("empty.pdf")
@@ -245,7 +245,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	t := suite.T()
-	fakeS3 := storageTest.NewFakeS3Storage(false)
+	fakeS3 := storageTest.NewFakeS3Storage(false, nil)
 	document, params := createPrereqs(suite, FixturePDF)
 
 	currentCount, countErr := suite.DB().Count(&models.Upload{})
@@ -265,7 +265,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 }
 
 func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	setupTestData := func() (models.UserUpload, models.Move) {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		uploadUser := factory.BuildUserUpload(suite.DB(), []factory.Customization{
@@ -353,7 +353,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 }
 
 func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 	uploadUser1 := factory.BuildUserUpload(suite.DB(), nil, nil)
 	suite.Nil(uploadUser1.Upload.DeletedAt)
@@ -397,7 +397,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 	// uploader.DeleteUpload only performs soft deletes and does not use the Storer's Delete method,
 	// therefore a failure in the S3 storer will still result in a successful soft delete.
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	setupTestData := func() (models.UserUpload, models.Move) {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		uploadUser := factory.BuildUserUpload(suite.DB(), []factory.Customization{
@@ -431,7 +431,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 	req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	fakeS3Failure := storageTest.NewFakeS3Storage(false)
+	fakeS3Failure := storageTest.NewFakeS3Storage(false, nil)
 
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3Failure)
@@ -450,7 +450,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 	suite.Run("uploads .xls file", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		document, params := createPPMPrereqs(suite, FixtureXLS, false)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
@@ -478,7 +478,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 	})
 
 	suite.Run("uploads .xlsx file", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		document, params := createPPMPrereqs(suite, FixtureXLSX, false)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
@@ -506,7 +506,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 	})
 
 	suite.Run("uploads weight estimator .xlsx file (full weight)", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		document, params := createPPMPrereqs(suite, WeightEstimatorFullXLSX, true)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
@@ -534,7 +534,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 	})
 
 	suite.Run("uploads file for a progear document", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		document, params := createPPMProgearPrereqs(suite, FixturePNG)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
@@ -562,7 +562,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 	})
 
 	suite.Run("uploads file for an expense document", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		document, params := createPPMExpensePrereqs(suite, FixtureJPG)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
@@ -590,7 +590,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 	})
 
 	suite.Run("uploads file with filename characters not supported by ISO8859_1", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		document, params := createPPMExpensePrereqs(suite, FixtureScreenshot)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
@@ -628,7 +628,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 	suite.Run("documentId does not exist", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		document, params := createPPMPrereqs(suite, FixtureXLS, false)
 
 		params.DocumentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
@@ -642,7 +642,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 	})
 
 	suite.Run("documentId is not associated with the PPM shipment", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		_, params := createPPMPrereqs(suite, FixtureXLS, false)
 
 		document := factory.BuildDocument(suite.DB(), nil, nil)
@@ -657,7 +657,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 	})
 
 	suite.Run("service member session does not match document creator", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		_, params := createPPMPrereqs(suite, FixtureXLS, false)
 
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
@@ -671,7 +671,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 	})
 
 	suite.Run("ppmShipmentId does not exist", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		document, params := createPPMPrereqs(suite, FixtureXLS, false)
 
 		params.PpmShipmentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
@@ -684,7 +684,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 	})
 
 	suite.Run("unsupported content type upload", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		document, params := createPPMPrereqs(suite, FixtureTXT, false)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
@@ -697,7 +697,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 	})
 
 	suite.Run("empty file upload", func() {
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		document, params := createPPMPrereqs(suite, FixtureEmpty, false)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
