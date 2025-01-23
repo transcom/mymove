@@ -10,3 +10,10 @@ update orders set new_duty_location_id = 'a6993e7b-4600-44b9-b288-04ca011143f0' 
 
 delete from duty_locations where id = '54ca99b7-3c2a-42b0-aa1a-ad071ac580de';
 
+--associate duty loc Yuma, AZ 85365 to transportation office PPPO DMO MCAS Yuma - USMC
+update duty_locations set transportation_office_id = '6ac7e595-1e0c-44cb-a9a4-cd7205868ed4' where id = '9e94208a-881d-47bc-82c0-4f375471751e';
+
+--remove duty loc Albuquerque, NM 87103
+update orders set new_duty_location_id = '54acfb0e-222b-49eb-b94b-ccb00c6f529c' where new_duty_location_id = '2cc57072-19fa-438b-a44b-e349dff11763';
+
+delete from duty_locations where id = '2cc57072-19fa-438b-a44b-e349dff11763';
