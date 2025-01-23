@@ -114,7 +114,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 				mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
 
 				if shipment.MarketCode == models.MarketCodeInternational {
-					mtoServiceItems, err = models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), shipment.ID, models.MTOServiceItems{*mtoServiceItem})
+					mtoServiceItems, err = h.mtoServiceItemCreator.CreateInternationalMTOServiceItem(appCtx, mtoServiceItem)
 				} else {
 					mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem)
 				}
