@@ -89,7 +89,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			CreateOrders: payload,
 		}
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		createHandler := CreateOrdersHandler{handlerConfig}
@@ -211,7 +211,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			CreateOrders: payload,
 		}
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		createHandler := CreateOrdersHandler{handlerConfig}
@@ -333,7 +333,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			CreateOrders: payload,
 		}
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		createHandler := CreateOrdersHandler{handlerConfig}
@@ -369,7 +369,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 		OrdersID:    *handlers.FmtUUID(order.ID),
 	}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	showHandler := ShowOrdersHandler{handlerConfig}
@@ -404,7 +404,7 @@ func (suite *HandlerSuite) TestPayloadForOrdersModel() {
 		},
 	}, nil)
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 	payload, err := payloadForOrdersModel(fakeS3, order)
 	suite.NoError(err)
@@ -785,7 +785,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			UpdateOrders: payload,
 		}
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
@@ -937,7 +937,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			UpdateOrders: payload,
 		}
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
@@ -1083,7 +1083,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 		UpdateOrders: payload,
 	}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 
@@ -1225,7 +1225,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 		UpdateOrders: payload,
 	}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 

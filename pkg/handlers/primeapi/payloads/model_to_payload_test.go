@@ -33,6 +33,16 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	originDutyGBLOC := "KKFA"
 	shipmentGBLOC := "AGFM"
 
+	backupContacts := models.BackupContacts{}
+	backupContacts = append(backupContacts, models.BackupContact{
+		Name:  "Backup contact name",
+		Phone: "555-555-5555",
+		Email: "backup@backup.com",
+	})
+	serviceMember := models.ServiceMember{
+		BackupContacts: backupContacts,
+	}
+
 	basicMove := models.Move{
 		ID:                      moveTaskOrderID,
 		Locator:                 "TESTTEST",
@@ -40,7 +50,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		AvailableToPrimeAt:      &primeTime,
 		ApprovedAt:              &primeTime,
 		OrdersID:                ordersID,
-		Orders:                  models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC},
+		Orders:                  models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC, ServiceMember: serviceMember},
 		ReferenceID:             &referenceID,
 		PaymentRequests:         models.PaymentRequests{},
 		SubmittedAt:             &submittedAt,
@@ -80,6 +90,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)))
 		suite.Require().NotNil(returnedModel.ExcessWeightUploadID)
 		suite.Equal(strfmt.UUID(basicMove.ExcessWeightUploadID.String()), *returnedModel.ExcessWeightUploadID)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Name, returnedModel.Order.Customer.BackupContact.Name)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Phone, returnedModel.Order.Customer.BackupContact.Phone)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Email, returnedModel.Order.Customer.BackupContact.Email)
 	})
 }
 
@@ -149,7 +162,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 	suite.Require().NoError(err, "Unexpected error when generating new UUID")
 
 	now := time.Now()
-	fakeFileStorer := test.NewFakeS3Storage(true)
+	fakeFileStorer := test.NewFakeS3Storage(true, nil)
 
 	suite.Run("Success - all data populated", func() {
 		// Get stubbed upload with ID and timestamps
@@ -191,7 +204,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 }
 
 func (suite *PayloadsSuite) TestUpload() {
-	fakeFileStorer := test.NewFakeS3Storage(true)
+	fakeFileStorer := test.NewFakeS3Storage(true, nil)
 	// Get stubbed upload with ID and timestamps
 	upload := factory.BuildUpload(nil, []factory.Customization{
 		{

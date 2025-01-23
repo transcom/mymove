@@ -84,7 +84,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		CreateOrders: payload,
 	}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	createHandler := CreateOrderHandler{handlerConfig, waf}
@@ -212,7 +212,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 		CreateOrders: payload,
 	}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	createHandler := CreateOrderHandler{handlerConfig, waf}
