@@ -147,27 +147,44 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	// the parameter value will be 'MILMOVE-enYYYYMMDD.csv' so that it's easy to look at the param value and know
 	// the filepath format needed to grab files from the SFTP server (example filename = MILMOVE-en20241227.csv)
 
-	// customFilePathToProcess := "MILMOVE-enYYYYMMDD.csv" // TODO replace with the line below after param added to AWS
+	customFilePathToProcess := "MILMOVE-enYYYYMMDD.csv" // TODO replace with the line below after param added to AWS
 	// customFilePathToProcess := v.GetString(cli.TODOAddcustomFilePathToProcessParamHere)
 
 	// The param will normally be MILMOVE-enYYYYMMDD.csv, so have a check in this function for if it's MILMOVE-enYYYYMMDD.csv
-	// tppsSFTPFileFormatNoCustomDate := "MILMOVE-enYYYYMMDD.csv"
-	// tppsFilename := ""
-	// if customFilePathToProcess == tppsSFTPFileFormatNoCustomDate {
-	// 	// if customFilePathToProcess = MILMOVE-enYYYYMMDD.csv
-	// 	// process the filename for yesterday's date (like the TPPS lambda does)
-	// 	// the previous day's TPPS payment file should be available on external server
-	// 	yesterday := time.Now().AddDate(0, 0, -1)
-	// 	previousDay := yesterday.Format("20220702")
-	// 	tppsFilename = fmt.Sprintf("MILMOVE-en%s.csv", previousDay)
-	// 	previousDayFormatted := yesterday.Format("July 02, 2022")
-	// 	logger.Info(fmt.Sprintf("Starting transfer of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
-	// } else {
-	// 	// if customFilePathToProcess != MILMOVE-enYYYYMMDD.csv (meaning we have given an ACTUAL specific filename we want processed instead of placeholder MILMOVE-enYYYYMMDD.csv)
-	// 	// then append customFilePathToProcess to the s3 bucket path and process that INSTEAD OF
-	// 	// processing the filename for yesterday's date
-	// 	tppsFilename = customFilePathToProcess
-	// }
+	tppsSFTPFileFormatNoCustomDate := "MILMOVE-enYYYYMMDD.csv"
+	tppsFilename := ""
+	logger.Info(tppsFilename)
+
+	timezone, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		logger.Error("Error loading timezone for process-tpps ECS task", zap.Error(err))
+	}
+
+	yesterday := time.Now().In(timezone).AddDate(0, 0, -1)
+	previousDay := yesterday.Format("20220702")
+	tppsFilename = fmt.Sprintf("MILMOVE-en%s.csv", previousDay)
+	previousDayFormatted := yesterday.Format("July 02, 2022")
+	logger.Info(fmt.Sprintf("Starting transfer of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
+
+	logger.Info(tppsFilename)
+	if customFilePathToProcess == tppsSFTPFileFormatNoCustomDate {
+		logger.Info("No custom filepath provided to process, processing payment file for yesterday's date.")
+		// if customFilePathToProcess = MILMOVE-enYYYYMMDD.csv
+		// process the filename for yesterday's date (like the TPPS lambda does)
+		// the previous day's TPPS payment file should be available on external server
+		yesterday := time.Now().AddDate(0, 0, -1)
+		previousDay := yesterday.Format("20220702")
+		tppsFilename = fmt.Sprintf("MILMOVE-en%s.csv", previousDay)
+		previousDayFormatted := yesterday.Format("July 02, 2022")
+		logger.Info(fmt.Sprintf("Starting transfer of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
+	} else {
+		logger.Info("Custom filepath provided to process")
+		// if customFilePathToProcess != MILMOVE-enYYYYMMDD.csv (meaning we have given an ACTUAL specific filename we want processed instead of placeholder MILMOVE-enYYYYMMDD.csv)
+		// then append customFilePathToProcess to the s3 bucket path and process that INSTEAD OF
+		// processing the filename for yesterday's date
+		tppsFilename = customFilePathToProcess
+		logger.Info(fmt.Sprintf("Starting transfer of TPPS data file: %s\n", tppsFilename))
+	}
 
 	testS3FilePath := "MILMOVE-en20250122.csv"
 	pathTPPSPaidInvoiceReport := s3BucketTPPSPaidInvoiceReport + "/" + testS3FilePath
