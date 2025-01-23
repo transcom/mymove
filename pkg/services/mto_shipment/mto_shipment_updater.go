@@ -855,7 +855,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				return err
 			}
 
-			newShipment.RequestedDeliveryDate = &calculatedRDD
+			newShipment.RequiredDeliveryDate = &calculatedRDD
 		}
 
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
