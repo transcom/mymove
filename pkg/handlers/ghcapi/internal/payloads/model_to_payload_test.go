@@ -642,6 +642,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	dependentsTwelveAndOver := 1
 	authorizedWeight := 8000
 	ubAllowance := 300
+	weightRestriction := 1000
 
 	entitlement := &models.Entitlement{
 		ID:                             entitlementID,
@@ -659,6 +660,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		DependentsTwelveAndOver:        &dependentsTwelveAndOver,
 		UpdatedAt:                      time.Now(),
 		UBAllowance:                    &ubAllowance,
+		WeightRestriction:              &weightRestriction,
 	}
 
 	returnedEntitlement := Entitlement(entitlement)
@@ -680,6 +682,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(models.BoolPointer(accompaniedTour), returnedEntitlement.AccompaniedTour)
 	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
 	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
+	suite.Equal(weightRestriction, int(*returnedEntitlement.WeightRestriction))
 }
 
 func (suite *PayloadsSuite) TestCreateCustomer() {
@@ -717,17 +720,17 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		County:         models.StringPointer("WASHOE"),
 	}
 
-	phone := "444-555-6677"
 	backupContact := models.BackupContact{
 		Name:  "Billy Bob",
 		Email: "billBob@mail.mil",
-		Phone: &phone,
+		Phone: "444-555-6677",
 	}
 
 	firstName := "First"
 	lastName := "Last"
 	affiliation := models.AffiliationARMY
 	email := "dontEmailMe@gmail.com"
+	phone := "444-555-6677"
 	sm := models.ServiceMember{
 		ID:                   id,
 		UserID:               id2,
@@ -1218,6 +1221,51 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
 		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
 		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
+	})
+
+	suite.Run("sets Sort from correct serviceItem", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		reServiceItems := make(models.ReServiceItems, 3)
+		mockReService := models.ReService{
+			ID:             reServiceID,
+			Code:           models.ReServiceCodeUBP,
+			Name:           "Test ReService",
+			ReServiceItems: &reServiceItems,
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeInternational,
+		}
+
+		reServiceItems[0] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeHHG,
+			MarketCode:   models.MarketCodeInternational,
+			Sort:         models.StringPointer("0"),
+		}
+		reServiceItems[1] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeInternational,
+			Sort:         models.StringPointer("1"),
+		}
+		reServiceItems[2] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeDomestic,
+			Sort:         models.StringPointer("2"),
+		}
+
+		mockMtoServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockMtoServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal("1", *result.Sort, "Expected to get the Sort value by matching the correct ReServiceItem using ShipmentType and MarketCode.")
 	})
 }
 

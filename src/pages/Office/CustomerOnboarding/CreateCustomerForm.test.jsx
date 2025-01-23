@@ -736,4 +736,4 @@ describe('CreateCustomerForm', () => {
       });
     });
   }, 50000);
-}, 60000);
+});
