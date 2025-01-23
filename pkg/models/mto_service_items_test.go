@@ -138,3 +138,29 @@ func (suite *ModelSuite) TestValue() {
 		suite.Nil(err)
 	})
 }
+
+func (suite *ModelSuite) GetMTOServiceItemTypeFromServiceItem() {
+	suite.Run("returns service item", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		msServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeMS,
+				},
+			},
+		}, nil)
+
+		returnedShipment := msServiceItem.GetMTOServiceItemTypeFromServiceItem()
+		suite.NotNil(returnedShipment)
+	})
+}
