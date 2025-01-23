@@ -13,10 +13,9 @@ const formatChangedValues = (historyRecord) => {
   };
 
   // Removed unneeded values to avoid clutter in audit log
-  if (newChangedValues.status === 'APPROVED') {
+  if (newChangedValues.status === 'APPROVED' || newChangedValues.status === 'REQUESTED') {
     delete newChangedValues.rejection_reason;
   }
-
   delete newChangedValues.status;
   const newHistoryRecord = { ...historyRecord };
   delete newHistoryRecord.changedValues.status;
@@ -36,7 +35,10 @@ export default {
      * where status would be updated but not rejection_reason
      */
     if (
-      ('rejection_reason' in historyRecord.changedValues && historyRecord.changedValues.rejection_reason !== null) ||
+      ('rejection_reason' in historyRecord.changedValues &&
+        historyRecord.changedValues.rejection_reason !== null &&
+        historyRecord.changedValues.status !== 'APPROVED' &&
+        historyRecord.changedValues.status !== 'REQUESTED') ||
       historyRecord.changedValues.status === 'REJECTED'
     ) {
       actionPrefix = 'Rejected';
