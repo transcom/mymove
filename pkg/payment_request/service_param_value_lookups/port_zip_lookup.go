@@ -28,9 +28,9 @@ func (p PortZipLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItem
 			return "", fmt.Errorf("unable to find shipment with id %s", keyData.mtoShipmentID)
 		}
 		if shipment.ShipmentType == models.MTOShipmentTypePPM && shipment.MarketCode == models.MarketCodeInternational {
-			portLocation, err := models.FetchPortLocationByCode(appCtx.DB(), "3002")
+			portLocation, err := models.FetchPortLocationByCode(appCtx.DB(), "4E1")
 			if err != nil {
-				return "", fmt.Errorf("unable to find port zip with code %s", "3002")
+				return "", fmt.Errorf("unable to find port zip with code %s", "4E1")
 			}
 			return portLocation.UsPostRegionCity.UsprZipID, nil
 		} else {

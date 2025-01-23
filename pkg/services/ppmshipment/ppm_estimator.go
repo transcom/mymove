@@ -769,7 +769,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 // this simulates the reimbursement for an iHHG move with ISLH, IHPK, IHUPK, and CONUS portion of FSC
 func (f *estimatePPM) CalculateOCONUSIncentive(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, pickupAddress models.Address, destinationAddress models.Address, moveDate time.Time, weight int, isEstimated bool, isActual bool, isMax bool) (*unit.Cents, error) {
 	var mileage int
-	ppmPort, err := models.FetchPortLocationByCode(appCtx.DB(), "3002") // Tacoma, WA port
+	ppmPort, err := models.FetchPortLocationByCode(appCtx.DB(), "4E1") // Tacoma, WA port
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch port location: %w", err)
 	}

@@ -81,9 +81,9 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 			}
 		} else {
 			// PPMs get reimbursed for their travel from CONUS <-> Port ZIPs, but only for the Tacoma Port
-			portLocation, err := models.FetchPortLocationByCode(appCtx.DB(), "3002") // Tacoma port code
+			portLocation, err := models.FetchPortLocationByCode(appCtx.DB(), "4E1") // Tacoma port code
 			if err != nil {
-				return "", fmt.Errorf("unable to find port zip with code %s", "3002")
+				return "", fmt.Errorf("unable to find port zip with code %s", "4E1")
 			}
 			if mtoShipment.PPMShipment != nil && mtoShipment.PPMShipment.PickupAddress != nil && mtoShipment.PPMShipment.DestinationAddress != nil {
 				// need to figure out if we are going to go Port -> CONUS or CONUS -> Port

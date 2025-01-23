@@ -33,6 +33,15 @@ WHERE service_item_param_key_id = '4736f489-dfda-4df1-a303-8c434a120d5d';
 DELETE FROM service_item_param_keys
 WHERE key = 'PriceAreaIntlDest';
 
+-- adding port info that PPMs will consume
+INSERT INTO public.ports
+(id, port_code, port_type, port_name, created_at, updated_at)
+VALUES('d8776c6b-bc5e-45d8-ac50-ab60c34c022d'::uuid, '4E1', 'S','TACOMA, PUGET SOUND', now(), now());
+
+INSERT INTO public.port_locations
+(id, port_id, cities_id, us_post_region_cities_id, country_id, is_active, created_at, updated_at)
+VALUES('ee3a97dc-112e-4805-8518-f56f2d9c6cc6'::uuid, 'd8776c6b-bc5e-45d8-ac50-ab60c34c022d'::uuid, 'baaf6ab1-6142-4fb7-b753-d0a142c75baf'::uuid, '86fef297-d61f-44ea-afec-4f679ce686b7'::uuid, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, true, now(), now());
+
 -- func to fetch a service id from re_services by providing the service code
 CREATE OR REPLACE FUNCTION get_service_id(service_code TEXT) RETURNS UUID AS $$
 DECLARE
