@@ -243,6 +243,20 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 	}
 
+	// Load the backup contacts outside of the EagerPreload query, due to issue referenced in
+	// https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#associations-with-3-path-elements-where-the-first-2-path-elements-match
+	if mto.Orders.ServiceMember.ID != uuid.Nil {
+		loadErr := appCtx.DB().Load(&mto.Orders.ServiceMember, "BackupContacts")
+		if loadErr != nil {
+			return &models.Move{}, apperror.NewQueryError("BackupContacts", loadErr, "")
+		}
+		if len(mto.Orders.ServiceMember.BackupContacts) == 0 {
+			appCtx.Logger().Warn("No backup contacts found for service member")
+		} else {
+			appCtx.Logger().Info("Successfully loaded %d backup contacts", zap.Int("count", len(mto.Orders.ServiceMember.BackupContacts)))
+		}
+	}
+
 	// Filtering external vendor shipments in code since we can't do it easily in Pop without a raw query.
 	// Also, due to a Pop bug, we cannot EagerPreload "Reweigh" or "PPMShipment" likely because they are both
 	// a pointer and "has_one" field, so we're loading those here.  This seems similar to other EagerPreload
@@ -337,13 +351,23 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	mto.MTOServiceItems = loadedServiceItems
 
 	if mto.Orders.DestinationGBLOC == nil {
-		newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), mto.Orders.NewDutyLocation.Address.PostalCode)
-		if err != nil {
-			err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
-			appCtx.Logger().Error(err.Error())
-			return &models.Move{}, apperror.NewQueryError("DestinationGBLOC", err, "")
+		var newDutyLocationGBLOC *string
+		if *mto.Orders.NewDutyLocation.Address.IsOconus {
+			newDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), mto.Orders.NewDutyLocation.Address, mto.Orders.ServiceMember)
+			if err != nil {
+				return nil, apperror.NewNotFoundError(mto.Orders.NewDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
+			}
+			newDutyLocationGBLOC = newDutyLocationGBLOCOconus
+		} else {
+			newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), mto.Orders.NewDutyLocation.Address.PostalCode)
+			if err != nil {
+				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return &models.Move{}, apperror.NewQueryError("DestinationGBLOC", err, "")
+			}
+			newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
 		}
-		mto.Orders.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
+		mto.Orders.DestinationGBLOC = newDutyLocationGBLOC
 	}
 
 	return mto, nil

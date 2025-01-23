@@ -31,6 +31,7 @@ type FileStorer interface {
 	FileSystem() *afero.Afero
 	TempFileSystem() *afero.Afero
 	Tags(string) (map[string]string, error)
+	StorageType() string
 }
 
 // ComputeChecksum calculates the SHA256 checksum for the provided data. It expects that
