@@ -1474,7 +1474,6 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - shipment
-        - shipment_address_updates
       description: >-
         This endpoint is used to approve a address update request. Office
         remarks are required. Approving the address update will update the
@@ -4289,7 +4288,7 @@ paths:
         - transportationOffice
       responses:
         '200':
-          description: Successfully retrieved GBLOCs
+          description: Successfully retrieved transportation offices
           schema:
             $ref: '#/definitions/GBLOCs'
         '400':
@@ -5270,6 +5269,11 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      weightRestriction:
+        type: integer
+        example: 1500
+        x-formatting: weight
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -6215,6 +6219,13 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the weight restriction for the move to a particular
+          location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6318,6 +6329,11 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: Indicates the weight restriction for a move to a particular location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -8165,14 +8181,14 @@ definitions:
         type: string
         format: date-time
         readOnly: true
-  TransportationOffices:
-    type: array
-    items:
-      $ref: '#/definitions/TransportationOffice'
   ReServiceItems:
     type: array
     items:
       $ref: '#/definitions/ReServiceItem'
+  TransportationOffices:
+    type: array
+    items:
+      $ref: '#/definitions/TransportationOffice'
   VLocations:
     type: array
     items:

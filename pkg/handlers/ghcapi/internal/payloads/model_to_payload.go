@@ -747,6 +747,11 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.UBAllowance != nil {
 		ubAllowance = models.Int64Pointer(int64(*entitlement.UBAllowance))
 	}
+	var weightRestriction *int64
+	if entitlement.WeightRestriction != nil {
+		weightRestriction = models.Int64Pointer(int64(*entitlement.WeightRestriction))
+	}
+
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -764,8 +769,9 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		AccompaniedTour:                accompaniedTour,
 		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		GunSafe: gunSafe,
-		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe:           gunSafe,
+		WeightRestriction: weightRestriction,
+		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
