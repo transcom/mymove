@@ -9,15 +9,18 @@ import (
 )
 
 type TPPSPaidInvoiceSuite struct {
-	testingsuite.BaseTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestTPPSPaidInvoiceSuite(t *testing.T) {
-	hs := &TPPSPaidInvoiceSuite{}
+	ts := &TPPSPaidInvoiceSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction()),
+	}
 
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }
-
 func (suite *TPPSPaidInvoiceSuite) TestParse() {
 
 	suite.Run("successfully parse simple TPPS Paid Invoice string", func() {
@@ -32,7 +35,7 @@ func (suite *TPPSPaidInvoiceSuite) TestParse() {
 `
 
 		tppsPaidInvoice := TPPSData{}
-		tppsEntries, err := tppsPaidInvoice.Parse("", sampleTPPSPaidInvoiceString)
+		tppsEntries, err := tppsPaidInvoice.Parse(suite.AppContextForTest(), "", sampleTPPSPaidInvoiceString)
 		suite.NoError(err, "Successful parse of TPPS Paid Invoice string")
 		suite.Equal(len(tppsEntries), 5)
 

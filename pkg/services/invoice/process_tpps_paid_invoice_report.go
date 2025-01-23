@@ -63,7 +63,7 @@ func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 
 	appCtx.Logger().Info(fmt.Sprintf("Processing filepath: %s\n", TPPSPaidInvoiceReportFilePath))
 
-	tppsData, err := tppsPaidInvoiceReport.Parse(TPPSPaidInvoiceReportFilePath, "")
+	tppsData, err := tppsPaidInvoiceReport.Parse(appCtx, TPPSPaidInvoiceReportFilePath, "")
 	if err != nil {
 		appCtx.Logger().Error("unable to parse TPPS paid invoice report", zap.Error(err))
 		return fmt.Errorf("unable to parse TPPS paid invoice report")
