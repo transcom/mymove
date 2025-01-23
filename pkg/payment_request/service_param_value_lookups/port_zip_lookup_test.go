@@ -85,11 +85,11 @@ func (suite *ServiceParamValueLookupsSuite) TestPortZipLookup() {
 		suite.Equal(portZip, port.UsPostRegionCity.UsprZipID)
 	})
 
-	suite.Run("success - returns PortZip value for Port Code 3002 for PPMs", func() {
+	suite.Run("success - returns PortZip value for Port Code 4E1 for PPMs", func() {
 		port := factory.FetchPortLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.Port{
-					PortCode: "3002",
+					PortCode: "4E1",
 				},
 			},
 		}, nil)
