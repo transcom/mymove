@@ -24,7 +24,7 @@ func priceInternationalShuttling(appCtx appcontext.AppContext, shuttlingCode mod
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if weight < minDomesticWeight {
+	if weight < minInternationalWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minInternationalWeight)
 	}
 	if market == "" {
