@@ -152,3 +152,7 @@ func NewFilesystemHandler(fs afero.Fs, root string) http.HandlerFunc {
 		http.ServeContent(w, r, input, info.ModTime(), f)
 	}
 }
+
+func (_ *Filesystem) StorageType() string {
+	return "Filesystem"
+}
