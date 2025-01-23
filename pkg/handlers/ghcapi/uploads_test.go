@@ -41,7 +41,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	t := suite.T()
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	document, params := createPrereqs(suite, FixturePDF)
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	t := suite.T()
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	_, params := createPrereqs(suite, FixturePDF)
 
 	// Create a user that is not associated with the move
@@ -91,7 +91,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	t := suite.T()
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	document, params := createPrereqs(suite, FixturePDF)
 
 	// Make a document ID that is not actually associated with a document
@@ -117,7 +117,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	t := suite.T()
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	document, params := createPrereqs(suite, FixturePDF)
 
 	params.File = suite.Fixture("empty.pdf")
@@ -138,7 +138,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	t := suite.T()
-	fakeS3 := storageTest.NewFakeS3Storage(false)
+	fakeS3 := storageTest.NewFakeS3Storage(false, nil)
 	document, params := createPrereqs(suite, FixturePDF)
 
 	currentCount, countErr := suite.DB().Count(&models.Upload{})
