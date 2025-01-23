@@ -160,7 +160,7 @@ func (suite *FactorySuite) TestBuildPrimeUpload() {
 		// Mocked:          None
 		// Set up:          Create an upload with an uploader and default file
 		// Expected outcome:Upload filename should be the default file
-		storer := storageTest.NewFakeS3Storage(true)
+		storer := storageTest.NewFakeS3Storage(true, nil)
 		primeUploader, err := uploader.NewPrimeUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 
@@ -195,7 +195,7 @@ func (suite *FactorySuite) TestBuildPrimeUpload() {
 		// Set up:          Create a prime upload with a user uploader
 		//                  but no appcontext
 		// Expected outcome:Should cause a panic
-		storer := storageTest.NewFakeS3Storage(true)
+		storer := storageTest.NewFakeS3Storage(true, nil)
 		primeUploader, err := uploader.NewPrimeUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 
@@ -217,7 +217,7 @@ func (suite *FactorySuite) TestBuildPrimeUpload() {
 		// Mocked:          None
 		// Set up:          Create a prime upload with a specific file
 		// Expected outcome:PrimeUpload should be created with default values
-		storer := storageTest.NewFakeS3Storage(true)
+		storer := storageTest.NewFakeS3Storage(true, nil)
 		primeUploader, err := uploader.NewPrimeUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 
