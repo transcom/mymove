@@ -296,6 +296,7 @@ func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 // logger is the application logger.
 func InitDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 
+	logger.Info("initializing DB in InitDatabase")
 	dbEnv := v.GetString(DbEnvFlag)
 	dbName := v.GetString(DbNameFlag)
 	dbHost := v.GetString(DbHostFlag)
