@@ -150,13 +150,12 @@ func AddPricingEstimatesToMTOServiceItems(appCtx appcontext.AppContext, shipment
 		} else {
 			estimatedWeightToUse = *mtoShipmentCopy.PrimeEstimatedWeight
 		}
-		originalWeight := estimatedWeightToUse
 
 		serviceItemEstimatedPrice, err := shipmentUpdater.mtoServiceItemCreator.FindEstimatedPrice(appCtx, &serviceItem, *mtoShipment)
 
 		// store actual captured weight
-		mtoShipmentCopy.MTOServiceItems[index].EstimatedWeight = &originalWeight
-		mtoShipmentCopy.PrimeEstimatedWeight = &originalWeight
+		mtoShipmentCopy.MTOServiceItems[index].EstimatedWeight = &estimatedWeightToUse
+		mtoShipmentCopy.PrimeEstimatedWeight = &estimatedWeightToUse
 
 		if serviceItemEstimatedPrice != 0 && err == nil {
 			mtoShipmentCopy.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
