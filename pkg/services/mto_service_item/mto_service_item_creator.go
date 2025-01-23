@@ -57,9 +57,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 		currTime := time.Now()
 		var distance int
 
-		if *mtoShipment.PrimeEstimatedWeight < 500 && *mtoShipment.PrimeEstimatedWeight > 0 {
-			*mtoShipment.PrimeEstimatedWeight = 500
-		}
+		adjustedWeight := GetAdjustedWeight(*mtoShipment.PrimeEstimatedWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
 
 		contractCode, err := FetchContractCode(appCtx, currTime)
 		if err != nil {
@@ -78,7 +76,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 
-			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -91,7 +89,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 
 			servicesScheduleOrigin := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, servicesScheduleOrigin, isPPM)
+			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, servicesScheduleOrigin, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -106,7 +104,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -119,7 +117,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 
 			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, serviceScheduleDestination, isPPM)
+			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, serviceScheduleDestination, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -137,7 +135,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = o.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = o.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *adjustedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -153,7 +151,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea)
+			price, _, err = o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *adjustedWeight, domesticServiceArea.ServiceArea)
 			if err != nil {
 				return 0, err
 			}
@@ -177,7 +175,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, *mtoShipment.PrimeEstimatedWeight)
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, *adjustedWeight)
 			if err != nil {
 				return 0, err
 			}
@@ -189,7 +187,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 			if err != nil {
 				return 0, err
 			}
-			price, _, err = o.fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+			price, _, err = o.fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), *adjustedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -940,4 +938,23 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 	}
 
 	return &extraServiceItems, nil
+}
+
+// Get Adjusted weight for pricing. Returns the weight at 110% or the minimum billable weight whichever is higher, unless it's 0
+func GetAdjustedWeight(incomingWeight unit.Pound, isUB bool) *unit.Pound {
+	// minimum weight billed by GHC is 500 lbs unless it's Unaccompanied Baggage (UB)
+	minimumBilledWeight := unit.Pound(500)
+	if isUB {
+		minimumBilledWeight = unit.Pound(300)
+	}
+
+	// add 110% modifier to billable weight
+	newWeight := (int(incomingWeight.Float64() * 1.1))
+	adjustedWeight := (*unit.Pound)(&newWeight)
+
+	// if the adjusted weight is less than the minimum billable weight but is nonzero, set it to the minimum weight billed
+	if *adjustedWeight < minimumBilledWeight && *adjustedWeight > 0 {
+		*adjustedWeight = minimumBilledWeight
+	}
+	return adjustedWeight
 }

@@ -1840,3 +1840,66 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "reServiceCode")
 	})
 }
+func (suite *MTOServiceItemServiceSuite) TestGetAdjustedWeight() {
+	suite.Run("If no weight is provided", func() {
+		var incomingWeight unit.Pound
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(0), *adjustedWeight)
+	})
+	suite.Run("If a weight of 0 is provided", func() {
+		incomingWeight := unit.Pound(0)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(0), *adjustedWeight)
+	})
+	suite.Run("If weight of 100 is provided", func() {
+		incomingWeight := unit.Pound(100)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(500), *adjustedWeight)
+	})
+	suite.Run("If weight of 454 is provided", func() {
+		incomingWeight := unit.Pound(454)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(500), *adjustedWeight)
+	})
+	suite.Run("If weight of 456 is provided", func() {
+		incomingWeight := unit.Pound(456)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(501), *adjustedWeight)
+	})
+	suite.Run("If weight of 1000 is provided", func() {
+		incomingWeight := unit.Pound(1000)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(1100), *adjustedWeight)
+	})
+
+	suite.Run("If no weight is provided UB", func() {
+		var incomingWeight unit.Pound
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(0), *adjustedWeight)
+	})
+	suite.Run("If a weight of 0 is provided UB", func() {
+		incomingWeight := unit.Pound(0)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(0), *adjustedWeight)
+	})
+	suite.Run("If weight of 100 is provided UB", func() {
+		incomingWeight := unit.Pound(100)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(300), *adjustedWeight)
+	})
+	suite.Run("If weight of 272 is provided UB", func() {
+		incomingWeight := unit.Pound(272)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(300), *adjustedWeight)
+	})
+	suite.Run("If weight of 274 is provided UB", func() {
+		incomingWeight := unit.Pound(274)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(301), *adjustedWeight)
+	})
+	suite.Run("If weight of 1000 is provided UB", func() {
+		incomingWeight := unit.Pound(1000)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(1100), *adjustedWeight)
+	})
+}
