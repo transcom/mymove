@@ -3,7 +3,9 @@ package models_test
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestReRateAreaValidation() {
@@ -26,5 +28,23 @@ func (suite *ModelSuite) TestReRateAreaValidation() {
 			"name":        {"Name can not be blank."},
 		}
 		suite.verifyValidationErrors(&emptyReRateArea, expErrors)
+	})
+}
+
+func (suite *ModelSuite) TestFetchRateAreaID() {
+	suite.Run("success - fetching a rate area ID", func() {
+		service := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIHPK)
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		address := factory.BuildAddress(suite.DB(), nil, nil)
+		rateAreaId, err := models.FetchRateAreaID(suite.DB(), address.ID, &service.ID, contract.ID)
+		suite.NotNil(rateAreaId)
+		suite.NoError(err)
+	})
+
+	suite.Run("fail - receive error when not all values are provided", func() {
+		address := factory.BuildAddress(suite.DB(), nil, nil)
+		rateAreaId, err := models.FetchRateAreaID(suite.DB(), address.ID, nil, uuid.Nil)
+		suite.Equal(uuid.Nil, rateAreaId)
+		suite.Error(err)
 	})
 }

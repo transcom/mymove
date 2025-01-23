@@ -162,8 +162,11 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
   return (
     <>
       <div className={styles.title}>
-        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>SIT EXTENSION REQUESTED</Tag>}</p>
-        {!pendingSITExtension && isConvertedToCustomerExpense && <Tag>Converted To Customer Expense</Tag>}
+        <p>
+          SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>SIT EXTENSION REQUESTED</Tag>}
+          {!pendingSITExtension && isConvertedToCustomerExpense && <Tag>Converted To Customer Expense</Tag>}
+        </p>
+
         {sitStatus.currentSIT &&
           !pendingSITExtension &&
           showConvertToCustomerExpense &&

@@ -50,6 +50,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveNeedsSC(appCtx)
 	},
+	"HHGMoveNeedsSCOtherGBLOC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveNeedsSCOtherGBLOC(appCtx)
+	},
 	"HHGMoveAsUSMCNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveNeedsServicesCounselingUSMC(appCtx)
 	},
@@ -262,6 +265,12 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"OfficeUserWithGSR": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithGSR(appCtx)
+	},
+	"InternationalAlaskaBasicHHGMoveForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeInternationalAlaskaBasicHHGMoveForTOO(appCtx)
+	},
+	"InternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx)
 	},
 }
 
