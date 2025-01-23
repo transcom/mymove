@@ -44,7 +44,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					UsesExternalVendor: true,
 				},
 			},
@@ -82,7 +82,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					UsesExternalVendor: true,
 					Status:             models.MTOShipmentStatusApproved,
 				},
@@ -134,7 +134,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					UsesExternalVendor: true,
 					Status:             models.MTOShipmentStatusApproved,
 				},

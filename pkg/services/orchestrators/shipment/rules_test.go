@@ -22,7 +22,7 @@ func (suite *ShipmentSuite) TestCheckShipmentType() {
 	validShipmentTypes := []models.MTOShipmentType{
 		models.MTOShipmentTypeHHG,
 		models.MTOShipmentTypeHHGIntoNTS,
-		models.MTOShipmentTypeHHGOutOfNTSDom,
+		models.MTOShipmentTypeHHGOutOfNTS,
 		models.MTOShipmentTypePPM,
 	}
 
