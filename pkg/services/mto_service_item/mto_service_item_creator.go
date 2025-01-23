@@ -335,6 +335,7 @@ func (o *mtoServiceItemCreator) CreateInternationalMTOServiceItem(appCtx appcont
 		return nil, apperror.NewInvalidInputError(uuid.Nil, err, nil, err.Error())
 	}
 
+	//Add validation and business logic for international SIT service item and others before this line
 	mtoServiceItems, err := models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), *serviceItem.MTOShipmentID, models.MTOServiceItems{*serviceItem})
 	if err != nil {
 		return nil, err
