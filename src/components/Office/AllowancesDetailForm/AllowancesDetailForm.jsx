@@ -171,7 +171,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
         isDisabled={formIsDisabled}
       />
       <dl>
-        <dt>Standard Weight allowance</dt>
+        <dt>Standard weight allowance</dt>
         <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
       </dl>
       <div className={styles.wrappedCheckbox}>

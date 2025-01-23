@@ -34,7 +34,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dd data-testid="branch">{info.branch ? ORDERS_BRANCH_OPTIONS[info.branch] : ''}</dd>
         </div>
         <div className={descriptionListStyles.row}>
-          <dt>Weight allowance</dt>
+          <dt>Standard weight allowance</dt>
           <dd data-testid="weightAllowance">{formatWeight(info.totalWeight)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
