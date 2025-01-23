@@ -105,7 +105,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
         </div>
         <div className={visualCuesStyle}>
           <dt>Admin Weight Restricted Location</dt>
-          <dd data-testid="weightRestriction">{info.weightRestriction > 0 ? 'Yes' : 'No'}</dd>
+          <dd data-testid="adminRestrictedWtLoc">{info.weightRestriction > 0 ? 'Yes' : 'No'}</dd>
         </div>
 
         <div className={visualCuesStyle}>
