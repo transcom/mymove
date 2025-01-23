@@ -180,7 +180,6 @@ func Entitlement(entitlement *models.Entitlement) *primev2messages.Entitlements 
 		UnaccompaniedBaggageAllowance:  &ubAllowance,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
 		GunSafe:                        entitlement.GunSafe,
-		AdminRestrictedWeightLocation:  entitlement.AdminRestrictedWeightLocation,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  int64(entitlement.ProGearWeight),

@@ -176,7 +176,7 @@ describe('AllowancesList', () => {
     expect(screen.getByTestId('unaccompaniedBaggageAllowance')).toBeInTheDocument();
     expect(screen.getByTestId('unaccompaniedBaggageAllowance').textContent).toEqual('400 lbs');
   });
-  it('renders unauthorized ocie', () => {
+  it('renders unauthorized weight restriction', () => {
     const adminRestrictedWtLoc = { ...info, adminRestrictedWeightLocation: true };
     render(<AllowancesList info={adminRestrictedWtLoc} />);
     expect(screen.getByTestId('weightRestriction').textContent).toEqual('1,000 lbs');

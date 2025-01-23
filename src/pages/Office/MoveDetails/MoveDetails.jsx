@@ -430,7 +430,6 @@ const MoveDetails = ({
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
-    adminRestrictedWeightLocation: allowances.adminRestrictedWeightLocation,
     weightRestriction: allowances.weightRestriction,
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,

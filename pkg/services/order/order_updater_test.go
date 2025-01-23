@@ -775,7 +775,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		proGearWeightSpouse := models.Int64Pointer(10)
 		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
-		adminrestrictedweight := models.BoolPointer(true)
 		weightRestriction := models.Int64Pointer(5000)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
@@ -786,7 +785,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
-			AdminRestrictedWeightLocation:  adminrestrictedweight,
 			WeightRestriction:              weightRestriction,
 		}
 
@@ -808,7 +806,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
-		suite.Equal(payload.AdminRestrictedWeightLocation, models.BoolPointer(updatedOrder.Entitlement.AdminRestrictedWeightLocation))
 		suite.Equal(*payload.WeightRestriction, int64(*updatedOrder.Entitlement.WeightRestriction))
 	})
 

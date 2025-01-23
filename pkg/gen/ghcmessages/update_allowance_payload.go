@@ -23,9 +23,6 @@ type UpdateAllowancePayload struct {
 	// Example: true
 	AccompaniedTour *bool `json:"accompaniedTour,omitempty"`
 
-	// Indicates if the customer is restricted to a specific location for their admin restricted weight.
-	AdminRestrictedWeightLocation *bool `json:"adminRestrictedWeightLocation,omitempty"`
-
 	// agency
 	Agency *Affiliation `json:"agency,omitempty"`
 
