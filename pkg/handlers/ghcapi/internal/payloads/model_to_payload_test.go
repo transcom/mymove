@@ -1500,6 +1500,7 @@ func (suite *PayloadsSuite) TestPaymentServiceItemsPayload() {
 		suite.Equal(string(reServiceCode1), psItem1.MtoServiceItemCode)
 		suite.Equal(reServiceName1, psItem1.MtoServiceItemName)
 		suite.Equal(ghcmessages.MTOShipmentType(shipmentType), psItem1.MtoShipmentType)
+		suite.NotNil(psItem1.TppsInvoiceAmountPaidPerServiceItemMillicents)
 
 		psItem2 := (*returnedPaymentServiceItems)[1]
 		suite.Equal(handlers.FmtUUID(psID2), &psItem2.ID)
