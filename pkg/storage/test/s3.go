@@ -96,7 +96,6 @@ func (fake *FakeS3Storage) TempFileSystem() *afero.Afero {
 // Tags returns the tags for a specified key
 func (fake *FakeS3Storage) Tags(_ string) (map[string]string, error) {
 	tags := map[string]string{
-		"tagName":   "tagValue",
 		"av-status": "CLEAN", // Assume anti-virus run
 	}
 	if fake.EmptyTags {
