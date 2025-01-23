@@ -347,28 +347,28 @@ table {
 }
 
 // For displaying payment request details/rows in Storybook
-.table--stacked {
-  width: 100%;
-  table-layout: fixed;
-  th {
-    @include u-font-weight(bold);
-    @include u-font-size('body', '3xs');
-    color: $base-darker;
-    border-top: 0;
-
-    &:not(:first-child) {
-      text-align: right;
-    }
-  }
-
-  td:not(:first-child) {
-    @include u-font-weight(bold);
-    text-align: right;
-  }
-}
-
-.gridContainer {
+.expandableServiceItemRow {
   .shipmentCard {
     @include u-padding-left(4);
+  }
+
+  .table--stacked {
+    width: 100%;
+    table-layout: fixed;
+    th {
+      @include u-font-weight(bold);
+      @include u-font-size('body', '3xs');
+      color: $base-darker;
+      border-top: 0;
+
+      &:not(:first-child) {
+        text-align: right;
+      }
+    }
+
+    td:not(:first-child) {
+      @include u-font-weight(bold);
+      text-align: right;
+    }
   }
 }
