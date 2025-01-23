@@ -146,6 +146,41 @@ func (suite *MTOServiceItemServiceSuite) buildValidDOSHUTServiceItemWithValidMov
 	return serviceItem
 }
 
+func (suite *MTOServiceItemServiceSuite) buildValidIOSHUTServiceItemWithValidMove() models.MTOServiceItem {
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	reServiceIOSHUT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIOSHUT)
+
+	estimatedPrimeWeight := unit.Pound(6000)
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedPrimeWeight,
+				MarketCode:           models.MarketCodeInternational,
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(4200)
+	actualWeight := unit.Pound(4000)
+
+	serviceItem := models.MTOServiceItem{
+		MoveTaskOrderID: move.ID,
+		MoveTaskOrder:   move,
+		ReService:       reServiceIOSHUT,
+		MTOShipmentID:   &shipment.ID,
+		MTOShipment:     shipment,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+		Status:          models.MTOServiceItemStatusSubmitted,
+	}
+
+	return serviceItem
+}
+
 func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndValidMove() models.MTOServiceItem {
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	dimension := models.MTOServiceItemDimension{
@@ -2441,4 +2476,83 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		suite.Equal(unit.Cents(-335), fscEstimatedPriceInCents)
 	})
 
+}
+
+func (suite *MTOServiceItemServiceSuite) TestCreateInternationalMTOServiceItem() {
+
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+		false,
+		false,
+	).Return(400, nil)
+	creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+	suite.Run("200 Success - SHUT Service Item Creation", func() {
+		shutServiceItem := suite.buildValidIOSHUTServiceItemWithValidMove()
+		shutMove := shutServiceItem.MoveTaskOrder
+
+		createdServiceItem, err := creator.CreateInternationalMTOServiceItem(suite.AppContextForTest(), &shutServiceItem)
+
+		var foundMove models.Move
+		suite.DB().Find(&foundMove, shutMove.ID)
+
+		suite.NoError(err)
+		suite.NotNil(createdServiceItem)
+
+		createdServiceItemList := *createdServiceItem
+		suite.Require().Equal(len(createdServiceItemList), 1)
+		suite.Equal(unit.Pound(4200), *createdServiceItemList[0].EstimatedWeight)
+		suite.Equal(unit.Pound(4000), *createdServiceItemList[0].ActualWeight)
+	})
+
+	suite.Run("moveID not found", func() {
+		notFoundID := uuid.Must(uuid.NewV4())
+		serviceItemNoMTO := models.MTOServiceItem{
+			MoveTaskOrderID: notFoundID,
+		}
+
+		createdServiceItemsNoMTO, err := creator.CreateInternationalMTOServiceItem(suite.AppContextForTest(), &serviceItemNoMTO)
+		suite.Nil(createdServiceItemsNoMTO)
+		suite.Error(err)
+	})
+
+	suite.Run("reServiceCode not found", func() {
+		sitServiceItem := suite.buildValidDDFSITServiceItemWithValidMove()
+		sitMove := sitServiceItem.MoveTaskOrder
+
+		fakeCode := models.ReServiceCode("FAKE")
+		serviceItemBadCode := models.MTOServiceItem{
+			MoveTaskOrderID: sitMove.ID,
+			MoveTaskOrder:   sitMove,
+			ReService: models.ReService{
+				Code: fakeCode,
+			},
+		}
+
+		createdServiceItemsBadCode, err := creator.CreateInternationalMTOServiceItem(suite.AppContextForTest(), &serviceItemBadCode)
+		suite.Nil(createdServiceItemsBadCode)
+		suite.Error(err)
+	})
+
+	suite.Run("mtoShipmentID not found", func() {
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		reService := factory.FetchReServiceByCode(suite.DB(), "ANY")
+		serviceItemBadShip := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			MTOShipmentID:   &shipment.ID,
+			MTOShipment:     shipment,
+			ReService:       reService,
+		}
+
+		serviceItem, err := creator.CreateInternationalMTOServiceItem(suite.AppContextForTest(), &serviceItemBadShip)
+		suite.Nil(serviceItem)
+		suite.Error(err)
+	})
 }
