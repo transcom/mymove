@@ -1,6 +1,12 @@
 import { selectEntitlements } from './entitlements';
 
 describe('entitlements', () => {
+  describe('when I am not logged in', () => {
+    it('should return an empty object', () => {
+      const entitlements = selectEntitlements();
+      expect(entitlements).toEqual({});
+    });
+  });
   describe('when I have dependents', () => {
     describe('when my spouse has pro gear', () => {
       it('should include spouse progear', () => {
