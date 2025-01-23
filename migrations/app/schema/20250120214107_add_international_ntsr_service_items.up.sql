@@ -10,8 +10,10 @@ VALUES
     ('db2106c8-887c-4304-aad2-c7413de13cc4', '388115e8-abe9-441d-96cf-a39f24baa0a3' ,'HHG_OUTOF_NTS', 'i', true, now(), now(), 2),
 	--POEFSC International POD Fuel Surcharge
     ('509a491d-cddd-476c-9ba0-65077cf93e58', 'f75758d8-2fcd-40ba-9432-3ff3032a71d1' ,'HHG_OUTOF_NTS', 'i', true, now(), now(), 2),
+	--IHUPK International HHG unpack
+    ('89c6c283-4666-46c6-91ee-8041db7f88a7', '56e91c2d-015d-4243-9657-3ed34867abaa' ,'HHG_OUTOF_NTS', 'i', true, now(), now(), 3),
     --INPK International NTS packing
-    ('4d348ec0-a278-4038-b061-6a4e17ea6721', '874cb86a-bc39-4f57-a614-53ee3fcacf14' ,'HHG_OUTOF_NTS', 'i', true, now(), now(), 3),
+    ('4d348ec0-a278-4038-b061-6a4e17ea6721', '874cb86a-bc39-4f57-a614-53ee3fcacf14' ,'HHG_OUTOF_NTS', 'i', false, now(), now(), NULL),
     --ICRT International crating
     ('b8f4e434-0912-44c5-b824-c60e5c5dffee', '86203d72-7f7c-49ff-82f0-5b95e4958f60' ,'HHG_OUTOF_NTS', 'i', false, now(), now(), NULL),
     --IDASIT International destination add'l day SIT
