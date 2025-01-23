@@ -77,6 +77,20 @@ func (u *additionalDocumentsUploader) additionalDoc(appCtx appcontext.AppContext
 	var err error
 	savedAdditionalDoc := move.AdditionalDocuments
 	if move.AdditionalDocuments == nil {
+		// So I'm not the code owner, but I believe I see the architecture here.
+		// Noting for future devs.
+		// This seems to create an entry in the documents table tied to a service member.
+		// This is just a "container" / "holder". This is needed because when the actual file
+		// binaries get uploaded, in case it's multiple uploads for a single file they can track
+		// back to a single entry.
+		// So in attempted simplified terms, we just create a new document container/tracker,
+		// tie it to the service member that uploaded it,
+		// and then when the second half of the function executes we'll actually upload the file binary and foreign key
+		// the uploads to this document entry. Then in the future the uploaded document can be fetched
+		// by this container ID.
+		// OOORRRR, if the move already has the ID. Then we'll just upload an additional document under the original
+		// document container/tracker.
+		// - Cam
 		additionalDocument := &models.Document{
 			ServiceMemberID: serviceMemberID,
 		}

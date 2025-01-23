@@ -162,7 +162,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 	suite.Require().NoError(err, "Unexpected error when generating new UUID")
 
 	now := time.Now()
-	fakeFileStorer := test.NewFakeS3Storage(true)
+	fakeFileStorer := test.NewFakeS3Storage(true, nil)
 
 	suite.Run("Success - all data populated", func() {
 		// Get stubbed upload with ID and timestamps
@@ -204,7 +204,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 }
 
 func (suite *PayloadsSuite) TestUpload() {
-	fakeFileStorer := test.NewFakeS3Storage(true)
+	fakeFileStorer := test.NewFakeS3Storage(true, nil)
 	// Get stubbed upload with ID and timestamps
 	upload := factory.BuildUpload(nil, []factory.Customization{
 		{
@@ -351,6 +351,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			ProGearWeightSpouse: 750,
 			CreatedAt:           time.Now(),
 			UpdatedAt:           time.Now(),
+			WeightRestriction:   models.IntPointer(1000),
 		}
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
@@ -373,6 +374,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(true, payload.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(int64(1000), payload.ProGearWeight)
 		suite.Equal(int64(750), payload.ProGearWeightSpouse)
+		suite.Equal(int64(1000), *payload.WeightRestriction)
 		suite.NotEmpty(payload.ETag)
 		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
 	})

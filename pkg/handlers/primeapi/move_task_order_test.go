@@ -1572,7 +1572,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 	request := httptest.NewRequest("POST", "/move-task-orders/{moveTaskOrderID}", nil)
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 	suite.Run("Success - Created an excess weight record", func() {
 		handlerConfig := suite.HandlerConfig()
@@ -1736,7 +1736,6 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(400, nil)
 
 		setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -1821,7 +1820,6 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(400, nil)
 
