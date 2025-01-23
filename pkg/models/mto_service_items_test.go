@@ -139,7 +139,7 @@ func (suite *ModelSuite) TestValue() {
 	})
 }
 
-func (suite *ModelSuite) GetMTOServiceItemTypeFromServiceItem() {
+func (suite *ModelSuite) TestGetMTOServiceItemTypeFromServiceItem() {
 	suite.Run("returns service item", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
