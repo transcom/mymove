@@ -43,7 +43,7 @@ func (suite *GHCRateEngineServiceSuite) TestIsPeakPeriod() {
 }
 
 func (suite *GHCRateEngineServiceSuite) TestGetDomesticWeight() {
-	suite.Run("Test Domestic Weight", func() {
+	suite.Run("test getDomesticWeight", func() {
 		domesticWeight := GetMinDomesticWeight()
 		suite.NotNil(domesticWeight)
 		suite.Equal(domesticWeight, unit.Pound(500))
