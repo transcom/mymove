@@ -9527,6 +9527,11 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sort": {
+          "description": "Sort order for service items to be displayed for a given shipment type.",
+          "type": "string",
+          "x-nullable": true
+        },
         "standaloneCrate": {
           "type": "boolean",
           "x-nullable": true
@@ -26662,6 +26667,11 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "sort": {
+          "description": "Sort order for service items to be displayed for a given shipment type.",
+          "type": "string",
           "x-nullable": true
         },
         "standaloneCrate": {
