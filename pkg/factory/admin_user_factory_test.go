@@ -212,6 +212,7 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 	})
 }
 func (suite *FactorySuite) TestSuperBuildAdminUser() {
+	defaultEmail := "first.last@okta.mil"
 	suite.Run("Successful creation of super admin user", func() {
 		// Under test:      BuildSuperAdminUser
 		// Mocked:          None
@@ -226,11 +227,28 @@ func (suite *FactorySuite) TestSuperBuildAdminUser() {
 		}
 
 		adminUser := BuildSuperAdminUser(suite.DB(), nil, nil)
+		suite.Equal(defaultEmail, adminUser.User.OktaEmail)
 		suite.Equal(defaultAdmin.FirstName, adminUser.FirstName)
 		suite.Equal(defaultAdmin.LastName, adminUser.LastName)
 		suite.Equal(defaultAdmin.Email, adminUser.Email)
 		suite.Equal(defaultAdmin.Role, adminUser.Role)
 		suite.Equal(defaultAdmin.Super, adminUser.Super)
+		suite.True(adminUser.User.Active)
+	})
+
+	suite.Run("Successful creation of a super adminUser with trait", func() {
+		// Under test:      BuildSuperAdminUser
+		// Mocked:          None
+		// Set up:          Create a User but pass in a trait that sets
+		//                  both the adminuser and user email to a random
+		//                  value, as adminuser has uniqueness constraints
+		// Expected outcome:AdminUser should have the same random email as User
+
+		adminUser := BuildSuperAdminUser(suite.DB(), nil, []Trait{
+			GetTraitAdminUserEmail,
+		})
+		suite.Equal(adminUser.Email, adminUser.User.OktaEmail)
+		suite.True(adminUser.User.Active)
 	})
 
 	suite.Run("Successful creation of user with customization", func() {
@@ -259,5 +277,6 @@ func (suite *FactorySuite) TestSuperBuildAdminUser() {
 		suite.Equal(customAdmin.FirstName, adminUser.FirstName)
 		suite.Equal(customAdmin.LastName, adminUser.LastName)
 		suite.Equal(customAdmin.Role, adminUser.Role)
+		suite.True(adminUser.User.Active)
 	})
 }
