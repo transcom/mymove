@@ -142,3 +142,7 @@ func NewMemoryHandler(root string) http.HandlerFunc {
 		http.ServeFile(w, r, input)
 	})
 }
+
+func (_ *Memory) StorageType() string {
+	return "Memory"
+}
