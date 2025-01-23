@@ -775,6 +775,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		proGearWeightSpouse := models.Int64Pointer(10)
 		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
+		weightRestriction := models.Int64Pointer(5000)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
 			Agency:               &affiliation,
@@ -784,6 +785,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			WeightRestriction:              weightRestriction,
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -804,6 +806,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
+		suite.Equal(*payload.WeightRestriction, int64(*updatedOrder.Entitlement.WeightRestriction))
 	})
 
 	suite.Run("Updates the allowance when all fields are valid with dependents present and authorized", func() {

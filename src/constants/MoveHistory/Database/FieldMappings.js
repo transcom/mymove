@@ -39,6 +39,8 @@ export default {
   required_medical_equipment_weight: 'Required medical equipment',
   organizational_clothing_and_individual_equipment: 'OCIE',
   gun_safe: 'Gun Safe',
+  admin_restricted_weight_location: 'Admin restricted weight location',
+  weight_restriction: 'Weight restriction',
   requested_pickup_date: 'Requested pickup date',
   grade: 'Pay grade',
   shipment_type: 'Shipment type',
