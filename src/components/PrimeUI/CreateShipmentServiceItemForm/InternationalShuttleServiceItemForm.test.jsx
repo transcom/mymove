@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import InternationalShuttleSITServiceItemForm from './InternationalShuttleServiceItemForm';
+import InternationalShuttleServiceItemForm from './InternationalShuttleServiceItemForm';
 
 const moveId = '9c7b255c-2981-4bf8-839f-61c7458e2b4d';
 
@@ -73,7 +73,7 @@ describe('InternationalShuttleSITForm component', () => {
   ])('renders field %s in form', (labelName, inputName) => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
-    render(<InternationalShuttleSITServiceItemForm shipment={shipment} moveId={moveId} submission={jest.fn()} />);
+    render(<InternationalShuttleServiceItemForm shipment={shipment} moveId={moveId} submission={jest.fn()} />);
 
     // shipment text values
     const field = screen.getByText(labelName);
