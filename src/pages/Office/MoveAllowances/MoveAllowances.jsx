@@ -45,6 +45,7 @@ const validationSchema = Yup.object({
     .notRequired(),
   weightRestriction: Yup.number()
     .min(0, 'Weight restriction must be greater than or equal to 0')
+    .max(18000, 'Weight restriction cannot exceed 18,000 lbs')
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
 });
