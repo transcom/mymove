@@ -88,10 +88,6 @@
     @include u-padding-top(2);
   }
 
-  td {
-    background-color: $bg-gray;
-  }
-
   .reasonText {
     font-weight: normal;
   }
@@ -103,6 +99,7 @@
     padding-right: 2rem;
     padding-left: 1rem;
     border-left: 1px solid #dfe1e2;
+    background-color: $bg-gray;
   }
 
   .rejectionReasonContainer {
