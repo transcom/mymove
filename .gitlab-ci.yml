@@ -668,8 +668,8 @@ server_test:
   #   - name: $postgres
   #   - name: $redis
   variables:
-    DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
-    DOCKER_TLS_CERTDIR: ""
+    # DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
+    # DOCKER_TLS_CERTDIR: ""
     APPLICATION: app
     # 8 since this runs on xlarge with 8 CPUs
     GOTEST_PARALLEL: 8
@@ -822,8 +822,8 @@ integration_test_devseed:
   #   - name: $postgres
   #   - name: $redis
   variables:
-    DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
-    DOCKER_TLS_CERTDIR: ""
+    # DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
+    # DOCKER_TLS_CERTDIR: ""
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
