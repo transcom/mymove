@@ -294,11 +294,10 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			StorageInTransit:               nil,
 			RequiredMedicalEquipmentWeight: 0,
 			OrganizationalClothingAndIndividualEquipment: false,
-			ProGearWeight:                 0,
-			ProGearWeightSpouse:           0,
-			CreatedAt:                     time.Now(),
-			UpdatedAt:                     time.Now(),
-			AdminRestrictedWeightLocation: false,
+			ProGearWeight:       0,
+			ProGearWeightSpouse: 0,
+			CreatedAt:           time.Now(),
+			UpdatedAt:           time.Now(),
 		}
 
 		payload := Entitlement(&entitlement)
@@ -321,7 +320,6 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(int64(0), payload.TotalDependents)
 		suite.Equal(int64(0), payload.TotalWeight)
 		suite.Equal(int64(0), *payload.UnaccompaniedBaggageAllowance)
-		suite.Equal(false, payload.AdminRestrictedWeightLocation)
 	})
 
 	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {
@@ -336,12 +334,11 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			StorageInTransit:               handlers.FmtInt(45),
 			RequiredMedicalEquipmentWeight: 500,
 			OrganizationalClothingAndIndividualEquipment: true,
-			ProGearWeight:                 1000,
-			ProGearWeightSpouse:           750,
-			CreatedAt:                     time.Now(),
-			UpdatedAt:                     time.Now(),
-			AdminRestrictedWeightLocation: true,
-			WeightRestriction:             models.IntPointer(1000),
+			ProGearWeight:       1000,
+			ProGearWeightSpouse: 750,
+			CreatedAt:           time.Now(),
+			UpdatedAt:           time.Now(),
+			WeightRestriction:   models.IntPointer(1000),
 		}
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
@@ -364,7 +361,6 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(true, payload.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(int64(1000), payload.ProGearWeight)
 		suite.Equal(int64(750), payload.ProGearWeightSpouse)
-		suite.Equal(true, payload.AdminRestrictedWeightLocation)
 		suite.Equal(int64(1000), *payload.WeightRestriction)
 		suite.NotEmpty(payload.ETag)
 		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
