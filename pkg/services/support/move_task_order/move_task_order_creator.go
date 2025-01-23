@@ -132,17 +132,27 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 		order.OriginDutyLocation = originDutyLocation
 		order.OriginDutyLocationID = &originDutyLocationID
 
-		var originDutyLocationGBLOC models.PostalCodeToGBLOC
-		originDutyLocationGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(originDutyLocationID, "while looking for Duty Location PostalCodeToGBLOC")
-			default:
-				return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+		var originDutyLocationGBLOC *string
+		if *originDutyLocation.Address.IsOconus {
+			originDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), originDutyLocation.Address, order.ServiceMember)
+			if err != nil {
+				return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
 			}
+			originDutyLocationGBLOC = originDutyLocationGBLOCOconus
+		} else {
+			originDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
+				default:
+					return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+				}
+			}
+			originDutyLocationGBLOC = &originDutyLocationGBLOCConus.GBLOC
 		}
-		order.OriginDutyLocationGBLOC = &originDutyLocationGBLOC.GBLOC
+
+		order.OriginDutyLocationGBLOC = originDutyLocationGBLOC
 	}
 	// Check that the uploaded orders document exists
 	var uploadedOrders *models.Document
