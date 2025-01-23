@@ -1863,7 +1863,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 			serviceRequestDocs[i] = payload
 		}
 	}
-	var sort *string = nil
+	var sort *string
 	if s.ReService.ReServiceItems != nil {
 		for _, reServiceItem := range *s.ReService.ReServiceItems {
 			if s.MTOShipment.MarketCode == reServiceItem.MarketCode && s.MTOShipment.ShipmentType == reServiceItem.ShipmentType {
