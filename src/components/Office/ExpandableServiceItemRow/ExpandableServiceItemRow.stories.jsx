@@ -12,7 +12,7 @@ export default {
         <div style={{ maxWidth: '68.2666666667rem', marginRight: '0' }}>
           <GridContainer
             style={{ maxWidth: '63.8rem' }}
-            className="grid-container"
+            className="expandableServiceItemRow"
             data-testid="tio-payment-request-details"
           >
             <table className="table--stacked">
