@@ -67,12 +67,14 @@ func initProcessTPPSFlags(flag *pflag.FlagSet) {
 }
 
 func processTPPS(cmd *cobra.Command, args []string) error {
+	flag := pflag.CommandLine
+	flags := cmd.Flags()
+	cli.InitDatabaseFlags(flag)
 
 	err := cmd.ParseFlags(args)
 	if err != nil {
 		return fmt.Errorf("could not parse args: %w", err)
 	}
-	flags := cmd.Flags()
 	v := viper.New()
 	err = v.BindPFlags(flags)
 	if err != nil {
@@ -102,7 +104,6 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		logger.Info(fmt.Sprintf("Duration of processTPPS task:: %v", elapsedTime))
 	}()
 
-	flag := pflag.CommandLine
 	initProcessTPPSFlags(flag)
 	// err = flag.Parse(os.Args[1:])
 	// if err != nil {
