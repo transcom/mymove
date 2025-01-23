@@ -16,36 +16,6 @@ type MTOServiceItemCreator struct {
 	mock.Mock
 }
 
-// CreateInternationalMTOServiceItem provides a mock function with given fields: appCtx, serviceItem
-func (_m *MTOServiceItemCreator) CreateInternationalMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, error) {
-	ret := _m.Called(appCtx, serviceItem)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateInternationalMTOServiceItem")
-	}
-
-	var r0 *models.MTOServiceItems
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem) (*models.MTOServiceItems, error)); ok {
-		return rf(appCtx, serviceItem)
-	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem) *models.MTOServiceItems); ok {
-		r0 = rf(appCtx, serviceItem)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MTOServiceItems)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem) error); ok {
-		r1 = rf(appCtx, serviceItem)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // CreateMTOServiceItem provides a mock function with given fields: appCtx, serviceItem
 func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
 	ret := _m.Called(appCtx, serviceItem)
