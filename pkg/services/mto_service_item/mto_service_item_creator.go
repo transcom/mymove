@@ -321,6 +321,16 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 }
 
 func (o *mtoServiceItemCreator) CreateInternationalMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, error) {
+	if serviceItem == nil {
+		err := fmt.Errorf("must request service item to create")
+		return nil, apperror.NewInvalidInputError(uuid.Nil, err, nil, err.Error())
+	}
+
+	if serviceItem.MTOShipmentID == nil {
+		err := fmt.Errorf("cannot request a service item without a shipment id")
+		return nil, apperror.NewInvalidInputError(uuid.Nil, err, nil, err.Error())
+	}
+
 	mtoServiceItems, err := models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), *serviceItem.MTOShipmentID, models.MTOServiceItems{*serviceItem})
 	if err != nil {
 		return nil, err
