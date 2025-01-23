@@ -1,9 +1,13 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestReIntlOtherPriceValidation() {
@@ -41,5 +45,78 @@ func (suite *ModelSuite) TestReIntlOtherPriceValidation() {
 			"per_unit_cents": {"-1523 is not greater than -1."},
 		}
 		suite.verifyValidationErrors(&intlOtherPrice, expErrors)
+	})
+}
+
+func (suite *ModelSuite) TestFetchReIntlOtherPrice() {
+	suite.Run("success - receive ReIntlOtherPrice when all values exist and are found", func() {
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "JBER",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		reService, err := models.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIHPK)
+		suite.NoError(err)
+		suite.NotNil(reService)
+
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		moveDate := time.Now()
+
+		reIntlOtherPrice, err := models.FetchReIntlOtherPrice(suite.DB(), address.ID, reService.ID, contract.ID, &moveDate)
+		suite.NoError(err)
+		suite.NotNil(reIntlOtherPrice)
+		suite.NotNil(reIntlOtherPrice.PerUnitCents)
+	})
+
+	suite.Run("failure - receive error when values aren't provided", func() {
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "JBER",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		reService, err := models.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIHPK)
+		suite.NoError(err)
+		suite.NotNil(reService)
+
+		contract := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{})
+		moveDate := time.Now()
+
+		// no address
+		reIntlOtherPrice, err := models.FetchReIntlOtherPrice(suite.DB(), uuid.Nil, reService.ID, contract.ID, &moveDate)
+		suite.Error(err)
+		suite.Nil(reIntlOtherPrice)
+		suite.Contains(err.Error(), "error value from re_intl_other_prices - required parameters not provided")
+
+		// no service ID
+		reIntlOtherPrice, err = models.FetchReIntlOtherPrice(suite.DB(), address.ID, uuid.Nil, contract.ID, &moveDate)
+		suite.Error(err)
+		suite.Nil(reIntlOtherPrice)
+		suite.Contains(err.Error(), "error value from re_intl_other_prices - required parameters not provided")
+
+		// no contract ID
+		reIntlOtherPrice, err = models.FetchReIntlOtherPrice(suite.DB(), address.ID, reService.ID, uuid.Nil, &moveDate)
+		suite.Error(err)
+		suite.Nil(reIntlOtherPrice)
+		suite.Contains(err.Error(), "error value from re_intl_other_prices - required parameters not provided")
+
+		// no move date
+		reIntlOtherPrice, err = models.FetchReIntlOtherPrice(suite.DB(), address.ID, reService.ID, contract.ID, nil)
+		suite.Error(err)
+		suite.Nil(reIntlOtherPrice)
+		suite.Contains(err.Error(), "error value from re_intl_other_prices - required parameters not provided")
 	})
 }

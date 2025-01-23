@@ -219,16 +219,24 @@ const incentivesAdvanceReceivedZeroProps = {
   setIsSubmitting: jest.fn(),
 };
 
+const HAUL_TYPES = {
+  SHORTHAUL: 'Shorthaul',
+  LINEHAUL: 'Linehaul',
+};
+
 const incentiveFactorsProps = {
   sectionInfo: {
     type: 'incentiveFactors',
-    haulType: 'Linehaul',
+    haulType: HAUL_TYPES.LINEHAUL,
     haulPrice: 6892668,
-    haulFSC: -143,
+    haulFSC: 143,
     packPrice: 20000,
     unpackPrice: 10000,
     dop: 15640,
     ddp: 34640,
+    intlPackPrice: 1234,
+    intlUnpackPrice: 12345,
+    intlLinehaulPrice: 123456,
     sitReimbursement: 30000,
   },
 };
@@ -469,7 +477,7 @@ describe('PPMHeaderSummary component', () => {
       expect(screen.getByText('Linehaul Price')).toBeInTheDocument();
       expect(screen.getByTestId('haulPrice')).toHaveTextContent('$68,926.68');
       expect(screen.getByText('Linehaul Fuel Rate Adjustment')).toBeInTheDocument();
-      expect(screen.getByTestId('haulFSC')).toHaveTextContent('-$1.43');
+      expect(screen.getByTestId('haulFSC')).toHaveTextContent('$1.43');
       expect(screen.getByText('Packing Charge')).toBeInTheDocument();
       expect(screen.getByTestId('packPrice')).toHaveTextContent('$200.00');
       expect(screen.getByText('Unpacking Charge')).toBeInTheDocument();
@@ -478,6 +486,12 @@ describe('PPMHeaderSummary component', () => {
       expect(screen.getByTestId('originPrice')).toHaveTextContent('$156.40');
       expect(screen.getByText('Destination Price')).toBeInTheDocument();
       expect(screen.getByTestId('destinationPrice')).toHaveTextContent('$346.40');
+      expect(screen.getByText('International Packing Charge')).toBeInTheDocument();
+      expect(screen.getByTestId('intlPackPrice')).toHaveTextContent('$12.34');
+      expect(screen.getByText('International Unpacking Charge')).toBeInTheDocument();
+      expect(screen.getByTestId('intlUnpackPrice')).toHaveTextContent('$123.45');
+      expect(screen.getByText('International Shipping & Linehaul Charge')).toBeInTheDocument();
+      expect(screen.getByTestId('intlLinehaulPrice')).toHaveTextContent('$1,234.56');
       expect(screen.getByTestId('sitReimbursement')).toHaveTextContent('$300.00');
     });
 

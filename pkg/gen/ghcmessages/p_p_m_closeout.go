@@ -69,6 +69,15 @@ type PPMCloseout struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
 
+	// The full price of international shipping and linehaul (ISLH)
+	IntlLinehaulPrice *int64 `json:"intlLinehaulPrice"`
+
+	// The full price of international packing (IHPK)
+	IntlPackPrice *int64 `json:"intlPackPrice"`
+
+	// The full price of international unpacking (IHUPK)
+	IntlUnpackPrice *int64 `json:"intlUnpackPrice"`
+
 	// The distance between the old address and the new address in miles.
 	// Example: 54
 	// Minimum: 0
