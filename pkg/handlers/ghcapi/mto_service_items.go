@@ -153,7 +153,7 @@ func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.Upd
 
 					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
-					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", nil)
+					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
 					if err != nil {
 						appCtx.Logger().Error(fmt.Sprintf("Could not update the shipment SIT auth end date for shipment ID: %s: %s", shipment.ID, err))
 					}
@@ -266,7 +266,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 
 					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
-					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc", nil)
+					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
 					if err != nil {
 						appCtx.Logger().Error(fmt.Sprintf("Could not update the shipment SIT auth end date for shipment ID: %s: %s", shipment.ID, err))
 					}
@@ -350,6 +350,8 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				query.NewQueryAssociation("SITDestinationFinalAddress"),
 				query.NewQueryAssociation("SITOriginHHGOriginalAddress"),
 				query.NewQueryAssociation("SITOriginHHGActualAddress"),
+				query.NewQueryAssociation("ReService.ReServiceItems"),
+				query.NewQueryAssociation("MTOShipment"),
 			})
 
 			var serviceItems models.MTOServiceItems
