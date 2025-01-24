@@ -1073,3 +1073,4 @@
 20250110153428_add_shipment_address_updates_to_move_history.up.sql
 20250110214012_homesafeconnect_cert.up.sql
 20250116200912_disable_homesafe_stg_cert.up.sql
+20250124140959_add_rejected_and_deleted_cols_to_admin_office_users.up.sql
