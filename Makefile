@@ -540,7 +540,7 @@ endif
 db_dev_create: ## Create Dev DB
 ifndef CIRCLECI
 	@echo "Create the ${DB_NAME_DEV} database..."
-	DB_NAME=postgres scripts/wait-for-db && DB_NAME=postgres psql-wrapper "CREATE DATABASE $(DB_NAME_DEV);" || true
+	DB_NAME=postgres scripts/wait-for-db && DB_NAME=postgres ./scripts/psql-wrapper "CREATE DATABASE $(DB_NAME_DEV);" || true
 else
 	@echo "Relying on CircleCI's database setup to create the DB."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_DEV);'

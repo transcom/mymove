@@ -7,12 +7,16 @@ db_host="${DB_HOST:-localhost}"
 db_user="${DB_USER:-postgres}"
 db_name="${DB_NAME:-postgres}"
 db_port="${DB_PORT:-5432}"
+# Check the operating system
+os_type=$(uname -s)
 
 command="${*:-}"
 
 # nix-friendly option
 if [ -n "${NIX_PROFILE+x}" ]; then
   psql_exe="/nix/var/nix/profiles/per-user/${LOGNAME}/mymove/bin/psql"
+elif [[ "$os_type" == "Linux" ]]; then
+  psql_exe="/usr/bin/psql"
 else
   # Check if Homebrew is installed and fail with an error message if it isn't for
   # some reason.
