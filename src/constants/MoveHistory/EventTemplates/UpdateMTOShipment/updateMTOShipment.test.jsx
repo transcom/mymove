@@ -37,7 +37,10 @@ describe('when given an mto shipment update with mto shipment table history reco
     status: 'SUBMITTED',
     tac_type: 'NTS',
     uses_external_vendor: true,
-
+    has_secondary_pickup_address: true,
+    has_secondary_delivery_address: true,
+    has_tertiary_pickup_address: false,
+    has_tertiary_delivery_address: true,
     advance_amount_requested: 100,
     destination_postal_code: '29102',
     estimated_incentive: 2252814,
@@ -103,6 +106,10 @@ describe('when given an mto shipment update with mto shipment table history reco
       [FieldMappings.sit_estimated_entry_date, formatCustomerDate(changedValues.sit_estimated_entry_date)],
       [FieldMappings.sit_estimated_weight, formatWeight(Number(changedValues.sit_estimated_weight))],
       [FieldMappings.spouse_pro_gear_weight, formatWeight(Number(changedValues.spouse_pro_gear_weight))],
+      [FieldMappings.has_secondary_pickup_address, changedValues.has_secondary_pickup_address ? 'Yes' : 'No'],
+      [FieldMappings.has_secondary_delivery_address, changedValues.has_secondary_delivery_address ? 'Yes' : 'No'],
+      [FieldMappings.has_tertiary_pickup_address, changedValues.has_tertiary_pickup_address ? 'Yes' : 'No'],
+      [FieldMappings.has_tertiary_delivery_address, changedValues.has_tertiary_delivery_address ? 'Yes' : 'No'],
     ])('displays the correct details value for %s', async (label, value) => {
       const targetItem = Object.fromEntries(
         Object.entries(changedValues).filter(([key]) => FieldMappings[key] === label),
