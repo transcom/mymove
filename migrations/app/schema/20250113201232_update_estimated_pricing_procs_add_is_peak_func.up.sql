@@ -1,8 +1,27 @@
--- function to calculate the escalated price, takes in:
--- origin rate area
--- dest rate area
--- re_services id
--- contract id
+-- removing ServiceAreaOrigin
+DELETE FROM service_params
+WHERE service_id = '9f3d551a-0725-430e-897e-80ee9add3ae9'
+AND service_item_param_key_id = '599bbc21-8d1d-4039-9a89-ff52e3582144';
+
+-- function that evaluates a date and returns T/F if it is during peak period
+CREATE OR REPLACE FUNCTION is_peak_period(input_date DATE) RETURNS BOOLEAN AS $$
+DECLARE
+    peak_start DATE := MAKE_DATE(EXTRACT(YEAR FROM input_date)::INT, 5, 15); -- May 15th of the input year
+    peak_end DATE := MAKE_DATE(EXTRACT(YEAR FROM input_date)::INT, 9, 30);   -- September 30th of the input year
+BEGIN
+    IF input_date IS NULL THEN
+        RAISE EXCEPTION 'Input date cannot be NULL';
+    END IF;
+    -- if the input date is between May 15 and September 30 (inclusive), return true
+    IF input_date BETWEEN peak_start AND peak_end THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
 -- adding the is_peak_period check to refine the price query further
 CREATE OR REPLACE FUNCTION calculate_escalated_price(
     o_rate_area_id UUID,
@@ -16,36 +35,12 @@ DECLARE
     per_unit_cents NUMERIC;
     escalation_factor NUMERIC;
     escalated_price NUMERIC;
-    is_oconus BOOLEAN;
     peak_period BOOLEAN;
 BEGIN
     -- we need to query the appropriate table based on the service code
     -- need to establish if the shipment is being moved during peak period
     peak_period := is_peak_period(requested_pickup_date);
-    IF service_code IN ('IOSHUT','IDSHUT') THEN
-		IF service_code = 'IOSHUT' THEN
-        	SELECT ra.is_oconus
-        	INTO is_oconus
-        	FROM re_rate_areas ra
-        	WHERE ra.id = o_rate_area_id;
-		ELSE
-			SELECT ra.is_oconus
-        	INTO is_oconus
-        	FROM re_rate_areas ra
-        	WHERE ra.id = d_rate_area_id;
-		END IF;
-
-        SELECT rip.per_unit_cents
-        INTO per_unit_cents
-        FROM re_intl_accessorial_prices rip
-        WHERE
-            rip.market = (CASE
-                WHEN is_oconus THEN 'O'
-                ELSE 'C'
-			END)
-          AND rip.service_id = re_service_id
-          AND rip.contract_id = c_id;
-    ELSIF service_code IN ('ISLH', 'UBP') THEN
+    IF service_code IN ('ISLH', 'UBP') THEN
         SELECT rip.per_unit_cents
         INTO per_unit_cents
         FROM re_intl_prices rip
@@ -86,7 +81,49 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---Updating proc to handle IDSHUT and IOSHUT service items
+DROP FUNCTION IF EXISTS get_fuel_price(date);
+
+
+-- updating get_fuel_price to return an INT instead of decimal, we were rounding too soon
+CREATE OR REPLACE FUNCTION get_fuel_price(requested_pickup_date DATE)
+RETURNS INTEGER AS $$
+DECLARE
+    fuel_price_in_cents INTEGER;
+BEGIN
+
+    SELECT fuel_price_in_millicents
+    INTO fuel_price_in_cents
+    FROM ghc_diesel_fuel_prices
+    WHERE requested_pickup_date BETWEEN effective_date AND end_date;
+
+    -- fallback to most recent fuel price if no match
+    IF fuel_price_in_cents IS NULL THEN
+        SELECT fuel_price_in_millicents
+        INTO fuel_price_in_cents
+        FROM ghc_diesel_fuel_prices
+        ORDER BY publication_date DESC
+        LIMIT 1;
+    END IF;
+
+    IF fuel_price_in_cents IS NULL THEN
+        RAISE EXCEPTION 'No fuel price found for requested_pickup_date: %', requested_pickup_date;
+    END IF;
+
+    RAISE NOTICE 'Received fuel price of % for requested_pickup_date: %', fuel_price_in_cents, requested_pickup_date;
+
+    RETURN fuel_price_in_cents;
+END;
+$$ LANGUAGE plpgsql;
+
+-- updating to subtract the millicents value to avoid premature rounding
+CREATE OR REPLACE FUNCTION calculate_price_difference(fuel_price DECIMAL)
+RETURNS DECIMAL AS $$
+BEGIN
+    RETURN (fuel_price - 250000)::DECIMAL / 1000;
+END;
+$$ LANGUAGE plpgsql;
+
+-- updating to use the shipment.requested_pickup_date value to refine search to get more accurate prices
 CREATE OR REPLACE PROCEDURE update_service_item_pricing(
     shipment_id UUID,
     mileage INT
@@ -103,7 +140,7 @@ DECLARE
     service_code TEXT;
     o_zip_code TEXT;
     d_zip_code TEXT;
-    distance NUMERIC;
+    distance NUMERIC;  -- This will be replaced by mileage
     estimated_fsc_multiplier NUMERIC;
     fuel_price NUMERIC;
     cents_above_baseline NUMERIC;
@@ -143,9 +180,8 @@ BEGIN
                 escalated_price := calculate_escalated_price(o_rate_area_id, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    -- multiply by 110% of estimated weight
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100), 2) * 100;
-                    RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
+                    estimated_price := ROUND((escalated_price * shipment.prime_estimated_weight / 100), 2) * 100;
+                    RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
@@ -159,9 +195,8 @@ BEGIN
                 escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    -- multiply by 110% of estimated weight
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100), 2) * 100;
-                    RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
+                    estimated_price := ROUND((escalated_price * shipment.prime_estimated_weight / 100), 2) * 100;
+                    RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
@@ -175,9 +210,8 @@ BEGIN
                 escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    -- multiply by 110% of estimated weight
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100), 2) * 100;
-                    RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
+                    estimated_price := ROUND((escalated_price * shipment.prime_estimated_weight / 100), 2) * 100;
+                    RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
@@ -194,6 +228,7 @@ BEGIN
 
                 price_difference := calculate_price_difference(fuel_price);
 
+                -- calculate estimated price, return as cents
                 IF estimated_fsc_multiplier IS NOT NULL AND distance IS NOT NULL THEN
                     cents_above_baseline := distance * estimated_fsc_multiplier;
                     RAISE NOTICE ''Distance: % * FSC Multipler: % = $% cents above baseline of $2.50'', distance, estimated_fsc_multiplier, cents_above_baseline;
@@ -201,34 +236,6 @@ BEGIN
                     estimated_price := ROUND((cents_above_baseline * price_difference) * 100);
                     RAISE NOTICE ''Received estimated price of % cents for service_code: %.'', estimated_price, service_code;
 
-			        -- update the pricing_estimate value in mto_service_items
-			        UPDATE mto_service_items
-			        SET pricing_estimate = estimated_price
-			        WHERE id = service_item.id;
-                END IF;
-            WHEN service_code IN (''IOSHUT'') THEN
-                -- perform IOSHUT specific logic (no destination rate area)
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code);
-
-                IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
-                    RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
-			        -- update the pricing_estimate value in mto_service_items
-			        UPDATE mto_service_items
-			        SET pricing_estimate = estimated_price
-			        WHERE id = service_item.id;
-                END IF;
-            WHEN service_code IN (''IDSHUT'') THEN
-                -- perform IDSHUT specific logic (no destination rate area)
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code);
-
-                IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
-                    RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
