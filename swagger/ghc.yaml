@@ -3692,13 +3692,6 @@ paths:
       operationId: getBulkAssignmentPaymentRequestData
       tags:
         - queues
-      parameters:
-        - in: query
-          name: queueType
-          type: string
-          description: A string corresponding to the queue type
-          enum:
-            - PAYMENT_REQUEST
       responses:
         '200':
           description: Successfully returned bulk assignment payment request data

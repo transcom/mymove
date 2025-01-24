@@ -2188,7 +2188,7 @@ func BulkAssignmentData(appCtx appcontext.AppContext, moves []models.MoveWithEar
 	return *bulkAssignmentData
 }
 
-func BulkAssignmentPaymentRequestData(appCtx appcontext.AppContext, paymentRequests []models.PaymentRequestWithEarliestRequestedDate, officeUsers []models.OfficeUserWithWorkload, officeId uuid.UUID) ghcmessages.BulkAssignmentPaymentRequestData {
+func BulkAssignmentPaymentRequestData(appCtx appcontext.AppContext, paymentRequests []models.PaymentRequestWithEarliestRequestedDate, officeUsers []models.OfficeUserWithWorkload) ghcmessages.BulkAssignmentPaymentRequestData {
 	availableOfficeUsers := make(ghcmessages.AvailableOfficeUsers, len(officeUsers))
 	availablePaymentRequests := make(ghcmessages.BulkAssignmentPaymentRequestIDs, len(paymentRequests))
 

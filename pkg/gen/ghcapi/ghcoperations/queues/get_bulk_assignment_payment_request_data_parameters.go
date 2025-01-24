@@ -9,10 +9,7 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
-	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/validate"
 )
 
 // NewGetBulkAssignmentPaymentRequestDataParams creates a new GetBulkAssignmentPaymentRequestDataParams object
@@ -31,11 +28,6 @@ type GetBulkAssignmentPaymentRequestDataParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
-
-	/*A string corresponding to the queue type
-	  In: query
-	*/
-	QueueType *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -47,46 +39,8 @@ func (o *GetBulkAssignmentPaymentRequestDataParams) BindRequest(r *http.Request,
 
 	o.HTTPRequest = r
 
-	qs := runtime.Values(r.URL.Query())
-
-	qQueueType, qhkQueueType, _ := qs.GetOK("queueType")
-	if err := o.bindQueueType(qQueueType, qhkQueueType, route.Formats); err != nil {
-		res = append(res, err)
-	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-// bindQueueType binds and validates parameter QueueType from query.
-func (o *GetBulkAssignmentPaymentRequestDataParams) bindQueueType(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.QueueType = &raw
-
-	if err := o.validateQueueType(formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// validateQueueType carries on validations for parameter QueueType
-func (o *GetBulkAssignmentPaymentRequestDataParams) validateQueueType(formats strfmt.Registry) error {
-
-	if err := validate.EnumCase("queueType", "query", *o.QueueType, []interface{}{"PAYMENT_REQUEST"}, true); err != nil {
-		return err
-	}
-
 	return nil
 }

@@ -674,32 +674,27 @@ func (h GetPaymentRequestBulkAssignmentDataHandler) Handle(
 				return queues.NewGetBulkAssignmentPaymentRequestDataUnauthorized(), err
 			}
 
-			queueType := params.QueueType
-			var officeUserData ghcmessages.BulkAssignmentPaymentRequestData
-
-			switch *queueType {
-			case string(models.QueueTypePaymentRequest):
-				// fetch the TIOs who work at their office
-				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
-					appCtx,
-					roles.RoleTypeTIO,
-					officeUser.TransportationOfficeID,
-				)
-				if err != nil {
-					appCtx.Logger().Error("Error retreiving TIO office users", zap.Error(err))
-					return queues.NewGetBulkAssignmentPaymentRequestDataInternalServerError(), err
-				}
-				// fetch the payment requests available to be assigned to their office users
-				paymentRequests, err := h.PaymentRequestFetcherBulkAssignment.FetchPaymentRequestsForBulkAssignment(
-					appCtx, officeUser.TransportationOffice.Gbloc,
-				)
-				if err != nil {
-					appCtx.Logger().Error("Error retreiving payment requests", zap.Error(err))
-					return queues.NewGetBulkAssignmentPaymentRequestDataInternalServerError(), err
-				}
-
-				officeUserData = payloads.BulkAssignmentPaymentRequestData(appCtx, paymentRequests, officeUsers, officeUser.TransportationOffice.ID)
+			// fetch the TIOs who work at their office
+			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
+				appCtx,
+				roles.RoleTypeTIO,
+				officeUser.TransportationOfficeID,
+			)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving TIO office users", zap.Error(err))
+				return queues.NewGetBulkAssignmentPaymentRequestDataInternalServerError(), err
 			}
+			// fetch the payment requests available to be assigned to their office users
+			paymentRequests, err := h.PaymentRequestFetcherBulkAssignment.FetchPaymentRequestsForBulkAssignment(
+				appCtx, officeUser.TransportationOffice.Gbloc,
+			)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving payment requests", zap.Error(err))
+				return queues.NewGetBulkAssignmentPaymentRequestDataInternalServerError(), err
+			}
+
+			officeUserData := payloads.BulkAssignmentPaymentRequestData(appCtx, paymentRequests, officeUsers)
+
 			return queues.NewGetBulkAssignmentPaymentRequestDataOK().WithPayload(&officeUserData), nil
 		})
 }

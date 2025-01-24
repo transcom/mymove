@@ -4426,17 +4426,6 @@ func init() {
         ],
         "summary": "Gets data for bulk assignment payment request modal",
         "operationId": "getBulkAssignmentPaymentRequestData",
-        "parameters": [
-          {
-            "enum": [
-              "PAYMENT_REQUEST"
-            ],
-            "type": "string",
-            "description": "A string corresponding to the queue type",
-            "name": "queueType",
-            "in": "query"
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully returned bulk assignment payment request data",
@@ -21136,17 +21125,6 @@ func init() {
         ],
         "summary": "Gets data for bulk assignment payment request modal",
         "operationId": "getBulkAssignmentPaymentRequestData",
-        "parameters": [
-          {
-            "enum": [
-              "PAYMENT_REQUEST"
-            ],
-            "type": "string",
-            "description": "A string corresponding to the queue type",
-            "name": "queueType",
-            "in": "query"
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully returned bulk assignment payment request data",

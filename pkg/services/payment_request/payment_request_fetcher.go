@@ -72,29 +72,36 @@ func NewPaymentRequestFetcherBulkAssignment() services.PaymentRequestFetcherBulk
 func (f paymentRequestFetcherBulkAssignment) FetchPaymentRequestsForBulkAssignment(appCtx appcontext.AppContext, gbloc string) ([]models.PaymentRequestWithEarliestRequestedDate, error) {
 	var payment_requests []models.PaymentRequestWithEarliestRequestedDate
 
-	err := appCtx.DB().
-		RawQuery(`SELECT
-					payment_requests.id,
-					payment_requests.requested_at
-				FROM payment_requests
-                INNER JOIN moves on moves.id = payment_requests.move_id
-                INNER JOIN orders ON orders.id = moves.orders_id
-                INNER JOIN service_members ON orders.service_member_id = service_members.id
-				LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
-				WHERE
-					payment_requests.status = 'PENDING'
-					AND moves.show = $1
-					AND (orders.orders_type NOT IN ($2, $3, $4))
-					AND moves.tio_assigned_id IS NULL
-					AND service_members.affiliation != 'MARINES'
-					AND move_to_gbloc.gbloc = $5
-				GROUP BY payment_requests.id
-                ORDER BY payment_requests.requested_at ASC`,
-			models.BoolPointer(true),
-			internalmessages.OrdersTypeBLUEBARK,
-			internalmessages.OrdersTypeWOUNDEDWARRIOR,
-			internalmessages.OrdersTypeSAFETY,
-			gbloc).
+	sqlQuery := `
+		SELECT
+			payment_requests.id,
+			payment_requests.requested_at
+		FROM payment_requests
+        INNER JOIN moves on moves.id = payment_requests.move_id
+        INNER JOIN orders ON orders.id = moves.orders_id
+        INNER JOIN service_members ON orders.service_member_id = service_members.id
+		LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
+		WHERE payment_requests.status = 'PENDING'
+		AND moves.show = $1
+		AND (orders.orders_type NOT IN ($2, $3, $4))
+		AND moves.tio_assigned_id IS NULL `
+	if gbloc == "USMC" {
+		sqlQuery += `
+			AND service_members.affiliation ILIKE 'MARINES' `
+	} else {
+		sqlQuery += `
+		AND service_members.affiliation != 'MARINES'
+		AND move_to_gbloc.gbloc = '` + gbloc + `' `
+	}
+	sqlQuery += `
+		GROUP BY payment_requests.id
+        ORDER BY payment_requests.requested_at ASC`
+
+	err := appCtx.DB().RawQuery(sqlQuery,
+		models.BoolPointer(true),
+		internalmessages.OrdersTypeBLUEBARK,
+		internalmessages.OrdersTypeWOUNDEDWARRIOR,
+		internalmessages.OrdersTypeSAFETY).
 		All(&payment_requests)
 
 	if err != nil {
