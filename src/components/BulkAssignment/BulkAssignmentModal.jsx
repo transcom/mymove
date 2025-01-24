@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -7,15 +7,34 @@ import styles from './BulkAssignmentModal.module.scss';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 import { Form } from 'components/form';
+import { getBulkAssignmentData } from 'services/ghcApi';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 const initialValues = {
   userData: [],
   moveData: [],
 };
 
-export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, bulkAssignmentData }) => {
+export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
+  // fetch bulk assignment data
+  const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        getBulkAssignmentData(queueType).then((data) => {
+          setBulkAssignmentData(data);
+        });
+      } catch (err) {
+        milmoveLogger.error('Error fetching bulk assignment data:', err);
+      }
+    };
+
+    fetchData();
+  }, [queueType]);
+
   // adds move data to the initialValues obj
-  initialValues.moveData = bulkAssignmentData.bulkAssignmentMoveIDs;
+  initialValues.moveData = bulkAssignmentData?.bulkAssignmentMoveIDs;
 
   return (
     <Modal>
@@ -23,7 +42,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
       <ModalTitle>
         <h3>
           {title} (
-          {bulkAssignmentData.bulkAssignmentMoveIDs == null ? 0 : bulkAssignmentData.bulkAssignmentMoveIDs.length})
+          {bulkAssignmentData?.bulkAssignmentMoveIDs == null ? 0 : bulkAssignmentData?.bulkAssignmentMoveIDs?.length})
         </h3>
       </ModalTitle>
       <div className={styles.BulkAssignmentTable}>

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Button, Dropdown, Grid } from '@trussworks/react-uswds';
+import { Button, Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation } from '@tanstack/react-query';
 
@@ -27,12 +27,11 @@ import {
   useUserQueries,
   useMoveSearchQueries,
   useCustomerSearchQueries,
-  useBulkAssignmentQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingOriginLocations,
-  getServicesCounselingQueue,
   getServicesCounselingPPMQueue,
+  getServicesCounselingQueue,
   saveBulkAssignmentData,
 } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
@@ -55,7 +54,6 @@ import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSe
 import handleQueueAssignment from 'utils/queues';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
-import Alert from 'types/alert';
 
 export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => {
   const cols = [
@@ -517,29 +515,19 @@ const ServicesCounselingQueue = ({
     navigate(generatePath(servicesCounselingRoutes.CREATE_CUSTOMER_PATH));
   };
 
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [alertMessage, setAlertMessage] = useState(null);
-  const [alertType, setAlertType] = useState('success');
-
-  const closeoutBulkAssignmentData = useBulkAssignmentQueries('CLOSEOUT');
-  const counselingBulkAssignmentData = useBulkAssignmentQueries('COUNSELING');
-
   const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
     onSuccess: () => {
-      setAlertMessage('Bulk moves successfully assigned.');
-      setAlertType('success');
-
       // reload page to refetch queue
       window.location.reload();
-    },
-    onError: () => {
-      setAlertMessage('There was a problem assigning the move. Please try again later.');
-      setAlertType('error');
     },
   });
 
   const onSubmitBulk = (bulkAssignmentSavePayload) => {
     mutateBulkAssignment({ queueType: 'COUNSELING', ...bulkAssignmentSavePayload });
+  };
+
+  const onSubmitBulkCloseout = (bulkAssignmentSavePayload) => {
+    mutateBulkAssignment({ queueType: 'CLOSEOUT', ...bulkAssignmentSavePayload });
   };
 
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
@@ -637,15 +625,6 @@ const ServicesCounselingQueue = ({
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
         <ConnectedFlashMessage />
-        <Grid row className={styles.pageHeader}>
-          {alertMessage && (
-            <Grid col={12} className={styles.alertContainer}>
-              <Alert headingLevel="h4" slim type={alertType}>
-                {alertMessage}
-              </Alert>
-            </Grid>
-          )}
-        </Grid>
         <div className={styles.searchFormContainer}>
           <h1>Search for a move</h1>
         </div>
@@ -702,7 +681,8 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
-          bulkAssignmentData={closeoutBulkAssignmentData.bulkAssignmentData || {}}
+          handleBulkAssignmentSave={onSubmitBulkCloseout}
+          queueType="CLOSEOUT"
         />
       </div>
     );
@@ -733,7 +713,7 @@ const ServicesCounselingQueue = ({
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           handleBulkAssignmentSave={onSubmitBulk}
-          bulkAssignmentData={counselingBulkAssignmentData.bulkAssignmentData || {}}
+          queueType="COUNSELING"
         />
       </div>
     );

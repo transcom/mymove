@@ -2,12 +2,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, NavLink, useParams, Navigate, generatePath } from 'react-router-dom';
 import { Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useMutation } from '@tanstack/react-query';
 
 import styles from './MoveQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
 import { useMovesQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
-import { getMovesQueue } from 'services/ghcApi';
+import { getMovesQueue, saveBulkAssignmentData } from 'services/ghcApi';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
@@ -203,6 +204,17 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
     fetchData();
   }, []);
 
+  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
+    onSuccess: () => {
+      // reload page to refetch queue
+      window.location.reload();
+    },
+  });
+
+  const onSubmitBulk = (bulkAssignmentSavePayload) => {
+    mutateBulkAssignment({ queueType: 'TASKORDER', ...bulkAssignmentSavePayload });
+  };
+
   const onSubmit = useCallback((values) => {
     const payload = {
       moveCode: null,
@@ -331,6 +343,8 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          handleBulkAssignmentSave={onSubmitBulk}
+          queueType="TASK_ORDER"
         />
       </div>
     );

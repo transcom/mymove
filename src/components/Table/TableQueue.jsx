@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { GridContainer, Button } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
-import { useMutation } from 'react-query';
 
 import styles from './TableQueue.module.scss';
 import TableCSVExportButton from './TableCSVExportButton';
@@ -58,7 +57,7 @@ const TableQueue = ({
   officeUser,
   activeRole,
   handleBulkAssignmentSave,
-  bulkAssignmentData,
+  queueType,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -327,7 +326,7 @@ const TableQueue = ({
             isOpen={isBulkAssignModalVisible}
             onSubmit={handleBulkAssignmentSave}
             onClose={handleCloseBulkAssignModal}
-            bulkAssignmentData={bulkAssignmentData || {}}
+            queueType={queueType}
           />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
