@@ -34,7 +34,7 @@ type BackupContact struct {
 	Permission      BackupContactPermission `json:"permission" db:"permission"`
 	Name            string                  `json:"name" db:"name"`
 	Email           string                  `json:"email" db:"email"`
-	Phone           *string                 `json:"phone" db:"phone"`
+	Phone           string                  `json:"phone" db:"phone"`
 }
 
 // TableName overrides the table name used by Pop.

@@ -19,6 +19,9 @@ import (
 // swagger:model Customer
 type Customer struct {
 
+	// backup contact
+	BackupContact *BackupContact `json:"backupContact,omitempty"`
+
 	// branch
 	// Example: COAST_GUARD
 	Branch string `json:"branch,omitempty"`
@@ -67,6 +70,10 @@ type Customer struct {
 func (m *Customer) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateBackupContact(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCurrentAddress(formats); err != nil {
 		res = append(res, err)
 	}
@@ -86,6 +93,25 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Customer) validateBackupContact(formats strfmt.Registry) error {
+	if swag.IsZero(m.BackupContact) { // not required
+		return nil
+	}
+
+	if m.BackupContact != nil {
+		if err := m.BackupContact.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("backupContact")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("backupContact")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -148,6 +174,10 @@ func (m *Customer) validateUserID(formats strfmt.Registry) error {
 func (m *Customer) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateBackupContact(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCurrentAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -159,6 +189,27 @@ func (m *Customer) ContextValidate(ctx context.Context, formats strfmt.Registry)
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Customer) contextValidateBackupContact(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.BackupContact != nil {
+
+		if swag.IsZero(m.BackupContact) { // not required
+			return nil
+		}
+
+		if err := m.BackupContact.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("backupContact")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("backupContact")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
