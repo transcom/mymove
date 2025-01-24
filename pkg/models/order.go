@@ -67,14 +67,14 @@ type Order struct {
 	CreatedAt                      time.Time                          `json:"created_at" db:"created_at"`
 	UpdatedAt                      time.Time                          `json:"updated_at" db:"updated_at"`
 	ServiceMemberID                uuid.UUID                          `json:"service_member_id" db:"service_member_id"`
-	ServiceMember                  ServiceMember                      `belongs_to:"service_members" fk_id:"service_member_id"`
+	ServiceMember                  ServiceMember                      `json:"service_member" belongs_to:"service_members" fk_id:"service_member_id"`
 	IssueDate                      time.Time                          `json:"issue_date" db:"issue_date"`
 	ReportByDate                   time.Time                          `json:"report_by_date" db:"report_by_date"`
 	OrdersType                     internalmessages.OrdersType        `json:"orders_type" db:"orders_type"`
 	OrdersTypeDetail               *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents                  bool                               `json:"has_dependents" db:"has_dependents"`
 	SpouseHasProGear               bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
-	OriginDutyLocation             *DutyLocation                      `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
+	OriginDutyLocation             *DutyLocation                      `json:"origin_duty_location" belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
 	OriginDutyLocationID           *uuid.UUID                         `json:"origin_duty_location_id" db:"origin_duty_location_id"`
 	NewDutyLocationID              uuid.UUID                          `json:"new_duty_location_id" db:"new_duty_location_id"`
 	NewDutyLocation                DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_location_id"`
