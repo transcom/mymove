@@ -95,7 +95,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 	}
 
 	suite.Run("test mapping of one rateArea to many postCodes and one rateArea to one", func() {
-		availableToPrimeAtTime := time.Now().Add(500 * time.Hour)
+		availableToPrimeAtTime := time.Now().Add(-500 * time.Hour)
 		testMove := models.Move{
 			AvailableToPrimeAt: &availableToPrimeAtTime,
 			MTOShipments: models.MTOShipments{
@@ -105,12 +105,14 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 						City:           "Fairbanks",
 						State:          "AK",
 						PostalCode:     fairbanksAlaskaPostalCode,
+						IsOconus:       models.BoolPointer(true),
 					},
 					DestinationAddress: &models.Address{
 						StreetAddress1: "123 Main St",
 						City:           "Anchorage",
 						State:          "AK",
 						PostalCode:     anchorageAlaskaPostalCode,
+						IsOconus:       models.BoolPointer(true),
 					},
 				},
 				models.MTOShipment{
@@ -119,12 +121,14 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 						City:           "Beverly Hills",
 						State:          "CA",
 						PostalCode:     beverlyHillsCAPostalCode,
+						IsOconus:       models.BoolPointer(false),
 					},
 					DestinationAddress: &models.Address{
 						StreetAddress1: "123 Main St",
 						City:           "San Diego",
 						State:          "CA",
 						PostalCode:     sanDiegoCAPostalCode,
+						IsOconus:       models.BoolPointer(false),
 					},
 				},
 				models.MTOShipment{
@@ -134,12 +138,14 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 							City:           "Wasilla",
 							State:          "AK",
 							PostalCode:     wasillaAlaskaPostalCode,
+							IsOconus:       models.BoolPointer(true),
 						},
 						DestinationAddress: &models.Address{
 							StreetAddress1: "123 Main St",
 							City:           "Wasilla",
 							State:          "AK",
 							PostalCode:     wasillaAlaskaPostalCode,
+							IsOconus:       models.BoolPointer(true),
 						},
 					},
 				},
@@ -190,12 +196,14 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 						City:           "Beverly Hills",
 						State:          "CA",
 						PostalCode:     beverlyHillsCAPostalCode,
+						IsOconus:       models.BoolPointer(false),
 					},
 					DestinationAddress: &models.Address{
 						StreetAddress1: "123 Main St",
 						City:           "San Diego",
 						State:          "CA",
 						PostalCode:     sanDiegoCAPostalCode,
+						IsOconus:       models.BoolPointer(false),
 					},
 				},
 				models.MTOShipment{
@@ -205,12 +213,14 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 							City:           "Brooklyn",
 							State:          "NY",
 							PostalCode:     brooklynNYPostalCode,
+							IsOconus:       models.BoolPointer(false),
 						},
 						DestinationAddress: &models.Address{
 							StreetAddress1: "123 Main St",
 							City:           "Beverly Hills",
 							State:          "CA",
 							PostalCode:     beverlyHillsCAPostalCode,
+							IsOconus:       models.BoolPointer(false),
 						},
 					},
 				},
