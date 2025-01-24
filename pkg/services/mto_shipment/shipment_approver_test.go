@@ -1013,27 +1013,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		suite.NotNil(shipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 	})
 
-	suite.Run("Given invalid shipment error returned", func() {
-		invalidShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypePPM,
-				},
-			},
-		}, nil)
-		invalidShipmentEtag := etag.GenerateEtag(invalidShipment.UpdatedAt)
-
-		shipmentRouter := NewShipmentRouter()
-		var serviceItemCreator services.MTOServiceItemCreator
-		var planner route.Planner
-		var moveWeights services.MoveWeights
-
-		// Approve international shipment
-		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
-		_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), invalidShipment.ID, invalidShipmentEtag)
-		suite.Error(err)
-	})
-
 	suite.Run("If the CONUS to OCONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
@@ -1234,5 +1213,26 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			suite.True(slices.Contains(expectedReServiceCodes, actualReServiceCode), "Contains unexpected code: "+actualReServiceCode.String())
 			suite.True(slices.Contains(expectedReServiceNames, actualReServiceName), "Contains unexpected name: "+actualReServiceName)
 		}
+	})
+
+	suite.Run("Given invalid shipment error returned", func() {
+		invalidShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
+		invalidShipmentEtag := etag.GenerateEtag(invalidShipment.UpdatedAt)
+
+		shipmentRouter := NewShipmentRouter()
+		var serviceItemCreator services.MTOServiceItemCreator
+		var planner route.Planner
+		var moveWeights services.MoveWeights
+
+		// Approve international shipment
+		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
+		_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), invalidShipment.ID, invalidShipmentEtag)
+		suite.Error(err)
 	})
 }
