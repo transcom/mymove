@@ -181,7 +181,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 				},
 			},
 		}, nil)
@@ -1742,6 +1742,72 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.Len(payload.AvailableOfficeUsers, 1)
 		suite.Len(payload.BulkAssignmentMoveIDs, 1)
 	})
+
+	suite.Run("TOO: returns properly formatted bulk assignment data", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeTOO,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		// move to appear in the return
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		request := httptest.NewRequest("GET", "/queues/bulk-assignment", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetBulkAssignmentDataParams{
+			HTTPRequest: request,
+			QueueType:   models.StringPointer("TASK_ORDER"),
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := GetBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcherBulkAssignment(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetBulkAssignmentDataOK{}, response)
+		payload := response.(*queues.GetBulkAssignmentDataOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.AvailableOfficeUsers, 1)
+		suite.Len(payload.BulkAssignmentMoveIDs, 1)
+	})
 }
 
 func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
@@ -1786,10 +1852,10 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := queues.SaveBulkAssignmentDataParams{
 			HTTPRequest: request,
-			QueueType:   models.StringPointer("COUNSELING"),
 			BulkAssignmentSavePayload: &ghcmessages.BulkAssignmentSavePayload{
-				MoveData: moveData,
-				UserData: userData,
+				QueueType: "COUNSELING",
+				MoveData:  moveData,
+				UserData:  userData,
 			},
 		}
 		handlerConfig := suite.HandlerConfig()
@@ -1857,10 +1923,10 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := queues.SaveBulkAssignmentDataParams{
 			HTTPRequest: request,
-			QueueType:   models.StringPointer("COUNSELING"),
 			BulkAssignmentSavePayload: &ghcmessages.BulkAssignmentSavePayload{
-				MoveData: moveData,
-				UserData: userData,
+				QueueType: "COUNSELING",
+				MoveData:  moveData,
+				UserData:  userData,
 			},
 		}
 		handlerConfig := suite.HandlerConfig()

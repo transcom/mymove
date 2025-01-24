@@ -72,7 +72,7 @@ properties:
       - BOAT_TOW_AWAY
       - HHG
       - HHG_INTO_NTS
-      - HHG_OUTOF_NTS_DOMESTIC
+      - HHG_OUTOF_NTS
       - MOBILE_HOME
       - PPM
       - UNACCOMPANIED_BAGGAGE
