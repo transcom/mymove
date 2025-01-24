@@ -600,7 +600,7 @@ func (o *GetDestinationRequestsQueueParams) bindStatus(rawData []string, hasKey 
 	for i, statusIV := range statusIC {
 		statusI := statusIV
 
-		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"APPROVALS REQUESTED"}, true); err != nil {
+		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"SUBMITTED", "SERVICE COUNSELING COMPLETED", "APPROVALS REQUESTED"}, true); err != nil {
 			return err
 		}
 

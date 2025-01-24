@@ -4787,6 +4787,8 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
+                "SUBMITTED",
+                "SERVICE COUNSELING COMPLETED",
                 "APPROVALS REQUESTED"
               ],
               "type": "string"
@@ -21607,6 +21609,8 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
+                "SUBMITTED",
+                "SERVICE COUNSELING COMPLETED",
                 "APPROVALS REQUESTED"
               ],
               "type": "string"

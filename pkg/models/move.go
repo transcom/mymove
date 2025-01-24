@@ -71,7 +71,7 @@ type Move struct {
 	PPMType                                        *string               `db:"ppm_type"`
 	MTOServiceItems                                MTOServiceItems       `has_many:"mto_service_items" fk_id:"move_id"`
 	PaymentRequests                                PaymentRequests       `has_many:"payment_requests" fk_id:"move_id"`
-	MTOShipments                                   MTOShipments          `has_many:"mto_shipments" fk_id:"move_id"`
+	MTOShipments                                   MTOShipments          `json:"mto_shipments" has_many:"mto_shipments" fk_id:"move_id"`
 	ReferenceID                                    *string               `db:"reference_id"`
 	ServiceCounselingCompletedAt                   *time.Time            `db:"service_counseling_completed_at"`
 	PrimeCounselingCompletedAt                     *time.Time            `db:"prime_counseling_completed_at"`
@@ -98,11 +98,11 @@ type Move struct {
 	SCAssignedID                                   *uuid.UUID            `json:"sc_assigned_id" db:"sc_assigned_id"`
 	SCAssignedUser                                 *OfficeUser           `belongs_to:"office_users" fk_id:"sc_assigned_id"`
 	TOOAssignedID                                  *uuid.UUID            `json:"too_assigned_id" db:"too_assigned_id"`
-	TOOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"too_assigned_id"`
+	TOOAssignedUser                                *OfficeUser           `json:"too_assigned" belongs_to:"office_users" fk_id:"too_assigned_id"`
 	TIOAssignedID                                  *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
 	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
 	CounselingOfficeID                             *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
-	CounselingOffice                               *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
+	CounselingOffice                               *TransportationOffice `json:"counseling_transportation_office" belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
 }
 
 type MoveWithEarliestDate struct {
