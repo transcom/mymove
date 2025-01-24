@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -291,7 +292,25 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	testdatagen.MergeModels(&order, cOrder)
 
 	// If db is false, it's a stub. No need to create in database
-	if db != nil {
+	if db != nil && order.Grade != nil {
+		// Check if PayGrade already exists
+		var existingPayGrade models.PayGrade
+		err := db.Where("grade = ?", string(*order.Grade)).First(&existingPayGrade)
+		if err == nil {
+			// PayGrade exists
+			grade := internalmessages.OrderPayGrade(existingPayGrade.Grade)
+			order.Grade = internalmessages.NewOrderPayGrade(grade)
+		} else {
+			log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data. pay grade: %s err: %w", *order.Grade, err))
+		}
+
+		// Check if HHGAllowance already exists for this PayGrade
+		var existingHHGAllowance models.HHGAllowance
+		err = db.Where("pay_grade_id = ?", existingPayGrade.ID).First(&existingHHGAllowance)
+		if err != nil {
+			log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data. pay grade: %s err: %w", *order.Grade, err))
+		}
+
 		mustCreate(db, &order)
 	}
 

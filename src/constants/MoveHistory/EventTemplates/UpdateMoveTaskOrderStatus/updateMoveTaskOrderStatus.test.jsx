@@ -27,4 +27,16 @@ describe('when given a Move approved history record', () => {
     expect(screen.getByText('Approved move'));
     expect(screen.getByText('Created Move Task Order (MTO)'));
   });
+
+  it('displays correct details when a TOO is unassigned', () => {
+    historyRecord.changedValues = {
+      ...historyRecord.changedValues,
+      too_assigned_id: null,
+    };
+
+    const template = getTemplate(historyRecord);
+    render(template.getDetails(historyRecord));
+    expect(screen.getByText('Created Move Task Order (MTO)'));
+    expect(screen.getByText('Task Ordering Officer Unassigned'));
+  });
 });

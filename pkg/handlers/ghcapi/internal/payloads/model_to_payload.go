@@ -122,6 +122,8 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		SCAssignedUser:                                 AssignedOfficeUser(move.SCAssignedUser),
 		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
+		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
+		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
 	}
 
 	return payload, nil
@@ -437,6 +439,18 @@ func GBLOCs(gblocs []string) ghcmessages.GBLOCs {
 	return payload
 }
 
+func CounselingOffices(counselingOffices models.TransportationOffices) ghcmessages.CounselingOffices {
+	payload := make(ghcmessages.CounselingOffices, len(counselingOffices))
+
+	for i, counselingOffice := range counselingOffices {
+		payload[i] = &ghcmessages.CounselingOffice{
+			ID:   handlers.FmtUUID(counselingOffice.ID),
+			Name: models.StringPointer(counselingOffice.Name),
+		}
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{
@@ -617,9 +631,6 @@ func Order(order *models.Order) *ghcmessages.Order {
 
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
-	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
-	}
 	entitlements := Entitlement(order.Entitlement)
 
 	var deptIndicator ghcmessages.DeptIndicator
@@ -736,6 +747,11 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.UBAllowance != nil {
 		ubAllowance = models.Int64Pointer(int64(*entitlement.UBAllowance))
 	}
+	var weightRestriction *int64
+	if entitlement.WeightRestriction != nil {
+		weightRestriction = models.Int64Pointer(int64(*entitlement.WeightRestriction))
+	}
+
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -753,8 +769,9 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		AccompaniedTour:                accompaniedTour,
 		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		GunSafe: gunSafe,
-		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe:           gunSafe,
+		WeightRestriction: weightRestriction,
+		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -1864,6 +1881,15 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 			serviceRequestDocs[i] = payload
 		}
 	}
+	var sort *string
+	if s.ReService.ReServiceItems != nil {
+		for _, reServiceItem := range *s.ReService.ReServiceItems {
+			if s.MTOShipment.MarketCode == reServiceItem.MarketCode && s.MTOShipment.ShipmentType == reServiceItem.ShipmentType {
+				sort = reServiceItem.Sort
+				break
+			}
+		}
+	}
 	payload := &ghcmessages.MTOServiceItem{
 		ID:                            handlers.FmtUUID(s.ID),
 		MoveTaskOrderID:               handlers.FmtUUID(s.MoveTaskOrderID),
@@ -1879,6 +1905,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDepartureDate:              handlers.FmtDateTimePtr(s.SITDepartureDate),
 		SitCustomerContacted:          handlers.FmtDatePtr(s.SITCustomerContacted),
 		SitRequestedDelivery:          handlers.FmtDatePtr(s.SITRequestedDelivery),
+		Sort:                          sort,
 		Status:                        ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:                   handlers.FmtStringPtr(s.Description),
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
@@ -2600,9 +2627,11 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 
 		// populates the destination postal code of the move
 		var destinationPostalCode string
-		destinationPostalCode, err = move.GetDestinationPostalCode(appCtx.DB())
+		destinationAddress, err := move.GetDestinationAddress(appCtx.DB())
 		if err != nil {
 			destinationPostalCode = ""
+		} else {
+			destinationPostalCode = destinationAddress.PostalCode
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{
@@ -2682,6 +2711,30 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 	return &searchCustomers
 }
 
+// ReServiceItem payload
+func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
+	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
+		return nil
+	}
+	return &ghcmessages.ReServiceItem{
+		IsAutoApproved: reServiceItem.IsAutoApproved,
+		MarketCode:     string(reServiceItem.MarketCode),
+		ServiceCode:    string(reServiceItem.ReService.Code),
+		ShipmentType:   string(reServiceItem.ShipmentType),
+		ServiceName:    reServiceItem.ReService.Name,
+	}
+}
+
+// ReServiceItems payload
+func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
+	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
+	for i, reServiceItem := range reServiceItems {
+		copyOfReServiceItem := reServiceItem
+		payload[i] = ReServiceItem(&copyOfReServiceItem)
+	}
+	return payload
+}
+
 // VLocation payload
 func VLocation(vLocation *models.VLocation) *ghcmessages.VLocation {
 	if vLocation == nil {
@@ -2706,30 +2759,6 @@ func VLocations(vLocations models.VLocations) ghcmessages.VLocations {
 	for i, vLocation := range vLocations {
 		copyOfVLocation := vLocation
 		payload[i] = VLocation(&copyOfVLocation)
-	}
-	return payload
-}
-
-// ReServiceItem payload
-func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
-	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
-		return nil
-	}
-	return &ghcmessages.ReServiceItem{
-		IsAutoApproved: reServiceItem.IsAutoApproved,
-		MarketCode:     string(reServiceItem.MarketCode),
-		ServiceCode:    string(reServiceItem.ReService.Code),
-		ShipmentType:   string(reServiceItem.ShipmentType),
-		ServiceName:    reServiceItem.ReService.Name,
-	}
-}
-
-// ReServiceItems payload
-func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
-	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
-	for i, reServiceItem := range reServiceItems {
-		copyOfReServiceItem := reServiceItem
-		payload[i] = ReServiceItem(&copyOfReServiceItem)
 	}
 	return payload
 }

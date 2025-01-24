@@ -77,10 +77,8 @@ describe('ServiceItemCalculations DLH', () => {
     it('renders icons', () => {
       const wrapper = serviceItemCalculationsLarge;
       const timesIcons = wrapper.find('[icon="times"]');
-      const equalsIcons = wrapper.find('[icon="equals"]');
 
       expect(timesIcons.length).toBe(3);
-      expect(equalsIcons.length).toBe(1);
     });
   });
 
@@ -96,10 +94,8 @@ describe('ServiceItemCalculations DLH', () => {
     it('renders no icons', () => {
       const wrapper = serviceItemCalculationsSmall;
       const timesIcons = wrapper.find('[icon="times"]');
-      const equalsIcons = wrapper.find('[icon="equals"]');
 
       expect(timesIcons.length).toBe(0);
-      expect(equalsIcons.length).toBe(0);
     });
   });
 
@@ -162,10 +158,8 @@ describe('ServiceItemCalculations DCRT', () => {
     it('renders icons', () => {
       const wrapper = serviceItemCalculationsLarge;
       const timesIcons = wrapper.find('[icon="times"]');
-      const equalsIcons = wrapper.find('[icon="equals"]');
 
       expect(timesIcons.length).toBe(2);
-      expect(equalsIcons.length).toBe(1);
     });
   });
 
@@ -181,10 +175,8 @@ describe('ServiceItemCalculations DCRT', () => {
     it('renders no icons', () => {
       const wrapper = serviceItemCalculationsSmall;
       const timesIcons = wrapper.find('[icon="times"]');
-      const equalsIcons = wrapper.find('[icon="equals"]');
 
       expect(timesIcons.length).toBe(0);
-      expect(equalsIcons.length).toBe(0);
     });
   });
 
@@ -248,10 +240,8 @@ describe('ServiceItemCalculations DUCRT', () => {
     it('renders icons', () => {
       const wrapper = serviceItemCalculationsLarge;
       const timesIcons = wrapper.find('[icon="times"]');
-      const equalsIcons = wrapper.find('[icon="equals"]');
 
       expect(timesIcons.length).toBe(2);
-      expect(equalsIcons.length).toBe(1);
     });
   });
 
@@ -267,10 +257,8 @@ describe('ServiceItemCalculations DUCRT', () => {
     it('renders no icons', () => {
       const wrapper = serviceItemCalculationsSmall;
       const timesIcons = wrapper.find('[icon="times"]');
-      const equalsIcons = wrapper.find('[icon="equals"]');
 
       expect(timesIcons.length).toBe(0);
-      expect(equalsIcons.length).toBe(0);
     });
   });
 

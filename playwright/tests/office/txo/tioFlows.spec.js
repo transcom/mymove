@@ -402,6 +402,17 @@ test.describe('TIO user', () => {
 
       // Approve the first service item
       await tioFlowPage.approveServiceItem();
+      // testing the clear selection functionality
+      await expect(page.getByText('Clear selection')).toBeVisible();
+      await page.getByText('Clear selection').click();
+      // proceed without approving/rejecting
+      await page.getByText('Next').click();
+      await tioFlowPage.slowDown();
+      // go back to the previous page
+      await page.getByText('Previous').click();
+      // the service item should neither be approved/rejected so the clear selection should not be seen
+      await expect(page.getByText('Clear selection')).not.toBeVisible();
+      await tioFlowPage.approveServiceItem();
       await page.getByText('Next').click();
       await tioFlowPage.slowDown();
 
@@ -555,86 +566,6 @@ test.describe('TIO user', () => {
 
       // Verify sucess alert and tag
       await expect(page.getByText('Move unflagged for financial review.')).toBeVisible();
-    });
-
-    /**
-     * This test is being temporarily skipped until flakiness issues
-     * can be resolved. It was skipped in cypress and is not part of
-     * the initial playwright conversion. - ahobson 2023-01-05
-     */
-    test.skip('can add/edit TAC/SAC', async ({ page }) => {
-      // Payment Requests page
-      expect(page.url()).toContain('/payment-requests');
-      await expect(page.getByTestId('MovePaymentRequests')).toBeVisible();
-
-      // await expect(page.locator('button')).toContainText('Edit').click();
-      // await expect(page.locator('button')).toContainText('Add or edit codes').click();
-      // cy.url().should('include', `/moves/NTSTIO/orders`);
-
-      // await page.locator('form').within(() => {
-      //   await page.locator('input[data-testid="ntsTacInput"]').click().fill('E19A');
-      //   await page.locator('input[data-testid="ntsSacInput"]').click().fill('3L988AS098F');
-      //   // Edit orders page | Save
-      //   await expect(page.locator('button')).toContainText('Save').click();
-      // });
-      // cy.url().should('include', `/moves/NTSTIO/details`);
-      // await expect(page.getByText('Payment requests').click()).toBeVisible();
-      // cy.url().should('include', `/payment-requests`);
-      // await expect(page.locator('button')).toContainText('Edit').click();
-
-      // await page.locator('input#tacType-NTS').click({ force: true });
-      // await page.locator('input#sacType-NTS').click({ force: true });
-      // await page.locator('button[type="submit"]').click();
-
-      // await expect(page.locator('[data-testid="tac"]')).toContainText('E19A (NTS)');
-      // await expect(page.locator('[data-testid="sac"]')).toContainText('3L988AS098F (NTS)');
-    });
-
-    // ahobson - 2023-01-05 skipping this test as it is a subset of
-    // the test called 'can use a payment request page to update
-    // orders and review a payment request'
-    test.skip('can view and approve service items', async ({ page }) => {
-      // Payment Requests page
-      expect(page.url()).toContain('/payment-requests');
-      await expect(page.getByTestId('MovePaymentRequests')).toBeVisible();
-
-      await page.getByText('Review service items').first().click();
-
-      // await expect(page.locator('[data-testid="serviceItemName"]')).toContainText('Move management');
-      // await page.locator('[data-testid="approveRadio"]').click({ force: true });
-      // cy.wait('@patchPaymentServiceItemStatus');
-      // await expect(page.locator('button')).toContainText('Next').click();
-
-      // await expect(page.locator('[data-testid="serviceItemName"]')).toContainText('Domestic origin shuttle service');
-      // await page.locator('[data-testid="approveRadio"]').click({ force: true });
-      // cy.wait('@patchPaymentServiceItemStatus');
-      // await expect(page.locator('button')).toContainText('Next').click();
-
-      // await expect(page.locator('[data-testid="serviceItemName"]')).toContainText('Domestic origin shuttle service');
-      // await page.locator('[data-testid="approveRadio"]').click({ force: true });
-      // cy.wait('@patchPaymentServiceItemStatus');
-      // await expect(page.locator('button')).toContainText('Next').click();
-
-      // await expect(page.locator('[data-testid="serviceItemName"]')).toContainText('Domestic crating');
-      // await page.locator('[data-testid="approveRadio"]').click({ force: true });
-      // cy.wait('@patchPaymentServiceItemStatus');
-      // await expect(page.locator('button')).toContainText('Next').click();
-
-      // await expect(page.locator('[data-testid="serviceItemName"]')).toContainText('Domestic crating');
-      // await page.locator('[data-testid="approveRadio"]').click({ force: true });
-      // cy.wait('@patchPaymentServiceItemStatus');
-      // await expect(page.locator('button')).toContainText('Next').click();
-
-      // await expect(page.locator('[data-testid="serviceItemName"]')).toContainText('Domestic linehaul');
-      // await page.locator('[data-testid="approveRadio"]').click({ force: true });
-      // cy.wait('@patchPaymentServiceItemStatus');
-      // await expect(page.locator('button')).toContainText('Next').click();
-
-      // await expect(page.locator('[data-testid="accepted"]')).toContainText('$1,130.21');
-      // await expect(page.locator('button')).toContainText('Authorize payment').click();
-      // cy.wait(['@getMovePaymentRequests']);
-
-      // await expect(page.locator('[data-testid="tag"]')).toContainText('Reviewed');
     });
 
     test('is able to view Origin GBLOC', async ({ page }) => {

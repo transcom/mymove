@@ -26,4 +26,15 @@ describe('When given a completed services counseling for a move', () => {
     render(template.getEventNameDisplay(historyRecord));
     expect(screen.getByText('Updated move')).toBeInTheDocument();
   });
+  it('displays correct details when an SC is unassigned', () => {
+    historyRecord.changedValues = {
+      ...historyRecord.changedValues,
+      sc_assigned_id: null,
+    };
+    const template = getTemplate(historyRecord);
+
+    render(template.getDetails(historyRecord));
+    expect(screen.getByText('Counseling Completed')).toBeInTheDocument();
+    expect(screen.getByText('Counselor Unassigned')).toBeInTheDocument();
+  });
 });

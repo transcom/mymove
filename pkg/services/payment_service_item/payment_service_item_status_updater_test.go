@@ -26,7 +26,6 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 		suite.NotNil(updatedPaymentServiceItem.ApprovedAt)
 		suite.Nil(updatedPaymentServiceItem.RejectionReason)
 		suite.Nil(updatedPaymentServiceItem.DeniedAt)
-
 	})
 
 	suite.Run("Successfully rejects a payment service item", func() {
@@ -44,7 +43,23 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 		suite.NotNil(updatedPaymentServiceItem.DeniedAt)
 		suite.Equal("reasons", *updatedPaymentServiceItem.RejectionReason)
 		suite.Nil(updatedPaymentServiceItem.ApprovedAt)
+	})
 
+	suite.Run("Successfully resets a payment service item to requested", func() {
+		paymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
+		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
+		updater := NewPaymentServiceItemStatusUpdater()
+
+		updatedPaymentServiceItem, verrs, err := updater.UpdatePaymentServiceItemStatus(suite.AppContextForTest(),
+			paymentServiceItem.ID, models.PaymentServiceItemStatusRequested, models.StringPointer("reasons"), eTag)
+
+		suite.NoError(err)
+		suite.NoVerrs(verrs)
+		suite.Equal(paymentServiceItem.ID, updatedPaymentServiceItem.ID)
+		suite.Equal(models.PaymentServiceItemStatusRequested, updatedPaymentServiceItem.Status)
+		suite.Nil(updatedPaymentServiceItem.DeniedAt)
+		suite.Nil(updatedPaymentServiceItem.RejectionReason)
+		suite.Nil(updatedPaymentServiceItem.ApprovedAt)
 	})
 
 	suite.Run("Fails if we can't find an existing paymentServiceItem", func() {

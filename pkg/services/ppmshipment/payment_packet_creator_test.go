@@ -26,7 +26,7 @@ import (
 
 func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 	//--------------------//--------------------//--------------------
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	userUploader, _ := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
 	generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
 	suite.FatalNil(err)

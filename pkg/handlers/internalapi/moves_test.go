@@ -291,7 +291,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		suite.NoError(err)
 
 		// And: Returned query to have a submitted status
-		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+		suite.Assertions.Equal(internalmessages.MoveStatusNEEDSSERVICECOUNSELING, okResponse.Payload.Status)
 		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
 
 		// And: SignedCertification was created
@@ -521,7 +521,7 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 		}
 
 		// And: a move is submitted
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
@@ -539,7 +539,7 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 }
 
 func (suite *HandlerSuite) TestUploadAdditionalDocumentsHander() {
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	uploadCreator := upload.NewUploadCreator(fakeS3)
 	additionalDocumentsUploader := move.NewMoveAdditionalDocumentsUploader(uploadCreator)
 

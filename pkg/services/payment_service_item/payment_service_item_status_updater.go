@@ -70,21 +70,24 @@ func (p *paymentServiceItemUpdater) updatePaymentServiceItem(appCtx appcontext.A
 		return models.PaymentServiceItem{}, nil, verr
 	}
 
-	// If we're denying this thing we want to make sure to update the DeniedAt field and nil out ApprovedAt.
-	if desiredStatus == models.PaymentServiceItemStatusDenied {
+	switch desiredStatus {
+	// when the user hits "clear selection" we want to clear all the fields
+	case models.PaymentServiceItemStatusRequested:
+		paymentServiceItem.RejectionReason = nil
+		paymentServiceItem.DeniedAt = nil
+		paymentServiceItem.ApprovedAt = nil
+	// if being denied, we want to nil out approvedAt and populate deniedAt
+	case models.PaymentServiceItemStatusDenied:
 		paymentServiceItem.RejectionReason = rejectionReason
 		paymentServiceItem.DeniedAt = models.TimePointer(time.Now())
 		paymentServiceItem.ApprovedAt = nil
-		paymentServiceItem.Status = desiredStatus
-	}
-	// If we're approving this thing then we don't want there to be a rejection reason
-	// We also will want to update the ApprovedAt field and nil out the DeniedAt field.
-	if desiredStatus == models.PaymentServiceItemStatusApproved {
+	// if being approved, populate approvedAt
+	case models.PaymentServiceItemStatusApproved:
 		paymentServiceItem.RejectionReason = nil
 		paymentServiceItem.DeniedAt = nil
 		paymentServiceItem.ApprovedAt = models.TimePointer(time.Now())
-		paymentServiceItem.Status = desiredStatus
 	}
+	paymentServiceItem.Status = desiredStatus
 
 	// Save the record
 	verrs, err := appCtx.DB().ValidateAndSave(&paymentServiceItem)

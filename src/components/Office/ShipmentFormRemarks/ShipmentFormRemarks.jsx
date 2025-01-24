@@ -72,6 +72,7 @@ ShipmentFormRemarks.propTypes = {
     SHIPMENT_OPTIONS.BOAT,
     SHIPMENT_TYPES.BOAT_HAUL_AWAY,
     SHIPMENT_TYPES.BOAT_TOW_AWAY,
+    SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
   ]).isRequired,
   customerRemarks: PropTypes.string,
   counselorRemarks: PropTypes.string,

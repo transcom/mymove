@@ -11,7 +11,7 @@ import (
 
 // TestCreateUpload tests uploading a new document
 func (suite *UploadServiceSuite) TestCreateUpload() {
-	fakeFileStorer := test.NewFakeS3Storage(true)
+	fakeFileStorer := test.NewFakeS3Storage(true, nil)
 	uploadCreator := NewUploadCreator(fakeFileStorer)
 
 	testFileName := "upload-test.pdf"

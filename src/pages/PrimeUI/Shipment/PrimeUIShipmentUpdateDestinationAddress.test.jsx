@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { generatePath } from 'react-router-dom';
 
 import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
 import { updateShipmentDestinationAddress } from '../../../services/primeApi';
@@ -24,6 +25,13 @@ jest.mock('hooks/queries', () => ({
 jest.mock('services/primeApi', () => ({
   ...jest.requireActual('services/primeApi'),
   updateShipmentDestinationAddress: jest.fn(),
+}));
+
+const mockSetFlashMessage = jest.fn();
+
+jest.mock('react-redux', () => ({
+  ...jest.requireActual('react-redux'),
+  connect: jest.fn(() => (component) => (props) => component({ ...props, setFlashMessage: mockSetFlashMessage })),
 }));
 
 const routingParams = { moveCodeOrID: 'LN4T89', shipmentId: '4' };
@@ -97,6 +105,11 @@ const testShipmentReturnValue = {
   isError: false,
 };
 
+const moveReviewPath = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, {
+  moveCodeOrID: 'LN4T89',
+  setFlashMessage: jest.fn(),
+});
+
 const renderComponent = () => {
   render(
     <ReactQueryWrapper>
@@ -107,7 +120,7 @@ const renderComponent = () => {
   );
 };
 
-describe('PrimeUIShipmentUpdateAddress page', () => {
+describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
   describe('check loading and error component states', () => {
     const loadingReturnValue = {
       moveTaskOrder: undefined,
@@ -215,7 +228,14 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
       });
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');
+        expect(mockSetFlashMessage).toHaveBeenCalledWith(
+          `MSG_UPDATE_SUCCESS${routingParams.shipmentId}`,
+          'success',
+          'Successfully updated shipment',
+          '',
+          true,
+        );
+        expect(mockNavigate).toHaveBeenCalledWith(moveReviewPath);
       });
     });
   });

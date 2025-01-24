@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 	params.HTTPRequest = req
 
 	handlerConfig := suite.HandlerConfig()
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := GetDocumentHandler{handlerConfig}
 
@@ -106,7 +106,7 @@ func (suite *HandlerSuite) TestGetDocumentHandlerForFilenamesWithCommas() {
 	params.HTTPRequest = req
 
 	handlerConfig := suite.HandlerConfig()
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := GetDocumentHandler{handlerConfig}
 

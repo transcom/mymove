@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 func payloadForEntitlementModel(e models.WeightAllotment) internalmessages.WeightAllotment {
@@ -28,13 +29,17 @@ func payloadForEntitlementModel(e models.WeightAllotment) internalmessages.Weigh
 // IndexEntitlementsHandler indexes entitlements
 type IndexEntitlementsHandler struct {
 	handlers.HandlerConfig
+	services.WeightAllotmentFetcher
 }
 
 // Handle is the handler
 func (h IndexEntitlementsHandler) Handle(params entitlementop.IndexEntitlementsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			entitlements := models.AllWeightAllotments()
+			entitlements, err := h.WeightAllotmentFetcher.GetAllWeightAllotments(appCtx)
+			if err != nil {
+				return entitlementop.NewIndexEntitlementsInternalServerError(), nil
+			}
 			payload := make(map[string]internalmessages.WeightAllotment)
 			for k, v := range entitlements {
 				grade := string(k)

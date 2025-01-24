@@ -23,7 +23,7 @@ func TestHandlerSuite(t *testing.T) {
 	hs := &PayloadsSuite{
 		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("milmovelocal"), testingsuite.CurrentPackage(),
 			testingsuite.WithPerTestTransaction()),
-		storer: storageTest.NewFakeS3Storage(true),
+		storer: storageTest.NewFakeS3Storage(true, nil),
 	}
 
 	suite.Run(t, hs)

@@ -28,16 +28,16 @@ variables:
   GOLANGCI_LINT_VERBOSE: "-v"
 
   # Specify the environment: loadtest, demo, exp
-  DP3_ENV: &dp3_env placeholder_env
+  DP3_ENV: &dp3_env loadtest
 
   # Specify the branch to deploy TODO: this might be not needed. So far useless
-  DP3_BRANCH: &dp3_branch placeholder_branch_name
+  DP3_BRANCH: &dp3_branch integrationTesting
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
-  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch integrationTesting
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch integrationTesting
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch integrationTesting
+  SERVER_IGNORE_BRANCH: &server_ignore_branch integrationTesting
 
   RUNNER_TAG: &runner_tag milmove
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
@@ -148,7 +148,7 @@ stages:
   echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
 
 .check_dp3: &check_dp3
-  - if: $DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo"
+  - if: (($DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo") && $DP3_BRANCH == $CI_COMMIT_BRANCH)
 
 .check_main: &check_main
   - if: '$CI_COMMIT_BRANCH == "main"'

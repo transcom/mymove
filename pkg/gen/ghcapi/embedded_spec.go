@@ -5775,8 +5775,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment",
-          "shipment_address_updates"
+          "shipment"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
@@ -6271,6 +6270,40 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved counseling offices",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -6809,7 +6842,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -6991,6 +7025,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -7062,6 +7120,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -7596,6 +7660,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "counselingOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
@@ -8269,6 +8339,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -9451,6 +9527,11 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sort": {
+          "description": "Sort order for service items to be displayed for a given shipment type.",
+          "type": "string",
+          "x-nullable": true
+        },
         "standaloneCrate": {
           "type": "boolean",
           "x-nullable": true
@@ -10112,6 +10193,15 @@ func init() {
           "$ref": "#/definitions/Contractor"
         },
         "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOfficeId": {
+          "description": "The transportation office that will handle services counseling for this move",
           "type": "string",
           "format": "uuid",
           "x-nullable": true
@@ -14130,6 +14220,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -22669,8 +22765,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment",
-          "shipment_address_updates"
+          "shipment"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
@@ -23301,6 +23396,40 @@ func init() {
         }
       }
     },
+    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved counseling offices",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
@@ -23851,7 +23980,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -24033,6 +24163,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -24108,6 +24262,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -24642,6 +24802,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "counselingOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
@@ -25315,6 +25481,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -26497,6 +26669,11 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sort": {
+          "description": "Sort order for service items to be displayed for a given shipment type.",
+          "type": "string",
+          "x-nullable": true
+        },
         "standaloneCrate": {
           "type": "boolean",
           "x-nullable": true
@@ -27158,6 +27335,15 @@ func init() {
           "$ref": "#/definitions/Contractor"
         },
         "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOfficeId": {
+          "description": "The transportation office that will handle services counseling for this move",
           "type": "string",
           "format": "uuid",
           "x-nullable": true
@@ -31308,6 +31494,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },

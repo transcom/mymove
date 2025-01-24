@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -527,7 +528,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 }
 
 func (suite *PayloadsSuite) TestEntitlement() {
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("Success - Returns the entitlement payload with only required fields", func() {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
@@ -544,6 +545,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			ProGearWeightSpouse: 0,
 			CreatedAt:           time.Now(),
 			UpdatedAt:           time.Now(),
+			WeightRestriction:   models.IntPointer(1000),
 		}
 
 		payload := Entitlement(&entitlement)
@@ -566,6 +568,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(int64(0), payload.TotalDependents)
 		suite.Equal(int64(0), payload.TotalWeight)
 		suite.Equal(int64(0), *payload.UnaccompaniedBaggageAllowance)
+		suite.Equal(int64(1000), *payload.WeightRestriction)
 	})
 
 	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {
@@ -588,7 +591,9 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 
 		payload := Entitlement(&entitlement)
 
@@ -630,7 +635,9 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 
 		payload := Entitlement(&entitlement)
 

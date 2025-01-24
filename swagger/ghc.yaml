@@ -1474,7 +1474,6 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - shipment
-        - shipment_address_updates
       description: >-
         This endpoint is used to approve a address update request. Office
         remarks are required. Approving the address update will update the
@@ -4332,6 +4331,31 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /transportation_offices/{dutyLocationId}/counseling_offices:
+    get:
+      summary: Returns the counseling locations in the GBLOC matching the duty location
+      description: >-
+        Returns the counseling locations matching the GBLOC from the selected
+        duty location
+      operationId: showCounselingOffices
+      tags:
+        - transportationOffice
+      parameters:
+        - in: path
+          name: dutyLocationId
+          format: uuid
+          type: string
+          required: true
+          description: UUID of the duty location
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully retrieved counseling offices
+          schema:
+            $ref: '#/definitions/CounselingOffices'
+        '500':
+          description: internal server error
   /uploads:
     post:
       summary: Create a new upload
@@ -5245,6 +5269,11 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      weightRestriction:
+        type: integer
+        example: 1500
+        x-formatting: weight
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -5479,6 +5508,15 @@ definitions:
         description: >-
           The transportation office that will handle reviewing PPM Closeout
           documentation for Army and Air Force service members
+        x-nullable: true
+      counselingOffice:
+        $ref: '#/definitions/TransportationOffice'
+      counselingOfficeId:
+        type: string
+        format: uuid
+        description: >-
+          The transportation office that will handle services counseling for
+          this move
         x-nullable: true
       approvalsRequestedAt:
         type: string
@@ -5911,6 +5949,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      counselingOfficeId:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
+        x-nullable: true
       ordersNumber:
         type: string
         title: Orders Number
@@ -6176,6 +6219,13 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the weight restriction for the move to a particular
+          location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6279,6 +6329,11 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: Indicates the weight restriction for a move to a particular location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -7440,6 +7495,7 @@ definitions:
         type: boolean
       workload:
         type: integer
+        x-omitempty: false
   BulkAssignmentData:
     type: object
     properties:
@@ -8125,6 +8181,10 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  ReServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ReServiceItem'
   TransportationOffices:
     type: array
     items:
@@ -8133,14 +8193,27 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/VLocation'
-  ReServiceItems:
-    type: array
-    items:
-      $ref: '#/definitions/ReServiceItem'
   GBLOCs:
     type: array
     items:
       type: string
+  CounselingOffices:
+    type: array
+    items:
+      $ref: '#/definitions/CounselingOffice'
+  CounselingOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+    required:
+      - id
+      - name
   MovePayload:
     type: object
     properties:
@@ -8890,6 +8963,12 @@ definitions:
         description: >-
           To identify whether the service was provided within (CONUS) or
           (OCONUS)
+        x-nullable: true
+      sort:
+        type: string
+        description: >-
+          Sort order for service items to be displayed for a given shipment
+          type.
         x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.

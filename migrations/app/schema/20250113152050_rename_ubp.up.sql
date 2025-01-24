@@ -1,0 +1,1 @@
+update re_services set name = 'International UB price' where code = 'UBP';

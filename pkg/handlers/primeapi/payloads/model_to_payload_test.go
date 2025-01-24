@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -161,7 +162,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 	suite.Require().NoError(err, "Unexpected error when generating new UUID")
 
 	now := time.Now()
-	fakeFileStorer := test.NewFakeS3Storage(true)
+	fakeFileStorer := test.NewFakeS3Storage(true, nil)
 
 	suite.Run("Success - all data populated", func() {
 		// Get stubbed upload with ID and timestamps
@@ -203,7 +204,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 }
 
 func (suite *PayloadsSuite) TestUpload() {
-	fakeFileStorer := test.NewFakeS3Storage(true)
+	fakeFileStorer := test.NewFakeS3Storage(true, nil)
 	// Get stubbed upload with ID and timestamps
 	upload := factory.BuildUpload(nil, []factory.Customization{
 		{
@@ -292,6 +293,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 }
 
 func (suite *PayloadsSuite) TestEntitlement() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	suite.Run("Success - Returns the entitlement payload with only required fields", func() {
 		entitlement := models.Entitlement{
@@ -349,12 +351,14 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			ProGearWeightSpouse: 750,
 			CreatedAt:           time.Now(),
 			UpdatedAt:           time.Now(),
+			WeightRestriction:   models.IntPointer(1000),
 		}
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
-
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 		payload := Entitlement(&entitlement)
 
 		suite.Equal(strfmt.UUID(entitlement.ID.String()), payload.ID)
@@ -370,6 +374,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(true, payload.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(int64(1000), payload.ProGearWeight)
 		suite.Equal(int64(750), payload.ProGearWeightSpouse)
+		suite.Equal(int64(1000), *payload.WeightRestriction)
 		suite.NotEmpty(payload.ETag)
 		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
 	})
@@ -394,7 +399,9 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 
 		payload := Entitlement(&entitlement)
 

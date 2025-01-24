@@ -14,14 +14,14 @@ jest.mock('utils/featureFlags', () => ({
 }));
 
 const showWhenCollapsed = ['counselorRemarks'];
-const warnIfMissing = [
+const warnIfMissing = [{ fieldName: 'counselorRemarks' }, { fieldName: 'sacType' }];
+const errorIfMissing = [
+  { fieldName: 'storageFacility' },
   { fieldName: 'ntsRecordedWeight' },
   { fieldName: 'serviceOrderNumber' },
-  { fieldName: 'counselorRemarks' },
+  { fieldName: 'requestedPickupDate' },
   { fieldName: 'tacType' },
-  { fieldName: 'sacType' },
 ];
-const errorIfMissing = [{ fieldName: 'storageFacility' }];
 
 const shipment = {
   ntsRecordedWeight: 2000,
@@ -156,7 +156,7 @@ describe('NTSR Shipment Info', () => {
   });
 
   describe('NTSR Shipment Info List renders missing non-required items correctly', () => {
-    it.each(['counselorRemarks', 'tacType', 'sacType', 'ntsRecordedWeight', 'serviceOrderNumber'])(
+    it.each(['counselorRemarks', 'sacType'])(
       'Verify Shipment field %s displays "—" with a warning class',
       async (shipmentField) => {
         render(
@@ -180,26 +180,32 @@ describe('NTSR Shipment Info', () => {
   });
 
   describe('NTSR Shipment Info List renders missing required items correctly', () => {
-    it.each(['storageFacilityName', 'storageFacilityAddress'])(
-      'Verify Shipment field %s displays "Missing" with an error class',
-      async (shipmentField) => {
-        render(
+    it.each([
+      'storageFacilityName',
+      'storageFacilityAddress',
+      'ntsRecordedWeight',
+      'serviceOrderNumber',
+      'requestedPickupDate',
+      'tacType',
+    ])('Verify Shipment field %s displays "Missing" with an error class', async (shipmentField) => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
           <NTSRShipmentInfoList
+            errorIfMissing={errorIfMissing}
+            warnIfMissing={warnIfMissing}
+            showWhenCollapsed={showWhenCollapsed}
             shipment={{
               counselorRemarks: text('counselorRemarks', shipment.counselorRemarks),
               requestedDeliveryDate: text('requestedDeliveryDate', shipment.requestedDeliveryDate),
               destinationAddress: object('destinationAddress', shipment.destinationAddress),
             }}
-            warnIfMissing={warnIfMissing}
-            errorIfMissing={errorIfMissing}
-            showWhenCollapsed={showWhenCollapsed}
-          />,
-        );
-        const shipmentFieldElement = screen.getByTestId(shipmentField);
-        expect(shipmentFieldElement).toHaveTextContent('Missing');
-        expect(shipmentFieldElement.parentElement).toHaveClass('missingInfoError');
-      },
-    );
+          />
+        </MockProviders>,
+      );
+      const shipmentFieldElement = screen.getByTestId(shipmentField);
+      expect(shipmentFieldElement).toHaveTextContent('Missing');
+      expect(shipmentFieldElement.parentElement).toHaveClass('missingInfoError');
+    });
   });
 
   describe('NTSR Shipment Info List collapsed view', () => {

@@ -11,6 +11,7 @@ import (
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services/address"
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -31,6 +32,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 	fetcher := fetch.NewFetcher(builder)
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	primeSpec, err := loads.Analyzed(primev3api.SwaggerJSON, "")
 	if err != nil {
@@ -45,7 +47,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 
 	primeAPIV3.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 		mtoshipment.NewMTOShipmentRateAreaFetcher(),
 	}
 
@@ -80,7 +82,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 	)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
-	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(
 		builder,
 		fetcher,
@@ -93,13 +95,26 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 		addressCreator,
 	)
 
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		handlerConfig.HHGPlanner(),
+		queryBuilder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer())
+
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
-	shipmentUpdater := shipment.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+	shipmentUpdater := shipment.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 	primeAPIV3.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		handlerConfig,
 		shipmentUpdater,
+		handlerConfig.DTODPlanner(),
 	}
 
 	return primeAPIV3

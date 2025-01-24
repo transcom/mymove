@@ -20,7 +20,7 @@ func TestInvoiceSuite(t *testing.T) {
 	ts := &InvoiceServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("invoice_service"),
 			testingsuite.WithPerTestTransaction()),
-		storer: storageTest.NewFakeS3Storage(true),
+		storer: storageTest.NewFakeS3Storage(true, nil),
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

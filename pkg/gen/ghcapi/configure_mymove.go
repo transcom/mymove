@@ -472,6 +472,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
 		})
 	}
+	if api.TransportationOfficeShowCounselingOfficesHandler == nil {
+		api.TransportationOfficeShowCounselingOfficesHandler = transportation_office.ShowCounselingOfficesHandlerFunc(func(params transportation_office.ShowCounselingOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_office.ShowCounselingOffices has not yet been implemented")
+		})
+	}
 	if api.PpmShowPaymentPacketHandler == nil {
 		api.PpmShowPaymentPacketHandler = ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")

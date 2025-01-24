@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -115,6 +116,22 @@ func (suite *ModelSuite) TestTacFormat() {
 }
 
 func (suite *ModelSuite) TestFetchOrderForUser() {
+	setupHhgStudentAllowanceParameter := func() {
+		paramJSON := `{
+            "TotalWeightSelf": 350,
+            "TotalWeightSelfPlusDependents": 350,
+            "ProGearWeight": 0,
+            "ProGearWeightSpouse": 0,
+            "UnaccompaniedBaggageAllowance": 100
+        }`
+		rawMessage := json.RawMessage(paramJSON)
+
+		parameter := models.ApplicationParameters{
+			ParameterName: models.StringPointer("studentTravelHhgAllowance"),
+			ParameterJson: &rawMessage,
+		}
+		suite.MustCreate(&parameter)
+	}
 
 	suite.Run("successful fetch by authorized user", func() {
 		order := factory.BuildOrder(suite.DB(), nil, nil)
@@ -137,6 +154,35 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		suite.Equal(order.NewDutyLocation.ID, goodOrder.NewDutyLocation.ID)
 		suite.Equal(order.Grade, goodOrder.Grade)
 		suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)
+	})
+
+	suite.Run("retrieves student entitlement properly for user", func() {
+		setupHhgStudentAllowanceParameter()
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeSTUDENTTRAVEL,
+				},
+			},
+		}, nil)
+
+		// User is authorized to fetch order
+		session := &auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          order.ServiceMember.UserID,
+			ServiceMemberID: order.ServiceMemberID,
+		}
+		goodOrder, err := m.FetchOrderForUser(suite.DB(), session, order.ID)
+
+		suite.NoError(err)
+		suite.FatalNotNil(goodOrder.Entitlement)
+		suite.FatalNotNil(goodOrder.Entitlement.WeightAllotted)
+		suite.Equal(goodOrder.Entitlement.WeightAllotted.TotalWeightSelf, 350)
+		suite.Equal(goodOrder.Entitlement.WeightAllotted.TotalWeightSelfPlusDependents, 350)
+		suite.Equal(goodOrder.Entitlement.WeightAllotted.ProGearWeight, 0)
+		suite.Equal(goodOrder.Entitlement.WeightAllotted.ProGearWeightSpouse, 0)
+		suite.Equal(goodOrder.Entitlement.WeightAllotted.UnaccompaniedBaggageAllowance, 100)
+
 	})
 
 	suite.Run("check for closeout office", func() {

@@ -159,3 +159,40 @@ describe('AllowancesDetailForm', () => {
     expect(screen.queryByLabelText(/Number of dependents of the age 12 or over/)).toBeInTheDocument();
   });
 });
+describe('AllowancesDetailForm additional tests', () => {
+  it('renders gun safe checkbox field', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
+      </Formik>,
+    );
+
+    expect(await screen.findByTestId('gunSafeInput')).toBeInTheDocument();
+  });
+
+  it('renders admin weight location section with conditional weight restriction field', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
+      </Formik>,
+    );
+
+    const adminWeightCheckbox = await screen.findByTestId('adminWeightLocation');
+    expect(adminWeightCheckbox).toBeInTheDocument();
+    expect(screen.queryByTestId('weightRestrictionInput')).not.toBeInTheDocument();
+    await act(async () => {
+      adminWeightCheckbox.click();
+    });
+    expect(screen.getByTestId('weightRestrictionInput')).toBeInTheDocument();
+  });
+
+  it('displays the total weight allowance correctly', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
+      </Formik>,
+    );
+
+    expect(await screen.findByTestId('weightAllowance')).toHaveTextContent('11,000');
+  });
+});
