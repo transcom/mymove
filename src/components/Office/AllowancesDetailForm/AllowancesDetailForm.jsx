@@ -20,9 +20,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     entitlements?.dependentsTwelveAndOver ||
     entitlements?.dependentsUnderTwelve
   );
-  const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(
-    entitlements?.adminRestrictedWeightLocation || false,
-  );
+  const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(entitlements?.weightRestriction > 0);
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
@@ -173,7 +171,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
         isDisabled={formIsDisabled}
       />
       <dl>
-        <dt>Standard Weight allowance</dt>
+        <dt>Standard weight allowance</dt>
         <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
       </dl>
       <div className={styles.wrappedCheckbox}>
@@ -202,6 +200,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           label="Admin restricted weight location"
           isDisabled={formIsDisabled}
           onChange={handleAdminWeightLocationChange}
+          checked={entitlements?.weightRestriction > 0}
         />
       </div>
       {isAdminWeightLocationChecked && (

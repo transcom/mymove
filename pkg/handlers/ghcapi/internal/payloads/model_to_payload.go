@@ -716,7 +716,6 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 	requiredMedicalEquipmentWeight := int64(entitlement.RequiredMedicalEquipmentWeight)
 	gunSafe := entitlement.GunSafe
-	adminRestrictedWeightLocation := entitlement.AdminRestrictedWeightLocation
 	var accompaniedTour *bool
 	if entitlement.AccompaniedTour != nil {
 		accompaniedTour = models.BoolPointer(*entitlement.AccompaniedTour)
@@ -755,10 +754,9 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		AccompaniedTour:                accompaniedTour,
 		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		GunSafe:                       gunSafe,
-		AdminRestrictedWeightLocation: adminRestrictedWeightLocation,
-		WeightRestriction:             weightRestriction,
-		ETag:                          etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe:           gunSafe,
+		WeightRestriction: weightRestriction,
+		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 
 } // DutyLocation payload

@@ -86,13 +86,12 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveApprovedEmailData{
-		Link:                          ppmInfoSheetURL.String(),
-		OriginDutyLocation:            originDutyLocation,
-		DestinationDutyLocation:       orders.NewDutyLocation.Name,
-		OriginDutyLocationPhoneLine:   originDutyLocationPhoneLine,
-		Locator:                       move.Locator,
-		MyMoveLink:                    MyMoveLink,
-		AdminRestrictedWeightLocation: orders.Entitlement.AdminRestrictedWeightLocation,
+		Link:                        ppmInfoSheetURL.String(),
+		OriginDutyLocation:          originDutyLocation,
+		DestinationDutyLocation:     orders.NewDutyLocation.Name,
+		OriginDutyLocationPhoneLine: originDutyLocationPhoneLine,
+		Locator:                     move.Locator,
+		MyMoveLink:                  MyMoveLink,
 	})
 
 	if err != nil {
@@ -129,13 +128,12 @@ func (m MoveApproved) renderTemplates(appCtx appcontext.AppContext, data moveApp
 
 // moveApprovedEmailData has content for email template
 type moveApprovedEmailData struct {
-	Link                          string
-	OriginDutyLocation            *string
-	DestinationDutyLocation       string
-	OriginDutyLocationPhoneLine   *string
-	Locator                       string
-	MyMoveLink                    string
-	AdminRestrictedWeightLocation bool
+	Link                        string
+	OriginDutyLocation          *string
+	DestinationDutyLocation     string
+	OriginDutyLocationPhoneLine *string
+	Locator                     string
+	MyMoveLink                  string
 }
 
 // RenderHTML renders the html for the email

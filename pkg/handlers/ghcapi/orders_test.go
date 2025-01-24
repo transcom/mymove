@@ -1480,7 +1480,6 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
 		StorageInTransit:               models.Int64Pointer(80),
-		AdminRestrictedWeightLocation:  models.BoolPointer(false),
 		WeightRestriction:              models.Int64Pointer(0),
 	}
 

@@ -19,10 +19,6 @@ import (
 // swagger:model Entitlement
 type Entitlement struct {
 
-	// admin restricted weight location
-	// Example: false
-	AdminRestrictedWeightLocation bool `json:"adminRestrictedWeightLocation,omitempty"`
-
 	// authorized weight
 	// Example: 2000
 	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`

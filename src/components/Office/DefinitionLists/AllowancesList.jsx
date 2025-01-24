@@ -34,7 +34,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dd data-testid="branch">{info.branch ? ORDERS_BRANCH_OPTIONS[info.branch] : ''}</dd>
         </div>
         <div className={descriptionListStyles.row}>
-          <dt>Weight allowance</dt>
+          <dt>Standard weight allowance</dt>
           <dd data-testid="weightAllowance">{formatWeight(info.totalWeight)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
@@ -104,9 +104,10 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dd data-testid="gunSafe"> {info.gunSafe ? 'Authorized' : 'Unauthorized'} </dd>
         </div>
         <div className={visualCuesStyle}>
-          <dt>Admin Restricted Weight Location</dt>
-          <dd data-testid="adminRestrictedWtLoc">{info.adminRestrictedWeightLocation ? 'Yes' : 'No'}</dd>
+          <dt>Admin Weight Restricted Location</dt>
+          <dd data-testid="adminRestrictedWtLoc">{info.weightRestriction > 0 ? 'Yes' : 'No'}</dd>
         </div>
+
         <div className={visualCuesStyle}>
           <dt>Weight Restriction</dt>
           <dd data-testid="weightRestriction">
