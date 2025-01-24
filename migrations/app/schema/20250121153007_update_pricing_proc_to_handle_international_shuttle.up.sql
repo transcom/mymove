@@ -136,7 +136,7 @@ BEGIN
         WHERE id = service_item.re_service_id;
 
         CASE
-            WHEN service_code IN (''ISLH'', ''UBP'', ''IDSHUT'') THEN
+            WHEN service_code IN (''ISLH'', ''UBP'') THEN
                 contract_id := get_contract_id(shipment.requested_pickup_date);
                 o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
                 d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
@@ -168,7 +168,7 @@ BEGIN
 			        WHERE id = service_item.id;
                 END IF;
 
-            WHEN service_code IN (''IHUPK'', ''IUBUPK'') THEN
+            WHEN service_code IN (''IHUPK'', ''IUBUPK'', ''IDSHUT'') THEN
                 -- perform IHUPK/IUBUPK-specific logic (no origin rate area)
                 contract_id := get_contract_id(shipment.requested_pickup_date);
                 d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
