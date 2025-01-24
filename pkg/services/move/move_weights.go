@@ -306,7 +306,7 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 				// the shipment being updated might have a reweigh that wasn't loaded
 				updatedShipment.Reweigh = shipment.Reweigh
 				moveActualWeightTotal += lowerShipmentActualWeight(*updatedShipment)
-				moveEstimatedWeightTotal += lowerShipmentEstimatedWeight(shipment)
+				moveEstimatedWeightTotal += lowerShipmentEstimatedWeight(*updatedShipment)
 			}
 		}
 	}
