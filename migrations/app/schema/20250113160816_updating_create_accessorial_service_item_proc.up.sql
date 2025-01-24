@@ -7,9 +7,11 @@ BEGIN
 END
 ';
 
+DROP PROCEDURE create_accessorial_service_items_for_shipment(uuid,mto_service_item_type[]);
 CREATE OR REPLACE PROCEDURE create_accessorial_service_items_for_shipment (
     IN shipment_id UUID,
-    IN service_items mto_service_item_type[]
+    IN service_items mto_service_item_type[],
+	OUT created_service_item_ids text[]
 ) AS '
 DECLARE
     s_type mto_shipment_type;
@@ -99,7 +101,10 @@ BEGIN
                     (item).customer_expense_reason,
                     (item).sit_delivery_miles,
                     (item).standalone_crate
-                );
+                ) RETURNING id AS new_service_id;
+
+                created_service_item_ids := array_append(created_service_item_ids, new_service_id);
+
                 END IF;
             EXCEPTION
                 WHEN OTHERS THEN
@@ -109,7 +114,7 @@ BEGIN
         END LOOP;
     END LOOP;
 
-    UPDATE moves SET status = ''APPROVALS REQUESTED'' WHERE id = ''5ca35025-caf9-4803-b851-8081df3f9e6c'';
+    UPDATE moves SET status = ''APPROVALS REQUESTED'' WHERE id = move_id;
 END;
 '
 LANGUAGE plpgsql;

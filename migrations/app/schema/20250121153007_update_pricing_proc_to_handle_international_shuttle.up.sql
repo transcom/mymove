@@ -3,20 +3,25 @@
 -- dest rate area
 -- re_services id
 -- contract id
+-- adding the is_peak_period check to refine the price query further
 CREATE OR REPLACE FUNCTION calculate_escalated_price(
     o_rate_area_id UUID,
     d_rate_area_id UUID,
     re_service_id UUID,
     c_id UUID,
-    service_code TEXT
+    service_code TEXT,
+    requested_pickup_date DATE
 ) RETURNS NUMERIC AS $$
 DECLARE
     per_unit_cents NUMERIC;
     escalation_factor NUMERIC;
     escalated_price NUMERIC;
     is_oconus BOOLEAN;
+    peak_period BOOLEAN;
 BEGIN
     -- we need to query the appropriate table based on the service code
+    -- need to establish if the shipment is being moved during peak period
+    peak_period := is_peak_period(requested_pickup_date);
     IF service_code IN ('IOSHUT','IDSHUT') THEN
 		IF service_code = 'IOSHUT' THEN
         	SELECT ra.is_oconus
@@ -44,10 +49,10 @@ BEGIN
         SELECT rip.per_unit_cents
         INTO per_unit_cents
         FROM re_intl_prices rip
-        WHERE (rip.origin_rate_area_id = o_rate_area_id OR o_rate_area_id IS NULL)
-          AND (rip.destination_rate_area_id = d_rate_area_id OR d_rate_area_id IS NULL)
+        WHERE rip.origin_rate_area_id = o_rate_area_id AND rip.destination_rate_area_id = d_rate_area_id
           AND rip.service_id = re_service_id
-          AND rip.contract_id = c_id;
+          AND rip.contract_id = c_id
+          AND rip.is_peak_period = peak_period;
     ELSE
         SELECT riop.per_unit_cents
         INTO per_unit_cents
@@ -55,26 +60,27 @@ BEGIN
         WHERE (riop.rate_area_id = o_rate_area_id OR riop.rate_area_id = d_rate_area_id OR
             (o_rate_area_id IS NULL AND d_rate_area_id IS NULL))
         AND riop.service_id = re_service_id
-        AND riop.contract_id = c_id;
-
+        AND riop.contract_id = c_id
+        AND riop.is_peak_period = peak_period;
     END IF;
 
+    RAISE NOTICE '% per unit cents: %', service_code, per_unit_cents;
     IF per_unit_cents IS NULL THEN
         RAISE EXCEPTION 'No per unit cents found for service item id: %, origin rate area: %, dest rate area: %, and contract_id: %', re_service_id, o_rate_area_id, d_rate_area_id, c_id;
     END IF;
 
-    SELECT rcy.escalation
+    SELECT rcy.escalation_compounded
     INTO escalation_factor
     FROM re_contract_years rcy
-    WHERE rcy.contract_id = c_id;
+    WHERE rcy.contract_id = c_id
+        AND requested_pickup_date BETWEEN rcy.start_date AND rcy.end_date;
 
     IF escalation_factor IS NULL THEN
         RAISE EXCEPTION 'Escalation factor not found for contract_id %', c_id;
     END IF;
     -- calculate the escalated price, return in dollars (dividing by 100)
-    escalated_price := ROUND(per_unit_cents * escalation_factor::NUMERIC / 100, 2);
-
-    RAISE NOTICE '% escalated price: $% (% * % / 100)', service_code, escalated_price, per_unit_cents, escalation_factor;
+    per_unit_cents := per_unit_cents / 100; -- putting in dollars
+    escalated_price := ROUND(per_unit_cents * escalation_factor, 2); -- rounding to two decimals (100.00)
 
     RETURN escalated_price;
 END;
