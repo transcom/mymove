@@ -41,7 +41,7 @@ variables:
 
   RUNNER_TAG: &runner_tag milmove
 
-  DOCKER_RUNNER_TAG: &docker_runner_tag testing_runner
+  DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
 
   postgres: &postgres postgres:16
   redis: &redis redis:5.0.6
@@ -60,8 +60,7 @@ stages:
 #set safe directory and path
 .setup_milmove_env: &setup_milmove_env
     - git config --global --add safe.directory /builds/milmove/mymove
-    -
-
+    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
     - export REACT_APP_ERROR_LOGGING=otel
 
 .announce_failure: &announce_failure
