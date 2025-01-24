@@ -659,6 +659,67 @@ func (h GetBulkAssignmentDataHandler) Handle(
 		})
 }
 
+// GetPaymentRequestBulkAssignmentDataHandler returns payment requests that the supervisor can assign, along with the office users they are able to assign to
+type GetPaymentRequestBulkAssignmentDataHandler struct {
+	handlers.HandlerConfig
+	services.OfficeUserFetcherPop
+	services.PaymentRequestFetcherBulkAssignment
+}
+
+func (h GetPaymentRequestBulkAssignmentDataHandler) Handle(
+	params queues.GetBulkAssignmentPaymentRequestDataParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() {
+				err := apperror.NewForbiddenError("not an office user")
+				appCtx.Logger().Error("Must be an office user", zap.Error(err))
+				return queues.NewGetBulkAssignmentPaymentRequestDataUnauthorized(), err
+			}
+
+			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+				return queues.NewGetBulkAssignmentPaymentRequestDataNotFound(), err
+			}
+
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+				return queues.NewGetBulkAssignmentPaymentRequestDataNotFound(), err
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			if !isSupervisor {
+				appCtx.Logger().Error("Unauthorized", zap.Error(err))
+				return queues.NewGetBulkAssignmentPaymentRequestDataUnauthorized(), err
+			}
+
+			// fetch the TIOs who work at their office
+			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
+				appCtx,
+				roles.RoleTypeTIO,
+				officeUser.TransportationOfficeID,
+			)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving TIO office users", zap.Error(err))
+				return queues.NewGetBulkAssignmentPaymentRequestDataInternalServerError(), err
+			}
+			// fetch the payment requests available to be assigned to their office users
+			paymentRequests, err := h.PaymentRequestFetcherBulkAssignment.FetchPaymentRequestsForBulkAssignment(
+				appCtx, officeUser.TransportationOffice.Gbloc,
+			)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving payment requests", zap.Error(err))
+				return queues.NewGetBulkAssignmentPaymentRequestDataInternalServerError(), err
+			}
+
+			officeUserData := payloads.BulkAssignmentPaymentRequestData(appCtx, paymentRequests, officeUsers)
+
+			return queues.NewGetBulkAssignmentPaymentRequestDataOK().WithPayload(&officeUserData), nil
+		})
+}
+
 // GetServicesCounselingOriginListHandler returns the origin list for the Service Counselor user via GET /queues/counselor/origin-list
 type GetServicesCounselingOriginListHandler struct {
 	handlers.HandlerConfig

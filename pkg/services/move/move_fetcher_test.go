@@ -105,7 +105,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	})
 }
 
-func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
+func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 	setupTestData := func() (services.MoveFetcherBulkAssignment, models.Move, models.TransportationOffice, models.OfficeUser) {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
@@ -517,10 +517,13 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		suite.Equal(1, len(moves))
 		suite.NotEqual(marinePPM.ID, moves[0].ID)
 	})
+}
 
-	suite.Run("TOO: Returns moves that fulfill the query criteria", func() {
+func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
+	setupTestData := func() (services.MoveFetcherBulkAssignment, models.TransportationOffice, models.OfficeUser) {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model:    transportationOffice,
@@ -555,6 +558,127 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			},
 		}, nil)
 
+		return moveFetcher, transportationOffice, officeUser
+	}
+
+	suite.Run("TOO: Returns moves that fulfill the query's criteria", func() {
+		moveFetcher, _, officeUser := setupTestData()
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+	})
+
+	suite.Run("TOO: Does not return moves with safety, bluebark, or wounded warrior order types", func() {
+		moveFetcher, transportationOffice, officeUser := setupTestData()
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeSAFETY,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeBLUEBARK,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeWOUNDEDWARRIOR,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+	})
+
+	suite.Run("TOO: Does not return moves that are already assigned", func() {
+		moveFetcher := NewMoveFetcherBulkAssignment()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+
+		assignedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &factory.OfficeUsers.TOOAssignedUser,
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+
+		// confirm that the assigned move isn't returned
+		for _, move := range moves {
+			suite.NotEqual(move.ID, assignedMove.ID)
+		}
+
+		// confirm that the rest of the details are correct
+		// move is SERVICE COUNSELING COMPLETED
+		suite.Equal(assignedMove.Status, models.MoveStatusServiceCounselingCompleted)
+		// GBLOC is the same
+		suite.Equal(*assignedMove.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
+		// Show is true
+		suite.Equal(assignedMove.Show, models.BoolPointer(true))
+		// Orders type isn't WW, BB, or Safety
+		suite.Equal(assignedMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+	})
+
+	suite.Run("TOO: Does not return payment requests with Marines if GBLOC not USMC", func() {
+		moveFetcher, transportationOffice, officeUser := setupTestData()
+
 		marine := models.AffiliationMARINES
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
@@ -578,4 +702,32 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		suite.FatalNoError(err)
 		suite.Equal(2, len(moves))
 	})
+
+	suite.Run("TOO: Only return payment requests with Marines if GBLOC is USMC", func() {
+		moveFetcher, transportationOffice, officeUser := setupTestData()
+
+		marine := models.AffiliationMARINES
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.ServiceMember{
+					Affiliation: &marine,
+				},
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "USMC", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+	})
+
 }

@@ -2211,6 +2211,30 @@ func BulkAssignmentData(appCtx appcontext.AppContext, moves []models.MoveWithEar
 	return *bulkAssignmentData
 }
 
+func BulkAssignmentPaymentRequestData(appCtx appcontext.AppContext, paymentRequests []models.PaymentRequestWithEarliestRequestedDate, officeUsers []models.OfficeUserWithWorkload) ghcmessages.BulkAssignmentPaymentRequestData {
+	availableOfficeUsers := make(ghcmessages.AvailableOfficeUsers, len(officeUsers))
+	availablePaymentRequests := make(ghcmessages.BulkAssignmentPaymentRequestIDs, len(paymentRequests))
+
+	for i, officeUser := range officeUsers {
+		availableOfficeUsers[i] = &ghcmessages.AvailableOfficeUser{
+			LastName:     officeUser.LastName,
+			FirstName:    officeUser.FirstName,
+			OfficeUserID: *handlers.FmtUUID(officeUser.ID),
+			Workload:     int64(officeUser.Workload),
+		}
+	}
+	for i, paymentRequest := range paymentRequests {
+		availablePaymentRequests[i] = ghcmessages.BulkAssignmentPaymentRequestID(strfmt.UUID(paymentRequest.ID.String()))
+	}
+
+	bulkAssignmentPaymentRequestData := &ghcmessages.BulkAssignmentPaymentRequestData{
+		AvailableOfficeUsers:            availableOfficeUsers,
+		BulkAssignmentPaymentRequestIDs: availablePaymentRequests,
+	}
+
+	return *bulkAssignmentPaymentRequestData
+}
+
 func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.AssignedOfficeUser, isCloseoutQueue bool, officeUser models.OfficeUser, ppmCloseoutGblocs bool) bool {
 	// default to false
 	isAssignable := false

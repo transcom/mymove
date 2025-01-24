@@ -167,6 +167,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		QueuesGetBulkAssignmentDataHandler: queues.GetBulkAssignmentDataHandlerFunc(func(params queues.GetBulkAssignmentDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetBulkAssignmentData has not yet been implemented")
 		}),
+		QueuesGetBulkAssignmentPaymentRequestDataHandler: queues.GetBulkAssignmentPaymentRequestDataHandlerFunc(func(params queues.GetBulkAssignmentPaymentRequestDataParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetBulkAssignmentPaymentRequestData has not yet been implemented")
+		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
 		}),
@@ -508,6 +511,8 @@ type MymoveAPI struct {
 	ReServiceItemsGetAllReServiceItemsHandler re_service_items.GetAllReServiceItemsHandler
 	// QueuesGetBulkAssignmentDataHandler sets the operation handler for the get bulk assignment data operation
 	QueuesGetBulkAssignmentDataHandler queues.GetBulkAssignmentDataHandler
+	// QueuesGetBulkAssignmentPaymentRequestDataHandler sets the operation handler for the get bulk assignment payment request data operation
+	QueuesGetBulkAssignmentPaymentRequestDataHandler queues.GetBulkAssignmentPaymentRequestDataHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler sets the operation handler for the get customer support remarks for move operation
@@ -840,6 +845,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.QueuesGetBulkAssignmentDataHandler == nil {
 		unregistered = append(unregistered, "queues.GetBulkAssignmentDataHandler")
+	}
+	if o.QueuesGetBulkAssignmentPaymentRequestDataHandler == nil {
+		unregistered = append(unregistered, "queues.GetBulkAssignmentPaymentRequestDataHandler")
 	}
 	if o.CustomerGetCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.GetCustomerHandler")
@@ -1292,6 +1300,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/queues/bulk-assignment"] = queues.NewGetBulkAssignmentData(o.context, o.QueuesGetBulkAssignmentDataHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/queues/bulk-assignment-payment-requests"] = queues.NewGetBulkAssignmentPaymentRequestData(o.context, o.QueuesGetBulkAssignmentPaymentRequestDataHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

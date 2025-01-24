@@ -35,6 +35,7 @@ import {
   searchCustomers,
   getGBLOCs,
   getBulkAssignmentData,
+  getBulkAssignmentPaymentRequestData,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -228,6 +229,20 @@ export const useBulkAssignmentQueries = (queueType) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([bulkAssignmentDataQuery]);
   return {
     bulkAssignmentData,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useBulkAssignmentPaymentRequestQueries = (queueType) => {
+  const { data: bulkAssignmentPaymentRequestData, ...bulkAssignmentPaymentRequestDataQuery } = useQuery(
+    [queueType],
+    ({ queryKey }) => getBulkAssignmentPaymentRequestData(queryKey),
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([bulkAssignmentPaymentRequestDataQuery]);
+  return {
+    bulkAssignmentPaymentRequestData,
     isLoading,
     isError,
     isSuccess,

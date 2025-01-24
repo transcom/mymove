@@ -32,7 +32,7 @@ func NewGetBulkAssignmentData(ctx *middleware.Context, handler GetBulkAssignment
 /*
 	GetBulkAssignmentData swagger:route GET /queues/bulk-assignment queues getBulkAssignmentData
 
-# Gets data for bulk assignment modal
+# Gets data for bulk assignment move modal
 
 Supervisor office users are able to bulk assign moves. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the moves that are available to be assigned
 */
