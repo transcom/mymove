@@ -106,9 +106,9 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontex
 	return r0, r1
 }
 
-// GetTransportationOffices provides a mock function with given fields: appCtx, search, forPpm
-func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool) (*models.TransportationOffices, error) {
-	ret := _m.Called(appCtx, search, forPpm)
+// GetTransportationOffices provides a mock function with given fields: appCtx, search, forPpm, forAdminOfficeUserReqFilter
+func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool, forAdminOfficeUserReqFilter bool) (*models.TransportationOffices, error) {
+	ret := _m.Called(appCtx, search, forPpm, forAdminOfficeUserReqFilter)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTransportationOffices")
@@ -116,19 +116,19 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appconte
 
 	var r0 *models.TransportationOffices
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, bool) (*models.TransportationOffices, error)); ok {
-		return rf(appCtx, search, forPpm)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, bool, bool) (*models.TransportationOffices, error)); ok {
+		return rf(appCtx, search, forPpm, forAdminOfficeUserReqFilter)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, bool) *models.TransportationOffices); ok {
-		r0 = rf(appCtx, search, forPpm)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, bool, bool) *models.TransportationOffices); ok {
+		r0 = rf(appCtx, search, forPpm, forAdminOfficeUserReqFilter)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.TransportationOffices)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, bool) error); ok {
-		r1 = rf(appCtx, search, forPpm)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, bool, bool) error); ok {
+		r1 = rf(appCtx, search, forPpm, forAdminOfficeUserReqFilter)
 	} else {
 		r1 = ret.Error(1)
 	}

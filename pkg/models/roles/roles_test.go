@@ -3,10 +3,12 @@ package roles_test
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	m "github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -65,4 +67,38 @@ func (suite *RolesSuite) TestFetchRolesForUser() {
 	userRoles, err = m.FetchRolesForUser(suite.DB(), *officeUserTwo.UserID)
 	suite.NoError(err)
 	suite.Equal(1, len(userRoles), userRoles)
+}
+
+func (suite *RolesSuite) TestFindRoles() {
+	id1, _ := uuid.NewV4()
+	role1 := roles.Role{
+		ID:       id1,
+		RoleName: "Task Invoicing Officer",
+		RoleType: "role1",
+	}
+
+	id2, _ := uuid.NewV4()
+	role2 := roles.Role{
+		ID:       id2,
+		RoleName: "Task Ordering Officer",
+		RoleType: "role2",
+	}
+
+	id3, _ := uuid.NewV4()
+	role3 := roles.Role{
+		ID:       id3,
+		RoleName: "Contracting Officer",
+		RoleType: "role3",
+	}
+
+	// Create roles
+	rs := roles.Roles{role1, role2, role3}
+	err := suite.DB().Create(rs)
+	suite.NoError(err)
+
+	userRoles, err := m.FindRoles(suite.DB(), "Ta")
+
+	suite.NoError(err)
+	suite.Equal(2, len(userRoles), userRoles)
+
 }
