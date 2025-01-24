@@ -25,7 +25,7 @@ const filterContextStatus = (context, statusToFilter) => {
           <div>{value.name}</div>
           <div>{price.toFixed(2)}</div>
           <div className={styles.break} />
-          {value.status === 'DENIED' ? (
+          {value.status === PAYMENT_SERVICE_ITEM_STATUS.DENIED ? (
             <div className={styles.rejectionReason}>
               <strong>Rejection Reason: </strong>
               {value?.rejection_reason}

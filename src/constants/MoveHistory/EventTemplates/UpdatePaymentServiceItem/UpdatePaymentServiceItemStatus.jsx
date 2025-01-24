@@ -5,6 +5,7 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const formatChangedValues = (historyRecord) => {
   const newChangedValues = {
@@ -39,10 +40,10 @@ export default {
         historyRecord.changedValues.rejection_reason !== null &&
         historyRecord.changedValues.status !== 'APPROVED' &&
         historyRecord.changedValues.status !== 'REQUESTED') ||
-      historyRecord.changedValues.status === 'REJECTED'
+      historyRecord.changedValues.status === PAYMENT_SERVICE_ITEM_STATUS.DENIED
     ) {
       actionPrefix = 'Rejected';
-    } else if (historyRecord.changedValues.status === 'APPROVED') {
+    } else if (historyRecord.changedValues.status === PAYMENT_SERVICE_ITEM_STATUS.APPROVED) {
       actionPrefix = 'Approved';
     } else {
       actionPrefix = 'Updated';
