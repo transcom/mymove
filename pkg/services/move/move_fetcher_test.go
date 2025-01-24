@@ -558,7 +558,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 		assignedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					Status: models.MoveStatusNeedsServiceCounseling,
+					Status: models.MoveStatusServiceCounselingCompleted,
 				},
 			},
 			{
