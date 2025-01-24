@@ -243,19 +243,31 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = true
 }
 
-func checkTaskDefConfig(v *viper.Viper) error {
+func checkTaskDefConfig(logger *log.Logger, v *viper.Viper) error {
 
+	logger.Println("reached checkTaskDefConfig")
+
+	logger.Println("awsAccountIDFlag")
+	logger.Println(awsAccountIDFlag)
 	awsAccountID := v.GetString(awsAccountIDFlag)
+	logger.Println("awsAccountID")
+	logger.Println(awsAccountID)
 	if len(awsAccountID) == 0 {
 		return fmt.Errorf("%q is invalid: %w", awsAccountIDFlag, &errInvalidAccountID{AwsAccountID: awsAccountID})
 	}
+
+	logger.Println("cli.AWSRegionFlag")
+	logger.Println(cli.AWSRegionFlag)
 
 	_, err := cli.CheckAWSRegion(v)
 	if err != nil {
 		return fmt.Errorf("%q is invalid: %w", cli.AWSRegionFlag, err)
 	}
-
+	logger.Println("serviceFlag")
+	logger.Println(serviceFlag)
 	serviceName := v.GetString(serviceFlag)
+	logger.Println("serviceName")
+	logger.Println(serviceName)
 	if len(serviceName) == 0 {
 		return fmt.Errorf("%q is invalid: %w", serviceFlag, &errInvalidService{Service: serviceName})
 	}
@@ -270,7 +282,11 @@ func checkTaskDefConfig(v *viper.Viper) error {
 		return fmt.Errorf("%q is invalid: %w", serviceFlag, &errInvalidService{Service: serviceName})
 	}
 
+	logger.Println("environmentFlag")
+	logger.Println(environmentFlag)
 	environmentName := v.GetString(environmentFlag)
+	logger.Println("environmentName")
+	logger.Println(environmentName)
 	if len(environmentName) == 0 {
 		return fmt.Errorf("%q is invalid: %w", environmentFlag, &errInvalidEnvironment{Environment: environmentName})
 	}
@@ -284,27 +300,40 @@ func checkTaskDefConfig(v *viper.Viper) error {
 	if !validEnvironment {
 		return fmt.Errorf("%q is invalid: %w", environmentFlag, &errInvalidEnvironment{Environment: environmentName})
 	}
-
+	logger.Println("imageURIFlag")
+	logger.Println(imageURIFlag)
 	image := v.GetString(imageURIFlag)
+	logger.Println("image")
+	logger.Println(image)
 	if len(image) == 0 {
 		return fmt.Errorf("%q is invalid: %w", imageURIFlag, &errInvalidImage{Image: image})
 	}
 
 	if variablesFile := v.GetString(variablesFileFlag); len(variablesFile) > 0 {
+		logger.Println("variablesFile")
+		logger.Println(variablesFile)
 		if _, err := os.Stat(variablesFile); err != nil {
 			return fmt.Errorf("%q is invalid: %w", variablesFileFlag, &errInvalidFile{File: variablesFile})
 		}
 	}
 
+	logger.Println("entryPointFlag")
+	logger.Println(entryPointFlag)
 	entryPoint := v.GetString(entryPointFlag)
+	logger.Println("entryPoint")
+	logger.Println(entryPoint)
 	if len(entryPointFlag) == 0 {
 		return fmt.Errorf("%q is invalid: %w", entryPointFlag, &errInvalidEntryPoint{EntryPoint: entryPoint})
 	}
 	validEntryPoint := false
 	entryPoints := servicesToEntryPoints[serviceName]
+	logger.Println("mapped service to entry point")
 	for _, str := range entryPoints {
+		logger.Println("entryPoint")
+		logger.Println(entryPoint)
 		if entryPoint == str {
 			validEntryPoint = true
+			logger.Println("validEntryPoint is true")
 			break
 		}
 	}
@@ -447,11 +476,12 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Ensure the configuration works against the variables
-	err = checkTaskDefConfig(v)
+	err = checkTaskDefConfig(logger, v)
 	if err != nil {
 		quit(logger, flag, err)
 	}
-
+	logger.Println("cli.AWSRegionFlag")
+	logger.Println(cli.AWSRegionFlag)
 	cfg, errCfg := config.LoadDefaultConfig(context.Background(),
 		config.WithRegion(v.GetString(cli.AWSRegionFlag)),
 	)
@@ -459,63 +489,132 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		quit(logger, flag, err)
 	}
 
+	logger.Println("cfg")
+	logger.Println(cfg)
 	serviceCloudWatchEvents := cloudwatchevents.NewFromConfig(cfg)
 	serviceECS := ecs.NewFromConfig(cfg)
+	logger.Println("serviceECS")
+	logger.Println(serviceECS)
 	serviceECR := ecr.NewFromConfig(cfg)
+	logger.Println("serviceECR")
+	logger.Println(serviceECR)
 	serviceRDS := rds.NewFromConfig(cfg)
+	logger.Println("serviceRDS")
+	logger.Println(serviceRDS)
 
 	// ===== Limit the variables required =====
 	awsAccountID := v.GetString(awsAccountIDFlag)
+	logger.Println("awsAccountID")
+	logger.Println(awsAccountID)
 	awsRegion := v.GetString(cli.AWSRegionFlag)
+	logger.Println("awsRegion")
+	logger.Println(awsRegion)
 	environmentName := v.GetString(environmentFlag)
+	logger.Println("environmentName")
+	logger.Println(environmentName)
 	serviceName := v.GetString(serviceFlag)
+	logger.Println("serviceName")
+	logger.Println(serviceName)
 	imageURI := v.GetString(imageURIFlag)
+	logger.Println("imageURI")
+	logger.Println(imageURI)
 	variablesFile := v.GetString(variablesFileFlag)
+	logger.Println("variablesFile")
+	logger.Println(variablesFile)
 
 	// Short service name needed for RDS, CloudWatch Logs, and SSM
 	serviceNameParts := strings.Split(serviceName, "-")
+	logger.Println("serviceNameParts")
+	logger.Println(serviceNameParts)
 	serviceNameShort := serviceNameParts[0]
+	logger.Println("serviceNameShort")
+	logger.Println(serviceNameShort)
 
 	// Confirm the image exists
 	ecrImage, errECRImage := NewECRImage(imageURI)
+	logger.Println("ecrImage")
+	logger.Println(ecrImage)
+	logger.Println("errECRImage")
+	logger.Println(errECRImage)
 	if errECRImage != nil {
 		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageURI, errECRImage))
 	}
 
 	errValidateImage := ecrImage.Validate(serviceECR)
+	logger.Println("errValidateImage")
+	logger.Println(errValidateImage)
 	if errValidateImage != nil {
 		quit(logger, nil, fmt.Errorf("unable to validate image %v: %w", ecrImage, errValidateImage))
 	}
 
 	// Entrypoint
 	entryPoint := v.GetString(entryPointFlag)
+	logger.Println("entryPoint")
+	logger.Println(entryPoint)
 	entryPointList := strings.Split(entryPoint, " ")
 	commandName := entryPointList[0]
+	logger.Println("commandName")
+	logger.Println(commandName)
 	subCommandName := entryPointList[1]
+	logger.Println("subCommandName")
+	logger.Println(subCommandName)
 
 	// Register the new task definition
+	logger.Println("trying to register new task def")
+
 	executionRoleArn := fmt.Sprintf("ecs-task-execution-role-%s-%s", serviceName, environmentName)
+	logger.Println("executionRoleArn")
+	logger.Println(executionRoleArn)
+
 	taskRoleArn := fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
+	logger.Println("taskRoleArn")
+	logger.Println(taskRoleArn)
 	family := fmt.Sprintf("%s-%s", serviceName, environmentName)
+	logger.Println("family")
+	logger.Println(family)
 
 	// handle entrypoint specific logic
 	var awsLogsStreamPrefix string
+	logger.Println("awsLogsStreamPrefix")
+	logger.Println(awsLogsStreamPrefix)
 	var awsLogsGroup string
+	logger.Println("awsLogsGroup")
+	logger.Println(awsLogsGroup)
 	var portMappings []ecstypes.PortMapping
+	logger.Println("portMappings")
+	logger.Println(portMappings)
 	var containerDefName string
+	logger.Println("containerDefName")
+	logger.Println(containerDefName)
 
 	ctx := context.Background()
 
 	if commandName == binMilMoveTasks {
+		logger.Println("commandName == binMilMoveTasks")
+
 		executionRoleArn = fmt.Sprintf("ecs-task-exec-role-%s-%s-%s", serviceNameShort, environmentName, subCommandName)
+		logger.Println("executionRoleArn")
+		logger.Println(executionRoleArn)
 		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-%s-%s", serviceNameShort, environmentName, subCommandName)
+		logger.Println("taskRoleArn")
+		logger.Println(taskRoleArn)
 		family = fmt.Sprintf("%s-%s-%s", serviceNameShort, environmentName, subCommandName)
+		logger.Println("family")
+		logger.Println(family)
 
 		awsLogsStreamPrefix = serviceName
+		logger.Println("awsLogsStreamPrefix")
+		logger.Println(awsLogsStreamPrefix)
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
+		logger.Println("awsLogsGroup")
+		logger.Println(awsLogsGroup)
 		containerDefName = fmt.Sprintf("%s-%s-%s", serviceName, subCommandName, environmentName)
+		logger.Println("containerDefName")
+		logger.Println(containerDefName)
 
 		ruleName := fmt.Sprintf("%s-%s", subCommandName, environmentName)
+		logger.Println("ruleName")
+		logger.Println(ruleName)
 		_, listTargetsByRuleErr := serviceCloudWatchEvents.ListTargetsByRule(
 			ctx,
 			&cloudwatchevents.ListTargetsByRuleInput{
@@ -525,6 +624,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			quit(logger, nil, fmt.Errorf("error retrieving targets for rule %q: %w", ruleName, listTargetsByRuleErr))
 		}
 	} else if subCommandName == "migrate" {
+		logger.Println("subCommandName == migrate")
 		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
 		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
@@ -537,6 +637,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		// This needs to be fixed in terraform and then rolled out
 		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-migration-%s", serviceNameShort, environmentName)
 	} else if commandName == binWebhookClient {
+		logger.Println("commandName == binWebhookClient")
 		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
 		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
@@ -558,33 +659,59 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 	// Get the database host using the instance identifier
 	dbInstanceIdentifier := fmt.Sprintf("%s-%s", serviceNameShort, environmentName)
+	logger.Println("dbInstanceIdentifier")
+	logger.Println(dbInstanceIdentifier)
+
 	dbInstancesOutput, err := serviceRDS.DescribeDBInstances(
 		ctx,
 		&rds.DescribeDBInstancesInput{
 			DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
 		})
+	logger.Println("dbInstancesOutput")
+	logger.Println(dbInstancesOutput)
 	if err != nil {
+		logger.Println("error retrieving database definition for")
 		quit(logger, nil, fmt.Errorf("error retrieving database definition for %q: %w", dbInstanceIdentifier, err))
 	}
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
-
+	logger.Println("dbHost")
+	logger.Println(dbHost)
 	// CPU / MEM
 	cpu := strconv.Itoa(v.GetInt(cpuFlag))
 	mem := strconv.Itoa(v.GetInt(memFlag))
 
 	// Create the set of secrets and environment variables that will be injected into the
 	// container.
+	logger.Println("creating the set of secrets and environment variables that will be injected into the container")
 	secrets, err := buildSecrets(cfg, awsAccountID, serviceNameShort, environmentName)
+	logger.Println("secrets")
+	logger.Println(secrets)
+
 	if err != nil {
 		quit(logger, nil, err)
 	}
 	containerEnvironment := buildContainerEnvironment(environmentName, dbHost, variablesFile)
-
+	logger.Println("containerEnvironment")
+	logger.Println(containerEnvironment)
 	// AWS does not permit supplying both a secret and an environment variable that share the same
 	// name into an ECS task. In order to gracefully transition between setting values as secrets
 	// into setting them as environment variables, this function serves to remove any duplicates
 	// that have been transitioned into being set as environment variables.
-	secrets = removeSecretsWithMatchingEnvironmentVariables(secrets, containerEnvironment)
+	secrets = removeSecretsWithMatchingEnvironmentVariables(logger, secrets, containerEnvironment)
+
+	logger.Println("aws.String(containerDefName)")
+	logger.Println(aws.String(containerDefName))
+	logger.Println("aws.String(ecrImage.ImageURI)")
+	logger.Println(aws.String(ecrImage.ImageURI))
+	logger.Println("containerEnvironment)")
+	logger.Println(containerEnvironment)
+
+	logger.Println("awsLogsGroup)")
+	logger.Println(awsLogsGroup)
+	logger.Println("awsRegion)")
+	logger.Println(awsRegion)
+	logger.Println("awsLogsStreamPrefix)")
+	logger.Println(awsLogsStreamPrefix)
 
 	containerDefinitions := []ecstypes.ContainerDefinition{
 		{
@@ -935,7 +1062,7 @@ service:
 	return nil
 }
 
-func removeSecretsWithMatchingEnvironmentVariables(secrets []ecstypes.Secret, containerEnvironment []ecstypes.KeyValuePair) []ecstypes.Secret {
+func removeSecretsWithMatchingEnvironmentVariables(logger *log.Logger, secrets []ecstypes.Secret, containerEnvironment []ecstypes.KeyValuePair) []ecstypes.Secret {
 	// Remove any secrets that share a name with an environment variable. Do this by creating a new
 	// slice of secrets that does not any secrets that share a name with an environment variable.
 	newSecrets := []ecstypes.Secret{}
@@ -949,6 +1076,9 @@ func removeSecretsWithMatchingEnvironmentVariables(secrets []ecstypes.Secret, co
 
 		if conflictFound {
 			// Report any conflicts that are found.
+			logger.Println("found duplicate secret of ")
+			logger.Println(secret)
+
 			fmt.Fprintln(os.Stderr, "Found a secret with the same name as an environment variable. Discarding secret in favor of the environment variable:", *secret.Name)
 		} else {
 			// If no conflict is found, keep the secret.

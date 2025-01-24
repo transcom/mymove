@@ -177,8 +177,18 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 
 	// Get the current task definition (for rollback)
 	taskDefARN := v.GetString(taskDefARNFlag)
+	logger.Println("taskDefARNFlag")
+	logger.Println(taskDefARNFlag)
+	logger.Println("taskDefARN")
+	logger.Println(taskDefARN)
 	name := v.GetString(nameFlag)
+	logger.Println("nameFlag")
+	logger.Println(nameFlag)
+	logger.Println("name")
+	logger.Println(name)
 	ruleName := fmt.Sprintf("%s-%s", name, v.GetString(environmentFlag))
+	logger.Println("ruleName")
+	logger.Println(ruleName)
 	targetsOutput, err := serviceCloudWatchEvents.ListTargetsByRule(
 		context.Background(),
 		&cloudwatchevents.ListTargetsByRuleInput{
@@ -189,6 +199,8 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	currentTarget := targetsOutput.Targets[0]
+	logger.Println(currentTarget)
+	logger.Println(currentTarget)
 
 	// Update the task event target with the new task ECS parameters
 	putTargetsInput := cloudwatchevents.PutTargetsInput{
@@ -208,11 +220,16 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 			},
 		},
 	}
-
+	logger.Println("dryRunFlag")
+	logger.Println(dryRunFlag)
+	logger.Println("putTargetFlag")
+	logger.Println(putTargetFlag)
 	if v.GetBool(dryRunFlag) {
 		// Format the new task def as JSON for viewing
 		jsonErr := json.NewEncoder(logger.Writer()).Encode(putTargetsInput)
 		if jsonErr != nil {
+			logger.Println("jsonError != nil")
+			logger.Println(err)
 			quit(logger, nil, err)
 		}
 	} else if v.GetBool(putTargetFlag) {
