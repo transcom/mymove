@@ -156,22 +156,16 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		logger.Error("Error loading timezone for process-tpps ECS task", zap.Error(err))
 	}
 
-	yesterday := time.Now().In(timezone).AddDate(0, 0, -1)
-	previousDay := yesterday.Format("20220702")
-	tppsFilename = fmt.Sprintf("MILMOVE-en%s.csv", previousDay)
-	previousDayFormatted := yesterday.Format("July 02, 2022")
-	logger.Info(fmt.Sprintf("Starting transfer of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
-
 	logger.Info(tppsFilename)
 	if customFilePathToProcess == tppsSFTPFileFormatNoCustomDate {
 		logger.Info("No custom filepath provided to process, processing payment file for yesterday's date.")
 		// if customFilePathToProcess = MILMOVE-enYYYYMMDD.csv
 		// process the filename for yesterday's date (like the TPPS lambda does)
 		// the previous day's TPPS payment file should be available on external server
-		yesterday := time.Now().AddDate(0, 0, -1)
-		previousDay := yesterday.Format("20220702")
+		yesterday := time.Now().In(timezone).AddDate(0, 0, -1)
+		previousDay := yesterday.Format("20060102")
 		tppsFilename = fmt.Sprintf("MILMOVE-en%s.csv", previousDay)
-		previousDayFormatted := yesterday.Format("July 02, 2022")
+		previousDayFormatted := yesterday.Format("January 02, 2006")
 		logger.Info(fmt.Sprintf("Starting transfer of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
 	} else {
 		logger.Info("Custom filepath provided to process")
@@ -182,11 +176,9 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		logger.Info(fmt.Sprintf("Starting transfer of TPPS data file: %s\n", tppsFilename))
 	}
 
-	testS3FilePath := "MILMOVE-en20250122.csv"
-	pathTPPSPaidInvoiceReport := s3BucketTPPSPaidInvoiceReport + "/" + testS3FilePath
-
+	pathTPPSPaidInvoiceReport := s3BucketTPPSPaidInvoiceReport + "/" + tppsFilename
 	// temporarily adding logging here to see that s3 path was found
-	logger.Info(fmt.Sprintf("pathTPPSPaidInvoiceReport: %s", pathTPPSPaidInvoiceReport))
+	logger.Info(fmt.Sprintf("Entire TPPS filepath pathTPPSPaidInvoiceReport: %s", pathTPPSPaidInvoiceReport))
 	err = tppsInvoiceProcessor.ProcessFile(appCtx, pathTPPSPaidInvoiceReport, "")
 
 	if err != nil {

@@ -71,9 +71,8 @@ func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 		appCtx.Logger().Info("Successfully parsed TPPS Paid Invoice Report")
 	}
 
-	appCtx.Logger().Info("RECEIVED: TPPS Paid Invoice Report Processor received a TPPS Paid Invoice Report")
-
 	if tppsData != nil {
+		appCtx.Logger().Info("RECEIVED: TPPS Paid Invoice Report Processor received a TPPS Paid Invoice Report")
 		verrs, errs := t.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
 		if err != nil {
 			return errs

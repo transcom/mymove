@@ -117,7 +117,7 @@ func (t *TPPSData) Parse(appCtx appcontext.AppContext, stringTPPSPaidInvoiceRepo
 	var dataToParse io.Reader
 
 	if stringTPPSPaidInvoiceReportFilePath != "" {
-		appCtx.Logger().Info(stringTPPSPaidInvoiceReportFilePath)
+		appCtx.Logger().Info(fmt.Sprintf("Parsing TPPS data file: %s\n", stringTPPSPaidInvoiceReportFilePath))
 		csvFile, err := os.Open(stringTPPSPaidInvoiceReportFilePath)
 		if err != nil {
 			return nil, errors.Wrap(err, (fmt.Sprintf("Unable to read TPPS paid invoice report from path %s", stringTPPSPaidInvoiceReportFilePath)))
