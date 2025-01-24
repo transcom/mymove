@@ -2466,6 +2466,137 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		}
 	})
 
+	suite.Run("Test that we are properly adding days to Alaska shipments", func() {
+		reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             reContract,
+				ContractID:           reContract.ID,
+				StartDate:            time.Now(),
+				EndDate:              time.Now().Add(time.Hour * 12),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		appCtx := suite.AppContextForTest()
+
+		ghcDomesticTransitTime0LbsUpper := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     10001,
+			WeightLbsUpper:     0,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime0LbsUpper)
+		suite.Assert().False(verrs.HasAny())
+		suite.NoError(err)
+
+		conusAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		zone1Address := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddressAKZone1})
+		zone2Address := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddressAKZone2})
+		zone3Address := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddressAKZone3})
+		zone4Address := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddressAKZone4})
+
+		estimatedWeight := unit.Pound(11000)
+
+		testCases10Days := []struct {
+			pickupLocation      models.Address
+			destinationLocation models.Address
+		}{
+			{conusAddress, zone1Address},
+			{conusAddress, zone2Address},
+			{zone1Address, conusAddress},
+			{zone2Address, conusAddress},
+		}
+		// adding 22 days; ghcDomesticTransitTime0LbsUpper.MaxDaysTransitTime is 12, plus 10 for Zones 1 and 2
+		rdd10DaysDate := testdatagen.DateInsidePeakRateCycle.AddDate(0, 0, 22)
+		for _, testCase := range testCases10Days {
+			shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType:         models.MTOShipmentTypeHHG,
+						ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+						PrimeEstimatedWeight: &estimatedWeight,
+						Status:               models.MTOShipmentStatusSubmitted,
+					},
+				},
+				{
+					Model:    testCase.pickupLocation,
+					Type:     &factory.Addresses.PickupAddress,
+					LinkOnly: true,
+				},
+				{
+					Model:    testCase.destinationLocation,
+					Type:     &factory.Addresses.DeliveryAddress,
+					LinkOnly: true,
+				},
+			}, nil)
+			shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
+			_, err = updater.UpdateMTOShipmentStatus(appCtx, shipment.ID, status, nil, nil, shipmentEtag)
+			suite.NoError(err)
+
+			fetchedShipment := models.MTOShipment{}
+			err = suite.DB().Find(&fetchedShipment, shipment.ID)
+			suite.NoError(err)
+			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
+			suite.Equal(rdd10DaysDate.Format(time.RFC3339), fetchedShipment.RequiredDeliveryDate.Format(time.RFC3339))
+		}
+
+		testCases20Days := []struct {
+			pickupLocation      models.Address
+			destinationLocation models.Address
+		}{
+			{conusAddress, zone3Address},
+			{conusAddress, zone4Address},
+			{zone3Address, conusAddress},
+			{zone4Address, conusAddress},
+		}
+		// adding 32 days; ghcDomesticTransitTime0LbsUpper.MaxDaysTransitTime is 12, plus 20 for Zones 3 and 4
+		rdd20DaysDate := testdatagen.DateInsidePeakRateCycle.AddDate(0, 0, 32)
+		for _, testCase := range testCases20Days {
+			shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType:         models.MTOShipmentTypeHHG,
+						ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+						PrimeEstimatedWeight: &estimatedWeight,
+						Status:               models.MTOShipmentStatusSubmitted,
+					},
+				},
+				{
+					Model:    testCase.pickupLocation,
+					Type:     &factory.Addresses.PickupAddress,
+					LinkOnly: true,
+				},
+				{
+					Model:    testCase.destinationLocation,
+					Type:     &factory.Addresses.DeliveryAddress,
+					LinkOnly: true,
+				},
+			}, nil)
+			shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
+			_, err = updater.UpdateMTOShipmentStatus(appCtx, shipment.ID, status, nil, nil, shipmentEtag)
+			suite.NoError(err)
+
+			fetchedShipment := models.MTOShipment{}
+			err = suite.DB().Find(&fetchedShipment, shipment.ID)
+			suite.NoError(err)
+			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
+			fmt.Println("fetchedShipment.RequiredDeliveryDate")
+			fmt.Println(fetchedShipment.RequiredDeliveryDate)
+			suite.Equal(rdd20DaysDate.Format(time.RFC3339), fetchedShipment.RequiredDeliveryDate.Format(time.RFC3339))
+		}
+	})
+
 	suite.Run("Cannot set SUBMITTED status on shipment via UpdateMTOShipmentStatus", func() {
 		setupTestData()
 
