@@ -287,6 +287,98 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal("could not look up intl transit time", wrappedErr.Error())
 	})
 
+	suite.Run("should update requiredDeliveryDate when scheduledPickupDate is updated", func() {
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().AddDate(-1, 0, 0),
+				EndDate:   time.Now().AddDate(1, 0, 0),
+			},
+		})
+
+		moveWithUb := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		testScheduledPickupDate := time.Now().AddDate(0, -5, 0)
+		testScheduledPickupDate2 := time.Now().AddDate(0, -2, 0)
+		primeEstimatedWeight = unit.Pound(9000)
+
+		usPostRegionPickup, err := uuid.FromString("d47d5da4-10d2-41f9-9985-d7dd0f05d98c")
+		suite.NoError(err)
+
+		usPostRegionDest, err := uuid.FromString("4cb599d1-c12a-43e3-988c-d43d5641f291")
+		suite.NoError(err)
+
+		// Create the addresses
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "987 Other Avenue",
+					StreetAddress2:     models.StringPointer("P.O. Box 1234"),
+					StreetAddress3:     models.StringPointer("c/o Another Person"),
+					City:               "Columbia",
+					State:              "SC",
+					PostalCode:         "29228",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &usPostRegionPickup,
+				},
+			},
+		}, nil)
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "987 Other Avenue",
+					StreetAddress2:     models.StringPointer("P.O. Box 12345"),
+					StreetAddress3:     models.StringPointer("c/o Another Person"),
+					City:               "Eielson AFB",
+					State:              "AK",
+					PostalCode:         "99702",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &usPostRegionDest,
+				},
+			},
+		}, nil)
+
+		var requiredDeliveryDate time.Time
+		oldUBMTOShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MarketCode:           models.MarketCodeInternational,
+					Status:               models.MTOShipmentStatusApproved,
+					ShipmentType:         models.MTOShipmentTypeUnaccompaniedBaggage,
+					PrimeEstimatedWeight: &primeEstimatedWeight,
+					ScheduledPickupDate:  &testScheduledPickupDate,
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+					RequiredDeliveryDate: &requiredDeliveryDate,
+				},
+			},
+			{
+				Model:    moveWithUb,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		mtoShipment := models.MTOShipment{
+			ID:                  oldUBMTOShipment.ID,
+			ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+			ScheduledPickupDate: &testScheduledPickupDate2,
+		}
+
+		eTag := etag.GenerateEtag(oldUBMTOShipment.UpdatedAt)
+		session := auth.Session{}
+
+		updatedMTOShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment, eTag, "test")
+
+		suite.Nil(err)
+		suite.NotNil(updatedMTOShipment)
+		suite.NotNil(updatedMTOShipment.RequiredDeliveryDate)
+
+		expectedDate := time.Date(2024, 12, 18, 0, 0, 0, 0, time.Now().UTC().Location())
+		suite.Equal(expectedDate.Year(), updatedMTOShipment.RequiredDeliveryDate.Year())
+		suite.Equal(expectedDate.Month(), updatedMTOShipment.RequiredDeliveryDate.Month())
+		suite.Equal(expectedDate.Day(), updatedMTOShipment.RequiredDeliveryDate.Day())
+	})
+
 	suite.Run("Successfully remove a secondary pickup address", func() {
 		setupTestData()
 
