@@ -1,5 +1,16 @@
-import React from 'react';
-import { Datagrid, DateField, Filter, List, ReferenceField, TextField, TextInput, TopToolbar } from 'react-admin';
+import { React } from 'react';
+import {
+  Datagrid,
+  DateField,
+  Filter,
+  List,
+  ReferenceField,
+  TextField,
+  TopToolbar,
+  ArrayField,
+  SingleFieldList,
+  SearchInput,
+} from 'react-admin';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
@@ -10,7 +21,9 @@ const ListActions = () => {
 
 const RequestedOfficeUserListFilter = () => (
   <Filter>
-    <TextInput source="search" alwaysOn />
+    <SearchInput source="search" alwaysOn />
+    <SearchInput source="transportationOfficeSearch" alwaysOn resettable placeholder="Transportation Office" />
+    <SearchInput source="rolesSearch" alwaysOn resettable placeholder="Roles" />
   </Filter>
 );
 
@@ -34,6 +47,11 @@ const RequestedOfficeUserList = () => (
       </ReferenceField>
       <TextField source="status" />
       <DateField showTime source="createdAt" label="Requested on" />
+      <ArrayField source="roles" sortable={false} clickable={false} sort={{ field: 'roleName', order: 'DESC' }}>
+        <SingleFieldList linkType={false}>
+          <TextField source="roleName" />
+        </SingleFieldList>
+      </ArrayField>
     </Datagrid>
   </List>
 );
