@@ -206,22 +206,13 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 // CheckDatabase validates DB command line flags
 func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 
-	logger.Info("Reaching dbconn.go line 209")
-
 	if err := ValidateHost(v, DbHostFlag); err != nil {
-		logger.Info("Reaching dbconn.go line 209")
 		return err
 	}
 
 	if err := ValidatePort(v, DbPortFlag); err != nil {
-		logger.Info("Reaching dbconn.go line 209")
 		return err
 	}
-
-	logger.Info("Reaching dbconn.go line 221 DbPoolFlag: ")
-	logger.Info(DbPoolFlag)
-	logger.Info("Reaching dbconn.go line 223 DbIdlePoolFlag: ")
-	logger.Info(DbIdlePoolFlag)
 
 	dbPool := v.GetInt(DbPoolFlag)
 	dbIdlePool := v.GetInt(DbIdlePoolFlag)
@@ -256,10 +247,6 @@ func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 		tlsCerts := ParseCertificates(string(b))
 		logger.Debug(fmt.Sprintf("certificate chain from %s parsed", DbSSLRootCertFlag), zap.Any("count", len(tlsCerts)))
 	}
-
-	logger.Info("DbIamFlag", zap.String("DbIamFlag", v.GetString(DbIamFlag)))
-	logger.Info("DbRegionFlag", zap.String("DbRegionFlag", v.GetString(DbRegionFlag)))
-	logger.Info("DbIamRoleFlag", zap.String("DbIamRoleFlag", v.GetString(DbIamRoleFlag)))
 
 	// Check IAM Authentication
 	if v.GetBool(DbIamFlag) {
@@ -296,7 +283,6 @@ func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 // logger is the application logger.
 func InitDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
 
-	logger.Info("initializing DB in InitDatabase")
 	dbEnv := v.GetString(DbEnvFlag)
 	dbName := v.GetString(DbNameFlag)
 	dbHost := v.GetString(DbHostFlag)

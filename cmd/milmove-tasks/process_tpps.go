@@ -19,8 +19,6 @@ import (
 // Call this from the command line with go run ./cmd/milmove-tasks process-tpps
 func checkProcessTPPSConfig(v *viper.Viper, logger *zap.Logger) error {
 
-	logger.Info("Reaching checkProcessTPPSConfig")
-
 	err := cli.CheckDatabase(v, logger)
 	if err != nil {
 		return err
@@ -91,8 +89,6 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("Failed to initialized Zap logging for process-tpps")
 	}
-
-	logger.Info("Reaching process_tpps.go line 77")
 
 	zap.ReplaceGlobals(logger)
 

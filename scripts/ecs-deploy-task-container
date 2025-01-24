@@ -58,17 +58,7 @@ dry_run_task_definition_date=$("${DIR}/../bin/ecs-deploy" task-def \
   --entrypoint "/bin/milmove-tasks ${name}" \
   --dry-run)
 
-echo "dry run raw output: ${dry_run_task_definition_date}"
-
 dry_run_task_definition=$(echo "${dry_run_task_definition_date}" | cut -d ' ' -f 3)
-echo "Extracted task definition: ${dry_run_task_definition}"
-
-if ! echo "${dry_run_task_definition}" | jq . > /dev/null 2>&1; then
-  echo "invalid JSON format in dry run task def"
-  exit 1
-else
-  echo "dry run task def JSON is valid"
-fi
 echo "${dry_run_task_definition}" | jq .
 
 echo
