@@ -313,7 +313,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestsForBulkAssignme
 		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					Status: models.MoveStatusServiceCounselingCompleted,
+					Status: models.MoveStatusAPPROVALSREQUESTED,
 				},
 			},
 			{

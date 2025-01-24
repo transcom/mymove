@@ -77,9 +77,9 @@ func (f paymentRequestFetcherBulkAssignment) FetchPaymentRequestsForBulkAssignme
 			payment_requests.id,
 			payment_requests.requested_at
 		FROM payment_requests
-        INNER JOIN moves on moves.id = payment_requests.move_id
-        INNER JOIN orders ON orders.id = moves.orders_id
-        INNER JOIN service_members ON orders.service_member_id = service_members.id
+		INNER JOIN moves on moves.id = payment_requests.move_id
+		INNER JOIN orders ON orders.id = moves.orders_id
+		INNER JOIN service_members ON orders.service_member_id = service_members.id
 		LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
 		WHERE payment_requests.status = 'PENDING'
 		AND moves.show = $1

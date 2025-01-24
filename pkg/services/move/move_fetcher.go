@@ -135,7 +135,8 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCounseling(appCtx 
 				INNER JOIN mto_shipments ON mto_shipments.move_id = moves.id
 				LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
 				WHERE
-					moves.status = 'NEEDS SERVICE COUNSELING'
+					mto_shipments.deleted_at IS NULL
+					AND moves.status = 'NEEDS SERVICE COUNSELING'
 					AND orders.gbloc = $1
 					AND moves.show = $2
 					AND moves.sc_assigned_id IS NULL
@@ -169,37 +170,46 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCounseling(appCtx 
 func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentTaskOrder(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
 	var moves []models.MoveWithEarliestDate
 
-	err := appCtx.DB().
-		RawQuery(`SELECT
-					moves.id,
-					MIN(LEAST(
-						COALESCE(mto_shipments.requested_pickup_date, '9999-12-31'),
-						COALESCE(mto_shipments.requested_delivery_date, '9999-12-31'),
-						COALESCE(ppm_shipments.expected_departure_date, '9999-12-31')
-					)) AS earliest_date
-				FROM moves
-				INNER JOIN orders ON orders.id = moves.orders_id
-				INNER JOIN service_members ON orders.service_member_id = service_members.id
-				INNER JOIN mto_shipments ON mto_shipments.move_id = moves.id
-				LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
-				LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
-				WHERE
-					(moves.status IN ('APPROVALS REQUESTED', 'SUBMITTED', 'SERVICE COUNSELING COMPLETED'))
-					AND moves.show = $1
-					AND moves.too_assigned_id IS NULL
-					AND (orders.orders_type NOT IN ($2, $3, $4))
-					AND service_members.affiliation != 'MARINES'
-					AND ((mto_shipments.shipment_type != $5 AND move_to_gbloc.gbloc = $6) OR (mto_shipments.shipment_type = $7 AND orders.gbloc = $8))
-				GROUP BY moves.id
-				ORDER BY earliest_date ASC`,
-			models.BoolPointer(true),
-			internalmessages.OrdersTypeBLUEBARK,
-			internalmessages.OrdersTypeWOUNDEDWARRIOR,
-			internalmessages.OrdersTypeSAFETY,
-			models.MTOShipmentTypeHHGOutOfNTS,
-			gbloc,
-			models.MTOShipmentTypeHHGOutOfNTS,
-			gbloc).
+	sqlQuery := `
+		SELECT
+			moves.id,
+			MIN(LEAST(
+				COALESCE(mto_shipments.requested_pickup_date, '9999-12-31'),
+				COALESCE(mto_shipments.requested_delivery_date, '9999-12-31'),
+				COALESCE(ppm_shipments.expected_departure_date, '9999-12-31')
+			)) AS earliest_date
+		FROM moves
+		INNER JOIN orders ON orders.id = moves.orders_id
+		INNER JOIN service_members ON orders.service_member_id = service_members.id
+		INNER JOIN mto_shipments ON mto_shipments.move_id = moves.id
+		INNER JOIN duty_locations as origin_dl ON orders.origin_duty_location_id = origin_dl.id
+		LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
+		LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
+		WHERE
+			mto_shipments.deleted_at IS NULL
+			AND (moves.status IN ('APPROVALS REQUESTED', 'SUBMITTED', 'SERVICE COUNSELING COMPLETED'))
+			AND moves.show = $1
+			AND moves.too_assigned_id IS NULL
+			AND (orders.orders_type NOT IN ($2, $3, $4))
+			AND (moves.ppm_type IS NULL OR (moves.ppm_type = 'PARTIAL' or (moves.ppm_type = 'FULL' and origin_dl.provides_services_counseling = 'false'))) `
+	if gbloc == "USMC" {
+		sqlQuery += `
+			AND service_members.affiliation ILIKE 'MARINES' `
+	} else {
+		sqlQuery += `
+		AND service_members.affiliation != 'MARINES'
+		AND ((mto_shipments.shipment_type != 'HHG_OUTOF_NTS' AND move_to_gbloc.gbloc = '` + gbloc + `')
+		OR (mto_shipments.shipment_type = 'HHG_OUTOF_NTS' AND orders.gbloc = '` + gbloc + `')) `
+	}
+	sqlQuery += `
+		GROUP BY moves.id
+		ORDER BY earliest_date ASC`
+
+	err := appCtx.DB().RawQuery(sqlQuery,
+		models.BoolPointer(true),
+		internalmessages.OrdersTypeBLUEBARK,
+		internalmessages.OrdersTypeWOUNDEDWARRIOR,
+		internalmessages.OrdersTypeSAFETY).
 		All(&moves)
 
 	if err != nil {
