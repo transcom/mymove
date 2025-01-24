@@ -19,9 +19,9 @@ const testContractName = "Test Contract"
 const fairbanksAlaskaPostalCode = "99716"
 const anchorageAlaskaPostalCode = "99521"
 const wasillaAlaskaPostalCode = "99652"
-const beverlyHillsCAPostalCode = "99652"
-const sanDiegoCAPostalCode = "99652"
-const brooklynNYPostalCode = "99652"
+const beverlyHillsCAPostalCode = "90210"
+const sanDiegoCAPostalCode = "92075"
+const brooklynNYPostalCode = "11220"
 
 func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 	shipmentRateAreaFetcher := NewMTOShipmentRateAreaFetcher()
