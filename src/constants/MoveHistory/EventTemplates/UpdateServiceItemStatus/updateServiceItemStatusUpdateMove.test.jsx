@@ -34,6 +34,7 @@ describe('when given a update service item status, update move history record', 
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
+    expect(screen.getByText('Service Items Addressed')).toBeInTheDocument();
     expect(screen.getByText('Task Ordering Officer Unassigned')).toBeInTheDocument();
   });
 });
