@@ -116,3 +116,72 @@ it('does display PPM shipment', () => {
 
   expect(screen.queryByText(formatDateWithUTC('2024-01-01'))).toBeInTheDocument();
 });
+
+describe('Shipment Details Main - PortTable', () => {
+  const poeLocation = {
+    portCode: 'PDX',
+    portName: 'PORTLAND INTL',
+    city: 'PORTLAND',
+    state: 'OREGON',
+    zip: '97220',
+  };
+
+  const podLocation = {
+    portCode: 'SEA',
+    portName: 'SEATTLE TACOMA INTL',
+    city: 'SEATTLE',
+    state: 'WASHINGTON',
+    zip: '98158',
+  };
+
+  it('displays PortTable when poeLocation is provided', () => {
+    const shipmentWithPOELocation = {
+      ...noSITShipment,
+      poeLocation,
+      podLocation: null,
+    };
+
+    render(
+      <MockProviders>
+        <ShipmentDetailsMain {...shipmentDetailsMainParams} shipment={shipmentWithPOELocation} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Port of Embarkation')).toBeInTheDocument();
+    expect(screen.getByText('Port of Debarkation')).toBeInTheDocument();
+  });
+
+  it('displays PortTable when podLocation is provided', () => {
+    const shipmentWithPODLocation = {
+      ...noSITShipment,
+      poeLocation: null,
+      podLocation,
+    };
+
+    render(
+      <MockProviders>
+        <ShipmentDetailsMain {...shipmentDetailsMainParams} shipment={shipmentWithPODLocation} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Port of Embarkation')).toBeInTheDocument();
+    expect(screen.getByText('Port of Debarkation')).toBeInTheDocument();
+  });
+
+  it('does not display PortTable when poeLocation and podLocation are not provided', () => {
+    const shipmentWithNoPortLocation = {
+      ...noSITShipment,
+      poeLocation: null,
+      podLocation: null,
+    };
+
+    render(
+      <MockProviders>
+        <ShipmentDetailsMain {...shipmentDetailsMainParams} shipment={shipmentWithNoPortLocation} />
+      </MockProviders>,
+    );
+
+    expect(screen.queryByText('Port of Embarkation')).not.toBeInTheDocument();
+    expect(screen.queryByText('Port of Debarkation')).not.toBeInTheDocument();
+  });
+});

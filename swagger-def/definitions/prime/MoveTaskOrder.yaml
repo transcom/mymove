@@ -79,6 +79,18 @@ properties:
     readOnly: true
     x-omitempty: false
     x-nullable: true
+  excessUnaccompaniedBaggageWeightQualifiedAt:
+    type: string
+    format: date-time
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  excessUnaccompaniedBaggageWeightAcknowledgedAt:
+    type: string
+    format: date-time
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
   excessWeightUploadId:
     type: string
     format: uuid

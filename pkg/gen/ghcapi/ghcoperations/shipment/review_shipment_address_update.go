@@ -36,7 +36,7 @@ func NewReviewShipmentAddressUpdate(ctx *middleware.Context, handler ReviewShipm
 }
 
 /*
-	ReviewShipmentAddressUpdate swagger:route PATCH /shipments/{shipmentID}/review-shipment-address-update shipment reviewShipmentAddressUpdate
+	ReviewShipmentAddressUpdate swagger:route PATCH /shipments/{shipmentID}/review-shipment-address-update shipment shipment_address_updates reviewShipmentAddressUpdate
 
 # Allows TOO to review a shipment address update
 

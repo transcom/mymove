@@ -230,6 +230,20 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 	}
 
+	// Load the backup contacts outside of the EagerPreload query, due to issue referenced in
+	// https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#associations-with-3-path-elements-where-the-first-2-path-elements-match
+	if mto.Orders.ServiceMember.ID != uuid.Nil {
+		loadErr := appCtx.DB().Load(&mto.Orders.ServiceMember, "BackupContacts")
+		if loadErr != nil {
+			return &models.Move{}, apperror.NewQueryError("BackupContacts", loadErr, "")
+		}
+		if len(mto.Orders.ServiceMember.BackupContacts) == 0 {
+			appCtx.Logger().Warn("No backup contacts found for service member")
+		} else {
+			appCtx.Logger().Info("Successfully loaded %d backup contacts", zap.Int("count", len(mto.Orders.ServiceMember.BackupContacts)))
+		}
+	}
+
 	// Filtering external vendor shipments in code since we can't do it easily in Pop without a raw query.
 	// Also, due to a Pop bug, we cannot EagerPreload "Reweigh" or "PPMShipment" likely because they are both
 	// a pointer and "has_one" field, so we're loading those here.  This seems similar to other EagerPreload
