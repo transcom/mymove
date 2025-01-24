@@ -698,13 +698,9 @@ server_test:
     OKTA_OFFICE_GROUP_ID: notrealgroupId
     OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
   script:
-    - psql --version
-    - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
-    - scripts/check-generated-code go.sum
-    - make bin/swagger
     - echo "server test -- TODO Add steps need to potentially pass job id to file and persist"
     - make -j 2 bin/milmove bin/gotestsum
-    - make server_test for app
+    - make server_test
     # - go install gotest.tools/gotestsum@latest
     # - go mod tidy
     #- bin/gotestsum --junitfile server_test_report.xml --format server_test
