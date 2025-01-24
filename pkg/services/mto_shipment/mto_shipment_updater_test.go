@@ -19,6 +19,7 @@ import (
 	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mockservices "github.com/transcom/mymove/pkg/services/mocks"
@@ -51,10 +52,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(1000, nil)
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
+	waf := entitlements.NewWeightAllotmentFetcher()
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -465,14 +466,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"99505",
-			false,
 			true,
 		).Return(1000, nil)
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"97220",
 			"99505",
-			true,
 			true,
 		).Return(1000, nil)
 
@@ -670,14 +669,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"99505",
-			false,
 			true,
 		).Return(1000, nil)
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"97220",
-			true,
 			true,
 		).Return(1000, nil)
 
@@ -2197,7 +2194,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 		false,
-		false,
 	).Return(500, nil).Run(func(args mock.Arguments) {
 		TransitDistancePickupArg = args.Get(1).(string)
 		TransitDistanceDestinationArg = args.Get(2).(string)
@@ -2775,6 +2771,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	now := time.Now()
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	hide := false
 	var primeShipment models.MTOShipment
 	var nonPrimeShipment models.MTOShipment
@@ -2805,7 +2803,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -2873,8 +2871,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -3054,10 +3054,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh() {
 	builder := query.NewQueryBuilder()
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -3352,7 +3354,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		false,
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())

@@ -4676,166 +4676,6 @@ func init() {
         }
       }
     },
-    "/queues/destination-requests": {
-      "get": {
-        "description": "A TOO will view this queue when they have destination requests tied to the destination address in their GBLOC within a shipment. This includes unapproved destination SIT service items (including shuttle) and destination address requests that are not approved.\n",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "queues"
-        ],
-        "summary": "Gets queued list of all customer moves by a shipment's destination address GBLOC that have destination requests (destination SIT, shuttle, destination address requests)",
-        "operationId": "getDestinationRequestsQueue",
-        "parameters": [
-          {
-            "type": "integer",
-            "description": "requested page of results",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "description": "results per page",
-            "name": "perPage",
-            "in": "query"
-          },
-          {
-            "enum": [
-              "customerName",
-              "edipi",
-              "emplid",
-              "branch",
-              "locator",
-              "status",
-              "originDutyLocation",
-              "destinationDutyLocation",
-              "requestedMoveDate",
-              "appearedInTooAt",
-              "assignedTo",
-              "counselingOffice"
-            ],
-            "type": "string",
-            "description": "field that results should be sorted by",
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "enum": [
-              "asc",
-              "desc"
-            ],
-            "type": "string",
-            "description": "direction of sort order if applied",
-            "name": "order",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "branch",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "locator",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "customerName",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "edipi",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "emplid",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi",
-            "name": "originDutyLocation",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "destinationDutyLocation",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "format": "date-time",
-            "name": "appearedInTooAt",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "filters the requested pickup date of a shipment on the move",
-            "name": "requestedMoveDate",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "enum": [
-                "APPROVALS REQUESTED"
-              ],
-              "type": "string"
-            },
-            "description": "Filtering for the status.",
-            "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
-            "name": "viewAsGBLOC",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Used to illustrate which user is assigned to this move.\n",
-            "name": "assignedTo",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "filters using a counselingOffice name of the move",
-            "name": "counselingOffice",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully returned all moves matching the criteria",
-            "schema": {
-              "$ref": "#/definitions/QueueMovesResult"
-            }
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
     "/queues/moves": {
       "get": {
         "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
@@ -5935,8 +5775,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment",
-          "shipment_address_updates"
+          "shipment"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
@@ -6412,7 +6251,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved GBLOCs",
+            "description": "Successfully retrieved transportation offices",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }
@@ -7003,7 +6842,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -7280,6 +7120,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -8493,6 +8339,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -9673,6 +9525,11 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "sort": {
+          "description": "Sort order for service items to be displayed for a given shipment type.",
+          "type": "string",
           "x-nullable": true
         },
         "standaloneCrate": {
@@ -14363,6 +14220,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -21569,172 +21432,6 @@ func init() {
         }
       }
     },
-    "/queues/destination-requests": {
-      "get": {
-        "description": "A TOO will view this queue when they have destination requests tied to the destination address in their GBLOC within a shipment. This includes unapproved destination SIT service items (including shuttle) and destination address requests that are not approved.\n",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "queues"
-        ],
-        "summary": "Gets queued list of all customer moves by a shipment's destination address GBLOC that have destination requests (destination SIT, shuttle, destination address requests)",
-        "operationId": "getDestinationRequestsQueue",
-        "parameters": [
-          {
-            "type": "integer",
-            "description": "requested page of results",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "description": "results per page",
-            "name": "perPage",
-            "in": "query"
-          },
-          {
-            "enum": [
-              "customerName",
-              "edipi",
-              "emplid",
-              "branch",
-              "locator",
-              "status",
-              "originDutyLocation",
-              "destinationDutyLocation",
-              "requestedMoveDate",
-              "appearedInTooAt",
-              "assignedTo",
-              "counselingOffice"
-            ],
-            "type": "string",
-            "description": "field that results should be sorted by",
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "enum": [
-              "asc",
-              "desc"
-            ],
-            "type": "string",
-            "description": "direction of sort order if applied",
-            "name": "order",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "branch",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "locator",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "customerName",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "edipi",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "emplid",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi",
-            "name": "originDutyLocation",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "destinationDutyLocation",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "format": "date-time",
-            "name": "appearedInTooAt",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "filters the requested pickup date of a shipment on the move",
-            "name": "requestedMoveDate",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "enum": [
-                "APPROVALS REQUESTED"
-              ],
-              "type": "string"
-            },
-            "description": "Filtering for the status.",
-            "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
-            "name": "viewAsGBLOC",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Used to illustrate which user is assigned to this move.\n",
-            "name": "assignedTo",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "filters using a counselingOffice name of the move",
-            "name": "counselingOffice",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully returned all moves matching the criteria",
-            "schema": {
-              "$ref": "#/definitions/QueueMovesResult"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/queues/moves": {
       "get": {
         "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
@@ -23068,8 +22765,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment",
-          "shipment_address_updates"
+          "shipment"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
@@ -23662,7 +23358,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved GBLOCs",
+            "description": "Successfully retrieved transportation offices",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }
@@ -24284,7 +23980,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -24565,6 +24262,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -25778,6 +25481,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -26958,6 +26667,11 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "sort": {
+          "description": "Sort order for service items to be displayed for a given shipment type.",
+          "type": "string",
           "x-nullable": true
         },
         "standaloneCrate": {
@@ -31780,6 +31494,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },

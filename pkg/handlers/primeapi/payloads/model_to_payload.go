@@ -35,9 +35,11 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 	if err != nil {
 		destGbloc = ""
 	}
-	destZip, err = moveTaskOrder.GetDestinationPostalCode(db)
+	destinationAddress, err := moveTaskOrder.GetDestinationAddress(appCtx.DB())
 	if err != nil {
 		destZip = ""
+	} else {
+		destZip = destinationAddress.PostalCode
 	}
 
 	payload := &primemessages.MoveTaskOrder{
@@ -92,9 +94,11 @@ func ListMove(move *models.Move, appCtx appcontext.AppContext, moveOrderAmendmen
 	if err != nil {
 		destGbloc = ""
 	}
-	destZip, err = move.GetDestinationPostalCode(db)
+	destinationAddress, err := move.GetDestinationAddress(appCtx.DB())
 	if err != nil {
 		destZip = ""
+	} else {
+		destZip = destinationAddress.PostalCode
 	}
 
 	payload := &primemessages.ListMove{
@@ -172,6 +176,25 @@ func Customer(customer *models.ServiceMember) *primemessages.Customer {
 	if customer.PersonalEmail != nil {
 		payload.Email = *customer.PersonalEmail
 	}
+
+	if len(customer.BackupContacts) > 0 {
+		payload.BackupContact = BackupContact(&customer.BackupContacts[0])
+	}
+
+	return &payload
+}
+
+// BackupContact payload
+func BackupContact(backupContact *models.BackupContact) *primemessages.BackupContact {
+	if backupContact == nil {
+		return nil
+	}
+	payload := primemessages.BackupContact{
+		Name:  backupContact.Name,
+		Email: backupContact.Email,
+		Phone: backupContact.Phone,
+	}
+
 	return &payload
 }
 
@@ -182,9 +205,6 @@ func Order(order *models.Order) *primemessages.Order {
 	}
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
-	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
-	}
 
 	var grade string
 	if order.Grade != nil {
@@ -242,6 +262,10 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	if entitlement.UBAllowance != nil {
 		ubAllowance = int64(*entitlement.UBAllowance)
 	}
+	var weightRestriction int64
+	if entitlement.WeightRestriction != nil {
+		weightRestriction = int64(*entitlement.WeightRestriction)
+	}
 	return &primemessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -254,10 +278,11 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
 		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		StorageInTransit: sit,
-		TotalDependents:  totalDependents,
-		TotalWeight:      totalWeight,
-		ETag:             etag.GenerateEtag(entitlement.UpdatedAt),
+		StorageInTransit:  sit,
+		TotalDependents:   totalDependents,
+		TotalWeight:       totalWeight,
+		WeightRestriction: &weightRestriction,
+		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 

@@ -25,6 +25,7 @@ import (
 const RFC3339Micro = "2006-01-02T15:04:05.999999Z07:00"
 
 type orderFetcher struct {
+	waf services.WeightAllotmentFetcher
 }
 
 // QueryOption defines the type for the functional arguments used for private functions in OrderFetcher
@@ -121,9 +122,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
-	tooDestinationRequestsQuery := tooQueueOriginRequestsFilter(role)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
+	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -307,148 +307,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	return moves, count, nil
 }
 
-func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
-	var moves []models.Move
-
-	var officeUserGbloc string
-	if params.ViewAsGBLOC != nil {
-		officeUserGbloc = *params.ViewAsGBLOC
-	} else {
-		var gblocErr error
-		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
-		officeUserGbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
-		if gblocErr != nil {
-			return []models.Move{}, 0, gblocErr
-		}
-	}
-
-	// if the user is in the USMC GBLOC, then we want to show them all the USMC moves
-	// if the user is in MBFL, we need to send them USAF/SF moves that are in Alaska Zone II as well as other MBFL moves
-	// if the user is in JEAT, we need to exclude Alaska Zone II USAF/SF moves (which go to MBFL) and include all other branches in Zone II
-	// else, we'll look at their GBLOC that matches the shipment's destination address
-	var gblocQuery QueryOption
-	branchQuery := branchFilter(params.Branch, false, false)
-	if officeUserGbloc == "USMC" {
-		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)), false, false)
-	} else if officeUserGbloc == "MBFL" || officeUserGbloc == "JEAT" {
-		gblocQuery = alaskaZoneIIFilter(officeUserGbloc)
-	} else {
-		gblocQuery = destinationGBLOCFilter(&officeUserGbloc)
-	}
-
-	locatorQuery := locatorFilter(params.Locator)
-	dodIDQuery := dodIDFilter(params.Edipi)
-	emplidQuery := emplidFilter(params.Emplid)
-	customerNameQuery := customerNameFilter(params.CustomerName)
-	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
-	moveStatusQuery := moveStatusFilter(params.Status)
-	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
-	appearedInTOOAtQuery := appearedInTOOAtFilter(params.AppearedInTOOAt)
-	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
-	scAssignedUserQuery := scAssignedUserFilter(params.SCAssignedUser)
-	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
-	sortOrderQuery := sortOrder(params.Sort, params.Order, false)
-	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
-
-	// adding each filter here so we can append the big fat query below
-	options := [20]QueryOption{gblocQuery, branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, moveStatusQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
-
-	// for destination requests we want to show moves that have requests on the shipment destination address GBLOC
-	// this applies to SIT & Shuttle service items, as well as destination address requests that have yet to be approved
-	query := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
-		"Orders.ServiceMember",
-		"Orders.NewDutyLocation.Address",
-		"Orders.OriginDutyLocation.Address",
-		"Orders.Entitlement",
-		"MTOShipments.DeliveryAddressUpdate",
-		"MTOShipments.DestinationAddress",
-		"MTOServiceItems.ReService.Code",
-		"ShipmentGBLOC",
-		"MTOShipments.PPMShipment",
-		"CloseoutOffice",
-		"LockedByOfficeUser",
-		"CounselingOffice",
-		"SCAssignedUser",
-		"TOOAssignedUser",
-	).
-		InnerJoin("orders", "orders.id = moves.orders_id").
-		InnerJoin("service_members", "orders.service_member_id = service_members.id").
-		InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
-		LeftJoin("mto_shipments", "moves.id = mto_shipments.move_id").
-		LeftJoin("mto_service_items", "mto_shipments.id = mto_service_items.mto_shipment_id").
-		LeftJoin("re_services", "mto_service_items.re_service_id = re_services.id").
-		LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
-		LeftJoin("office_users", "office_users.id = moves.locked_by").
-		LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id").
-		LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
-		LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-		LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id").
-		LeftJoin("addresses", "mto_shipments.destination_address_id = addresses.id").
-		LeftJoin("postal_code_to_gblocs", "addresses.postal_code = postal_code_to_gblocs.postal_code").
-		Where("moves.show = ?", models.BoolPointer(true)).
-		Where(
-			"(shipment_address_updates.status = 'REQUESTED' "+
-				"OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')))",
-		).
-		Where("moves.status = ?", "APPROVALS REQUESTED")
-
-	for _, option := range options {
-		if option != nil {
-			option(query)
-		}
-	}
-
-	// Pass zeros into paginate in this case. Which will give us 1 page and 20 per page respectively
-	if params.Page == nil {
-		params.Page = models.Int64Pointer(0)
-	}
-	if params.PerPage == nil {
-		params.PerPage = models.Int64Pointer(0)
-	}
-
-	var groupByColumms []string
-	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_dl.id")
-
-	if params.Sort != nil && *params.Sort == "originDutyLocation" {
-		groupByColumms = append(groupByColumms, "origin_dl.name")
-	}
-	if params.Sort != nil && *params.Sort == "destinationDutyLocation" {
-		groupByColumms = append(groupByColumms, "dest_dl.name")
-	}
-	if params.Sort != nil && *params.Sort == "originGBLOC" {
-		groupByColumms = append(groupByColumms, "origin_to.id")
-	}
-	if params.Sort != nil && *params.Sort == "counselingOffice" {
-		groupByColumms = append(groupByColumms, "transportation_offices.id")
-	}
-	if params.Sort != nil && *params.Sort == "assignedTo" {
-		groupByColumms = append(groupByColumms, "assigned_user.last_name", "assigned_user.first_name")
-	}
-
-	err := query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
-	if err != nil {
-		return []models.Move{}, 0, err
-	}
-
-	count := query.Paginator.TotalEntriesSize
-
-	for i := range moves {
-		if moves[i].Orders.OriginDutyLocation != nil {
-			loadErr := appCtx.DB().Load(moves[i].Orders.OriginDutyLocation, "TransportationOffice")
-			if loadErr != nil {
-				return []models.Move{}, 0, err
-			}
-		}
-
-		err := appCtx.DB().Load(&moves[i].Orders.ServiceMember, "BackupContacts")
-		if err != nil {
-			return []models.Move{}, 0, err
-		}
-	}
-
-	return moves, count, nil
-}
-
+// TODO: Update query to select distinct duty locations
 func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, error) {
 	var moves []models.Move
 	var err error
@@ -606,8 +465,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 }
 
 // NewOrderFetcher creates a new struct with the service dependencies
-func NewOrderFetcher() services.OrderFetcher {
-	return &orderFetcher{}
+func NewOrderFetcher(weightAllotmentFetcher services.WeightAllotmentFetcher) services.OrderFetcher {
+	return &orderFetcher{waf: weightAllotmentFetcher}
 }
 
 // FetchOrder retrieves an Order for a given UUID
@@ -629,6 +488,15 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 		default:
 			return &models.Order{}, apperror.NewQueryError("Order", err, "")
 		}
+	}
+
+	// Construct weight allotted if grade is present
+	if order.Grade != nil {
+		allotment, err := f.waf.GetWeightAllotment(appCtx, string(*order.Grade), order.OrdersType)
+		if err != nil {
+			return nil, err
+		}
+		order.Entitlement.WeightAllotted = &allotment
 	}
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
@@ -787,83 +655,6 @@ func ppmStatusFilter(ppmStatus *string) QueryOption {
 	}
 }
 
-func destinationGBLOCFilter(gbloc *string) QueryOption {
-	return func(query *pop.Query) {
-		if gbloc != nil {
-			query.Where("postal_code_to_gblocs.gbloc = ?", gbloc)
-		}
-	}
-}
-
-// if the user is in MBFL GBLOC, we want to include USAF/SF moves in Alaska Zone II but exclude all other branches (while also including postal_code_to_gbloc)
-// since Alaska Zone II can only be for OCONUS addresses, we need to query the re_oconus_rate_areas table
-// if the user is in JEAT GBLOC, we want to include all other branches within Alaska Zone II but NOT show USAF/SF in Zone II or USMC
-func alaskaZoneIIFilter(gbloc string) QueryOption {
-	return func(query *pop.Query) {
-		if gbloc == "MBFL" {
-			query.Where(`
-			(
-				postal_code_to_gblocs.gbloc = ?
-				OR EXISTS (
-					SELECT 1
-					FROM addresses a
-					JOIN re_oconus_rate_areas ro
-						ON a.us_post_region_cities_id = ro.us_post_region_cities_id
-					JOIN re_rate_areas ra
-						ON ro.rate_area_id = ra.id
-					WHERE a.id = mto_shipments.destination_address_id
-					  AND ra.code = ?
-					  AND a.is_oconus = true
-					  AND service_members.affiliation IN (?, ?)
-				)
-			)
-			AND NOT EXISTS (
-				SELECT 1
-				FROM addresses a
-				JOIN re_oconus_rate_areas ro
-					ON a.us_post_region_cities_id = ro.us_post_region_cities_id
-				JOIN re_rate_areas ra
-					ON ro.rate_area_id = ra.id
-				WHERE a.id = mto_shipments.destination_address_id
-				  AND ra.code = ?
-				  AND a.is_oconus = true
-				  AND service_members.affiliation NOT IN (?, ?)
-			)
-		`, gbloc, "US8190100", models.AffiliationAIRFORCE, models.AffiliationSPACEFORCE, "US8190100", models.AffiliationAIRFORCE, models.AffiliationSPACEFORCE)
-		} else if gbloc == "JEAT" {
-			query.Where(`
-			(
-				postal_code_to_gblocs.gbloc = ?
-				OR EXISTS (
-					SELECT 1
-					FROM addresses a
-					JOIN re_oconus_rate_areas ro
-						ON a.us_post_region_cities_id = ro.us_post_region_cities_id
-					JOIN re_rate_areas ra
-						ON ro.rate_area_id = ra.id
-					WHERE a.id = mto_shipments.destination_address_id
-					  AND ra.code = ?
-					  AND a.is_oconus = true
-					  AND service_members.affiliation NOT IN (?, ?)
-				)
-			)
-			AND NOT EXISTS (
-				SELECT 1
-				FROM addresses a
-				JOIN re_oconus_rate_areas ro
-					ON a.us_post_region_cities_id = ro.us_post_region_cities_id
-				JOIN re_rate_areas ra
-					ON ro.rate_area_id = ra.id
-				WHERE a.id = mto_shipments.destination_address_id
-				  AND ra.code = ?
-				  AND a.is_oconus = true
-				  AND service_members.affiliation IN (?, ?)
-			)
-		`, gbloc, "US8190100", models.AffiliationAIRFORCE, models.AffiliationSPACEFORCE, "US8190100", models.AffiliationAIRFORCE, models.AffiliationSPACEFORCE)
-		}
-	}
-}
-
 func scAssignedUserFilter(scAssigned *string) QueryOption {
 	return func(query *pop.Query) {
 		if scAssigned != nil {
@@ -987,81 +778,6 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 			}
 		} else {
 			query.Order("moves.status desc")
-		}
-	}
-}
-
-// We want to filter out any moves that have ONLY destination type requests to them, such as destination SIT, shuttle, out of the
-// task order queue. If the moves have origin SIT, excess weight risks, or sit extensions, they should still appear in the task order
-// queue, which is what this query looks for
-func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
-	return func(query *pop.Query) {
-		if role == roles.RoleTypeTOO {
-			baseQuery := `
-			-- check for moves with destination requests and NOT origin requests, then return the inverse for the TOO queue with the NOT wrapped around the query
-			NOT (
-				(
-					-- check for moves with destination requests
-					(
-						-- moves with destination SIT or shuttle submitted service items
-						EXISTS (
-							-- Destination service items
-							SELECT 1
-							FROM mto_service_items msi
-							JOIN re_services rs ON msi.re_service_id = rs.id
-							WHERE msi.mto_shipment_id = mto_shipments.id
-							AND msi.status = 'SUBMITTED'
-							AND rs.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC',
-											'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')
-						)
-						-- requested shipment address update
-						OR EXISTS (
-							-- Shipment address updates (destination address update requested)
-							SELECT 1
-							FROM shipment_address_updates sau
-							WHERE sau.shipment_id = mto_shipments.id
-							AND sau.status = 'REQUESTED'
-						)
-					)
-					-- check for moves with origin requests or conditions where move should appear in TOO queue
-					AND NOT (
-						-- moves with origin submitted service items
-						EXISTS (
-							SELECT 1
-							FROM mto_service_items msi
-							JOIN re_services rs ON msi.re_service_id = rs.id
-							WHERE msi.mto_shipment_id = mto_shipments.id
-							AND msi.status = 'SUBMITTED'
-							AND rs.code IN ('ICRT', 'IUBPK', 'IOFSIT', 'IOASIT', 'IOPSIT', 'IOSHUT',
-											'IHUPK', 'IUCRT', 'DCRT', 'MS', 'CS', 'DOFSIT', 'DOASIT',
-											'DOPSIT', 'DOSFSC', 'IOSFSC', 'DUPK', 'DUCRT', 'DOSHUT',
-											'FSC', 'DMHF', 'DBTF', 'DBHF', 'IBTF', 'IBHF', 'DCRTSA',
-											'DLH', 'DOP', 'DPK', 'DSH', 'DNPK', 'INPK', 'UBP',
-											'ISLH', 'POEFSC', 'PODFSC', 'IHPK')
-						)
-						OR (
-							-- moves with excess weight risk to acknowledge
-							moves.excess_weight_qualified_at IS NOT NULL
-							AND moves.excess_weight_acknowledged_at IS NULL
-						)
-						OR (
-							-- moves with UB excess weight risk to acknowledge
-							moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
-							AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
-						)
-						OR EXISTS (
-							-- moves with SIT extension to review
-							SELECT 1
-							FROM sit_extensions se
-							WHERE se.mto_shipment_id = mto_shipments.id
-							AND se.status = 'PENDING'
-						)
-					)
-				)
-			)
-
-            `
-			query.Where(baseQuery)
 		}
 	}
 }

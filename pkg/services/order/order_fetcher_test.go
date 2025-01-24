@@ -5,14 +5,13 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
 	officeuserservice "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -21,7 +20,8 @@ import (
 func (suite *OrderServiceSuite) TestFetchOrder() {
 	expectedMove := factory.BuildMove(suite.DB(), nil, nil)
 	expectedOrder := expectedMove.Orders
-	orderFetcher := NewOrderFetcher()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	order, err := orderFetcher.FetchOrder(suite.AppContextForTest(), expectedOrder.ID)
 	suite.FatalNoError(err)
@@ -51,7 +51,7 @@ func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 	// noticed an exception due to trying to load empty OriginDutyLocations.
 	// This was not caught by any tests, so we're adding one now.
 	expectedOrder := factory.BuildOrder(suite.DB(), nil, nil)
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
 	expectedOrder.Grade = nil
@@ -66,7 +66,7 @@ func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 		},
 	}, nil)
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	order, err := orderFetcher.FetchOrder(suite.AppContextForTest(), expectedOrder.ID)
 
 	suite.FatalNoError(err)
@@ -76,7 +76,7 @@ func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 }
 
 func (suite *OrderServiceSuite) TestListOrders() {
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	agfmPostalCode := "06001"
 	setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
 
@@ -97,7 +97,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
 		return officeUser, move, session
 	}
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("returns moves", func() {
 		// Under test: ListOrders
@@ -1166,590 +1166,6 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 }
 
-func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
-	setupTestData := func(officeUserGBLOC string) (models.OfficeUser, auth.Session) {
-
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					Gbloc: officeUserGBLOC,
-				},
-			},
-		}, []roles.RoleType{roles.RoleTypeTOO})
-
-		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99501", officeUser.TransportationOffice.Gbloc)
-
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			officeUser.ID,
-		).Return(officeUserGBLOC, nil)
-
-		session := auth.Session{
-			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
-			OfficeUserID:    officeUser.ID,
-			IDToken:         "fake_token",
-			AccessToken:     "fakeAccessToken",
-		}
-
-		return officeUser, session
-	}
-
-	orderFetcher := NewOrderFetcher()
-
-	suite.Run("returns moves for KKFA GBLOC when destination address is in KKFA GBLOC", func() {
-		officeUser, session := setupTestData("KKFA")
-
-		postalCode := "90210"
-		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "90210", "KKFA")
-
-		// setting up two moves, each with requested destination SIT service items
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{PostalCode: postalCode},
-			},
-		}, nil)
-
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-					Show:   models.BoolPointer(true),
-				},
-			}}, nil)
-
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    destinationAddress,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		// destination service item in SUBMITTED status
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusSubmitted,
-				},
-			},
-		}, nil)
-
-		destinationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{PostalCode: postalCode},
-			},
-		}, nil)
-		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-					Show:   models.BoolPointer(true),
-				},
-			}}, nil)
-
-		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-			{
-				Model:    move2,
-				LinkOnly: true,
-			},
-			{
-				Model:    destinationAddress2,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		// destination shuttle
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDSHUT,
-				},
-			},
-			{
-				Model:    move2,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment2,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusSubmitted,
-				},
-			},
-		}, nil)
-
-		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
-			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{},
-		)
-
-		suite.FatalNoError(err)
-		suite.Equal(2, moveCount)
-		suite.Len(moves, 2)
-	})
-
-	suite.Run("returns moves for MBFL GBLOC including USAF/SF in Alaska Zone II", func() {
-		officeUser, session := setupTestData("MBFL")
-
-		// Create a USAF move in Alaska Zone II
-		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
-		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
-		suite.FatalNoError(err)
-		zone4UUID, err := uuid.FromString("78a6f230-9a3a-46ed-aa48-2e3decfe70ff")
-		suite.FatalNoError(err)
-		airForce := models.AffiliationAIRFORCE
-		spaceForce := models.AffiliationSPACEFORCE
-		postalCode := "99501"
-
-		// setting up two moves, each with requested destination SIT service items
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode:         postalCode,
-					UsPostRegionCityID: &zone2UUID,
-				},
-			},
-		}, nil)
-
-		destinationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode:         postalCode,
-					UsPostRegionCityID: &zone4UUID,
-				},
-			},
-		}, nil)
-
-		// a move associated with an air force customer
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-					Show:   models.BoolPointer(true),
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &airForce,
-				},
-			},
-		}, nil)
-
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    destinationAddress,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		// destination service item in SUBMITTED status
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusSubmitted,
-				},
-			},
-		}, nil)
-
-		// Create a move outside Alaska Zone II
-		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-					Show:   models.BoolPointer(true),
-				},
-			}, {
-				Model: models.ServiceMember{
-					Affiliation: &spaceForce,
-				},
-			},
-		}, nil)
-
-		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-			{
-				Model:    move2,
-				LinkOnly: true,
-			},
-			{
-				Model:    destinationAddress2,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		// destination service item in SUBMITTED status
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model:    move2,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment2,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusSubmitted,
-				},
-			},
-		}, nil)
-
-		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
-			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{},
-		)
-
-		// we should get both moves back because one is in Zone II & the other is within the postal code GBLOC
-		suite.FatalNoError(err)
-		suite.Equal(2, moveCount)
-		suite.Len(moves, 2)
-	})
-
-	suite.Run("returns moves for JEAT GBLOC excluding USAF/SF in Alaska Zone II", func() {
-		officeUser, session := setupTestData("JEAT")
-
-		// Create a USAF move in Alaska Zone II
-		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
-		suite.FatalNoError(err)
-		army := models.AffiliationARMY
-		airForce := models.AffiliationAIRFORCE
-		postalCode := "99501"
-		postalCode2 := "99703"
-
-		// setting up two moves, each with requested destination SIT service items
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode:         postalCode2,
-					UsPostRegionCityID: &zone2UUID,
-				},
-			},
-		}, nil)
-
-		destinationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode:         postalCode,
-					UsPostRegionCityID: &zone2UUID,
-				},
-			},
-		}, nil)
-
-		// a move associated with an air force customer within Alaska Zone II
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-					Show:   models.BoolPointer(true),
-				},
-			}, {
-				Model: models.ServiceMember{
-					Affiliation: &airForce,
-				},
-			},
-		}, nil)
-
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    destinationAddress,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		// destination service item in SUBMITTED status
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusSubmitted,
-				},
-			},
-		}, nil)
-
-		// Create a move in Zone II, but not an air force or space force service member
-		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-					Show:   models.BoolPointer(true),
-				},
-			}, {
-				Model: models.ServiceMember{
-					Affiliation: &army,
-				},
-			},
-		}, nil)
-
-		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-			{
-				Model:    move2,
-				LinkOnly: true,
-			},
-			{
-				Model:    destinationAddress2,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		// destination service item in SUBMITTED status
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model:    move2,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment2,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusSubmitted,
-				},
-			},
-		}, nil)
-
-		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
-			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{},
-		)
-
-		// we should only get one move back because the AF move is in Zone II which goes into the MBFL queue NOT the JEAT
-		suite.FatalNoError(err)
-		suite.Equal(1, moveCount)
-		suite.Len(moves, 1)
-	})
-
-	suite.Run("returns moves for USMC GBLOC when moves belong to USMC servicemembers", func() {
-		officeUser, session := setupTestData("USMC")
-
-		postalCode := "90210"
-		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
-		suite.FatalNoError(err)
-		usmc := models.AffiliationMARINES
-		// going to tie this ZIP to KKFA GBLOC, but the move should still go to the USMC queue
-		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "90210", "KKFA")
-
-		// setting up two moves, each with requested destination SIT service items
-		// both will be USMC moves, one in Zone II AK and the other not
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode:         postalCode,
-					UsPostRegionCityID: &zone2UUID,
-				},
-			},
-		}, nil)
-
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-					Show:   models.BoolPointer(true),
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &usmc,
-				},
-			},
-		}, nil)
-
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    destinationAddress,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		// destination service item in SUBMITTED status
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusSubmitted,
-				},
-			},
-		}, nil)
-
-		// this one won't be in Zone II
-		destinationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{PostalCode: postalCode},
-			},
-		}, nil)
-		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-					Show:   models.BoolPointer(true),
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &usmc,
-				},
-			},
-		}, nil)
-
-		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-			{
-				Model:    move2,
-				LinkOnly: true,
-			},
-			{
-				Model:    destinationAddress2,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		// destination shuttle
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDSHUT,
-				},
-			},
-			{
-				Model:    move2,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment2,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusSubmitted,
-				},
-			},
-		}, nil)
-
-		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
-			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{},
-		)
-
-		// we should get both moves back since they're USMC moves and zone doesn't matter
-		suite.FatalNoError(err)
-		suite.Equal(2, moveCount)
-		suite.Len(moves, 2)
-	})
-}
-
 func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	// Under test: ListOrders
 	// Set up:           Make a move, assign one to an SC office user
@@ -1785,7 +1201,8 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	suite.Equal(createdMove.SCAssignedUser.LastName, moves[0].SCAssignedUser.LastName)
 }
 func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
-	orderFetcher := NewOrderFetcher()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("returns USMC order for USMC office user", func() {
 		marines := models.AffiliationMARINES
@@ -1921,7 +1338,8 @@ func buildPPMShipmentCloseoutComplete(suite *OrderServiceSuite, move models.Move
 	return ppm
 }
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
-	orderFetcher := NewOrderFetcher()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	var session auth.Session
 
@@ -1982,7 +1400,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMarines() {
-	orderFetcher := NewOrderFetcher()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("returns Navy order for NAVY office user when there's a ppm shipment in closeout", func() {
 		// It doesn't matter what the Origin GBLOC is for the move. Only the navy
@@ -2145,8 +1564,10 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 }
 
 func (suite *OrderServiceSuite) TestListOrdersMarines() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("does not return moves where the service member affiliation is Marines for non-USMC office user", func() {
-		orderFetcher := NewOrderFetcher()
+
+		orderFetcher := NewOrderFetcher(waf)
 		marines := models.AffiliationMARINES
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
@@ -2174,7 +1595,7 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 
 func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 	expectedOrder := factory.BuildOrder(suite.DB(), nil, nil)
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
 	expectedOrder.Grade = nil
@@ -2224,7 +1645,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 		AccessToken:     "fakeAccessToken",
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{PerPage: models.Int64Pointer(1), Page: models.Int64Pointer(1)})
 
 	suite.FatalNoError(err)
@@ -2234,6 +1655,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 
 func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	waf := entitlements.NewWeightAllotmentFetcher()
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		Roles:           officeUser.User.Roles,
@@ -2246,7 +1668,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 		factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	params := services.ListOrderParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(1)}
 	moves, count, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 
@@ -2265,7 +1687,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	affiliation := models.AffiliationNAVY
 	edipi := "9999999999"
 	var officeUser models.OfficeUser
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	// SET UP: Dates for sorting by Requested Move Date
 	// - We want dates 2 and 3 to sandwich requestedMoveDate1 so we can test that the min() query is working
 	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 02, 20, 0, 0, 0, 0, time.UTC)
@@ -2327,7 +1749,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		return expectedMove1, expectedMove2, session
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("Sort by locator code", func() {
 		expectedMove1, expectedMove2, session := setupTestData()
@@ -2490,6 +1912,7 @@ func getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite *OrderServiceSuite, clo
 
 func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCloseoutColumnsSort() {
 	defaultShipmentPickupPostalCode := "90210"
+	waf := entitlements.NewWeightAllotmentFetcher()
 	setupTestData := func() models.OfficeUser {
 		// Make an office user → GBLOC X
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -2502,7 +1925,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 
 		return officeUser
 	}
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	var session auth.Session
 
@@ -2766,7 +2189,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 }
 
 func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOCSortFilter() {
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("Filter by origin GBLOC", func() {
 
 		// TESTCASE SCENARIO
@@ -2836,7 +2259,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 			},
 		}, nil)
 		// Setup and run the function under test requesting status NEEDS SERVICE COUNSELING
-		orderFetcher := NewOrderFetcher()
+		orderFetcher := NewOrderFetcher(waf)
 		statuses := []string{"NEEDS SERVICE COUNSELING"}
 		// Sort by origin GBLOC, filter by status
 		params := services.ListOrderParams{Sort: models.StringPointer("originGBLOC"), Order: models.StringPointer("asc"), Status: statuses}
@@ -2858,6 +2281,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 			},
 		},
 	}, nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 	// Make a TOO user and the postal code to GBLOC link.
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	session := auth.Session{
@@ -2868,7 +2292,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 		AccessToken:     "fakeAccessToken",
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 
 	suite.FatalNoError(err)
@@ -2879,7 +2303,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	postalCode := "50309"
 	partialPPMType := models.MovePPMTypePARTIAL
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -2912,7 +2336,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), ppmShipment.PickupAddress.PostalCode, tooOfficeUser.TransportationOffice.Gbloc)
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 	suite.FatalNoError(err)
 	suite.Equal(1, moveCount)
@@ -2922,7 +2346,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 	var hqOfficeUser models.OfficeUser
 	var hqOfficeUserAGFM models.OfficeUser
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 02, 20, 0, 0, 0, 0, time.UTC)
 	requestedMoveDate2 := time.Date(testdatagen.GHCTestYear, 03, 03, 0, 0, 0, 0, time.UTC)
 
@@ -3004,7 +2428,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 		return expectedMove1, expectedMove2, expectedShipment3, hqSession, hqSessionAGFM
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("Sort by locator code", func() {
 		expectedMove1, expectedMove2, expectedShipment3, hqSession, hqSessionAGFM := setupTestData()
@@ -3044,6 +2468,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment() {
 	postalCode := "50309"
 	deletedAt := time.Now()
+	waf := entitlements.NewWeightAllotmentFetcher()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
@@ -3086,7 +2511,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 		AccessToken:     "fakeAccessToken",
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{Status: []string{string(models.MoveStatusSUBMITTED)}})
 	suite.FatalNoError(err)
 	suite.Equal(0, moveCount)
@@ -3096,6 +2521,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmentButOtherExists() {
 	postalCode := "50309"
 	deletedAt := time.Now()
+	waf := entitlements.NewWeightAllotmentFetcher()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
@@ -3166,7 +2592,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 		AccessToken:     "fakeAccessToken",
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 	suite.FatalNoError(err)
 	suite.Equal(1, moveCount)
@@ -3174,8 +2600,9 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 }
 
 func (suite *OrderServiceSuite) TestListAllOrderLocations() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("returns a list of all order locations in the current users queue", func() {
-		orderFetcher := NewOrderFetcher()
+		orderFetcher := NewOrderFetcher(waf)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -3194,8 +2621,9 @@ func (suite *OrderServiceSuite) TestListAllOrderLocations() {
 }
 
 func (suite *OrderServiceSuite) TestListAllOrderLocationsWithViewAsGBLOCParam() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("returns a list of all order locations in the current users queue", func() {
-		orderFetcher := NewOrderFetcher()
+		orderFetcher := NewOrderFetcher(waf)
 		officeUserFetcher := officeuserservice.NewOfficeUserFetcherPop()
 		movesContainOriginDutyLocation := func(moves models.Moves, keyword string) func() (success bool) {
 			return func() (success bool) {
@@ -3293,26 +2721,26 @@ func (suite *OrderServiceSuite) TestListAllOrderLocationsWithViewAsGBLOCParam() 
 
 func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
 	var session auth.Session
+	waf := entitlements.NewWeightAllotmentFetcher()
 	var expectedMove models.Move
 	var officeUser models.OfficeUser
-	orderFetcher := NewOrderFetcher()
-	suite.PreloadData(func() {
-		setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
-			officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-			session := auth.Session{
-				ApplicationName: auth.OfficeApp,
-				Roles:           officeUser.User.Roles,
-				OfficeUserID:    officeUser.ID,
-				IDToken:         "fake_token",
-				AccessToken:     "fakeAccessToken",
-			}
-			move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
-			return officeUser, move, session
+	orderFetcher := NewOrderFetcher(waf)
+	setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
 		}
-		officeUser, expectedMove, session = setupTestData()
-	})
-	locationName := expectedMove.Orders.OriginDutyLocation.Name
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		return officeUser, move, session
+	}
+
 	suite.Run("Returns orders matching full originDutyLocation name filter", func() {
+		officeUser, expectedMove, session = setupTestData()
+		locationName := expectedMove.Orders.OriginDutyLocation.Name
 		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(locationName, " ")})
 		suite.NoError(err)
 		suite.Equal(1, len(expectedMoves))
@@ -3320,6 +2748,8 @@ func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
 	})
 
 	suite.Run("Returns orders matching partial originDutyLocation name filter", func() {
+		officeUser, expectedMove, session = setupTestData()
+		locationName := expectedMove.Orders.OriginDutyLocation.Name
 		//Split the location name and retrieve a substring (first string) for the search param
 		partialParamSearch := strings.Split(locationName, " ")[0]
 		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(partialParamSearch, " ")})
@@ -3330,6 +2760,8 @@ func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	serviceMemberFirstName := "Margaret"
 	serviceMemberLastName := "Starlight"
 	edipi := "9999999998"
@@ -3388,7 +2820,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 		}
 	})
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("list moves by customer name - full name (last, first)", func() {
 		// Search "Spacemen, Margaret"
