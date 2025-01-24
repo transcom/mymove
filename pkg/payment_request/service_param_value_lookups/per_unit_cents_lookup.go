@@ -84,6 +84,44 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 		}
 		return reIntlPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
 
+	case models.ReServiceCodeIUBPK:
+		// IUBPK: Need rate area ID for the pickup address
+		rateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.PickupAddressID, serviceID, contractID)
+		if err != nil {
+			return "", fmt.Errorf("error fetching rate area id for shipment ID: %s and service ID %s: %s", p.MTOShipment.ID, serviceID, err)
+		}
+		isPeakPeriod := ghcrateengine.IsPeakPeriod(*p.MTOShipment.RequestedPickupDate)
+		var reIntlOtherPrice models.ReIntlOtherPrice
+		err = appCtx.DB().Q().
+			Where("contract_id = ?", contractID).
+			Where("service_id = ?", serviceID).
+			Where("is_peak_period = ?", isPeakPeriod).
+			Where("rate_area_id = ?", rateAreaID).
+			First(&reIntlOtherPrice)
+		if err != nil {
+			return "", fmt.Errorf("error fetching IUBPK per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, and rateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, rateAreaID, err)
+		}
+		return reIntlOtherPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
+
+	case models.ReServiceCodeIUBUPK:
+		// IUBUPK: Need rate area ID for the destination address
+		rateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.PickupAddressID, serviceID, contractID)
+		if err != nil {
+			return "", fmt.Errorf("error fetching rate area id for shipment ID: %s and service ID %s: %s", p.MTOShipment.ID, serviceID, err)
+		}
+		isPeakPeriod := ghcrateengine.IsPeakPeriod(*p.MTOShipment.RequestedPickupDate)
+		var reIntlOtherPrice models.ReIntlOtherPrice
+		err = appCtx.DB().Q().
+			Where("contract_id = ?", contractID).
+			Where("service_id = ?", serviceID).
+			Where("is_peak_period = ?", isPeakPeriod).
+			Where("rate_area_id = ?", rateAreaID).
+			First(&reIntlOtherPrice)
+		if err != nil {
+			return "", fmt.Errorf("error fetching IUBUPK per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, and rateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, rateAreaID, err)
+		}
+		return reIntlOtherPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
+
 	default:
 		return "", fmt.Errorf("unsupported service code to retrieve service item param PerUnitCents")
 	}
