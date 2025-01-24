@@ -368,13 +368,15 @@ func (suite *ModelSuite) TestCreateInternationalAccessorialServiceItemsForShipme
 		}, nil)
 
 		serviceItem.MTOShipment = shipment
-		err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), shipment.ID, models.MTOServiceItems{serviceItem})
+		serviceItemIds, err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), shipment.ID, models.MTOServiceItems{serviceItem})
 		suite.NoError(err)
+		suite.NotNil(serviceItemIds)
 	})
 
 	suite.Run("test error handling for invalid shipment", func() {
-		err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), uuid.Nil, models.MTOServiceItems{})
+		serviceItemIds, err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), uuid.Nil, models.MTOServiceItems{})
 		suite.Error(err)
+		suite.Nil(serviceItemIds)
 	})
 }
 
