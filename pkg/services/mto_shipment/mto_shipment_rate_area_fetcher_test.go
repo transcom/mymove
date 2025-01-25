@@ -26,74 +26,6 @@ const brooklynNYPostalCode = "11220"
 func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 	shipmentRateAreaFetcher := NewMTOShipmentRateAreaFetcher()
 
-	setupRateArea := func(contract models.ReContract) models.ReRateArea {
-		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-		rateArea := models.ReRateArea{
-			ID:         uuid.Must(uuid.NewV4()),
-			ContractID: contract.ID,
-			IsOconus:   true,
-			Code:       rateAreaCode,
-			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
-			Contract:   contract,
-		}
-		verrs, err := suite.DB().ValidateAndCreate(&rateArea)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(err.Error())
-		}
-		return rateArea
-	}
-
-	setupRateAreaToPostalCodeData := func(rateArea models.ReRateArea, postalCode string) models.ReRateArea {
-		// fetch US by country id
-		us_countryId := uuid.FromStringOrNil("c390ced2-89e1-418d-bbff-f8a79b89c4b6")
-		us_country, err := models.FetchCountryByID(suite.DB(), us_countryId)
-		suite.NotNil(us_country)
-		suite.FatalNoError(err)
-
-		usprc, err := findUsPostRegionCityByZipCode(suite.AppContextForTest(), postalCode)
-		suite.NotNil(usprc)
-		suite.FatalNoError(err)
-
-		oconusRateArea := testOnlyOconusRateArea{
-			ID:                 uuid.Must(uuid.NewV4()),
-			RateAreaId:         rateArea.ID,
-			CountryId:          us_country.ID,
-			UsPostRegionCityId: usprc.ID,
-			Active:             true,
-		}
-		verrs, err := suite.DB().ValidateAndCreate(&oconusRateArea)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(err.Error())
-		}
-
-		return rateArea
-	}
-
-	setupRateAreaToManyPostalCodesData := func(contract models.ReContract, testPostalCode []string) models.ReRateArea {
-		rateArea := setupRateArea(contract)
-		for _, postalCode := range testPostalCode {
-			setupRateAreaToPostalCodeData(rateArea, postalCode)
-		}
-		return rateArea
-	}
-
-	isRateAreaEquals := func(expectedRateArea models.ReRateArea, postalCode string, shipmentPostalCodeRateArea *[]services.ShipmentPostalCodeRateArea) bool {
-		var shipmentPostalCodeRateAreaLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
-		for _, i := range *shipmentPostalCodeRateArea {
-			shipmentPostalCodeRateAreaLookupMap[i.PostalCode] = i
-		}
-		if _, ok := shipmentPostalCodeRateAreaLookupMap[postalCode]; !ok {
-			return false
-		}
-		return (shipmentPostalCodeRateAreaLookupMap[postalCode].RateArea.ID == expectedRateArea.ID && shipmentPostalCodeRateAreaLookupMap[postalCode].RateArea.Name == expectedRateArea.Name && shipmentPostalCodeRateAreaLookupMap[postalCode].RateArea.Code == expectedRateArea.Code)
-	}
-
 	suite.Run("test mapping of one rateArea to many postCodes and one rateArea to one", func() {
 		availableToPrimeAtTime := time.Now().Add(-500 * time.Hour)
 		testMove := models.Move{
@@ -150,6 +82,74 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 					},
 				},
 			},
+		}
+
+		setupRateArea := func(contract models.ReContract) models.ReRateArea {
+			rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+			rateArea := models.ReRateArea{
+				ID:         uuid.Must(uuid.NewV4()),
+				ContractID: contract.ID,
+				IsOconus:   true,
+				Code:       rateAreaCode,
+				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+				Contract:   contract,
+			}
+			verrs, err := suite.DB().ValidateAndCreate(&rateArea)
+			if verrs.HasAny() {
+				suite.Fail(verrs.Error())
+			}
+			if err != nil {
+				suite.Fail(err.Error())
+			}
+			return rateArea
+		}
+
+		setupRateAreaToPostalCodeData := func(rateArea models.ReRateArea, postalCode string) models.ReRateArea {
+			// fetch US by country id
+			us_countryId := uuid.FromStringOrNil("c390ced2-89e1-418d-bbff-f8a79b89c4b6")
+			us_country, err := models.FetchCountryByID(suite.DB(), us_countryId)
+			suite.NotNil(us_country)
+			suite.FatalNoError(err)
+
+			usprc, err := findUsPostRegionCityByZipCode(suite.AppContextForTest(), postalCode)
+			suite.NotNil(usprc)
+			suite.FatalNoError(err)
+
+			oconusRateArea := testOnlyOconusRateArea{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RateAreaId:         rateArea.ID,
+				CountryId:          us_country.ID,
+				UsPostRegionCityId: usprc.ID,
+				Active:             true,
+			}
+			verrs, err := suite.DB().ValidateAndCreate(&oconusRateArea)
+			if verrs.HasAny() {
+				suite.Fail(verrs.Error())
+			}
+			if err != nil {
+				suite.Fail(err.Error())
+			}
+
+			return rateArea
+		}
+
+		setupRateAreaToManyPostalCodesData := func(contract models.ReContract, testPostalCode []string) models.ReRateArea {
+			rateArea := setupRateArea(contract)
+			for _, postalCode := range testPostalCode {
+				setupRateAreaToPostalCodeData(rateArea, postalCode)
+			}
+			return rateArea
+		}
+
+		isRateAreaEquals := func(expectedRateArea models.ReRateArea, postalCode string, shipmentPostalCodeRateArea *[]services.ShipmentPostalCodeRateArea) bool {
+			var shipmentPostalCodeRateAreaLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
+			for _, i := range *shipmentPostalCodeRateArea {
+				shipmentPostalCodeRateAreaLookupMap[i.PostalCode] = i
+			}
+			if _, ok := shipmentPostalCodeRateAreaLookupMap[postalCode]; !ok {
+				return false
+			}
+			return (shipmentPostalCodeRateAreaLookupMap[postalCode].RateArea.ID == expectedRateArea.ID && shipmentPostalCodeRateAreaLookupMap[postalCode].RateArea.Name == expectedRateArea.Name && shipmentPostalCodeRateAreaLookupMap[postalCode].RateArea.Code == expectedRateArea.Code)
 		}
 
 		// create test contract
