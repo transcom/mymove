@@ -369,10 +369,6 @@ pre_deps_golang:
     - *announce_failure
   cache:
     - <<: *go_cache
-  artifacts:
-    paths:
-      - /builds/milmove/mymove/bin/
-      - /builds/milmove/mymove/swagger/
   #TODO: Optimization potential
   # cache:
   #   key: "$CI_COMMIT_REF_SLUG-go"
@@ -705,6 +701,9 @@ server_test:
     # - go mod tidy
     #- bin/gotestsum --junitfile server_test_report.xml --format server_test
   allow_failure: true
+  cache:
+    - <<: *go_cache
+      policy: pull
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/gotestsum
@@ -860,20 +859,15 @@ integration_tests:
   stage: test
   tags:
     - $RUNNER_TAG
-  image: $DOCKER_APP_IMAGE
   needs:
-    - pre_deps_yarn
-    - pre_deps_golang
-    - compile_app_client
-    - compile_app_server
     - integration_test_my
     - integration_test_office
     - integration_test_admin
     - integration_test_devseed
-  before_script: *setup_milmove_env
+    - integration_tests_mtls
   script:
-    - echo "TODO Add steps"
-    - echo "integration_tests"
+    #no-op to lump integration tests into one status
+    - echo "integration_tests done"
   allow_failure: true
   after_script:
     - *announce_failure

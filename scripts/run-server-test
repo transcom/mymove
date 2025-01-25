@@ -55,6 +55,8 @@ fi
 # this addresses issues we were having with the default linker on macOS
 if [[ "$(uname)" == "Darwin" ]]; then
     gotest_args+=("-ldflags=-extldflags=-Wl,-ld_classic")
+elif [[ "$(uname)" == "Linux" ]]; then
+    gotest_args+=("-ldflags=-extldflags=-Wl,-ld_classic")
 fi
 
 # Try to compile tests, but don't run them.
