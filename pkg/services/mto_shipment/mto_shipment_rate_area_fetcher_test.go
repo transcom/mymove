@@ -171,21 +171,29 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		// setup Wasilla to have it's own RateArea
 		rateArea2 := setupRateAreaToPostalCodeData(setupRateArea(*contract), wasillaAlaskaPostalCode)
 
-		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
-		suite.NotNil(shipmentPostalCodeRateArea)
+		shipmentPostalCodeRateAreas, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
+		suite.NotNil(shipmentPostalCodeRateAreas)
 		suite.FatalNoError(err)
-		suite.Equal(3, len(*shipmentPostalCodeRateArea))
+		suite.Equal(5, len(*shipmentPostalCodeRateAreas))
 
-		suite.Equal(true, isRateAreaEquals(rateArea1, fairbanksAlaskaPostalCode, shipmentPostalCodeRateArea))
-		suite.Equal(true, isRateAreaEquals(rateArea1, anchorageAlaskaPostalCode, shipmentPostalCodeRateArea))
-		suite.Equal(true, isRateAreaEquals(rateArea2, wasillaAlaskaPostalCode, shipmentPostalCodeRateArea))
+		suite.Equal(true, isRateAreaEquals(rateArea1, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(true, isRateAreaEquals(rateArea1, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(true, isRateAreaEquals(rateArea2, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
 
-		suite.Equal(false, isRateAreaEquals(rateArea2, fairbanksAlaskaPostalCode, shipmentPostalCodeRateArea))
-		suite.Equal(false, isRateAreaEquals(rateArea2, anchorageAlaskaPostalCode, shipmentPostalCodeRateArea))
-		suite.Equal(false, isRateAreaEquals(rateArea1, wasillaAlaskaPostalCode, shipmentPostalCodeRateArea))
+		suite.Equal(false, isRateAreaEquals(rateArea2, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateArea2, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateArea1, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
+
+		var shipmentPostalCodeRateAreasLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
+		for _, pcra := range *shipmentPostalCodeRateAreas {
+			shipmentPostalCodeRateAreasLookupMap[pcra.PostalCode] = pcra
+		}
+
+		suite.Equal("California-South", shipmentPostalCodeRateAreasLookupMap[beverlyHillsCAPostalCode].RateArea.Name)
+		suite.Equal("California-South", shipmentPostalCodeRateAreasLookupMap[sanDiegoCAPostalCode].RateArea.Name)
 	})
 
-	suite.Run("no oconus rateArea found returns empty array", func() {
+	suite.Run("Returns matching CONUS rate areas", func() {
 		availableToPrimeAtTime := time.Now().Add(-500 * time.Hour)
 		testMove := models.Move{
 			AvailableToPrimeAt: &availableToPrimeAtTime,
@@ -227,33 +235,19 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 			},
 		}
 
-		// create test contract
-		contract, err := suite.createContract(suite.AppContextForTest(), testContractCode, testContractName)
-		suite.NotNil(contract)
-		suite.FatalNoError(err)
-
-		// setup contract year within availableToPrimeAtTime time
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate:  availableToPrimeAtTime,
-				EndDate:    time.Now(),
-				ContractID: contract.ID,
-			},
-		})
-
-		// setup San Diego and Beverly Hills to have same RateArea
-		rateAreaCA := setupRateAreaToManyPostalCodesData(*contract, []string{beverlyHillsCAPostalCode, sanDiegoCAPostalCode})
-		// setup Brooklyn to have it's own RateArea
-		rateAreaNY := setupRateAreaToPostalCodeData(setupRateArea(*contract), brooklynNYPostalCode)
-
-		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
-		suite.NotNil(shipmentPostalCodeRateArea)
-		suite.Equal(4, len(*shipmentPostalCodeRateArea))
+		shipmentPostalCodeRateAreas, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
+		suite.NotNil(shipmentPostalCodeRateAreas)
+		suite.Equal(3, len(*shipmentPostalCodeRateAreas))
 		suite.Nil(err)
 
-		suite.Equal(true, isRateAreaEquals(rateAreaCA, sanDiegoCAPostalCode, shipmentPostalCodeRateArea))
-		suite.Equal(true, isRateAreaEquals(rateAreaCA, beverlyHillsCAPostalCode, shipmentPostalCodeRateArea))
-		suite.Equal(true, isRateAreaEquals(rateAreaNY, brooklynNYPostalCode, shipmentPostalCodeRateArea))
+		var shipmentPostalCodeRateAreaLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
+		for _, pcra := range *shipmentPostalCodeRateAreas {
+			shipmentPostalCodeRateAreaLookupMap[pcra.PostalCode] = pcra
+		}
+
+		suite.Equal("California-South", shipmentPostalCodeRateAreaLookupMap[beverlyHillsCAPostalCode].RateArea.Name)
+		suite.Equal("California-South", shipmentPostalCodeRateAreaLookupMap[sanDiegoCAPostalCode].RateArea.Name)
+		suite.Equal("New York", shipmentPostalCodeRateAreaLookupMap[brooklynNYPostalCode].RateArea.Name)
 	})
 
 	suite.Run("not available to prime error", func() {
