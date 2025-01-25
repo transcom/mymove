@@ -864,7 +864,7 @@ integration_tests:
     - integration_test_office
     - integration_test_admin
     - integration_test_devseed
-    - integration_tests_mtls
+    - integration_test_mtls
   script:
     #no-op to lump integration tests into one status
     - echo "integration_tests done"
