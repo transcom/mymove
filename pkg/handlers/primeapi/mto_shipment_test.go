@@ -59,9 +59,11 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		vLocationServices := address.NewVLocation()
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
+			vLocationServices,
 		}
 		// InvalidInputError should generate an UnprocessableEntity response error
 		// Need verrs incorporated to satisfy swagger validation
@@ -91,9 +93,11 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 	suite.Run("POST failure - 409 Request conflict reponse Error", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		vLocationServices := address.NewVLocation()
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
+			vLocationServices,
 		}
 		// NewConflictError should generate a RequestConflict response error
 		err := apperror.NewConflictError(uuid.Nil, "unable to create ShipmentAddressUpdate")
@@ -121,9 +125,11 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		vLocationServices := address.NewVLocation()
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
+			vLocationServices,
 		}
 		// NewNotFoundError should generate a RequestNotFound response error
 		err := apperror.NewNotFoundError(uuid.Nil, "unable to create ShipmentAddressUpdate")
@@ -151,9 +157,11 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		vLocationServices := address.NewVLocation()
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
+			vLocationServices,
 		}
 		// NewQueryError should generate an InternalServerError response error
 		err := apperror.NewQueryError("", nil, "unable to reach database")

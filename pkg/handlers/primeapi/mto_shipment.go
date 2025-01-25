@@ -1,6 +1,9 @@
 package primeapi
 
 import (
+	"context"
+	"strings"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -19,6 +22,7 @@ import (
 type UpdateShipmentDestinationAddressHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentAddressUpdateRequester
+	services.VLocation
 }
 
 // Handle creates the address update request for non-SIT
@@ -31,6 +35,57 @@ func (h UpdateShipmentDestinationAddressHandler) Handle(params mtoshipmentops.Up
 			addressUpdate := payloads.ShipmentAddressUpdateModel(payload, shipmentID)
 
 			eTag := params.IfMatch
+
+			/** Feature Flag - Alaska - Determines if AK can be included/excluded **/
+			isAlaskaEnabled := false
+			akFeatureFlagName := "enable_alaska"
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, akFeatureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", akFeatureFlagName), zap.Error(err))
+			} else {
+				isAlaskaEnabled = flag.Match
+			}
+
+			/** Feature Flag - Hawaii - Determines if HI can be included/excluded **/
+			isHawaiiEnabled := false
+			hiFeatureFlagName := "enable_hawaii"
+			flag, err = h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, hiFeatureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", hiFeatureFlagName), zap.Error(err))
+			} else {
+				isHawaiiEnabled = flag.Match
+			}
+
+			// build states to exlude filter list
+			statesToExclude := make([]string, 0)
+			if !isAlaskaEnabled {
+				statesToExclude = append(statesToExclude, "AK")
+			}
+			if !isHawaiiEnabled {
+				statesToExclude = append(statesToExclude, "HI")
+			}
+
+			addressSearch := addressUpdate.NewAddress.City + ", " + addressUpdate.NewAddress.State + " " + addressUpdate.NewAddress.PostalCode
+
+			locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude)
+			if err != nil {
+				appCtx.Logger().Error("Error searching for address:  ", zap.Error(err))
+				return mtoshipmentops.NewUpdateShipmentDestinationAddressInternalServerError(), err
+			} else if len(*locationList) == 0 {
+				err := apperror.NewBadDataError("invalid address provided")
+				appCtx.Logger().Error("Error: ", zap.Error(err))
+				return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity(), err
+			} else if len(*locationList) > 1 {
+				var results []string
+
+				for _, address := range *locationList {
+					results = append(results, address.CityName+" "+address.StateName+" "+address.UsprZipID)
+				}
+				joinedResult := strings.Join(results[:], "\n")
+				err := apperror.NewBadDataError("multiple locations found choose one of the following: " + joinedResult)
+				appCtx.Logger().Error("Error: ", zap.Error(err))
+				return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity(), err
+			}
 
 			response, err := h.ShipmentAddressUpdateRequester.RequestShipmentDeliveryAddressUpdate(appCtx, shipmentID, addressUpdate.NewAddress, addressUpdate.ContractorRemarks, eTag)
 
