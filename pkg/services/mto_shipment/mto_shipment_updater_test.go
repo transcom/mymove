@@ -3150,7 +3150,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
-	suite.Run("Skips calling check auto reweigh if the updated actual weight matches the db value", func() {
+	suite.Run("Skips calling check auto reweigh if the updated actual weight and estimated weight matches the db value", func() {
 		moveWeights := &mockservices.MoveWeights{}
 		mockSender := setUpMockNotificationSender()
 		addressUpdater := address.NewAddressUpdater()
@@ -3194,12 +3194,16 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 
+		estimatedWeight := unit.Pound(1000)
+		actualWeight := unit.Pound(1000)
 		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ApprovedDate:        &now,
-					ScheduledPickupDate: &pickupDate,
+					Status:               models.MTOShipmentStatusApproved,
+					ApprovedDate:         &now,
+					ScheduledPickupDate:  &pickupDate,
+					PrimeEstimatedWeight: &estimatedWeight,
+					PrimeActualWeight:    &actualWeight,
 				},
 			},
 			{
@@ -3210,10 +3214,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 				},
 			},
 		}, nil)
-		estimatedWeight := unit.Pound(7200)
 		// there is a validator check about updating the status
 		primeShipment.Status = ""
 		primeShipment.PrimeEstimatedWeight = &estimatedWeight
+		primeShipment.PrimeActualWeight = &actualWeight
 
 		session := auth.Session{}
 		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
@@ -3226,46 +3230,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		suite.Equal(primeShipment.ID.String(), primeShipment.Reweigh.ShipmentID.String())
 		suite.NotNil(primeShipment.Reweigh.RequestedAt)
 		suite.Equal(models.ReweighRequesterSystem, primeShipment.Reweigh.RequestedBy)
-
-		// Verify that shipment recalculate was handled correctly
-		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
-	})
-
-	suite.Run("Skips calling check auto reweigh if the updated estimated weight matches the db value", func() {
-		moveWeights := &mockservices.MoveWeights{}
-		mockSender := setUpMockNotificationSender()
-		addressUpdater := address.NewAddressUpdater()
-
-		mockedUpdater := NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
-
-		now := time.Now()
-		pickupDate := now.AddDate(0, 0, 10)
-		estimatedWeight := unit.Pound(7200)
-		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					ApprovedDate:         &now,
-					ScheduledPickupDate:  &pickupDate,
-					PrimeEstimatedWeight: &estimatedWeight,
-				},
-			},
-			{
-				Model: models.Move{
-					AvailableToPrimeAt: &now,
-					ApprovedAt:         &now,
-				},
-			},
-		}, nil)
-		// there is a validator check about updating the status
-		primeShipment.Status = ""
-		primeShipment.PrimeEstimatedWeight = &estimatedWeight
-
-		session := auth.Session{}
-		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
-		suite.NoError(err)
-
-		moveWeights.AssertNotCalled(suite.T(), "CheckAutoReweigh")
 
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
