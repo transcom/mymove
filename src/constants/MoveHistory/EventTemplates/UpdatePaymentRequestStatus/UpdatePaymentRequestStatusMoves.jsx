@@ -9,8 +9,10 @@ export default {
   eventName: o.updatePaymentRequestStatus,
   tableName: t.moves,
   getEventNameDisplay: () => 'Updated move',
-  getDetails: ({ changedValues }) => {
-    if (changedValues?.tio_assigned_id !== undefined) return <> Task Invoicing Officer Unassigned </>;
-    return <> - </>;
-  },
+  getDetails: ({ changedValues }) => (
+    <>
+      <div>Payment Requests Addressed</div>
+      {changedValues?.tio_assigned_id !== undefined ? <div>Task Invoicing Officer Unassigned</div> : null}
+    </>
+  ),
 };
