@@ -60,10 +60,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
           return (
             <Form className={formStyles.form}>
               <div className={styles.modalbody}>
-                <AddressUpdatePreview
-                  deliveryAddressUpdate={shipment.deliveryAddressUpdate}
-                  shipmentType={shipment.shipmentType}
-                />
+                <AddressUpdatePreview deliveryAddressUpdate={shipment.deliveryAddressUpdate} shipment={shipment} />
                 <FormGroup className={styles.formGroup}>
                   <h4>Review Request</h4>
                   <Fieldset>
