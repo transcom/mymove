@@ -8,7 +8,7 @@ import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 import ShuttleSITServiceItemForm from './ShuttleSITServiceItemForm';
 import DomesticCratingForm from './DomesticCratingForm';
 import InternationalCratingForm from './InternationalCratingForm';
-import InternationalShuttleSITServiceItemForm from './InternationalShuttleSITServiceItemForm';
+import InternationalShuttleSITServiceItemForm from './InternationalShuttleServiceItemForm';
 
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ShipmentShape } from 'types/shipment';

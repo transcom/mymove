@@ -73,7 +73,12 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
   const { modelType } = serviceItem;
   let initialValues;
   let onSubmit;
-  if (modelType === 'MTOServiceItemOriginSIT' || modelType === 'MTOServiceItemDestSIT') {
+  if (
+    modelType === 'MTOServiceItemOriginSIT' ||
+    modelType === 'MTOServiceItemDestSIT' ||
+    modelType === 'MTOServiceItemInternationalDestSIT' ||
+    modelType === 'MTOServiceItemInternationalOriginSIT'
+  ) {
     initialValues = {
       sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
       sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',

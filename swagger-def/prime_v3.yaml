@@ -340,12 +340,16 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemBasic.yaml'
   MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDestSIT.yaml'
+  MTOServiceItemInternationalDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalDestSIT.yaml'
   MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDomesticCrating.yaml'
   MTOServiceItemInternationalCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemInternationalCrating.yaml'
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
+  MTOServiceItemInternationalOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
   MTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism

@@ -22,7 +22,6 @@ type MTOServiceItemFetcher interface {
 //
 //go:generate mockery --name MTOServiceItemCreator
 type MTOServiceItemCreator interface {
-	CreateInternationalMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, error)
 	CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error)
 }
 

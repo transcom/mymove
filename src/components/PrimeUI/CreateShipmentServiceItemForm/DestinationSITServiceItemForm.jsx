@@ -140,7 +140,11 @@ const DestinationSITServiceItemForm = ({ shipment, submission, isDomestic }) => 
 DestinationSITServiceItemForm.propTypes = {
   shipment: ShipmentShape.isRequired,
   submission: PropTypes.func.isRequired,
-  isDomestic: PropTypes.bool.isRequired,
+  isDomestic: PropTypes.bool,
+};
+
+DestinationSITServiceItemForm.defaultProps = {
+  isDomestic: true,
 };
 
 export default DestinationSITServiceItemForm;

@@ -320,26 +320,6 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 	return distance, err
 }
 
-func (o *mtoServiceItemCreator) CreateInternationalMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, error) {
-	if serviceItem == nil {
-		err := fmt.Errorf("must request service item to create")
-		return nil, apperror.NewInvalidInputError(uuid.Nil, err, nil, err.Error())
-	}
-
-	if serviceItem.MTOShipmentID == nil {
-		err := fmt.Errorf("cannot request a service item without a shipment id")
-		return nil, apperror.NewInvalidInputError(uuid.Nil, err, nil, err.Error())
-	}
-
-	//Add validation and business logic for international SIT service item and others before this line
-	mtoServiceItems, err := models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), *serviceItem.MTOShipmentID, models.MTOServiceItems{*serviceItem})
-	if err != nil {
-		return nil, err
-	}
-
-	return mtoServiceItems, nil
-}
-
 // CreateMTOServiceItem creates a MTO Service Item
 func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
 	var verrs *validate.Errors
@@ -719,7 +699,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 
 			if mtoShipment.MarketCode == models.MarketCodeInternational {
-				_, err = models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), mtoShipment.ID, models.MTOServiceItems{*requestedServiceItem})
+				err := models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), *serviceItem.MTOShipmentID, models.MTOServiceItems{*requestedServiceItem})
 				if err != nil {
 					return err
 				}

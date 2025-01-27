@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import InternationalShuttleSITServiceItemForm from './InternationalShuttleSITServiceItemForm';
+import InternationalShuttleSITServiceItemForm from './InternationalShuttleServiceItemForm';
 
 const moveId = '9c7b255c-2981-4bf8-839f-61c7458e2b4d';
 

@@ -744,7 +744,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
-		payload = &primev3messages.MTOServiceItemOriginSIT{
+		payload = &primev3messages.MTOServiceItemInternationalOriginSIT{
 			ReServiceCode:        handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:               mtoServiceItem.Reason,
 			SitDepartureDate:     handlers.FmtDate(sitDepartureDate),
@@ -826,7 +826,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			firstAvailableDeliveryDate2 = secondContact.FirstAvailableDeliveryDate
 		}
 
-		payload = &primev3messages.MTOServiceItemDestSIT{
+		payload = &primev3messages.MTOServiceItemInternationalDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:                      mtoServiceItem.Reason,
 			DateOfContact1:              handlers.FmtDate(dateOfContact1),

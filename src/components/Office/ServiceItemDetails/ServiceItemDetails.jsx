@@ -208,7 +208,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {code === 'DDFSIT' && (
+        {(code === 'DDFSIT' || code === 'IDFSIT') && (
           <>
             {!isEmpty(sortedCustomerContacts)
               ? sortedCustomerContacts.map((contact, index) => (

@@ -480,7 +480,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 		model.Reason = originsit.Reason
 		// Check for reason required field on a DDFSIT
-		if model.ReService.Code == models.ReServiceCodeDOASIT {
+		if model.ReService.Code == models.ReServiceCodeIOASIT {
 			reasonVerrs := validateReasonInternationalOriginSIT(*originsit)
 
 			if reasonVerrs.HasAny() {
@@ -488,7 +488,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 			}
 		}
 
-		if model.ReService.Code == models.ReServiceCodeDOFSIT {
+		if model.ReService.Code == models.ReServiceCodeIOFSIT {
 			reasonVerrs := validateReasonInternationalOriginSIT(*originsit)
 
 			if reasonVerrs.HasAny() {
@@ -584,7 +584,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		sitEntryDate := handlers.FmtDatePtrToPopPtr(destsit.SitEntryDate)
 
 		// Check for required fields on a DDFSIT
-		if model.ReService.Code == models.ReServiceCodeDDFSIT {
+		if model.ReService.Code == models.ReServiceCodeIDFSIT {
 			verrs := validateIDFSITForCreate(*destsit)
 			reasonVerrs := validateReasonInternationalDestSIT(*destsit)
 

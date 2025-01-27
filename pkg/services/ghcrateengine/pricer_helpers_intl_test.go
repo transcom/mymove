@@ -10,7 +10,7 @@ import (
 )
 
 func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
-	suite.Run("destination golden path", func() {
+	suite.Run("origin golden path", func() {
 		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestMarket, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
 
 		priceCents, displayParams, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIOSHUT, testdatagen.DefaultContractCode, ioshutTestRequestedPickupDate, ioshutTestWeight, ioshutTestMarket)
@@ -53,9 +53,9 @@ func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
 	})
 
 	suite.Run("not finding a contract year record", func() {
-		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, ioshutTestMarket, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestMarket, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
 
-		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIDSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, idshutTestWeight, ioshutTestMarket)
 
 		suite.Error(err)
