@@ -3,20 +3,25 @@
 -- dest rate area
 -- re_services id
 -- contract id
+-- adding the is_peak_period check to refine the price query further
 CREATE OR REPLACE FUNCTION calculate_escalated_price(
     o_rate_area_id UUID,
     d_rate_area_id UUID,
     re_service_id UUID,
     c_id UUID,
-    service_code TEXT
+    service_code TEXT,
+    requested_pickup_date DATE
 ) RETURNS NUMERIC AS $$
 DECLARE
     per_unit_cents NUMERIC;
     escalation_factor NUMERIC;
     escalated_price NUMERIC;
     is_oconus BOOLEAN;
+    peak_period BOOLEAN;
 BEGIN
     -- we need to query the appropriate table based on the service code
+    -- need to establish if the shipment is being moved during peak period
+    peak_period := is_peak_period(requested_pickup_date);
     IF service_code IN ('IOSHUT','IDSHUT') THEN
 		IF service_code = 'IOSHUT' THEN
         	SELECT ra.is_oconus
@@ -44,10 +49,10 @@ BEGIN
         SELECT rip.per_unit_cents
         INTO per_unit_cents
         FROM re_intl_prices rip
-        WHERE (rip.origin_rate_area_id = o_rate_area_id OR o_rate_area_id IS NULL)
-          AND (rip.destination_rate_area_id = d_rate_area_id OR d_rate_area_id IS NULL)
+        WHERE rip.origin_rate_area_id = o_rate_area_id AND rip.destination_rate_area_id = d_rate_area_id
           AND rip.service_id = re_service_id
-          AND rip.contract_id = c_id;
+          AND rip.contract_id = c_id
+          AND rip.is_peak_period = peak_period;
     ELSE
         SELECT riop.per_unit_cents
         INTO per_unit_cents
@@ -55,26 +60,27 @@ BEGIN
         WHERE (riop.rate_area_id = o_rate_area_id OR riop.rate_area_id = d_rate_area_id OR
             (o_rate_area_id IS NULL AND d_rate_area_id IS NULL))
         AND riop.service_id = re_service_id
-        AND riop.contract_id = c_id;
-
+        AND riop.contract_id = c_id
+        AND riop.is_peak_period = peak_period;
     END IF;
 
+    RAISE NOTICE '% per unit cents: %', service_code, per_unit_cents;
     IF per_unit_cents IS NULL THEN
         RAISE EXCEPTION 'No per unit cents found for service item id: %, origin rate area: %, dest rate area: %, and contract_id: %', re_service_id, o_rate_area_id, d_rate_area_id, c_id;
     END IF;
 
-    SELECT rcy.escalation
+    SELECT rcy.escalation_compounded
     INTO escalation_factor
     FROM re_contract_years rcy
-    WHERE rcy.contract_id = c_id;
+    WHERE rcy.contract_id = c_id
+        AND requested_pickup_date BETWEEN rcy.start_date AND rcy.end_date;
 
     IF escalation_factor IS NULL THEN
         RAISE EXCEPTION 'Escalation factor not found for contract_id %', c_id;
     END IF;
     -- calculate the escalated price, return in dollars (dividing by 100)
-    escalated_price := ROUND(per_unit_cents * escalation_factor::NUMERIC / 100, 2);
-
-    RAISE NOTICE '% escalated price: $% (% * % / 100)', service_code, escalated_price, per_unit_cents, escalation_factor;
+    per_unit_cents := per_unit_cents / 100; -- putting in dollars
+    escalated_price := ROUND(per_unit_cents * escalation_factor, 2); -- rounding to two decimals (100.00)
 
     RETURN escalated_price;
 END;
@@ -146,7 +152,7 @@ BEGIN
 			        WHERE id = service_item.id;
                 END IF;
 
-            WHEN service_code IN (''IHPK'', ''IUBPK'') THEN
+            WHEN service_code IN (''IHPK'', ''IUBPK'', ''IOSHUT'') THEN
                 -- perform IHPK/IUBPK-specific logic (no destination rate area)
                 contract_id := get_contract_id(shipment.requested_pickup_date);
                 o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
@@ -162,7 +168,7 @@ BEGIN
 			        WHERE id = service_item.id;
                 END IF;
 
-            WHEN service_code IN (''IHUPK'', ''IUBUPK'') THEN
+            WHEN service_code IN (''IHUPK'', ''IUBUPK'', ''IDSHUT'') THEN
                 -- perform IHUPK/IUBUPK-specific logic (no origin rate area)
                 contract_id := get_contract_id(shipment.requested_pickup_date);
                 d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
@@ -195,34 +201,6 @@ BEGIN
                     estimated_price := ROUND((cents_above_baseline * price_difference) * 100);
                     RAISE NOTICE ''Received estimated price of % cents for service_code: %.'', estimated_price, service_code;
 
-			        -- update the pricing_estimate value in mto_service_items
-			        UPDATE mto_service_items
-			        SET pricing_estimate = estimated_price
-			        WHERE id = service_item.id;
-                END IF;
-            WHEN service_code IN (''IOSHUT'') THEN
-                -- perform IOSHUT specific logic (no destination rate area)
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code);
-
-                IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
-                    RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
-			        -- update the pricing_estimate value in mto_service_items
-			        UPDATE mto_service_items
-			        SET pricing_estimate = estimated_price
-			        WHERE id = service_item.id;
-                END IF;
-            WHEN service_code IN (''IDSHUT'') THEN
-                -- perform IDSHUT specific logic (no destination rate area)
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code);
-
-                IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
-                    RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price

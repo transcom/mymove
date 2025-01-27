@@ -100,6 +100,25 @@ func Customer(customer *models.ServiceMember) *primev2messages.Customer {
 	if customer.PersonalEmail != nil {
 		payload.Email = *customer.PersonalEmail
 	}
+
+	if len(customer.BackupContacts) > 0 {
+		payload.BackupContact = BackupContact(&customer.BackupContacts[0])
+	}
+
+	return &payload
+}
+
+// BackupContact payload
+func BackupContact(backupContact *models.BackupContact) *primev2messages.BackupContact {
+	if backupContact == nil {
+		return nil
+	}
+	payload := primev2messages.BackupContact{
+		Name:  backupContact.Name,
+		Email: backupContact.Email,
+		Phone: backupContact.Phone,
+	}
+
 	return &payload
 }
 
@@ -110,9 +129,6 @@ func Order(order *models.Order) *primev2messages.Order {
 	}
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
-	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
-	}
 
 	var grade string
 	if order.Grade != nil {

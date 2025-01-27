@@ -53,10 +53,10 @@ func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
 	})
 
 	suite.Run("not finding a contract year record", func() {
-		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestMarket, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestMarket, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
 
 		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIDSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, idshutTestWeight, ioshutTestMarket)
+		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIOSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ioshutTestWeight, ioshutTestMarket)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")
