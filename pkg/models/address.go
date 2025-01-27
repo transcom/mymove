@@ -146,6 +146,10 @@ func (a *Address) LineDisplayFormat() string {
 	return fmt.Sprintf("%s%s%s, %s, %s %s", a.StreetAddress1, optionalStreetAddress2, optionalStreetAddress3, a.City, a.State, a.PostalCode)
 }
 
+func (a *Address) IsAddressAlaska() bool {
+	return a.State == "AK"
+}
+
 // NotImplementedCountryCode is the default for unimplemented country code lookup
 type NotImplementedCountryCode struct {
 	message string
