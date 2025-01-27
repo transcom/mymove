@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -67,24 +68,31 @@ func (h UpdateShipmentDestinationAddressHandler) Handle(params mtoshipmentops.Up
 
 			addressSearch := addressUpdate.NewAddress.City + ", " + addressUpdate.NewAddress.State + " " + addressUpdate.NewAddress.PostalCode
 
-			locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude)
+			locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, true)
 			if err != nil {
-				appCtx.Logger().Error("Error searching for address:  ", zap.Error(err))
-				return mtoshipmentops.NewUpdateShipmentDestinationAddressInternalServerError(), err
+				serverError := apperror.NewInternalServerError("Error searching for address")
+				errStr := serverError.Error() // we do this because InternalServerError wants a *string
+				appCtx.Logger().Warn(serverError.Error())
+				payload := payloads.InternalServerError(&errStr, h.GetTraceIDFromRequest(params.HTTPRequest))
+				return mtoshipmentops.NewUpdateShipmentDestinationAddressInternalServerError().WithPayload(payload), serverError
 			} else if len(*locationList) == 0 {
-				err := apperror.NewBadDataError("invalid address provided")
-				appCtx.Logger().Error("Error: ", zap.Error(err))
-				return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity(), err
+				unprocessableErr := apperror.NewUnprocessableEntityError(
+					fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: could not find the provided location: %s", addressSearch))
+				appCtx.Logger().Warn(unprocessableErr.Error())
+				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+				return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
 			} else if len(*locationList) > 1 {
 				var results []string
 
 				for _, address := range *locationList {
 					results = append(results, address.CityName+" "+address.StateName+" "+address.UsprZipID)
 				}
-				joinedResult := strings.Join(results[:], "\n")
-				err := apperror.NewBadDataError("multiple locations found choose one of the following: " + joinedResult)
-				appCtx.Logger().Error("Error: ", zap.Error(err))
-				return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity(), err
+				joinedResult := strings.Join(results[:], ", ")
+				unprocessableErr := apperror.NewUnprocessableEntityError(
+					fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: multiple locations found choose one of the following: %s", joinedResult))
+				appCtx.Logger().Warn(unprocessableErr.Error())
+				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+				return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
 			}
 
 			response, err := h.ShipmentAddressUpdateRequester.RequestShipmentDeliveryAddressUpdate(appCtx, shipmentID, addressUpdate.NewAddress, addressUpdate.ContractorRemarks, eTag)
