@@ -46,12 +46,15 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
   const handleAdminWeightLocationChange = (e) => {
     setIsAdminWeightLocationChecked(e.target.checked);
     if (!e.target.checked) {
+      // Find the weight restriction input and update both DOM and form state
       const weightRestrictionInput = document.querySelector('input[name="weightRestriction"]');
       if (weightRestrictionInput) {
         weightRestrictionInput.value = '0';
-        // Trigger change event to ensure form state is updated
-        const event = new Event('input', { bubbles: true });
-        weightRestrictionInput.dispatchEvent(event);
+        // Create and dispatch both input and change events
+        const inputEvent = new Event('input', { bubbles: true });
+        const changeEvent = new Event('change', { bubbles: true });
+        weightRestrictionInput.dispatchEvent(inputEvent);
+        weightRestrictionInput.dispatchEvent(changeEvent);
       }
     }
   };
@@ -200,7 +203,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           label="Admin restricted weight location"
           isDisabled={formIsDisabled}
           onChange={handleAdminWeightLocationChange}
-          checked={entitlements?.weightRestriction > 0}
+          checked={isAdminWeightLocationChecked}
         />
       </div>
       {isAdminWeightLocationChecked && (
