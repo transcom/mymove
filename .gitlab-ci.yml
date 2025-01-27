@@ -34,10 +34,10 @@ variables:
   DP3_BRANCH: &dp3_branch placeholder_branch_name
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-22106-AddIntegrationTesting
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-22106-AddIntegrationTesting
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-22106-AddIntegrationTesting
-  SERVER_IGNORE_BRANCH: &server_ignore_branch B-22106-AddIntegrationTesting
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
+  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
 
   RUNNER_TAG: &runner_tag milmove
 
@@ -704,6 +704,7 @@ server_test:
     OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
   script:
     - echo "server test -- TODO Add steps need to potentially pass job id to file and persist"
+    - echo $GITLAB
     - make -j 2 bin/milmove bin/gotestsum
     - make server_test
     - go mod tidy
