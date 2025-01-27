@@ -112,8 +112,7 @@ BEGIN
         WHERE moves.show = TRUE
     ';
 
-    -- adding conditionals for destination queue
-    -- we only want to see moves that have destination requests (shipment address updates, destination service items in SUBMITTED status)
+    -- add destination queue-specific filters (pending dest address requests, dest SIT & shuttle service items)
     sql_query := sql_query || '
         AND (
             shipment_address_updates.status = ''REQUESTED''
@@ -124,60 +123,59 @@ BEGIN
         )
     ';
 
-    -- this should always be passed in from the service object, but will nil check it anyway
     IF user_gbloc IS NOT NULL THEN
-        sql_query := sql_query || ' AND move_to_gbloc.gbloc = ''%' || user_gbloc || '%'' ';
+        sql_query := sql_query || ' AND move_to_gbloc.gbloc = $1 ';
     END IF;
 
-    IF customer_name IS NOT NULL AND customer_name <> '' THEN
+    IF customer_name IS NOT NULL THEN
         sql_query := sql_query || ' AND (
-            service_members.first_name || '' '' || service_members.last_name ILIKE ''%' || customer_name || '%''
-            OR service_members.last_name || '' '' || service_members.first_name ILIKE ''%' || customer_name || '%''
-        ) ';
+            service_members.first_name || '' '' || service_members.last_name ILIKE ''%'' || $2 || ''%''
+            OR service_members.last_name || '' '' || service_members.first_name ILIKE ''%'' || $2 || ''%''
+        )';
     END IF;
 
     IF edipi IS NOT NULL THEN
-        sql_query := sql_query || ' AND service_members.edipi ILIKE ''%' || edipi || '%'' ';
+        sql_query := sql_query || ' AND service_members.edipi ILIKE ''%'' || $3 || ''%'' ';
     END IF;
 
     IF emplid IS NOT NULL THEN
-        sql_query := sql_query || ' AND service_members.emplid ILIKE ''%' || emplid || '%'' ';
+        sql_query := sql_query || ' AND service_members.emplid ILIKE ''%'' || $4 || ''%'' ';
     END IF;
 
     IF m_status IS NOT NULL THEN
-        sql_query := sql_query || ' AND moves.status IN (SELECT unnest($1)) ';
+        sql_query := sql_query || ' AND moves.status = ANY($5) ';
     END IF;
 
     IF move_code IS NOT NULL THEN
-        sql_query := sql_query || ' AND moves.locator ILIKE ''%' || UPPER(move_code) || '%'' ';
+        sql_query := sql_query || ' AND moves.locator ILIKE ''%'' || $6 || ''%'' ';
     END IF;
 
     IF requested_move_date IS NOT NULL THEN
         sql_query := sql_query || ' AND (
-            mto_shipments.requested_pickup_date::DATE = ' || quote_literal(requested_move_date) || '::DATE
-            OR ppm_shipments.expected_departure_date::DATE = ' || quote_literal(requested_move_date) || '::DATE
-            OR (mto_shipments.shipment_type = ''HHG_OUTOF_NTS'' AND mto_shipments.requested_delivery_date::DATE = ' || quote_literal(requested_move_date) || '::DATE)
+            mto_shipments.requested_pickup_date::DATE = $7::DATE
+            OR ppm_shipments.expected_departure_date::DATE = $7::DATE
+            OR (mto_shipments.shipment_type = ''HHG_OUTOF_NTS'' AND mto_shipments.requested_delivery_date::DATE = $7::DATE)
         )';
     END IF;
 
     IF date_submitted IS NOT NULL THEN
-        sql_query := sql_query || ' AND moves.submitted_at = ' || quote_literal(date_submitted) || ' ';
+        sql_query := sql_query || ' AND moves.submitted_at::DATE = $8::DATE ';
     END IF;
 
     IF branch IS NOT NULL THEN
-        sql_query := sql_query || ' AND service_members.affiliation ILIKE ''%' || branch || '%'' ';
+        sql_query := sql_query || ' AND service_members.affiliation ILIKE ''%'' || $9 || ''%'' ';
     END IF;
 
-    IF origin_duty_location IS NOT NULL AND origin_duty_location <> '' THEN
-        sql_query := sql_query || ' AND origin_duty_locations.name ILIKE ''%' || origin_duty_location || '%'' ';
+    IF origin_duty_location IS NOT NULL THEN
+        sql_query := sql_query || ' AND origin_duty_locations.name ILIKE ''%'' || $10 || ''%'' ';
     END IF;
 
     IF counseling_office IS NOT NULL THEN
-        sql_query := sql_query || ' AND counseling_offices.name ILIKE ''%' || counseling_office || '%'' ';
+        sql_query := sql_query || ' AND counseling_offices.name ILIKE ''%'' || $11 || ''%'' ';
     END IF;
 
     IF too_assigned_user IS NOT NULL THEN
-        sql_query := sql_query || ' AND (too_user.first_name || '' '' || too_user.last_name) ILIKE ''%' || quote_literal(too_assigned_user) || '%'' ';
+        sql_query := sql_query || ' AND (too_user.first_name || '' '' || too_user.last_name) ILIKE ''%'' || $12 || ''%'' ';
     END IF;
 
     sql_query := sql_query || '
@@ -202,11 +200,11 @@ BEGIN
             too_user.first_name,
             too_user.last_name';
     sql_query := sql_query || ' ORDER BY moves.id ASC ';
-    sql_query := sql_query || ' LIMIT ' || per_page || ' OFFSET ' || offset_value || ' ';
+    sql_query := sql_query || ' LIMIT $13 OFFSET $14 ';
 
-    RAISE NOTICE 'Query: %', sql_query;
-
-    RETURN QUERY EXECUTE sql_query USING m_status;
+    RETURN QUERY EXECUTE sql_query
+    USING user_gbloc, customer_name, edipi, emplid, m_status, move_code, requested_move_date, date_submitted,
+          branch, origin_duty_location, counseling_office, too_assigned_user, per_page, offset_value;
 
 END;
 $$ LANGUAGE plpgsql;
