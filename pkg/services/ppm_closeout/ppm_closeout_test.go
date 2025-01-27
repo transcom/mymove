@@ -24,7 +24,7 @@ const (
 	ppmBuildWaitingOnCustomer = "waitingOnCustomer"
 )
 
-func (suite *PPMCloseoutSuite) TestPPMShipmentCloseout() {
+func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 
 	// One-time test setup
 	mockedPlanner := &mocks.Planner{}
