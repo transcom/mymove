@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import styles from './ExpandableServiceItemRow.module.scss';
 
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
-import { allowedServiceItemCalculations } from 'constants/serviceItems';
+import { allowedServiceItemCalculations, SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { PaymentServiceItemShape } from 'types';
 import { MTOServiceItemShape } from 'types/order';
 import { toDollarString, formatCents, formatDollarFromMillicents } from 'utils/formatters';
@@ -43,6 +43,11 @@ const ExpandableServiceItemRow = ({
   const tableDetailClasses = classnames(styles.ExpandableServiceItemRow, {
     [styles.expandedDetail]: isExpanded,
   });
+
+  const colSpan =
+    serviceItem.mtoServiceItemCode === SERVICE_ITEM_CODES.MS || serviceItem.mtoServiceItemCode === SERVICE_ITEM_CODES.CS
+      ? 4
+      : 2;
 
   return (
     <>
@@ -107,7 +112,7 @@ const ExpandableServiceItemRow = ({
             </td>
           )}
           {serviceItem.rejectionReason && (
-            <td colSpan={2} className={styles.rejectionReasonTd}>
+            <td colSpan={colSpan} className={styles.rejectionReasonTd}>
               <div className={styles.rejectionReasonContainer}>
                 <FontAwesomeIcon icon="times" />
                 <h4 className={styles.title}>Rejection Reason</h4>

@@ -3,6 +3,7 @@
 @import 'shared/styles/colors';
 
 .ExpandableServiceItemRow {
+  background-color: $bg-gray;
   .accepted {
     svg {
       @include u-margin-right(1);
@@ -109,6 +110,8 @@
     align-items: center;
     padding-left: 1rem;
     padding-bottom: 1rem;
+    padding-right: 1rem;
+    background-color: $bg-gray;
 
     svg {
       path {
