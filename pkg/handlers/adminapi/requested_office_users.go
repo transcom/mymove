@@ -258,10 +258,9 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 			var filteredTransportationOffices models.TransportationOffices
 			// If there was a Transportation Office filter applied then get the filtered Transportation Offices
 			if requestedOfficeUserFilters[TransportationOfficeSearch] != "" {
-				var tErr error
 				searchString := requestedOfficeUserFilters[TransportationOfficeSearch]
-				transportationOfficesFilterResults, tErr := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, searchString, false, true)
-				if tErr != nil {
+				transportationOfficesFilterResults, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, searchString, false, true)
+				if err != nil {
 					appCtx.Logger().Error("Error searching for Transportation Offices using filter: ", zap.Error(err))
 					return handlers.ResponseForError(appCtx.Logger(), err), err
 				}
@@ -272,9 +271,8 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 			// If there was a Roles filter applied then get the filtered Roles
 			var filteredRoles roles.Roles
 			if requestedOfficeUserFilters[RoleSearch] != "" {
-				var rErr error
 				rolesFilterResult, err := roles.FindRoles(appCtx.DB(), requestedOfficeUserFilters[RoleSearch])
-				if rErr != nil {
+				if err != nil {
 					appCtx.Logger().Error("Error searching for Roles using filter: ", zap.Error(err))
 					return handlers.ResponseForError(appCtx.Logger(), err), err
 				}

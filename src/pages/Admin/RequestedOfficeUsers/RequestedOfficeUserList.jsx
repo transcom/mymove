@@ -8,8 +8,8 @@ import {
   TextField,
   TopToolbar,
   ArrayField,
-  SingleFieldList,
   SearchInput,
+  useRecordContext,
 } from 'react-admin';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
@@ -28,6 +28,26 @@ const RequestedOfficeUserListFilter = () => (
 );
 
 const defaultSort = { field: 'createdAt', order: 'DESC' };
+
+const RolesTextField = (user) => {
+  const { roles } = user;
+
+  let roleStr = '';
+  for (let i = 0; i < roles.length; i += 1) {
+    roleStr += roles[i].roleName;
+
+    if (i < roles.length - 1) {
+      roleStr += ', ';
+    }
+  }
+
+  return roleStr;
+};
+
+const RolesField = () => {
+  const record = useRecordContext();
+  return <div>{RolesTextField(record)}</div>;
+};
 
 const RequestedOfficeUserList = () => (
   <List
@@ -48,9 +68,7 @@ const RequestedOfficeUserList = () => (
       <TextField source="status" />
       <DateField showTime source="createdAt" label="Requested on" />
       <ArrayField source="roles" sortable={false} clickable={false} sort={{ field: 'roleName', order: 'DESC' }}>
-        <SingleFieldList linkType={false}>
-          <TextField source="roleName" />
-        </SingleFieldList>
+        <RolesField />
       </ArrayField>
     </Datagrid>
   </List>
