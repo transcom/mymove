@@ -87,60 +87,42 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		ppmShipment.W2Address = &w2AddressResult
 	}
 
-	pickupAddressResult := findValidCustomization(customs, Addresses.PickupAddress)
-	if pickupAddressResult != nil {
-		pickupAddressResultCustoms := convertCustomizationInList(customs, Addresses.PickupAddress, Address)
-
-		pickupAddressResult := BuildAddress(db, pickupAddressResultCustoms, traits)
-		ppmShipment.PickupAddressID = &pickupAddressResult.ID
-		ppmShipment.PickupAddress = &pickupAddressResult
-	} else {
-		oldDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address
-		pickupAddress := BuildAddress(db, []Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "987 New Street",
-					City:           oldDutyLocationAddress.City,
-					State:          oldDutyLocationAddress.State,
-					PostalCode:     oldDutyLocationAddress.PostalCode,
-				},
+	oldDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address
+	pickupAddress := BuildAddress(db, []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "987 New Street",
+				City:           oldDutyLocationAddress.City,
+				State:          oldDutyLocationAddress.State,
+				PostalCode:     oldDutyLocationAddress.PostalCode,
 			},
-		}, nil)
-		ppmShipment.PickupAddressID = &pickupAddress.ID
-		ppmShipment.PickupAddress = &pickupAddress
-	}
+		},
+	}, nil)
+	ppmShipment.PickupAddressID = &pickupAddress.ID
+	ppmShipment.PickupAddress = &pickupAddress
 
-	deliveryAddressResult := findValidCustomization(customs, Addresses.DeliveryAddress)
-	if deliveryAddressResult != nil {
-		deliveryAddressResultCustoms := convertCustomizationInList(customs, Addresses.DeliveryAddress, Address)
-
-		deliveryAddressResult := BuildAddress(db, deliveryAddressResultCustoms, traits)
-		ppmShipment.DestinationAddressID = &deliveryAddressResult.ID
-		ppmShipment.DestinationAddress = &deliveryAddressResult
-	} else {
-		newDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address
-		destinationAddress := BuildAddress(db, []Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "123 New Street",
-					City:           newDutyLocationAddress.City,
-					State:          newDutyLocationAddress.State,
-					PostalCode:     newDutyLocationAddress.PostalCode,
-				},
+	newDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address
+	destinationAddress := BuildAddress(db, []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 New Street",
+				City:           newDutyLocationAddress.City,
+				State:          newDutyLocationAddress.State,
+				PostalCode:     newDutyLocationAddress.PostalCode,
 			},
-		}, nil)
-		ppmShipment.DestinationAddressID = &destinationAddress.ID
-		ppmShipment.DestinationAddress = &destinationAddress
-	}
+		},
+	}, nil)
+	ppmShipment.DestinationAddressID = &destinationAddress.ID
+	ppmShipment.DestinationAddress = &destinationAddress
 
 	if buildType == ppmBuildFullAddress {
 		secondaryPickupAddress := BuildAddress(db, []Customization{
 			{
 				Model: models.Address{
 					StreetAddress1: "123 Main Street",
-					City:           ppmShipment.PickupAddress.City,
-					State:          ppmShipment.PickupAddress.State,
-					PostalCode:     ppmShipment.PickupAddress.PostalCode,
+					City:           pickupAddress.City,
+					State:          pickupAddress.State,
+					PostalCode:     pickupAddress.PostalCode,
 				},
 			},
 		}, nil)
@@ -148,9 +130,9 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			{
 				Model: models.Address{
 					StreetAddress1: "1234 Main Street",
-					City:           ppmShipment.DestinationAddress.City,
-					State:          ppmShipment.DestinationAddress.State,
-					PostalCode:     ppmShipment.DestinationAddress.PostalCode,
+					City:           destinationAddress.City,
+					State:          destinationAddress.State,
+					PostalCode:     destinationAddress.PostalCode,
 				},
 			},
 		}, nil)
@@ -158,9 +140,9 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			{
 				Model: models.Address{
 					StreetAddress1: "123 Third Street",
-					City:           ppmShipment.PickupAddress.City,
-					State:          ppmShipment.PickupAddress.State,
-					PostalCode:     ppmShipment.PickupAddress.PostalCode,
+					City:           pickupAddress.City,
+					State:          pickupAddress.State,
+					PostalCode:     pickupAddress.PostalCode,
 				},
 			},
 		}, nil)
@@ -168,9 +150,9 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			{
 				Model: models.Address{
 					StreetAddress1: "1234 Third Street",
-					City:           ppmShipment.DestinationAddress.City,
-					State:          ppmShipment.DestinationAddress.State,
-					PostalCode:     ppmShipment.DestinationAddress.PostalCode,
+					City:           destinationAddress.City,
+					State:          destinationAddress.State,
+					PostalCode:     destinationAddress.PostalCode,
 				},
 			},
 		}, nil)

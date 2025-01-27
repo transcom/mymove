@@ -3,10 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/apperror"
 )
 
 type PortLocation struct {
@@ -26,13 +23,4 @@ type PortLocation struct {
 
 func (l PortLocation) TableName() string {
 	return "port_locations"
-}
-
-func FetchPortLocationByCode(db *pop.Connection, portCode string) (*PortLocation, error) {
-	portLocation := PortLocation{}
-	err := db.Eager("Port", "UsPostRegionCity").Where("is_active = TRUE").InnerJoin("ports p", "port_id = p.id").Where("p.port_code = $1", portCode).First(&portLocation)
-	if err != nil {
-		return nil, apperror.NewQueryError("PortLocation", err, "")
-	}
-	return &portLocation, err
 }

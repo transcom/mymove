@@ -1474,7 +1474,6 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - shipment
-        - shipment_address_updates
       description: >-
         This endpoint is used to approve a address update request. Office
         remarks are required. Approving the address update will update the
@@ -4289,7 +4288,7 @@ paths:
         - transportationOffice
       responses:
         '200':
-          description: Successfully retrieved GBLOCs
+          description: Successfully retrieved transportation offices
           schema:
             $ref: '#/definitions/GBLOCs'
         '400':
@@ -11125,24 +11124,6 @@ definitions:
         x-omitempty: false
       unpackPrice:
         description: The full price of all packing/unpacking services.
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
-      intlPackPrice:
-        description: The full price of international packing (IHPK)
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
-      intlUnpackPrice:
-        description: The full price of international unpacking (IHUPK)
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
-      intlLinehaulPrice:
-        description: The full price of international shipping and linehaul (ISLH)
         type: integer
         format: cents
         x-nullable: true
