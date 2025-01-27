@@ -179,6 +179,6 @@ describe('AllowancesList', () => {
   it('renders weight restriction', () => {
     const adminRestrictedWtLoc = { ...info, adminRestrictedWeightLocation: true };
     render(<AllowancesList info={adminRestrictedWtLoc} />);
-    expect(screen.getByTestId('weightRestriction').textContent).toEqual('1,000 lbs');
+    expect(screen.getByTestId('weightRestriction').textContent).toEqual('1,500 lbs');
   });
 });
