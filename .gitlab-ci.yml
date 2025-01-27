@@ -1198,6 +1198,9 @@ push_otel_collector_image_dp3:
      - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
      - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
 
+     - echo "Logging in to AWS ECR with Crane..."
+     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+
      - echo "Pushing the image to our private ECR using Crane..."
      - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
 
@@ -1452,6 +1455,9 @@ push_otel_collector_image_stg:
 
      - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
      - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
+
+     - echo "Logging in to AWS ECR with Crane..."
+     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
 
      - echo "Pushing the image to our private ECR using Crane..."
      - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
@@ -1726,6 +1732,9 @@ push_otel_collector_image_prd:
      - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
      - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
 
+     - echo "Logging in to AWS ECR with Crane..."
+     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+     
      - echo "Pushing the image to our private ECR using Crane..."
      - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
 
