@@ -4332,7 +4332,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  /transportation_offices/{dutyLocationId}/counseling_offices:
+  /transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}:
     get:
       summary: Returns the counseling locations in the GBLOC matching the duty location
       description: >-
@@ -4348,6 +4348,14 @@ paths:
           type: string
           required: true
           description: UUID of the duty location
+        - in: path
+          name: serviceMemberId
+          format: uuid
+          type: string
+          required: true
+          description: >-
+            UUID of the service member, some counseling offices are branch
+            specific
       produces:
         - application/json
       responses:
@@ -4355,6 +4363,12 @@ paths:
           description: Successfully retrieved counseling offices
           schema:
             $ref: '#/definitions/CounselingOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
         '500':
           description: internal server error
   /uploads:

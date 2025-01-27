@@ -6275,7 +6275,7 @@ func init() {
         }
       }
     },
-    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+    "/transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}": {
       "get": {
         "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
         "produces": [
@@ -6294,6 +6294,14 @@ func init() {
             "name": "dutyLocationId",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member, some counseling offices are branch specific",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
@@ -6302,6 +6310,15 @@ func init() {
             "schema": {
               "$ref": "#/definitions/CounselingOffices"
             }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
           },
           "500": {
             "description": "internal server error"
@@ -23365,7 +23382,7 @@ func init() {
         }
       }
     },
-    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+    "/transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}": {
       "get": {
         "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
         "produces": [
@@ -23384,6 +23401,14 @@ func init() {
             "name": "dutyLocationId",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member, some counseling offices are branch specific",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
@@ -23391,6 +23416,24 @@ func init() {
             "description": "Successfully retrieved counseling offices",
             "schema": {
               "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {

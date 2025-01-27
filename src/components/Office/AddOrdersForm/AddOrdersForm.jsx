@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-uswds';
@@ -44,6 +45,7 @@ const AddOrdersForm = ({
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
+  const { customerId: serviceMemberId } = useParams();
 
   const validationSchema = Yup.object().shape({
     ordersType: Yup.mixed()
@@ -84,8 +86,8 @@ const AddOrdersForm = ({
   }, []);
 
   useEffect(() => {
-    if (currentDutyLocation?.id) {
-      showCounselingOffices(currentDutyLocation.id).then((fetchedData) => {
+    if (currentDutyLocation?.id && serviceMemberId) {
+      showCounselingOffices(currentDutyLocation.id, serviceMemberId).then((fetchedData) => {
         if (fetchedData.body) {
           const counselingOffices = fetchedData.body.map((item) => ({
             key: item.id,
@@ -112,7 +114,7 @@ const AddOrdersForm = ({
         setShowDependentAgeFields(false);
       }
     }
-  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
+  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, serviceMemberId]);
 
   useEffect(() => {
     const fetchData = async () => {

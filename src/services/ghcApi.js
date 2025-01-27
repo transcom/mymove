@@ -763,8 +763,8 @@ export async function getGBLOCs() {
   return makeGHCRequest(operationPath, {}, { normalize: false });
 }
 
-export async function showCounselingOffices(dutyLocationId) {
-  return makeGHCRequestRaw('transportationOffice.showCounselingOffices', { dutyLocationId });
+export async function showCounselingOffices(dutyLocationId, serviceMemberId) {
+  return makeGHCRequestRaw('transportationOffice.showCounselingOffices', { dutyLocationId, serviceMemberId });
 }
 
 export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, body }) => {
