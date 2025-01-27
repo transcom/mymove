@@ -874,3 +874,19 @@ func validateReasonOriginSIT(m primemessages.MTOServiceItemOriginSIT) *validate.
 	}
 	return verrs
 }
+
+func VLocationModel(vLocation *primemessages.VLocation) *models.VLocation {
+	if vLocation == nil {
+		return nil
+	}
+
+	usPostRegionCitiesID := uuid.FromStringOrNil(vLocation.UsPostRegionCitiesID.String())
+
+	return &models.VLocation{
+		CityName:             vLocation.City,
+		StateName:            vLocation.State,
+		UsprZipID:            vLocation.PostalCode,
+		UsprcCountyNm:        *vLocation.County,
+		UsPostRegionCitiesID: &usPostRegionCitiesID,
+	}
+}

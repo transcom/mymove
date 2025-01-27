@@ -109,6 +109,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		mtoserviceitem.NewServiceRequestDocumentUploadCreator(handlerConfig.FileStorer()),
 	}
 
+	primeAPI.AddressesGetLocationByZipCityStateHandler = GetLocationByZipCityStateHandler{
+		handlerConfig,
+		vLocation,
+	}
+
 	primeAPI.MtoShipmentUpdateShipmentDestinationAddressHandler = UpdateShipmentDestinationAddressHandler{
 		handlerConfig,
 		shipmentaddressupdate.NewShipmentAddressUpdateRequester(handlerConfig.HHGPlanner(), addressCreator, moveRouter),
