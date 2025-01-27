@@ -1200,7 +1200,7 @@ describe('Home component', () => {
         expect(wrapper.text()).toContain('11,000 lbs');
         expect(wrapper.text()).toContain('UB allowance');
         expect(wrapper.text()).toContain('2,000 lbs');
-        expect(wrapper.text()).toContain('Weight restriction');
+        expect(wrapper.text()).not.toContain('Weight restriction');
       });
 
       const ubToolTip = wrapper.find('ToolTip');
