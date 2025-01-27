@@ -17,7 +17,9 @@ import (
 )
 
 type testRequestedOfficeUsersQueryBuilder struct {
-	fakeFetchOne func(appConfig appcontext.AppContext, model interface{}) error
+	fakeFetchOne   func(appConfig appcontext.AppContext, model interface{}) error
+	fakeDeleteOne  func(appConfig appcontext.AppContext, model interface{}) error
+	fakeDeleteMany func(appConfig appcontext.AppContext, model interface{}) error
 }
 
 func (t *testRequestedOfficeUsersQueryBuilder) FetchOne(appConfig appcontext.AppContext, model interface{}, _ []services.QueryFilter) error {
