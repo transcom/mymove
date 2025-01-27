@@ -314,12 +314,14 @@ class MtoShipmentForm extends Component {
                     <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
                     <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
                     <Alert headingLevel="h4" type="info" noIcon>
-                      Remember: You can move
+                      Remember:
                       {isUB
-                        ? ` up to ${formatUBAllowanceWeight(
+                        ? ` You can move up to ${formatUBAllowanceWeight(
                             orders?.entitlement?.ub_allowance,
                           )} for this UB shipment. The weight of your UB is part of your authorized weight allowance`
-                        : ` ${formatWeight(orders.authorizedWeight)} total`}
+                        : ` Your standard weight allowance is ${formatWeight(
+                            orders.authorizedWeight,
+                          )} total. If you are moving to an administratively restricted HHG weight location this amount may be less. `}
                       . You’ll be billed for any excess weight you move.
                     </Alert>
                     <Form className={formStyles.form}>

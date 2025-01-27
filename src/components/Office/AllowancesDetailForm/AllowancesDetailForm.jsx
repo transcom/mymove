@@ -230,7 +230,6 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     </div>
   );
 };
-
 AllowancesDetailForm.propTypes = {
   entitlements: EntitlementShape.isRequired,
   branchOptions: DropdownArrayOf.isRequired,

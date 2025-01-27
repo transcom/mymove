@@ -91,12 +91,19 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
+	var weightRestriction *int64
+	if orders.Entitlement.WeightRestriction != nil {
+		weightRestrictionInt64 := int64(*orders.Entitlement.WeightRestriction)
+		weightRestriction = &weightRestrictionInt64
+	}
+
 	htmlBody, textBody, err := m.renderTemplates(appCtx, MoveCounseledEmailData{
 		OriginDutyLocation:         originDutyLocationName,
 		DestinationLocation:        destinationAddress,
 		Locator:                    move.Locator,
 		MyMoveLink:                 MyMoveLink,
 		ActualExpenseReimbursement: actualExpenseReimbursement,
+		WeightRestriction:          weightRestriction,
 	})
 
 	if err != nil {
@@ -115,8 +122,8 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
-}
 
+}
 func (m MoveCounseled) renderTemplates(appCtx appcontext.AppContext, data MoveCounseledEmailData) (string, string, error) {
 	htmlBody, err := m.RenderHTML(appCtx, data)
 	if err != nil {
@@ -135,6 +142,7 @@ type MoveCounseledEmailData struct {
 	Locator                    string
 	MyMoveLink                 string
 	ActualExpenseReimbursement bool
+	WeightRestriction          *int64
 }
 
 // RenderHTML renders the html for the email
