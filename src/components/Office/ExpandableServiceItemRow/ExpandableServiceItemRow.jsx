@@ -25,7 +25,8 @@ const ExpandableServiceItemRow = ({
     return canShowExpandableContent && (paymentIsDeprecated || item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED);
   };
   const canShowExpandableContent =
-    !disableExpansion && allowedServiceItemCalculations.includes(serviceItem.mtoServiceItemCode);
+    !disableExpansion &&
+    (allowedServiceItemCalculations.includes(serviceItem.mtoServiceItemCode) === true || serviceItem.rejectionReason);
 
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
@@ -94,15 +95,17 @@ const ExpandableServiceItemRow = ({
       </tr>
       {isExpanded && (
         <tr data-testid="serviceItemCaclulations" data-groupdid={index} className={tableDetailClasses}>
-          <td colSpan={1}>
-            <ServiceItemCalculations
-              itemCode={serviceItem.mtoServiceItemCode}
-              totalAmountRequested={serviceItem.priceCents}
-              serviceItemParams={serviceItem.paymentServiceItemParams}
-              additionalServiceItemData={additionalServiceItemData}
-              shipmentType={serviceItem.mtoShipmentType}
-            />
-          </td>
+          {Object.keys(additionalServiceItemData).length > 0 && (
+            <td colSpan={1}>
+              <ServiceItemCalculations
+                itemCode={serviceItem.mtoServiceItemCode}
+                totalAmountRequested={serviceItem.priceCents}
+                serviceItemParams={serviceItem.paymentServiceItemParams}
+                additionalServiceItemData={additionalServiceItemData}
+                shipmentType={serviceItem.mtoShipmentType}
+              />
+            </td>
+          )}
           {serviceItem.rejectionReason && (
             <td colSpan={2} className={styles.rejectionReasonTd}>
               <div className={styles.rejectionReasonContainer}>
