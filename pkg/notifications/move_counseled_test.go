@@ -293,7 +293,7 @@ func (suite *NotificationSuite) TestMoveCounseledHTMLTemplateRenderWithWeightRes
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
 <p>This is a confirmation that your counselor has approved move details for the assigned move code abc123 from origDutyLocation to destDutyLocation in the MilMove system.</p>
 <p>What this means to you:</br>
-<p>Your move has been identified as going to an administratively restricted HHG weight location. Your weight restriction is {{.WeightRestriction}}lbs. Be advised, you may be required to pay excess cost if you choose to move more than your weight restriction. </p>
+<p>Your move has been identified as going to an administratively restricted HHG weight location. Your weight restriction is 1500lbs. Be advised, you may be required to pay excess cost if you choose to move more than your weight restriction. </p>
 If you are doing a Personally Procured Move (PPM), you can start moving your personal property.</p>
 <p><strong>Next steps for a PPM:</strong>
 <ul>

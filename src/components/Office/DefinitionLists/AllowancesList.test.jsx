@@ -19,7 +19,7 @@ const info = {
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
   ubAllowance: 400,
-  weightRestriction: 1000,
+  weightRestriction: 1500,
 };
 
 const initialValuesOconusAdditions = {
