@@ -675,6 +675,7 @@ server_test:
     DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
     DOCKER_TLS_CERTDIR: ""
     APPLICATION: app
+    GITLAB: 1
     # 8 since this runs on xlarge with 8 CPUs
     GOTEST_PARALLEL: 8
     DB_PASSWORD: mysecretpassword
@@ -705,9 +706,8 @@ server_test:
     - echo "server test -- TODO Add steps need to potentially pass job id to file and persist"
     - make -j 2 bin/milmove bin/gotestsum
     - make server_test
-    # - go install gotest.tools/gotestsum@latest
-    # - go mod tidy
-    #- bin/gotestsum --junitfile server_test_report.xml --format server_test
+    - go mod tidy
+    - bin/gotestsum --junitfile server_test_report.xml --format server_test
   allow_failure: true
   cache:
     - <<: *go_cache
@@ -716,9 +716,12 @@ server_test:
     paths:
       - /builds/milmove/mymove/bin/gotestsum
       - /builds/milmove/mymove/tmp/test-results
+      - /builds/milmove/mymove/server_test_report.xml
     when: always
     reports:
-      junit: /builds/milmove/mymove/tmp/test-results/gotest/app/go-test-report.xml
+      junit:
+        - /builds/milmove/mymove/tmp/test-results/gotest/app/go-test-report.xml
+        - /builds/milmove/mymove/server_test_report.xml
   after_script:
     - *announce_failure
   rules:
