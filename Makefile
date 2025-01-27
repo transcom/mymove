@@ -1232,7 +1232,9 @@ nonato_deploy_restore:  ## Restore placeholders in config after deploy to a non-
 # ----- END NON-ATO DEPLOYMENT TARGETS -----
 #
 
-# ----- START NON-ATO DEPLOYMENT GITLAB TARGETS -----
+
+#
+# ----- START NON-ATO DEPLOYMENT TARGETS -----
 #
 
 .PHONY: nonato_gitlab_deploy_prepare
@@ -1253,7 +1255,7 @@ endif
 	sed -E -i '' "s#(&server_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
 	sed -E -i '' "s#(&dp3_env) placeholder_env#\1 $(DEPLOY_ENV)#" .gitlab-ci.yml
 	@git --no-pager diff .gitlab-ci.yml
-	@echo "Please make sure to commit the changes in .gitlab-ci.yml in order to have Gitlab deploy $(GIT_BRANCH) to the Non-ATO $(DEPLOY_ENV) environment."
+	@echo "Please make sure to commit the changes in .gitlab-ci.yml in order to have CircleCI deploy $(GIT_BRANCH) to the Non-ATO $(DEPLOY_ENV) environment."
 
 .PHONY: nonato_gitlab_deploy_restore
 nonato_gitlab_deploy_restore:  ## Restore placeholders in config after deploy to a non-ATO env
@@ -1265,8 +1267,8 @@ nonato_gitlab_deploy_restore:  ## Restore placeholders in config after deploy to
 	sed -E -i '' "s#(&dp3_env) (exp|loadtest|demo)#\1 placeholder_env#" .gitlab-ci.yml
 
 #
-# ----- END NON-ATO DEPLOYMENT GITLAB TARGETS -----
-
+# ----- END NON-ATO DEPLOYMENT TARGETS -----
+#
 
 #
 # ----- START SETUP MULTI BRANCH -----
