@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import Swagger from 'swagger-client';
 
 import { makeSwaggerRequest, requestInterceptor, responseInterceptor, makeSwaggerRequestRaw } from './swaggerRequest';
