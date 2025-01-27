@@ -14,7 +14,12 @@ export default {
     return (
       <>
         <LabeledDetails historyRecord={historyRecord} />
-        {historyRecord.changedValues.too_assigned_id !== undefined ? <>Task Ordering Officer Unassigned</> : null}
+        {historyRecord?.changedValues?.too_assigned_id !== undefined ? (
+          <>
+            <div>Service Items Addressed</div>
+            <div>Task Ordering Officer Unassigned</div>
+          </>
+        ) : null}
       </>
     );
   },
