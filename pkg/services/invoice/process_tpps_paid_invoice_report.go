@@ -54,9 +54,16 @@ func NewTPPSPaidInvoiceReportProcessor() services.SyncadaFileProcessor {
 
 // ProcessFile parses a TPPS paid invoice report response and updates the payment request status
 func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContext, TPPSPaidInvoiceReportFilePath string, stringTPPSPaidInvoiceReport string) error {
+
+	if TPPSPaidInvoiceReportFilePath == "" {
+		appCtx.Logger().Info("No valid filepath found to process TPPS Paid Invoice Report", zap.String("TPPSPaidInvoiceReportFilePath", TPPSPaidInvoiceReportFilePath))
+		return nil
+	}
 	tppsPaidInvoiceReport := tppsReponse.TPPSData{}
 
-	tppsData, err := tppsPaidInvoiceReport.Parse(TPPSPaidInvoiceReportFilePath, "")
+	appCtx.Logger().Info(fmt.Sprintf("Processing filepath: %s\n", TPPSPaidInvoiceReportFilePath))
+
+	tppsData, err := tppsPaidInvoiceReport.Parse(appCtx, TPPSPaidInvoiceReportFilePath, "")
 	if err != nil {
 		appCtx.Logger().Error("unable to parse TPPS paid invoice report", zap.Error(err))
 		return fmt.Errorf("unable to parse TPPS paid invoice report")
@@ -64,9 +71,8 @@ func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 		appCtx.Logger().Info("Successfully parsed TPPS Paid Invoice Report")
 	}
 
-	appCtx.Logger().Info("RECEIVED: TPPS Paid Invoice Report Processor received a TPPS Paid Invoice Report")
-
 	if tppsData != nil {
+		appCtx.Logger().Info("RECEIVED: TPPS Paid Invoice Report Processor received a TPPS Paid Invoice Report")
 		verrs, errs := t.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
 		if err != nil {
 			return errs
@@ -118,6 +124,8 @@ func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 			return transactionError
 		}
 		return nil
+	} else {
+		appCtx.Logger().Info("No TPPS Paid Invoice Report data was parsed, so no data was stored in the database")
 	}
 
 	return nil

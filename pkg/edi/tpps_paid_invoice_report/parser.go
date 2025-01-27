@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 func VerifyHeadersParsedCorrectly(parsedHeadersFromFile TPPSData) bool {
@@ -43,7 +44,7 @@ func VerifyHeadersParsedCorrectly(parsedHeadersFromFile TPPSData) bool {
 	return allHeadersWereProcessedCorrectly
 }
 
-// ProcessTPPSReportEntryForOneRow takes one tab-delimited data row, cleans it, and parses it into a string representation of the TPPSData struct
+// ParseTPPSReportEntryForOneRow takes one tab-delimited data row, cleans it, and parses it into a string representation of the TPPSData struct
 func ParseTPPSReportEntryForOneRow(row []string, columnIndexes map[string]int, headerIndicesNeedDefined bool) (TPPSData, map[string]int, bool) {
 	tppsReportEntryForOnePaymentRequest := strings.Split(row[0], "\t")
 	var tppsData TPPSData
@@ -110,13 +111,14 @@ func ParseTPPSReportEntryForOneRow(row []string, columnIndexes map[string]int, h
 }
 
 // Parse takes in a TPPS paid invoice report file and parses it into an array of TPPSData structs
-func (t *TPPSData) Parse(stringTPPSPaidInvoiceReportFilePath string, testTPPSInvoiceString string) ([]TPPSData, error) {
+func (t *TPPSData) Parse(appCtx appcontext.AppContext, stringTPPSPaidInvoiceReportFilePath string, testTPPSInvoiceString string) ([]TPPSData, error) {
 	var tppsDataFile []TPPSData
 
 	var dataToParse io.Reader
 
 	if stringTPPSPaidInvoiceReportFilePath != "" {
-		csvFile, err := os.Open(filepath.Clean(stringTPPSPaidInvoiceReportFilePath))
+		appCtx.Logger().Info(fmt.Sprintf("Parsing TPPS data file: %s\n", stringTPPSPaidInvoiceReportFilePath))
+		csvFile, err := os.Open(stringTPPSPaidInvoiceReportFilePath)
 		if err != nil {
 			return nil, errors.Wrap(err, (fmt.Sprintf("Unable to read TPPS paid invoice report from path %s", stringTPPSPaidInvoiceReportFilePath)))
 		}
