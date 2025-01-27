@@ -40,16 +40,29 @@ func (suite *PayloadsSuite) TestOrderWithMove() {
 }
 
 func (suite *PayloadsSuite) TestBoatShipment() {
-	boat := factory.BuildBoatShipment(suite.DB(), nil, nil)
-	boatShipment := BoatShipment(nil, &boat)
-	suite.NotNil(boatShipment)
+	suite.Run("Test Boat Shipment", func() {
+		boat := factory.BuildBoatShipment(suite.DB(), nil, nil)
+		boatShipment := BoatShipment(nil, &boat)
+		suite.NotNil(boatShipment)
+	})
 
+	suite.Run("Test Boat Shipment", func() {
+		boatShipment := BoatShipment(nil, nil)
+		suite.Nil(boatShipment)
+	})
 }
 
 func (suite *PayloadsSuite) TestMobileHomeShipment() {
-	mobileHome := factory.BuildMobileHomeShipment(suite.DB(), nil, nil)
-	mobileHomeShipment := MobileHomeShipment(nil, &mobileHome)
-	suite.NotNil(mobileHomeShipment)
+	suite.Run("Test Mobile Home Shipment", func() {
+		mobileHome := factory.BuildMobileHomeShipment(suite.DB(), nil, nil)
+		mobileHomeShipment := MobileHomeShipment(nil, &mobileHome)
+		suite.NotNil(mobileHomeShipment)
+	})
+
+	suite.Run("Test Mobile Home Shipment With Nil", func() {
+		mobileHomeShipment := MobileHomeShipment(nil, nil)
+		suite.Nil(mobileHomeShipment)
+	})
 }
 
 func (suite *PayloadsSuite) TestMovingExpense() {
@@ -105,6 +118,18 @@ func (suite *PayloadsSuite) TestMovingExpenses() {
 	movingExpenses = append(movingExpenses, movingExpense, movingExpenseTwo)
 	movingExpensesValue := MovingExpenses(nil, movingExpenses)
 	suite.NotNil(movingExpensesValue)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemDimension() {
+	dimension := models.MTOServiceItemDimension{
+		Type:   models.DimensionTypeItem,
+		Length: 1000,
+		Height: 1000,
+		Width:  1000,
+	}
+
+	ghcDimension := MTOServiceItemDimension(&dimension)
+	suite.NotNil(ghcDimension)
 }
 
 // TestMove makes sure zero values/optional fields are handled
@@ -836,7 +861,6 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 			},
 		},
 	}, nil)
-
 	moves := models.Moves{moveUSMC}
 	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Marine move with no shipments", func() {
 		payload := SearchMoves(appCtx, moves)
