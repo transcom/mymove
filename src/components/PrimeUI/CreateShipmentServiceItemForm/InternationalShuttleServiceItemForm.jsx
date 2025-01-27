@@ -11,12 +11,12 @@ import { ShipmentShape } from 'types/shipment';
 import { DropdownInput } from 'components/form/fields';
 import { internationalShuttleServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
 
-const internationalShuttleSITValidationSchema = Yup.object().shape({
+const internationalShuttleValidationSchema = Yup.object().shape({
   reServiceCode: Yup.string().required('Required'),
   reason: Yup.string().required('Required'),
 });
 
-const InternationalShuttleSITServiceItemForm = ({ shipment, submission }) => {
+const InternationalShuttleServiceItemForm = ({ shipment, submission }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
@@ -37,12 +37,8 @@ const InternationalShuttleSITServiceItemForm = ({ shipment, submission }) => {
   };
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={internationalShuttleSITValidationSchema}
-      onSubmit={onSubmit}
-    >
-      <Form data-testid="internationalShuttleSITServiceItemForm">
+    <Formik initialValues={initialValues} validationSchema={internationalShuttleValidationSchema} onSubmit={onSubmit}>
+      <Form data-testid="internationalShuttleServiceItemForm">
         <DropdownInput
           label="Service item code"
           name="reServiceCode"
@@ -79,9 +75,9 @@ const InternationalShuttleSITServiceItemForm = ({ shipment, submission }) => {
   );
 };
 
-InternationalShuttleSITServiceItemForm.propTypes = {
+InternationalShuttleServiceItemForm.propTypes = {
   shipment: ShipmentShape.isRequired,
   submission: PropTypes.func.isRequired,
 };
 
-export default InternationalShuttleSITServiceItemForm;
+export default InternationalShuttleServiceItemForm;

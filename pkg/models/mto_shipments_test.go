@@ -368,15 +368,15 @@ func (suite *ModelSuite) TestCreateInternationalAccessorialServiceItemsForShipme
 		}, nil)
 
 		serviceItem.MTOShipment = shipment
-		mtoServiceItems, err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), shipment.ID, models.MTOServiceItems{serviceItem})
+		serviceItemIds, err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), shipment.ID, models.MTOServiceItems{serviceItem})
 		suite.NoError(err)
-		suite.NotNil(mtoServiceItems)
+		suite.NotNil(serviceItemIds)
 	})
 
 	suite.Run("test error handling for invalid shipment", func() {
-		mtoServiceItems, err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), uuid.Nil, models.MTOServiceItems{})
+		serviceItemIds, err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), uuid.Nil, models.MTOServiceItems{})
 		suite.Error(err)
-		suite.Nil(mtoServiceItems)
+		suite.Nil(serviceItemIds)
 	})
 }
 
@@ -538,5 +538,27 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		suite.NoError(err)
 		suite.NotNil(gbloc)
 		suite.Equal(*gbloc, "USMC")
+	})
+}
+
+func (suite *ModelSuite) TestIsPPMShipment() {
+	suite.Run("true - shipment is a ppm", func() {
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+
+		mtoShipment.PPMShipment = &ppmShipment
+		mtoShipment.ShipmentType = models.MTOShipmentTypePPM
+
+		isPPM := mtoShipment.IsPPMShipment()
+		suite.NotNil(isPPM)
+		suite.Equal(isPPM, true)
+	})
+
+	suite.Run("false - shipment is not a ppm", func() {
+		nonPPMshipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+
+		isPPM := nonPPMshipment.IsPPMShipment()
+		suite.NotNil(isPPM)
+		suite.Equal(isPPM, false)
 	})
 }
