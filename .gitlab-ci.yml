@@ -666,6 +666,7 @@ server_test:
   variables:
     DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
     DOCKER_TLS_CERTDIR: ""
+    GITLAB: 1
     APPLICATION: app
     # 8 since this runs on xlarge with 8 CPUs
     GOTEST_PARALLEL: 8
