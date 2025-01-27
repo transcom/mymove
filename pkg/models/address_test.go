@@ -190,3 +190,25 @@ func (suite *ModelSuite) TestPartialAddressFormat() {
 
 	suite.Equal("street 1, city, state 90210", formattedAddress)
 }
+
+func (suite *ModelSuite) TestIsAddressAlaska() {
+	address := &m.Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
+		City:           "city",
+		PostalCode:     "90210",
+		County:         m.StringPointer("County"),
+	}
+
+	bool1 := address.IsAddressAlaska()
+	suite.Equal(m.BoolPointer(false), &bool1)
+
+	address.State = "MT"
+	bool2 := address.IsAddressAlaska()
+	suite.Equal(m.BoolPointer(false), &bool2)
+
+	address.State = "AK"
+	bool3 := address.IsAddressAlaska()
+	suite.Equal(m.BoolPointer(true), &bool3)
+}
