@@ -579,7 +579,7 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 	bc := &ghcmessages.BackupContact{
 		Name:  &backupContact.Name,
 		Email: &backupContact.Email,
-		Phone: backupContact.Phone,
+		Phone: &backupContact.Phone,
 	}
 
 	payload := ghcmessages.CreatedCustomer{
@@ -679,6 +679,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		MoveCode:                       moveCode,
 		MoveTaskOrderID:                moveTaskOrderID,
 		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(swag.StringValue(order.OriginDutyLocationGBLOC)),
+		HasDependents:                  order.HasDependents,
 	}
 
 	return &payload
@@ -857,11 +858,7 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 		contact := contacts[0]
 		name = contact.Name
 		email = contact.Email
-		phone = ""
-		contactPhone := contact.Phone
-		if contactPhone != nil {
-			phone = *contactPhone
-		}
+		phone = contact.Phone
 	}
 
 	return &ghcmessages.BackupContact{
