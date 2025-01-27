@@ -151,6 +151,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesGBLOCsHandler() {
 
 func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 	user := factory.BuildDefaultUser(suite.DB())
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
 
@@ -181,7 +182,7 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 		},
 	}, nil)
 
-	path := fmt.Sprintf("/transportation_offices/%v/counseling_offices", origDutyLocation.ID.String())
+	path := fmt.Sprintf("/transportation_offices/%v/counseling_offices/%v", origDutyLocation.ID.String(), serviceMember.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
 	req = suite.AuthenticateUserRequest(req, user)
 	params := transportationofficeop.ShowCounselingOfficesParams{

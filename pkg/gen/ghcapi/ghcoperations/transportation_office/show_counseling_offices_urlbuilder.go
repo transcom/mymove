@@ -16,7 +16,8 @@ import (
 
 // ShowCounselingOfficesURL generates an URL for the show counseling offices operation
 type ShowCounselingOfficesURL struct {
-	DutyLocationID strfmt.UUID
+	DutyLocationID  strfmt.UUID
+	ServiceMemberID strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -42,13 +43,20 @@ func (o *ShowCounselingOfficesURL) SetBasePath(bp string) {
 func (o *ShowCounselingOfficesURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/transportation_offices/{dutyLocationId}/counseling_offices"
+	var _path = "/transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}"
 
 	dutyLocationID := o.DutyLocationID.String()
 	if dutyLocationID != "" {
 		_path = strings.Replace(_path, "{dutyLocationId}", dutyLocationID, -1)
 	} else {
 		return nil, errors.New("dutyLocationId is required on ShowCounselingOfficesURL")
+	}
+
+	serviceMemberID := o.ServiceMemberID.String()
+	if serviceMemberID != "" {
+		_path = strings.Replace(_path, "{serviceMemberId}", serviceMemberID, -1)
+	} else {
+		return nil, errors.New("serviceMemberId is required on ShowCounselingOfficesURL")
 	}
 
 	_basePath := o._basePath
