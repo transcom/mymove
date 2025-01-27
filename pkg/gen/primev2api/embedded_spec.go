@@ -560,6 +560,25 @@ func init() {
         }
       }
     },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "fake@example.com"
+        },
+        "name": {
+          "type": "string",
+          "example": "Bob Smith"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone"
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -883,6 +902,9 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
         "branch": {
           "type": "string",
           "example": "COAST_GUARD"
@@ -4202,6 +4224,25 @@ func init() {
         }
       }
     },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "fake@example.com"
+        },
+        "name": {
+          "type": "string",
+          "example": "Bob Smith"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone"
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -4525,6 +4566,9 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
         "branch": {
           "type": "string",
           "example": "COAST_GUARD"

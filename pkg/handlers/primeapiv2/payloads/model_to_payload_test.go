@@ -33,6 +33,16 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	shipmentGBLOC := "AGFM"
 	packingInstructions := models.InstructionsBeforeContractNumber + factory.DefaultContractNumber + models.InstructionsAfterContractNumber
 
+	backupContacts := models.BackupContacts{}
+	backupContacts = append(backupContacts, models.BackupContact{
+		Name:  "Backup contact name",
+		Phone: "555-555-5555",
+		Email: "backup@backup.com",
+	})
+	serviceMember := models.ServiceMember{
+		BackupContacts: backupContacts,
+	}
+
 	basicMove := models.Move{
 		ID:                 moveTaskOrderID,
 		Locator:            "TESTTEST",
@@ -46,6 +56,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			MethodOfPayment:                models.MethodOfPayment,
 			NAICS:                          models.NAICS,
 			PackingAndShippingInstructions: packingInstructions,
+			ServiceMember:                  serviceMember,
 		},
 		ReferenceID:             &referenceID,
 		PaymentRequests:         models.PaymentRequests{},
@@ -93,6 +104,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(models.MethodOfPayment, returnedModel.Order.MethodOfPayment)
 		suite.Equal(models.NAICS, returnedModel.Order.Naics)
 		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Name, returnedModel.Order.Customer.BackupContact.Name)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Phone, returnedModel.Order.Customer.BackupContact.Phone)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Email, returnedModel.Order.Customer.BackupContact.Email)
 	})
 }
 
