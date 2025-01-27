@@ -167,7 +167,7 @@ const defaultProps = {
 
 describe('PPMHeaderSummary component', () => {
   describe('displays form', () => {
-    it('renders default values', async () => {
+    it('renders blank form on load with defaults', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       renderWithProviders(<PPMHeaderSummary {...defaultProps} />, mockRoutingConfig);
