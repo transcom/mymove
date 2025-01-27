@@ -691,13 +691,13 @@ endif
 .PHONY: db_test_create
 db_test_create: ## Create Test DB
 ifndef GITLAB
-	@echo "Relying on Gitlab's database setup to create the DB."
-	@echo "Create the ${DB_NAME_TEST} database..."
-	DB_NAME=postgres scripts/wait-for-db &&	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
-else
 	@echo "local mac"
 	DB_NAME=postgres DB_PORT=$(DB_PORT_TEST) scripts/wait-for-db && \
 	createdb -p $(DB_PORT_TEST) -h $(DB_HOST) -U postgres $(DB_NAME_TEST) || true
+else
+	@echo "Relying on Gitlab's database setup to create the DB."
+	@echo "Create the ${DB_NAME_TEST} database..."
+	DB_NAME=postgres scripts/wait-for-db &&	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
 endif
 
 .PHONY: db_test_run
@@ -1246,26 +1246,26 @@ else ifeq ($(DEPLOY_ENV), demo)
 else
 	$(error DEPLOY_ENV must be exp, loadtest, or demo)
 endif
-	sed -E -i '' "s#(&dp3-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
-	sed -E -i '' "s#(&integration-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
-	sed -E -i '' "s#(&integration-mtls-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
-	sed -E -i '' "s#(&client-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
-	sed -E -i '' "s#(&server-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
-	sed -E -i '' "s#(&dp3-env) placeholder_env#\1 $(DEPLOY_ENV)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&dp3_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_mtls_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&client_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&server_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&dp3_env) placeholder_env#\1 $(DEPLOY_ENV)#" .gitlab-ci.yml
 	@git --no-pager diff .gitlab-ci.yml
 	@echo "Please make sure to commit the changes in .gitlab-ci.yml in order to have Gitlab deploy $(GIT_BRANCH) to the Non-ATO $(DEPLOY_ENV) environment."
 
 .PHONY: nonato_gitlab_deploy_restore
 nonato_gitlab_deploy_restore:  ## Restore placeholders in config after deploy to a non-ATO env
-	sed -E -i '' "s#(&dp3-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
-	sed -E -i '' "s#(&integration-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
-	sed -E -i '' "s#(&integration-mtls-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
-	sed -E -i '' "s#(&client-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
-	sed -E -i '' "s#(&server-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
-	sed -E -i '' "s#(&dp3-env) (exp|loadtest|demo)#\1 placeholder_env#" .gitlab-ci.yml
+	sed -E -i '' "s#(&dp3_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_mtls_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&client_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&server_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&dp3_env) (exp|loadtest|demo)#\1 placeholder_env#" .gitlab-ci.yml
 
 #
-# ----- END NON-ATO DEPLOYMENT TARGETS -----
+# ----- END NON-ATO DEPLOYMENT GITLAB TARGETS -----
 
 
 #
