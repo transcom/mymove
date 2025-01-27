@@ -62,9 +62,6 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
   const isCivilian = grade === 'CIVILIAN_EMPLOYEE';
 
   const renderHaulType = (haulType) => {
-    if (haulType === '') {
-      return null;
-    }
     return haulType === HAUL_TYPES.LINEHAUL ? 'Linehaul' : 'Shorthaul';
   };
   // check if the itemName is one of the items recalulated after item edit(updatedItemName).
@@ -271,18 +268,16 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
     case sectionTypes.incentiveFactors:
       return (
         <div className={classnames(styles.Details)}>
-          {sectionInfo.haulPrice > 0 && (
-            <div>
-              <Label>{renderHaulType(sectionInfo.haulType)} Price</Label>
-              <span data-testid="haulPrice" className={styles.light}>
-                {isFetchingItems && isRecalulatedItem('haulPrice') ? (
-                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-                ) : (
-                  `$${formatCents(sectionInfo.haulPrice)}`
-                )}
-              </span>
-            </div>
-          )}
+          <div>
+            <Label>{renderHaulType(sectionInfo.haulType)} Price</Label>
+            <span data-testid="haulPrice" className={styles.light}>
+              {isFetchingItems && isRecalulatedItem('haulPrice') ? (
+                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+              ) : (
+                `$${formatCents(sectionInfo.haulPrice)}`
+              )}
+            </span>
+          </div>
           <div>
             <Label>{renderHaulType(sectionInfo.haulType)} Fuel Rate Adjustment</Label>
             <span data-testid="haulFSC" className={styles.light}>
@@ -316,7 +311,6 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               )}
             </span>
           </div>
-
           <div>
             <Label>Origin Price</Label>
             <span data-testid="originPrice" className={styles.light}>
@@ -327,7 +321,6 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               )}
             </span>
           </div>
-
           <div>
             <Label>Destination Price</Label>
             <span data-testid="destinationPrice" className={styles.light}>
@@ -335,36 +328,6 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
                 `$${formatCents(sectionInfo.ddp)}`
-              )}
-            </span>
-          </div>
-          <div>
-            <Label>International Packing Charge</Label>
-            <span data-testid="intlPackPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('intlPackPrice') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.intlPackPrice)}`
-              )}
-            </span>
-          </div>
-          <div>
-            <Label>International Unpacking Charge</Label>
-            <span data-testid="intlUnpackPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('intlUnpackPrice') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.intlUnpackPrice)}`
-              )}
-            </span>
-          </div>
-          <div>
-            <Label>International Shipping & Linehaul Charge</Label>
-            <span data-testid="intlLinehaulPrice" className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('intlLinehaulPrice') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                `$${formatCents(sectionInfo.intlLinehaulPrice)}`
               )}
             </span>
           </div>
