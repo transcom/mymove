@@ -13,10 +13,10 @@ import (
 
 // makeMTOShipment creates a single MTOShipment and associated set relationships
 // It will make a move record, if one is not provided.
-// It will make pickup addresses if the shipment type is not one of (HHGOutOfNTSDom, PPM)
-// It will make delivery addresses if the shipment type is not one of (HHGOutOfNTSDom, PPM)
+// It will make pickup addresses if the shipment type is not one of (HHGOutOfNTS, PPM)
+// It will make delivery addresses if the shipment type is not one of (HHGOutOfNTS, PPM)
 // It will make a storage facility if the shipment type is
-// HHGOutOfNTSDom
+// HHGOutOfNTS
 //
 // Deprecated: use factory.BuildMTOShipment
 func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {

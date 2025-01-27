@@ -18,7 +18,7 @@ func (suite *FactorySuite) TestBuildBackupContact() {
 			Permission: models.BackupContactPermissionEDIT,
 			Name:       "name",
 			Email:      "email@example.com",
-			Phone:      models.StringPointer("555-555-5555"),
+			Phone:      "555-555-5555",
 		}
 		defaultServiceMember := models.ServiceMember{
 			FirstName: models.StringPointer("Leo"),
@@ -33,7 +33,7 @@ func (suite *FactorySuite) TestBuildBackupContact() {
 		suite.Equal(defaultContact.Permission, backupContact.Permission)
 		suite.Equal(defaultContact.Name, backupContact.Name)
 		suite.Equal(defaultContact.Email, backupContact.Email)
-		suite.Equal(*defaultContact.Phone, *backupContact.Phone)
+		suite.Equal(defaultContact.Phone, backupContact.Phone)
 
 		// Check that service member was hooked in
 		suite.Equal(*defaultServiceMember.FirstName, *backupContact.ServiceMember.FirstName)
@@ -52,7 +52,7 @@ func (suite *FactorySuite) TestBuildBackupContact() {
 			ID:         uuid.Must(uuid.NewV4()),
 			Name:       "Fake Name",
 			Email:      "email@example.com",
-			Phone:      models.StringPointer("555-444-4444"),
+			Phone:      "555-444-4444",
 			Permission: models.BackupContactPermissionVIEW,
 		}
 
@@ -72,7 +72,7 @@ func (suite *FactorySuite) TestBuildBackupContact() {
 		suite.Equal(customBackupContact.Name, backupContact.Name)
 		suite.Equal(customBackupContact.Email, backupContact.Email)
 		suite.Equal(customBackupContact.Permission, backupContact.Permission)
-		suite.Equal(*customBackupContact.Phone, *backupContact.Phone)
+		suite.Equal(customBackupContact.Phone, backupContact.Phone)
 
 		// Check that the service member was customized
 		suite.Equal(*customServiceMember.FirstName, *backupContact.ServiceMember.FirstName)

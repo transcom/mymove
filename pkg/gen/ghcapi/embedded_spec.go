@@ -1911,7 +1911,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n* Location of the POE/POD\n",
         "consumes": [
           "application/json"
         ],
@@ -3154,6 +3154,66 @@ func init() {
         },
         "x-permissions": [
           "update.orders"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk": {
+      "post": {
+        "description": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "operationId": "acknowledgeExcessUnaccompaniedBaggageWeightRisk",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
         ]
       },
       "parameters": [
@@ -5715,7 +5775,8 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment"
+          "shipment",
+          "shipment_address_updates"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
@@ -7020,6 +7081,11 @@ func init() {
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "hasDependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?",
+          "x-nullable": true
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -9766,6 +9832,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "podLocation": {
+          "$ref": "#/definitions/Port"
+        },
+        "poeLocation": {
+          "$ref": "#/definitions/Port"
+        },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
@@ -10050,6 +10122,18 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "description": "Timestamp of when the TOO acknowledged the excess unaccompanied baggage weight risk by either dismissing the alert or updating the max billable weight",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "description": "Timestamp of when the sum of estimated or actual unaccompanied baggage shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "excess_weight_acknowledged_at": {
           "description": "Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight",
@@ -12335,6 +12419,115 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "Port": {
+      "description": "A port that is used to move an international shipment.",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "example": "PORTLAND"
+        },
+        "country": {
+          "description": "Two-letter country code",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "example": "US"
+        },
+        "county": {
+          "type": "string",
+          "example": "MULTNOMAH"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "portCode": {
+          "description": "3 or 4 digit port code",
+          "type": "string",
+          "example": "0431"
+        },
+        "portName": {
+          "description": "Name of the port",
+          "type": "string",
+          "example": "PORTLAND INTL"
+        },
+        "portType": {
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "S"
+          ]
+        },
+        "state": {
+          "description": "US state",
+          "type": "string",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "example": "OR"
+        },
+        "zip": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "99501"
+        }
       }
     },
     "PostDocumentPayload": {
@@ -17733,7 +17926,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n* Location of the POE/POD\n",
         "consumes": [
           "application/json"
         ],
@@ -19222,6 +19415,81 @@ func init() {
         },
         "x-permissions": [
           "update.orders"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk": {
+      "post": {
+        "description": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "operationId": "acknowledgeExcessUnaccompaniedBaggageWeightRisk",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
         ]
       },
       "parameters": [
@@ -22401,7 +22669,8 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment"
+          "shipment",
+          "shipment_address_updates"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
@@ -23858,6 +24127,11 @@ func init() {
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "hasDependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?",
+          "x-nullable": true
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -26604,6 +26878,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "podLocation": {
+          "$ref": "#/definitions/Port"
+        },
+        "poeLocation": {
+          "$ref": "#/definitions/Port"
+        },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
@@ -26888,6 +27168,18 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "description": "Timestamp of when the TOO acknowledged the excess unaccompanied baggage weight risk by either dismissing the alert or updating the max billable weight",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "description": "Timestamp of when the sum of estimated or actual unaccompanied baggage shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "excess_weight_acknowledged_at": {
           "description": "Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight",
@@ -29247,6 +29539,115 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "Port": {
+      "description": "A port that is used to move an international shipment.",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "example": "PORTLAND"
+        },
+        "country": {
+          "description": "Two-letter country code",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "example": "US"
+        },
+        "county": {
+          "type": "string",
+          "example": "MULTNOMAH"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "portCode": {
+          "description": "3 or 4 digit port code",
+          "type": "string",
+          "example": "0431"
+        },
+        "portName": {
+          "description": "Name of the port",
+          "type": "string",
+          "example": "PORTLAND INTL"
+        },
+        "portType": {
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "S"
+          ]
+        },
+        "state": {
+          "description": "US state",
+          "type": "string",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "example": "OR"
+        },
+        "zip": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "99501"
+        }
       }
     },
     "PostDocumentPayload": {
