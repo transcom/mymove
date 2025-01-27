@@ -1,12 +1,16 @@
 package payloads
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage/mocks"
 )
 
 func (suite *PayloadsSuite) TestFetchPPMShipment() {
@@ -114,6 +118,70 @@ func (suite *PayloadsSuite) TestVLocation() {
 		suite.Equal(state, payload.State, "Expected State to match")
 		suite.Equal(postalCode, payload.PostalCode, "Expected PostalCode to match")
 		suite.Equal(county, *(payload.County), "Expected County to match")
+	})
+}
+
+func (suite *PayloadsSuite) TestSignedCertification() {
+	suite.Run("Certification model", func() {
+		uuid, _ := uuid.NewV4()
+		certType := models.SignedCertificationTypeHHG
+		model := models.SignedCertification{
+			ID:                uuid,
+			SubmittingUserID:  uuid,
+			MoveID:            uuid,
+			PpmID:             &uuid,
+			CertificationText: "dummy",
+			CertificationType: &certType,
+		}
+		parsedSignedCert := SignedCertification(&model)
+		suite.NotNil(parsedSignedCert)
+		suite.Equal(uuid.String(), parsedSignedCert.ID.String())
+		suite.Equal(uuid.String(), parsedSignedCert.SubmittingUserID.String())
+		suite.Equal(uuid.String(), parsedSignedCert.MoveID.String())
+		suite.Equal(uuid.String(), parsedSignedCert.PpmID.String())
+		suite.Equal("dummy", *parsedSignedCert.CertificationText)
+		suite.Equal(string(certType), string(parsedSignedCert.CertificationType))
+	})
+}
+
+func (suite *PayloadsSuite) TestWeightTicket() {
+	suite.Run("WeightTicket model", func() {
+		mockStorer := &mocks.FileStorer{}
+
+		weightTicketID := uuid.Must(uuid.NewV4())
+		ppmShipmentID := uuid.Must(uuid.NewV4())
+		documentID := uuid.Must(uuid.NewV4())
+		now := time.Now()
+
+		weightTicket := &models.WeightTicket{
+			ID:                                weightTicketID,
+			PPMShipmentID:                     ppmShipmentID,
+			EmptyWeight:                       models.PoundPointer(4000),
+			SubmittedEmptyWeight:              models.PoundPointer(4200),
+			EmptyDocumentID:                   documentID,
+			FullWeight:                        models.PoundPointer(6000),
+			SubmittedFullWeight:               models.PoundPointer(6200),
+			FullDocumentID:                    documentID,
+			ProofOfTrailerOwnershipDocumentID: documentID,
+			AdjustedNetWeight:                 models.PoundPointer(2000),
+			NetWeightRemarks:                  models.StringPointer("Test remarks"),
+			CreatedAt:                         now,
+			UpdatedAt:                         now,
+		}
+		parsedWeightTicket := WeightTicket(mockStorer, weightTicket)
+		suite.NotNil(parsedWeightTicket)
+		suite.Equal(weightTicketID.String(), parsedWeightTicket.ID.String())
+		suite.Equal(ppmShipmentID.String(), parsedWeightTicket.PpmShipmentID.String())
+		suite.Equal(handlers.FmtPoundPtr(weightTicket.EmptyWeight), parsedWeightTicket.EmptyWeight)
+		suite.Equal(handlers.FmtPoundPtr(weightTicket.SubmittedEmptyWeight), parsedWeightTicket.SubmittedEmptyWeight)
+		suite.Equal(handlers.FmtUUID(weightTicket.EmptyDocumentID), &parsedWeightTicket.EmptyDocumentID)
+		suite.Equal(handlers.FmtPoundPtr(weightTicket.FullWeight), parsedWeightTicket.FullWeight)
+		suite.Equal(handlers.FmtPoundPtr(weightTicket.SubmittedFullWeight), parsedWeightTicket.SubmittedFullWeight)
+		suite.Equal(handlers.FmtUUID(weightTicket.FullDocumentID), &parsedWeightTicket.FullDocumentID)
+		suite.Equal(handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID), &parsedWeightTicket.ProofOfTrailerOwnershipDocumentID)
+		suite.Equal(handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight), parsedWeightTicket.AdjustedNetWeight)
+		suite.Equal("Test remarks", *parsedWeightTicket.NetWeightRemarks)
+		suite.Equal(etag.GenerateEtag(weightTicket.UpdatedAt), parsedWeightTicket.ETag)
 	})
 }
 
