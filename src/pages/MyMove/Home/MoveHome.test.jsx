@@ -1794,3 +1794,90 @@ describe('Home component', () => {
     });
   });
 });
+describe('renderCustomerHeaderText', () => {
+  const defaultOrders = {
+    new_duty_location: {
+      name: 'Fort Knox, KY 40121',
+    },
+    origin_duty_location: {
+      name: 'Tinker AFB, OK 73145',
+    },
+    report_by_date: '2024-02-29',
+    authorizedWeight: 11000,
+  };
+
+  const defaultMove = {
+    moveCode: '4H8VCD',
+  };
+
+  it('renders location and report by date correctly', () => {
+    const wrapper = mountMoveHomeWithProviders({
+      ...defaultPropsOrdersWithUploads,
+      serviceMemberMoves: {
+        currentMove: [
+          {
+            ...defaultPropsOrdersWithUploads.serviceMemberMoves.currentMove[0],
+            orders: defaultOrders,
+            move: defaultMove,
+          },
+        ],
+        previousMoves: [],
+      },
+    });
+
+    expect(wrapper.text()).toContain('Fort Knox, KY 40121');
+    expect(wrapper.text()).toContain('Tinker AFB, OK 73145');
+    expect(wrapper.text()).toContain('29 Feb 2024');
+  });
+
+  it('renders weight restriction when present', () => {
+    const ordersWithRestriction = {
+      ...defaultOrders,
+      entitlement: {
+        weight_restriction: 9000,
+      },
+    };
+
+    const wrapper = mountMoveHomeWithProviders({
+      ...defaultPropsOrdersWithUploads,
+      serviceMemberMoves: {
+        currentMove: [
+          {
+            ...defaultPropsOrdersWithUploads.serviceMemberMoves.currentMove[0],
+            orders: ordersWithRestriction,
+            move: defaultMove,
+          },
+        ],
+        previousMoves: [],
+      },
+    });
+
+    expect(wrapper.text()).toContain('Weight Restriction');
+    expect(wrapper.text()).toContain('9,000 lbs');
+  });
+
+  it('does not render weight restriction when not present', () => {
+    const ordersWithoutRestriction = {
+      ...defaultOrders,
+      entitlement: {
+        weight_restriction: 0,
+      },
+    };
+
+    const wrapper = mountMoveHomeWithProviders({
+      ...defaultPropsOrdersWithUploads,
+      serviceMemberMoves: {
+        currentMove: [
+          {
+            ...defaultPropsOrdersWithUploads.serviceMemberMoves.currentMove[0],
+            orders: ordersWithoutRestriction,
+            move: defaultMove,
+          },
+        ],
+        previousMoves: [],
+      },
+    });
+
+    expect(wrapper.text()).not.toContain('Weight Restriction');
+  });
+});

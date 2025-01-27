@@ -265,9 +265,15 @@ export class Home extends Component {
 
         <dl className={styles.subheaderContainer}>
           <div className={styles.subheaderSubsection}>
-            <dt>Standard Weight allowance</dt>
+            <dt>Standard weight alloowance</dt>
             <dd>{formatWeight(orders.authorizedWeight)}.</dd>
           </div>
+          {orders?.entitlement?.weight_restriction > 0 && (
+            <div className={styles.subheaderSubsection}>
+              <dt>Weight Restriction</dt>
+              <dd>{formatWeight(orders?.entitlement?.weight_restriction)}</dd>
+            </div>
+          )}
           {move.locator && (
             <div className={styles.subheaderSubsection}>
               <dt>Move code</dt>
