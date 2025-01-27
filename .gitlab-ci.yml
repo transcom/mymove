@@ -241,6 +241,7 @@ stages:
       export OKTA_OFFICE_GROUP_ID=notrealgroupId
       export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
 
+#
 # .setup_host_intergration_tests: &setup_host_intergration_tests
 #    - echo "Setting up /etc/hosts for local domain simulation"
 #   - echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
@@ -1734,7 +1735,7 @@ push_otel_collector_image_prd:
 
      - echo "Logging in to AWS ECR with Crane..."
      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
-     
+
      - echo "Pushing the image to our private ECR using Crane..."
      - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
 
