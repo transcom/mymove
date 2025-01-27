@@ -7,12 +7,7 @@ import styles from './PaymentRequestQueue.module.scss';
 
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
-import {
-  usePaymentRequestQueueQueries,
-  useUserQueries,
-  useMoveSearchQueries,
-  useBulkAssignmentQueries,
-} from 'hooks/queries';
+import { usePaymentRequestQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
 import { getPaymentRequestsQueue } from 'services/ghcApi';
 import { createHeader } from 'components/Table/utils';
 import {
@@ -23,7 +18,7 @@ import {
 } from 'utils/formatters';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import { BRANCH_OPTIONS, GBLOC } from 'constants/queues';
+import { BRANCH_OPTIONS, GBLOC, QUEUE_TYPES } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -206,7 +201,6 @@ const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBul
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
-  const { bulkAssignmentData } = useBulkAssignmentQueries('PAYMENT_REQUEST');
   const supervisor = userPrivileges
     ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
     : false;
@@ -344,7 +338,7 @@ const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBul
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
-          bulkAssignmentData={bulkAssignmentData}
+          queueType={QUEUE_TYPES.PAYMENT_REQUEST}
         />
       </div>
     );
