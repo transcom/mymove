@@ -387,7 +387,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 <p>
   <strong>Your standard weight allowance: 7,999 pounds.</strong>
   That is how much combined weight the government will pay for all movements between authorized locations under your
-  orders.
+  orders. Be advised, if you are moving to an administratively restricted HHG weight location this amount could be less.
 </p>
 
 <p>
