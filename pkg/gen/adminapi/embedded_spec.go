@@ -1472,6 +1472,43 @@ func init() {
           }
         }
       },
+      "delete": {
+        "description": "Deletes a single office user in a REQUESTED. This endpoint is used in the Admin UI that will allow the admin user to delete a requested office user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Deletes a Requested Office User",
+        "operationId": "deleteRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Requested Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
       "patch": {
         "description": "Updates a requested office user to include profile data and status. This will be used in the Admin UI for approving/rejecting/updating a user.",
         "produces": [
@@ -5123,6 +5160,43 @@ func init() {
           },
           "404": {
             "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single office user in a REQUESTED. This endpoint is used in the Admin UI that will allow the admin user to delete a requested office user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Deletes a Requested Office User",
+        "operationId": "deleteRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Requested Office User not found"
           },
           "500": {
             "description": "server error"

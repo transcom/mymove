@@ -38,3 +38,15 @@ export async function updateRequestedOfficeUser(officeUserId, body) {
     { normalize: false },
   );
 }
+
+export async function deleteRequestedOfficeUser(officeUserId) {
+  const operationPath = 'Requested office users.deleteRequestedOfficeUser';
+
+  return makeAdminRequest(
+    operationPath,
+    {
+      officeUserId,
+    },
+    { normalize: false },
+  );
+}
