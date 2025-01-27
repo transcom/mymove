@@ -5,6 +5,7 @@ export const initialState = {
   // Select the moveId that is set from clicking on Go To Move on the MultiMoveLandingPage
   moveId: '',
   canAddOrders: false,
+  setFileUploadStatus: '',
 };
 
 const generalStateReducer = (state = initialState, action = {}) => {

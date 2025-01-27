@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import classNames from 'classnames';
 
@@ -9,7 +9,9 @@ import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { permissionTypes } from 'constants/permissions';
 import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
 
-const SupportingDocuments = ({ move, uploads, onUploadStarted, onUploadEnded }) => {
+const SupportingDocuments = ({ move, uploads }) => {
+  const [isFileUploading, setFileUploading] = useState(false);
+
   const filteredAndSortedUploads = Object.values(uploads || {})
     ?.filter((file) => {
       return !file.deletedAt;
@@ -23,7 +25,7 @@ const SupportingDocuments = ({ move, uploads, onUploadStarted, onUploadEnded }) 
         filteredAndSortedUploads?.length <= 0 ? (
           <h2>No supporting documents have been uploaded.</h2>
         ) : (
-          <DocumentViewer files={filteredAndSortedUploads} allowDownload />
+          <DocumentViewer isFileUploading={isFileUploading} files={filteredAndSortedUploads} allowDownload />
         )}
       </div>
       <Restricted to={permissionTypes.createSupportingDocuments}>
@@ -36,8 +38,12 @@ const SupportingDocuments = ({ move, uploads, onUploadStarted, onUploadEnded }) 
                 documentId={move.additionalDocuments?.id}
                 files={filteredAndSortedUploads}
                 documentType={MOVE_DOCUMENT_TYPE.SUPPORTING}
-                onUploadStarted={onUploadStarted}
-                onUploadEnded={onUploadEnded}
+                onUploadStarted={() => {
+                  setFileUploading(true);
+                }}
+                onUploadEnded={() => {
+                  setFileUploading(false);
+                }}
               />
             </div>
           </div>

@@ -33,7 +33,7 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
   const [showContentError, setShowContentError] = useState(false);
   const sortedFiles = files.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
   const selectedFile = sortedFiles[parseInt(selectedFileIndex, 10)];
-
+  const [justUploadedFile, setJustUploadedFile] = useState(false);
   const [rotationValue, setRotationValue] = useState(selectedFile?.rotation || 0);
 
   const mountedRef = useRef(true);
@@ -42,7 +42,10 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
 
   useEffect(() => {
     if (isFileUploading) {
+      setJustUploadedFile(true);
       setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
+    } else {
+      setJustUploadedFile(false);
     }
   }, [isFileUploading]);
 
@@ -104,7 +107,7 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
     };
 
     let sse;
-    if (selectedFile) {
+    if (selectedFile || justUploadedFile) {
       sse = new EventSource(`/internal/uploads/${selectedFile.id}/status`, { withCredentials: true });
       sse.onmessage = (event) => {
         handleFileProcessing(event.data);
@@ -125,17 +128,33 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
     return () => {
       sse?.close();
     };
-  }, [selectedFile, isFileUploading]);
+  }, [selectedFile, isFileUploading, justUploadedFile]);
 
   useEffect(() => {
     if (fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
       new Promise((resolve) => {
-        setTimeout(resolve, 5000);
+        setTimeout(resolve, 2000);
       }).then(() => setFileStatus(UPLOAD_DOC_STATUS.LOADED));
     }
   }, [fileStatus]);
 
   const fileType = useRef(selectedFile?.contentType);
+
+  if (fileStatus === UPLOAD_DOC_STATUS.UPLOADING) {
+    return (
+      <Alert type="info" className="usa-width-one-whole" heading="Document Status uploading">
+        Uploading
+      </Alert>
+    );
+  }
+  if (fileStatus !== UPLOAD_DOC_STATUS.LOADED) {
+    return (
+      <Alert type="info" className="usa-width-one-whole" heading="Document Status">
+        {fileStatus === UPLOAD_DOC_STATUS.SCANNING && 'Scanning'}
+        {fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING && 'Establishing Document for View'}
+      </Alert>
+    );
+  }
   if (!selectedFile) {
     return (
       <Alert type="info" className="usa-width-one-whole" heading="Document Status">
@@ -167,16 +186,6 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
     selectFile(index);
     closeMenu();
   };
-
-  if (fileStatus !== UPLOAD_DOC_STATUS.LOADED) {
-    return (
-      <Alert type="info" className="usa-width-one-whole" heading="Document Status">
-        {fileStatus === UPLOAD_DOC_STATUS.UPLOADING && 'Uploading'}
-        {fileStatus === UPLOAD_DOC_STATUS.SCANNING && 'Scanning'}
-        {fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING && 'Establishing Document for View'}
-      </Alert>
-    );
-  }
 
   const fileTypeMap = {
     'application/pdf': 'pdf',
@@ -220,25 +229,6 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
       </dd>
     </div>
   );
-
-  if (fileStatus !== UPLOAD_DOC_STATUS.LOADED && fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
-    return (
-      <>
-        <Alert type="info" className="usa-width-one-whole" heading="Document Status">
-          Establishing Document for View
-        </Alert>
-        <Content
-          fileType={fileType.current}
-          filePath={selectedFile?.url}
-          rotationValue={rotationValue}
-          disableSaveButton={disableSaveButton}
-          setRotationValue={setRotationValue}
-          saveRotation={saveRotation}
-          onError={onContentError}
-        />
-      </>
-    );
-  }
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>

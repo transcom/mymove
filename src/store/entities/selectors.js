@@ -327,3 +327,7 @@ export const selectCanAddOrders = (state) => {
 export const selectMoveId = (state) => {
   return state.generalState?.moveId || '';
 };
+
+export const selectFileUploadStatus = (state) => {
+  return state.generalState?.fileUploadStatus || '';
+};
