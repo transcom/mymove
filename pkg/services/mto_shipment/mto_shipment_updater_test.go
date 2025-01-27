@@ -19,6 +19,7 @@ import (
 	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mockservices "github.com/transcom/mymove/pkg/services/mocks"
@@ -54,7 +55,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		false,
 	).Return(1000, nil)
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
+	waf := entitlements.NewWeightAllotmentFetcher()
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -1336,7 +1338,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		ntsRecorededWeight := unit.Pound(980)
 		updatedShipment := models.MTOShipment{
-			ShipmentType:      models.MTOShipmentTypeHHGOutOfNTSDom,
+			ShipmentType:      models.MTOShipmentTypeHHGOutOfNTS,
 			ID:                shipment.ID,
 			NTSRecordedWeight: &ntsRecorededWeight,
 		}
@@ -2357,7 +2359,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		// 2. The shipment must already have the following fields present:
 		// MTOShipmentTypeHHG: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, DestinationAddress
 		// MTOShipmentTypeHHGIntoNTS: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, StorageFacility
-		// MTOShipmentTypeHHGOutOfNTSDom: ScheduledPickupDate, NTSRecordedWeight, StorageFacility, DestinationAddress
+		// MTOShipmentTypeHHGOutOfNTS: ScheduledPickupDate, NTSRecordedWeight, StorageFacility, DestinationAddress
 		// 3. The shipment must not already have a Required Delivery Date
 		// Note that MakeMTOShipment will automatically add a Required Delivery Date if the ScheduledPickupDate
 		// is present, therefore we need to use MakeMTOShipmentMinimal and add the Pickup and Destination addresses
@@ -2423,7 +2425,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:        models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
 					ScheduledPickupDate: &testdatagen.DateInsidePeakRateCycle,
 					NTSRecordedWeight:   &estimatedWeight,
 					Status:              models.MTOShipmentStatusSubmitted,
@@ -2775,6 +2777,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	now := time.Now()
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	hide := false
 	var primeShipment models.MTOShipment
 	var nonPrimeShipment models.MTOShipment
@@ -2805,7 +2809,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -2873,8 +2877,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -3054,10 +3060,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh() {
 	builder := query.NewQueryBuilder()
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -3443,5 +3451,106 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 		suite.NoError(err)
 
 		suite.Equal(models.ReServiceCodeDSH, serviceItems[0].ReService.Code)
+	})
+}
+
+func (suite *MTOShipmentServiceSuite) TestUpdateDomesticServiceItems() {
+
+	expectedReServiceCodes := []models.ReServiceCode{
+		models.ReServiceCodeDLH,
+		models.ReServiceCodeFSC,
+		models.ReServiceCodeDOP,
+		models.ReServiceCodeDDP,
+		models.ReServiceCodeDNPK,
+	}
+
+	var pickupAddress models.Address
+	var storageFacility models.StorageFacility
+	var mto models.Move
+
+	setupTestData := func() {
+		pickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "Test Street 1",
+					City:           "Des moines",
+					State:          "IA",
+					PostalCode:     "50309",
+					IsOconus:       models.BoolPointer(false),
+				},
+			},
+		}, nil)
+
+		storageFacility = factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "Test Street Adress 2",
+					City:           "Des moines",
+					State:          "IA",
+					PostalCode:     "50314",
+					IsOconus:       models.BoolPointer(false),
+				},
+			},
+		}, nil)
+
+		mto = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+	}
+
+	builder := query.NewQueryBuilder()
+	moveRouter := moveservices.NewMoveRouter()
+	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
+
+	suite.Run("Preapproved service items successfully added to domestic nts shipments", func() {
+		setupTestData()
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    storageFacility,
+				Type:     &factory.StorageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
+					Status:       models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		appCtx := suite.AppContextForTest()
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, eTag)
+		suite.NoError(err)
+
+		serviceItems := models.MTOServiceItems{}
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
+		suite.NoError(err)
+
+		for i := 0; i < len(expectedReServiceCodes); i++ {
+			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
+		}
 	})
 }

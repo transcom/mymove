@@ -24,6 +24,8 @@ const SERVICE_ITEM_PARAM_KEYS = {
   NTSPackingFactor: 'NTSPackingFactor',
   NumberDaysSIT: 'NumberDaysSIT',
   OriginPrice: 'OriginPrice',
+  PerUnitCents: 'PerUnitCents',
+  PortZip: 'PortZip',
   PriceRateOrFactor: 'PriceRateOrFactor',
   ReferenceDate: 'ReferenceDate',
   RequestedDeliveryDate: 'RequestedDeliveryDate',
@@ -64,6 +66,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   // Domestic non-peak or Domestic peak
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
   [SERVICE_ITEM_PARAM_KEYS.OriginPrice]: 'Origin price',
+  [SERVICE_ITEM_PARAM_KEYS.PortZip]: 'Port ZIP',
   [SERVICE_ITEM_PARAM_KEYS.ReferenceDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]: 'Origin service area',
@@ -98,12 +101,14 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   Dimensions: 'Dimensions',
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Mileage factor',
+  InternationalShippingAndLinehaul: 'ISLH price',
   Mileage: 'Mileage',
   MileageIntoSIT: 'Mileage into SIT',
   MileageOutOfSIT: 'Mileage out of SIT',
   NTSPackingFactor: 'NTS packing factor',
   NTSReleaseReferenceDate: 'Actual pickup',
   PackPrice: 'Pack price',
+  PackPriceInternational: 'International Pack price',
   PickupDate: 'Pickup date',
   PickupSITPrice: 'SIT pickup price',
   PriceEscalationFactor: 'Price escalation factor',
@@ -112,6 +117,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   SITDeliveryPrice: 'SIT delivery price',
   FuelRateAdjustment: 'Fuel rate adjustment',
   UnpackPrice: 'Unpack price',
+  UnpackPriceInternational: 'International Unpack price',
   UncratingDate: 'Uncrating date',
   UncratingPrice: 'Uncrating price (per cu ft)',
   SITFuelSurchargePrice: 'SIT mileage factor',
@@ -170,7 +176,7 @@ const SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM = [
   SERVICE_ITEM_CODES.FSC,
 ];
 
-const SIT_SERVICE_ITEMS_ALLOWED_UPDATE = [
+const SERVICE_ITEMS_ALLOWED_UPDATE = [
   SERVICE_ITEM_CODES.DDDSIT,
   SERVICE_ITEM_CODES.DDASIT,
   SERVICE_ITEM_CODES.DOASIT,
@@ -179,6 +185,8 @@ const SIT_SERVICE_ITEMS_ALLOWED_UPDATE = [
   SERVICE_ITEM_CODES.DDFSIT,
   SERVICE_ITEM_CODES.DOSFSC,
   SERVICE_ITEM_CODES.DDSFSC,
+  SERVICE_ITEM_CODES.PODFSC,
+  SERVICE_ITEM_CODES.POEFSC,
 ];
 
 /**
@@ -221,6 +229,11 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DUCRT,
   SERVICE_ITEM_CODES.DOSFSC,
   SERVICE_ITEM_CODES.DDSFSC,
+  SERVICE_ITEM_CODES.IHPK,
+  SERVICE_ITEM_CODES.IHUPK,
+  SERVICE_ITEM_CODES.ISLH,
+  SERVICE_ITEM_CODES.POEFSC,
+  SERVICE_ITEM_CODES.PODFSC,
 ];
 
 export default SERVICE_ITEM_STATUSES;
@@ -233,5 +246,5 @@ export {
   allowedServiceItemCalculations,
   SERVICE_ITEM_STATUSES,
   SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM,
-  SIT_SERVICE_ITEMS_ALLOWED_UPDATE,
+  SERVICE_ITEMS_ALLOWED_UPDATE,
 };

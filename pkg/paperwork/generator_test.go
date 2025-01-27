@@ -123,7 +123,7 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	files, err := os.ReadDir(tmpDir)
 	suite.FatalNil(err)
 
-	suite.Equal(4, len(files), "did not find 2 images")
+	suite.Equal(2, len(files), "did not find 2 images")
 
 	for _, file := range files {
 		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
@@ -182,7 +182,7 @@ func (suite *PaperworkSuite) TestPDFFromImagesNoRotation() {
 	files, err := os.ReadDir(tmpDir)
 	suite.FatalNil(err)
 
-	suite.Equal(4, len(files), "did not find 2 images")
+	suite.Equal(2, len(files), "did not find 2 images")
 
 	for _, file := range files {
 		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
@@ -264,7 +264,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 	ctx, err := api.ReadContext(file, generator.pdfConfig)
 	suite.FatalNil(err)
 
-	err = validate.XRefTable(ctx.XRefTable)
+	err = validate.XRefTable(ctx)
 	suite.FatalNil(err)
 
 	suite.Equal(3, ctx.PageCount)
@@ -292,7 +292,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDFByContents() {
 	ctx, err := api.ReadContext(file, generator.pdfConfig)
 	suite.FatalNil(err)
 
-	err = validate.XRefTable(ctx.XRefTable)
+	err = validate.XRefTable(ctx)
 	suite.FatalNil(err)
 
 	suite.Equal(2, ctx.PageCount)
