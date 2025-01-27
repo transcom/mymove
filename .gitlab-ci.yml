@@ -675,7 +675,7 @@ server_test:
     DB_USER: postgres
     DB_HOST: localhost
     DB_PORT_TEST: 5433
-    DB_PORT: 5433
+    DB_PORT: 5432
     DB_NAME: test_db
     DB_NAME_TEST: test_db
     DTOD_USE_MOCK: 'true'
