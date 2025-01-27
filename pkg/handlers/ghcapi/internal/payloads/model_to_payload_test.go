@@ -139,6 +139,27 @@ func TestMove(t *testing.T) {
 	}
 }
 
+func (suite *PayloadsSuite) TestExcessWeightInMovePayload() {
+	now := time.Now()
+
+	suite.Run("successfully converts excess weight in model to payload", func() {
+		move := models.Move{
+
+			ExcessWeightQualifiedAt:                        &now,
+			ExcessUnaccompaniedBaggageWeightQualifiedAt:    &now,
+			ExcessUnaccompaniedBaggageWeightAcknowledgedAt: &now,
+			ExcessWeightAcknowledgedAt:                     &now,
+		}
+
+		payload, err := Move(&move, &test.FakeS3Storage{})
+		suite.NoError(err)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt), payload.ExcessWeightQualifiedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightQualifiedAt), payload.ExcessUnaccompaniedBaggageWeightQualifiedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt), payload.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt), payload.ExcessWeightAcknowledgedAt)
+	})
+}
+
 func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 		{
@@ -720,17 +741,17 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		County:         models.StringPointer("WASHOE"),
 	}
 
-	phone := "444-555-6677"
 	backupContact := models.BackupContact{
 		Name:  "Billy Bob",
 		Email: "billBob@mail.mil",
-		Phone: &phone,
+		Phone: "444-555-6677",
 	}
 
 	firstName := "First"
 	lastName := "Last"
 	affiliation := models.AffiliationARMY
 	email := "dontEmailMe@gmail.com"
+	phone := "444-555-6677"
 	sm := models.ServiceMember{
 		ID:                   id,
 		UserID:               id2,
@@ -910,16 +931,16 @@ func (suite *PayloadsSuite) TestReServiceItems() {
 		marketCodeInternational := models.MarketCodeInternational
 		marketCodeDomestic := models.MarketCodeDomestic
 		poefscReServiceCode := models.ReServiceCodePOEFSC
-		poedscReServiceCode := models.ReServiceCodePODFSC
+		podfscReServiceCode := models.ReServiceCodePODFSC
 		poefscServiceName := "International POE Fuel Surcharge"
-		poedscServiceName := "International POD Fuel Surcharge"
+		podfscServiceName := "International POD Fuel Surcharge"
 		poefscService := models.ReService{
 			Code: poefscReServiceCode,
 			Name: poefscServiceName,
 		}
 		podfscService := models.ReService{
-			Code: poedscReServiceCode,
-			Name: poedscServiceName,
+			Code: podfscReServiceCode,
+			Name: podfscServiceName,
 		}
 		hhgShipmentType := models.MTOShipmentTypeHHG
 		ubShipmentType := models.MTOShipmentTypeUnaccompaniedBaggage
@@ -1221,5 +1242,395 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
 		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
 		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipment() {
+	suite.Run("transforms standard MTOShipment without SIT overrides", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		mtoShipment.PrimeEstimatedWeight = models.PoundPointer(1000)
+		mtoShipment.PrimeActualWeight = models.PoundPointer(1100)
+		miles := unit.Miles(1234)
+		mtoShipment.Distance = &miles
+
+		payload := MTOShipment(suite.storer, &mtoShipment, nil)
+
+		suite.NotNil(payload)
+		suite.Equal(strfmt.UUID(mtoShipment.ID.String()), payload.ID)
+		suite.Equal(handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight), payload.PrimeEstimatedWeight)
+		suite.Equal(handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight), payload.PrimeActualWeight)
+		suite.Equal(handlers.FmtInt64(1234), payload.Distance)
+		suite.Nil(payload.SitStatus)
+	})
+
+	suite.Run("SIT overrides total SIT days with SITStatus payload", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		mtoShipment.SITDaysAllowance = models.IntPointer(90)
+
+		sitStatusPayload := &ghcmessages.SITStatus{
+			TotalSITDaysUsed:   handlers.FmtInt64(int64(10)),
+			TotalDaysRemaining: handlers.FmtInt64(int64(40)),
+		}
+
+		payload := MTOShipment(suite.storer, &mtoShipment, sitStatusPayload)
+
+		suite.NotNil(payload)
+		suite.NotNil(payload.SitDaysAllowance)
+		suite.Equal(int64(50), *payload.SitDaysAllowance)
+		suite.Equal(sitStatusPayload, payload.SitStatus)
+	})
+
+	suite.Run("handles nil Distance", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		mtoShipment.Distance = nil
+
+		payload := MTOShipment(suite.storer, &mtoShipment, nil)
+		suite.Nil(payload.Distance)
+	})
+
+	suite.Run("checks scheduled dates and actual dates set", func() {
+		now := time.Now()
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ScheduledPickupDate:   &now,
+					ScheduledDeliveryDate: &now,
+					ActualPickupDate:      models.TimePointer(now.AddDate(0, 0, 1)),
+					ActualDeliveryDate:    models.TimePointer(now.AddDate(0, 0, 2)),
+				},
+			},
+		}, nil)
+		payload := MTOShipment(suite.storer, &mtoShipment, nil)
+		suite.NotNil(payload.ScheduledPickupDate)
+		suite.NotNil(payload.ScheduledDeliveryDate)
+		suite.NotNil(payload.ActualPickupDate)
+		suite.NotNil(payload.ActualDeliveryDate)
+	})
+}
+
+func (suite *PayloadsSuite) TestPort() {
+
+	suite.Run("returns nil when PortLocation is nil", func() {
+		var mtoServiceItems models.MTOServiceItems = nil
+		result := Port(mtoServiceItems, "POE")
+		suite.Nil(result, "Expected result to be nil when Port Location is nil")
+	})
+
+	suite.Run("Success - Maps PortLocation to Port payload", func() {
+		// Use the factory to create a port location
+		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		mtoServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		// Actual
+		mtoServiceItems := models.MTOServiceItems{mtoServiceItem}
+		result := Port(mtoServiceItems, "POE")
+
+		// Assert
+		suite.IsType(&ghcmessages.Port{}, result)
+		suite.Equal(strfmt.UUID(portLocation.ID.String()), result.ID)
+		suite.Equal(portLocation.Port.PortType.String(), result.PortType)
+		suite.Equal(portLocation.Port.PortCode, result.PortCode)
+		suite.Equal(portLocation.Port.PortName, result.PortName)
+		suite.Equal(portLocation.City.CityName, result.City)
+		suite.Equal(portLocation.UsPostRegionCity.UsprcCountyNm, result.County)
+		suite.Equal(portLocation.UsPostRegionCity.UsPostRegion.State.StateName, result.State)
+		suite.Equal(portLocation.UsPostRegionCity.UsprZipID, result.Zip)
+		suite.Equal(portLocation.Country.CountryName, result.Country)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipments() {
+	suite.Run("multiple shipments with partial SIT status map", func() {
+		shipment1 := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		shipment2 := factory.BuildMTOShipment(suite.DB(), nil, nil)
+
+		shipments := models.MTOShipments{shipment1, shipment2}
+
+		// SIT status map that only has SIT info for shipment2
+		sitStatusMap := map[string]*ghcmessages.SITStatus{
+			shipment2.ID.String(): {
+				TotalDaysRemaining: handlers.FmtInt64(30),
+				TotalSITDaysUsed:   handlers.FmtInt64(10),
+			},
+		}
+
+		payload := MTOShipments(suite.storer, &shipments, sitStatusMap)
+		suite.NotNil(payload)
+		suite.Len(*payload, 2)
+
+		// Shipment1 has no SIT override
+		suite.Nil((*payload)[0].SitStatus)
+
+		// Shipment2 has SIT override
+		suite.NotNil((*payload)[1].SitStatus)
+		suite.Equal(int64(40), *(*payload)[1].SitDaysAllowance)
+	})
+
+	suite.Run("nil slice returns empty payload (or nil) gracefully", func() {
+		var emptyShipments models.MTOShipments
+		payload := MTOShipments(suite.storer, &emptyShipments, nil)
+		suite.NotNil(payload)
+		suite.Len(*payload, 0)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOAgent() {
+	suite.Run("transforms a single MTOAgent", func() {
+		agent := factory.BuildMTOAgent(suite.DB(), nil, nil)
+		payload := MTOAgent(&agent)
+		suite.NotNil(payload)
+		suite.Equal(strfmt.UUID(agent.ID.String()), payload.ID)
+		suite.Equal(string(agent.MTOAgentType), payload.AgentType)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOAgents() {
+	suite.Run("transforms multiple MTOAgents", func() {
+		agent1 := factory.BuildMTOAgent(suite.DB(), nil, nil)
+		agent2 := factory.BuildMTOAgent(suite.DB(), nil, nil)
+		agents := models.MTOAgents{agent1, agent2}
+
+		payload := MTOAgents(&agents)
+		suite.Len(*payload, 2)
+		suite.Equal(strfmt.UUID(agent1.ID.String()), (*payload)[0].ID)
+		suite.Equal(strfmt.UUID(agent2.ID.String()), (*payload)[1].ID)
+	})
+
+	suite.Run("empty slice yields empty payload", func() {
+		agents := models.MTOAgents{}
+		payload := MTOAgents(&agents)
+		suite.NotNil(payload)
+		suite.Len(*payload, 0)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentRequests() {
+	suite.Run("transforms multiple PaymentRequests", func() {
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		prs := models.PaymentRequests{pr}
+
+		payload, err := PaymentRequests(suite.AppContextForTest(), &prs, suite.storer)
+		suite.NoError(err)
+		suite.Len(*payload, 1)
+		suite.Equal(strfmt.UUID(pr.ID.String()), (*payload)[0].ID)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentRequest() {
+	suite.Run("single PaymentRequest with EDI error info, GEX timestamps, TPPS data", func() {
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		pr.SentToGexAt = models.TimePointer(time.Now().Add(-1 * time.Hour))
+		pr.ReceivedByGexAt = models.TimePointer(time.Now())
+
+		tppsReport := models.TPPSPaidInvoiceReportEntry{
+			LineNetCharge:                   2500,
+			SellerPaidDate:                  time.Now(),
+			InvoiceTotalChargesInMillicents: 500000,
+		}
+		pr.TPPSPaidInvoiceReports = models.TPPSPaidInvoiceReportEntrys{tppsReport}
+
+		result, err := PaymentRequest(suite.AppContextForTest(), &pr, suite.storer)
+		suite.NoError(err)
+		suite.NotNil(result)
+		suite.NotNil(result.EdiErrorType)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItem() {
+	suite.Run("transforms PaymentServiceItem including MTOServiceItem code and name", func() {
+		psi := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
+		psi.MTOServiceItem.ReService.Code = models.ReServiceCodeDLH
+		psi.MTOServiceItem.ReService.Name = "Domestic Linehaul"
+
+		payload := PaymentServiceItem(&psi)
+		suite.NotNil(payload)
+		suite.Equal(string(models.ReServiceCodeDLH), payload.MtoServiceItemCode)
+		suite.Equal("Domestic Linehaul", payload.MtoServiceItemName)
+		suite.Equal(ghcmessages.PaymentServiceItemStatus(psi.Status), payload.Status)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItems() {
+	suite.Run("transforms multiple PaymentServiceItems with TPPS data", func() {
+		psi1 := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
+		psi2 := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
+		items := models.PaymentServiceItems{psi1, psi2}
+
+		tppsReports := models.TPPSPaidInvoiceReportEntrys{
+			{
+				ProductDescription: string(psi1.MTOServiceItem.ReService.Code),
+				LineNetCharge:      1500,
+			},
+		}
+
+		payload := PaymentServiceItems(&items, &tppsReports)
+		suite.NotNil(payload)
+		suite.Len(*payload, 2)
+		suite.Equal(int64(1500), *(*payload)[0].TppsInvoiceAmountPaidPerServiceItemMillicents)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemParam() {
+	suite.Run("transforms PaymentServiceItemParam", func() {
+		paramKey := factory.BuildServiceItemParamKey(suite.DB(), nil, nil)
+		param := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{Model: paramKey},
+		}, nil)
+
+		payload := PaymentServiceItemParam(param)
+		suite.NotNil(payload)
+	})
+
+	suite.Run("handles minimal PaymentServiceItemParam", func() {
+		param := models.PaymentServiceItemParam{}
+		payload := PaymentServiceItemParam(param)
+		suite.NotNil(payload)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemParams() {
+	suite.Run("transforms slice of PaymentServiceItemParams", func() {
+		param1 := factory.BuildPaymentServiceItemParam(suite.DB(), nil, nil)
+		param2 := factory.BuildPaymentServiceItemParam(suite.DB(), nil, nil)
+		params := models.PaymentServiceItemParams{param1, param2}
+
+		payload := PaymentServiceItemParams(&params)
+		suite.NotNil(payload)
+		suite.Len(*payload, 2)
+	})
+}
+
+func (suite *PayloadsSuite) TestServiceRequestDoc() {
+	suite.Run("transforms ServiceRequestDocument with multiple uploads", func() {
+		serviceRequest := factory.BuildServiceRequestDocument(suite.DB(), nil, nil)
+		payload, err := ServiceRequestDoc(serviceRequest, suite.storer)
+		suite.NoError(err)
+		suite.NotNil(payload)
+	})
+
+	suite.Run("handles empty list of uploads", func() {
+		serviceRequest := models.ServiceRequestDocument{}
+		payload, err := ServiceRequestDoc(serviceRequest, suite.storer)
+		suite.NoError(err)
+		suite.NotNil(payload)
+		suite.Empty(payload.Uploads)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemSingleModel() {
+	suite.Run("transforms basic MTOServiceItem with SIT data", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{Model: mtoShipment, LinkOnly: true},
+		}, nil)
+		serviceItem.SITEntryDate = models.TimePointer(time.Now().AddDate(0, 0, -2))
+
+		payload := MTOServiceItemSingleModel(&serviceItem)
+		suite.NotNil(payload)
+		suite.Equal(handlers.FmtDateTimePtr(serviceItem.SITEntryDate), payload.SitEntryDate)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
+	suite.Run("Only POE Location is set", func() {
+		// Create mock data for MTOServiceItems with POE and POD
+		poePortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		poefscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code:     models.ReServiceCodePOEFSC,
+					Priority: 1,
+				},
+			},
+			{
+				Model:    poePortLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MTOServiceItems: models.MTOServiceItems{poefscServiceItem},
+				},
+			},
+		}, nil)
+
+		payload := MTOShipment(nil, &mtoShipment, nil)
+
+		// Assertions
+		suite.NotNil(payload, "Expected payload to not be nil")
+		suite.NotNil(payload.PoeLocation, "Expected POELocation to not be nil")
+		suite.Equal("PDX", payload.PoeLocation.PortCode, "Expected POE Port Code to match")
+		suite.Equal("PORTLAND INTL", payload.PoeLocation.PortName, "Expected POE Port Name to match")
+		suite.Nil(payload.PodLocation, "Expected PODLocation to be nil when POELocation is set")
+	})
+
+	suite.Run("Only POD Location is set", func() {
+		// Create mock data for MTOServiceItems with POE and POD
+		podPortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		podfscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code:     models.ReServiceCodePODFSC,
+					Priority: 1,
+				},
+			},
+			{
+				Model:    podPortLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfDebarkation,
+			},
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MTOServiceItems: models.MTOServiceItems{podfscServiceItem},
+				},
+			},
+		}, nil)
+
+		payload := MTOShipment(nil, &mtoShipment, nil)
+
+		// Assertions
+		suite.NotNil(payload, "Expected payload to not be nil")
+		suite.NotNil(payload.PodLocation, "Expected PODLocation to not be nil")
+		suite.Equal("PDX", payload.PodLocation.PortCode, "Expected POD Port Code to match")
+		suite.Equal("PORTLAND INTL", payload.PodLocation.PortName, "Expected POD Port Name to match")
+		suite.Nil(payload.PoeLocation, "Expected PODLocation to be nil when PODLocation is set")
 	})
 }
