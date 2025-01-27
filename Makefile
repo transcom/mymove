@@ -690,18 +690,14 @@ endif
 
 .PHONY: db_test_create
 db_test_create: ## Create Test DB
-ifndef CIRCLECI
 ifndef GITLAB
+	@echo "Relying on Gitlab's database setup to create the DB."
+	@echo "Create the ${DB_NAME_TEST} database..."
+	DB_NAME=postgres scripts/wait-for-db &&	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
+else
 	@echo "local mac"
 	DB_NAME=postgres DB_PORT=$(DB_PORT_TEST) scripts/wait-for-db && \
 	createdb -p $(DB_PORT_TEST) -h $(DB_HOST) -U postgres $(DB_NAME_TEST) || true
-else
-	@echo "Relying on CircleCI's database setup to create the DB."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
-endif
-else
-	@echo "Relying on Gitlab's database setup to create the DB."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
 endif
 
 .PHONY: db_test_run
