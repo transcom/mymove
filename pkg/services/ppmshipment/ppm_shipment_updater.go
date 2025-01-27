@@ -117,6 +117,66 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		// This potentially updates the MTOShipment.Distance field so include it in the transaction
+		estimatedIncentive, estimatedSITCost, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+		if err != nil {
+			return err
+		}
+
+		updatedPPMShipment.EstimatedIncentive = estimatedIncentive
+		updatedPPMShipment.SITEstimatedCost = estimatedSITCost
+
+		// if the PPM shipment is past closeout then we should not calculate the max incentive, it is already set in stone
+		if oldPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer &&
+			oldPPMShipment.Status != models.PPMShipmentStatusCloseoutComplete &&
+			oldPPMShipment.Status != models.PPMShipmentStatusComplete &&
+			oldPPMShipment.Status != models.PPMShipmentStatusNeedsCloseout {
+			maxIncentive, err := f.estimator.MaxIncentive(appCtx, *oldPPMShipment, updatedPPMShipment)
+			if err != nil {
+				return err
+			}
+			updatedPPMShipment.MaxIncentive = maxIncentive
+		}
+
+		if appCtx.Session() != nil {
+			if appCtx.Session().IsOfficeUser() {
+				edited := models.PPMAdvanceStatusEdited
+				if oldPPMShipment.HasRequestedAdvance != nil && updatedPPMShipment.HasRequestedAdvance != nil {
+					if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
+						updatedPPMShipment.AdvanceStatus = &edited
+					} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
+						updatedPPMShipment.AdvanceStatus = &edited
+					}
+				}
+				if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
+					if *oldPPMShipment.AdvanceAmountRequested != *updatedPPMShipment.AdvanceAmountRequested {
+						updatedPPMShipment.AdvanceStatus = &edited
+					}
+				}
+			}
+			if appCtx.Session().IsMilApp() {
+				if isPrimeCounseled && updatedPPMShipment.HasRequestedAdvance != nil {
+					received := models.PPMAdvanceStatusReceived
+					notReceived := models.PPMAdvanceStatusNotReceived
+
+					if updatedPPMShipment.HasReceivedAdvance != nil && *updatedPPMShipment.HasRequestedAdvance {
+						if *updatedPPMShipment.HasReceivedAdvance {
+							updatedPPMShipment.AdvanceStatus = &received
+						}
+						if !*updatedPPMShipment.HasReceivedAdvance {
+							updatedPPMShipment.AdvanceStatus = &notReceived
+						}
+					}
+				}
+			}
+		}
+
+		finalIncentive, err := f.estimator.FinalIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+		if err != nil {
+			return err
+		}
+		updatedPPMShipment.FinalIncentive = finalIncentive
+
 		if updatedPPMShipment.W2Address != nil {
 			var updatedAddress *models.Address
 			var createOrUpdateErr error
@@ -220,69 +280,6 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			}
 			updatedPPMShipment.TertiaryDestinationAddressID = &updatedAddress.ID
 			updatedPPMShipment.TertiaryDestinationAddress = updatedAddress
-		}
-
-		// if the actual move date is being provided, we no longer need to calculate the estimate - it has already happened
-		if updatedPPMShipment.ActualMoveDate == nil {
-			estimatedIncentive, estimatedSITCost, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
-			if err != nil {
-				return err
-			}
-			updatedPPMShipment.EstimatedIncentive = estimatedIncentive
-			updatedPPMShipment.SITEstimatedCost = estimatedSITCost
-		}
-
-		// if the PPM shipment is past closeout then we should not calculate the max incentive, it is already set in stone
-		if oldPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer &&
-			oldPPMShipment.Status != models.PPMShipmentStatusCloseoutComplete &&
-			oldPPMShipment.Status != models.PPMShipmentStatusComplete &&
-			oldPPMShipment.Status != models.PPMShipmentStatusNeedsCloseout {
-			maxIncentive, err := f.estimator.MaxIncentive(appCtx, *oldPPMShipment, updatedPPMShipment)
-			if err != nil {
-				return err
-			}
-			updatedPPMShipment.MaxIncentive = maxIncentive
-		}
-
-		if appCtx.Session() != nil {
-			if appCtx.Session().IsOfficeUser() {
-				edited := models.PPMAdvanceStatusEdited
-				if oldPPMShipment.HasRequestedAdvance != nil && updatedPPMShipment.HasRequestedAdvance != nil {
-					if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &edited
-					} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
-						updatedPPMShipment.AdvanceStatus = &edited
-					}
-				}
-				if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
-					if *oldPPMShipment.AdvanceAmountRequested != *updatedPPMShipment.AdvanceAmountRequested {
-						updatedPPMShipment.AdvanceStatus = &edited
-					}
-				}
-			}
-			if appCtx.Session().IsMilApp() {
-				if isPrimeCounseled && updatedPPMShipment.HasRequestedAdvance != nil {
-					received := models.PPMAdvanceStatusReceived
-					notReceived := models.PPMAdvanceStatusNotReceived
-
-					if updatedPPMShipment.HasReceivedAdvance != nil && *updatedPPMShipment.HasRequestedAdvance {
-						if *updatedPPMShipment.HasReceivedAdvance {
-							updatedPPMShipment.AdvanceStatus = &received
-						}
-						if !*updatedPPMShipment.HasReceivedAdvance {
-							updatedPPMShipment.AdvanceStatus = &notReceived
-						}
-					}
-				}
-			}
-		}
-
-		if updatedPPMShipment.ActualMoveDate != nil {
-			finalIncentive, err := f.estimator.FinalIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
-			if err != nil {
-				return err
-			}
-			updatedPPMShipment.FinalIncentive = finalIncentive
 		}
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)

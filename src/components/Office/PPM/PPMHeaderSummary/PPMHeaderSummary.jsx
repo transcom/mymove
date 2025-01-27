@@ -36,9 +36,6 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemN
     dop: ppmCloseout.dop,
     ddp: ppmCloseout.ddp,
     sitReimbursement: ppmCloseout.SITReimbursement,
-    intlPackPrice: ppmCloseout.intlPackPrice,
-    intlUnpackPrice: ppmCloseout.intlUnpackPrice,
-    intlLinehaulPrice: ppmCloseout.intlLinehaulPrice,
   };
 
   return (
