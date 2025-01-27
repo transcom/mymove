@@ -77,6 +77,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		newRolesFetcher,
 	}
 
+	adminAPI.RequestedOfficeUsersDeleteRequestedOfficeUserHandler = DeleteRequestedOfficeUserHandler{
+		handlerConfig,
+		requestedofficeusers.NewRequestedOfficeUserDeleter(queryBuilder),
+	}
+
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),

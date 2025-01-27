@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"time"
@@ -510,4 +511,62 @@ func mockAndActivateOktaEndpoints(provider *okta.Provider, responseCode int) {
 	}
 
 	httpmock.Activate()
+}
+
+func (suite *HandlerSuite) TestDeleteRequestedOfficeUsersHandler() {
+	suite.Run("deleted requested users result in no content (successful) response", func() {
+		user := factory.BuildDefaultUser(suite.DB())
+		status := models.OfficeUserStatusREQUESTED
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					UserID: &user.ID,
+					Email:  user.OktaEmail,
+					Status: &status,
+				},
+			},
+			{
+				Model:    user,
+				LinkOnly: true,
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+		officeUserID := officeUser.ID
+
+		params := requestedofficeuserop.DeleteRequestedOfficeUserParams{
+			HTTPRequest:  suite.setupAuthenticatedRequest("DELETE", fmt.Sprintf("/requested_office_users/%s", officeUserID)),
+			OfficeUserID: *handlers.FmtUUID(officeUserID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := DeleteRequestedOfficeUserHandler{
+			HandlerConfig:              suite.HandlerConfig(),
+			RequestedOfficeUserDeleter: requestedofficeusers.NewRequestedOfficeUserDeleter(queryBuilder),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.DeleteRequestedOfficeUserNoContent{}, response)
+
+		var dbUser models.User
+		err := suite.DB().Where("id = ?", user.ID).First(&dbUser)
+		suite.Error(err)
+		suite.Equal(sql.ErrNoRows, err, "sql: no rows in result set")
+
+		var dbOfficeUser models.OfficeUser
+		err = suite.DB().Where("user_id = ?", user.ID).First(&dbOfficeUser)
+		suite.Error(err)
+		suite.Equal(sql.ErrNoRows, err, "sql: no rows in result set")
+
+		// .All does not return a sql no rows error, so we will verify that the struct is empty
+		var userRoles []models.UsersRoles
+		err = suite.DB().Where("user_id = ?", user.ID).All(&userRoles)
+		suite.NoError(err)
+		suite.Empty(userRoles, "Expected no roles to remain for the user")
+
+		var userPrivileges []models.UsersPrivileges
+		err = suite.DB().Where("user_id = ?", user.ID).All(&userPrivileges)
+		suite.NoError(err)
+		suite.Empty(userPrivileges, "Expected no privileges to remain for the user")
+	})
 }
