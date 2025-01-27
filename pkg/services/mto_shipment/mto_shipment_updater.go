@@ -1212,8 +1212,16 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 	// Add the max transit time to the pickup date to get the new required delivery date
 	requiredDeliveryDate := pickupDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
 
+	destinationIsAlaska, err := destinationAddress.IsAddressAlaska()
+	if err != nil {
+		return nil, fmt.Errorf("destination address is nil for move ID: %s", moveID)
+	}
+	pickupIsAlaska, err := pickupAddress.IsAddressAlaska()
+	if err != nil {
+		return nil, fmt.Errorf("pickup address is nil for move ID: %s", moveID)
+	}
 	// Let's add some days if we're dealing with a shipment between CONUS/Alaska
-	if (destinationAddress.IsAddressAlaska() || pickupAddress.IsAddressAlaska()) && !(destinationAddress.IsAddressAlaska() && pickupAddress.IsAddressAlaska()) {
+	if (destinationIsAlaska || pickupIsAlaska) && !(destinationIsAlaska && pickupIsAlaska) {
 		var rateAreaID uuid.UUID
 		var intlTransTime models.InternationalTransitTime
 
@@ -1222,7 +1230,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			return nil, fmt.Errorf("error fetching contract for move ID: %s", moveID)
 		}
 
-		if destinationAddress.IsAddressAlaska() {
+		if destinationIsAlaska {
 			rateAreaID, err = models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, &uuid.Nil, contract.ID)
 			if err != nil {
 				return nil, fmt.Errorf("error fetching destination rate area id for address ID: %s", destinationAddress.ID)
@@ -1238,7 +1246,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			}
 		}
 
-		if pickupAddress.IsAddressAlaska() {
+		if pickupIsAlaska {
 			rateAreaID, err = models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
 			if err != nil {
 				return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
