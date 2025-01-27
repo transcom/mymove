@@ -73,7 +73,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
-	github.com/tealeg/xlsx/v3 v3.3.7
+	github.com/tealeg/xlsx/v3 v3.3.11
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/vektra/mockery/v2 v2.45.1
 	github.com/xuri/excelize/v2 v2.8.1
