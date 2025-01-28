@@ -39,7 +39,6 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
   const mountedRef = useRef(true);
 
   const queryClient = useQueryClient();
-
   useEffect(() => {
     if (isFileUploading) {
       setJustUploadedFile(true);
@@ -105,9 +104,14 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
           throw new Error('unrecognized file status');
       }
     };
+    const element = document.querySelector('#filepond--file-status');
+    const elementvalue = element ? element.textContent.trim() : null;
+    if (!isFileUploading && justUploadedFile && elementvalue === 'Upload complete') {
+      setFileStatus(UPLOAD_DOC_STATUS.SCANNING);
+    }
 
     let sse;
-    if (selectedFile || justUploadedFile) {
+    if (selectedFile) {
       sse = new EventSource(`/internal/uploads/${selectedFile.id}/status`, { withCredentials: true });
       sse.onmessage = (event) => {
         handleFileProcessing(event.data);
