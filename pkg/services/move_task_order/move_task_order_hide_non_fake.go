@@ -232,14 +232,12 @@ func isValidFakeModelBackupContact(bc models.BackupContact) (bool, error) {
 		return false, nil
 	}
 
-	if bc.Phone != nil {
-		ok, err := fakedata.IsValidFakeDataPhone(*bc.Phone)
-		if err != nil {
-			return false, err
-		}
-		if !ok {
-			return false, nil
-		}
+	ok, err = fakedata.IsValidFakeDataPhone(bc.Phone)
+	if err != nil {
+		return false, err
+	}
+	if !ok {
+		return false, nil
 	}
 
 	return true, nil
