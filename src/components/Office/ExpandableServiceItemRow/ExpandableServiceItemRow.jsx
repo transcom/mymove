@@ -26,7 +26,7 @@ const ExpandableServiceItemRow = ({
   };
   const canShowExpandableContent =
     !disableExpansion &&
-    (allowedServiceItemCalculations.includes(serviceItem.mtoServiceItemCode) === true || serviceItem.rejectionReason);
+    (allowedServiceItemCalculations.includes(serviceItem.mtoServiceItemCode) || serviceItem.rejectionReason);
 
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
