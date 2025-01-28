@@ -333,31 +333,6 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		return nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	totalWeightAllowance, err := w.WeightAllotmentFetcher.GetWeightAllotment(appCtx, string(*move.Orders.Grade), move.Orders.OrdersType)
-	if err != nil {
-		return nil, err
-	}
-
-	overallWeightAllowance := totalWeightAllowance.TotalWeightSelf
-	if *move.Orders.Entitlement.DependentsAuthorized {
-		overallWeightAllowance = totalWeightAllowance.TotalWeightSelfPlusDependents
-	}
-
-	moveWeightTotal := 0
-	for _, shipment := range move.MTOShipments {
-		// We should avoid counting shipments that haven't been approved yet and will need to account for diversions
-		// and cancellations factoring into the weight total.
-		if availableShipmentStatus(shipment.Status) {
-			if shipment.ID != updatedShipment.ID {
-				moveWeightTotal += lowerShipmentWeight(shipment)
-			} else {
-				// the shipment being updated might have a reweigh that wasn't loaded
-				updatedShipment.Reweigh = shipment.Reweigh
-				moveWeightTotal += lowerShipmentWeight(*updatedShipment)
-			}
-		}
-	}
-
 	autoReweighShipments := models.MTOShipments{}
 	if shouldReweigh {
 		for _, shipment := range move.MTOShipments {

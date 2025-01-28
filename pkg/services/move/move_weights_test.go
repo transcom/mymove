@@ -739,7 +739,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 	suite.Run("uses lower reweigh weight (based on estimated weight) on shipments that already have reweighs", func() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
-		mockedWeightService := NewMoveWeights(&mockedReweighRequestor)
+		mockedWeightService := NewMoveWeights(&mockedReweighRequestor, waf)
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		now := time.Now()
