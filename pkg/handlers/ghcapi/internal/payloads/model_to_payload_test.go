@@ -1293,6 +1293,55 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	})
 }
 
+func (suite *PayloadsSuite) TestPort() {
+
+	suite.Run("returns nil when PortLocation is nil", func() {
+		var mtoServiceItems models.MTOServiceItems = nil
+		result := Port(mtoServiceItems, "POE")
+		suite.Nil(result, "Expected result to be nil when Port Location is nil")
+	})
+
+	suite.Run("Success - Maps PortLocation to Port payload", func() {
+		// Use the factory to create a port location
+		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		mtoServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		// Actual
+		mtoServiceItems := models.MTOServiceItems{mtoServiceItem}
+		result := Port(mtoServiceItems, "POE")
+
+		// Assert
+		suite.IsType(&ghcmessages.Port{}, result)
+		suite.Equal(strfmt.UUID(portLocation.ID.String()), result.ID)
+		suite.Equal(portLocation.Port.PortType.String(), result.PortType)
+		suite.Equal(portLocation.Port.PortCode, result.PortCode)
+		suite.Equal(portLocation.Port.PortName, result.PortName)
+		suite.Equal(portLocation.City.CityName, result.City)
+		suite.Equal(portLocation.UsPostRegionCity.UsprcCountyNm, result.County)
+		suite.Equal(portLocation.UsPostRegionCity.UsPostRegion.State.StateName, result.State)
+		suite.Equal(portLocation.UsPostRegionCity.UsprZipID, result.Zip)
+		suite.Equal(portLocation.Country.CountryName, result.Country)
+	})
+}
+
 func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
 	suite.Run("Only POE Location is set", func() {
 		// Create mock data for MTOServiceItems with POE and POD
@@ -1378,6 +1427,83 @@ func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
 		suite.Nil(payload.PoeLocation, "Expected PODLocation to be nil when PODLocation is set")
 	})
 }
+
+func (suite *PayloadsSuite) TestPPMCloseout() {
+	plannedMoveDate := time.Now()
+	actualMoveDate := time.Now()
+	miles := 1200
+	estimatedWeight := unit.Pound(5000)
+	actualWeight := unit.Pound(5200)
+	proGearWeightCustomer := unit.Pound(300)
+	proGearWeightSpouse := unit.Pound(100)
+	grossIncentive := unit.Cents(100000)
+	gcc := unit.Cents(50000)
+	aoa := unit.Cents(20000)
+	remainingIncentive := unit.Cents(30000)
+	haulType := "Linehaul"
+	haulPrice := unit.Cents(40000)
+	haulFSC := unit.Cents(5000)
+	dop := unit.Cents(10000)
+	ddp := unit.Cents(8000)
+	packPrice := unit.Cents(7000)
+	unpackPrice := unit.Cents(6000)
+	intlPackPrice := unit.Cents(15000)
+	intlUnpackPrice := unit.Cents(14000)
+	intlLinehaulPrice := unit.Cents(13000)
+	sitReimbursement := unit.Cents(12000)
+
+	ppmCloseout := models.PPMCloseout{
+		ID:                    models.UUIDPointer(uuid.Must(uuid.NewV4())),
+		PlannedMoveDate:       &plannedMoveDate,
+		ActualMoveDate:        &actualMoveDate,
+		Miles:                 &miles,
+		EstimatedWeight:       &estimatedWeight,
+		ActualWeight:          &actualWeight,
+		ProGearWeightCustomer: &proGearWeightCustomer,
+		ProGearWeightSpouse:   &proGearWeightSpouse,
+		GrossIncentive:        &grossIncentive,
+		GCC:                   &gcc,
+		AOA:                   &aoa,
+		RemainingIncentive:    &remainingIncentive,
+		HaulType:              (*models.HaulType)(&haulType),
+		HaulPrice:             &haulPrice,
+		HaulFSC:               &haulFSC,
+		DOP:                   &dop,
+		DDP:                   &ddp,
+		PackPrice:             &packPrice,
+		UnpackPrice:           &unpackPrice,
+		IntlPackPrice:         &intlPackPrice,
+		IntlUnpackPrice:       &intlUnpackPrice,
+		IntlLinehaulPrice:     &intlLinehaulPrice,
+		SITReimbursement:      &sitReimbursement,
+	}
+
+	payload := PPMCloseout(&ppmCloseout)
+	suite.NotNil(payload)
+	suite.Equal(ppmCloseout.ID.String(), payload.ID.String())
+	suite.Equal(handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate), payload.PlannedMoveDate)
+	suite.Equal(handlers.FmtDatePtr(ppmCloseout.ActualMoveDate), payload.ActualMoveDate)
+	suite.Equal(handlers.FmtIntPtrToInt64(ppmCloseout.Miles), payload.Miles)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight), payload.EstimatedWeight)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ActualWeight), payload.ActualWeight)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer), payload.ProGearWeightCustomer)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ProGearWeightSpouse), payload.ProGearWeightSpouse)
+	suite.Equal(handlers.FmtCost(ppmCloseout.GrossIncentive), payload.GrossIncentive)
+	suite.Equal(handlers.FmtCost(ppmCloseout.GCC), payload.Gcc)
+	suite.Equal(handlers.FmtCost(ppmCloseout.AOA), payload.Aoa)
+	suite.Equal(handlers.FmtCost(ppmCloseout.RemainingIncentive), payload.RemainingIncentive)
+	suite.Equal((*string)(ppmCloseout.HaulType), payload.HaulType)
+	suite.Equal(handlers.FmtCost(ppmCloseout.HaulPrice), payload.HaulPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.HaulFSC), payload.HaulFSC)
+	suite.Equal(handlers.FmtCost(ppmCloseout.DOP), payload.Dop)
+	suite.Equal(handlers.FmtCost(ppmCloseout.DDP), payload.Ddp)
+	suite.Equal(handlers.FmtCost(ppmCloseout.PackPrice), payload.PackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.UnpackPrice), payload.UnpackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlPackPrice), payload.IntlPackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlUnpackPrice), payload.IntlUnpackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlLinehaulPrice), payload.IntlLinehaulPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.SITReimbursement), payload.SITReimbursement)
+}
 func (suite *PayloadsSuite) TestMTOShipment() {
 	suite.Run("transforms standard MTOShipment without SIT overrides", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
@@ -1438,55 +1564,6 @@ func (suite *PayloadsSuite) TestMTOShipment() {
 		suite.NotNil(payload.ScheduledDeliveryDate)
 		suite.NotNil(payload.ActualPickupDate)
 		suite.NotNil(payload.ActualDeliveryDate)
-	})
-}
-
-func (suite *PayloadsSuite) TestPort() {
-
-	suite.Run("returns nil when PortLocation is nil", func() {
-		var mtoServiceItems models.MTOServiceItems = nil
-		result := Port(mtoServiceItems, "POE")
-		suite.Nil(result, "Expected result to be nil when Port Location is nil")
-	})
-
-	suite.Run("Success - Maps PortLocation to Port payload", func() {
-		// Use the factory to create a port location
-		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
-			{
-				Model: models.Port{
-					PortCode: "PDX",
-				},
-			},
-		}, nil)
-
-		mtoServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodePOEFSC,
-				},
-			},
-			{
-				Model:    portLocation,
-				LinkOnly: true,
-				Type:     &factory.PortLocations.PortOfEmbarkation,
-			},
-		}, nil)
-
-		// Actual
-		mtoServiceItems := models.MTOServiceItems{mtoServiceItem}
-		result := Port(mtoServiceItems, "POE")
-
-		// Assert
-		suite.IsType(&ghcmessages.Port{}, result)
-		suite.Equal(strfmt.UUID(portLocation.ID.String()), result.ID)
-		suite.Equal(portLocation.Port.PortType.String(), result.PortType)
-		suite.Equal(portLocation.Port.PortCode, result.PortCode)
-		suite.Equal(portLocation.Port.PortName, result.PortName)
-		suite.Equal(portLocation.City.CityName, result.City)
-		suite.Equal(portLocation.UsPostRegionCity.UsprcCountyNm, result.County)
-		suite.Equal(portLocation.UsPostRegionCity.UsPostRegion.State.StateName, result.State)
-		suite.Equal(portLocation.UsPostRegionCity.UsprZipID, result.Zip)
-		suite.Equal(portLocation.Country.CountryName, result.Country)
 	})
 }
 
