@@ -1193,18 +1193,15 @@ push_otel_collector_image_dp3:
     - compile_app_server
     - compile_app_client
   script:
-     - echo "Logging in to DockerHub with Crane..."
-     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
+     - echo "Logging in to Amazon ECR with Crane..."
+     - aws ecr get-login-password --region ${AWS_REGION} | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
-     - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
-
-     - echo "Logging in to AWS ECR with Crane..."
-     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
+     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
 
      - echo "Pushing the image to our private ECR using Crane..."
      - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
-
+    
      - echo "Cleaning up the temporary image file..."
      - rm image.tar
   allow_failure: false
@@ -1451,18 +1448,15 @@ push_otel_collector_image_stg:
     - *setup_aws_vars_stg
     - *setup_release_stg
   script:
-     - echo "Logging in to DockerHub with Crane..."
-     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
+     - echo "Logging in to Amazon ECR with Crane..."
+     - aws ecr get-login-password --region ${AWS_REGION} | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
-     - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
-
-     - echo "Logging in to AWS ECR with Crane..."
-     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
+     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
 
      - echo "Pushing the image to our private ECR using Crane..."
      - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
-
+    
      - echo "Cleaning up the temporary image file..."
      - rm image.tar
   allow_failure: false
@@ -1727,18 +1721,15 @@ push_otel_collector_image_prd:
     - *setup_aws_vars_prd
     - *setup_release_prd
   script:
-     - echo "Logging in to DockerHub with Crane..."
-     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
+     - echo "Logging in to Amazon ECR with Crane..."
+     - aws ecr get-login-password --region ${AWS_REGION} | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
-     - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
-
-     - echo "Logging in to AWS ECR with Crane..."
-     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
+     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
 
      - echo "Pushing the image to our private ECR using Crane..."
      - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
-
+    
      - echo "Cleaning up the temporary image file..."
      - rm image.tar
   allow_failure: false
