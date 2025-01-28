@@ -340,3 +340,15 @@ func GetTraitRequestedOfficeUser() []Customization {
 		},
 	}
 }
+
+// GetTraitRejectedOfficeUser sets the OfficeUser in an REJECTED status
+func GetTraitRejectedOfficeUser() []Customization {
+	rejectedStatus := models.OfficeUserStatusREJECTED
+	return []Customization{
+		{
+			Model: models.OfficeUser{
+				Status: &rejectedStatus,
+			},
+		},
+	}
+}
