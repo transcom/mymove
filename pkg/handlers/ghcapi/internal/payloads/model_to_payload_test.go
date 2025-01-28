@@ -1293,55 +1293,6 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	})
 }
 
-func (suite *PayloadsSuite) TestPort() {
-
-	suite.Run("returns nil when PortLocation is nil", func() {
-		var mtoServiceItems models.MTOServiceItems = nil
-		result := Port(mtoServiceItems, "POE")
-		suite.Nil(result, "Expected result to be nil when Port Location is nil")
-	})
-
-	suite.Run("Success - Maps PortLocation to Port payload", func() {
-		// Use the factory to create a port location
-		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
-			{
-				Model: models.Port{
-					PortCode: "PDX",
-				},
-			},
-		}, nil)
-
-		mtoServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodePOEFSC,
-				},
-			},
-			{
-				Model:    portLocation,
-				LinkOnly: true,
-				Type:     &factory.PortLocations.PortOfEmbarkation,
-			},
-		}, nil)
-
-		// Actual
-		mtoServiceItems := models.MTOServiceItems{mtoServiceItem}
-		result := Port(mtoServiceItems, "POE")
-
-		// Assert
-		suite.IsType(&ghcmessages.Port{}, result)
-		suite.Equal(strfmt.UUID(portLocation.ID.String()), result.ID)
-		suite.Equal(portLocation.Port.PortType.String(), result.PortType)
-		suite.Equal(portLocation.Port.PortCode, result.PortCode)
-		suite.Equal(portLocation.Port.PortName, result.PortName)
-		suite.Equal(portLocation.City.CityName, result.City)
-		suite.Equal(portLocation.UsPostRegionCity.UsprcCountyNm, result.County)
-		suite.Equal(portLocation.UsPostRegionCity.UsPostRegion.State.StateName, result.State)
-		suite.Equal(portLocation.UsPostRegionCity.UsprZipID, result.Zip)
-		suite.Equal(portLocation.Country.CountryName, result.Country)
-	})
-}
-
 func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
 	suite.Run("Only POE Location is set", func() {
 		// Create mock data for MTOServiceItems with POE and POD
@@ -1487,6 +1438,55 @@ func (suite *PayloadsSuite) TestMTOShipment() {
 		suite.NotNil(payload.ScheduledDeliveryDate)
 		suite.NotNil(payload.ActualPickupDate)
 		suite.NotNil(payload.ActualDeliveryDate)
+	})
+}
+
+func (suite *PayloadsSuite) TestPort() {
+
+	suite.Run("returns nil when PortLocation is nil", func() {
+		var mtoServiceItems models.MTOServiceItems = nil
+		result := Port(mtoServiceItems, "POE")
+		suite.Nil(result, "Expected result to be nil when Port Location is nil")
+	})
+
+	suite.Run("Success - Maps PortLocation to Port payload", func() {
+		// Use the factory to create a port location
+		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		mtoServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		// Actual
+		mtoServiceItems := models.MTOServiceItems{mtoServiceItem}
+		result := Port(mtoServiceItems, "POE")
+
+		// Assert
+		suite.IsType(&ghcmessages.Port{}, result)
+		suite.Equal(strfmt.UUID(portLocation.ID.String()), result.ID)
+		suite.Equal(portLocation.Port.PortType.String(), result.PortType)
+		suite.Equal(portLocation.Port.PortCode, result.PortCode)
+		suite.Equal(portLocation.Port.PortName, result.PortName)
+		suite.Equal(portLocation.City.CityName, result.City)
+		suite.Equal(portLocation.UsPostRegionCity.UsprcCountyNm, result.County)
+		suite.Equal(portLocation.UsPostRegionCity.UsPostRegion.State.StateName, result.State)
+		suite.Equal(portLocation.UsPostRegionCity.UsprZipID, result.Zip)
+		suite.Equal(portLocation.Country.CountryName, result.Country)
 	})
 }
 

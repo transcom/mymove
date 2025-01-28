@@ -36,13 +36,13 @@ function sortServiceItems(items) {
     (a, b) => haulTypeServiceItemCodes.indexOf(a.code) - haulTypeServiceItemCodes.indexOf(b.code),
   );
   // Filter and sort destination SIT. Code index is also the sort order
-  const destinationServiceItemCodes = ['DDFSIT', 'DDASIT', 'DDDSIT', 'DDSFSC'];
+  const destinationServiceItemCodes = ['DDFSIT', 'DDASIT', 'DDDSIT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSFSC'];
   const destinationServiceItems = items.filter((item) => destinationServiceItemCodes.includes(item.code));
   const sortedDestinationServiceItems = destinationServiceItems.sort(
     (a, b) => destinationServiceItemCodes.indexOf(a.code) - destinationServiceItemCodes.indexOf(b.code),
   );
   // Filter origin SIT. Code index is also the sort order
-  const originServiceItemCodes = ['DOFSIT', 'DOASIT', 'DOPSIT', 'DOSFSC'];
+  const originServiceItemCodes = ['DOFSIT', 'DOASIT', 'DOPSIT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IOPSIT', 'IOSFSC'];
   const originServiceItems = items.filter((item) => originServiceItemCodes.includes(item.code));
   const sortedOriginServiceItems = originServiceItems.sort(
     (a, b) => originServiceItemCodes.indexOf(a.code) - originServiceItemCodes.indexOf(b.code),
@@ -308,7 +308,7 @@ const ServiceItemsTable = ({
                           className="text-blue usa-button--unstyled margin-left-1"
                           disabled={hasPaymentRequestBeenMade || isMoveLocked}
                           onClick={() => {
-                            if (code === 'DDFSIT' || code === 'DOFSIT') {
+                            if (code === 'DDFSIT' || code === 'DOFSIT' || code === 'IDFSIT' || code === 'IOFSIT') {
                               handleShowEditSitEntryDateModal(id, mtoShipmentID);
                             } else {
                               handleShowEditSitAddressModal(id, mtoShipmentID);

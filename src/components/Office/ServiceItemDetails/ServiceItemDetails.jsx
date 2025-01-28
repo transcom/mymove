@@ -39,6 +39,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
     'Customer contact 1': '-',
   });
   const numberOfDaysApprovedForDOASIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
+  const numberOfDaysApprovedForIOASIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
   const sitEndDate =
     sitStatus &&
     sitStatus.currentSIT?.sitAuthorizedEndDate &&
@@ -50,7 +51,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
   return (
     <div>
       <dl>
-        {code === 'DDFSIT'
+        {code === 'DDFSIT' || code === 'IDFSIT'
           ? generateDetailText({
               'Original Delivery Address': originalDeliveryAddress
                 ? formatCityStateAndPostalCode(originalDeliveryAddress)
@@ -87,7 +88,36 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {code === 'DDSFSC'
+        {code === 'IDASIT' && (
+          <>
+            {generateDetailText(
+              {
+                'Original Delivery Address': originalDeliveryAddress
+                  ? formatCityStateAndPostalCode(originalDeliveryAddress)
+                  : '-',
+                "Add'l SIT Start Date": details.sitEntryDate
+                  ? moment.utc(details.sitEntryDate).add(1, 'days').format('DD MMM YYYY')
+                  : '-',
+                '# of days approved for': shipment.sitDaysAllowance ? `${numberOfDaysApprovedForIOASIT} days` : '-',
+                'SIT expiration date': sitEndDate || '-',
+              },
+              id,
+            )}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </>
+        )}
+        {code === 'DDSFSC' || code === 'IDSFSC'
           ? generateDetailText(
               {
                 'Original Delivery Address': originalDeliveryAddress
@@ -140,7 +170,45 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {code === 'DDFSIT' && (
+        {code === 'IDDSIT' && (
+          <>
+            {generateDetailText(
+              {
+                'Original Delivery Address': originalDeliveryAddress
+                  ? formatCityStateAndPostalCode(originalDeliveryAddress)
+                  : '-',
+                'Final Delivery Address':
+                  details.sitDestinationFinalAddress && details.status !== 'SUBMITTED'
+                    ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
+                    : '-',
+                'Delivery miles out of SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
+                'Customer contacted homesafe': details.sitCustomerContacted
+                  ? formatDateWithUTC(details.sitCustomerContacted, 'DD MMM YYYY')
+                  : '-',
+                'Customer requested delivery date': details.sitRequestedDelivery
+                  ? formatDateWithUTC(details.sitRequestedDelivery, 'DD MMM YYYY')
+                  : '-',
+                'SIT departure date': details.sitDepartureDate
+                  ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
+                  : '-',
+              },
+              id,
+            )}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </>
+        )}
+        {(code === 'DDFSIT' || code === 'IDFSIT') && (
           <>
             {!isEmpty(sortedCustomerContacts)
               ? sortedCustomerContacts.map((contact, index) => (
@@ -188,7 +256,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
 
   let detailSection;
   switch (code) {
-    case 'DOFSIT': {
+    case 'DOFSIT':
+    case 'IOFSIT': {
       detailSection = (
         <div>
           <dl>
@@ -221,8 +290,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DOASIT': {
-      const numberOfDaysApprovedForDOASIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
+    case 'DOASIT':
+    case 'IOASIT': {
+      const numberOfDaysApprovedForIOASIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
       const sitEndDate =
         sitStatus &&
         sitStatus.currentSIT?.sitAuthorizedEndDate &&
@@ -239,7 +309,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
                 "Add'l SIT Start Date": details.sitEntryDate
                   ? moment.utc(details.sitEntryDate).add(1, 'days').format('DD MMM YYYY')
                   : '-',
-                '# of days approved for': shipment.sitDaysAllowance ? `${numberOfDaysApprovedForDOASIT} days` : '-',
+                '# of days approved for': shipment.sitDaysAllowance ? `${numberOfDaysApprovedForIOASIT} days` : '-',
                 'SIT expiration date': sitEndDate || '-',
                 'Customer contacted homesafe': details.sitCustomerContacted
                   ? formatDateWithUTC(details.sitCustomerContacted, 'DD MMM YYYY')
@@ -272,7 +342,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DOPSIT': {
+    case 'DOPSIT':
+    case 'IOPSIT': {
       detailSection = (
         <div>
           <dl>
@@ -307,7 +378,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DOSFSC': {
+    case 'DOSFSC':
+    case 'IOSFSC': {
       detailSection = (
         <div>
           <dl>
@@ -343,7 +415,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       break;
     }
     case 'DDFSIT':
-    case 'DDASIT': {
+    case 'DDASIT':
+    case 'IDFSIT':
+    case 'IDASIT': {
       detailSection = generateDestinationSITDetailSection(
         id,
         serviceRequestDocUploads,
@@ -354,7 +428,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DDDSIT': {
+    case 'DDDSIT':
+    case 'IDDSIT': {
       detailSection = generateDestinationSITDetailSection(
         id,
         serviceRequestDocUploads,
@@ -365,7 +440,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DDSFSC': {
+    case 'DDSFSC':
+    case 'IDSFSC': {
       detailSection = generateDestinationSITDetailSection(
         id,
         serviceRequestDocUploads,
