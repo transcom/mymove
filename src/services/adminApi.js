@@ -40,8 +40,8 @@ export async function updateRequestedOfficeUser(officeUserId, body) {
   );
 }
 
-export async function deleteRequestedOfficeUser(officeUserId) {
-  const operationPath = 'Requested office users.deleteRequestedOfficeUser';
+export async function deleteOfficeUser(officeUserId) {
+  const operationPath = 'Office users.deleteOfficeUser';
 
   return makeAdminRequest(
     operationPath,

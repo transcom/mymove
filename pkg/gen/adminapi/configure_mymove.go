@@ -72,9 +72,9 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation webhook_subscriptions.CreateWebhookSubscription has not yet been implemented")
 		})
 	}
-	if api.RequestedOfficeUsersDeleteRequestedOfficeUserHandler == nil {
-		api.RequestedOfficeUsersDeleteRequestedOfficeUserHandler = requested_office_users.DeleteRequestedOfficeUserHandlerFunc(func(params requested_office_users.DeleteRequestedOfficeUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation requested_office_users.DeleteRequestedOfficeUser has not yet been implemented")
+	if api.OfficeUsersDeleteOfficeUserHandler == nil {
+		api.OfficeUsersDeleteOfficeUserHandler = office_users.DeleteOfficeUserHandlerFunc(func(params office_users.DeleteOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation office_users.DeleteOfficeUser has not yet been implemented")
 		})
 	}
 	if api.AdminUsersGetAdminUserHandler == nil {

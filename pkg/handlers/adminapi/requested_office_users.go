@@ -360,28 +360,3 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 			return requested_office_users.NewUpdateRequestedOfficeUserOK().WithPayload(payload), nil
 		})
 }
-
-// DeleteRequestedOfficeUserHandler deletes a requested office user via DELETE /requested_office_users/{officeUserId}
-type DeleteRequestedOfficeUserHandler struct {
-	handlers.HandlerConfig
-	services.RequestedOfficeUserDeleter
-}
-
-// Handle retrieves a single requested office user
-func (h DeleteRequestedOfficeUserHandler) Handle(params requested_office_users.DeleteRequestedOfficeUserParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			requestedOfficeUserID, err := uuid.FromString(params.OfficeUserID.String())
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			err = h.RequestedOfficeUserDeleter.DeleteRequestedOfficeUser(appCtx, requestedOfficeUserID)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			return requested_office_users.NewDeleteRequestedOfficeUserNoContent(), nil
-		})
-}
