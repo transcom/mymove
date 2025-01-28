@@ -776,6 +776,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		proGearWeightSpouse := models.Int64Pointer(10)
 		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
+		weightRestriction := models.Int64Pointer(5000)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
 			Agency:               &affiliation,
@@ -785,6 +786,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			WeightRestriction:              weightRestriction,
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -805,6 +807,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
+		suite.Equal(*payload.WeightRestriction, int64(*updatedOrder.Entitlement.WeightRestriction))
 	})
 
 	suite.Run("Updates the allowance when all fields are valid with dependents present and authorized", func() {
@@ -1044,7 +1047,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 		upload, url, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
 			appCtx,
@@ -1075,7 +1078,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
@@ -1127,7 +1130,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 		_, _, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
 			appCtx,
@@ -1154,7 +1157,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")

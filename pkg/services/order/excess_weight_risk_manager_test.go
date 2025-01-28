@@ -79,7 +79,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 	suite.Run("Updates the BillableWeight but does not approve the move if unacknowledged amended orders exist", func() {
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
-		storer := storageTest.NewFakeS3Storage(true)
+		storer := storageTest.NewFakeS3Storage(true, nil)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
@@ -290,7 +290,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 	suite.Run("Updates the MaxBillableWeight and TIO remarks but does not approve the move if unacknowledged amended orders exist", func() {
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
-		storer := storageTest.NewFakeS3Storage(true)
+		storer := storageTest.NewFakeS3Storage(true, nil)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
@@ -499,7 +499,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 	suite.Run("Updates the ExcessWeightAcknowledgedAt field but does not approve the move if unacknowledged amended orders exist", func() {
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
-		storer := storageTest.NewFakeS3Storage(true)
+		storer := storageTest.NewFakeS3Storage(true, nil)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 		suite.NoError(err)
 		amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)

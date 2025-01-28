@@ -27,6 +27,8 @@ import (
 //   - DOSHUT - UpdateMTOServiceItemShuttle
 //   - PODFSC - UpdateMTOServiceItemInternationalPortFSC
 //   - POEFSC - UpdateMTOServiceItemInternationalPortFSC
+//   - IDSHUT - UpdateMTOServiceItemInternationalShuttle
+//   - IOSHUT - UpdateMTOServiceItemInternationalShuttle
 //
 // The documentation will then update with the supported fields.
 //
@@ -52,6 +54,9 @@ const (
 
 	// UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalPortFSC captures enum value "UpdateMTOServiceItemInternationalPortFSC"
 	UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalPortFSC UpdateMTOServiceItemModelType = "UpdateMTOServiceItemInternationalPortFSC"
+
+	// UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle captures enum value "UpdateMTOServiceItemInternationalShuttle"
+	UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle UpdateMTOServiceItemModelType = "UpdateMTOServiceItemInternationalShuttle"
 )
 
 // for schema
@@ -59,7 +64,7 @@ var updateMTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []UpdateMTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["UpdateMTOServiceItemSIT","UpdateMTOServiceItemShuttle","UpdateMTOServiceItemInternationalPortFSC"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["UpdateMTOServiceItemSIT","UpdateMTOServiceItemShuttle","UpdateMTOServiceItemInternationalPortFSC","UpdateMTOServiceItemInternationalShuttle"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

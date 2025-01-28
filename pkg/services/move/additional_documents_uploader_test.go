@@ -13,7 +13,7 @@ import (
 )
 
 func (suite *MoveServiceSuite) TestAdditionalDocumentUploader() {
-	fakeFileStorer := storageTest.NewFakeS3Storage(true)
+	fakeFileStorer := storageTest.NewFakeS3Storage(true, nil)
 	uploadCreator := upload.NewUploadCreator(fakeFileStorer)
 
 	additionalDocumentUploader := NewMoveAdditionalDocumentsUploader(uploadCreator)
@@ -60,7 +60,7 @@ func (suite *MoveServiceSuite) TestAdditionalDocumentUploader() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
@@ -110,7 +110,7 @@ func (suite *MoveServiceSuite) TestAdditionalDocumentUploader() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")

@@ -53,7 +53,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(1000, nil)
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
@@ -468,14 +467,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"99505",
-			false,
 			true,
 		).Return(1000, nil)
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"97220",
 			"99505",
-			true,
 			true,
 		).Return(1000, nil)
 
@@ -673,14 +670,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"99505",
-			false,
 			true,
 		).Return(1000, nil)
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"97220",
-			true,
 			true,
 		).Return(1000, nil)
 
@@ -2200,7 +2195,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 		false,
-		false,
 	).Return(500, nil).Run(func(args mock.Arguments) {
 		TransitDistancePickupArg = args.Get(1).(string)
 		TransitDistanceDestinationArg = args.Get(2).(string)
@@ -3361,7 +3355,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		false,
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())

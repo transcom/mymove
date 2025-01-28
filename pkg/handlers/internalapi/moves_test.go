@@ -521,7 +521,7 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 		}
 
 		// And: a move is submitted
-		fakeS3 := storageTest.NewFakeS3Storage(true)
+		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
@@ -539,7 +539,7 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 }
 
 func (suite *HandlerSuite) TestUploadAdditionalDocumentsHander() {
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	uploadCreator := upload.NewUploadCreator(fakeS3)
 	additionalDocumentsUploader := move.NewMoveAdditionalDocumentsUploader(uploadCreator)
 

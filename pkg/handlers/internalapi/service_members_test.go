@@ -266,7 +266,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := PatchServiceMemberHandler{handlerConfig}
@@ -434,7 +434,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	}
 
 	handlerConfig := suite.HandlerConfig()
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := PatchServiceMemberHandler{handlerConfig}
 	response := handler.Handle(params)
@@ -585,7 +585,7 @@ func (suite *HandlerSuite) TestShowServiceMemberOrders() {
 		ServiceMemberID: strfmt.UUID(order1.ServiceMemberID.String()),
 	}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := ShowServiceMemberOrdersHandler{handlerConfig}

@@ -17,7 +17,7 @@ import (
 )
 
 func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
 

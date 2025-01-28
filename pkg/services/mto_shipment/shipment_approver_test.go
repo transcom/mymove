@@ -95,7 +95,6 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	subtestData.planner = &mocks.Planner{}
@@ -283,7 +282,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			true,
 		).Return(500, nil)
 
@@ -507,7 +505,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(500, nil)
 
 		preApprovalTime := time.Now()
@@ -627,7 +624,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			createdShipment.PickupAddress.PostalCode,
 			createdShipment.DestinationAddress.PostalCode,
-			false,
 			false,
 		).Return(500, nil)
 
@@ -905,7 +901,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 			false,
-			false,
 		).Return(500, nil).Run(func(args mock.Arguments) {
 			TransitDistancePickupArg = args.Get(1).(string)
 			TransitDistanceDestinationArg = args.Get(2).(string)
@@ -961,7 +956,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 			false,
-			false,
 		).Return(500, nil)
 
 		suite.Equal(8000, *shipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
@@ -1002,7 +996,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
-			false,
 			false,
 		).Return(500, nil)
 
@@ -1063,17 +1056,25 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err2)
 
-		expectedReserviceCodes := []models.ReServiceCode{
+		expectedReServiceCodes := []models.ReServiceCode{
 			models.ReServiceCodeUBP,
+			models.ReServiceCodePOEFSC,
 			models.ReServiceCodeIUBPK,
 			models.ReServiceCodeIUBUPK,
-			models.ReServiceCodePOEFSC,
+		}
+		expectedReServiceNames := []string{
+			"International UB price",
+			"International POE Fuel Surcharge",
+			"International UB pack",
+			"International UB unpack",
 		}
 
 		suite.Equal(4, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
 			actualReServiceCode := serviceItems[i].ReService.Code
-			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode), "Contains unexpected: "+actualReServiceCode.String())
+			actualReServiceName := serviceItems[i].ReService.Name
+			suite.True(slices.Contains(expectedReServiceCodes, actualReServiceCode), "Contains unexpected code: "+actualReServiceCode.String())
+			suite.True(slices.Contains(expectedReServiceNames, actualReServiceName), "Contains unexpected name: "+actualReServiceName)
 		}
 	})
 
@@ -1123,17 +1124,25 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err2)
 
-		expectedReserviceCodes := []models.ReServiceCode{
+		expectedReServiceCodes := []models.ReServiceCode{
 			models.ReServiceCodeUBP,
+			models.ReServiceCodePODFSC,
 			models.ReServiceCodeIUBPK,
 			models.ReServiceCodeIUBUPK,
-			models.ReServiceCodePODFSC,
+		}
+		expectedReServiceNames := []string{
+			"International UB price",
+			"International POD Fuel Surcharge",
+			"International UB pack",
+			"International UB unpack",
 		}
 
 		suite.Equal(4, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
 			actualReServiceCode := serviceItems[i].ReService.Code
-			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode), "Contains unexpected: "+actualReServiceCode.String())
+			actualReServiceName := serviceItems[i].ReService.Name
+			suite.True(slices.Contains(expectedReServiceCodes, actualReServiceCode), "Contains unexpected code: "+actualReServiceCode.String())
+			suite.True(slices.Contains(expectedReServiceNames, actualReServiceName), "Contains unexpected name: "+actualReServiceName)
 		}
 	})
 
@@ -1183,16 +1192,23 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err2)
 
-		expectedReserviceCodes := []models.ReServiceCode{
+		expectedReServiceCodes := []models.ReServiceCode{
 			models.ReServiceCodeUBP,
 			models.ReServiceCodeIUBPK,
 			models.ReServiceCodeIUBUPK,
+		}
+		expectedReServiceNames := []string{
+			"International UB price",
+			"International UB pack",
+			"International UB unpack",
 		}
 
 		suite.Equal(3, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
 			actualReServiceCode := serviceItems[i].ReService.Code
-			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode), "Contains unexpected: "+actualReServiceCode.String())
+			actualReServiceName := serviceItems[i].ReService.Name
+			suite.True(slices.Contains(expectedReServiceCodes, actualReServiceCode), "Contains unexpected code: "+actualReServiceCode.String())
+			suite.True(slices.Contains(expectedReServiceNames, actualReServiceName), "Contains unexpected name: "+actualReServiceName)
 		}
 	})
 

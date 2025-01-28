@@ -80,7 +80,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -1489,7 +1488,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.MTOShipment"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
-			nil,
 		).Return(nil, err)
 
 		subtestData := getDefaultMTOShipmentAndParams(&mockUpdater)
