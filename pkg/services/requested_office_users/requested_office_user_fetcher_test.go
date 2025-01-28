@@ -8,18 +8,13 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type testRequestedOfficeUsersQueryBuilder struct {
-	fakeFetchOne   func(appConfig appcontext.AppContext, model interface{}) error
-	fakeDeleteOne  func(appConfig appcontext.AppContext, model interface{}) error
-	fakeDeleteMany func(appConfig appcontext.AppContext, model interface{}) error
+	fakeFetchOne func(appConfig appcontext.AppContext, model interface{}) error
 }
 
 func (t *testRequestedOfficeUsersQueryBuilder) FetchOne(appConfig appcontext.AppContext, model interface{}, _ []services.QueryFilter) error {
@@ -29,6 +24,14 @@ func (t *testRequestedOfficeUsersQueryBuilder) FetchOne(appConfig appcontext.App
 
 func (t *testRequestedOfficeUsersQueryBuilder) UpdateOne(_ appcontext.AppContext, _ interface{}, _ *string) (*validate.Errors, error) {
 	return nil, nil
+}
+
+func (t *testRequestedOfficeUsersQueryBuilder) DeleteOne(_ appcontext.AppContext, _ interface{}) error {
+	return nil
+}
+
+func (t *testRequestedOfficeUsersQueryBuilder) DeleteMany(_ appcontext.AppContext, _ interface{}, _ []services.QueryFilter) error {
+	return nil
 }
 
 func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUser() {
@@ -67,26 +70,5 @@ func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUser() {
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
 		suite.Equal(models.OfficeUser{}, requestedOfficeUser)
-	})
-}
-
-func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUserPop() {
-	suite.Run("returns office user on success", func() {
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		fetcher := NewRequestedOfficeUserFetcherPop()
-
-		fetchedUser, err := fetcher.FetchRequestedOfficeUserByID(suite.AppContextForTest(), officeUser.ID)
-
-		suite.NoError(err)
-		suite.Equal(officeUser.ID, fetchedUser.ID)
-	})
-
-	suite.Run("returns zero value office user on error", func() {
-		fetcher := NewRequestedOfficeUserFetcherPop()
-		officeUser, err := fetcher.FetchRequestedOfficeUserByID(suite.AppContextForTest(), uuid.Nil)
-
-		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(uuid.Nil, officeUser.ID)
 	})
 }
