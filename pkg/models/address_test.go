@@ -385,3 +385,34 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		suite.Equal(string(*gbloc), "MAPK")
 	})
 }
+
+func (suite *ModelSuite) TestIsAddressAlaska() {
+	var address *m.Address
+	bool1, err := address.IsAddressAlaska()
+	suite.Error(err)
+	suite.Equal("address is nil", err.Error())
+	suite.Equal(false, bool1)
+
+	address = &m.Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
+		City:           "city",
+		PostalCode:     "90210",
+		County:         m.StringPointer("County"),
+	}
+
+	bool2, err := address.IsAddressAlaska()
+	suite.NoError(err)
+	suite.Equal(m.BoolPointer(false), &bool2)
+
+	address.State = "MT"
+	bool3, err := address.IsAddressAlaska()
+	suite.NoError(err)
+	suite.Equal(m.BoolPointer(false), &bool3)
+
+	address.State = "AK"
+	bool4, err := address.IsAddressAlaska()
+	suite.NoError(err)
+	suite.Equal(m.BoolPointer(true), &bool4)
+}
