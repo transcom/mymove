@@ -28,10 +28,10 @@ variables:
   GOLANGCI_LINT_VERBOSE: "-v"
 
   # Specify the environment: loadtest, demo, exp
-  DP3_ENV: &dp3_env placeholder_env
+  DP3_ENV: &dp3_env demo
 
   # Specify the branch to deploy TODO: this might be not needed. So far useless
-  DP3_BRANCH: &dp3_branch placeholder_branch_name
+  DP3_BRANCH: &dp3_branch B-22274-cleanup_tests_gitlab
 
   # Ignore branches for integration tests
   INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-22274-cleanup_tests_gitlab
@@ -1204,10 +1204,16 @@ build_push_tasks_dp3:
     - *check_dp3
 
 push_otel_collector_image_dp3:
-  stage: push
+  stage: pre_checks
   interruptible: true
+  services:
+    - name: docker:dind
+      alias: docker
+  variables:
+    DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
+    DOCKER_TLS_CERTDIR: ""
   tags:
-    - $RUNNER_TAG
+    - $DOCKER_RUNNER_TAG
   environment: $DP3_ENV
   before_script:
     - *setup_aws_vars_dp3
@@ -1215,24 +1221,20 @@ push_otel_collector_image_dp3:
   image:
     name: $DOCKER_BASE_IMAGE
     entrypoint: [""]
-  needs:
-    - compile_app_server
-    - compile_app_client
+  # needs:
+  #   - compile_app_server
+  #   - compile_app_client
   script:
-     - echo "Logging in to DockerHub with Crane..."
-     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
-
-     - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
-     - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
-
-     - echo "Logging in to AWS ECR with Crane..."
-     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
-
-     - echo "Pushing the image to our private ECR using Crane..."
-     - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
-
-     - echo "Cleaning up the temporary image file..."
-     - rm image.tar
+      - |
+        aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+        otel_image=$(echo $ECR_REPOSITORY_OTEL:$OTEL_VERSION)
+        docker pull "${otel_image}"
+        otel_image_tag=${otel_image#*:}
+        repo_name=${ECR_REPOSITORY_URI}/otel-collector
+        image_name="${repo_name}:${otel_image_tag}"
+        docker pull "${otel_image}"
+        docker tag "${otel_image}" "${repo_name}:git-${otel_image_tag}-${CI_COMMIT_SHORT_SHA}"
+        docker push "${repo_name}:git-${otel_image_tag}-${CI_COMMIT_SHORT_SHA}"
   allow_failure: false
   after_script:
     - *announce_failure
@@ -1473,7 +1475,7 @@ push_otel_collector_image_stg:
   stage: push
   interruptible: true
   tags:
-    - $RUNNER_TAG
+    - $DOCKER_RUNNER_TAG
   environment: stg
   image:
     name: $DOCKER_BASE_IMAGE
@@ -1489,16 +1491,13 @@ push_otel_collector_image_stg:
      - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
 
      - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
-     - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
-
+     - docker pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION:otel$OTEL_VERSION
+     - docker tag ${DOCKERHUB_USERNAME}/$OTEL_VERSION:otel$OTEL_VERSION ${ECR_REPOSITORY_URI}/otel-collector:git-otel${CI_COMMIT_SHORT_SHA}
      - echo "Logging in to AWS ECR with Crane..."
-     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login ${ECR_REPOSITORY_URI}/otel-collector -u AWS --password-stdin
 
      - echo "Pushing the image to our private ECR using Crane..."
-     - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
-
-     - echo "Cleaning up the temporary image file..."
-     - rm image.tar
+     - docker push ${ECR_REPOSITORY_URI}/otel-collector:git-otel${CI_COMMIT_SHORT_SHA}
   allow_failure: false
   after_script:
     - *announce_failure
