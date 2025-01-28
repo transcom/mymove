@@ -162,7 +162,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		},
 		"NTS-Release is set to Submitted": {
 			models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 			},
 			models.MTOShipmentStatusSubmitted,
 		},
@@ -195,7 +195,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 			ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 		},
 		{
-			ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 		},
 	}
 

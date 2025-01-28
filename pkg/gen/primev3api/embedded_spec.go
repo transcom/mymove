@@ -186,7 +186,7 @@ func init() {
                       }
                     ],
                     "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
+                    "shipmentType": "HHG_OUTOF_NTS"
                   }
                 },
                 "ppm": {
@@ -563,6 +563,25 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "fake@example.com"
+        },
+        "name": {
+          "type": "string",
+          "example": "Bob Smith"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone"
         }
       }
     },
@@ -1045,6 +1064,9 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
         "branch": {
           "type": "string",
           "example": "COAST_GUARD"
@@ -1822,7 +1844,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -1830,7 +1852,7 @@ func init() {
         "BOAT_TOW_AWAY",
         "HHG",
         "HHG_INTO_NTS",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS",
         "MOBILE_HOME",
         "PPM",
         "UNACCOMPANIED_BAGGAGE"
@@ -1840,7 +1862,7 @@ func init() {
         "BOAT_TOW_AWAY": "Boat shipment that has a road-worthy trailer",
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS": "HHG into Non-temporary storage (NTS)",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
+        "HHG_OUTOF_NTS": "HHG out of Non-temporary storage (NTS Release)",
         "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
@@ -4495,7 +4517,7 @@ func init() {
                       }
                     ],
                     "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
+                    "shipmentType": "HHG_OUTOF_NTS"
                   }
                 },
                 "ppm": {
@@ -4909,6 +4931,25 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "fake@example.com"
+        },
+        "name": {
+          "type": "string",
+          "example": "Bob Smith"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone"
         }
       }
     },
@@ -5391,6 +5432,9 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
         "branch": {
           "type": "string",
           "example": "COAST_GUARD"
@@ -6168,7 +6212,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -6176,7 +6220,7 @@ func init() {
         "BOAT_TOW_AWAY",
         "HHG",
         "HHG_INTO_NTS",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS",
         "MOBILE_HOME",
         "PPM",
         "UNACCOMPANIED_BAGGAGE"
@@ -6186,7 +6230,7 @@ func init() {
         "BOAT_TOW_AWAY": "Boat shipment that has a road-worthy trailer",
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS": "HHG into Non-temporary storage (NTS)",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
+        "HHG_OUTOF_NTS": "HHG out of Non-temporary storage (NTS Release)",
         "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
