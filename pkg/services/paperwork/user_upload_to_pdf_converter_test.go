@@ -14,7 +14,7 @@ import (
 )
 
 func (suite *PaperworkServiceSuite) TestUserUploadToPDFConverter() {
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
 
@@ -23,7 +23,7 @@ func (suite *PaperworkServiceSuite) TestUserUploadToPDFConverter() {
 	uploadToPDFConverter := NewUserUploadToPDFConverter(userUploader)
 
 	suite.Run("Returns an error if there is an issue with downloading an upload", func() {
-		failingFakeS3 := storageTest.NewFakeS3Storage(false, nil)
+		failingFakeS3 := storageTest.NewFakeS3Storage(false)
 
 		failingUserUploader, failingUploaderErr := uploader.NewUserUploader(failingFakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
 
