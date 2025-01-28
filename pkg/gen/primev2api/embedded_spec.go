@@ -3341,7 +3341,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * IDDSIT - UpdateMTOServiceItemSIT\n  * IOPSIT - UpdateMTOServiceItemSIT\n  * IOASIT - UpdateMTOServiceItemSIT\n  * IOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
@@ -3389,7 +3389,11 @@ func init() {
                 "DDDSIT",
                 "DOPSIT",
                 "DOASIT",
-                "DOFSIT"
+                "DOFSIT",
+                "IDDSIT",
+                "IOPSIT",
+                "IOASIT",
+                "IOFSIT"
               ]
             },
             "requestApprovalsRequestedStatus": {
@@ -7269,7 +7273,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * IDDSIT - UpdateMTOServiceItemSIT\n  * IOPSIT - UpdateMTOServiceItemSIT\n  * IOASIT - UpdateMTOServiceItemSIT\n  * IOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
@@ -7317,7 +7321,11 @@ func init() {
                 "DDDSIT",
                 "DOPSIT",
                 "DOASIT",
-                "DOFSIT"
+                "DOFSIT",
+                "IDDSIT",
+                "IOPSIT",
+                "IOASIT",
+                "IOFSIT"
               ]
             },
             "requestApprovalsRequestedStatus": {
