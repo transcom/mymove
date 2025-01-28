@@ -322,7 +322,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 	invalidFakeData := []models.BackupContact{
 		{Name: "Britney"},
 		{Email: "Spears"},
-		{Phone: models.StringPointer("415-275-9467")},
+		{Phone: "415-275-9467"},
 	}
 
 	suite.Run("valid backup contact", func() {
@@ -336,7 +336,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 				Model: models.BackupContact{
 					Name:  "Robin Fenstermacher",
 					Email: "robin@example.com",
-					Phone: &phone,
+					Phone: phone,
 				},
 			},
 		}, nil)
