@@ -19,7 +19,7 @@ import styles from './RequestedOfficeUserShow.module.scss';
 
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { edipiValidator, phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
-import { deleteRequestedOfficeUser, updateRequestedOfficeUser } from 'services/adminApi';
+import { deleteOfficeUser, updateRequestedOfficeUser } from 'services/adminApi';
 import { roleTypes } from 'constants/userRoles';
 
 const RequestedOfficeUserShowTitle = () => {
@@ -135,7 +135,7 @@ const RequestedOfficeUserEdit = () => {
   // hard deletes a user and associated roles/privileges
   // cannot be undone, but the user is shown a confirmation modal to avoid oopsies
   const deleteUser = async () => {
-    deleteRequestedOfficeUser(userData.id)
+    deleteOfficeUser(userData.id)
       .then(() => {
         redirect('/');
       })

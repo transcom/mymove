@@ -1432,34 +1432,6 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: server error
-    delete:
-      produces:
-        - application/json
-      summary: Deletes a Requested Office User
-      description: >-
-        Deletes a single office user in a REQUESTED. This endpoint is used in
-        the Admin UI that will allow the admin user to delete a requested office
-        user.
-      operationId: deleteRequestedOfficeUser
-      tags:
-        - Requested office users
-      parameters:
-        - in: path
-          name: officeUserId
-          type: string
-          format: uuid
-          required: true
-      responses:
-        '204':
-          description: deleted
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '404':
-          description: Requested Office User not found
-        '500':
-          description: server error
   /office-users:
     get:
       produces:
@@ -1616,6 +1588,33 @@ paths:
           description: Not authorized to update an Office User
         '500':
           description: Server error
+    delete:
+      produces:
+        - application/json
+      summary: Deletes an Office User
+      description: >-
+        Deletes a single office user in any status. This endpoint is used in the
+        Admin UI that will allow the admin user to delete an office user.
+      operationId: deleteOfficeUser
+      tags:
+        - Office users
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        '204':
+          description: deleted
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '500':
+          description: server error
   /admin-users:
     get:
       produces:

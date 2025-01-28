@@ -39,6 +39,14 @@ func (t *testOfficeUserQueryBuilder) QueryForAssociations(_ appcontext.AppContex
 	return nil
 }
 
+func (t *testOfficeUserQueryBuilder) DeleteOne(_ appcontext.AppContext, _ interface{}) error {
+	return nil
+}
+
+func (t *testOfficeUserQueryBuilder) DeleteMany(_ appcontext.AppContext, _ interface{}, _ []services.QueryFilter) error {
+	return nil
+}
+
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 	suite.Run("if the user is fetched, it should be re turned", func() {
 		id, err := uuid.NewV4()

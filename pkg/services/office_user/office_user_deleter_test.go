@@ -1,4 +1,4 @@
-package adminuser
+package officeuser
 
 import (
 	"database/sql"
@@ -9,9 +9,9 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-func (suite *RequestedOfficeUsersServiceSuite) TestDeleteRequestedOfficeUser() {
+func (suite *OfficeUserServiceSuite) TestDeleteOfficeUser() {
 	queryBuilder := query.NewQueryBuilder()
-	deleter := NewRequestedOfficeUserDeleter(queryBuilder)
+	deleter := NewOfficeUserDeleter(queryBuilder)
 	setupTestData := func() (models.User, models.OfficeUser) {
 		user := factory.BuildDefaultUser(suite.DB())
 		status := models.OfficeUserStatusREQUESTED
@@ -32,10 +32,10 @@ func (suite *RequestedOfficeUsersServiceSuite) TestDeleteRequestedOfficeUser() {
 		return user, officeUser
 	}
 
-	suite.Run("success - the requested office user is deleted", func() {
+	suite.Run("success - a requested office user is deleted", func() {
 		testUser, testOfficeUser := setupTestData()
 
-		err := deleter.DeleteRequestedOfficeUser(suite.AppContextForTest(), testOfficeUser.ID)
+		err := deleter.DeleteOfficeUser(suite.AppContextForTest(), testOfficeUser.ID)
 		suite.NoError(err)
 
 		var user models.User

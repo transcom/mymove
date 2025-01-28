@@ -1,4 +1,4 @@
-package adminuser
+package officeuser
 
 import (
 	"github.com/gofrs/uuid"
@@ -9,11 +9,11 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-type requestedOfficeUserDeleter struct {
-	builder requestedOfficeUserQueryBuilder
+type officeUserDeleter struct {
+	builder officeUserQueryBuilder
 }
 
-func (o *requestedOfficeUserDeleter) DeleteRequestedOfficeUser(appCtx appcontext.AppContext, id uuid.UUID) error {
+func (o *officeUserDeleter) DeleteOfficeUser(appCtx appcontext.AppContext, id uuid.UUID) error {
 	// need to fetch the office user and any downstream associations (roles, privileges)
 	var officeUser models.OfficeUser
 	err := appCtx.DB().EagerPreload(
@@ -68,7 +68,7 @@ func (o *requestedOfficeUserDeleter) DeleteRequestedOfficeUser(appCtx appcontext
 	return nil
 }
 
-// NewRequestedOfficeUserDeleter returns a new requested office user deleter builder
-func NewRequestedOfficeUserDeleter(builder requestedOfficeUserQueryBuilder) services.RequestedOfficeUserDeleter {
-	return &requestedOfficeUserDeleter{builder}
+// NewOfficeUserDeleter returns a new office user deleter builder
+func NewOfficeUserDeleter(builder officeUserQueryBuilder) services.OfficeUserDeleter {
+	return &officeUserDeleter{builder}
 }

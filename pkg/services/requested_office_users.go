@@ -30,10 +30,3 @@ type RequestedOfficeUserFetcher interface {
 type RequestedOfficeUserUpdater interface {
 	UpdateRequestedOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.RequestedOfficeUserUpdate) (*models.OfficeUser, *validate.Errors, error)
 }
-
-// RequestedOfficeUserFetcher is the exported interface for hard deleting a requested office user and its associations
-//
-//go:generate mockery --name RequestedOfficeUserDeleter
-type RequestedOfficeUserDeleter interface {
-	DeleteRequestedOfficeUser(appCtx appcontext.AppContext, id uuid.UUID) error
-}
