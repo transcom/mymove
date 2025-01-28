@@ -844,9 +844,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		}
 
 		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
-		if newShipment.ShipmentType != models.MTOShipmentTypePPM {
-			newShipment = models.DetermineShipmentMarketCode(newShipment)
-		}
+		newShipment = models.DetermineShipmentMarketCode(newShipment)
 
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
