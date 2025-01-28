@@ -11,6 +11,7 @@ import (
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services/address"
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -31,6 +32,8 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 	fetcher := fetch.NewFetcher(builder)
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	vLocation := address.NewVLocation()
 
 	primeSpec, err := loads.Analyzed(primev2api.SwaggerJSON, "")
 	if err != nil {
@@ -44,7 +47,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 
 	primeAPIV2.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
@@ -69,6 +72,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 		handlerConfig,
 		shipmentCreator,
 		movetaskorder.NewMoveTaskOrderChecker(),
+		vLocation,
 	}
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
@@ -78,7 +82,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 	)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
-	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 	addressUpdater := address.NewAddressUpdater()
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(
 		builder,
@@ -99,6 +103,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 	primeAPIV2.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		handlerConfig,
 		shipmentUpdater,
+		vLocation,
 	}
 
 	return primeAPIV2

@@ -1,7 +1,9 @@
 package primeapiv2
 
 import (
+	"context"
 	"fmt"
+	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
@@ -26,6 +28,7 @@ type CreateMTOShipmentHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentCreator
 	mtoAvailabilityChecker services.MoveTaskOrderChecker
+	services.VLocation
 }
 
 // Handle creates the mto shipment
@@ -83,6 +86,37 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				isUBFeatureOn = flag.Match
 			}
 
+			/** Feature Flag - Alaska - Determines if AK can be included/excluded **/
+			isAlaskaEnabled := false
+			akFeatureFlagName := "enable_alaska"
+			flag, err = h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, akFeatureFlagName, map[string]string{})
+
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", akFeatureFlagName), zap.Error(err))
+			} else {
+				isAlaskaEnabled = flag.Match
+			}
+
+			/** Feature Flag - Hawaii - Determines if HI can be included/excluded **/
+			isHawaiiEnabled := false
+			hiFeatureFlagName := "enable_hawaii"
+			flag, err = h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, hiFeatureFlagName, map[string]string{})
+
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", hiFeatureFlagName), zap.Error(err))
+			} else {
+				isHawaiiEnabled = flag.Match
+			}
+
+			// build states to exlude filter list
+			statesToExclude := make([]string, 0)
+			if !isAlaskaEnabled {
+				statesToExclude = append(statesToExclude, "AK")
+			}
+			if !isHawaiiEnabled {
+				statesToExclude = append(statesToExclude, "HI")
+			}
+
 			// Return an error if UB shipment is sent while the feature flag is turned off.
 			if !isUBFeatureOn && (*params.Body.ShipmentType == primev2messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE) {
 				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
@@ -128,6 +162,48 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
 
 			if mtoAvailableToPrime {
+				// check each address prior to creating the shipment to ensure only valid addresses are being used to create the shipment
+				var addresses []models.Address
+				addresses = append(addresses, *mtoShipment.PickupAddress)
+				addresses = append(addresses, *mtoShipment.DestinationAddress)
+
+				if *mtoShipment.HasSecondaryPickupAddress {
+					addresses = append(addresses, *mtoShipment.SecondaryPickupAddress)
+				}
+
+				if *mtoShipment.HasTertiaryPickupAddress {
+					addresses = append(addresses, *mtoShipment.TertiaryPickupAddress)
+				}
+
+				if *mtoShipment.HasSecondaryDeliveryAddress {
+					addresses = append(addresses, *mtoShipment.SecondaryDeliveryAddress)
+				}
+
+				if *mtoShipment.HasTertiaryDeliveryAddress {
+					addresses = append(addresses, *mtoShipment.TertiaryDeliveryAddress)
+				}
+
+				for _, address := range addresses {
+					addressSearch := address.City + ", " + address.State + " " + address.PostalCode
+					err := checkValidAddress(h.VLocation, appCtx, statesToExclude, addressSearch)
+
+					if err != nil {
+						appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+						switch e := err.(type) {
+						case apperror.UnprocessableEntityError:
+							payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+							return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload), err
+						case apperror.InternalServerError:
+							errStr := e.Error() // we do this because InternalServerError wants a *string
+							payload := payloads.InternalServerError(&errStr, h.GetTraceIDFromRequest(params.HTTPRequest))
+							return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payload), e
+						default:
+							return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+								payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+						}
+					}
+				}
+
 				mtoShipment, err = h.ShipmentCreator.CreateShipment(appCtx, mtoShipment)
 			} else if err == nil {
 				appCtx.Logger().Error("primeapiv2.CreateMTOShipmentHandler error - MTO is not available to Prime")
@@ -160,6 +236,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 			}
+
 			returnPayload := payloads.MTOShipment(mtoShipment)
 			return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload), nil
 		})
@@ -169,6 +246,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentUpdater
+	services.VLocation
 }
 
 // Handle handler that updates a mto shipment
@@ -200,8 +278,95 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 			// Validate further prime restrictions on model
 			mtoShipment.ShipmentType = dbShipment.ShipmentType
-
 			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
+
+			/** Feature Flag - Alaska - Determines if AK can be included/excluded **/
+			isAlaskaEnabled := false
+			akFeatureFlagName := "enable_alaska"
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, akFeatureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", akFeatureFlagName), zap.Error(err))
+			} else {
+				isAlaskaEnabled = flag.Match
+			}
+
+			/** Feature Flag - Hawaii - Determines if HI can be included/excluded **/
+			isHawaiiEnabled := false
+			hiFeatureFlagName := "enable_hawaii"
+			flag, err = h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, hiFeatureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", hiFeatureFlagName), zap.Error(err))
+			} else {
+				isHawaiiEnabled = flag.Match
+			}
+
+			// build states to exlude filter list
+			statesToExclude := make([]string, 0)
+			if !isAlaskaEnabled {
+				statesToExclude = append(statesToExclude, "AK")
+			}
+			if !isHawaiiEnabled {
+				statesToExclude = append(statesToExclude, "HI")
+			}
+
+			// check each address prior to updating the shipment to ensure only valid addresses are being used
+			// we only care if the city, state or postal code have changed as those are the ones we need to validate
+			var addresses []models.Address
+
+			if mtoShipment.PickupAddress.City != dbShipment.PickupAddress.City ||
+				mtoShipment.PickupAddress.State != dbShipment.PickupAddress.State ||
+				mtoShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode {
+				addresses = append(addresses, *mtoShipment.PickupAddress)
+			}
+
+			if mtoShipment.SecondaryPickupAddress.City != dbShipment.SecondaryPickupAddress.City ||
+				mtoShipment.SecondaryPickupAddress.State != dbShipment.SecondaryPickupAddress.State ||
+				mtoShipment.SecondaryPickupAddress.PostalCode != dbShipment.SecondaryPickupAddress.PostalCode {
+				addresses = append(addresses, *mtoShipment.SecondaryPickupAddress)
+			}
+
+			if mtoShipment.TertiaryPickupAddress.City != dbShipment.TertiaryPickupAddress.City ||
+				mtoShipment.TertiaryPickupAddress.State != dbShipment.TertiaryPickupAddress.State ||
+				mtoShipment.TertiaryPickupAddress.PostalCode != dbShipment.TertiaryPickupAddress.PostalCode {
+				addresses = append(addresses, *mtoShipment.TertiaryPickupAddress)
+			}
+
+			if mtoShipment.DestinationAddress.City != dbShipment.DestinationAddress.City ||
+				mtoShipment.DestinationAddress.State != dbShipment.DestinationAddress.State ||
+				mtoShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode {
+				addresses = append(addresses, *mtoShipment.DestinationAddress)
+			}
+
+			if mtoShipment.SecondaryDeliveryAddress.City != dbShipment.SecondaryDeliveryAddress.City ||
+				mtoShipment.SecondaryDeliveryAddress.State != dbShipment.SecondaryDeliveryAddress.State ||
+				mtoShipment.SecondaryDeliveryAddress.PostalCode != dbShipment.SecondaryDeliveryAddress.PostalCode {
+				addresses = append(addresses, *mtoShipment.SecondaryDeliveryAddress)
+			}
+
+			if mtoShipment.TertiaryDeliveryAddress.City != dbShipment.TertiaryDeliveryAddress.City ||
+				mtoShipment.TertiaryDeliveryAddress.State != dbShipment.TertiaryDeliveryAddress.State ||
+				mtoShipment.TertiaryDeliveryAddress.PostalCode != dbShipment.TertiaryDeliveryAddress.PostalCode {
+				addresses = append(addresses, *mtoShipment.TertiaryDeliveryAddress)
+			}
+
+			for _, address := range addresses {
+				addressSearch := address.City + ", " + address.State + " " + address.PostalCode
+				err := checkValidAddress(h.VLocation, appCtx, statesToExclude, addressSearch)
+
+				if err != nil {
+					appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+					switch e := err.(type) {
+					case apperror.UnprocessableEntityError:
+						payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+						return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload), e
+					default:
+						errStr := e.Error() // we do this because InternalServerError wants a *string
+						payload := payloads.InternalServerError(&errStr, h.GetTraceIDFromRequest(params.HTTPRequest))
+						return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payload), e
+					}
+				}
+			}
+
 			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime-v2")
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
@@ -226,4 +391,31 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
 			return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload), nil
 		})
+}
+
+func checkValidAddress(vLocation services.VLocation, appCtx appcontext.AppContext, statesToExclude []string, addressSearch string) error {
+	locationList, err := vLocation.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, true)
+
+	if err != nil {
+		serverError := apperror.NewInternalServerError("Error searching for address")
+		return serverError
+	} else if len(*locationList) == 0 {
+		unprocessableErr := apperror.NewUnprocessableEntityError(
+			fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: could not find the provided location: %s", addressSearch))
+		return unprocessableErr
+	} else if len(*locationList) > 1 {
+		var results []string
+
+		for _, address := range *locationList {
+			results = append(results, address.CityName+" "+address.StateName+" "+address.UsprZipID)
+		}
+
+		joinedResult := strings.Join(results[:], ", ")
+		unprocessableErr := apperror.NewUnprocessableEntityError(
+			fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: multiple locations found choose one of the following: %s", joinedResult))
+		appCtx.Logger().Warn(unprocessableErr.Error())
+		return unprocessableErr
+	}
+
+	return nil
 }
