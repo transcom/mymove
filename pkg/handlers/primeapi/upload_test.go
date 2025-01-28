@@ -16,7 +16,7 @@ import (
 
 func (suite *HandlerSuite) TestCreateUploadHandler() {
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
 
 	setupTestData := func() (CreateUploadHandler, models.PaymentRequest) {
 		handlerConfig := suite.HandlerConfig()

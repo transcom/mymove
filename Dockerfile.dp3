@@ -1,3 +1,5 @@
+FROM debian:stable AS build-env
+
 # hadolint ignore=DL3007
 FROM gcr.io/distroless/base-debian11@sha256:ac69aa622ea5dcbca0803ca877d47d069f51bd4282d5c96977e0390d7d256455
 
@@ -26,6 +28,10 @@ COPY config/tls/dod-sw-ca-66.pem /config/tls/dod-sw-ca-66.pem
 COPY swagger/* /swagger/
 COPY build /build
 COPY public/static/react-file-viewer /public/static/react-file-viewer
+
+# Mount mutable tmp for app packages like pdfcpu
+# hadolint ignore=DL3007
+VOLUME ["/tmp"]
 
 ENTRYPOINT ["/bin/milmove"]
 

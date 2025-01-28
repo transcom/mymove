@@ -878,6 +878,10 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -1299,6 +1303,7 @@ definitions:
       - MTOServiceItemOriginSIT
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
+      - MTOServiceItemInternationalShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism

@@ -52,7 +52,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -331,7 +330,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -456,7 +454,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(1234, nil)
 
@@ -587,7 +584,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -715,7 +711,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -793,7 +788,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -864,7 +858,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(1234, nil)
 
@@ -974,7 +967,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(1234, nil)
 
@@ -1091,7 +1083,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(1234, nil)
 
@@ -1254,7 +1245,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1366,7 +1356,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, apperror.UnprocessableEntityError{})
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1401,7 +1390,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"98158",
-			true,
 			true,
 		).Return(1000, nil)
 
@@ -2120,7 +2108,7 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForUnapprovedMove() (s
 }
 
 func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowledgedAmendedOrders() (string, models.MTOServiceItem, models.Move) {
-	storer := storageTest.NewFakeS3Storage(true)
+	storer := storageTest.NewFakeS3Storage(true, nil)
 	userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
 	suite.NoError(err)
 	amendedDocument := factory.BuildDocument(suite.DB(), nil, nil)
@@ -2180,7 +2168,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		false,
 	).Return(400, nil)
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
@@ -2870,7 +2857,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		false,
 	).Return(400, nil)
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
