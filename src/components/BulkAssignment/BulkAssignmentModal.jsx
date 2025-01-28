@@ -7,15 +7,23 @@ import styles from './BulkAssignmentModal.module.scss';
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 import { getBulkAssignmentData } from 'services/ghcApi';
 import { milmoveLogger } from 'utils/milmoveLog';
+import { userName } from 'utils/formatters';
 
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
-
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [numberOfMoves, setNumberOfMoves] = useState(0);
   useEffect(() => {
     const fetchData = async () => {
       try {
         getBulkAssignmentData(queueType).then((data) => {
           setBulkAssignmentData(data);
+          if (data.bulkAssignmentMoveIDs === undefined) {
+            setIsDisabled(true);
+            setNumberOfMoves(0);
+          } else {
+            setNumberOfMoves(data.bulkAssignmentMoveIDs.length);
+          }
         });
       } catch (err) {
         milmoveLogger.error('Error fetching bulk assignment data:', err);
@@ -26,10 +34,10 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   return (
     <div>
       <Modal className={styles.BulkModal}>
-        <ModalClose handleClick={() => onClose()} />
+        <ModalClose handleClick={onClose} />
         <ModalTitle>
           <h3>
-            {title} ({bulkAssignmentData == null ? 0 : bulkAssignmentData.bulkAssignmentMoveIDs.length})
+            {title} ({numberOfMoves})
           </h3>
         </ModalTitle>
         <div className={styles.BulkAssignmentTable}>
@@ -43,15 +51,13 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
               return (
                 <tr key={user}>
                   <td>
-                    <p data-testid="bulkAssignmentUser">
-                      {user.lastName}, {user.firstName}
-                    </p>
+                    <p data-testid="bulkAssignmentUser">{userName(user)}</p>
                   </td>
                   <td className={styles.BulkAssignmentDataCenter}>
                     <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
                   </td>
                   <td className={styles.BulkAssignmentDataCenter}>
-                    <input className={styles.BulkAssignmentAssignment} type="number" />
+                    <input className={styles.BulkAssignmentAssignment} type="number" min="0" />
                   </td>
                 </tr>
               );
@@ -60,17 +66,17 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
         </div>
         <ModalActions autofocus="true">
           <Button
+            disabled={isDisabled}
             data-focus="true"
-            className="usa-button--submit"
             type="submit"
             data-testid="modalSubmitButton"
             onClick={() => onSubmit()}
           >
             {submitText}
           </Button>
-          <button className={styles.backButton} type="button" onClick={() => onClose()} data-testid="modalBackButton">
+          <Button className={styles.cancelButton} type="button" onClick={onClose} data-testid="modalCancelButton">
             {closeText}
-          </button>
+          </Button>
         </ModalActions>
       </Modal>
     </div>
