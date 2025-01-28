@@ -229,7 +229,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentPaymentRequest(app
 	sqlQuery := `
 		SELECT
 			moves.id,
-			payment_requests.requested_at
+			payment_requests.requested_at AS earliest_date
 		FROM payment_requests
 		INNER JOIN moves on moves.id = payment_requests.move_id
 		INNER JOIN orders ON orders.id = moves.orders_id
@@ -248,7 +248,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentPaymentRequest(app
 		AND move_to_gbloc.gbloc = '` + gbloc + `' `
 	}
 	sqlQuery += `
-		GROUP BY payment_requests.id
+		GROUP BY moves.id, payment_requests.id
         ORDER BY payment_requests.requested_at ASC`
 
 	err := appCtx.DB().RawQuery(sqlQuery,

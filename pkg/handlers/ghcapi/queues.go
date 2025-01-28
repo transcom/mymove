@@ -645,7 +645,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					return queues.NewGetBulkAssignmentDataInternalServerError(), err
 				}
 				// fetch the moves available to be assigned to their office users
-				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentTaskOrder(
+				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentPaymentRequest(
 					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
 				)
 				if err != nil {

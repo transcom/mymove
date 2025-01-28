@@ -1843,6 +1843,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := queues.GetBulkAssignmentDataParams{
 			HTTPRequest: request,
+			QueueType:   models.StringPointer("PAYMENT_REQUEST"),
 		}
 		handlerConfig := suite.HandlerConfig()
 		handler := GetBulkAssignmentDataHandler{
@@ -1917,6 +1918,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := queues.GetBulkAssignmentDataParams{
 			HTTPRequest: request,
+			QueueType:   models.StringPointer("PAYMENT_REQUEST"),
 		}
 		handlerConfig := suite.HandlerConfig()
 		handler := GetBulkAssignmentDataHandler{
