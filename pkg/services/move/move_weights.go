@@ -264,10 +264,6 @@ func calculateSumOfWeights(move models.Move, updatedShipment *models.MTOShipment
 
 // moveShouldAutoReweigh returns a boolean indicating if all the shipments on a move should be auto-reweighed
 func moveShouldAutoReweigh(move *models.Move, updatedShipment *models.MTOShipment) (bool, error) {
-	if move.AvailableToPrimeAt == nil {
-		return false, errors.New("Move (ID: " + move.Locator + ") is not available to prime")
-	}
-
 	weightLimit := 0
 
 	if move.Orders.Entitlement.DBAuthorizedWeight != nil {
