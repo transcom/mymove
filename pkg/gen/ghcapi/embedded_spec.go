@@ -6994,7 +6994,8 @@ func init() {
           "format": "uuid"
         },
         "moveAssignments": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -24131,7 +24132,8 @@ func init() {
           "format": "uuid"
         },
         "moveAssignments": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },

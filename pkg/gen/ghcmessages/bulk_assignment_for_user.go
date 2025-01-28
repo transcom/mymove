@@ -24,7 +24,7 @@ type BulkAssignmentForUser struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move assignments
-	MoveAssignments int64 `json:"moveAssignments,omitempty"`
+	MoveAssignments int64 `json:"moveAssignments"`
 }
 
 // Validate validates this bulk assignment for user

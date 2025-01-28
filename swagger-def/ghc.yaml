@@ -7154,6 +7154,7 @@ definitions:
         format: uuid
       moveAssignments:
         type: integer
+        x-omitempty: false
   BulkAssignmentMoveData:
     format: uuid
     type: string
