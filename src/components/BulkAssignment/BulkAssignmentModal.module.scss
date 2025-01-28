@@ -1,3 +1,4 @@
+@import 'shared/styles/colors.scss';
 .BulkModal {
   min-width: 650px !important;
   overflow-y: auto;
@@ -17,14 +18,16 @@
     .BulkAssignmentAssignment {
         width: 60px;
         text-align: center;
+        padding-left: 15px
     }
   }
 }
-button.backButton {
-  color: #005ea2;
-  background-color: white;
+button.cancelButton {
+  color: $primary;
+  background-color: $bg-white;
   border: 2px solid #005ea2;
   border-radius: 0.25rem;
   font-weight: 700;
   padding: 0.75rem 1.25rem;
+  justify-content: center;
 }
