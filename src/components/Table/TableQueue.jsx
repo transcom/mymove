@@ -110,6 +110,7 @@ const TableQueue = ({
   };
 
   const [tableData, setTableData] = useState([]);
+
   const {
     queueResult: {
       totalCount = 0,
@@ -128,9 +129,7 @@ const TableQueue = ({
     currentPageSize,
     viewAsGBLOC: selectedGbloc,
     onSuccess: (res) => {
-      console.log(res, tableData);
-
-      if (tableData.length < 1) setTableData(res.queueMoves);
+      if (!tableData.length) setTableData(res.queueMoves);
     },
   });
 
@@ -149,6 +148,10 @@ const TableQueue = ({
       // reload page to refetch queue
       // window.location.reload();
       // queryClient.invalidateQueries({ queryKey: SERVICES_COUNSELING_QUEUE, refetchType: 'all' });
+      refetch().then((res) => {
+        setTableData([...res.data.queueMoves]);
+        setIsBulkAssignModalVisible(false);
+      });
     },
   });
 
@@ -332,11 +335,7 @@ const TableQueue = ({
   };
 
   const handleCloseBulkAssignModal = () => {
-    refetch().then((res) => {
-      console.log('refetch data', res);
-      setTableData([...res.data.queueMoves]);
-      setIsBulkAssignModalVisible(false);
-    });
+    setIsBulkAssignModalVisible(false);
   };
 
   const onSubmitBulk = (bulkAssignmentSavePayload) => {

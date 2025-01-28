@@ -3,7 +3,7 @@ import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-r
 import { connect } from 'react-redux';
 import { Button, Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+// import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -33,7 +33,7 @@ import {
   getServicesCounselingOriginLocations,
   getServicesCounselingPPMQueue,
   getServicesCounselingQueue,
-  saveBulkAssignmentData,
+  // saveBulkAssignmentData,
 } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
@@ -55,7 +55,7 @@ import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSe
 import handleQueueAssignment from 'utils/queues';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
-import { MOVES, MOVES_QUEUE, SERVICES_COUNSELING_PPM_QUEUE, SERVICES_COUNSELING_QUEUE } from 'constants/queryKeys';
+// import { MOVES, MOVES_QUEUE, SERVICES_COUNSELING_PPM_QUEUE, SERVICES_COUNSELING_QUEUE } from 'constants/queryKeys';
 
 export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => {
   const cols = [
@@ -214,7 +214,11 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
                 {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
-                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                  <option
+                    value={officeUserId}
+                    key={officeUserId}
+                    selected={row.assignedTo?.officeUserId === officeUserId}
+                  >
                     {`${lastName}, ${firstName}`}
                   </option>
                 ))}
