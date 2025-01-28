@@ -541,12 +541,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		move.NewMoveFetcherBulkAssignment(),
 	}
 
-	ghcAPI.QueuesGetBulkAssignmentPaymentRequestDataHandler = GetPaymentRequestBulkAssignmentDataHandler{
-		handlerConfig,
-		officeusercreator.NewOfficeUserFetcherPop(),
-		paymentrequest.NewPaymentRequestFetcherBulkAssignment(),
-	}
-
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),

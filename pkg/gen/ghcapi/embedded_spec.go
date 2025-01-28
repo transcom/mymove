@@ -4381,14 +4381,15 @@ func init() {
         "tags": [
           "queues"
         ],
-        "summary": "Gets data for bulk assignment move modal",
+        "summary": "Gets data for bulk assignment modal",
         "operationId": "getBulkAssignmentData",
         "parameters": [
           {
             "enum": [
               "COUNSELING",
               "CLOSEOUT",
-              "TASK_ORDER"
+              "TASK_ORDER",
+              "PAYMENT_REQUEST"
             ],
             "type": "string",
             "description": "A string corresponding to the queue type",
@@ -4401,36 +4402,6 @@ func init() {
             "description": "Successfully returned bulk assignment data",
             "schema": {
               "$ref": "#/definitions/BulkAssignmentData"
-            }
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
-    "/queues/bulk-assignment-payment-requests": {
-      "get": {
-        "description": "Supervisor office users are able to bulk assign payment requests. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the payment requests that are available to be assigned\n",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "queues"
-        ],
-        "summary": "Gets data for bulk assignment payment request modal",
-        "operationId": "getBulkAssignmentPaymentRequestData",
-        "responses": {
-          "200": {
-            "description": "Successfully returned bulk assignment payment request data",
-            "schema": {
-              "$ref": "#/definitions/BulkAssignmentPaymentRequestData"
             }
           },
           "401": {
@@ -6981,28 +6952,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/BulkAssignmentMoveID"
-      }
-    },
-    "BulkAssignmentPaymentRequestData": {
-      "type": "object",
-      "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
-        "bulkAssignmentPaymentRequestIDs": {
-          "$ref": "#/definitions/BulkAssignmentPaymentRequestIDs"
-        }
-      }
-    },
-    "BulkAssignmentPaymentRequestID": {
-      "type": "string",
-      "format": "uuid",
-      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-    },
-    "BulkAssignmentPaymentRequestIDs": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/BulkAssignmentPaymentRequestID"
       }
     },
     "ClientError": {
@@ -21071,14 +21020,15 @@ func init() {
         "tags": [
           "queues"
         ],
-        "summary": "Gets data for bulk assignment move modal",
+        "summary": "Gets data for bulk assignment modal",
         "operationId": "getBulkAssignmentData",
         "parameters": [
           {
             "enum": [
               "COUNSELING",
               "CLOSEOUT",
-              "TASK_ORDER"
+              "TASK_ORDER",
+              "PAYMENT_REQUEST"
             ],
             "type": "string",
             "description": "A string corresponding to the queue type",
@@ -21091,45 +21041,6 @@ func init() {
             "description": "Successfully returned bulk assignment data",
             "schema": {
               "$ref": "#/definitions/BulkAssignmentData"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/queues/bulk-assignment-payment-requests": {
-      "get": {
-        "description": "Supervisor office users are able to bulk assign payment requests. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the payment requests that are available to be assigned\n",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "queues"
-        ],
-        "summary": "Gets data for bulk assignment payment request modal",
-        "operationId": "getBulkAssignmentPaymentRequestData",
-        "responses": {
-          "200": {
-            "description": "Successfully returned bulk assignment payment request data",
-            "schema": {
-              "$ref": "#/definitions/BulkAssignmentPaymentRequestData"
             }
           },
           "401": {
@@ -24083,28 +23994,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/BulkAssignmentMoveID"
-      }
-    },
-    "BulkAssignmentPaymentRequestData": {
-      "type": "object",
-      "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
-        "bulkAssignmentPaymentRequestIDs": {
-          "$ref": "#/definitions/BulkAssignmentPaymentRequestIDs"
-        }
-      }
-    },
-    "BulkAssignmentPaymentRequestID": {
-      "type": "string",
-      "format": "uuid",
-      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-    },
-    "BulkAssignmentPaymentRequestIDs": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/BulkAssignmentPaymentRequestID"
       }
     },
     "ClientError": {
