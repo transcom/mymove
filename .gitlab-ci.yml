@@ -1184,6 +1184,7 @@ push_otel_collector_image_dp3:
     - $RUNNER_TAG
   environment: $DP3_ENV
   before_script:
+    - *setup_release_dp3
     - *setup_aws_vars_dp3
     - *setup_release_dp3
   image:
@@ -1445,6 +1446,7 @@ push_otel_collector_image_stg:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_release_stg
     - *setup_aws_vars_stg
     - *setup_release_stg
   script:
@@ -1718,6 +1720,7 @@ push_otel_collector_image_prd:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_release_prd
     - *setup_aws_vars_prd
     - *setup_release_prd
   script:
