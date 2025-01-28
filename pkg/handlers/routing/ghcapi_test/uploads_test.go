@@ -1,4 +1,4 @@
-package internalapi_test
+package ghcapi_test
 
 import (
 	"net/http"
@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func (suite *InternalAPISuite) TestUploads() {
+func (suite *GhcAPISuite) TestUploads() {
 
 	suite.Run("Received status for upload, read tag without event queue", func() {
 		orders := factory.BuildOrder(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
