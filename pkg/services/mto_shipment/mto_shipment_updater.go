@@ -844,7 +844,9 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		}
 
 		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
-		newShipment = models.DetermineShipmentMarketCode(newShipment)
+		if newShipment.ShipmentType != models.MTOShipmentTypePPM {
+			newShipment = models.DetermineShipmentMarketCode(newShipment)
+		}
 
 		// RDD for UB shipments only need the pick up date, shipment origin address and destination address to determine required delivery date
 		if newShipment.ScheduledPickupDate != nil && !newShipment.ScheduledPickupDate.IsZero() && newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {

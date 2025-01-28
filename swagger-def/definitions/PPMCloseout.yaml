@@ -6,7 +6,6 @@ properties:
     format: uuid
     type: string
     readOnly: true
-
   plannedMoveDate:
     description: >
       Date the customer expects to begin their move.
@@ -27,32 +26,27 @@ properties:
     type: integer
     x-nullable: true
     x-omitempty: false
-
   estimatedWeight:
     description: The estimated weight of the PPM shipment goods being moved.
     type: integer
     example: 4200
     x-nullable: true
     x-omitempty: false
-
   actualWeight:
     example: 2000
     type: integer
     x-nullable: true
     x-omitempty: false
-
   proGearWeightCustomer:
     description: The estimated weight of the pro-gear being moved belonging to the service member.
     type: integer
     x-nullable: true
     x-omitempty: false
-
   proGearWeightSpouse:
     description: The estimated weight of the pro-gear being moved belonging to a spouse.
     type: integer
     x-nullable: true
     x-omitempty: false
-
   grossIncentive:
     description: >
       The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
@@ -61,7 +55,6 @@ properties:
     x-nullable: true
     x-omitempty: false
     readOnly: true
-
   gcc:
     description: Government Constructive Cost (GCC)
     type: integer
@@ -69,75 +62,82 @@ properties:
     format: cents
     x-nullable: true
     x-omitempty: false
-
   aoa:
     description: Advance Operating Allowance (AOA).
     type: integer
     format: cents
     x-nullable: true
     x-omitempty: false
-
   remainingIncentive:
     description: The remaining reimbursement amount that is still owed to the customer.
     type: integer
     format: cents
     x-nullable: true
     x-omitempty: false
-
   haulType:
     description: The type of haul calculation used for this shipment (shorthaul or linehaul).
     type: string
     x-nullable: true
     x-omitempty: false
-
   haulPrice:
     description: The price of the linehaul or shorthaul.
     type: integer
     format: cents
     x-nullable: true
     x-omitempty: false
-
   haulFSC:
     description: The linehaul/shorthaul Fuel Surcharge (FSC).
     type: integer
     format: cents
     x-nullable: true
     x-omitempty: false
-
   dop:
     description: The Domestic Origin Price (DOP).
     type: integer
     format: cents
     x-nullable: true
     x-omitempty: false
-
   ddp:
     description: The Domestic Destination Price (DDP).
     type: integer
     format: cents
     x-nullable: true
     x-omitempty: false
-
   packPrice:
     description: The full price of all packing/unpacking services.
     type: integer
     format: cents
     x-nullable: true
     x-omitempty: false
-
   unpackPrice:
     description: The full price of all packing/unpacking services.
     type: integer
     format: cents
     x-nullable: true
     x-omitempty: false
-
+  intlPackPrice:
+    description: The full price of international packing (IHPK)
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  intlUnpackPrice:
+    description: The full price of international unpacking (IHUPK)
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  intlLinehaulPrice:
+    description: The full price of international shipping and linehaul (ISLH)
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
   SITReimbursement:
     description: The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
     type: integer
     format: cents
     x-nullable: true
     x-omitempty: false
-
 required:
   - id
