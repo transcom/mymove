@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useFormikContext } from 'formik';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
@@ -20,6 +21,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     entitlements?.dependentsTwelveAndOver ||
     entitlements?.dependentsUnderTwelve
   );
+  const { setFieldValue } = useFormikContext();
   const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(entitlements?.weightRestriction > 0);
   useEffect(() => {
     // Functional component version of "componentDidMount"
@@ -44,18 +46,11 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
   }, [isAdminWeightLocationChecked]);
 
   const handleAdminWeightLocationChange = (e) => {
-    setIsAdminWeightLocationChecked(e.target.checked);
-    if (!e.target.checked) {
-      // Find the weight restriction input and update both DOM and form state
-      const weightRestrictionInput = document.querySelector('input[name="weightRestriction"]');
-      if (weightRestrictionInput) {
-        weightRestrictionInput.value = '0';
-        // Create and dispatch both input and change events
-        const inputEvent = new Event('input', { bubbles: true });
-        const changeEvent = new Event('change', { bubbles: true });
-        weightRestrictionInput.dispatchEvent(inputEvent);
-        weightRestrictionInput.dispatchEvent(changeEvent);
-      }
+    const isChecked = e.target.checked;
+    setIsAdminWeightLocationChecked(isChecked);
+
+    if (!isChecked) {
+      setFieldValue('weightRestriction', 0);
     }
   };
 
