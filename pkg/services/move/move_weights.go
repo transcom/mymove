@@ -263,7 +263,7 @@ func calculateSumOfWeights(move models.Move, updatedShipment *models.MTOShipment
 }
 
 // GetAutoReweighShipments returns all shipments that need to be reweighed
-func GetAutoReweighShipments(move *models.Move, updatedShipment *models.MTOShipment) (*models.MTOShipments, error) {
+func GetAutoReweighShipments(move *models.Move, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
 	results := models.MTOShipments{}
 	weightLimit := 0
 
@@ -300,15 +300,15 @@ func GetAutoReweighShipments(move *models.Move, updatedShipment *models.MTOShipm
 
 	// Check actual weight first
 	if int(totalActualWeight) >= int(math.Round(float64(weightLimit)*0.9)) {
-		return &results, nil
+		return results, nil
 	}
 
 	// Check estimated weight second
 	if int(totalEstimatedWeight) >= int(math.Round(float64(weightLimit)*0.9)) {
-		return &results, nil
+		return results, nil
 	}
 
-	return nil, nil
+	return results, nil
 }
 
 func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
@@ -331,5 +331,5 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		return nil, err
 	}
 
-	return *autoReweighShipments, nil
+	return autoReweighShipments, nil
 }
