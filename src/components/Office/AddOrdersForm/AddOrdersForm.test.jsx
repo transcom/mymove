@@ -269,7 +269,7 @@ describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
       </Provider>,
     );
 
-    expect(screen.getByLabelText('Orders type')).toBeDisabled();
+    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
   });
 
   it('disables orders type when bluebark move is selected', async () => {
@@ -278,7 +278,7 @@ describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
         <AddOrdersForm {...testProps} isBluebarkMoveSelected />
       </Provider>,
     );
-    expect(screen.getByLabelText('Orders type')).toBeDisabled();
+    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
   });
 });
 
@@ -483,25 +483,5 @@ describe('AddOrdersForm - With Counseling Office', () => {
 
     const nextBtn = await screen.getByRole('button', { name: 'Next' }, { delay: 100 });
     expect(nextBtn).toBeDisabled();
-  });
-});
-describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
-  it('disables orders type when safety move is selected', async () => {
-    render(
-      <Provider store={mockStore.store}>
-        <AddOrdersForm {...testProps} isSafetyMoveSelected />
-      </Provider>,
-    );
-
-    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
-  });
-
-  it('disables orders type when bluebark move is selected', async () => {
-    render(
-      <Provider store={mockStore.store}>
-        <AddOrdersForm {...testProps} isBluebarkMoveSelected />
-      </Provider>,
-    );
-    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
   });
 });
