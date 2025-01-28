@@ -63,7 +63,7 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		defaultStatus = models.MTOShipmentStatusDraft
 		buildStorageFacility = hasStorageFacilityCustom
 		addPrimeActualWeight = false
-		shipmentHasPickupDetails = true
+		shipmentHasPickupDetails = false
 		shipmentHasDeliveryDetails = true
 	case mtoShipmentBuildBasic:
 		setupPickupAndDelivery = false
@@ -87,10 +87,6 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		newMTOShipment.DestinationAddress = &newMTOShipment.StorageFacility.Address
 	}
 
-	if newMTOShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && newMTOShipment.StorageFacility != nil {
-		newMTOShipment.PickupAddress = &newMTOShipment.StorageFacility.Address
-	}
-
 	if cMtoShipment.Status == models.MTOShipmentStatusApproved {
 		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 		newMTOShipment.ApprovedDate = &approvedDate
@@ -105,6 +101,10 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			// storage facility
 			newMTOShipment.StorageFacility = &storageFacility
 			newMTOShipment.StorageFacilityID = &storageFacility.ID
+		}
+
+		if newMTOShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && newMTOShipment.StorageFacility != nil {
+			newMTOShipment.PickupAddress = &newMTOShipment.StorageFacility.Address
 		}
 
 		if addPrimeActualWeight {
