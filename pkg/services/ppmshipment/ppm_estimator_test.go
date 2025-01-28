@@ -2086,7 +2086,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			newPPM.EstimatedWeight = &estimatedWeight
 
 			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"74133", "98421", true, true).Return(3000, nil)
+				"74133", "98421", true).Return(3000, nil)
 
 			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
@@ -2094,7 +2094,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"74133", "98421", true, true)
+				"74133", "98421", true)
 			suite.Equal(unit.Cents(459178), *ppmEstimate)
 		})
 
@@ -2133,7 +2133,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			newPPM.EstimatedWeight = &estimatedWeight
 
 			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"98421", "74133", true, true).Return(3000, nil)
+				"98421", "74133", true).Return(3000, nil)
 
 			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
@@ -2141,7 +2141,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"98421", "74133", true, true)
+				"98421", "74133", true)
 			suite.Equal(unit.Cents(423178), *ppmEstimate)
 		})
 	})
@@ -2215,7 +2215,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			// DTOD will be called to get the distance between the origin duty location & the Tacoma Port ZIP
 			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"50309", "98421", true, true).Return(3000, nil)
+				"50309", "98421", true).Return(3000, nil)
 
 			ppmMaxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
@@ -2223,7 +2223,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"50309", "98421", true, true)
+				"50309", "98421", true)
 			suite.Equal(unit.Cents(656532), *ppmMaxIncentive)
 		})
 
@@ -2295,7 +2295,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			// DTOD will be called to get the distance between the origin duty location & the Tacoma Port ZIP
 			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"98421", "30813", true, true).Return(3000, nil)
+				"98421", "30813", true).Return(3000, nil)
 
 			ppmMaxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
@@ -2303,7 +2303,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"98421", "30813", true, true)
+				"98421", "30813", true)
 			suite.Equal(unit.Cents(676692), *ppmMaxIncentive)
 		})
 	})
@@ -2362,7 +2362,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			setupPricerData()
 
 			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"74133", "98421", true, true).Return(3000, nil)
+				"74133", "98421", true).Return(3000, nil)
 
 			ppmFinalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
@@ -2370,7 +2370,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"74133", "98421", true, true)
+				"74133", "98421", true)
 			suite.Equal(unit.Cents(459178), *ppmFinalIncentive)
 		})
 
@@ -2427,7 +2427,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			setupPricerData()
 
 			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"98421", "74133", true, true).Return(3000, nil)
+				"98421", "74133", true).Return(3000, nil)
 
 			ppmFinalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
@@ -2435,7 +2435,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"98421", "74133", true, true)
+				"98421", "74133", true)
 			suite.Equal(unit.Cents(423178), *ppmFinalIncentive)
 		})
 	})
