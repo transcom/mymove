@@ -34,10 +34,10 @@ variables:
   DP3_BRANCH: &dp3_branch placeholder_branch_name
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
-  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-22274-cleanup_tests_gitlab
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-22274-cleanup_tests_gitlab
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-22274-cleanup_tests_gitlab
+  SERVER_IGNORE_BRANCH: &server_ignore_branch B-22274-cleanup_tests_gitlab
 
   RUNNER_TAG: &runner_tag milmove
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
@@ -298,6 +298,7 @@ sast:
   stage: pre_checks
   tags:
     - $RUNNER_TAG
+  interruptible: true
 include:
 - template: Jobs/SAST.gitlab-ci.yml
 - template: Jobs/Dependency-Scanning.gitlab-ci.yml
@@ -336,6 +337,7 @@ anti_virus:
 # This is needed for things like pdfjs-dist
 prep_server_hosted_client_deps:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -352,6 +354,7 @@ prep_server_hosted_client_deps:
 
 pre_deps_golang:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -383,6 +386,7 @@ pre_deps_golang:
 
 pre_deps_yarn:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
