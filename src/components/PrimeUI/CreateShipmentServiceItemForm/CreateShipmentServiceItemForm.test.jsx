@@ -88,7 +88,7 @@ describe('CreateShipmentServiceItemForm component', () => {
   it.each([
     ['originSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemOriginSIT],
     ['destinationSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemDestSIT],
-    ['shuttleSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemShuttle],
+    ['shuttleSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemDoemsticShuttle],
     ['DomesticCratingForm', createServiceItemModelTypes.MTOServiceItemDomesticCrating],
     ['InternationalCratingForm', createServiceItemModelTypes.MTOServiceItemInternationalCrating],
     ['InternationalShuttleServiceItemForm', createServiceItemModelTypes.MTOServiceItemInternationalShuttle],

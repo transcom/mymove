@@ -1288,6 +1288,7 @@ definitions:
         * DOFSIT, DOASIT - MTOServiceItemOriginSIT
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
+        * DOSHUT, DDSHUT - MTOServiceItemDomesticShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
         * ICRT, IUCRT - MTOServiceItemInternationalCrating
 
@@ -1299,6 +1300,7 @@ definitions:
       - MTOServiceItemOriginSIT
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
+      - MTOServiceItemDomesticShuttle
       - MTOServiceItemInternationalShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
@@ -1338,6 +1340,38 @@ definitions:
           - sitPostalCode
           - sitEntryDate
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a shuttle service item.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service codes allowed for this model type.
+            enum:
+              - DOSHUT # Domestic Origin Shuttle Service
+              - DDSHUT # Domestic Destination Shuttle Service
+          reason:
+            type: string
+            example: Storage items need to be picked up.
+            description: Explanation of why a shuttle service is required.
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          actualWeight:
+            type: integer
+            example: 4000
+            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
+        required:
+          - reason
+          - reServiceCode
+          - description
+  MTOServiceItemDomesticShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a shuttle service item.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
