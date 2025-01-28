@@ -211,3 +211,72 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 		suite.Equal(adminUser.Email, adminUser.User.OktaEmail)
 	})
 }
+func (suite *FactorySuite) TestSuperBuildAdminUser() {
+	defaultEmail := "first.last@okta.mil"
+	suite.Run("Successful creation of super admin user", func() {
+		// Under test:      BuildSuperAdminUser
+		// Mocked:          None
+		// Set up:          Create a User with no customizations or traits
+		// Expected outcome:User should be created with default values
+		defaultAdmin := models.AdminUser{
+			FirstName: "Leo",
+			LastName:  "Spaceman",
+			Email:     "super_leo_spaceman_admin@example.com",
+			Role:      "SYSTEM_ADMIN",
+			Super:     true,
+		}
+
+		adminUser := BuildSuperAdminUser(suite.DB(), nil, nil)
+		suite.Equal(defaultEmail, adminUser.User.OktaEmail)
+		suite.Equal(defaultAdmin.FirstName, adminUser.FirstName)
+		suite.Equal(defaultAdmin.LastName, adminUser.LastName)
+		suite.Equal(defaultAdmin.Email, adminUser.Email)
+		suite.Equal(defaultAdmin.Role, adminUser.Role)
+		suite.Equal(defaultAdmin.Super, adminUser.Super)
+		suite.True(adminUser.User.Active)
+	})
+
+	suite.Run("Successful creation of a super adminUser with trait", func() {
+		// Under test:      BuildSuperAdminUser
+		// Mocked:          None
+		// Set up:          Create a User but pass in a trait that sets
+		//                  both the adminuser and user email to a random
+		//                  value, as adminuser has uniqueness constraints
+		// Expected outcome:AdminUser should have the same random email as User
+
+		adminUser := BuildSuperAdminUser(suite.DB(), nil, []Trait{
+			GetTraitAdminUserEmail,
+		})
+		suite.Equal(adminUser.Email, adminUser.User.OktaEmail)
+		suite.True(adminUser.User.Active)
+	})
+
+	suite.Run("Successful creation of user with customization", func() {
+		// Under test:      BuildSuperAdminUser
+		// Set up:          Create an adminUser and pass in specified emails
+		// Expected outcome:adminUser and User should be created with specified emails
+		customAdmin := models.AdminUser{
+			FirstName: "Leo",
+			LastName:  "Spaceman",
+			Email:     "super_leo_spaceman_admin@example.com",
+			Role:      "SYSTEM_ADMIN",
+			Super:     true,
+			Active:    true,
+		}
+		customEmail := "leospaceman456@example.com"
+		adminUser := BuildSuperAdminUser(suite.DB(), []Customization{
+			{
+				Model: models.User{
+					OktaEmail: customEmail,
+				},
+			},
+			{Model: customAdmin},
+		}, nil)
+		suite.Equal(customEmail, adminUser.User.OktaEmail)
+		suite.Equal(customAdmin.Email, adminUser.Email)
+		suite.Equal(customAdmin.FirstName, adminUser.FirstName)
+		suite.Equal(customAdmin.LastName, adminUser.LastName)
+		suite.Equal(customAdmin.Role, adminUser.Role)
+		suite.True(adminUser.User.Active)
+	})
+}
