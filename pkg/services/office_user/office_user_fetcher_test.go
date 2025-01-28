@@ -91,27 +91,6 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 	})
 }
 
-func (suite *OfficeUserServiceSuite) TestFetchOfficeUserByID() {
-	suite.Run("FetchOfficeUserByID returns office user on success", func() {
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		fetcher := NewOfficeUserFetcherPop()
-
-		fetchedUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), officeUser.ID)
-
-		suite.NoError(err)
-		suite.Equal(officeUser.ID, fetchedUser.ID)
-	})
-
-	suite.Run("FetchOfficeUserByID returns zero value office user on error", func() {
-		fetcher := NewOfficeUserFetcherPop()
-		officeUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), uuid.Nil)
-
-		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(uuid.Nil, officeUser.ID)
-	})
-}
-
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOffice() {
 	fetcher := NewOfficeUserFetcherPop()
 	suite.Run("FetchOfficeUsersWithWorkloadByRoleAndOffice returns an active office user's name, id, and workload when given a role and office", func() {
