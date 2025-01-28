@@ -3,23 +3,11 @@ package adminuser
 import (
 	"database/sql"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
-
-func (t *testRequestedOfficeUsersQueryBuilder) DeleteOne(appConfig appcontext.AppContext, model interface{}) error {
-	m := t.fakeDeleteOne(appConfig, model)
-	return m
-}
-
-func (t *testRequestedOfficeUsersQueryBuilder) DeleteMany(appConfig appcontext.AppContext, model interface{}, _ []services.QueryFilter) error {
-	m := t.fakeDeleteMany(appConfig, model)
-	return m
-}
 
 func (suite *RequestedOfficeUsersServiceSuite) TestDeleteRequestedOfficeUser() {
 	queryBuilder := query.NewQueryBuilder()
@@ -44,7 +32,7 @@ func (suite *RequestedOfficeUsersServiceSuite) TestDeleteRequestedOfficeUser() {
 		return user, officeUser
 	}
 
-	suite.Run("If the user is updated successfully it should be returned", func() {
+	suite.Run("success - the requested office user is deleted", func() {
 		testUser, testOfficeUser := setupTestData()
 
 		err := deleter.DeleteRequestedOfficeUser(suite.AppContextForTest(), testOfficeUser.ID)
