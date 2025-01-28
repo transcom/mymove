@@ -417,6 +417,7 @@ check_generated_code:
 
 check_tls_certificate_dp3:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE # Replace with your appropriate Docker image.
@@ -441,6 +442,7 @@ check_tls_certificate_dp3:
 
 check_tls_certificate_stg:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -455,6 +457,7 @@ check_tls_certificate_stg:
 
 check_tls_certificate_prd:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -469,6 +472,7 @@ check_tls_certificate_prd:
 
 build_storybook:
   stage: build
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -497,6 +501,7 @@ build_storybook:
 
 deploy_storybook_dp3:
   stage: deploy
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -518,6 +523,7 @@ deploy_storybook_dp3:
 
 compile_app_client:
   stage: build
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -550,6 +556,7 @@ compile_app_client:
 
 compile_app_server:
   stage: build
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -598,6 +605,7 @@ compile_app_server:
 
 pre_test:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -656,6 +664,7 @@ pre_test:
 
 server_test:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -726,6 +735,7 @@ server_test:
 
 server_test_coverage:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
