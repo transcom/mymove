@@ -25,12 +25,12 @@ const destinationSITValidationSchema = Yup.object().shape({
   sitDepartureDate: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
 });
 
-const DestinationSITServiceItemForm = ({ shipment, submission }) => {
+const InternationalDestinationSITServiceItemForm = ({ shipment, submission }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
-    modelType: 'MTOServiceItemDestSIT',
-    reServiceCode: 'DDFSIT',
+    modelType: 'MTOServiceItemInternationalDestSIT',
+    reServiceCode: 'IDFSIT',
     reason: '',
     firstAvailableDeliveryDate1: '',
     dateOfContact1: '',
@@ -75,7 +75,7 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
 
   return (
     <Formik initialValues={initialValues} validationSchema={destinationSITValidationSchema} onSubmit={onSubmit}>
-      <Form data-testid="destinationSITServiceItemForm">
+      <Form data-testid="internationalDestinationSITServiceItemForm">
         <input type="hidden" name="moveTaskOrderID" />
         <input type="hidden" name="mtoShipmentID" />
         <input type="hidden" name="modelType" />
@@ -111,10 +111,10 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
         <DatePickerInput label="SIT departure date" name="sitDepartureDate" id="sitDepartureDate" />
         <Hint data-testid="destinationSitInfo">
           The following service items will be created: <br />
-          DDFSIT (Destination 1st day SIT) <br />
-          DDASIT (Destination additional days SIT) <br />
-          DDDSIT (Destination SIT delivery) <br />
-          DDSFSC (Destination SIT fuel surcharge) <br />
+          IDFSIT (Destination 1st day SIT) <br />
+          IDASIT (Destination additional days SIT) <br />
+          IDDSIT (Destination SIT delivery) <br />
+          IDSFSC (Destination SIT fuel surcharge) <br />
           <br />
           <strong>NOTE:</strong> The above service items will use the current delivery address of the shipment as their
           final delivery address. Ensure the shipment address is accurate before creating these service items.
@@ -125,9 +125,9 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
   );
 };
 
-DestinationSITServiceItemForm.propTypes = {
+InternationalDestinationSITServiceItemForm.propTypes = {
   shipment: ShipmentShape.isRequired,
   submission: PropTypes.func.isRequired,
 };
 
-export default DestinationSITServiceItemForm;
+export default InternationalDestinationSITServiceItemForm;

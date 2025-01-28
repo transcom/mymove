@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import styles from './CreateShipmentServiceItemForm.module.scss';
 import DestinationSITServiceItemForm from './DestinationSITServiceItemForm';
 import OriginSITServiceItemForm from './OriginSITServiceItemForm';
+import InternationalDestinationSITServiceItemForm from './InternationalDestinationSITServiceItemForm';
+import InternationalOriginSITServiceItemForm from './InternationalOriginSITServiceItemForm';
 import ShuttleSITServiceItemForm from './ShuttleSITServiceItemForm';
 import DomesticCratingForm from './DomesticCratingForm';
 import InternationalCratingForm from './InternationalCratingForm';
@@ -60,33 +62,17 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
         </>
       </Dropdown>
       {selectedServiceItemType === MTOServiceItemOriginSIT && (
-        <OriginSITServiceItemForm
-          shipment={shipment}
-          submission={createServiceItemMutation}
-          isDomestic={selectedServiceItemType === MTOServiceItemOriginSIT}
-        />
+        <OriginSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
       {selectedServiceItemType === MTOServiceItemDestSIT && (
-        <DestinationSITServiceItemForm
-          shipment={shipment}
-          submission={createServiceItemMutation}
-          isDomestic={selectedServiceItemType === MTOServiceItemDestSIT}
-        />
+        <DestinationSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
 
       {selectedServiceItemType === MTOServiceItemInternationalOriginSIT && (
-        <OriginSITServiceItemForm
-          shipment={shipment}
-          submission={createServiceItemMutation}
-          isDomestic={selectedServiceItemType === MTOServiceItemOriginSIT}
-        />
+        <InternationalOriginSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
       {selectedServiceItemType === MTOServiceItemInternationalDestSIT && (
-        <DestinationSITServiceItemForm
-          shipment={shipment}
-          submission={createServiceItemMutation}
-          isDomestic={selectedServiceItemType === MTOServiceItemDestSIT}
-        />
+        <InternationalDestinationSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
 
       {selectedServiceItemType === MTOServiceItemShuttle && (
