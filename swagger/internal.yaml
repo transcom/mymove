@@ -5781,6 +5781,8 @@ paths:
           description: List of weights allotted entitlement
           schema:
             $ref: '#/definitions/IndexEntitlements'
+        '500':
+          description: internal server error
   /calendar/available_move_dates:
     get:
       summary: Returns available dates for the move calendar
