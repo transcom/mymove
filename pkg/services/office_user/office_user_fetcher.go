@@ -153,7 +153,8 @@ func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCt
 		WHERE roles.role_type = $1
 			AND transportation_offices.id = $2
 			AND office_users.active = TRUE
-		GROUP BY office_users.id, office_users.first_name, office_users.last_name`
+		GROUP BY office_users.id, office_users.first_name, office_users.last_name
+		ORDER BY office_users.last_name ASC`
 
 	err := appCtx.DB().RawQuery(query, role, officeID).All(&officeUsers)
 	if err != nil {
