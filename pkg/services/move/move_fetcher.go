@@ -276,3 +276,49 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentTaskOrder(appCtx a
 
 	return moves, nil
 }
+
+func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentPaymentRequest(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
+	var moves []models.MoveWithEarliestDate
+
+	sqlQuery := `
+		SELECT
+			moves.id,
+			payment_requests.requested_at AS earliest_date
+		FROM payment_requests
+		INNER JOIN moves on moves.id = payment_requests.move_id
+		INNER JOIN orders ON orders.id = moves.orders_id
+		INNER JOIN service_members ON orders.service_member_id = service_members.id
+		LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
+		WHERE payment_requests.status = 'PENDING'
+		AND moves.show = $1
+		AND (orders.orders_type NOT IN ($2, $3, $4))
+		AND moves.tio_assigned_id IS NULL `
+	if gbloc == "USMC" {
+		sqlQuery += `
+			AND service_members.affiliation ILIKE 'MARINES' `
+	} else {
+		sqlQuery += `
+		AND service_members.affiliation != 'MARINES'
+		AND move_to_gbloc.gbloc = '` + gbloc + `' `
+	}
+	sqlQuery += `
+		GROUP BY moves.id, payment_requests.id
+        ORDER BY payment_requests.requested_at ASC`
+
+	err := appCtx.DB().RawQuery(sqlQuery,
+		models.BoolPointer(true),
+		internalmessages.OrdersTypeBLUEBARK,
+		internalmessages.OrdersTypeWOUNDEDWARRIOR,
+		internalmessages.OrdersTypeSAFETY).
+		All(&moves)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching moves for office: %s with error %w", officeId, err)
+	}
+
+	if len(moves) < 1 {
+		return nil, nil
+	}
+
+	return moves, nil
+}

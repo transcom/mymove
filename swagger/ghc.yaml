@@ -3649,7 +3649,7 @@ paths:
     get:
       produces:
         - application/json
-      summary: Gets data for bulk assignment move modal
+      summary: Gets data for bulk assignment modal
       description: >
         Supervisor office users are able to bulk assign moves. This endpoint
         returns the relevant data to them; the current workload of the office
@@ -3667,35 +3667,12 @@ paths:
             - COUNSELING
             - CLOSEOUT
             - TASK_ORDER
+            - PAYMENT_REQUEST
       responses:
         '200':
           description: Successfully returned bulk assignment data
           schema:
             $ref: '#/definitions/BulkAssignmentData'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '500':
-          $ref: '#/responses/ServerError'
-  /queues/bulk-assignment-payment-requests:
-    get:
-      produces:
-        - application/json
-      summary: Gets data for bulk assignment payment request modal
-      description: >
-        Supervisor office users are able to bulk assign payment requests. This
-        endpoint returns the relevant data to them; the current workload of the
-        office users that work under them, and the payment requests that are
-        available to be assigned
-      operationId: getBulkAssignmentPaymentRequestData
-      tags:
-        - queues
-      responses:
-        '200':
-          description: Successfully returned bulk assignment payment request data
-          schema:
-            $ref: '#/definitions/BulkAssignmentPaymentRequestData'
         '401':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -7499,14 +7476,6 @@ definitions:
     type: string
     format: uuid
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
-  BulkAssignmentPaymentRequestIDs:
-    type: array
-    items:
-      $ref: '#/definitions/BulkAssignmentPaymentRequestID'
-  BulkAssignmentPaymentRequestID:
-    type: string
-    format: uuid
-    example: c56a4180-65aa-42ec-a945-5fd21dec0538
   AvailableOfficeUsers:
     type: array
     items:
@@ -7534,13 +7503,6 @@ definitions:
         $ref: '#/definitions/AvailableOfficeUsers'
       bulkAssignmentMoveIDs:
         $ref: '#/definitions/BulkAssignmentMoveIDs'
-  BulkAssignmentPaymentRequestData:
-    type: object
-    properties:
-      availableOfficeUsers:
-        $ref: '#/definitions/AvailableOfficeUsers'
-      bulkAssignmentPaymentRequestIDs:
-        $ref: '#/definitions/BulkAssignmentPaymentRequestIDs'
   QueueMoves:
     type: array
     items:

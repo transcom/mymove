@@ -1655,7 +1655,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 }
 
 func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
-	suite.Run("returns an unauthorized error when an attempt is made by a non supervisor", func() {
+	suite.Run("SC - returns an unauthorized error when an attempt is made by a non supervisor", func() {
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
@@ -1689,7 +1689,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.IsNotErrResponse(response)
 		suite.IsType(&queues.GetBulkAssignmentDataUnauthorized{}, response)
 	})
-	suite.Run("returns properly formatted bulk assignment data", func() {
+	suite.Run("SC - returns properly formatted bulk assignment data", func() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
@@ -1892,10 +1892,8 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.Len(payload.AvailableOfficeUsers, 1)
 		suite.Len(payload.BulkAssignmentMoveIDs, 1)
 	})
-}
 
-func (suite *HandlerSuite) TestGetPaymentRequestBulkAssignmentDataHandler() {
-	suite.Run("TIO - bulk assign payment request - returns an unauthorized error when an attempt is made by a non supervisor", func() {
+	suite.Run("TIO - returns an unauthorized error when an attempt is made by a non supervisor", func() {
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
@@ -1913,22 +1911,23 @@ func (suite *HandlerSuite) TestGetPaymentRequestBulkAssignmentDataHandler() {
 			},
 		}, nil)
 
-		request := httptest.NewRequest("GET", "/queues/bulk-assignment-payment-requests", nil)
+		request := httptest.NewRequest("GET", "/queues/bulk-assignment", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
-		params := queues.GetBulkAssignmentPaymentRequestDataParams{
+		params := queues.GetBulkAssignmentDataParams{
 			HTTPRequest: request,
+			QueueType:   models.StringPointer("PAYMENT_REQUEST"),
 		}
 		handlerConfig := suite.HandlerConfig()
-		handler := GetPaymentRequestBulkAssignmentDataHandler{
+		handler := GetBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
-			paymentrequest.NewPaymentRequestFetcherBulkAssignment(),
+			movefetcher.NewMoveFetcherBulkAssignment(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-		suite.IsType(&queues.GetBulkAssignmentPaymentRequestDataUnauthorized{}, response)
+		suite.IsType(&queues.GetBulkAssignmentDataUnauthorized{}, response)
 	})
-	suite.Run("TIO - payment request - returns properly formatted bulk assignment data", func() {
+	suite.Run("TIO - returns properly formatted bulk assignment data", func() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
@@ -1987,23 +1986,24 @@ func (suite *HandlerSuite) TestGetPaymentRequestBulkAssignmentDataHandler() {
 			},
 		}, nil)
 
-		request := httptest.NewRequest("GET", "/queues/bulk-assignment-payment-requests", nil)
+		request := httptest.NewRequest("GET", "/queues/bulk-assignment", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
-		params := queues.GetBulkAssignmentPaymentRequestDataParams{
+		params := queues.GetBulkAssignmentDataParams{
 			HTTPRequest: request,
+			QueueType:   models.StringPointer("PAYMENT_REQUEST"),
 		}
 		handlerConfig := suite.HandlerConfig()
-		handler := GetPaymentRequestBulkAssignmentDataHandler{
+		handler := GetBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
-			paymentrequest.NewPaymentRequestFetcherBulkAssignment(),
+			movefetcher.NewMoveFetcherBulkAssignment(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-		suite.IsType(&queues.GetBulkAssignmentPaymentRequestDataOK{}, response)
-		payload := response.(*queues.GetBulkAssignmentPaymentRequestDataOK).Payload
+		suite.IsType(&queues.GetBulkAssignmentDataOK{}, response)
+		payload := response.(*queues.GetBulkAssignmentDataOK).Payload
 		suite.NoError(payload.Validate(strfmt.Default))
 		suite.Len(payload.AvailableOfficeUsers, 1)
-		suite.Len(payload.BulkAssignmentPaymentRequestIDs, 1)
+		suite.Len(payload.BulkAssignmentMoveIDs, 1)
 	})
 }
