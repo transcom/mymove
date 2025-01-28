@@ -3,7 +3,7 @@ import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-r
 import { connect } from 'react-redux';
 import { Button, Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -18,6 +18,7 @@ import {
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
   SERVICE_COUNSELING_PPM_STATUS_OPTIONS,
   SERVICE_COUNSELING_PPM_STATUS_LABELS,
+  QUEUE_TYPES,
 } from 'constants/queues';
 import { generalRoutes, servicesCounselingRoutes } from 'constants/routes';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
@@ -54,6 +55,7 @@ import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSe
 import handleQueueAssignment from 'utils/queues';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
+import { MOVES, MOVES_QUEUE, SERVICES_COUNSELING_PPM_QUEUE, SERVICES_COUNSELING_QUEUE } from 'constants/queryKeys';
 
 export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => {
   const cols = [
@@ -521,21 +523,6 @@ const ServicesCounselingQueue = ({
     navigate(generatePath(servicesCounselingRoutes.CREATE_CUSTOMER_PATH));
   };
 
-  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
-    onSuccess: () => {
-      // reload page to refetch queue
-      window.location.reload();
-    },
-  });
-
-  const onSubmitBulk = (bulkAssignmentSavePayload) => {
-    mutateBulkAssignment({ queueType: 'COUNSELING', ...bulkAssignmentSavePayload });
-  };
-
-  const onSubmitBulkCloseout = (bulkAssignmentSavePayload) => {
-    mutateBulkAssignment({ queueType: 'CLOSEOUT', ...bulkAssignmentSavePayload });
-  };
-
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
@@ -687,8 +674,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
-          handleBulkAssignmentSave={onSubmitBulkCloseout}
-          queueType="CLOSEOUT"
+          queueType={QUEUE_TYPES.CLOSEOUT}
         />
       </div>
     );
@@ -718,8 +704,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
-          handleBulkAssignmentSave={onSubmitBulk}
-          queueType="COUNSELING"
+          queueType={QUEUE_TYPES.COUNSELING}
         />
       </div>
     );

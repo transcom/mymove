@@ -619,13 +619,19 @@ export const useServicesCounselingQueueQueries = ({
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
+  onSuccess,
 }) => {
-  const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...servicesCounselingQueueQuery
+  } = useQuery(
     [
       SERVICES_COUNSELING_QUEUE,
       { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false, viewAsGBLOC },
     ],
     ({ queryKey }) => getServicesCounselingQueue(...queryKey),
+    { onSuccess },
   );
 
   const { isLoading, isError, isSuccess } = servicesCounselingQueueQuery;
@@ -635,6 +641,7 @@ export const useServicesCounselingQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 

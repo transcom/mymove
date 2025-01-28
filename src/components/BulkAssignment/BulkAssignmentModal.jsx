@@ -26,6 +26,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           setBulkAssignmentData(data);
         });
       } catch (err) {
+        setBulkAssignmentData({});
         milmoveLogger.error('Error fetching bulk assignment data:', err);
       }
     };
@@ -112,20 +113,20 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                 <ModalActions autofocus="true">
                   <Button
                     data-focus="true"
-                    className="usa-button--destructive"
+                    className="usa-button--submit"
                     type="submit"
                     data-testid="modalSubmitButton"
                   >
                     {submitText}
                   </Button>
-                  <Button
-                    className="usa-button--secondary"
+                  <button
+                    className={styles.backbutton}
                     type="button"
                     onClick={() => onClose()}
                     data-testid="modalBackButton"
                   >
                     {closeText}
-                  </Button>
+                  </button>
                 </ModalActions>
               </Form>
             );
