@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import DestinationSITServiceItemForm from './DestinationSITServiceItemForm';
+import InternationalDestinationSITServiceItemForm from './InternationalDestinationSITServiceItemForm';
 
 const approvedMoveTaskOrder = {
   moveTaskOrder: {
@@ -63,7 +63,7 @@ const approvedMoveTaskOrder = {
   },
 };
 
-describe('DestinationSITServiceItemForm component', () => {
+describe('InternationalDestinationSITServiceItemForm component', () => {
   it.each([
     ['Reason', 'reason'],
     ['First available delivery date', 'firstAvailableDeliveryDate1'],
@@ -77,25 +77,27 @@ describe('DestinationSITServiceItemForm component', () => {
   ])('renders field %s in form', (labelName) => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
-    render(<DestinationSITServiceItemForm shipment={shipment} submission={jest.fn()} />);
+    render(<InternationalDestinationSITServiceItemForm shipment={shipment} submission={jest.fn()} />);
 
     const field = screen.getByText(labelName);
     expect(field).toBeInTheDocument();
   });
 
-  it('renders hint component at bottom of page', async () => {
+  it('renders hint component at bottom of page - international', async () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
-    render(<DestinationSITServiceItemForm shipment={shipment} submission={jest.fn()} />);
+    render(
+      <InternationalDestinationSITServiceItemForm shipment={shipment} submission={jest.fn()} isDomestic={false} />,
+    );
 
     const hintInfo = screen.getByTestId('destinationSitInfo');
     expect(hintInfo).toBeInTheDocument();
 
     expect(hintInfo).toHaveTextContent('The following service items will be created:');
-    expect(hintInfo).toHaveTextContent('DDFSIT (Destination 1st day SIT)');
-    expect(hintInfo).toHaveTextContent('DDASIT (Destination additional days SIT)');
-    expect(hintInfo).toHaveTextContent('DDDSIT (Destination SIT delivery)');
-    expect(hintInfo).toHaveTextContent('DDSFSC (Destination SIT fuel surcharge)');
+    expect(hintInfo).toHaveTextContent('IDFSIT (Destination 1st day SIT)');
+    expect(hintInfo).toHaveTextContent('IDASIT (Destination additional days SIT)');
+    expect(hintInfo).toHaveTextContent('IDDSIT (Destination SIT delivery)');
+    expect(hintInfo).toHaveTextContent('IDSFSC (Destination SIT fuel surcharge)');
     expect(hintInfo).toHaveTextContent(
       'NOTE: The above service items will use the current delivery address of the shipment as their final delivery address. Ensure the shipment address is accurate before creating these service items.',
     );
@@ -104,18 +106,20 @@ describe('DestinationSITServiceItemForm component', () => {
   it('renders the Create Service Item button', async () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
-    render(<DestinationSITServiceItemForm shipment={shipment} submission={jest.fn()} />);
+    render(<InternationalDestinationSITServiceItemForm shipment={shipment} submission={jest.fn()} />);
 
     // Check if the button renders
     const createBtn = screen.getByRole('button', { name: 'Create service item' });
     expect(createBtn).toBeInTheDocument();
   });
 
-  it('submits values when create service item button is clicked', async () => {
+  it('submits values when create service item button is clicked for international destination SIT', async () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
     const submissionMock = jest.fn();
 
-    render(<DestinationSITServiceItemForm shipment={shipment} submission={submissionMock} />);
+    render(
+      <InternationalDestinationSITServiceItemForm shipment={shipment} submission={submissionMock} isDomestic={false} />,
+    );
 
     await userEvent.type(screen.getByLabelText('Reason'), 'Testing');
     await userEvent.type(screen.getByLabelText('First available delivery date'), '01 Feb 2024');
@@ -137,10 +141,10 @@ describe('DestinationSITServiceItemForm component', () => {
         dateOfContact2: '2024-01-05',
         firstAvailableDeliveryDate1: '2024-02-01',
         firstAvailableDeliveryDate2: '2024-02-05',
-        modelType: 'MTOServiceItemDestSIT',
+        modelType: 'MTOServiceItemInternationalDestSIT',
         moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
         mtoShipmentID: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-        reServiceCode: 'DDFSIT',
+        reServiceCode: 'IDFSIT',
         sitDepartureDate: '2024-01-24',
         sitDestinationFinalAddress: null,
         sitEntryDate: '2024-01-10',

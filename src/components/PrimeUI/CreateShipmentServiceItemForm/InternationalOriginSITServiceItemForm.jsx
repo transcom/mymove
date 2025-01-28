@@ -26,12 +26,12 @@ const originSITValidationSchema = Yup.object().shape({
   sitHHGActualOrigin: requiredAddressSchema,
 });
 
-const OriginSITServiceItemForm = ({ shipment, submission }) => {
+const InternationalOriginSITServiceItemForm = ({ shipment, submission }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
-    modelType: 'MTOServiceItemOriginSIT',
-    reServiceCode: 'DOFSIT',
+    modelType: 'MTOServiceItemInternationalOriginSIT',
+    reServiceCode: 'IOFSIT',
     reason: '',
     sitPostalCode: '',
     sitEntryDate: '',
@@ -68,7 +68,7 @@ const OriginSITServiceItemForm = ({ shipment, submission }) => {
     <Formik initialValues={initialValues} validationSchema={originSITValidationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, ...formikProps }) => {
         return (
-          <Form data-testid="originSITServiceItemForm">
+          <Form data-testid="internationalOriginSITServiceItemForm">
             <input type="hidden" name="moveTaskOrderID" />
             <input type="hidden" name="mtoShipmentID" />
             <input type="hidden" name="modelType" />
@@ -102,9 +102,9 @@ const OriginSITServiceItemForm = ({ shipment, submission }) => {
   );
 };
 
-OriginSITServiceItemForm.propTypes = {
+InternationalOriginSITServiceItemForm.propTypes = {
   shipment: ShipmentShape.isRequired,
   submission: PropTypes.func.isRequired,
 };
 
-export default OriginSITServiceItemForm;
+export default InternationalOriginSITServiceItemForm;
