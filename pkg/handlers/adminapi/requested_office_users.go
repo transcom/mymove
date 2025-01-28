@@ -172,25 +172,18 @@ func filterByTransportationOffice(officeUsers models.OfficeUsers, filteredTransp
 // Function that filters Requested Office Users based on filtered Roles
 func filterByRoles(officeUsers models.OfficeUsers, roles roles.Roles) models.OfficeUsers {
 	var filteredOfficeUsers models.OfficeUsers
-	filteredRoles := roles
 
-	for i := range officeUsers {
-		currentOfficeUser := officeUsers[i]
-		userRoles := currentOfficeUser.User.Roles
-		hasFilteredRole := false
+	roleIDSet := make(map[uuid.UUID]struct{})
+	for _, role := range roles {
+		roleIDSet[role.ID] = struct{}{}
+	}
 
-		for j := range userRoles {
-			compUserRole := userRoles[j]
-			for k := range filteredRoles {
-				compFilteredRole := filteredRoles[k]
-				if compUserRole.ID == compFilteredRole.ID {
-					hasFilteredRole = true
-				}
+	for _, officeUser := range officeUsers {
+		for _, userRole := range officeUser.User.Roles {
+			if _, exists := roleIDSet[userRole.ID]; exists {
+				filteredOfficeUsers = append(filteredOfficeUsers, officeUser)
+				break
 			}
-		}
-
-		if hasFilteredRole {
-			filteredOfficeUsers = append(filteredOfficeUsers, currentOfficeUser)
 		}
 	}
 
