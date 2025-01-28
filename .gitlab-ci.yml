@@ -766,6 +766,7 @@ server_test_coverage:
 
 client_test:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -802,6 +803,7 @@ client_test:
 
 client_test_coverage:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -825,6 +827,7 @@ client_test_coverage:
 
 integration_test_devseed:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -874,6 +877,7 @@ integration_test_devseed:
 
 integration_tests:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -898,6 +902,7 @@ integration_tests:
 
 integration_test_mtls:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -950,6 +955,7 @@ integration_test_mtls:
 
 integration_test_admin:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -1007,6 +1013,7 @@ integration_test_admin:
 
 integration_test_my:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -1065,6 +1072,7 @@ integration_test_my:
 
 integration_test_office:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -1125,6 +1133,7 @@ integration_test_office:
 ###############################################################
 build_push_app_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1148,6 +1157,7 @@ build_push_app_dp3:
 
 build_push_migrations_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1171,6 +1181,7 @@ build_push_migrations_dp3:
 
 build_push_tasks_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1194,6 +1205,7 @@ build_push_tasks_dp3:
 
 push_otel_collector_image_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1229,6 +1241,7 @@ push_otel_collector_image_dp3:
 
 deploy_migrations_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1260,6 +1273,7 @@ deploy_migrations_dp3:
 
 deploy_tasks_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1288,6 +1302,7 @@ deploy_tasks_dp3:
 
 deploy_app_client_tls_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1329,6 +1344,7 @@ deploy_app_client_tls_dp3:
 
 deploy_app_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1383,6 +1399,7 @@ deploy_app_dp3:
 
 build_push_app_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1406,6 +1423,7 @@ build_push_app_stg:
 
 build_push_migrations_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1429,6 +1447,7 @@ build_push_migrations_stg:
 
 build_push_tasks_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1452,6 +1471,7 @@ build_push_tasks_stg:
 
 push_otel_collector_image_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1487,6 +1507,7 @@ push_otel_collector_image_stg:
 
 deploy_migrations_stg:
   stage: deploy
+  resource_group: staging
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1518,6 +1539,7 @@ deploy_migrations_stg:
 
 deploy_tasks_stg:
   stage: deploy
+  resource_group: staging
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1546,6 +1568,7 @@ deploy_tasks_stg:
 
 deploy_app_client_tls_stg:
   stage: deploy
+  resource_group: staging
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1586,6 +1609,7 @@ deploy_app_client_tls_stg:
 
 deploy_app_stg:
   stage: deploy
+  resource_group: staging
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1640,6 +1664,7 @@ deploy_app_stg:
 ##############################################################################
 prod_approval:
   stage: prod_approval
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd_approval
@@ -1657,6 +1682,7 @@ prod_approval:
 
 build_push_app_prd:
   stage: push_prd
+  resource_group: production
   environment: prd
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1679,6 +1705,7 @@ build_push_app_prd:
 
 build_push_migrations_prd:
   stage: push_prd
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd
@@ -1703,6 +1730,7 @@ build_push_migrations_prd:
 
 build_push_tasks_prd:
   stage: push_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1727,6 +1755,7 @@ build_push_tasks_prd:
 
 push_otel_collector_image_prd:
   stage: push_prd
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd
@@ -1763,6 +1792,7 @@ push_otel_collector_image_prd:
 
 deploy_migrations_prd:
   stage: deploy_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1794,6 +1824,7 @@ deploy_migrations_prd:
 
 deploy_tasks_prd:
   stage: deploy_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1822,6 +1853,7 @@ deploy_tasks_prd:
 
 deploy_app_client_tls_prd:
   stage: deploy_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1864,6 +1896,7 @@ deploy_app_client_tls_prd:
 
 deploy_app_prd:
   stage: deploy_prd
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd
