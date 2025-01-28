@@ -430,6 +430,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 // update fails, the entire transaction will be rolled back.
 func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
 	var autoReweighShipments models.MTOShipments
+	var move *models.Move
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
 		updatedAt, err := etag.DecodeEtag(eTag)
@@ -765,28 +766,16 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 						return err
 					}
 				}
-			} else if dbShipment.PrimeEstimatedWeight != nil {
-				needsReweigh, err := f.moveWeights.MoveShouldAutoReweigh(txnAppCtx, move.ID)
-				if err != nil {
-					return err
-				}
-
-				if needsReweigh {
-					autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
-					if err != nil {
-						return err
-					}
-				}
 			}
 		}
 
-		if newShipment.PrimeActualWeight != nil {
-			if dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight {
-				var err error
-				autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
-				if err != nil {
-					return err
-				}
+		if move.AvailableToPrimeAt != nil &&
+			(dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight) ||
+			(newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight) {
+			var err error
+			autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+			if err != nil {
+				return err
 			}
 		}
 
