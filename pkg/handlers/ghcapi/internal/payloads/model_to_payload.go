@@ -579,7 +579,7 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 	bc := &ghcmessages.BackupContact{
 		Name:  &backupContact.Name,
 		Email: &backupContact.Email,
-		Phone: backupContact.Phone,
+		Phone: &backupContact.Phone,
 	}
 
 	payload := ghcmessages.CreatedCustomer{
@@ -617,9 +617,6 @@ func Order(order *models.Order) *ghcmessages.Order {
 
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
-	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
-	}
 	entitlements := Entitlement(order.Entitlement)
 
 	var deptIndicator ghcmessages.DeptIndicator
@@ -856,11 +853,7 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 		contact := contacts[0]
 		name = contact.Name
 		email = contact.Email
-		phone = ""
-		contactPhone := contact.Phone
-		if contactPhone != nil {
-			phone = *contactPhone
-		}
+		phone = contact.Phone
 	}
 
 	return &ghcmessages.BackupContact{
