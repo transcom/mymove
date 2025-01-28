@@ -88,7 +88,7 @@ func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGeneratorUnpro
 }
 
 func (suite *PaperworkServiceSuite) pdfFileInfo(generator *paperwork.Generator, file afero.File) (*pdfcpu.PDFInfo, error) {
-	return api.PDFInfo(file, file.Name(), nil, generator.PdfConfiguration())
+	return api.PDFInfo(file, file.Name(), nil, false, generator.PdfConfiguration())
 }
 
 func (suite *PaperworkServiceSuite) setupOrdersDocument() (services.PrimeDownloadMoveUploadPDFGenerator, models.Order) {
