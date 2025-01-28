@@ -80,6 +80,8 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                             className={styles.BulkAssignmentAssignment}
                             type="number"
                             id={user.officeUserId}
+                            defaultValue={0}
+                            min={0}
                             onChange={(event) => {
                               handleChange(event);
 
@@ -116,6 +118,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     className="usa-button--submit"
                     type="submit"
                     data-testid="modalSubmitButton"
+                    disabled={bulkAssignmentData?.bulkAssignmentMoveIDs < 1}
                   >
                     {submitText}
                   </Button>

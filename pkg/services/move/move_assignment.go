@@ -25,7 +25,7 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		for _, move := range movesToAssign {
 			for _, officeUser := range officeUserData {
-				if officeUser.MoveAssignments > 0 {
+				if officeUser != nil && officeUser.MoveAssignments > 0 {
 					officeUserId := uuid.FromStringOrNil(officeUser.ID.String())
 
 					switch queueType {

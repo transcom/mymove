@@ -128,8 +128,6 @@ const TableQueue = ({
     currentPageSize,
     viewAsGBLOC: selectedGbloc,
     onSuccess: (res) => {
-      console.log(res, tableData);
-
       if (tableData.length < 1) setTableData(res.queueMoves);
     },
   });
@@ -142,17 +140,19 @@ const TableQueue = ({
     }),
     [],
   );
-  // let tableData = useMemo(() => data, [data]);
+  // const cachedTableData = useMemo(() => data, [data]);
 
   const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
     onSuccess: () => {
       // reload page to refetch queue
       // window.location.reload();
-      // queryClient.invalidateQueries({ queryKey: SERVICES_COUNSELING_QUEUE, refetchType: 'all' });
+      refetch().then((res) => {
+        setTableData([...res.data.queueMoves]);
+      });
     },
   });
 
-  // const tableColumns = useMemo(() => columns, [columns]);
+  const tableColumns = useMemo(() => columns, [columns]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -170,7 +170,7 @@ const TableQueue = ({
     state: { filters, pageIndex, pageSize, sortBy },
   } = useTable(
     {
-      columns,
+      columns: tableColumns,
       data: tableData,
       initialState: {
         hiddenColumns: defaultHiddenColumns,
@@ -333,7 +333,6 @@ const TableQueue = ({
 
   const handleCloseBulkAssignModal = () => {
     refetch().then((res) => {
-      console.log('refetch data', res);
       setTableData([...res.data.queueMoves]);
       setIsBulkAssignModalVisible(false);
     });
