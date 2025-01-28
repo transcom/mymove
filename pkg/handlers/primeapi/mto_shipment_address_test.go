@@ -43,6 +43,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		planner := &mocks.Planner{}
 		addressCreator := address.NewAddressCreator()
 		addressUpdater := address.NewAddressUpdater()
+		vLocationServices := address.NewVLocation()
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -54,6 +55,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		handler := UpdateMTOShipmentAddressHandler{
 			suite.HandlerConfig(),
 			mtoshipment.NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater),
+			vLocationServices,
 		}
 		return handler, availableMove
 	}

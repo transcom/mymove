@@ -1,7 +1,9 @@
 package primeapiv3
 
 import (
+	"context"
 	"fmt"
+	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
@@ -26,6 +28,7 @@ type CreateMTOShipmentHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentCreator
 	mtoAvailabilityChecker services.MoveTaskOrderChecker
+	services.VLocation
 }
 
 // Handle creates the mto shipment
@@ -89,6 +92,35 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					"Unaccompanied baggage shipments can't be created unless the unaccompanied_baggage feature flag is enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
 			}
 
+			/** Feature Flag - Alaska - Determines if AK can be included/excluded **/
+			isAlaskaEnabled := false
+			akFeatureFlagName := "enable_alaska"
+			flag, err = h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, akFeatureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", akFeatureFlagName), zap.Error(err))
+			} else {
+				isAlaskaEnabled = flag.Match
+			}
+
+			/** Feature Flag - Hawaii - Determines if HI can be included/excluded **/
+			isHawaiiEnabled := false
+			hiFeatureFlagName := "enable_hawaii"
+			flag, err = h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, hiFeatureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", hiFeatureFlagName), zap.Error(err))
+			} else {
+				isHawaiiEnabled = flag.Match
+			}
+
+			// build states to exlude filter list
+			statesToExclude := make([]string, 0)
+			if !isAlaskaEnabled {
+				statesToExclude = append(statesToExclude, "AK")
+			}
+			if !isHawaiiEnabled {
+				statesToExclude = append(statesToExclude, "HI")
+			}
+
 			for _, mtoServiceItem := range params.Body.MtoServiceItems() {
 				// restrict creation to a list
 				if _, ok := CreateableServiceItemMap[mtoServiceItem.ModelType()]; !ok {
@@ -128,6 +160,36 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
 
 			if mtoAvailableToPrime {
+				// check each address prior to creating the shipment to ensure only valid addresses are being used to create the shipment
+				var addresses []models.Address
+				addresses = append(addresses, *mtoShipment.PickupAddress)
+				addresses = append(addresses, *mtoShipment.DestinationAddress)
+
+				if *mtoShipment.HasSecondaryPickupAddress {
+					addresses = append(addresses, *mtoShipment.SecondaryPickupAddress)
+				}
+
+				if *mtoShipment.HasTertiaryPickupAddress {
+					addresses = append(addresses, *mtoShipment.TertiaryPickupAddress)
+				}
+
+				if *mtoShipment.HasSecondaryDeliveryAddress {
+					addresses = append(addresses, *mtoShipment.SecondaryDeliveryAddress)
+				}
+
+				if *mtoShipment.HasTertiaryDeliveryAddress {
+					addresses = append(addresses, *mtoShipment.TertiaryDeliveryAddress)
+				}
+
+				for _, address := range addresses {
+					addressSearch := address.City + ", " + address.State + " " + address.PostalCode
+					responder, err := checkValidAddress(h, appCtx, params, statesToExclude, addressSearch)
+
+					if err != nil {
+						return responder, err
+					}
+				}
+
 				mtoShipment, err = h.ShipmentCreator.CreateShipment(appCtx, mtoShipment)
 			} else if err == nil {
 				appCtx.Logger().Error("primeapiv3.CreateMTOShipmentHandler error - MTO is not available to Prime")
@@ -163,6 +225,39 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			returnPayload := payloads.MTOShipment(mtoShipment)
 			return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload), nil
 		})
+}
+
+func checkValidAddress(h CreateMTOShipmentHandler, appCtx appcontext.AppContext, params mtoshipmentops.CreateMTOShipmentParams,
+	statesToExclude []string, addressSearch string) (middleware.Responder, error) {
+	locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, true)
+
+	if err != nil {
+		serverError := apperror.NewInternalServerError("Error searching for address")
+		errStr := serverError.Error() // we do this because InternalServerError wants a *string
+		appCtx.Logger().Warn(serverError.Error())
+		payload := payloads.InternalServerError(&errStr, h.GetTraceIDFromRequest(params.HTTPRequest))
+		return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payload), serverError
+	} else if len(*locationList) == 0 {
+		unprocessableErr := apperror.NewUnprocessableEntityError(
+			fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: could not find the provided location: %s", addressSearch))
+		appCtx.Logger().Warn(unprocessableErr.Error())
+		payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload), unprocessableErr
+	} else if len(*locationList) > 1 {
+		var results []string
+
+		for _, address := range *locationList {
+			results = append(results, address.CityName+" "+address.StateName+" "+address.UsprZipID)
+		}
+		joinedResult := strings.Join(results[:], ", ")
+		unprocessableErr := apperror.NewUnprocessableEntityError(
+			fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: multiple locations found choose one of the following: %s", joinedResult))
+		appCtx.Logger().Warn(unprocessableErr.Error())
+		payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload), unprocessableErr
+	}
+
+	return mtoshipmentops.NewCreateMTOShipmentOK(), nil
 }
 
 // UpdateMTOShipmentHandler is the handler to update MTO shipments

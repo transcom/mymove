@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 
 	setupTestData := func(boatFeatureFlag bool, ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
-
+		vLocationServices := address.NewVLocation()
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		handlerConfig := suite.HandlerConfig()
 		expectedFeatureFlag := services.FeatureFlag{
@@ -196,6 +196,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			handlerConfig,
 			shipmentCreator,
 			mtoChecker,
+			vLocationServices,
 		}
 
 		// Make stubbed addresses just to collect address data for payload
