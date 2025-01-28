@@ -3,6 +3,8 @@ import { act, render, screen } from '@testing-library/react';
 
 import ExpandableServiceItemRow from './ExpandableServiceItemRow';
 
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
+
 const serviceItem = {
   createdAt: '2025-01-09T22:08:38.788Z',
   eTag: 'MjAyNS0wMS0xN1QxNTowODo0Mi44MDI4MDZa',
@@ -172,6 +174,10 @@ const additionalServiceItemData = {
   updatedAt: '0001-01-01T00:00:00.000Z',
 };
 
+const basicServiceItem = { ...serviceItem };
+basicServiceItem.mtoServiceItemCode = SERVICE_ITEM_CODES.MS;
+basicServiceItem.mtoServiceItemName = 'Move Management';
+
 describe('Payment service items', () => {
   it('Displays rejected service item with rejection reason', async () => {
     render(
@@ -265,5 +271,31 @@ describe('Payment service items', () => {
     expect(screen.getByText('Price escalation factor')).toBeVisible();
     expect(screen.getByText('1.10701')).toBeVisible();
     expect(screen.getByText('Base year: Award Term 1')).toBeVisible();
+  });
+
+  it('Displays rejected basic service item (Move Management) with rejection reason and no calculations', async () => {
+    render(
+      <ExpandableServiceItemRow
+        serviceItem={basicServiceItem}
+        additionalServiceItemData={{}}
+        index={0}
+        disableExpansion={false}
+        paymentIsDeprecated={false}
+        tppsDataExists={false}
+      />,
+    );
+
+    expect(screen.getByText('Move Management')).toBeVisible();
+    expect(screen.getByText('$88,553.85')).toBeVisible();
+    expect(screen.getByText('Rejected')).toBeVisible();
+
+    // Expand service item row
+    await act(async () => {
+      screen.getByText('Move Management').click();
+    });
+
+    // Test for rejection reason
+    expect(screen.getByText('Rejection Reason')).toBeVisible();
+    expect(screen.getByText('Rejection reason test text')).toBeVisible();
   });
 });
