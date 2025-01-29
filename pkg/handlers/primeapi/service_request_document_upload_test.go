@@ -15,7 +15,7 @@ import (
 )
 
 func (suite *HandlerSuite) CreateServiceRequestDocumentUploadHandler() {
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	setupTestData := func() (CreateServiceRequestDocumentUploadHandler, models.MTOServiceItem) {
 		handlerConfig := suite.HandlerConfig()

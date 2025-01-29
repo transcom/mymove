@@ -1009,7 +1009,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 }
 
 func (suite *HandlerSuite) TestUploadAdditionalDocumentsHander() {
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	uploadCreator := upload.NewUploadCreator(fakeS3)
 	additionalDocumentsUploader := moveservice.NewMoveAdditionalDocumentsUploader(uploadCreator)
 
