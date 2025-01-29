@@ -27,7 +27,7 @@ type PaperworkServiceSuite struct {
 
 func TestPaperworkServiceSuite(t *testing.T) {
 
-	storer := storageTest.NewFakeS3Storage(true, nil)
+	storer := storageTest.NewFakeS3Storage(true)
 
 	newUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {

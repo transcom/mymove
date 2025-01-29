@@ -16,7 +16,7 @@ func (suite *WeightTicketParserServiceSuite) TestFillWeightEstimatorPDFForm() {
 	const WeightEstimatorPages = 11
 	const WeightEstimatorFileName = "Weight Estimator Full.xlsx"
 	const TestPath = "../../testdatagen/testdata/"
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.FatalNoError(uploaderErr)
 	generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
