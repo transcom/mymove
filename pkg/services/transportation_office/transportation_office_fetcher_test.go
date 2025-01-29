@@ -892,7 +892,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 	})
 
 	suite.Run("Success - findOconusGblocDepartmentIndicator - Should return specific GLOC for departmentAffiliation when a specific departmentAffilation mapping is defined", func() {
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		suite.NotNil(contract)
 
 		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
@@ -955,7 +954,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 	})
 
 	suite.Run("success - offices using default departmentIndicator mapping", func() {
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		suite.NotNil(contract)
 
 		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
@@ -1008,7 +1006,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 	})
 
 	suite.Run("Should return correct office based on service affiliation", func() {
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		suite.NotNil(contract)
 
 		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
