@@ -27,6 +27,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		rejectedOfficeUsers := models.OfficeUsers{
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRejectedOfficeUser(), []roles.RoleType{roles.RoleTypeQae}),
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRejectedOfficeUser(), []roles.RoleType{roles.RoleTypeQae})}
+
 		params := rejectedofficeuserop.IndexRejectedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/rejected_office_users"),
 		}
