@@ -173,4 +173,13 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 	// Validate outgoing payload
 	suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
 
+	// Validate outgoing payload
+	suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+	var i int
+	for index, office := range responsePayload.Payload {
+		if *office.Name == "New PPPO Travis AFB - USAF" {
+			i = index
+		}
+	}
+	suite.NotNil(i)
 }
