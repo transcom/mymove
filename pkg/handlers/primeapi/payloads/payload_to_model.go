@@ -583,7 +583,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.Reason = destsit.Reason
 		sitEntryDate := handlers.FmtDatePtrToPopPtr(destsit.SitEntryDate)
 
-		// Check for required fields on a DDFSIT
+		// Check for required fields on a IDFSIT
 		if model.ReService.Code == models.ReServiceCodeIDFSIT {
 			verrs := validateIDFSITForCreate(*destsit)
 			reasonVerrs := validateReasonInternationalDestSIT(*destsit)
@@ -954,7 +954,7 @@ func validateDDFSITForCreate(m primemessages.MTOServiceItemDestSIT) *validate.Er
 	return verrs
 }
 
-// validateIDFSITForCreate validates DDFSIT service item has all required fields
+// validateIDFSITForCreate validates IDFSIT service item has all required fields
 func validateIDFSITForCreate(m primemessages.MTOServiceItemInternationalDestSIT) *validate.Errors {
 	verrs := validate.NewErrors()
 
@@ -971,7 +971,7 @@ func validateIDFSITForCreate(m primemessages.MTOServiceItemInternationalDestSIT)
 		verrs.Add("firstAvailableDeliveryDate2", "firstAvailableDeliveryDate2, dateOfContact2, and timeMilitary2 must be provided together in body.")
 	}
 	if m.DateOfContact2 == nil && m.TimeMilitary2 != nil && m.FirstAvailableDeliveryDate2 != nil {
-		verrs.Add("DateOfContact1", "dateOfContact2, firstAvailableDeliveryDate2, and timeMilitary2 must be provided together in body.")
+		verrs.Add("DateOfContact2", "dateOfContact2, firstAvailableDeliveryDate2, and timeMilitary2 must be provided together in body.")
 	}
 	if m.TimeMilitary2 == nil && m.DateOfContact2 != nil && m.FirstAvailableDeliveryDate2 != nil {
 		verrs.Add("timeMilitary2", "timeMilitary2, firstAvailableDeliveryDate2, and dateOfContact2 must be provided together in body.")
