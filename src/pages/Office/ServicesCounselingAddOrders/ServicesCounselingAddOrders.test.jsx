@@ -8,6 +8,7 @@ import { MockProviders } from 'testUtils';
 import { counselingCreateOrder } from 'services/ghcApi';
 import { setCanAddOrders } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -331,10 +332,13 @@ const fakeResponse = {
   },
 };
 
+const mockParams = { customerId: 'ea51dab0-4553-4732-b843-1f33407f77bd' };
+const mockPath = servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH;
+
 const renderWithMocks = () => {
   const testProps = { customer, setCanAddOrders: jest.fn() };
   render(
-    <MockProviders>
+    <MockProviders path={mockPath} params={mockParams}>
       <ServicesCounselingAddOrders {...testProps} />
     </MockProviders>,
   );
