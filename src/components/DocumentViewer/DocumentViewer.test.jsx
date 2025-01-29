@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { act } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import sampleJPG from './sample.jpg';
 import samplePNG from './sample2.png';
 import sampleGIF from './sample3.gif';
 
+import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS, UPLOAD_DOC_STATUS_DISPLAY_MESSAGE } from 'shared/constants';
 import { bulkDownloadPaymentRequest } from 'services/ghcApi';
 
 const toggleMenuClass = () => {
@@ -109,6 +110,28 @@ jest.mock('./Content/Content', () => ({
     );
   },
 }));
+
+// Mock EventSource
+class MockEventSource {
+  constructor(url, config) {
+    this.url = url;
+    this.config = config;
+    this.onmessage = null;
+    this.onerror = null;
+  }
+
+  sendMessage(data) {
+    if (this.onmessage) {
+      this.onmessage({ data });
+    }
+  }
+
+  triggerError() {
+    if (this.onerror) {
+      this.onerror();
+    }
+  }
+}
 
 describe('DocumentViewer component', () => {
   it('initial state is closed menu and first file selected', async () => {
@@ -267,5 +290,148 @@ describe('DocumentViewer component', () => {
         expect(bulkDownloadPaymentRequest).toHaveBeenCalledTimes(1);
       });
     });
+  });
+});
+
+// describe('File upload status', () => {
+//   const setup = async (fileStatus, isFileUploading = false) => {
+//     await act(async () => {
+//       render(<DocumentViewer files={mockFiles[0]} isFileUploading={isFileUploading} />);
+//     });
+//     act(() => {
+//       switch (fileStatus) {
+//         case UPLOAD_SCAN_STATUS.PROCESSING:
+//           DocumentViewer.setFileStatus(UPLOAD_DOC_STATUS.SCANNING);
+//           break;
+//         case UPLOAD_SCAN_STATUS.CLEAN:
+//           DocumentViewer.setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
+//           break;
+//         case UPLOAD_SCAN_STATUS.INFECTED:
+//           DocumentViewer.setFileStatus(UPLOAD_DOC_STATUS.INFECTED);
+//           break;
+//         default:
+//           break;
+//       }
+//     });
+//   };
+
+//   it('renders SCANNING status', () => {
+//     setup(UPLOAD_SCAN_STATUS.PROCESSING);
+//     expect(screen.getByText('Scanning')).toBeInTheDocument();
+//   });
+
+//   it('renders ESTABLISHING status', () => {
+//     setup(UPLOAD_SCAN_STATUS.CLEAN);
+//     expect(screen.getByText('Establishing Document for View')).toBeInTheDocument();
+//   });
+
+//   it('renders INFECTED status', () => {
+//     setup(UPLOAD_SCAN_STATUS.INFECTED);
+//     expect(screen.getByText('Ask for a new file')).toBeInTheDocument();
+//   });
+// });
+
+// describe('DocumentViewer component', () => {
+//   const files = [
+//     {
+//       id: '1',
+//       createdAt: '2022-01-01T00:00:00Z',
+//       contentType: 'application/pdf',
+//       filename: 'file1.pdf',
+//       url: samplePDF,
+//     },
+//   ];
+
+//   beforeEach(() => {
+//     global.EventSource = MockEventSource;
+//   });
+
+//   const renderComponent = (fileStatus) => {
+//     render(
+//       <QueryClientProvider client={new QueryClient()}>
+//         <DocumentViewer files={files} allowDownload isFileUploading fileStatus={fileStatus} />
+//       </QueryClientProvider>,
+//     );
+//   };
+
+//   it('displays Uploading alert when fileStatus is UPLOADING', () => {
+//     renderComponent(UPLOAD_DOC_STATUS.UPLOADING);
+//     expect(screen.getByText(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.UPLOADING)).toBeInTheDocument();
+//   });
+
+//   it('displays Scanning alert when fileStatus is SCANNING', () => {
+//     renderComponent(UPLOAD_DOC_STATUS.SCANNING);
+//     expect(screen.getByText(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.SCANNING)).toBeInTheDocument();
+//   });
+
+//   it('displays Establishing Document for View alert when fileStatus is ESTABLISHING', () => {
+//     renderComponent(UPLOAD_DOC_STATUS.ESTABLISHING);
+//     expect(screen.getByText(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEW)).toBeInTheDocument();
+//   });
+
+//   it('displays File Not Found alert when selectedFile is null', () => {
+//     render(<DocumentViewer files={[]} allowDownload />);
+//     expect(screen.getByText(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.FILE_NOT_FOUND)).toBeInTheDocument();
+//   });
+
+//   it('displays an error alert when fileStatus is INFECTED', () => {
+//     renderComponent(UPLOAD_SCAN_STATUS.INFECTED);
+//     expect(
+//       screen.getByText(
+//         'Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a photo of the original document instead.',
+//       ),
+//     ).toBeInTheDocument();
+//   });
+// });
+
+describe('DocumentViewer component', () => {
+  const files = [
+    {
+      id: '1',
+      createdAt: '2022-01-01T00:00:00Z',
+      contentType: 'application/pdf',
+      filename: 'file1.pdf',
+      url: samplePDF,
+    },
+  ];
+  beforeEach(() => {
+    global.EventSource = MockEventSource;
+  });
+
+  const renderComponent = () => {
+    render(<DocumentViewer files={files} allowDownload paymentRequestId={1234} isFileUploading />);
+  };
+
+  test('handles file processing status', async () => {
+    renderComponent(UPLOAD_DOC_STATUS.UPLOADING);
+
+    const eventSourceInstance = new MockEventSource(`/internal/uploads/${files[0].id}/status`, {
+      withCredentials: true,
+    });
+
+    // Simulate different statuses
+    await act(async () => {
+      eventSourceInstance.sendMessage(UPLOAD_SCAN_STATUS.PROCESSING);
+    });
+    expect(screen.getByText(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.SCANNING)).toBeInTheDocument();
+
+    await act(async () => {
+      eventSourceInstance.sendMessage(UPLOAD_SCAN_STATUS.CLEAN);
+    });
+    expect(screen.getByText(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEW)).toBeInTheDocument();
+
+    await act(async () => {
+      eventSourceInstance.sendMessage(UPLOAD_SCAN_STATUS.INFECTED);
+    });
+    expect(
+      screen.getByText(
+        'Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a photo of the original document instead.',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('displays File Not Found alert when no selectedFile', () => {
+    render(<DocumentViewer files={[]} allowDownload />);
+    expect(screen.getByText(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.FILE_NOT_FOUND)).toBeInTheDocument();
   });
 });

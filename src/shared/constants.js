@@ -69,6 +69,20 @@ export const UPLOAD_SCAN_STATUS = {
   PROCESSING: 'PROCESSING',
 };
 
+export const UPLOAD_DOC_STATUS = {
+  UPLOADING: 'UPLOADING',
+  SCANNING: 'SCANNING',
+  ESTABLISHING: 'ESTABLISHING',
+  LOADED: 'LOADED',
+};
+
+export const UPLOAD_DOC_STATUS_DISPLAY_MESSAGE = {
+  FILE_NOT_FOUND: 'File Not Found',
+  UPLOADING: 'Uploading',
+  SCANNING: 'Scanning',
+  ESTABLISHING_DOCUMENT_FOR_VIEW: 'Establishing Document for View',
+};
+
 export const CONUS_STATUS = {
   CONUS: 'CONUS',
   OCONUS: 'OCONUS',
