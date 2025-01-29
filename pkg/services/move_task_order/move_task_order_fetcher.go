@@ -338,23 +338,13 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	mto.MTOServiceItems = loadedServiceItems
 
 	if mto.Orders.DestinationGBLOC == nil {
-		var newDutyLocationGBLOC *string
-		if *mto.Orders.NewDutyLocation.Address.IsOconus {
-			newDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), mto.Orders.NewDutyLocation.Address, mto.Orders.ServiceMember)
-			if err != nil {
-				return nil, apperror.NewNotFoundError(mto.Orders.NewDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
-			}
-			newDutyLocationGBLOC = newDutyLocationGBLOCOconus
-		} else {
-			newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), mto.Orders.NewDutyLocation.Address.PostalCode)
-			if err != nil {
-				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
-				appCtx.Logger().Error(err.Error())
-				return &models.Move{}, apperror.NewQueryError("DestinationGBLOC", err, "")
-			}
-			newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
+		newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), mto.Orders.NewDutyLocation.Address.PostalCode)
+		if err != nil {
+			err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+			appCtx.Logger().Error(err.Error())
+			return &models.Move{}, apperror.NewQueryError("DestinationGBLOC", err, "")
 		}
-		mto.Orders.DestinationGBLOC = newDutyLocationGBLOC
+		mto.Orders.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
 	}
 
 	return mto, nil

@@ -35,11 +35,9 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 	if err != nil {
 		destGbloc = ""
 	}
-	destinationAddress, err := moveTaskOrder.GetDestinationAddress(appCtx.DB())
+	destZip, err = moveTaskOrder.GetDestinationPostalCode(db)
 	if err != nil {
 		destZip = ""
-	} else {
-		destZip = destinationAddress.PostalCode
 	}
 
 	payload := &primemessages.MoveTaskOrder{
@@ -94,11 +92,9 @@ func ListMove(move *models.Move, appCtx appcontext.AppContext, moveOrderAmendmen
 	if err != nil {
 		destGbloc = ""
 	}
-	destinationAddress, err := move.GetDestinationAddress(appCtx.DB())
+	destZip, err = move.GetDestinationPostalCode(db)
 	if err != nil {
 		destZip = ""
-	} else {
-		destZip = destinationAddress.PostalCode
 	}
 
 	payload := &primemessages.ListMove{

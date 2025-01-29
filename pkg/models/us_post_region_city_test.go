@@ -26,12 +26,3 @@ func (suite *ModelSuite) TestFindByZipCode() {
 	suite.NoError(err)
 	suite.Equal("LOS ANGELES", usPostRegionCity.UsprcCountyNm)
 }
-
-func (suite *ModelSuite) TestFindByZipCodeAndCity() {
-
-	// Attempt to gather 99677's County from the 99677 zip code and CORDOVA city
-	usPostRegionCity, err := models.FindByZipCodeAndCity(suite.DB(), "99677", "CORDOVA")
-	suite.NotNil(usPostRegionCity)
-	suite.NoError(err)
-	suite.Equal("CHUGACH", usPostRegionCity.UsprcCountyNm)
-}
