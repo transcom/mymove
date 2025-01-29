@@ -36,6 +36,11 @@ type ShowCounselingOfficesParams struct {
 	  In: path
 	*/
 	DutyLocationID strfmt.UUID
+	/*UUID of the service member, some counseling offices are branch specific
+	  Required: true
+	  In: path
+	*/
+	ServiceMemberID strfmt.UUID
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -49,6 +54,11 @@ func (o *ShowCounselingOfficesParams) BindRequest(r *http.Request, route *middle
 
 	rDutyLocationID, rhkDutyLocationID, _ := route.Params.GetOK("dutyLocationId")
 	if err := o.bindDutyLocationID(rDutyLocationID, rhkDutyLocationID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	rServiceMemberID, rhkServiceMemberID, _ := route.Params.GetOK("serviceMemberId")
+	if err := o.bindServiceMemberID(rServiceMemberID, rhkServiceMemberID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -85,6 +95,39 @@ func (o *ShowCounselingOfficesParams) bindDutyLocationID(rawData []string, hasKe
 func (o *ShowCounselingOfficesParams) validateDutyLocationID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("dutyLocationId", "path", "uuid", o.DutyLocationID.String(), formats); err != nil {
+		return err
+	}
+	return nil
+}
+
+// bindServiceMemberID binds and validates parameter ServiceMemberID from path.
+func (o *ShowCounselingOfficesParams) bindServiceMemberID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// Parameter is provided by construction from the route
+
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("serviceMemberId", "path", "strfmt.UUID", raw)
+	}
+	o.ServiceMemberID = *(value.(*strfmt.UUID))
+
+	if err := o.validateServiceMemberID(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateServiceMemberID carries on validations for parameter ServiceMemberID
+func (o *ShowCounselingOfficesParams) validateServiceMemberID(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("serviceMemberId", "path", "uuid", o.ServiceMemberID.String(), formats); err != nil {
 		return err
 	}
 	return nil
