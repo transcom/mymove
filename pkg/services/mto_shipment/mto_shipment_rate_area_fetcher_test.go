@@ -174,7 +174,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		shipmentPostalCodeRateAreas, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
 		suite.NotNil(shipmentPostalCodeRateAreas)
 		suite.FatalNoError(err)
-		suite.Equal(5, len(*shipmentPostalCodeRateAreas))
+		suite.Equal(3, len(*shipmentPostalCodeRateAreas))
 
 		suite.Equal(true, isRateAreaEquals(rateArea1, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(true, isRateAreaEquals(rateArea1, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
@@ -183,14 +183,6 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		suite.Equal(false, isRateAreaEquals(rateArea2, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateArea2, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateArea1, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
-
-		var shipmentPostalCodeRateAreasLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
-		for _, pcra := range *shipmentPostalCodeRateAreas {
-			shipmentPostalCodeRateAreasLookupMap[pcra.PostalCode] = pcra
-		}
-
-		suite.Equal("California-South", shipmentPostalCodeRateAreasLookupMap[beverlyHillsCAPostalCode].RateArea.Name)
-		suite.Equal("California-South", shipmentPostalCodeRateAreasLookupMap[sanDiegoCAPostalCode].RateArea.Name)
 	})
 
 	suite.Run("Returns matching CONUS rate areas", func() {
@@ -233,6 +225,116 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 					},
 				},
 			},
+		}
+
+		// create test contract
+		contract, err := suite.createContract(suite.AppContextForTest(), testContractCode, testContractName)
+		suite.NotNil(contract)
+		suite.FatalNoError(err)
+
+		// setup contract year within availableToPrimeAtTime time
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate:  availableToPrimeAtTime,
+				EndDate:    time.Now(),
+				ContractID: contract.ID,
+			},
+		})
+
+		rateAreaCA := models.ReRateArea{
+			ID:         uuid.Must(uuid.NewV4()),
+			ContractID: contract.ID,
+			IsOconus:   false,
+			Code:       "US88",
+			Name:       "California-South",
+			Contract:   *contract,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&rateAreaCA)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		rateAreaNY := models.ReRateArea{
+			ID:         uuid.Must(uuid.NewV4()),
+			ContractID: contract.ID,
+			IsOconus:   false,
+			Code:       "US17",
+			Name:       "New York",
+			Contract:   *contract,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&rateAreaNY)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		domServiceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ContractID: contract.ID,
+			},
+		})
+
+		brooklynZip3 := models.ReZip3{
+			ID:                    uuid.Must(uuid.NewV4()),
+			ContractID:            contract.ID,
+			Contract:              *contract,
+			Zip3:                  brooklynNYPostalCode[0:3],
+			RateAreaID:            models.UUIDPointer(rateAreaNY.ID),
+			HasMultipleRateAreas:  false,
+			BasePointCity:         "Brooklyn",
+			State:                 "NY",
+			DomesticServiceAreaID: domServiceArea.ID,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&brooklynZip3)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		sanDiegoZip3 := models.ReZip3{
+			ID:                    uuid.Must(uuid.NewV4()),
+			ContractID:            contract.ID,
+			Contract:              *contract,
+			Zip3:                  sanDiegoCAPostalCode[0:3],
+			RateAreaID:            models.UUIDPointer(rateAreaCA.ID),
+			HasMultipleRateAreas:  false,
+			BasePointCity:         "San Diego",
+			State:                 "CA",
+			DomesticServiceAreaID: domServiceArea.ID,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&sanDiegoZip3)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		beverlyHillsZip3 := models.ReZip3{
+			ID:                    uuid.Must(uuid.NewV4()),
+			ContractID:            contract.ID,
+			Contract:              *contract,
+			Zip3:                  beverlyHillsCAPostalCode[0:3],
+			RateAreaID:            models.UUIDPointer(rateAreaCA.ID),
+			HasMultipleRateAreas:  false,
+			BasePointCity:         "Los Angeles",
+			State:                 "CA",
+			DomesticServiceAreaID: domServiceArea.ID,
+		}
+
+		verrs, err = suite.DB().ValidateAndCreate(&beverlyHillsZip3)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
 		}
 
 		shipmentPostalCodeRateAreas, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
