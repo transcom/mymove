@@ -30,7 +30,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateUploadSuccess() {
 	setupTestData := func() {
 		contractor = factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-		fakeS3 = test.NewFakeS3Storage(true, nil)
+		fakeS3 = test.NewFakeS3Storage(true)
 		mtoServiceItemID := uuid.Must(uuid.NewV4())
 
 		moveTaskOrder := factory.BuildMove(suite.DB(), nil, nil)
@@ -80,7 +80,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateUploadSuccess() {
 func (suite *MTOServiceItemServiceSuite) TestCreateServiceRequestUploadFailure() {
 	var contractor models.Contractor
 
-	fakeS3 := test.NewFakeS3Storage(true, nil)
+	fakeS3 := test.NewFakeS3Storage(true)
 
 	setupTestData := func() {
 		contractor = factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
