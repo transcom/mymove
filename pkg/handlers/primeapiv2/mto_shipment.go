@@ -165,7 +165,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				// check each address prior to creating the shipment to ensure only valid addresses are being used to create the shipment
 				var addresses []models.Address
 
-				if mtoShipment.ShipmentType == models.MTOShipmentTypeHHG {
+				if mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
 					if mtoShipment.PickupAddress != nil {
 						addresses = append(addresses, *mtoShipment.PickupAddress)
 					}
@@ -189,7 +189,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					if mtoShipment.TertiaryDeliveryAddress != nil {
 						addresses = append(addresses, *mtoShipment.TertiaryDeliveryAddress)
 					}
-				} else if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+				} else {
 					if mtoShipment.PPMShipment.PickupAddress != nil {
 						addresses = append(addresses, *mtoShipment.PPMShipment.PickupAddress)
 					}
@@ -342,10 +342,9 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 
 			// check each address prior to updating the shipment to ensure only valid addresses are being used
-			// we only care if the city, state or postal code have changed as those are the ones we need to validate
 			var addresses []models.Address
 
-			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHG {
+			if mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
 				if mtoShipment.PickupAddress != nil {
 					addresses = append(addresses, *mtoShipment.PickupAddress)
 				}
@@ -369,7 +368,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				if mtoShipment.TertiaryDeliveryAddress != nil {
 					addresses = append(addresses, *mtoShipment.TertiaryDeliveryAddress)
 				}
-			} else if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+			} else {
 				if mtoShipment.PPMShipment.PickupAddress != nil {
 					addresses = append(addresses, *mtoShipment.PPMShipment.PickupAddress)
 				}
