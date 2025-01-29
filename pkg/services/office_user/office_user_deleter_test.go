@@ -3,6 +3,8 @@ package officeuser
 import (
 	"database/sql"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -32,7 +34,7 @@ func (suite *OfficeUserServiceSuite) TestDeleteOfficeUser() {
 		return user, officeUser
 	}
 
-	suite.Run("success - a requested office user is deleted", func() {
+	suite.Run("success - an office user is deleted", func() {
 		testUser, testOfficeUser := setupTestData()
 
 		err := deleter.DeleteOfficeUser(suite.AppContextForTest(), testOfficeUser.ID)
@@ -58,5 +60,12 @@ func (suite *OfficeUserServiceSuite) TestDeleteOfficeUser() {
 		err = suite.DB().Where("user_id = ?", testUser.ID).All(&userPrivileges)
 		suite.NoError(err)
 		suite.Empty(userPrivileges, "Expected no privileges to remain for the user")
+	})
+
+	suite.Run("error - an office user is not found", func() {
+		officeUserID := uuid.Must(uuid.NewV4())
+
+		err := deleter.DeleteOfficeUser(suite.AppContextForTest(), officeUserID)
+		suite.Error(err)
 	})
 }

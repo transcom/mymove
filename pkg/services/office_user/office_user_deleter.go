@@ -1,9 +1,12 @@
 package officeuser
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -21,12 +24,13 @@ func (o *officeUserDeleter) DeleteOfficeUser(appCtx appcontext.AppContext, id uu
 		"User.Roles",
 		"User.Privileges",
 	).Where("id = ?", id).Find(&officeUser, id)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return apperror.NewNotFoundError(id, "while looking for OfficeUser")
+	} else if err != nil {
 		return err
 	}
 
 	user := officeUser.User
-
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		userIdFilter := []services.QueryFilter{query.NewQueryFilter("user_id", "=", user.ID.String())}
 		if len(user.Roles) > 0 {
