@@ -3852,7 +3852,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		suite.NotNil(updatedShipment)
 		suite.NotNil(updatedShipment.RequiredDeliveryDate)
 
-		expectedDate := time.Date(2024, 9, 17, 0, 0, 0, 0, time.Now().UTC().Location())
+		expectedDate := time.Date(2024, 9, 22, 0, 0, 0, 0, time.Now().UTC().Location())
 		suite.Equal(expectedDate.Year(), updatedShipment.RequiredDeliveryDate.Year())
 		suite.Equal(expectedDate.Month(), updatedShipment.RequiredDeliveryDate.Month())
 		suite.Equal(expectedDate.Day(), updatedShipment.RequiredDeliveryDate.Day())
@@ -3944,7 +3944,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		suite.NotNil(updatedMTOShipment)
 		suite.NotNil(updatedMTOShipment.RequiredDeliveryDate)
 
-		expectedDate := time.Date(2024, 12, 18, 0, 0, 0, 0, time.Now().UTC().Location())
+		expectedDate := time.Date(2024, 12, 23, 0, 0, 0, 0, time.Now().UTC().Location())
 		suite.Equal(expectedDate.Year(), updatedMTOShipment.RequiredDeliveryDate.Year())
 		suite.Equal(expectedDate.Month(), updatedMTOShipment.RequiredDeliveryDate.Month())
 		suite.Equal(expectedDate.Day(), updatedMTOShipment.RequiredDeliveryDate.Day())
