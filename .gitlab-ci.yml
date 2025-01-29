@@ -1204,16 +1204,10 @@ build_push_tasks_dp3:
     - *check_dp3
 
 push_otel_collector_image_dp3:
-  stage: pre_checks
+  stage: push
   interruptible: true
-  services:
-    - name: docker:dind
-      alias: docker
-  variables:
-    DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
-    DOCKER_TLS_CERTDIR: ""
   tags:
-    - $DOCKER_RUNNER_TAG
+    - $RUNNER_TAG
   environment: $DP3_ENV
   before_script:
     - *setup_aws_vars_dp3
@@ -1221,9 +1215,9 @@ push_otel_collector_image_dp3:
   image:
     name: $DOCKER_BASE_IMAGE
     entrypoint: [""]
-  # needs:
-  #   - compile_app_server
-  #   - compile_app_client
+  needs:
+    - compile_app_server
+    - compile_app_client
   script:
      - echo "Logging in to Amazon ECR with Crane..."
      - aws ecr get-login-password --region ${AWS_REGION} | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
@@ -1476,7 +1470,7 @@ push_otel_collector_image_stg:
   stage: push
   interruptible: true
   tags:
-    - $DOCKER_RUNNER_TAG
+    - $RUNNER_TAG
   environment: stg
   image:
     name: $DOCKER_BASE_IMAGE
@@ -1495,7 +1489,10 @@ push_otel_collector_image_stg:
      - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
 
      - echo "Pushing the image to our private ECR using Crane..."
-     - docker push ${ECR_REPOSITORY_URI}/otel-collector:git-otel${CI_COMMIT_SHORT_SHA}
+     - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
+
+     - echo "Cleaning up the temporary image file..."
+     - rm image.tar
   allow_failure: false
   after_script:
     - *announce_failure
