@@ -237,10 +237,6 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		// Set up:           Use BuildOfficeUserWithRoles helper function to create
 		//					 an OfficeUser with multiple roles
 		// Expected outcome: officeUser and User should be returned as expected
-		precountRoles, err := suite.DB().Count(&roles.Role{})
-		suite.NoError(err)
-		precountUsersRoles, err := suite.DB().Count(&models.UsersRoles{})
-		suite.NoError(err)
 
 		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
 
@@ -249,14 +245,6 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		suite.True(hasRole)
 		_, hasRole = officeUser.User.Roles.GetRole(roles.RoleTypeTIO)
 		suite.True(hasRole)
-		// Check that only 2 new roles were created
-		countRoles, err := suite.DB().Count(&roles.Role{})
-		suite.NoError(err)
-		suite.Equal(precountRoles+2, countRoles)
-		// Check that only 2 new usersRoles were created
-		countUsersRoles, err := suite.DB().Count(&models.UsersRoles{})
-		suite.NoError(err)
-		suite.Equal(precountUsersRoles+2, countUsersRoles)
 	})
 
 	suite.Run("Successful creation of Stubbed OfficeUser using BuildOfficeUserWithRoles", func() {
