@@ -191,6 +191,8 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 }
 
 func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffices() {
+	testContractName := "Test_findOconusGblocDepartmentIndicator"
+	testContractCode := "Test_findOconusGblocDepartmentIndicator_Code"
 	testPostalCode := "99790"
 	testPostalCode2 := "99701"
 	testGbloc := "ABCD"
@@ -232,7 +234,31 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 
 		return serviceMember
 	}
-	contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+	createContract := func(appCtx appcontext.AppContext, contractCode string, contractName string) (*models.ReContract, error) {
+		// See if contract code already exists.
+		exists, err := appCtx.DB().Where("code = ?", contractCode).Exists(&models.ReContract{})
+		if err != nil {
+			return nil, fmt.Errorf("could not determine if contract code [%s] existed: %w", contractCode, err)
+		}
+		if exists {
+			return nil, fmt.Errorf("the provided contract code [%s] already exists", contractCode)
+		}
+
+		// Contract code is new; insert it.
+		contract := models.ReContract{
+			Code: contractCode,
+			Name: contractName,
+		}
+		verrs, err := appCtx.DB().ValidateAndSave(&contract)
+		if verrs.HasAny() {
+			return nil, fmt.Errorf("validation errors when saving contract [%+v]: %w", contract, verrs)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("could not save contract [%+v]: %w", contract, err)
+		}
+		return &contract, nil
+	}
 
 	setupDataForOconusSearchCounselingOffice := func(contract models.ReContract, postalCode string, gbloc string, transportationName string) (models.ReRateArea, models.OconusRateArea, models.UsPostRegionCity, models.DutyLocation) {
 		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
@@ -310,9 +336,12 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 	}
 
 	suite.Run("success - findOconusGblocDepartmentIndicator - returns default GLOC for departmentAffiliation if no specific departmentAffilation mapping is defined", func() {
+		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
+		suite.FatalNoError(err)
+
 		const fairbanksAlaskaPostalCode = "99790"
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, fairbanksAlaskaPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testTransportationName)
 
 		// setup department affiliation to GBLOC mappings
 		expected_gbloc := "TEST-GBLOC"
@@ -339,6 +368,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 				ServiceMemberID: serviceMember.ID,
 			})
+			suite.Nil(err)
 			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
 			suite.NotNil(departmentIndictor)
 			suite.Nil(err)
@@ -348,9 +378,11 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 	})
 
 	suite.Run("success - findOconusGblocDepartmentIndicator - returns specific GLOC for departmentAffiliation when a specific departmentAffilation mapping is defined", func() {
+		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
+		suite.FatalNoError(err)
 
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
 
 		departmentIndicators := []models.DepartmentIndicator{models.DepartmentIndicatorARMY,
 			models.DepartmentIndicatorARMYCORPSOFENGINEERS, models.DepartmentIndicatorCOASTGUARD,
@@ -395,6 +427,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 				ServiceMemberID: serviceMember.ID,
 			})
+			suite.Nil(err)
 			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
 			suite.NotNil(departmentIndictor)
 			suite.Nil(err)
@@ -410,9 +443,11 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 	})
 
 	suite.Run("failure -- returns error when there are default and no department specific GBLOC", func() {
+		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
+		suite.FatalNoError(err)
 
-		_, _, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
+		_, _, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
 
 		// No specific departmentAffiliation mapping or default were created.
 		// Expect an error response when nothing is found.
@@ -420,21 +455,25 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ServiceMemberID: serviceMember.ID,
 		})
+		suite.Nil(err)
 		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
 		suite.Nil(departmentIndictor)
 		suite.NotNil(err)
 	})
 
 	suite.Run("failure - findOconusGblocDepartmentIndicator - returns error when find service member ID fails", func() {
+		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
+		suite.FatalNoError(err)
 
-		_, _, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
+		_, _, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			// create fake service member ID to raise NOT found error
 			ServiceMemberID: uuid.Must(uuid.NewV4()),
 		})
 
+		suite.Nil(err)
 		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
 		suite.Nil(departmentIndictor)
 		suite.NotNil(err)
@@ -451,9 +490,11 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 	})
 
 	suite.Run("success - offices using default departmentIndicator mapping", func() {
+		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
+		suite.FatalNoError(err)
 
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
 
 		// setup department affiliation to GBLOC mappings
 		jppsoRegion := models.JppsoRegions{
@@ -482,6 +523,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 			ServiceMemberID: serviceMember.ID,
 		})
 
+		suite.Nil(err)
 		offices, err := findCounselingOffice(appCtx, dutylocation.ID)
 		suite.NotNil(offices)
 		suite.Nil(err)
@@ -505,9 +547,11 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 	})
 
 	suite.Run("success - returns correct office based on service affiliation -- simulate Zone 2 scenerio", func() {
+		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
+		suite.FatalNoError(err)
 
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
 
 		// ******************************************************************************
 		// setup department affiliation to GBLOC mappings for AF/SF
@@ -714,8 +758,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 }
 
 func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeOCONUS() {
-	testContractName := "Test_findOconusGblocDepartmentIndicator"
-	testContractCode := "Test_findOconusGblocDepartmentIndicator_Code"
 	testPostalCode := "32228"
 	testPostalCode2 := "99701"
 	testGbloc := "CNNQ"
@@ -737,31 +779,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 		return serviceMember
 	}
 
-	createContract := func(appCtx appcontext.AppContext, contractCode string, contractName string) (*models.ReContract, error) {
-		// See if contract code already exists.
-		exists, err := appCtx.DB().Where("code = ?", contractCode).Exists(&models.ReContract{})
-		if err != nil {
-			return nil, fmt.Errorf("could not determine if contract code [%s] existed: %w", contractCode, err)
-		}
-		if exists {
-			return nil, fmt.Errorf("the provided contract code [%s] already exists", contractCode)
-		}
-
-		// Contract code is new; insert it.
-		contract := models.ReContract{
-			Code: contractCode,
-			Name: contractName,
-		}
-		verrs, err := appCtx.DB().ValidateAndSave(&contract)
-		if verrs.HasAny() {
-			return nil, fmt.Errorf("validation errors when saving contract [%+v]: %w", contract, verrs)
-		}
-		if err != nil {
-			return nil, fmt.Errorf("could not save contract [%+v]: %w", contract, err)
-		}
-		return &contract, nil
-	}
-
+	contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 	setupDataForOconusSearchCounselingOffice := func(contract models.ReContract, postalCode string, gbloc string, transportationName string) (models.ReRateArea, models.OconusRateArea, models.UsPostRegionCity, models.DutyLocation) {
 		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
 		rateArea := models.ReRateArea{
@@ -835,12 +853,10 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 	}
 
 	suite.Run("success - findOconusGblocDepartmentIndicator - returns default GLOC for departmentAffiliation if no specific departmentAffilation mapping is defined", func() {
-		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
-		suite.FatalNoError(err)
 
 		const fairbanksAlaskaPostalCode = "99790"
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, fairbanksAlaskaPostalCode, testGbloc, testTransportationName)
 
 		// setup department affiliation to GBLOC mappings
 		expected_gbloc := "TEST-GBLOC"
@@ -867,7 +883,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 				ServiceMemberID: serviceMember.ID,
 			})
-			suite.Nil(err)
 			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
 			suite.NotNil(departmentIndictor)
 			suite.Nil(err)
@@ -877,11 +892,10 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 	})
 
 	suite.Run("Success - findOconusGblocDepartmentIndicator - Should return specific GLOC for departmentAffiliation when a specific departmentAffilation mapping is defined", func() {
-		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		suite.NotNil(contract)
-		suite.FatalNoError(err)
 
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
 
 		departmentIndicators := []models.DepartmentIndicator{models.DepartmentIndicatorARMY,
 			models.DepartmentIndicatorARMYCORPSOFENGINEERS, models.DepartmentIndicatorCOASTGUARD,
@@ -926,7 +940,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 				ServiceMemberID: serviceMember.ID,
 			})
-			suite.Nil(err)
 			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
 			suite.NotNil(departmentIndictor)
 			suite.Nil(err)
@@ -942,11 +955,10 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 	})
 
 	suite.Run("success - offices using default departmentIndicator mapping", func() {
-		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		suite.NotNil(contract)
-		suite.FatalNoError(err)
 
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
 
 		// setup department affiliation to GBLOC mappings
 		jppsoRegion := models.JppsoRegions{
@@ -974,7 +986,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 			ServiceMemberID: serviceMember.ID,
 		})
 
-		suite.Nil(err)
 		offices, err := findCounselingOffice(appCtx, dutylocation.ID)
 		suite.NotNil(offices)
 		suite.Nil(err)
@@ -997,11 +1008,10 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 	})
 
 	suite.Run("Should return correct office based on service affiliation", func() {
-		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		suite.NotNil(contract)
-		suite.FatalNoError(err)
 
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
 
 		jppsoRegion_AFSF := models.JppsoRegions{
 			Code: testGbloc,
