@@ -60,7 +60,7 @@ stages:
 #set safe directory and path
 .setup_milmove_env: &setup_milmove_env
     - git config --global --add safe.directory /builds/milmove/mymove
-    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
+    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove:/builds/milmove/mymove/scripts
     - export REACT_APP_ERROR_LOGGING=otel
 
 .announce_failure: &announce_failure
@@ -298,6 +298,7 @@ sast:
   stage: pre_checks
   tags:
     - $RUNNER_TAG
+  interruptible: true
 include:
 - template: Jobs/SAST.gitlab-ci.yml
 - template: Jobs/Dependency-Scanning.gitlab-ci.yml
@@ -336,6 +337,7 @@ anti_virus:
 # This is needed for things like pdfjs-dist
 prep_server_hosted_client_deps:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -352,6 +354,7 @@ prep_server_hosted_client_deps:
 
 pre_deps_golang:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -383,6 +386,7 @@ pre_deps_golang:
 
 pre_deps_yarn:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -413,6 +417,7 @@ check_generated_code:
 
 check_tls_certificate_dp3:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE # Replace with your appropriate Docker image.
@@ -437,6 +442,7 @@ check_tls_certificate_dp3:
 
 check_tls_certificate_stg:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -451,6 +457,7 @@ check_tls_certificate_stg:
 
 check_tls_certificate_prd:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -465,6 +472,7 @@ check_tls_certificate_prd:
 
 build_storybook:
   stage: build
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -493,6 +501,7 @@ build_storybook:
 
 deploy_storybook_dp3:
   stage: deploy
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -515,6 +524,7 @@ deploy_storybook_dp3:
 
 compile_app_client:
   stage: build
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -547,6 +557,7 @@ compile_app_client:
 
 compile_app_server:
   stage: build
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -595,6 +606,7 @@ compile_app_server:
 
 pre_test:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -653,6 +665,7 @@ pre_test:
 
 server_test:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -723,6 +736,7 @@ server_test:
 
 server_test_coverage:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -753,6 +767,7 @@ server_test_coverage:
 
 client_test:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -789,6 +804,7 @@ client_test:
 
 client_test_coverage:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -812,6 +828,7 @@ client_test_coverage:
 
 integration_test_devseed:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -861,6 +878,7 @@ integration_test_devseed:
 
 integration_tests:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -885,6 +903,7 @@ integration_tests:
 
 integration_test_mtls:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -937,6 +956,7 @@ integration_test_mtls:
 
 integration_test_admin:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -994,6 +1014,7 @@ integration_test_admin:
 
 integration_test_my:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -1052,6 +1073,7 @@ integration_test_my:
 
 integration_test_office:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -1112,6 +1134,7 @@ integration_test_office:
 ###############################################################
 build_push_app_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1135,6 +1158,7 @@ build_push_app_dp3:
 
 build_push_migrations_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1158,6 +1182,7 @@ build_push_migrations_dp3:
 
 build_push_tasks_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1181,6 +1206,7 @@ build_push_tasks_dp3:
 
 push_otel_collector_image_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1214,6 +1240,7 @@ push_otel_collector_image_dp3:
 
 deploy_migrations_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1245,6 +1272,7 @@ deploy_migrations_dp3:
 
 deploy_tasks_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1273,6 +1301,7 @@ deploy_tasks_dp3:
 
 deploy_app_client_tls_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1314,6 +1343,7 @@ deploy_app_client_tls_dp3:
 
 deploy_app_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1368,6 +1398,7 @@ deploy_app_dp3:
 
 build_push_app_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1391,6 +1422,7 @@ build_push_app_stg:
 
 build_push_migrations_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1414,6 +1446,7 @@ build_push_migrations_stg:
 
 build_push_tasks_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1437,6 +1470,7 @@ build_push_tasks_stg:
 
 push_otel_collector_image_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1470,6 +1504,7 @@ push_otel_collector_image_stg:
 
 deploy_migrations_stg:
   stage: deploy
+  resource_group: staging
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1501,6 +1536,7 @@ deploy_migrations_stg:
 
 deploy_tasks_stg:
   stage: deploy
+  resource_group: staging
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1529,6 +1565,7 @@ deploy_tasks_stg:
 
 deploy_app_client_tls_stg:
   stage: deploy
+  resource_group: staging
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1569,6 +1606,7 @@ deploy_app_client_tls_stg:
 
 deploy_app_stg:
   stage: deploy
+  resource_group: staging
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1623,6 +1661,7 @@ deploy_app_stg:
 ##############################################################################
 prod_approval:
   stage: prod_approval
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd_approval
@@ -1640,6 +1679,7 @@ prod_approval:
 
 build_push_app_prd:
   stage: push_prd
+  resource_group: production
   environment: prd
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1662,6 +1702,7 @@ build_push_app_prd:
 
 build_push_migrations_prd:
   stage: push_prd
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd
@@ -1686,6 +1727,7 @@ build_push_migrations_prd:
 
 build_push_tasks_prd:
   stage: push_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1710,6 +1752,7 @@ build_push_tasks_prd:
 
 push_otel_collector_image_prd:
   stage: push_prd
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd
@@ -1744,6 +1787,7 @@ push_otel_collector_image_prd:
 
 deploy_migrations_prd:
   stage: deploy_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1775,6 +1819,7 @@ deploy_migrations_prd:
 
 deploy_tasks_prd:
   stage: deploy_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1803,6 +1848,7 @@ deploy_tasks_prd:
 
 deploy_app_client_tls_prd:
   stage: deploy_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1845,6 +1891,7 @@ deploy_app_client_tls_prd:
 
 deploy_app_prd:
   stage: deploy_prd
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd
