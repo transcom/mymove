@@ -164,23 +164,55 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			if mtoAvailableToPrime {
 				// check each address prior to creating the shipment to ensure only valid addresses are being used to create the shipment
 				var addresses []models.Address
-				addresses = append(addresses, *mtoShipment.PickupAddress)
-				addresses = append(addresses, *mtoShipment.DestinationAddress)
 
-				if *mtoShipment.HasSecondaryPickupAddress {
-					addresses = append(addresses, *mtoShipment.SecondaryPickupAddress)
-				}
+				if mtoShipment.ShipmentType == models.MTOShipmentTypeHHG {
+					if mtoShipment.PickupAddress != nil {
+						addresses = append(addresses, *mtoShipment.PickupAddress)
+					}
 
-				if *mtoShipment.HasTertiaryPickupAddress {
-					addresses = append(addresses, *mtoShipment.TertiaryPickupAddress)
-				}
+					if mtoShipment.DestinationAddress != nil {
+						addresses = append(addresses, *mtoShipment.DestinationAddress)
+					}
 
-				if *mtoShipment.HasSecondaryDeliveryAddress {
-					addresses = append(addresses, *mtoShipment.SecondaryDeliveryAddress)
-				}
+					if mtoShipment.SecondaryPickupAddress != nil {
+						addresses = append(addresses, *mtoShipment.SecondaryPickupAddress)
+					}
 
-				if *mtoShipment.HasTertiaryDeliveryAddress {
-					addresses = append(addresses, *mtoShipment.TertiaryDeliveryAddress)
+					if mtoShipment.TertiaryPickupAddress != nil {
+						addresses = append(addresses, *mtoShipment.TertiaryPickupAddress)
+					}
+
+					if mtoShipment.SecondaryDeliveryAddress != nil {
+						addresses = append(addresses, *mtoShipment.SecondaryDeliveryAddress)
+					}
+
+					if mtoShipment.TertiaryDeliveryAddress != nil {
+						addresses = append(addresses, *mtoShipment.TertiaryDeliveryAddress)
+					}
+				} else if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+					if mtoShipment.PPMShipment.PickupAddress != nil {
+						addresses = append(addresses, *mtoShipment.PPMShipment.PickupAddress)
+					}
+
+					if mtoShipment.PPMShipment.DestinationAddress != nil {
+						addresses = append(addresses, *mtoShipment.PPMShipment.DestinationAddress)
+					}
+
+					if mtoShipment.PPMShipment.SecondaryPickupAddress != nil {
+						addresses = append(addresses, *mtoShipment.PPMShipment.SecondaryPickupAddress)
+					}
+
+					if mtoShipment.PPMShipment.TertiaryPickupAddress != nil {
+						addresses = append(addresses, *mtoShipment.PPMShipment.TertiaryPickupAddress)
+					}
+
+					if mtoShipment.PPMShipment.SecondaryDestinationAddress != nil {
+						addresses = append(addresses, *mtoShipment.PPMShipment.SecondaryDestinationAddress)
+					}
+
+					if mtoShipment.PPMShipment.TertiaryDestinationAddress != nil {
+						addresses = append(addresses, *mtoShipment.PPMShipment.TertiaryDestinationAddress)
+					}
 				}
 
 				for _, address := range addresses {
@@ -313,40 +345,54 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			// we only care if the city, state or postal code have changed as those are the ones we need to validate
 			var addresses []models.Address
 
-			if mtoShipment.PickupAddress.City != dbShipment.PickupAddress.City ||
-				mtoShipment.PickupAddress.State != dbShipment.PickupAddress.State ||
-				mtoShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode {
-				addresses = append(addresses, *mtoShipment.PickupAddress)
-			}
+			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHG {
+				if mtoShipment.PickupAddress != nil {
+					addresses = append(addresses, *mtoShipment.PickupAddress)
+				}
 
-			if mtoShipment.SecondaryPickupAddress.City != dbShipment.SecondaryPickupAddress.City ||
-				mtoShipment.SecondaryPickupAddress.State != dbShipment.SecondaryPickupAddress.State ||
-				mtoShipment.SecondaryPickupAddress.PostalCode != dbShipment.SecondaryPickupAddress.PostalCode {
-				addresses = append(addresses, *mtoShipment.SecondaryPickupAddress)
-			}
+				if mtoShipment.SecondaryPickupAddress != nil {
+					addresses = append(addresses, *mtoShipment.SecondaryPickupAddress)
+				}
 
-			if mtoShipment.TertiaryPickupAddress.City != dbShipment.TertiaryPickupAddress.City ||
-				mtoShipment.TertiaryPickupAddress.State != dbShipment.TertiaryPickupAddress.State ||
-				mtoShipment.TertiaryPickupAddress.PostalCode != dbShipment.TertiaryPickupAddress.PostalCode {
-				addresses = append(addresses, *mtoShipment.TertiaryPickupAddress)
-			}
+				if mtoShipment.TertiaryPickupAddress != nil {
+					addresses = append(addresses, *mtoShipment.TertiaryPickupAddress)
+				}
 
-			if mtoShipment.DestinationAddress.City != dbShipment.DestinationAddress.City ||
-				mtoShipment.DestinationAddress.State != dbShipment.DestinationAddress.State ||
-				mtoShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode {
-				addresses = append(addresses, *mtoShipment.DestinationAddress)
-			}
+				if mtoShipment.DestinationAddress != nil {
+					addresses = append(addresses, *mtoShipment.DestinationAddress)
+				}
 
-			if mtoShipment.SecondaryDeliveryAddress.City != dbShipment.SecondaryDeliveryAddress.City ||
-				mtoShipment.SecondaryDeliveryAddress.State != dbShipment.SecondaryDeliveryAddress.State ||
-				mtoShipment.SecondaryDeliveryAddress.PostalCode != dbShipment.SecondaryDeliveryAddress.PostalCode {
-				addresses = append(addresses, *mtoShipment.SecondaryDeliveryAddress)
-			}
+				if mtoShipment.SecondaryDeliveryAddress != nil {
+					addresses = append(addresses, *mtoShipment.SecondaryDeliveryAddress)
+				}
 
-			if mtoShipment.TertiaryDeliveryAddress.City != dbShipment.TertiaryDeliveryAddress.City ||
-				mtoShipment.TertiaryDeliveryAddress.State != dbShipment.TertiaryDeliveryAddress.State ||
-				mtoShipment.TertiaryDeliveryAddress.PostalCode != dbShipment.TertiaryDeliveryAddress.PostalCode {
-				addresses = append(addresses, *mtoShipment.TertiaryDeliveryAddress)
+				if mtoShipment.TertiaryDeliveryAddress != nil {
+					addresses = append(addresses, *mtoShipment.TertiaryDeliveryAddress)
+				}
+			} else if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+				if mtoShipment.PPMShipment.PickupAddress != nil {
+					addresses = append(addresses, *mtoShipment.PPMShipment.PickupAddress)
+				}
+
+				if mtoShipment.PPMShipment.SecondaryPickupAddress != nil {
+					addresses = append(addresses, *mtoShipment.PPMShipment.SecondaryPickupAddress)
+				}
+
+				if mtoShipment.PPMShipment.TertiaryPickupAddress != nil {
+					addresses = append(addresses, *mtoShipment.PPMShipment.TertiaryPickupAddress)
+				}
+
+				if mtoShipment.PPMShipment.DestinationAddress != nil {
+					addresses = append(addresses, *mtoShipment.PPMShipment.DestinationAddress)
+				}
+
+				if mtoShipment.PPMShipment.SecondaryDestinationAddress != nil {
+					addresses = append(addresses, *mtoShipment.PPMShipment.SecondaryDestinationAddress)
+				}
+
+				if mtoShipment.PPMShipment.TertiaryDestinationAddress != nil {
+					addresses = append(addresses, *mtoShipment.PPMShipment.TertiaryDestinationAddress)
+				}
 			}
 
 			for _, address := range addresses {

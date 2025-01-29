@@ -366,20 +366,20 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		address1 := models.Address{
 			StreetAddress1: "some address",
-			City:           "city",
+			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 		address2 := models.Address{
 			StreetAddress1: "some address",
-			City:           "city",
+			City:           "Scott Afb",
 			State:          "IL",
 			PostalCode:     "62225",
 		}
 
 		address3 := models.Address{
 			StreetAddress1: "some address",
-			City:           "city",
+			City:           "Suffolk",
 			State:          "VA",
 			PostalCode:     "23435",
 		}
@@ -715,13 +715,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		address1 := models.Address{
 			StreetAddress1: "some address",
-			City:           "city",
+			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 		addressWithEmptyStreet1 := models.Address{
 			StreetAddress1: "",
-			City:           "city",
+			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
@@ -859,7 +859,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// as empty on the server side.
 		// *************************************************************************************
 		ppmDestinationAddressOptionalStreet1ContainingWhitespaces := primev3messages.PPMDestinationAddress{
-			City:           models.StringPointer("SomeCity"),
+			City:           models.StringPointer("Beverly Hills"),
 			Country:        models.StringPointer("US"),
 			PostalCode:     models.StringPointer("90210"),
 			State:          models.StringPointer("CA"),
@@ -1564,7 +1564,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
@@ -1573,7 +1573,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
@@ -1689,7 +1689,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
@@ -1698,7 +1698,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
@@ -1707,7 +1707,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
@@ -1716,7 +1716,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
