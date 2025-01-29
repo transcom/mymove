@@ -6,9 +6,11 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -1001,7 +1003,6 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			ProvidesServicesCounseling bool
 			moveStatus                 models.MoveStatus
 		}{
-			{"Routes to Service Counseling", true, models.MoveStatusNeedsServiceCounseling},
 			{"Routes to Service Counseling", false, models.MoveStatusNeedsServiceCounseling},
 		}
 		for _, tt := range tests {
@@ -1050,6 +1051,11 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 						LinkOnly: true,
 					},
 				}, nil)
+				mockFetcher := &mocks.TransportationOfficesFetcher{}
+				closestCounselingOffice := &models.TransportationOffice{}
+				if !tt.ProvidesServicesCounseling {
+					mockFetcher.On("FindClosestCounselingOffice", mock.Anything, mock.Anything).Return(closestCounselingOffice, nil)
+				}
 				err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 				suite.NoError(err)
 				err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
@@ -1059,6 +1065,9 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 				err = suite.DB().Find(&move, move.ID)
 				suite.NoError(err)
 				suite.Equal(tt.moveStatus, move.Status)
+				if !tt.ProvidesServicesCounseling {
+					suite.Equal(closestCounselingOffice, move.CounselingOffice)
+				}
 			})
 		}
 	})
