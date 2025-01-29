@@ -30,7 +30,7 @@ func NewGetUploadStatus(ctx *middleware.Context, handler GetUploadStatusHandler)
 }
 
 /*
-	GetUploadStatus swagger:route GET /uploads/{uploadId}/status uploads getUploadStatus
+	GetUploadStatus swagger:route GET /uploads/{uploadID}/status uploads getUploadStatus
 
 # Returns status of an upload
 

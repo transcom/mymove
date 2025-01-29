@@ -1435,7 +1435,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/uploads/{uploadId}/status"] = uploads.NewGetUploadStatus(o.context, o.UploadsGetUploadStatusHandler)
+	o.handlers["GET"]["/uploads/{uploadID}/status"] = uploads.NewGetUploadStatus(o.context, o.UploadsGetUploadStatusHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

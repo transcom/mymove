@@ -47,7 +47,7 @@ func (o *GetUploadStatusParams) BindRequest(r *http.Request, route *middleware.M
 
 	o.HTTPRequest = r
 
-	rUploadID, rhkUploadID, _ := route.Params.GetOK("uploadId")
+	rUploadID, rhkUploadID, _ := route.Params.GetOK("uploadID")
 	if err := o.bindUploadID(rUploadID, rhkUploadID, route.Formats); err != nil {
 		res = append(res, err)
 	}
@@ -70,7 +70,7 @@ func (o *GetUploadStatusParams) bindUploadID(rawData []string, hasKey bool, form
 	// Format: uuid
 	value, err := formats.Parse("uuid", raw)
 	if err != nil {
-		return errors.InvalidType("uploadId", "path", "strfmt.UUID", raw)
+		return errors.InvalidType("uploadID", "path", "strfmt.UUID", raw)
 	}
 	o.UploadID = *(value.(*strfmt.UUID))
 
@@ -84,7 +84,7 @@ func (o *GetUploadStatusParams) bindUploadID(rawData []string, hasKey bool, form
 // validateUploadID carries on validations for parameter UploadID
 func (o *GetUploadStatusParams) validateUploadID(formats strfmt.Registry) error {
 
-	if err := validate.FormatOf("uploadId", "path", "uuid", o.UploadID.String(), formats); err != nil {
+	if err := validate.FormatOf("uploadID", "path", "uuid", o.UploadID.String(), formats); err != nil {
 		return err
 	}
 	return nil
