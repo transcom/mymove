@@ -288,10 +288,10 @@ func GetAutoReweighShipments(move *models.Move, updatedShipment *models.MTOShipm
 			}
 			results = append(results, move.MTOShipments[i])
 		} else if move.MTOShipments[i].ID == updatedShipment.ID {
-			if move.MTOShipments[i].PrimeActualWeight != nil {
+			if updatedShipment.PrimeActualWeight != nil {
 				totalActualWeight += lowerShipmentActualWeight(*updatedShipment)
 			}
-			if move.MTOShipments[i].PrimeEstimatedWeight != nil {
+			if updatedShipment.PrimeEstimatedWeight != nil {
 				totalEstimatedWeight += lowerShipmentEstimatedWeight(*updatedShipment)
 			}
 			results = append(results, *updatedShipment)
