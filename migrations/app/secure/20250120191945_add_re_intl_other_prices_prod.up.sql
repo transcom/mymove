@@ -3,7 +3,7 @@
 -- It should mirror what you intend to apply on loadtest/demo/exp/stg/prd
 -- DO NOT include any sensitive data.
 
-drop table re_intl_other_prices_prod;
+drop table if exists re_intl_other_prices_prod;
 
 --create table for prod re_intl_other_prices so we can match IDs
 create table re_intl_other_prices_prod as
