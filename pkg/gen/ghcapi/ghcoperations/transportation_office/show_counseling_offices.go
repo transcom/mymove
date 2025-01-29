@@ -30,7 +30,7 @@ func NewShowCounselingOffices(ctx *middleware.Context, handler ShowCounselingOff
 }
 
 /*
-	ShowCounselingOffices swagger:route GET /transportation_offices/{dutyLocationId}/counseling_offices transportationOffice showCounselingOffices
+	ShowCounselingOffices swagger:route GET /transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId} transportationOffice showCounselingOffices
 
 # Returns the counseling locations in the GBLOC matching the duty location
 
