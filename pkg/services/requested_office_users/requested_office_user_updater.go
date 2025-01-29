@@ -66,9 +66,10 @@ func (o *requestedOfficeUserUpdater) UpdateRequestedOfficeUser(appCtx appcontext
 		officeUser.OtherUniqueID = &payload.OtherUniqueID
 	}
 
+	rejectedOn := time.Now()
 	if payload.RejectionReason != "" {
 		officeUser.RejectionReason = &payload.RejectionReason
-		officeUser.RejectedOn = time.Now()
+		officeUser.RejectedOn = &rejectedOn
 	}
 
 	if payload.Status != "" {

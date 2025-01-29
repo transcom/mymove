@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  ArrayField,
-  Datagrid,
-  DateField,
-  Filter,
-  List,
-  ReferenceField,
-  TextField,
-  TextInput,
-  TopToolbar,
-} from 'react-admin';
+import { Datagrid, DateField, Filter, List, ReferenceField, TextField, TextInput, TopToolbar } from 'react-admin';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
@@ -45,11 +35,6 @@ const RejectedOfficeUserList = () => (
       <TextField source="status" />
       <TextField source="rejectionReason" label="Reason for rejection" />
       <DateField showTime source="rejectedOn" label="Rejected date" />
-      <ArrayField source="roles" label="Requested Roles">
-        <Datagrid bulkActionButtons={false} headerHeight="0" sx={{ paddingTop: 0, paddingBottom: 0 }}>
-          <TextField source="roleName" label="" />
-        </Datagrid>
-      </ArrayField>
     </Datagrid>
   </List>
 );
