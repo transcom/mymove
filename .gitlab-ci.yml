@@ -39,7 +39,7 @@ variables:
   CLIENT_IGNORE_BRANCH: &client_ignore_branch B-22106-ServerTest
   SERVER_IGNORE_BRANCH: &server_ignore_branch B-22106-ServerTest
 
-  RUNNER_TAG: &runner_tag milmove
+  RUNNER_TAG: &runner_tag eks_cluster_runner
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
 
   postgres: &postgres postgres:16.4
