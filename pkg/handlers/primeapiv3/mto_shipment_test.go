@@ -1207,6 +1207,80 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 	})
 
+	suite.Run("PATCH failure - Invalid pickup address.", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Set an invalid zip
+		// Expected:   422 Response returned
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			vLocationServices,
+		}
+
+		now := time.Now()
+		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+		move := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		var testMove models.Move
+		err := suite.DB().EagerPreload("MTOShipments.PPMShipment").Find(&testMove, move.ID)
+		suite.NoError(err)
+		var testMtoShipment models.MTOShipment
+		err = suite.DB().Find(&testMtoShipment, mto_shipment.ID)
+		suite.NoError(err)
+		testMtoShipment.MoveTaskOrderID = testMove.ID
+		testMtoShipment.MoveTaskOrder = testMove
+		err = suite.DB().Save(&testMtoShipment)
+		suite.NoError(err)
+		testMove.MTOShipments = append(testMove.MTOShipments, mto_shipment)
+		err = suite.DB().Save(&testMove)
+		suite.NoError(err)
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", testMove.MTOShipments[0].ID), nil)
+
+		eTag := etag.GenerateEtag(testMove.MTOShipments[0].UpdatedAt)
+		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(testMove.MTOShipments[0].ID.String()),
+			IfMatch:       eTag,
+		}
+		tertiaryAddress := GetTestAddress()
+		patchParams.Body = &primev3messages.UpdateMTOShipment{
+			TertiaryDeliveryAddress: struct{ primev3messages.Address }{tertiaryAddress},
+		}
+		patchResponse := patchHandler.Handle(patchParams)
+		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, errResponse)
+	})
+
 	suite.Run("POST failure - 404 -- not found", func() {
 		// Under Test: CreateMTOShipmentHandler
 		// Setup:      Create a shipment on a non-existent move
