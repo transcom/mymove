@@ -593,7 +593,7 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 	bc := &ghcmessages.BackupContact{
 		Name:  &backupContact.Name,
 		Email: &backupContact.Email,
-		Phone: backupContact.Phone,
+		Phone: &backupContact.Phone,
 	}
 
 	payload := ghcmessages.CreatedCustomer{
@@ -747,6 +747,11 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.UBAllowance != nil {
 		ubAllowance = models.Int64Pointer(int64(*entitlement.UBAllowance))
 	}
+	var weightRestriction *int64
+	if entitlement.WeightRestriction != nil {
+		weightRestriction = models.Int64Pointer(int64(*entitlement.WeightRestriction))
+	}
+
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -764,8 +769,9 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		AccompaniedTour:                accompaniedTour,
 		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		GunSafe: gunSafe,
-		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe:           gunSafe,
+		WeightRestriction: weightRestriction,
+		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -867,11 +873,7 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 		contact := contacts[0]
 		name = contact.Name
 		email = contact.Email
-		phone = ""
-		contactPhone := contact.Phone
-		if contactPhone != nil {
-			phone = *contactPhone
-		}
+		phone = contact.Phone
 	}
 
 	return &ghcmessages.BackupContact{
@@ -1318,13 +1320,16 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		Gcc:                   handlers.FmtCost(ppmCloseout.GCC),
 		Aoa:                   handlers.FmtCost(ppmCloseout.AOA),
 		RemainingIncentive:    handlers.FmtCost(ppmCloseout.RemainingIncentive),
-		HaulType:              (*string)(&ppmCloseout.HaulType),
+		HaulType:              (*string)(ppmCloseout.HaulType),
 		HaulPrice:             handlers.FmtCost(ppmCloseout.HaulPrice),
 		HaulFSC:               handlers.FmtCost(ppmCloseout.HaulFSC),
 		Dop:                   handlers.FmtCost(ppmCloseout.DOP),
 		Ddp:                   handlers.FmtCost(ppmCloseout.DDP),
 		PackPrice:             handlers.FmtCost(ppmCloseout.PackPrice),
 		UnpackPrice:           handlers.FmtCost(ppmCloseout.UnpackPrice),
+		IntlPackPrice:         handlers.FmtCost((ppmCloseout.IntlPackPrice)),
+		IntlUnpackPrice:       handlers.FmtCost((ppmCloseout.IntlUnpackPrice)),
+		IntlLinehaulPrice:     handlers.FmtCost((ppmCloseout.IntlLinehaulPrice)),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
 	}
 
@@ -1879,6 +1884,15 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 			serviceRequestDocs[i] = payload
 		}
 	}
+	var sort *string
+	if s.ReService.ReServiceItems != nil {
+		for _, reServiceItem := range *s.ReService.ReServiceItems {
+			if s.MTOShipment.MarketCode == reServiceItem.MarketCode && s.MTOShipment.ShipmentType == reServiceItem.ShipmentType {
+				sort = reServiceItem.Sort
+				break
+			}
+		}
+	}
 	payload := &ghcmessages.MTOServiceItem{
 		ID:                            handlers.FmtUUID(s.ID),
 		MoveTaskOrderID:               handlers.FmtUUID(s.MoveTaskOrderID),
@@ -1894,6 +1908,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDepartureDate:              handlers.FmtDateTimePtr(s.SITDepartureDate),
 		SitCustomerContacted:          handlers.FmtDatePtr(s.SITCustomerContacted),
 		SitRequestedDelivery:          handlers.FmtDatePtr(s.SITRequestedDelivery),
+		Sort:                          sort,
 		Status:                        ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:                   handlers.FmtStringPtr(s.Description),
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
@@ -1919,6 +1934,22 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 
 	if s.ReService.Code == models.ReServiceCodeICRT && s.MTOShipment.PickupAddress != nil {
 		if *s.MTOShipment.PickupAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
+	if s.ReService.Code == models.ReServiceCodeIOSHUT && s.MTOShipment.PickupAddress != nil {
+		if *s.MTOShipment.PickupAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
+	if s.ReService.Code == models.ReServiceCodeIDSHUT && s.MTOShipment.DestinationAddress != nil {
+		if *s.MTOShipment.DestinationAddress.IsOconus {
 			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
 		} else {
 			payload.Market = handlers.FmtString(models.MarketConus.FullString())
@@ -2615,9 +2646,11 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 
 		// populates the destination postal code of the move
 		var destinationPostalCode string
-		destinationPostalCode, err = move.GetDestinationPostalCode(appCtx.DB())
+		destinationAddress, err := move.GetDestinationAddress(appCtx.DB())
 		if err != nil {
 			destinationPostalCode = ""
+		} else {
+			destinationPostalCode = destinationAddress.PostalCode
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{

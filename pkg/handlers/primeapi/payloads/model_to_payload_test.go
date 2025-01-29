@@ -33,6 +33,16 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	originDutyGBLOC := "KKFA"
 	shipmentGBLOC := "AGFM"
 
+	backupContacts := models.BackupContacts{}
+	backupContacts = append(backupContacts, models.BackupContact{
+		Name:  "Backup contact name",
+		Phone: "555-555-5555",
+		Email: "backup@backup.com",
+	})
+	serviceMember := models.ServiceMember{
+		BackupContacts: backupContacts,
+	}
+
 	basicMove := models.Move{
 		ID:                      moveTaskOrderID,
 		Locator:                 "TESTTEST",
@@ -40,7 +50,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		AvailableToPrimeAt:      &primeTime,
 		ApprovedAt:              &primeTime,
 		OrdersID:                ordersID,
-		Orders:                  models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC},
+		Orders:                  models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC, ServiceMember: serviceMember},
 		ReferenceID:             &referenceID,
 		PaymentRequests:         models.PaymentRequests{},
 		SubmittedAt:             &submittedAt,
@@ -80,6 +90,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)))
 		suite.Require().NotNil(returnedModel.ExcessWeightUploadID)
 		suite.Equal(strfmt.UUID(basicMove.ExcessWeightUploadID.String()), *returnedModel.ExcessWeightUploadID)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Name, returnedModel.Order.Customer.BackupContact.Name)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Phone, returnedModel.Order.Customer.BackupContact.Phone)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Email, returnedModel.Order.Customer.BackupContact.Email)
 	})
 }
 
@@ -338,6 +351,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			ProGearWeightSpouse: 750,
 			CreatedAt:           time.Now(),
 			UpdatedAt:           time.Now(),
+			WeightRestriction:   models.IntPointer(1000),
 		}
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
@@ -360,6 +374,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(true, payload.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(int64(1000), payload.ProGearWeight)
 		suite.Equal(int64(750), payload.ProGearWeightSpouse)
+		suite.Equal(int64(1000), *payload.WeightRestriction)
 		suite.NotEmpty(payload.ETag)
 		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
 	})
@@ -946,6 +961,88 @@ func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 	suite.NotNil(resultDDSHUT)
 
 	_, ok := resultDDSHUT.(*primemessages.MTOServiceItemShuttle)
+
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemIDSHUT() {
+	reServiceCode := models.ReServiceCodeIDSHUT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	standaloneCrate := false
+
+	mtoServiceItemIDSHUT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: reServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultIDSHUT := MTOServiceItem(mtoServiceItemIDSHUT)
+
+	suite.NotNil(resultIDSHUT)
+
+	_, ok := resultIDSHUT.(*primemessages.MTOServiceItemInternationalShuttle)
+
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemIOSHUT() {
+	reServiceCode := models.ReServiceCodeIOSHUT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	standaloneCrate := false
+
+	mtoServiceItemIOSHUT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: reServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultIOSHUT := MTOServiceItem(mtoServiceItemIOSHUT)
+
+	suite.NotNil(resultIOSHUT)
+
+	_, ok := resultIOSHUT.(*primemessages.MTOServiceItemInternationalShuttle)
 
 	suite.True(ok)
 }

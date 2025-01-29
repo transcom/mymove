@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useFormikContext } from 'formik';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
@@ -20,6 +21,8 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     entitlements?.dependentsTwelveAndOver ||
     entitlements?.dependentsUnderTwelve
   );
+  const { setFieldValue } = useFormikContext();
+  const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(entitlements?.weightRestriction > 0);
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
@@ -31,6 +34,25 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     };
     checkUBFeatureFlag();
   }, []);
+
+  useEffect(() => {
+    if (!isAdminWeightLocationChecked) {
+      // Find the weight restriction input and reset its value to 0
+      const weightRestrictionInput = document.getElementById('weightRestrictionId');
+      if (weightRestrictionInput) {
+        weightRestrictionInput.value = '0';
+      }
+    }
+  }, [isAdminWeightLocationChecked]);
+
+  const handleAdminWeightLocationChange = (e) => {
+    const isChecked = e.target.checked;
+    setIsAdminWeightLocationChecked(isChecked);
+
+    if (!isChecked) {
+      setFieldValue('weightRestriction', 0);
+    }
+  };
 
   return (
     <div className={styles.AllowancesDetailForm}>
@@ -146,6 +168,10 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
         lazy={false} // immediate masking evaluation
         isDisabled={formIsDisabled}
       />
+      <dl>
+        <dt>Standard weight allowance</dt>
+        <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
+      </dl>
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
           data-testid="ocieInput"
@@ -164,10 +190,32 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           isDisabled={formIsDisabled}
         />
       </div>
-      <dl>
-        <dt>Weight allowance</dt>
-        <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
-      </dl>
+      <div className={styles.wrappedCheckbox}>
+        <CheckboxField
+          data-testid="adminWeightLocation"
+          id="adminWeightLocation"
+          name="adminRestrictedWeightLocation"
+          label="Admin restricted weight location"
+          isDisabled={formIsDisabled}
+          onChange={handleAdminWeightLocationChange}
+          checked={isAdminWeightLocationChecked}
+        />
+      </div>
+      {isAdminWeightLocationChecked && (
+        <MaskedTextField
+          data-testid="weightRestrictionInput"
+          id="weightRestrictionId"
+          defaultValue="0"
+          name="weightRestriction"
+          label="Weight Restriction (lbs)"
+          mask={Number}
+          scale={0} // digits after point, 0 for integers
+          signed={false} // disallow negative
+          thousandsSeparator=","
+          lazy={false} // immediate masking evaluation
+          isDisabled={formIsDisabled}
+        />
+      )}
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
           id="dependentsAuthorizedInput"

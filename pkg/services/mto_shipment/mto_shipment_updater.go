@@ -844,7 +844,9 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		}
 
 		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
-		newShipment = models.DetermineShipmentMarketCode(newShipment)
+		if newShipment.ShipmentType != models.MTOShipmentTypePPM {
+			newShipment = models.DetermineShipmentMarketCode(newShipment)
+		}
 
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
@@ -877,7 +879,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 					destZip = newShipment.DestinationAddress.PostalCode
 				}
 				// we need to get the mileage from DTOD first, the db proc will consume that
-				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
 				if err != nil {
 					return err
 				}
@@ -1073,7 +1075,7 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = shipment.DestinationAddress
 		}
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight.Int(), shipment.MarketCode)
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight.Int(), shipment.MarketCode, shipment.MoveTaskOrderID)
 		if calcErr != nil {
 			return calcErr
 		}
@@ -1136,7 +1138,6 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 				models.ReServiceCodeDPK,
 				models.ReServiceCodeDUPK,
 			}
-
 		case models.MTOShipmentTypeHHGIntoNTS:
 			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing
 			return []models.ReServiceCode{
@@ -1191,21 +1192,10 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 // CalculateRequiredDeliveryDate function is used to get a distance calculation using the pickup and destination addresses. It then uses
 // the value returned to make a fetch on the ghc_domestic_transit_times table and returns a required delivery date
 // based on the max_days_transit_time.
-func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.Planner, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int, marketCode models.MarketCode) (*time.Time, error) {
-	// Okay, so this is something to get us able to take care of the 20 day condition over in the gdoc linked in this
-	// story: https://dp3.atlassian.net/browse/MB-1141
-	// We unfortunately didn't get a lot of guidance regarding vicinity. So for now we're taking zip codes that are the
-	// explicitly mentioned 20 day cities and those in the same county (that I've manually compiled together here).
-	// If a move is in that group it adds 20 days, if it's not in that group, but is in Alaska it adds 10 days.
-	// Else it will not do either of those things.
-	// The cities for 20 days are: Adak, Kodiak, Juneau, Ketchikan, and Sitka. As well as others in their 'vicinity.'
-	twentyDayAKZips := [28]string{"99546", "99547", "99591", "99638", "99660", "99685", "99692", "99550", "99608",
-		"99615", "99619", "99624", "99643", "99644", "99697", "99650", "99801", "99802", "99803", "99811", "99812",
-		"99950", "99824", "99850", "99901", "99928", "99950", "99835"}
-
+func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.Planner, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int, marketCode models.MarketCode, moveID uuid.UUID) (*time.Time, error) {
 	internationalShipment := marketCode == models.MarketCodeInternational
-	// Get a distance calculation between pickup and destination addresses.
-	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, false, internationalShipment)
+
+	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, internationalShipment)
 	if err != nil {
 		return nil, err
 	}
@@ -1224,17 +1214,59 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 	// Add the max transit time to the pickup date to get the new required delivery date
 	requiredDeliveryDate := pickupDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
 
-	// Let's add some days if we're dealing with an alaska shipment.
-	if destinationAddress.State == "AK" {
-		for _, zip := range twentyDayAKZips {
-			if destinationAddress.PostalCode == zip {
-				// Add an extra 10 days here, so that after we add the 10 for being in AK we wind up with a total of 20
-				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, 10)
-				break
+	destinationIsAlaska, err := destinationAddress.IsAddressAlaska()
+	if err != nil {
+		return nil, fmt.Errorf("destination address is nil for move ID: %s", moveID)
+	}
+	pickupIsAlaska, err := pickupAddress.IsAddressAlaska()
+	if err != nil {
+		return nil, fmt.Errorf("pickup address is nil for move ID: %s", moveID)
+	}
+	// Let's add some days if we're dealing with a shipment between CONUS/Alaska
+	if (destinationIsAlaska || pickupIsAlaska) && !(destinationIsAlaska && pickupIsAlaska) {
+		var rateAreaID uuid.UUID
+		var intlTransTime models.InternationalTransitTime
+
+		contract, err := models.FetchContractForMove(appCtx, moveID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching contract for move ID: %s", moveID)
+		}
+
+		if destinationIsAlaska {
+			rateAreaID, err = models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, &uuid.Nil, contract.ID)
+			if err != nil {
+				return nil, fmt.Errorf("error fetching destination rate area id for address ID: %s", destinationAddress.ID)
+			}
+			err = appCtx.DB().Where("destination_rate_area_id = $1", rateAreaID).First(&intlTransTime)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, fmt.Errorf("no international transit time found for destination rate area ID: %s", rateAreaID)
+				default:
+					return nil, err
+				}
 			}
 		}
-		// Add an extra 10 days for being in AK
-		requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, 10)
+
+		if pickupIsAlaska {
+			rateAreaID, err = models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
+			if err != nil {
+				return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
+			}
+			err = appCtx.DB().Where("origin_rate_area_id = $1", rateAreaID).First(&intlTransTime)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, fmt.Errorf("no international transit time found for pickup rate area ID: %s", rateAreaID)
+				default:
+					return nil, err
+				}
+			}
+		}
+
+		if intlTransTime.HhgTransitTime != nil {
+			requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.HhgTransitTime)
+		}
 	}
 
 	// return the value
@@ -1356,11 +1388,11 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 			if TOOApprovalRequired {
 				if serviceItem.SITDestinationOriginalAddress != nil {
 					// if TOO approval was required, shipment destination address has been updated at this point
-					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false, false)
+					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false)
 				}
 			} else {
 				// if TOO approval was not required, use the newAddress
-				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false, false)
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false)
 			}
 			if err != nil {
 				return err

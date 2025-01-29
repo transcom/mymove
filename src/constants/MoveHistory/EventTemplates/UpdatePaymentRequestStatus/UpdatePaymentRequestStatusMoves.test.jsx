@@ -21,11 +21,11 @@ describe('When given a completed services counseling for a move', () => {
     expect(screen.getByText('Updated move')).toBeInTheDocument();
   });
 
-  it('defaults to blank entry if TIO ID is not present in changedValues', () => {
+  it('displays default when TIO ID is not present', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('-')).toBeInTheDocument();
+    expect(screen.getByText('Payment Requests Addressed')).toBeInTheDocument();
   });
 
   it('displays correct details when a TIO is unassigned', () => {
@@ -36,6 +36,7 @@ describe('When given a completed services counseling for a move', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
+    expect(screen.getByText('Payment Requests Addressed')).toBeInTheDocument();
     expect(screen.getByText('Task Invoicing Officer Unassigned')).toBeInTheDocument();
   });
 });

@@ -39,6 +39,8 @@ export default {
   required_medical_equipment_weight: 'Required medical equipment',
   organizational_clothing_and_individual_equipment: 'OCIE',
   gun_safe: 'Gun Safe',
+  admin_restricted_weight_location: 'Admin restricted weight location',
+  weight_restriction: 'Weight restriction',
   requested_pickup_date: 'Requested pickup date',
   grade: 'Pay grade',
   shipment_type: 'Shipment type',
@@ -151,4 +153,7 @@ export default {
   assigned_sc: 'Counselor assigned',
   assigned_too: 'Task ordering officer assigned',
   assigned_tio: 'Task invoicing officer assigned',
+  re_assigned_sc: 'Counselor reassigned',
+  re_assigned_too: 'Task ordering officer reassigned',
+  re_assigned_tio: 'Task invoicing officer reassigned',
 };

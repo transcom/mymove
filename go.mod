@@ -95,7 +95,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.28.0
 	go.opentelemetry.io/otel/trace v1.31.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/crypto v0.31.0
+	golang.org/x/crypto v0.27.0
 	golang.org/x/net v0.29.0
 	golang.org/x/oauth2 v0.23.0
 	golang.org/x/text v0.21.0
@@ -262,8 +262,8 @@ require (
 	golang.org/x/image v0.23.0 // indirect
 	golang.org/x/mod v0.20.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/term v0.24.0 // indirect
 	google.golang.org/genproto v0.0.0-20240401170217-c3f982113cda
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
@@ -277,3 +277,5 @@ require (
 	pault.ag/go/othername v0.0.0-20190316144542-859caba4369b // indirect
 	pault.ag/go/piv v0.0.0-20190320181422-d9d61c70919c // indirect
 )
+
+replace github.com/pdfcpu/pdfcpu => github.com/transcom/pdfcpu v0.0.0-20250129175949-885d668e3444
