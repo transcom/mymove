@@ -550,8 +550,9 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 			},
 		}, nil)
 
-		actualWeight := unit.Pound(7199)
-		approvedShipment.PrimeEstimatedWeight = &actualWeight
+		weight := unit.Pound(7199)
+		approvedShipment.PrimeActualWeight = &weight
+		approvedShipment.PrimeEstimatedWeight = &weight
 		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
 		suite.NoError(err)
 		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
@@ -629,15 +630,16 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		actualWeight := unit.Pound(3600)
+		weight := unit.Pound(3600)
 
 		existingShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusCanceled,
-					ApprovedDate:        &now,
-					ScheduledPickupDate: &pickupDate,
-					PrimeActualWeight:   &actualWeight,
+					Status:               models.MTOShipmentStatusCanceled,
+					ApprovedDate:         &now,
+					ScheduledPickupDate:  &pickupDate,
+					PrimeEstimatedWeight: &weight,
+					PrimeActualWeight:    &weight,
 				},
 			},
 			{
@@ -659,7 +661,8 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 			},
 		}, nil)
 
-		approvedShipment.PrimeActualWeight = &actualWeight
+		approvedShipment.PrimeEstimatedWeight = &weight
+		approvedShipment.PrimeActualWeight = &weight
 		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
 		suite.NoError(err)
 		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
