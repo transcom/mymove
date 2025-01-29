@@ -5775,8 +5775,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment",
-          "shipment_address_updates"
+          "shipment"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
@@ -22766,8 +22765,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "shipment",
-          "shipment_address_updates"
+          "shipment"
         ],
         "summary": "Allows TOO to review a shipment address update",
         "operationId": "reviewShipmentAddressUpdate",
