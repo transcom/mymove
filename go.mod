@@ -278,4 +278,4 @@ require (
 	pault.ag/go/piv v0.0.0-20190320181422-d9d61c70919c // indirect
 )
 
-replace github.com/pdfcpu/pdfcpu => github.com/transcom/pdfcpu v0.0.0-20250129164718-5f7df5a5e3c5
+replace github.com/pdfcpu/pdfcpu => github.com/transcom/pdfcpu v0.0.0-20250129175949-885d668e3444
