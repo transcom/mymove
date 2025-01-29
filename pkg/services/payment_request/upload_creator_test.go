@@ -33,7 +33,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	setupTestData := func() {
 		contractor = factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-		fakeS3 = test.NewFakeS3Storage(true, nil)
+		fakeS3 = test.NewFakeS3Storage(true)
 		paymentRequestID, err := uuid.FromString("9b873071-149f-43c2-8971-e93348ebc5e3")
 		suite.NoError(err)
 
@@ -90,7 +90,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	var contractor models.Contractor
 
-	fakeS3 := test.NewFakeS3Storage(true, nil)
+	fakeS3 := test.NewFakeS3Storage(true)
 
 	setupTestData := func() {
 		contractor = factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
