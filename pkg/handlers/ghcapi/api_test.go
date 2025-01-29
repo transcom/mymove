@@ -33,7 +33,7 @@ func (suite *HandlerSuite) AfterTest() {
 
 func (suite *HandlerSuite) createS3HandlerConfig() handlers.HandlerConfig {
 	handlerConfig := suite.HandlerConfig()
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 
 	return handlerConfig
