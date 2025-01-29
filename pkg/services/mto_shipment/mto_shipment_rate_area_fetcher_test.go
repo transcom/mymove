@@ -24,7 +24,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 	shipmentRateAreaFetcher := NewMTOShipmentRateAreaFetcher()
 
 	suite.Run("test mapping of one rateArea to many postCodes and one rateArea to one", func() {
-		availableToPrimeAtTime := time.Now().Add(-500 * time.Hour)
+		availableToPrimeAtTime := time.Now().Add(500 * time.Hour)
 		testMove := models.Move{
 			AvailableToPrimeAt: &availableToPrimeAtTime,
 			MTOShipments: models.MTOShipments{
@@ -151,7 +151,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		// setup Wasilla to have it's own RateArea
 		rateArea2 := setupRateAreaToPostalCodeData(setupRateArea(*contract), wasillaAlaskaPostalCode)
 
-		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentOconusRateArea(suite.AppContextForTest(), testMove)
+		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
 		suite.NotNil(shipmentPostalCodeRateArea)
 		suite.FatalNoError(err)
 		suite.Equal(3, len(*shipmentPostalCodeRateArea))
@@ -228,7 +228,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 			},
 		})
 
-		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentOconusRateArea(suite.AppContextForTest(), testMove)
+		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
 		suite.NotNil(shipmentPostalCodeRateArea)
 		suite.Equal(0, len(*shipmentPostalCodeRateArea))
 		suite.Nil(err)
@@ -254,7 +254,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 			},
 		}
 
-		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentOconusRateArea(suite.AppContextForTest(), testMove)
+		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
 		suite.Nil(shipmentPostalCodeRateArea)
 		suite.NotNil(err)
 		suite.IsType(apperror.UnprocessableEntityError{}, err)
@@ -296,7 +296,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 			},
 		})
 
-		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentOconusRateArea(suite.AppContextForTest(), testMove)
+		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
 		suite.Nil(shipmentPostalCodeRateArea)
 		suite.NotNil(err)
 		suite.IsType(apperror.NotFoundError{}, err)
