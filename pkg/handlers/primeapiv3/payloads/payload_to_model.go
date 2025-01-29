@@ -787,8 +787,8 @@ func MTOServiceItemModel(mtoServiceItem primev3messages.MTOServiceItem) (*models
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
 
-	case primev3messages.MTOServiceItemModelTypeMTOServiceItemShuttle:
-		shuttleService := mtoServiceItem.(*primev3messages.MTOServiceItemShuttle)
+	case primev3messages.MTOServiceItemModelTypeMTOServiceItemDomesticShuttle:
+		shuttleService := mtoServiceItem.(*primev3messages.MTOServiceItemDomesticShuttle)
 		// values to get from payload
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
