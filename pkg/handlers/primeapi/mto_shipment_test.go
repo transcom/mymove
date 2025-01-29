@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 
 	}
 
-	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
+	suite.Run("POST failure - 422 Unprocessable Entity Error Invalid Address", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		vLocationServices := address.NewVLocation()

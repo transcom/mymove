@@ -3,7 +3,6 @@ package primeapi
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -106,18 +105,6 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 			} else if len(*locationList) == 0 {
 				unprocessableErr := apperror.NewUnprocessableEntityError(
 					fmt.Sprintf("primeapi.UpdateMTOShipmentAddress: could not find the provided location: %s", addressSearch))
-				appCtx.Logger().Warn(unprocessableErr.Error())
-				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
-				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
-			} else if len(*locationList) > 1 {
-				var results []string
-
-				for _, address := range *locationList {
-					results = append(results, address.CityName+" "+address.StateName+" "+address.UsprZipID)
-				}
-				joinedResult := strings.Join(results[:], ", ")
-				unprocessableErr := apperror.NewUnprocessableEntityError(
-					fmt.Sprintf("primeapi.UpdateMTOShipmentAddress: multiple locations found choose one of the following: %s", joinedResult))
 				appCtx.Logger().Warn(unprocessableErr.Error())
 				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
 				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payload), unprocessableErr

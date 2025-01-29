@@ -3,7 +3,6 @@ package primeapiv3
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
@@ -280,18 +279,6 @@ func checkValidAddress(vLocation services.VLocation, appCtx appcontext.AppContex
 	} else if len(*locationList) == 0 {
 		unprocessableErr := apperror.NewUnprocessableEntityError(
 			fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: could not find the provided location: %s", addressSearch))
-		return unprocessableErr
-	} else if len(*locationList) > 1 {
-		var results []string
-
-		for _, address := range *locationList {
-			results = append(results, address.CityName+" "+address.StateName+" "+address.UsprZipID)
-		}
-
-		joinedResult := strings.Join(results[:], ", ")
-		unprocessableErr := apperror.NewUnprocessableEntityError(
-			fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: multiple locations found choose one of the following: %s", joinedResult))
-		appCtx.Logger().Warn(unprocessableErr.Error())
 		return unprocessableErr
 	}
 
