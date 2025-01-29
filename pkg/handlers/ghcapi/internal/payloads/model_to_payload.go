@@ -2458,6 +2458,7 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 
 }
 
+// dad
 // QueuePaymentRequests payload
 func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string) *ghcmessages.QueuePaymentRequests {
 
@@ -2516,6 +2517,13 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			if isSupervisor && orders.OrdersType == "SAFETY" {
 				availableOfficeUsers = officeUsersSafety
 			}
+
+			// if the assigned TIO doesn't work at the user's counseling office, append them
+			if queuePaymentRequests[i].AssignedTo != nil && paymentRequest.MoveTaskOrder.TIOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+				availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TIOAssignedUser)
+			}
+
+			// if they're not a supervisor and it is assignable, the only option should be themself
 			if !isSupervisor {
 				availableOfficeUsers = models.OfficeUsers{officeUser}
 			}
