@@ -13,6 +13,7 @@ import { SitStatusShape } from 'types/sitStatusShape';
 import { formatDateWithUTC } from 'shared/dates';
 import { formatCityStateAndPostalCode } from 'utils/shipmentDisplay';
 import { formatWeight, convertFromThousandthInchToInch, formatCents, toDollarString } from 'utils/formatters';
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 
 function generateDetailText(details, id, className) {
   const detailList = Object.keys(details).map((detail) => (
@@ -51,7 +52,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
   return (
     <div>
       <dl>
-        {code === 'DDFSIT' || code === 'IDFSIT'
+        {code === SERVICE_ITEM_CODES.DDFSIT || code === SERVICE_ITEM_CODES.IDFSIT
           ? generateDetailText({
               'Original Delivery Address': originalDeliveryAddress
                 ? formatCityStateAndPostalCode(originalDeliveryAddress)
@@ -59,7 +60,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
             })
           : null}
-        {code === 'DDASIT' && (
+        {code === SERVICE_ITEM_CODES.DDASIT && (
           <>
             {generateDetailText(
               {
@@ -88,7 +89,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {code === 'IDASIT' && (
+        {code === SERVICE_ITEM_CODES.IDASIT && (
           <>
             {generateDetailText(
               {
@@ -117,7 +118,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {code === 'DDSFSC' || code === 'IDSFSC'
+        {code === SERVICE_ITEM_CODES.DDSFSC || code === SERVICE_ITEM_CODES.IDSFSC
           ? generateDetailText(
               {
                 'Original Delivery Address': originalDeliveryAddress
@@ -132,7 +133,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               id,
             )
           : null}
-        {code === 'DDDSIT' && (
+        {code === SERVICE_ITEM_CODES.DDDSIT && (
           <>
             {generateDetailText(
               {
@@ -170,7 +171,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {code === 'IDDSIT' && (
+        {code === SERVICE_ITEM_CODES.IDDSIT && (
           <>
             {generateDetailText(
               {
@@ -208,7 +209,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {(code === 'DDFSIT' || code === 'IDFSIT') && (
+        {(code === SERVICE_ITEM_CODES.DDFSIT || code === SERVICE_ITEM_CODES.IDFSIT) && (
           <>
             {!isEmpty(sortedCustomerContacts)
               ? sortedCustomerContacts.map((contact, index) => (
@@ -256,8 +257,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
 
   let detailSection;
   switch (code) {
-    case 'DOFSIT':
-    case 'IOFSIT': {
+    case SERVICE_ITEM_CODES.DOFSIT:
+    case SERVICE_ITEM_CODES.IOFSIT: {
       detailSection = (
         <div>
           <dl>
@@ -290,8 +291,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DOASIT':
-    case 'IOASIT': {
+    case SERVICE_ITEM_CODES.DOASIT:
+    case SERVICE_ITEM_CODES.IOASIT: {
       const numberOfDaysApprovedForIOASIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
       const sitEndDate =
         sitStatus &&
@@ -342,8 +343,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DOPSIT':
-    case 'IOPSIT': {
+    case SERVICE_ITEM_CODES.DOPSIT:
+    case SERVICE_ITEM_CODES.IOPSIT: {
       detailSection = (
         <div>
           <dl>
@@ -378,8 +379,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DOSFSC':
-    case 'IOSFSC': {
+    case SERVICE_ITEM_CODES.DOSFSC:
+    case SERVICE_ITEM_CODES.IOSFSC: {
       detailSection = (
         <div>
           <dl>
@@ -414,10 +415,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DDFSIT':
-    case 'DDASIT':
-    case 'IDFSIT':
-    case 'IDASIT': {
+    case SERVICE_ITEM_CODES.DDFSIT:
+    case SERVICE_ITEM_CODES.DDASIT:
+    case SERVICE_ITEM_CODES.IDFSIT:
+    case SERVICE_ITEM_CODES.IDASIT: {
       detailSection = generateDestinationSITDetailSection(
         id,
         serviceRequestDocUploads,
@@ -428,8 +429,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DDDSIT':
-    case 'IDDSIT': {
+    case SERVICE_ITEM_CODES.DDDSIT:
+    case SERVICE_ITEM_CODES.IDDSIT: {
       detailSection = generateDestinationSITDetailSection(
         id,
         serviceRequestDocUploads,
@@ -440,8 +441,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DDSFSC':
-    case 'IDSFSC': {
+    case SERVICE_ITEM_CODES.DDSFSC:
+    case SERVICE_ITEM_CODES.IDSFSC: {
       detailSection = generateDestinationSITDetailSection(
         id,
         serviceRequestDocUploads,
@@ -452,8 +453,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DCRT':
-    case 'DCRTSA': {
+    case SERVICE_ITEM_CODES.DCRT:
+    case SERVICE_ITEM_CODES.DCRTSA: {
       const { description, itemDimensions, crateDimensions } = details;
       const itemDimensionFormat = `${convertFromThousandthInchToInch(
         itemDimensions?.length,
@@ -491,7 +492,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DUCRT': {
+    case SERVICE_ITEM_CODES.DUCRT: {
       const { description, itemDimensions, crateDimensions } = details;
       const itemDimensionFormat = `${convertFromThousandthInchToInch(
         itemDimensions?.length,
@@ -528,8 +529,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DOSHUT':
-    case 'DDSHUT': {
+    case SERVICE_ITEM_CODES.DOSHUT:
+    case SERVICE_ITEM_CODES.DDSHUT: {
       const estimatedWeight = details.estimatedWeight != null ? formatWeight(details.estimatedWeight) : `— lbs`;
       detailSection = (
         <div>
@@ -557,21 +558,18 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'DLH':
-    case 'DSH':
-    case 'FSC':
-    case 'DOP':
-    case 'DDP':
-    case 'DPK':
-    case 'DUPK':
-    case 'ISLH':
-    case 'IHPK':
-    case 'IHUPK':
-    case 'IUBPK':
-    case 'IUBUPK':
-    case 'POEFSC':
-    case 'PODFSC':
-    case 'UBP': {
+    case SERVICE_ITEM_CODES.DLH:
+    case SERVICE_ITEM_CODES.DSH:
+    case SERVICE_ITEM_CODES.FSC:
+    case SERVICE_ITEM_CODES.DOP:
+    case SERVICE_ITEM_CODES.DDP:
+    case SERVICE_ITEM_CODES.DPK:
+    case SERVICE_ITEM_CODES.DUPK:
+    case SERVICE_ITEM_CODES.ISLH:
+    case SERVICE_ITEM_CODES.IHPK:
+    case SERVICE_ITEM_CODES.IHUPK:
+    case SERVICE_ITEM_CODES.POEFSC:
+    case SERVICE_ITEM_CODES.PODFSC: {
       detailSection = (
         <div>
           <dl>
@@ -583,8 +581,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'MS':
-    case 'CS': {
+    case SERVICE_ITEM_CODES.MS:
+    case SERVICE_ITEM_CODES.CS: {
       const { estimatedPrice } = details;
       detailSection = (
         <div>
@@ -593,7 +591,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'ICRT': {
+    case SERVICE_ITEM_CODES.ICRT: {
       const { description, itemDimensions, crateDimensions, market, externalCrate } = details;
       const itemDimensionFormat = `${convertFromThousandthInchToInch(
         itemDimensions?.length,
@@ -633,7 +631,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'IUCRT': {
+    case SERVICE_ITEM_CODES.IUCRT: {
       const { description, itemDimensions, crateDimensions, market } = details;
       const itemDimensionFormat = `${convertFromThousandthInchToInch(
         itemDimensions?.length,
