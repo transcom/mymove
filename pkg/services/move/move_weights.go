@@ -308,7 +308,7 @@ func GetAutoReweighShipments(move *models.Move, updatedShipment *models.MTOShipm
 		return results, nil
 	}
 
-	return results, nil
+	return models.MTOShipments{}, nil
 }
 
 func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
