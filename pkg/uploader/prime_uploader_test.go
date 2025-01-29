@@ -78,7 +78,7 @@ func (suite *UploaderSuite) TestTooLargePrimeUploadFromLocalFile() {
 
 func (suite *UploaderSuite) TestPrimeUploadStorerCalledWithTags() {
 	document := factory.BuildProofOfServiceDoc(suite.DB(), nil, nil)
-	fakeS3 := test.NewFakeS3Storage(true, nil)
+	fakeS3 := test.NewFakeS3Storage(true)
 
 	primeUploader, err := uploader.NewPrimeUploader(fakeS3, 25*uploader.MB)
 	suite.NoError(err)

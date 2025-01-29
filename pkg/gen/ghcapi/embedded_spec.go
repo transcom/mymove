@@ -6292,7 +6292,7 @@ func init() {
         }
       }
     },
-    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+    "/transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}": {
       "get": {
         "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
         "produces": [
@@ -6311,6 +6311,14 @@ func init() {
             "name": "dutyLocationId",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member, some counseling offices are branch specific",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
@@ -6319,6 +6327,15 @@ func init() {
             "schema": {
               "$ref": "#/definitions/CounselingOffices"
             }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
           },
           "500": {
             "description": "internal server error"
@@ -11451,6 +11468,27 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "intlLinehaulPrice": {
+          "description": "The full price of international shipping and linehaul (ISLH)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlPackPrice": {
+          "description": "The full price of international packing (IHPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlUnpackPrice": {
+          "description": "The full price of international unpacking (IHUPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "miles": {
           "description": "The distance between the old address and the new address in miles.",
@@ -23432,7 +23470,7 @@ func init() {
         }
       }
     },
-    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+    "/transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}": {
       "get": {
         "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
         "produces": [
@@ -23451,6 +23489,14 @@ func init() {
             "name": "dutyLocationId",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member, some counseling offices are branch specific",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
@@ -23458,6 +23504,24 @@ func init() {
             "description": "Successfully retrieved counseling offices",
             "schema": {
               "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
@@ -28611,6 +28675,27 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "intlLinehaulPrice": {
+          "description": "The full price of international shipping and linehaul (ISLH)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlPackPrice": {
+          "description": "The full price of international packing (IHPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlUnpackPrice": {
+          "description": "The full price of international unpacking (IHUPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "miles": {
           "description": "The distance between the old address and the new address in miles.",

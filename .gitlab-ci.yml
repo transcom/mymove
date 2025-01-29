@@ -1193,14 +1193,11 @@ push_otel_collector_image_dp3:
     - compile_app_server
     - compile_app_client
   script:
-     - echo "Logging in to DockerHub with Crane..."
-     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
+     - echo "Logging in to Amazon ECR with Crane..."
+     - aws ecr get-login-password --region ${AWS_REGION} | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
-     - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
-
-     - echo "Logging in to AWS ECR with Crane..."
-     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
+     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
 
      - echo "Pushing the image to our private ECR using Crane..."
      - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
@@ -1451,14 +1448,11 @@ push_otel_collector_image_stg:
     - *setup_aws_vars_stg
     - *setup_release_stg
   script:
-     - echo "Logging in to DockerHub with Crane..."
-     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
+     - echo "Logging in to Amazon ECR with Crane..."
+     - aws ecr get-login-password --region ${AWS_REGION} | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
-     - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
-
-     - echo "Logging in to AWS ECR with Crane..."
-     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
+     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
 
      - echo "Pushing the image to our private ECR using Crane..."
      - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
@@ -1560,11 +1554,11 @@ deploy_app_client_tls_stg:
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
     - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.move.mil" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
   after_script:
     - *announce_failure
   rules:
@@ -1611,11 +1605,11 @@ deploy_app_stg:
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --log-level info --timeout 15m
+    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil --log-level info --timeout 15m
     - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA"
+    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil" "$CI_COMMIT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1727,14 +1721,11 @@ push_otel_collector_image_prd:
     - *setup_aws_vars_prd
     - *setup_release_prd
   script:
-     - echo "Logging in to DockerHub with Crane..."
-     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
+     - echo "Logging in to Amazon ECR with Crane..."
+     - aws ecr get-login-password --region ${AWS_REGION} | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
-     - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
-
-     - echo "Logging in to AWS ECR with Crane..."
-     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
+     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
 
      - echo "Pushing the image to our private ECR using Crane..."
      - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
@@ -1838,11 +1829,11 @@ deploy_app_client_tls_prd:
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
     - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.move.mil" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
   after_script:
     - *announce_failure
   rules:
@@ -1889,11 +1880,11 @@ deploy_app_prd:
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --log-level info --timeout 15m
+    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil --log-level info --timeout 15m
     - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA"
+    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil" "$CI_COMMIT_SHA"
   after_script:
     - *announce_failure
   rules:

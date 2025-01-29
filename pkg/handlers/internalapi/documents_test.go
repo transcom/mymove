@@ -81,7 +81,7 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	params.HTTPRequest = req
 
 	handlerConfig := suite.HandlerConfig()
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := ShowDocumentHandler{handlerConfig}
 	response := handler.Handle(params)

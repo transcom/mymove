@@ -4343,7 +4343,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  /transportation_offices/{dutyLocationId}/counseling_offices:
+  /transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}:
     get:
       summary: Returns the counseling locations in the GBLOC matching the duty location
       description: >-
@@ -4359,6 +4359,14 @@ paths:
           type: string
           required: true
           description: UUID of the duty location
+        - in: path
+          name: serviceMemberId
+          format: uuid
+          type: string
+          required: true
+          description: >-
+            UUID of the service member, some counseling offices are branch
+            specific
       produces:
         - application/json
       responses:
@@ -4366,6 +4374,12 @@ paths:
           description: Successfully retrieved counseling offices
           schema:
             $ref: '#/definitions/CounselingOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
         '500':
           description: internal server error
   /uploads:
@@ -11122,6 +11136,24 @@ definitions:
         x-omitempty: false
       unpackPrice:
         description: The full price of all packing/unpacking services.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlPackPrice:
+        description: The full price of international packing (IHPK)
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlUnpackPrice:
+        description: The full price of international unpacking (IHUPK)
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlLinehaulPrice:
+        description: The full price of international shipping and linehaul (ISLH)
         type: integer
         format: cents
         x-nullable: true
