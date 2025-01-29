@@ -36,6 +36,7 @@ import (
 
 func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 	req := httptest.NewRequest("POST", "/mto-shipments/{mtoShipmentID}/shipment-address-updates", nil)
+	vLocationServices := address.NewVLocation()
 
 	makeSubtestData := func() mtoshipmentops.UpdateShipmentDestinationAddressParams {
 		contractorRemark := "This is a contractor remark"
@@ -57,10 +58,28 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		return params
 
 	}
+
 	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		vLocationServices := address.NewVLocation()
+		handler := UpdateShipmentDestinationAddressHandler{
+			suite.HandlerConfig(),
+			&mockCreator,
+			vLocationServices,
+		}
+
+		subtestData.Body.NewAddress.City = handlers.FmtString("Bad City")
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
+	})
+
+	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
@@ -94,7 +113,6 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 	suite.Run("POST failure - 409 Request conflict reponse Error", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		vLocationServices := address.NewVLocation()
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
@@ -126,7 +144,6 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		vLocationServices := address.NewVLocation()
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
@@ -158,7 +175,6 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		vLocationServices := address.NewVLocation()
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,

@@ -102,13 +102,13 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 				errStr := serverError.Error() // we do this because InternalServerError wants a *string
 				appCtx.Logger().Warn(serverError.Error())
 				payload := payloads.InternalServerError(&errStr, h.GetTraceIDFromRequest(params.HTTPRequest))
-				return mtoshipmentops.NewUpdateShipmentDestinationAddressInternalServerError().WithPayload(payload), serverError
+				return mtoshipmentops.NewUpdateMTOShipmentAddressInternalServerError().WithPayload(payload), serverError
 			} else if len(*locationList) == 0 {
 				unprocessableErr := apperror.NewUnprocessableEntityError(
 					fmt.Sprintf("primeapi.UpdateMTOShipmentAddress: could not find the provided location: %s", addressSearch))
 				appCtx.Logger().Warn(unprocessableErr.Error())
 				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
-				return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
+				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
 			} else if len(*locationList) > 1 {
 				var results []string
 
@@ -120,7 +120,7 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 					fmt.Sprintf("primeapi.UpdateMTOShipmentAddress: multiple locations found choose one of the following: %s", joinedResult))
 				appCtx.Logger().Warn(unprocessableErr.Error())
 				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
-				return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
+				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
 			}
 
 			// Call the service object
