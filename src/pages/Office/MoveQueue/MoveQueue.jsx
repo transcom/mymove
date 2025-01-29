@@ -2,13 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, NavLink, useParams, Navigate, generatePath } from 'react-router-dom';
 import { Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useMutation } from '@tanstack/react-query';
 
 import styles from './MoveQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
 import { useMovesQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
-import { getMovesQueue, saveBulkAssignmentData } from 'services/ghcApi';
+import { getMovesQueue } from 'services/ghcApi';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
@@ -168,7 +167,11 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
                 {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => (
-                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                  <option
+                    value={officeUserId}
+                    key={officeUserId}
+                    selected={row.assignedTo?.officeUserId === officeUserId}
+                  >
                     {`${lastName}, ${firstName}`}
                   </option>
                 ))}

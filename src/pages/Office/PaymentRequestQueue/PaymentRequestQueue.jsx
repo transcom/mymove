@@ -169,7 +169,11 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
                 {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => {
                   return (
-                    <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                    <option
+                      value={officeUserId}
+                      key={officeUserId}
+                      selected={row.assignedTo?.officeUserId === officeUserId}
+                    >
                       {`${lastName}, ${firstName}`}
                     </option>
                   );

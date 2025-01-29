@@ -109,7 +109,6 @@ const TableQueue = ({
     setIsBulkAssignModalVisible(true);
   };
 
-  const [tableData, setTableData] = useState([]);
   const {
     queueResult: {
       totalCount = 0,
@@ -127,10 +126,8 @@ const TableQueue = ({
     currentPage,
     currentPageSize,
     viewAsGBLOC: selectedGbloc,
-    onSuccess: (res) => {
-      if (tableData.length < 1) setTableData(res.queueMoves);
-    },
   });
+  const tableData = useMemo(() => data, [data]);
 
   // react-table setup below
   const defaultColumn = useMemo(
@@ -140,14 +137,12 @@ const TableQueue = ({
     }),
     [],
   );
-  // const cachedTableData = useMemo(() => data, [data]);
 
   const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
     onSuccess: () => {
-      // reload page to refetch queue
-      // window.location.reload();
-      refetch().then((res) => {
-        setTableData([...res.data.queueMoves]);
+      // refetch queue
+      refetch().then(() => {
+        setIsBulkAssignModalVisible(false);
       });
     },
   });
@@ -332,10 +327,7 @@ const TableQueue = ({
   };
 
   const handleCloseBulkAssignModal = () => {
-    refetch().then((res) => {
-      setTableData([...res.data.queueMoves]);
-      setIsBulkAssignModalVisible(false);
-    });
+    setIsBulkAssignModalVisible(false);
   };
 
   const onSubmitBulk = (bulkAssignmentSavePayload) => {
