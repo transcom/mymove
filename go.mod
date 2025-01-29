@@ -277,3 +277,5 @@ require (
 	pault.ag/go/othername v0.0.0-20190316144542-859caba4369b // indirect
 	pault.ag/go/piv v0.0.0-20190320181422-d9d61c70919c // indirect
 )
+
+replace github.com/pdfcpu/pdfcpu => github.com/cameroncaci/pdfcpu v0.0.0-20250129151455-1affe852fa3c
