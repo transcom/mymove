@@ -81,7 +81,6 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 
 	suite.Run("Successful creation of TIO Admin User", func() {
 
-		// Create the TIO Role
 		tioRole := roles.Role{
 			RoleType: roles.RoleTypeTIO,
 		}
