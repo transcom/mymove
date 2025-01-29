@@ -97,7 +97,7 @@ func (suite *UploaderSuite) TestFailureCreatingServiceRequestUpload() {
 
 func (suite *UploaderSuite) TestServiceRequestUploadStorerCalledWithTags() {
 	document := factory.BuildServiceRequestDocument(suite.DB(), nil, nil)
-	fakeS3 := test.NewFakeS3Storage(true, nil)
+	fakeS3 := test.NewFakeS3Storage(true)
 
 	serviceRequestUploader, err := uploader.NewServiceRequestUploader(fakeS3, 25*uploader.MB)
 	suite.NoError(err)

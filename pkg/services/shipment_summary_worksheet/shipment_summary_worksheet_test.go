@@ -1267,7 +1267,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.FatalNoError(uploaderErr)
 	generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
@@ -1339,12 +1339,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursementCalculations() {
 
-	// Helper function to format disbursement field for equal checks
-	expectedDisbursementString := func(expectedGTCC int, expectedMember int) string {
-		return "GTCC: " + FormatDollars((models.CentPointer(unit.Cents(expectedGTCC)).ToMillicents().ToDollarFloat())) + "\nMember: " + FormatDollars(models.CentPointer(unit.Cents(expectedMember)).ToMillicents().ToDollarFloat())
-	}
-
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.FatalNoError(uploaderErr)
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}

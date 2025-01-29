@@ -79,7 +79,7 @@ func (suite *UploaderSuite) TestTooLargeUserUploadFromLocalFile() {
 
 func (suite *UploaderSuite) TestUserUploadStorerCalledWithTags() {
 	document := factory.BuildDocument(suite.DB(), nil, nil)
-	fakeS3 := test.NewFakeS3Storage(true, nil)
+	fakeS3 := test.NewFakeS3Storage(true)
 
 	userUploader, err := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.NoError(err)
