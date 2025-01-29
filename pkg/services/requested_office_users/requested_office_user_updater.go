@@ -1,6 +1,8 @@
 package adminuser
 
 import (
+	"time"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -66,6 +68,7 @@ func (o *requestedOfficeUserUpdater) UpdateRequestedOfficeUser(appCtx appcontext
 
 	if payload.RejectionReason != "" {
 		officeUser.RejectionReason = &payload.RejectionReason
+		officeUser.RejectedOn = time.Now()
 	}
 
 	if payload.Status != "" {

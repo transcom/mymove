@@ -37,7 +37,6 @@ func payloadForRejectedOfficeUserModel(o models.OfficeUser) *adminmessages.Offic
 		CreatedAt:              *handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              *handlers.FmtDateTime(o.UpdatedAt),
 		RejectedOn:             *handlers.FmtDateTime(o.RejectedOn),
-		DeletedOn:              *handlers.FmtDateTime(o.DeletedOn),
 	}
 
 	if o.UserID != nil {

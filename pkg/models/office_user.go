@@ -43,7 +43,6 @@ type OfficeUser struct {
 	OtherUniqueID                   *string                         `json:"other_unique_id" db:"other_unique_id"`
 	RejectionReason                 *string                         `json:"rejection_reason" db:"rejection_reason"`
 	RejectedOn                      time.Time                       `json:"rejected_on" db:"rejected_on"`
-	DeletedOn                       time.Time                       `json:"deleted_on" db:"deleted_on"`
 }
 
 type OfficeUserWithWorkload struct {

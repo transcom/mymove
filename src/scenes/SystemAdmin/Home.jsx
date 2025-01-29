@@ -43,6 +43,7 @@ import RequestedOfficeUserList from 'pages/Admin/RequestedOfficeUsers/RequestedO
 import RequestedOfficeUserShow from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserShow';
 import RequestedOfficeUserEdit from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserEdit';
 import RejectedOfficeUserList from 'pages/Admin/RejectedOfficeUsers/RejectedOfficeUserList';
+import RejectedOfficeUserShow from 'pages/Admin/RejectedOfficeUsers/RejectedOfficeUserShow';
 import PaymentRequest858List from 'pages/Admin/PaymentRequests/PaymentRequest858List';
 import PaymentRequest858Show from 'pages/Admin/PaymentRequests/PaymentRequest858Show';
 
@@ -84,6 +85,7 @@ const Home = () => (
         name="rejected-office-users"
         options={{ label: 'Rejected Office Users' }}
         list={RejectedOfficeUserList}
+        show={RejectedOfficeUserShow}
       />
       <Resource
         name="office-users"
