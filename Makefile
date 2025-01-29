@@ -41,6 +41,15 @@ ifdef CIRCLECI
 	endif
 endif
 
+ifdef GITLAB
+	DB_PORT_DEV=5432
+	DB_PORT_TEST=5432
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		LDFLAGS=-linkmode external -extldflags -static
+	endif
+endif
+
 ifdef GOLAND
 	GOLAND_GC_FLAGS=all=-N -l
 endif
