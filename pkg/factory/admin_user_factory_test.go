@@ -81,15 +81,9 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 
 	suite.Run("Successful creation of TIO Admin User", func() {
 
-		// Create the TIO Role
 		tioRole := roles.Role{
-			ID:       uuid.Must(uuid.NewV4()),
 			RoleType: roles.RoleTypeTIO,
-			RoleName: "Task Invoicing Officer",
 		}
-		verrs, err := suite.DB().ValidateAndCreate(&tioRole)
-		suite.NoError(err)
-		suite.False(verrs.HasAny())
 
 		// FUNCTION UNDER TEST
 		adminUser := BuildAdminUser(suite.DB(), []Customization{
