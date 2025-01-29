@@ -172,7 +172,3 @@ func (s *S3) Tags(key string) (map[string]string, error) {
 
 	return tags, nil
 }
-
-func (_ *S3) StorageType() string {
-	return "S3"
-}
