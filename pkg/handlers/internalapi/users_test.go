@@ -70,7 +70,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		params := userop.ShowLoggedInUserParams{
 			HTTPRequest: req,
 		}
-		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+		fakeS3 := storageTest.NewFakeS3Storage(true)
 		builder := officeuser.NewOfficeUserFetcherPop()
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
@@ -132,7 +132,7 @@ func (suite *HandlerSuite) TestServiceMemberWithCloseoutOfficeHandler() {
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	builder := officeuser.NewOfficeUserFetcherPop()
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
@@ -165,7 +165,7 @@ func (suite *HandlerSuite) TestServiceMemberWithNoCloseoutOfficeHandler() {
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	builder := officeuser.NewOfficeUserFetcherPop()
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)

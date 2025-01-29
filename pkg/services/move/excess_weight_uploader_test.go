@@ -13,7 +13,7 @@ import (
 )
 
 func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
-	fakeFileStorer := test.NewFakeS3Storage(true, nil)
+	fakeFileStorer := test.NewFakeS3Storage(true)
 	uploadCreator := upload.NewUploadCreator(fakeFileStorer)
 
 	testFileName := "upload-test.pdf"
@@ -98,7 +98,7 @@ func (suite *MoveServiceSuite) TestCreateExcessWeightUpload() {
 }
 
 func (suite *MoveServiceSuite) TestCreateExcessWeightUploadPrime() {
-	fakeFileStorer := test.NewFakeS3Storage(true, nil)
+	fakeFileStorer := test.NewFakeS3Storage(true)
 	uploadCreator := upload.NewUploadCreator(fakeFileStorer)
 
 	testFileName := "upload-test.pdf"
