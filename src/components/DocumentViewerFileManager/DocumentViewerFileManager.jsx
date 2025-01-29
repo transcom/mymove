@@ -188,16 +188,12 @@ const DocumentViewerFileManager = ({
 
   const handleUpload = async (file) => {
     setIsFileProcessing(true);
-    switch (documentType) {
-      case MOVE_DOCUMENT_TYPE.ORDERS:
-        return uploadOrders(file);
-      case MOVE_DOCUMENT_TYPE.AMENDMENTS:
-        return uploadAmdendedOrders(file);
-      case MOVE_DOCUMENT_TYPE.SUPPORTING:
-        return uploadSupportingDocuments(file);
-      default:
-        setServerError('Document type could not be identified during upload');
-        throw new Error(`Unsupported document type: ${documentType}`);
+    if (documentType === MOVE_DOCUMENT_TYPE.ORDERS) {
+      uploadOrders(file);
+    } else if (documentType === MOVE_DOCUMENT_TYPE.AMENDMENTS) {
+      uploadAmdendedOrders(file);
+    } else if (documentType === MOVE_DOCUMENT_TYPE.SUPPORTING) {
+      uploadSupportingDocuments(file);
     }
   };
 
