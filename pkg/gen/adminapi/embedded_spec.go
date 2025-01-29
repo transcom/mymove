@@ -1019,9 +1019,6 @@ func init() {
           "204": {
             "description": "deleted"
           },
-          "400": {
-            "description": "invalid request"
-          },
           "401": {
             "description": "request requires user authentication"
           },
@@ -4712,9 +4709,6 @@ func init() {
         "responses": {
           "204": {
             "description": "deleted"
-          },
-          "400": {
-            "description": "invalid request"
           },
           "401": {
             "description": "request requires user authentication"

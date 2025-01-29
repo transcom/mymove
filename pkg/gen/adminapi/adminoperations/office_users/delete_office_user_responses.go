@@ -36,31 +36,6 @@ func (o *DeleteOfficeUserNoContent) WriteResponse(rw http.ResponseWriter, produc
 	rw.WriteHeader(204)
 }
 
-// DeleteOfficeUserBadRequestCode is the HTTP code returned for type DeleteOfficeUserBadRequest
-const DeleteOfficeUserBadRequestCode int = 400
-
-/*
-DeleteOfficeUserBadRequest invalid request
-
-swagger:response deleteOfficeUserBadRequest
-*/
-type DeleteOfficeUserBadRequest struct {
-}
-
-// NewDeleteOfficeUserBadRequest creates DeleteOfficeUserBadRequest with default headers values
-func NewDeleteOfficeUserBadRequest() *DeleteOfficeUserBadRequest {
-
-	return &DeleteOfficeUserBadRequest{}
-}
-
-// WriteResponse to the client
-func (o *DeleteOfficeUserBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(400)
-}
-
 // DeleteOfficeUserUnauthorizedCode is the HTTP code returned for type DeleteOfficeUserUnauthorized
 const DeleteOfficeUserUnauthorizedCode int = 401
 

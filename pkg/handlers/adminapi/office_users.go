@@ -597,6 +597,11 @@ func (h DeleteOfficeUserHandler) Handle(params officeuserop.DeleteOfficeUserPara
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			// we only allow this to be called from the admin app
+			if !appCtx.Session().IsAdminApp() {
+				return officeuserop.NewDeleteOfficeUserUnauthorized(), nil
+			}
+
 			officeUserID, err := uuid.FromString(params.OfficeUserID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
@@ -604,7 +609,12 @@ func (h DeleteOfficeUserHandler) Handle(params officeuserop.DeleteOfficeUserPara
 
 			err = h.OfficeUserDeleter.DeleteOfficeUser(appCtx, officeUserID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return officeuserop.NewDeleteOfficeUserNotFound(), err
+				default:
+					return officeuserop.NewDeleteOfficeUserInternalServerError(), err
+				}
 			}
 
 			return officeuserop.NewDeleteOfficeUserNoContent(), nil
