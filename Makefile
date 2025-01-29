@@ -699,7 +699,7 @@ endif
 
 .PHONY: db_test_create
 db_test_create: ## Create Test DB
-ifndef CIRCLEI
+ifndef CIRCLECI
 	@echo "Create the ${DB_NAME_TEST} database..."
 	DB_NAME=postgres DB_PORT=$(DB_PORT_TEST) scripts/wait-for-db && \
 		createdb -p $(DB_PORT_TEST) -h $(DB_HOST) -U postgres $(DB_NAME_TEST) || true
