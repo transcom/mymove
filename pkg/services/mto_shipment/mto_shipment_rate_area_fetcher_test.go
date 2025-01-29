@@ -183,14 +183,6 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		suite.Equal(false, isRateAreaEquals(rateArea2, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateArea2, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateArea1, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
-
-		// var shipmentPostalCodeRateAreasLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
-		// for _, pcra := range *shipmentPostalCodeRateAreas {
-		// 	shipmentPostalCodeRateAreasLookupMap[pcra.PostalCode] = pcra
-		// }
-
-		// suite.Equal("California-South", shipmentPostalCodeRateAreasLookupMap[beverlyHillsCAPostalCode].RateArea.Name)
-		// suite.Equal("California-South", shipmentPostalCodeRateAreasLookupMap[sanDiegoCAPostalCode].RateArea.Name)
 	})
 
 	suite.Run("Returns matching CONUS rate areas", func() {
@@ -359,63 +351,6 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		suite.Equal("California-South", shipmentPostalCodeRateAreaLookupMap[sanDiegoCAPostalCode].RateArea.Name)
 		suite.Equal("New York", shipmentPostalCodeRateAreaLookupMap[brooklynNYPostalCode].RateArea.Name)
 	})
-
-	// suite.Run("Returns matching CONUS rate areas V2", func() {
-	// 	availableToPrimeAtTime := time.Now().Add(-500 * time.Hour)
-	// 	testMove := models.Move{
-	// 		AvailableToPrimeAt: &availableToPrimeAtTime,
-	// 		MTOShipments: models.MTOShipments{
-	// 			models.MTOShipment{
-	// 				PickupAddress: &models.Address{
-	// 					StreetAddress1: "123 Main St",
-	// 					City:           "Beverly Hills",
-	// 					State:          "CA",
-	// 					PostalCode:     beverlyHillsCAPostalCode,
-	// 					IsOconus:       models.BoolPointer(false),
-	// 				},
-	// 				DestinationAddress: &models.Address{
-	// 					StreetAddress1: "123 Main St",
-	// 					City:           "San Diego",
-	// 					State:          "CA",
-	// 					PostalCode:     sanDiegoCAPostalCode,
-	// 					IsOconus:       models.BoolPointer(false),
-	// 				},
-	// 			},
-	// 			models.MTOShipment{
-	// 				PPMShipment: &models.PPMShipment{
-	// 					PickupAddress: &models.Address{
-	// 						StreetAddress1: "123 Main St",
-	// 						City:           "Brooklyn",
-	// 						State:          "NY",
-	// 						PostalCode:     brooklynNYPostalCode,
-	// 						IsOconus:       models.BoolPointer(false),
-	// 					},
-	// 					DestinationAddress: &models.Address{
-	// 						StreetAddress1: "123 Main St",
-	// 						City:           "Beverly Hills",
-	// 						State:          "CA",
-	// 						PostalCode:     beverlyHillsCAPostalCode,
-	// 						IsOconus:       models.BoolPointer(false),
-	// 					},
-	// 				},
-	// 			},
-	// 		},
-	// 	}
-
-	// 	setupDataForConusRateAreas := func(postalCode string, gbloc string) (models.ReRateArea, models.OconusRateArea, models.UsPostRegionCity, models.DutyLocation) {
-	// 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-	// 		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-	// 		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
-	// 			ReRateArea: models.ReRateArea{
-	// 				ContractID: contract.ID,
-	// 				IsOconus:   false,
-	// 				Name:       fmt.Sprintf("Lower48-%s", rateAreaCode),
-	// 				Contract:   contract,
-	// 			},
-	// 		})
-	// 		suite.NotNil(rateArea)
-	// 	}
-	// })
 
 	suite.Run("not available to prime error", func() {
 		testMove := models.Move{
