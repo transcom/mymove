@@ -42,11 +42,11 @@ func (o *GetUploadStatusURL) SetBasePath(bp string) {
 func (o *GetUploadStatusURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/uploads/{uploadId}/status"
+	var _path = "/uploads/{uploadID}/status"
 
 	uploadID := o.UploadID.String()
 	if uploadID != "" {
-		_path = strings.Replace(_path, "{uploadId}", uploadID, -1)
+		_path = strings.Replace(_path, "{uploadID}", uploadID, -1)
 	} else {
 		return nil, errors.New("uploadId is required on GetUploadStatusURL")
 	}

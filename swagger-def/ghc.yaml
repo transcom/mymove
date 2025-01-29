@@ -4340,7 +4340,7 @@ paths:
           description: payload is too large
         "500":
           description: server error
-  /uploads/{uploadId}/status:
+  /uploads/{uploadID}/status:
     get:
       summary: Returns status of an upload
       description: Returns status of an upload based on antivirus run
@@ -4351,7 +4351,7 @@ paths:
         - uploads
       parameters:
         - in: path
-          name: uploadId
+          name: uploadID
           type: string
           format: uuid
           required: true
