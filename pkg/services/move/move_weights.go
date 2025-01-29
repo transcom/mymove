@@ -331,5 +331,16 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		return nil, err
 	}
 
+	if len(autoReweighShipments) > 0 {
+		for _, shipment := range autoReweighShipments {
+			reweigh, err := w.ReweighRequestor.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
+			if err != nil {
+				return nil, err
+			}
+
+			shipment.Reweigh = reweigh
+		}
+	}
+
 	return autoReweighShipments, nil
 }

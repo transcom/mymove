@@ -515,8 +515,10 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
-		autoReweighShipments, err := moveWeights.CheckAutoReweigh(session, approvedMove.ID, &approvedShipment)
 
+		autoReweighShipments, err := moveWeights.CheckAutoReweigh(session, approvedMove.ID, &approvedShipment)
+		suite.NoError(err)
+		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
 		suite.NoError(err)
 
 		suite.NotNil(approvedShipment.Reweigh)
@@ -551,8 +553,10 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		actualWeight := unit.Pound(7199)
 		approvedShipment.PrimeEstimatedWeight = &actualWeight
 		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
-
 		suite.NoError(err)
+		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
+		suite.NoError(err)
+
 		suite.Equal(uuid.Nil, approvedShipment.Reweigh.ID)
 		mockedReweighRequestor.AssertNotCalled(suite.T(), "RequestShipmentReweigh")
 	})
@@ -599,7 +603,8 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
 		autoReweighShipments, err := moveWeights.CheckAutoReweigh(session, approvedMove.ID, &approvedShipment)
-
+		suite.NoError(err)
+		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
 		suite.NoError(err)
 
 		suite.NotNil(approvedShipment.Reweigh)
@@ -656,7 +661,8 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 		approvedShipment.PrimeActualWeight = &actualWeight
 		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
-
+		suite.NoError(err)
+		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
 		suite.NoError(err)
 
 		err = suite.DB().Eager("Reweigh").Reload(&existingShipment)
@@ -727,7 +733,8 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 		approvedShipment.PrimeActualWeight = &actualWeight
 		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
-
+		suite.NoError(err)
+		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
 		suite.NoError(err)
 
 		err = suite.DB().Eager("Reweigh").Reload(&existingShipment)
@@ -798,7 +805,8 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
 		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
-
+		suite.NoError(err)
+		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
 		suite.NoError(err)
 
 		err = suite.DB().Eager("Reweigh").Reload(&existingShipment)
