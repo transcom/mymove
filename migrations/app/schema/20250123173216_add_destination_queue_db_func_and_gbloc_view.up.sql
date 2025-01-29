@@ -148,7 +148,7 @@ BEGIN
         LEFT JOIN transportation_offices AS counseling_offices
             ON moves.counseling_transportation_office_id = counseling_offices.id
         LEFT JOIN shipment_address_updates ON shipment_address_updates.shipment_id = mto_shipments.id
-        LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
+        LEFT JOIN move_to_dest_gbloc ON move_to_dest_gbloc.move_id = moves.id
         WHERE moves.show = TRUE
     ';
 
