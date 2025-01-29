@@ -621,6 +621,13 @@ func MTOServiceItemModel(mtoServiceItem primev2messages.MTOServiceItem) (*models
 		if model.SITDestinationFinalAddress != nil {
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
+	case primev2messages.MTOServiceItemModelTypeMTOServiceItemShuttle:
+		shuttleService := mtoServiceItem.(*primev2messages.MTOServiceItemShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
 
 	case primev2messages.MTOServiceItemModelTypeMTOServiceItemDomesticShuttle:
 		shuttleService := mtoServiceItem.(*primev2messages.MTOServiceItemDomesticShuttle)
