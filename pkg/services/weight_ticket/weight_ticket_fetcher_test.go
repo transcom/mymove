@@ -104,7 +104,7 @@ func (suite *WeightTicketSuite) TestGetWeightTicketFetcher() {
 			},
 		}, nil)
 
-		storer := storageTest.NewFakeS3Storage(true, nil)
+		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 
 		suite.FatalNoError(err)

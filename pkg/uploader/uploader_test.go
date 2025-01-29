@@ -92,7 +92,7 @@ func (suite *UploaderSuite) closeFile(file afero.File) {
 func TestUploaderSuite(t *testing.T) {
 	hs := &UploaderSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		storer:       storageTest.NewFakeS3Storage(true, nil),
+		storer:       storageTest.NewFakeS3Storage(true),
 	}
 
 	suite.Run(t, hs)
