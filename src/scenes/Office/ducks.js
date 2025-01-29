@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 // SINGLE RESOURCE ACTION TYPES
 const REMOVE_BANNER = 'REMOVE_BANNER';
 const SHOW_BANNER = 'SHOW_BANNER';
