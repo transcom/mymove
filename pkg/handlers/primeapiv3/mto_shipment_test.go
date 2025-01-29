@@ -1076,7 +1076,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.Run("POST failure - 422 - Invalid address", func() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:   Create an mto shipment on an available move
-		// Expected:   Successful submission, status should be SUBMITTED
+		// Expected:   Failure, invalid address
 		handler, move := setupTestData(false, true)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
