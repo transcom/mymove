@@ -33,15 +33,15 @@ describe('PrimeUIUpdateInternationalShuttleForm', () => {
       <PrimeUIUpdateInternationalShuttleForm
         initialValues={internationalShuttleInitialValues}
         serviceItem={serviceItem}
-        onSubmit={jest.fn()}
+        onUpdateServiceItem={jest.fn()}
       />,
     );
 
     expect(
       screen.getByRole('heading', { name: 'Update International Shuttle Service Item', level: 2 }),
     ).toBeInTheDocument();
-    expect(await screen.findByLabelText('Estimated Weight')).toHaveValue(500);
-    expect(await screen.findByLabelText('Actual Weight')).toHaveValue(600);
+    expect(await screen.findByTestId('estimatedWeightInput')).toHaveValue(500);
+    expect(await screen.findByTestId('actualWeightInput')).toHaveValue(600);
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
   });
@@ -52,7 +52,7 @@ describe('PrimeUIUpdateInternationalShuttleForm', () => {
       <PrimeUIUpdateInternationalShuttleForm
         initialValues={internationalShuttleInitialValues}
         serviceItem={serviceItem}
-        onSubmit={jest.fn()}
+        onUpdateServiceItem={jest.fn()}
       />,
     );
 
@@ -68,7 +68,7 @@ describe('PrimeUIUpdateInternationalShuttleForm', () => {
       <PrimeUIUpdateInternationalShuttleForm
         initialValues={internationalShuttleInitialValues}
         serviceItem={serviceItem}
-        onSubmit={jest.fn()}
+        onUpdateServiceItem={jest.fn()}
       />,
     );
 

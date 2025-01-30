@@ -4,7 +4,7 @@ import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import styles from './PrimeUIUpdateSITForms.module.scss';
+import styles from './PrimeUIUpdateShuttleForms.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
@@ -59,10 +59,10 @@ const PrimeUIUpdateInternationalShuttleForm = ({ onUpdateServiceItem, serviceIte
       {({ handleSubmit, setFieldValue }) => (
         <Form className={classnames(formStyles.form)}>
           <FormGroup>
-            <div className={styles.Sit}>
-              <h2 className={styles.sitHeader}>Update International Shuttle Service Item</h2>
+            <div className={styles.Shuttle}>
+              <h2 className={styles.shuttleHeader}>Update International Shuttle Service Item</h2>
               <SectionWrapper className={formStyles.formSection}>
-                <div className={styles.sitHeader}>
+                <div className={styles.shuttleHeader}>
                   Here you can update specific fields for an international shuttle service item. <br />
                   At this time, only the following values can be updated: <br />{' '}
                   <strong>
@@ -74,7 +74,7 @@ const PrimeUIUpdateInternationalShuttleForm = ({ onUpdateServiceItem, serviceIte
                 </div>
               </SectionWrapper>
               <SectionWrapper className={formStyles.formSection}>
-                <h3 className={styles.sitHeader}>
+                <h3 className={styles.shuttleHeader}>
                   {serviceItem.reServiceCode} - {serviceItem.reServiceName}
                 </h3>
                 <dl className={descriptionListStyles.descriptionList}>
@@ -123,7 +123,7 @@ const PrimeUIUpdateInternationalShuttleForm = ({ onUpdateServiceItem, serviceIte
                   }}
                 />
                 <MaskedTextField
-                  data-testid="actualWeight"
+                  data-testid="actualWeightInput"
                   name="actualWeight"
                   label="Actual Weight"
                   id="actualWeight"
