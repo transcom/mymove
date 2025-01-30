@@ -26,69 +26,6 @@ const brooklynNYPostalCode = "11220"
 func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 	shipmentRateAreaFetcher := NewMTOShipmentRateAreaFetcher()
 
-	setupDomesticRateAreaAndZip3s := func(rateAreaCode string, rateAreaName string, postalCodes map[string]string, domesticServiceArea models.ReDomesticServiceArea) (models.ReRateArea, error) {
-		// rateArea := models.ReRateArea{
-		// 	ID:         uuid.Must(uuid.NewV4()),
-		// 	ContractID: domesticServiceArea.ContractID,
-		// 	IsOconus:   false,
-		// 	Code:       rateAreaCode,
-		// 	Name:       rateAreaName,
-		// 	Contract:   domesticServiceArea.Contract,
-		// }
-
-		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
-			ReRateArea: models.ReRateArea{
-				ContractID: domesticServiceArea.ContractID,
-				IsOconus:   false,
-				Code:       rateAreaCode,
-				Name:       rateAreaName,
-				Contract:   domesticServiceArea.Contract,
-			},
-		})
-		// verrs, err := suite.DB().ValidateAndCreate(&rateArea)
-		// if verrs.HasAny() {
-		// 	return rateArea, verrs
-		// }
-		// if err != nil {
-		// 	return rateArea, err
-		// }
-
-		for postalCode, basePointCity := range postalCodes {
-			// zip3 := models.ReZip3{
-			// 	ID:                    uuid.Must(uuid.NewV4()),
-			// 	ContractID:            domesticServiceArea.ContractID,
-			// 	Contract:              domesticServiceArea.Contract,
-			// 	Zip3:                  postalCode[0:3],
-			// 	RateAreaID:            models.UUIDPointer(rateArea.ID),
-			// 	HasMultipleRateAreas:  false,
-			// 	BasePointCity:         basePointCity,
-			// 	State:                 "ST",
-			// 	DomesticServiceAreaID: domesticServiceArea.ID,
-			// }
-			// verrs, err = suite.DB().ValidateAndCreate(&zip3)
-
-			testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
-				ReZip3: models.ReZip3{
-					Contract:              domesticServiceArea.Contract,
-					ContractID:            domesticServiceArea.ContractID,
-					DomesticServiceAreaID: domesticServiceArea.ID,
-					DomesticServiceArea:   domesticServiceArea,
-					Zip3:                  postalCode[0:3],
-					BasePointCity:         basePointCity,
-				},
-			})
-
-			// if verrs.HasAny() {
-			// 	return rateArea, verrs
-			// }
-			// if err != nil {
-			// 	return rateArea, err
-			// }
-		}
-
-		return rateArea, nil
-	}
-
 	suite.Run("test mapping of one rateArea to many postCodes and one rateArea to one", func() {
 		availableToPrimeAtTime := time.Now().Add(-500 * time.Hour)
 		testMove := models.Move{
@@ -202,6 +139,47 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 				setupRateAreaToPostalCodeData(rateArea, postalCode)
 			}
 			return rateArea
+		}
+
+		setupDomesticRateAreaAndZip3s := func(rateAreaCode string, rateAreaName string, postalCodes map[string]string, domesticServiceArea models.ReDomesticServiceArea) (models.ReRateArea, error) {
+			rateArea := models.ReRateArea{
+				ID:         uuid.Must(uuid.NewV4()),
+				ContractID: domesticServiceArea.ContractID,
+				IsOconus:   false,
+				Code:       rateAreaCode,
+				Name:       rateAreaName,
+				Contract:   domesticServiceArea.Contract,
+			}
+			verrs, err := suite.DB().ValidateAndCreate(&rateArea)
+			if verrs.HasAny() {
+				return rateArea, verrs
+			}
+			if err != nil {
+				return rateArea, err
+			}
+
+			for postalCode, basePointCity := range postalCodes {
+				zip3 := models.ReZip3{
+					ID:                    uuid.Must(uuid.NewV4()),
+					ContractID:            domesticServiceArea.ContractID,
+					Contract:              domesticServiceArea.Contract,
+					Zip3:                  postalCode[0:3],
+					RateAreaID:            models.UUIDPointer(rateArea.ID),
+					HasMultipleRateAreas:  false,
+					BasePointCity:         basePointCity,
+					State:                 "ST",
+					DomesticServiceAreaID: domesticServiceArea.ID,
+				}
+				verrs, err = suite.DB().ValidateAndCreate(&zip3)
+				if verrs.HasAny() {
+					return rateArea, verrs
+				}
+				if err != nil {
+					return rateArea, err
+				}
+			}
+
+			return rateArea, nil
 		}
 
 		isRateAreaEquals := func(expectedRateArea models.ReRateArea, postalCode string, shipmentPostalCodeRateArea *[]services.ShipmentPostalCodeRateArea) bool {
@@ -321,13 +299,48 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		suite.NotNil(domServiceArea.Contract)
 
 		// setup contract year within availableToPrimeAtTime time
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate:  availableToPrimeAtTime,
-				EndDate:    time.Now(),
-				ContractID: domServiceArea.ContractID,
-			},
-		})
+		if domServiceArea.Contract.Name == "TRUSS_TEST" {
+			testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					StartDate:  availableToPrimeAtTime,
+					EndDate:    time.Now(),
+					ContractID: domServiceArea.ContractID,
+				},
+			})
+		} else {
+			testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					ContractID: domServiceArea.ContractID,
+				},
+			})
+		}
+
+		setupDomesticRateAreaAndZip3s := func(rateAreaCode string, rateAreaName string, postalCodes map[string]string, domesticServiceArea models.ReDomesticServiceArea) (models.ReRateArea, error) {
+			rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+				ReRateArea: models.ReRateArea{
+					ContractID: domesticServiceArea.ContractID,
+					IsOconus:   false,
+					Code:       rateAreaCode,
+					Name:       rateAreaName,
+					Contract:   domesticServiceArea.Contract,
+				},
+			})
+
+			for postalCode, basePointCity := range postalCodes {
+				testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+					ReZip3: models.ReZip3{
+						Contract:              domesticServiceArea.Contract,
+						ContractID:            domesticServiceArea.ContractID,
+						DomesticServiceAreaID: domesticServiceArea.ID,
+						DomesticServiceArea:   domesticServiceArea,
+						Zip3:                  postalCode[0:3],
+						BasePointCity:         basePointCity,
+					},
+				})
+			}
+
+			return rateArea, nil
+		}
 
 		rateAreaCA, err := setupDomesticRateAreaAndZip3s("US88", "California-South", map[string]string{beverlyHillsCAPostalCode: "Beverly Hills", sanDiegoCAPostalCode: "San Diego"}, domServiceArea)
 		if err != nil {
