@@ -1228,7 +1228,7 @@ push_otel_collector_image_dp3:
 
     - echo "Extracting the OTel image tag..."
     - export OTEL_IMAGE_TAG="git-${OTEL_VERSION}-${CI_COMMIT_SHORT_SHA}"
-    - echo "New image tag: ${OTEL_IMAGE_TAG}"
+    - echo "${OTEL_IMAGE_TAG}"
 
     - echo "Logging into AWS ECR with Crane..."
     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com -u AWS --password-stdin
@@ -1491,7 +1491,7 @@ push_otel_collector_image_stg:
     - *setup_aws_vars_stg
     - *setup_release_stg
   script:
-     - echo "Logging in to DockerHub with Crane..."
+    - echo "Logging in to DockerHub with Crane..."
     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
 
     - echo "Pulling the AWS OTel Collector image from DockerHub..."
@@ -1499,7 +1499,7 @@ push_otel_collector_image_stg:
 
     - echo "Extracting the OTel image tag..."
     - export OTEL_IMAGE_TAG="git-${OTEL_VERSION}-${CI_COMMIT_SHORT_SHA}"
-    - echo "New image tag: ${OTEL_IMAGE_TAG}"
+    - echo "${OTEL_IMAGE_TAG}"
 
     - echo "Logging into AWS ECR with Crane..."
     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com -u AWS --password-stdin
@@ -1781,7 +1781,7 @@ push_otel_collector_image_prd:
     - *setup_aws_vars_prd
     - *setup_release_prd
   script:
-     - echo "Logging in to DockerHub with Crane..."
+    - echo "Logging in to DockerHub with Crane..."
     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
 
     - echo "Pulling the AWS OTel Collector image from DockerHub..."
@@ -1789,7 +1789,7 @@ push_otel_collector_image_prd:
 
     - echo "Extracting the OTel image tag..."
     - export OTEL_IMAGE_TAG="git-${OTEL_VERSION}-${CI_COMMIT_SHORT_SHA}"
-    - echo "New image tag: ${OTEL_IMAGE_TAG}"
+    - echo "${OTEL_IMAGE_TAG}"
 
     - echo "Logging into AWS ECR with Crane..."
     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com -u AWS --password-stdin
