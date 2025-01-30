@@ -113,24 +113,6 @@ func (_m *FileStorer) PresignedURL(_a0 string, _a1 string, _a2 string) (string, 
 	return r0, r1
 }
 
-// StorageType provides a mock function with given fields:
-func (_m *FileStorer) StorageType() string {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for StorageType")
-	}
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
-
 // Store provides a mock function with given fields: _a0, _a1, _a2, _a3
 func (_m *FileStorer) Store(_a0 string, _a1 io.ReadSeeker, _a2 string, _a3 *string) (*storage.StoreResult, error) {
 	ret := _m.Called(_a0, _a1, _a2, _a3)

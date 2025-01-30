@@ -42,14 +42,6 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 		mockSender := setUpMockNotificationSender()
 
 		user := factory.BuildUser(suite.DB(), nil, nil)
-		// make sure the prime role exists
-		factory.BuildRole(suite.DB(), []factory.Customization{
-			{
-				Model: roles.Role{
-					RoleType: roles.RoleTypePrime,
-				},
-			},
-		}, nil)
 
 		clientCertInfo := models.ClientCert{
 			Subject:      "existingUser",
@@ -78,15 +70,6 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 	suite.Run("Create clientcert with prime to new user", func() {
 		associator := usersroles.NewUsersRolesCreator()
 		mockSender := setUpMockNotificationSender()
-
-		// make sure  the prime role exists
-		factory.BuildRole(suite.DB(), []factory.Customization{
-			{
-				Model: roles.Role{
-					RoleType: roles.RoleTypePrime,
-				},
-			},
-		}, nil)
 
 		clientCertInfo := models.ClientCert{
 			Subject:      "newUser",
