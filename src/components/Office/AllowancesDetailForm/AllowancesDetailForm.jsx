@@ -50,7 +50,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     setIsAdminWeightLocationChecked(isChecked);
 
     if (!isChecked) {
-      setFieldValue('weightRestriction', 0);
+      setFieldValue('weightRestriction', '0');
     }
   };
 
