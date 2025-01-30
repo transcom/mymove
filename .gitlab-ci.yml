@@ -268,27 +268,30 @@ stages:
 
     export SERVE_API_SUPPORT=true
     export SERVE_PRIME_SIMULATOR=true
-    export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
-    export DOD_CA_PACKAGE=$PWD/config/tls/milmove-cert-bundle.p7b
-    export HTTP_ADMIN_SERVER_NAME=adminlocal
-    export HTTP_MY_SERVER_NAME=milmovelocal
-    export HTTP_OFFICE_SERVER_NAME=officelocal
-    export HTTP_ORDERS_SERVER_NAME=orderslocal
-    export HTTP_PRIME_SERVER_NAME=primelocal
+    export DEVLOCAL_CA=$(cat config/tls/devlocal-ca.pem)
+    export DOD_CA_PACKAGE=$(cat config/tls/milmove-cert-bundle.p7b)
+
+   # export HTTP_ADMIN_SERVER_NAME=adminlocal
+   # export HTTP_MY_SERVER_NAME=milmovelocal
+   # export HTTP_OFFICE_SERVER_NAME=officelocal
+   # export HTTP_ORDERS_SERVER_NAME=orderslocal
+   # export HTTP_PRIME_SERVER_NAME=primelocal
+  - |
     export ENVIRONMENT=test
     export MUTUAL_TLS_ENABLED=true
     export MUTUAL_TLS_PORT=9443
     export SERVE_API_PRIME=true
-    # disable for speed, tests can fail otherwise
+  # disable for speed, tests can fail otherwise
+  - |
     export DB_DEBUG=false
 
     make db_dev_create
     bin/milmove migrate
-    # mtls tests do not need client
-    mkdir -p build
-    touch build/index.html
-    # mtls tests DO NOT NEED SEED DATA
-    bin/milmove serve 2>&1 | tee server.log &
+  # mtls tests do not need client
+  -  mkdir -p build
+  -  touch build/index.html
+  # mtls tests DO NOT NEED SEED DATA
+  -  bin/milmove serve 2>&1 | tee server.log &
 
 .e2e_tests_playwright: &e2e_tests_playwright
   - |
