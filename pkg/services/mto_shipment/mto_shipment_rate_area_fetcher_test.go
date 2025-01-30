@@ -69,11 +69,12 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 
 			testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 				ReZip3: models.ReZip3{
-					Contract:            domesticServiceArea.Contract,
-					ContractID:          domesticServiceArea.ContractID,
-					DomesticServiceArea: domesticServiceArea,
-					Zip3:                postalCode[0:3],
-					BasePointCity:       basePointCity,
+					Contract:              domesticServiceArea.Contract,
+					ContractID:            domesticServiceArea.ContractID,
+					DomesticServiceAreaID: domesticServiceArea.ID,
+					DomesticServiceArea:   domesticServiceArea,
+					Zip3:                  postalCode[0:3],
+					BasePointCity:         basePointCity,
 				},
 			})
 
