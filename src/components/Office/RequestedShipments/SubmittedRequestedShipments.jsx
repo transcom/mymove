@@ -226,7 +226,7 @@ const SubmittedRequestedShipments = ({
                   // if the move is not available to prime yet, we use the new approveShipments api
                   // to approve multiple shipments in one call and make it available to prime at the end.
                   // else we use the old looping method to account for approveShipmentDiversion api call.
-                  if (!moveTaskOrder.availableToPrimeAt) {
+                  if (!moveTaskOrder.availableToPrimeAt && filteredShipments.length) {
                     await approveMultipleShipments(
                       {
                         payload: getUpdateMultipleShipmentPayload(filteredShipments),
