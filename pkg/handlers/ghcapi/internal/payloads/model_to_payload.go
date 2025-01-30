@@ -2374,10 +2374,10 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 
 		// determine if there is an assigned user
 		var assignedToUser *ghcmessages.AssignedOfficeUser
-		if activeRole == string(roles.RoleTypeServicesCounselor) && move.SCAssignedUser != nil {
+		if (activeRole == string(roles.RoleTypeServicesCounselor) || activeRole == string(roles.RoleTypeHQ)) && move.SCAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.SCAssignedUser)
 		}
-		if activeRole == string(roles.RoleTypeTOO) && move.TOOAssignedUser != nil {
+		if (activeRole == string(roles.RoleTypeTOO) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
 		}
 
@@ -2507,7 +2507,6 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 
 }
 
-// dad
 // QueuePaymentRequests payload
 func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string) *ghcmessages.QueuePaymentRequests {
 
