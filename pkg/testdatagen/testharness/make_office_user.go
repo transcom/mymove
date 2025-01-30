@@ -12,6 +12,96 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func MakeRejectedOfficeUserWithTOO(appCtx appcontext.AppContext) models.User {
+	tooRole := roles.Role{}
+	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to find RoleTypeTOO in the DB: %w", err))
+	}
+
+	email := strings.ToLower(fmt.Sprintf("fred_office_%s@example.com",
+		testdatagen.MakeRandomString(5)))
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: email,
+				Active:    true,
+				Roles:     []roles.Role{tooRole},
+			},
+		},
+	}, nil)
+	rejectedStatus := models.OfficeUserStatusREJECTED
+	factory.BuildOfficeUserWithRoles(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Email:  email,
+				Active: true,
+				UserID: &user.ID,
+				Status: &rejectedStatus,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
+
+	factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	return user
+}
+
+func MakeRequestedOfficeUserWithTOO(appCtx appcontext.AppContext) models.User {
+	tooRole := roles.Role{}
+	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to find RoleTypeTOO in the DB: %w", err))
+	}
+
+	email := strings.ToLower(fmt.Sprintf("fred_office_%s@example.com",
+		testdatagen.MakeRandomString(5)))
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: email,
+				Active:    true,
+				Roles:     []roles.Role{tooRole},
+			},
+		},
+	}, nil)
+	requestedStatus := models.OfficeUserStatusREQUESTED
+	factory.BuildOfficeUserWithRoles(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Email:  email,
+				Active: true,
+				UserID: &user.ID,
+				Status: &requestedStatus,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
+
+	factory.BuildServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	return user
+}
+
 func MakeOfficeUserWithTOOAndTIO(appCtx appcontext.AppContext) models.User {
 	tooRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
