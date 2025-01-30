@@ -26,6 +26,47 @@ const brooklynNYPostalCode = "11220"
 func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 	shipmentRateAreaFetcher := NewMTOShipmentRateAreaFetcher()
 
+	setupDomesticRateAreaAndZip3s := func(rateAreaCode string, rateAreaName string, postalCodes map[string]string, contract models.ReContract, domesticServiceArea models.ReDomesticServiceArea) (models.ReRateArea, error) {
+		rateArea := models.ReRateArea{
+			ID:         uuid.Must(uuid.NewV4()),
+			ContractID: contract.ID,
+			IsOconus:   false,
+			Code:       rateAreaCode,
+			Name:       rateAreaName,
+			Contract:   contract,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&rateArea)
+		if verrs.HasAny() {
+			return rateArea, verrs
+		}
+		if err != nil {
+			return rateArea, err
+		}
+
+		for postalCode, basePointCity := range postalCodes {
+			zip3 := models.ReZip3{
+				ID:                    uuid.Must(uuid.NewV4()),
+				ContractID:            contract.ID,
+				Contract:              contract,
+				Zip3:                  postalCode[0:3],
+				RateAreaID:            models.UUIDPointer(rateArea.ID),
+				HasMultipleRateAreas:  false,
+				BasePointCity:         basePointCity,
+				State:                 "ST",
+				DomesticServiceAreaID: domesticServiceArea.ID,
+			}
+			verrs, err = suite.DB().ValidateAndCreate(&zip3)
+			if verrs.HasAny() {
+				return rateArea, verrs
+			}
+			if err != nil {
+				return rateArea, err
+			}
+		}
+
+		return rateArea, nil
+	}
+
 	suite.Run("test mapping of one rateArea to many postCodes and one rateArea to one", func() {
 		availableToPrimeAtTime := time.Now().Add(-500 * time.Hour)
 		testMove := models.Move{
@@ -166,23 +207,43 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 			},
 		})
 
+		domServiceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ContractID: contract.ID,
+			},
+		})
+
 		// setup Fairbanks and Anchorage to have same RateArea
 		rateArea1 := setupRateAreaToManyPostalCodesData(*contract, []string{fairbanksAlaskaPostalCode, anchorageAlaskaPostalCode})
 		// setup Wasilla to have it's own RateArea
 		rateArea2 := setupRateAreaToPostalCodeData(setupRateArea(*contract), wasillaAlaskaPostalCode)
 
+		rateAreaCA, err := setupDomesticRateAreaAndZip3s("US88", "California-South", map[string]string{beverlyHillsCAPostalCode: "Beverly Hills", sanDiegoCAPostalCode: "San Diego"}, *contract, domServiceArea)
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
 		shipmentPostalCodeRateAreas, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
 		suite.NotNil(shipmentPostalCodeRateAreas)
 		suite.FatalNoError(err)
-		suite.Equal(3, len(*shipmentPostalCodeRateAreas))
+		suite.Equal(5, len(*shipmentPostalCodeRateAreas))
 
 		suite.Equal(true, isRateAreaEquals(rateArea1, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(true, isRateAreaEquals(rateArea1, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(true, isRateAreaEquals(rateArea2, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(true, isRateAreaEquals(rateAreaCA, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(true, isRateAreaEquals(rateAreaCA, sanDiegoCAPostalCode, shipmentPostalCodeRateAreas))
 
 		suite.Equal(false, isRateAreaEquals(rateArea2, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateArea2, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateArea1, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateAreaCA, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateAreaCA, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateAreaCA, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateArea1, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateArea1, sanDiegoCAPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateArea2, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateArea2, sanDiegoCAPostalCode, shipmentPostalCodeRateAreas))
 	})
 
 	suite.Run("Returns matching CONUS rate areas", func() {
@@ -227,10 +288,8 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 			},
 		}
 
-		// create test contract
-		contract, err := suite.createContract(suite.AppContextForTest(), testContractCode, testContractName)
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		suite.NotNil(contract)
-		suite.FatalNoError(err)
 
 		// setup contract year within availableToPrimeAtTime time
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
@@ -241,98 +300,18 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 			},
 		})
 
-		rateAreaCA := models.ReRateArea{
-			ID:         uuid.Must(uuid.NewV4()),
-			ContractID: contract.ID,
-			IsOconus:   false,
-			Code:       "US88",
-			Name:       "California-South",
-			Contract:   *contract,
-		}
-		verrs, err := suite.DB().ValidateAndCreate(&rateAreaCA)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(err.Error())
-		}
-
-		rateAreaNY := models.ReRateArea{
-			ID:         uuid.Must(uuid.NewV4()),
-			ContractID: contract.ID,
-			IsOconus:   false,
-			Code:       "US17",
-			Name:       "New York",
-			Contract:   *contract,
-		}
-		verrs, err = suite.DB().ValidateAndCreate(&rateAreaNY)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(err.Error())
-		}
-
 		domServiceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
 				ContractID: contract.ID,
 			},
 		})
 
-		brooklynZip3 := models.ReZip3{
-			ID:                    uuid.Must(uuid.NewV4()),
-			ContractID:            contract.ID,
-			Contract:              *contract,
-			Zip3:                  brooklynNYPostalCode[0:3],
-			RateAreaID:            models.UUIDPointer(rateAreaNY.ID),
-			HasMultipleRateAreas:  false,
-			BasePointCity:         "Brooklyn",
-			State:                 "NY",
-			DomesticServiceAreaID: domServiceArea.ID,
-		}
-		verrs, err = suite.DB().ValidateAndCreate(&brooklynZip3)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
+		rateAreaCA, err := setupDomesticRateAreaAndZip3s("US88", "California-South", map[string]string{beverlyHillsCAPostalCode: "Beverly Hills", sanDiegoCAPostalCode: "San Diego"}, contract, domServiceArea)
 		if err != nil {
 			suite.Fail(err.Error())
 		}
 
-		sanDiegoZip3 := models.ReZip3{
-			ID:                    uuid.Must(uuid.NewV4()),
-			ContractID:            contract.ID,
-			Contract:              *contract,
-			Zip3:                  sanDiegoCAPostalCode[0:3],
-			RateAreaID:            models.UUIDPointer(rateAreaCA.ID),
-			HasMultipleRateAreas:  false,
-			BasePointCity:         "San Diego",
-			State:                 "CA",
-			DomesticServiceAreaID: domServiceArea.ID,
-		}
-		verrs, err = suite.DB().ValidateAndCreate(&sanDiegoZip3)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(err.Error())
-		}
-
-		beverlyHillsZip3 := models.ReZip3{
-			ID:                    uuid.Must(uuid.NewV4()),
-			ContractID:            contract.ID,
-			Contract:              *contract,
-			Zip3:                  beverlyHillsCAPostalCode[0:3],
-			RateAreaID:            models.UUIDPointer(rateAreaCA.ID),
-			HasMultipleRateAreas:  false,
-			BasePointCity:         "Los Angeles",
-			State:                 "CA",
-			DomesticServiceAreaID: domServiceArea.ID,
-		}
-
-		verrs, err = suite.DB().ValidateAndCreate(&beverlyHillsZip3)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
+		rateAreaNY, err := setupDomesticRateAreaAndZip3s("US17", "New York", map[string]string{brooklynNYPostalCode: "Brooklyn"}, contract, domServiceArea)
 		if err != nil {
 			suite.Fail(err.Error())
 		}
@@ -347,9 +326,9 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 			shipmentPostalCodeRateAreaLookupMap[pcra.PostalCode] = pcra
 		}
 
-		suite.Equal("California-South", shipmentPostalCodeRateAreaLookupMap[beverlyHillsCAPostalCode].RateArea.Name)
-		suite.Equal("California-South", shipmentPostalCodeRateAreaLookupMap[sanDiegoCAPostalCode].RateArea.Name)
-		suite.Equal("New York", shipmentPostalCodeRateAreaLookupMap[brooklynNYPostalCode].RateArea.Name)
+		suite.Equal(rateAreaCA.Name, shipmentPostalCodeRateAreaLookupMap[beverlyHillsCAPostalCode].RateArea.Name)
+		suite.Equal(rateAreaCA.Name, shipmentPostalCodeRateAreaLookupMap[sanDiegoCAPostalCode].RateArea.Name)
+		suite.Equal(rateAreaNY.Name, shipmentPostalCodeRateAreaLookupMap[brooklynNYPostalCode].RateArea.Name)
 	})
 
 	suite.Run("not available to prime error", func() {
