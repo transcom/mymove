@@ -66,5 +66,7 @@ export default {
   addAppealToViolation: 'addAppealToViolation', // ghc.yaml
   addAppealToSeriousIncident: 'addAppealToSeriousIncident', // ghc.yaml
   cancelMove: 'cancelMove', // internal.yaml
+  updateAssignedOfficeUser: 'updateAssignedOfficeUser', // ghc.yaml
+  deleteAssignedOfficeUser: 'deleteAssignedOfficeUser', // ghc.yaml
   reviewShipmentAddressUpdate: 'reviewShipmentAddressUpdate', // ghc.yaml
 };
