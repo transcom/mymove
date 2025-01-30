@@ -160,7 +160,6 @@ repos:
     hooks:
       - id: gen-docs
         args: ['docs/adr']
-      - id: circleci-validate
       - id: markdown-toc
       - id: hadolint
 
