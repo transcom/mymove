@@ -87,7 +87,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	handlerConfig.SetNotificationSender(suite.TestNotificationSender())
 
 	// Need this for any requests that will either retrieve or save files or their info.
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 
 	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}

@@ -58,7 +58,7 @@ func (suite *FactorySuite) TestBuildUpload() {
 		// Mocked:          None
 		// Set up:          Create an upload with an uploader and default file
 		// Expected outcome:Upload filename should be the default file
-		storer := storageTest.NewFakeS3Storage(true, nil)
+		storer := storageTest.NewFakeS3Storage(true)
 		uploader, err := uploaderPkg.NewUploader(storer, 100*uploaderPkg.MB, "USER")
 		suite.NoError(err)
 
@@ -84,7 +84,7 @@ func (suite *FactorySuite) TestBuildUpload() {
 		// Mocked:          None
 		// Set up:          Create an upload with an uploader but no appcontext
 		// Expected outcome:Should cause a panic
-		storer := storageTest.NewFakeS3Storage(true, nil)
+		storer := storageTest.NewFakeS3Storage(true)
 		uploader, err := uploaderPkg.NewUploader(storer, 100*uploaderPkg.MB, "USER")
 		suite.NoError(err)
 
@@ -105,7 +105,7 @@ func (suite *FactorySuite) TestBuildUpload() {
 		// Mocked:          None
 		// Set up:          Create an upload with a specific file
 		// Expected outcome:User should be created with default values
-		storer := storageTest.NewFakeS3Storage(true, nil)
+		storer := storageTest.NewFakeS3Storage(true)
 		uploader, err := uploaderPkg.NewUploader(storer, 100*uploaderPkg.MB, "USER")
 		suite.NoError(err)
 
