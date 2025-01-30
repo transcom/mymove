@@ -40,7 +40,7 @@ type shuttleParams struct {
 }
 
 type domesticShuttleParams struct {
-	Body primemessages.MTOServiceItemShuttle `json:"body"`
+	Body primemessages.MTOServiceItemDomesticShuttle `json:"body"`
 }
 
 // InitCreateMTOServiceItemFlags initializes flags.
