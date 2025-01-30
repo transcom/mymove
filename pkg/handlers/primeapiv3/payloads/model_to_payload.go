@@ -35,9 +35,11 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 	if err != nil {
 		destGbloc = ""
 	}
-	destZip, err = moveTaskOrder.GetDestinationPostalCode(db)
+	destinationAddress, err := moveTaskOrder.GetDestinationAddress(appCtx.DB())
 	if err != nil {
 		destZip = ""
+	} else {
+		destZip = destinationAddress.PostalCode
 	}
 
 	payload := &primev3messages.MoveTaskOrder{
