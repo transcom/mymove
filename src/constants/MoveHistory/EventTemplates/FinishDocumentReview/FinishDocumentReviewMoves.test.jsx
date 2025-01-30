@@ -21,14 +21,15 @@ describe('When given a completed services counseling for a move', () => {
     expect(screen.getByText('Updated move')).toBeInTheDocument();
   });
 
-  it('displays default when TIO ID is not present', () => {
+  it('displays default when SC ID is not present', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
     expect(screen.getByText('PPM Closeout Complete')).toBeInTheDocument();
+    expect(screen.queryByText('Closeout Counselor Unassigned')).not.toBeInTheDocument();
   });
 
-  it('displays correct details when a TIO is unassigned', () => {
+  it('displays correct details when a SC is unassigned', () => {
     historyRecord.changedValues = {
       ...historyRecord.changedValues,
       sc_assigned_id: null,
