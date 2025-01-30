@@ -1,8 +1,17 @@
 @import 'shared/styles/colors.scss';
+
 .BulkModal {
   min-width: 650px !important;
   overflow-y: auto;
   max-height: 90vh;
+
+  button,
+  :global(.usa-button){
+    margin: 0;
+    flex-grow: 0;
+    flex-basis: auto;
+    text-decoration: none;
+  }
 }
 
 .BulkAssignmentTable {
@@ -19,25 +28,5 @@
       text-align: center;
       padding-left: 15px;
     }
-  }
-}
-button.cancelButton {
-  color: $primary;
-  background-color: $bg-white;
-  border: 2px solid #005ea2;
-  border-radius: 0.25rem;
-  font-weight: 700;
-  padding: 0.75rem 1.25rem;
-  justify-content: center;
-  min-width: 4vw;
-
-  &:hover,
-  &:focus {
-    font-weight: bold;
-    background-color: $bg-white;
-    border: 2px solid $primary-dark;
-    cursor: pointer;
-    color: $primary-dark;
-    min-width: 4vw;
   }
 }
