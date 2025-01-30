@@ -485,6 +485,17 @@ export function updateMTOShipmentStatus({
   );
 }
 
+export function updateMultipleShipmentStatus({ payload, normalize = true }) {
+  const operationPath = 'shipment.approveShipments';
+  return makeGHCRequest(
+    operationPath,
+    {
+      body: { approveShipments: payload },
+    },
+    { normalize },
+  );
+}
+
 export function updateMTOShipmentRequestReweigh({
   shipmentID,
   ifMatchETag,
