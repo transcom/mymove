@@ -74,7 +74,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           >
             {submitText}
           </Button>
-          <Button className={styles.cancelButton} type="button" onClick={onClose} data-testid="modalCancelButton">
+          <Button secondary type="button" onClick={onClose} data-testid="modalCancelButton">
             {closeText}
           </Button>
         </ModalActions>
