@@ -1,0 +1,27 @@
+@import 'shared/styles/colors.scss';
+.BulkModal {
+  min-width: 650px !important;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.BulkAssignmentTable {
+
+  table {
+    th {
+      max-width: 10px;
+      text-align: center;
+    }
+    .BulkAssignmentDataCenter {
+      text-align: center;
+    }
+    .BulkAssignmentAssignment {
+        width: 60px;
+        text-align: center;
+        padding-left: 15px
+    }
+  }
+}
+Button {
+  min-width: 4vw;
+}
