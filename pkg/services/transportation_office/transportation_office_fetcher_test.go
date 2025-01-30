@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -758,6 +757,8 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 }
 
 func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeOCONUS() {
+	testContractName := "Test_findOconusGblocDepartmentIndicator"
+	testContractCode := "Test_findOconusGblocDepartmentIndicator_Code"
 	testPostalCode := "32228"
 	testPostalCode2 := "99701"
 	testGbloc := "CNNQ"
@@ -779,7 +780,30 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 		return serviceMember
 	}
 
-	contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+	createContract := func(appCtx appcontext.AppContext, contractCode string, contractName string) (*models.ReContract, error) {
+		// See if contract code already exists.
+		exists, err := appCtx.DB().Where("code = ?", contractCode).Exists(&models.ReContract{})
+		if err != nil {
+			return nil, fmt.Errorf("could not determine if contract code [%s] existed: %w", contractCode, err)
+		}
+		if exists {
+			return nil, fmt.Errorf("the provided contract code [%s] already exists", contractCode)
+		}
+		// Contract code is new; insert it.
+		contract := models.ReContract{
+			Code: contractCode,
+			Name: contractName,
+		}
+		verrs, err := appCtx.DB().ValidateAndSave(&contract)
+		if verrs.HasAny() {
+			return nil, fmt.Errorf("validation errors when saving contract [%+v]: %w", contract, verrs)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("could not save contract [%+v]: %w", contract, err)
+		}
+		return &contract, nil
+	}
+
 	setupDataForOconusSearchCounselingOffice := func(contract models.ReContract, postalCode string, gbloc string, transportationName string) (models.ReRateArea, models.OconusRateArea, models.UsPostRegionCity, models.DutyLocation) {
 		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
 		rateArea := models.ReRateArea{
@@ -822,11 +846,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 		}
 
 		address := models.Address{
-			StreetAddress1:     "123 Ocunus St.",
-			City:               "Fairbanks",
-			State:              "AK",
 			PostalCode:         postalCode,
-			County:             models.StringPointer("Fairbanks North Star Borough"),
 			IsOconus:           models.BoolPointer(true),
 			UsPostRegionCityID: &usprc.ID,
 			CountryId:          models.UUIDPointer(us_country.ID),
@@ -852,11 +872,14 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 		return rateArea, oconusRateArea, *usprc, found_duty_location
 	}
 
-	suite.Run("success - findOconusGblocDepartmentIndicator - returns default GLOC for departmentAffiliation if no specific departmentAffilation mapping is defined", func() {
+	suite.Run("success - findOconusGblocDepartmentIndicator - returns default GBLOC for departmentAffiliation if no specific departmentAffilation mapping is defined", func() {
+		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
+		suite.NotNil(contract)
+		suite.FatalNoError(err)
 		suite.NotNil(contract)
 
 		const fairbanksAlaskaPostalCode = "99790"
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, fairbanksAlaskaPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testTransportationName)
 
 		// setup department affiliation to GBLOC mappings
 		expected_gbloc := "TEST-GBLOC"
@@ -883,7 +906,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 				ServiceMemberID: serviceMember.ID,
 			})
-			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
+			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
 			suite.NotNil(departmentIndictor)
 			suite.Nil(err)
 			suite.Nil(departmentIndictor.DepartmentIndicator)
@@ -891,10 +914,13 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 		}
 	})
 
-	suite.Run("Success - findOconusGblocDepartmentIndicator - Should return specific GLOC for departmentAffiliation when a specific departmentAffilation mapping is defined", func() {
+	suite.Run("Success - findOconusGblocDepartmentIndicator - Should return specific GBLOC for departmentAffiliation when a specific departmentAffilation mapping is defined", func() {
+		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
+		suite.NotNil(contract)
+		suite.FatalNoError(err)
 		suite.NotNil(contract)
 
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
 
 		departmentIndicators := []models.DepartmentIndicator{models.DepartmentIndicatorARMY,
 			models.DepartmentIndicatorARMYCORPSOFENGINEERS, models.DepartmentIndicatorCOASTGUARD,
@@ -939,7 +965,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 				ServiceMemberID: serviceMember.ID,
 			})
-			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
+			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
 			suite.NotNil(departmentIndictor)
 			suite.Nil(err)
 			suite.NotNil(departmentIndictor.DepartmentIndicator)
@@ -954,9 +980,12 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 	})
 
 	suite.Run("success - offices using default departmentIndicator mapping", func() {
+		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
+		suite.NotNil(contract)
+		suite.FatalNoError(err)
 		suite.NotNil(contract)
 
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
 
 		// setup department affiliation to GBLOC mappings
 		jppsoRegion := models.JppsoRegions{
@@ -984,7 +1013,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 			ServiceMemberID: serviceMember.ID,
 		})
 
-		offices, err := findCounselingOffice(appCtx, dutylocation.ID)
+		offices, err := findCounselingOffice(appCtx, dutylocation.ID, serviceMember.ID)
 		suite.NotNil(offices)
 		suite.Nil(err)
 		suite.Equal(1, len(offices))
@@ -999,16 +1028,19 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 				},
 			},
 		}, nil)
-		offices, err = findCounselingOffice(appCtx, dutylocation.ID)
+		offices, err = findCounselingOffice(appCtx, dutylocation.ID, serviceMember.ID)
 		suite.NotNil(offices)
 		suite.Nil(err)
 		suite.Equal(2, len(offices))
 	})
 
 	suite.Run("Should return correct office based on service affiliation", func() {
+		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
+		suite.NotNil(contract)
+		suite.FatalNoError(err)
 		suite.NotNil(contract)
 
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(contract, testPostalCode, testGbloc, testTransportationName)
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
 
 		jppsoRegion_AFSF := models.JppsoRegions{
 			Code: testGbloc,

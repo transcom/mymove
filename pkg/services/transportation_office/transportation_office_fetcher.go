@@ -319,7 +319,7 @@ func (o transportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcont
 
 	// Find for oconus duty location
 	if *duty_location.Address.IsOconus {
-		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location)
+		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location, appCtx.Session().ServiceMemberID)
 		if err != nil {
 			appCtx.Logger().Error("Failed to find OCONUS GBLOC department indicator", zap.Error(err))
 			return &closestOffice, err
