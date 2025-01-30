@@ -1480,6 +1480,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
 		StorageInTransit:               models.Int64Pointer(80),
+		WeightRestriction:              models.Int64Pointer(0),
 	}
 
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)

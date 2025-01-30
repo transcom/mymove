@@ -7062,6 +7062,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -8269,6 +8275,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -14135,6 +14147,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -24113,6 +24131,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -25320,6 +25344,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -31318,6 +31348,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
