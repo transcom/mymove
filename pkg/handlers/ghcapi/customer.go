@@ -291,7 +291,7 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				backupContact, verrs, err = newServiceMember.CreateBackupContact(appCtx.DB(),
 					*payload.BackupContact.Name,
 					*payload.BackupContact.Email,
-					payload.BackupContact.Phone,
+					*payload.BackupContact.Phone,
 					models.BackupContactPermission(defaultPermission))
 				if err != nil || verrs.HasAny() {
 					appCtx.Logger().Error("error creating backup contact", zap.Error(err))

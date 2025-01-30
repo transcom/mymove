@@ -1474,6 +1474,7 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - shipment
+        - shipment_address_updates
       description: >-
         This endpoint is used to approve a address update request. Office
         remarks are required. Approving the address update will update the
@@ -6021,6 +6022,10 @@ definitions:
         $ref: '#/definitions/NullableString'
       grade:
         $ref: '#/definitions/Grade'
+      hasDependents:
+        type: boolean
+        title: Are dependents included in your orders?
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -8885,6 +8890,12 @@ definitions:
         description: >-
           To identify whether the service was provided within (CONUS) or
           (OCONUS)
+        x-nullable: true
+      sort:
+        type: string
+        description: >-
+          Sort order for service items to be displayed for a given shipment
+          type.
         x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.

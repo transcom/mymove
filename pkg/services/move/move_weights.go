@@ -23,12 +23,13 @@ const RiskOfExcessThreshold = .9
 const AutoReweighRequestThreshold = .9
 
 type moveWeights struct {
-	ReweighRequestor services.ShipmentReweighRequester
+	ReweighRequestor       services.ShipmentReweighRequester
+	WeightAllotmentFetcher services.WeightAllotmentFetcher
 }
 
 // NewMoveWeights creates a new moveWeights service
-func NewMoveWeights(reweighRequestor services.ShipmentReweighRequester) services.MoveWeights {
-	return &moveWeights{ReweighRequestor: reweighRequestor}
+func NewMoveWeights(reweighRequestor services.ShipmentReweighRequester, weightAllotmentFetcher services.WeightAllotmentFetcher) services.MoveWeights {
+	return &moveWeights{ReweighRequestor: reweighRequestor, WeightAllotmentFetcher: weightAllotmentFetcher}
 }
 
 func validateAndSave(appCtx appcontext.AppContext, move *models.Move) (*validate.Errors, error) {
@@ -98,7 +99,10 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		return nil, nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	totalWeightAllowance := models.GetWeightAllotment(*move.Orders.Grade, move.Orders.OrdersType)
+	totalWeightAllowance, err := w.WeightAllotmentFetcher.GetWeightAllotment(appCtx, string(*move.Orders.Grade), move.Orders.OrdersType)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	overallWeightAllowance := totalWeightAllowance.TotalWeightSelf
 	if *move.Orders.Entitlement.DependentsAuthorized {
@@ -261,7 +265,10 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		return nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	totalWeightAllowance := models.GetWeightAllotment(*move.Orders.Grade, move.Orders.OrdersType)
+	totalWeightAllowance, err := w.WeightAllotmentFetcher.GetWeightAllotment(appCtx, string(*move.Orders.Grade), move.Orders.OrdersType)
+	if err != nil {
+		return nil, err
+	}
 
 	overallWeightAllowance := totalWeightAllowance.TotalWeightSelf
 	if *move.Orders.Entitlement.DependentsAuthorized {
