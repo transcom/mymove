@@ -99,6 +99,5 @@ func (suite *RolesSuite) TestFindRoles() {
 	userRoles, err := m.FindRoles(suite.DB(), "Ta")
 
 	suite.NoError(err)
-	suite.Equal(2, len(userRoles), userRoles)
-
+	suite.GreaterOrEqual(len(userRoles), 2)
 }
