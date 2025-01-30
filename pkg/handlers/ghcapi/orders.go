@@ -164,6 +164,7 @@ func (h CounselingUpdateOrderHandler) Handle(
 // CounselingUpdateOrderHandler create an order via POST /orders
 type CreateOrderHandler struct {
 	handlers.HandlerConfig
+	services.WeightAllotmentFetcher
 }
 
 // Handle ... creates an order as requested by a services counselor
@@ -262,7 +263,12 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 
 			grade := (internalmessages.OrderPayGrade)(*payload.Grade)
 			ordersType := (internalmessages.OrdersType)(*payload.OrdersType)
-			weightAllotment := models.GetWeightAllotment(grade, ordersType)
+			weightAllotment, err := h.WeightAllotmentFetcher.GetWeightAllotment(appCtx, string(grade), ordersType)
+			if err != nil {
+				err = apperror.NewBadDataError("Weight allotment cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				weight = weightAllotment.TotalWeightSelfPlusDependents
