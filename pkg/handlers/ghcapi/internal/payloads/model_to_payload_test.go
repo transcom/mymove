@@ -1219,6 +1219,51 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
 		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
 	})
+
+	suite.Run("sets Sort from correct serviceItem", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		reServiceItems := make(models.ReServiceItems, 3)
+		mockReService := models.ReService{
+			ID:             reServiceID,
+			Code:           models.ReServiceCodeUBP,
+			Name:           "Test ReService",
+			ReServiceItems: &reServiceItems,
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeInternational,
+		}
+
+		reServiceItems[0] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeHHG,
+			MarketCode:   models.MarketCodeInternational,
+			Sort:         models.StringPointer("0"),
+		}
+		reServiceItems[1] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeInternational,
+			Sort:         models.StringPointer("1"),
+		}
+		reServiceItems[2] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeDomestic,
+			Sort:         models.StringPointer("2"),
+		}
+
+		mockMtoServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockMtoServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal("1", *result.Sort, "Expected to get the Sort value by matching the correct ReServiceItem using ShipmentType and MarketCode.")
+	})
 }
 
 func (suite *PayloadsSuite) TestMTOShipment() {
