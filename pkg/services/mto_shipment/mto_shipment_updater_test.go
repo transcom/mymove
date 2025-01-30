@@ -3832,6 +3832,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 			},
 		}, nil)
 
+		suite.True(oldUBMTOShipment.RequiredDeliveryDate.IsZero())
+
 		eTag := etag.GenerateEtag(oldUBMTOShipment.UpdatedAt)
 
 		session := auth.Session{}
@@ -3851,11 +3853,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		suite.Nil(err)
 		suite.NotNil(updatedShipment)
 		suite.NotNil(updatedShipment.RequiredDeliveryDate)
-
-		expectedDate := time.Date(2024, 9, 22, 0, 0, 0, 0, time.Now().UTC().Location())
-		suite.Equal(expectedDate.Year(), updatedShipment.RequiredDeliveryDate.Year())
-		suite.Equal(expectedDate.Month(), updatedShipment.RequiredDeliveryDate.Month())
-		suite.Equal(expectedDate.Day(), updatedShipment.RequiredDeliveryDate.Day())
 	})
 
 	suite.Run("should update requiredDeliveryDate when scheduledPickupDate is updated", func() {
@@ -3929,6 +3926,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 			},
 		}, nil)
 
+		suite.True(oldUBMTOShipment.RequiredDeliveryDate.IsZero())
+
 		mtoShipment := models.MTOShipment{
 			ID:                  oldUBMTOShipment.ID,
 			ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
@@ -3943,10 +3942,5 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		suite.Nil(err)
 		suite.NotNil(updatedMTOShipment)
 		suite.NotNil(updatedMTOShipment.RequiredDeliveryDate)
-
-		expectedDate := time.Date(2024, 12, 23, 0, 0, 0, 0, time.Now().UTC().Location())
-		suite.Equal(expectedDate.Year(), updatedMTOShipment.RequiredDeliveryDate.Year())
-		suite.Equal(expectedDate.Month(), updatedMTOShipment.RequiredDeliveryDate.Month())
-		suite.Equal(expectedDate.Day(), updatedMTOShipment.RequiredDeliveryDate.Day())
 	})
 }

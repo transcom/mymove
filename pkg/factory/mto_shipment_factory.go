@@ -212,8 +212,12 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		}
 
 		if cMtoShipment.ScheduledPickupDate != nil {
-			requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
-			newMTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
+			if cMtoShipment.RequiredDeliveryDate != nil {
+				newMTOShipment.RequiredDeliveryDate = cMtoShipment.RequiredDeliveryDate
+			} else {
+				requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
+				newMTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
+			}
 		}
 	}
 
