@@ -1,0 +1,33 @@
+.BulkModal {
+  min-width: 650px !important;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.BulkAssignmentTable {
+  table {
+    table-layout: fixed;
+    width: 100%;
+
+    th {
+      max-width: 10px;
+      text-align: center;
+    }
+    .BulkAssignmentDataCenter {
+      text-align: center;
+    }
+    .BulkAssignmentAssignment {
+      width: 60px;
+      text-align: center;
+    }
+  }
+}
+
+button.backbutton {
+  color: #005ea2;
+  background-color: white;
+  border: 2px solid #005ea2;
+  border-radius: 0.25rem;
+  font-weight: 700;
+  padding: 0.75rem 1.25rem;
+}

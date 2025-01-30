@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -60,6 +61,21 @@ func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, sea
 	}
 
 	return move, nil
+}
+
+func (f moveFetcher) FetchMovesByIdArray(appCtx appcontext.AppContext, moveIds []ghcmessages.BulkAssignmentMoveData) (models.Moves, error) {
+	moves := models.Moves{}
+
+	err := appCtx.DB().Q().
+		Where("id in (?)", moveIds).
+		Where("show = TRUE").
+		All(&moves)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return moves, nil
 }
 
 // Fetches moves for Navy servicemembers with approved shipments. Ignores gbloc rules
