@@ -350,6 +350,8 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				query.NewQueryAssociation("SITDestinationFinalAddress"),
 				query.NewQueryAssociation("SITOriginHHGOriginalAddress"),
 				query.NewQueryAssociation("SITOriginHHGActualAddress"),
+				query.NewQueryAssociation("ReService.ReServiceItems"),
+				query.NewQueryAssociation("MTOShipment"),
 				query.NewQueryAssociation("MTOShipment.PickupAddress"),
 				query.NewQueryAssociation("MTOShipment.DestinationAddress"),
 			})

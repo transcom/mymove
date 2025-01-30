@@ -41,6 +41,15 @@ ifdef CIRCLECI
 	endif
 endif
 
+ifdef GITLAB
+	DB_PORT_DEV=5432
+	DB_PORT_TEST=5432
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		LDFLAGS=-linkmode external -extldflags -static
+	endif
+endif
+
 ifdef GOLAND
 	GOLAND_GC_FLAGS=all=-N -l
 endif
@@ -1226,6 +1235,44 @@ nonato_deploy_restore:  ## Restore placeholders in config after deploy to a non-
 	sed -E -i '' "s#(&client-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
 	sed -E -i '' "s#(&server-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
 	sed -E -i '' "s#(&dp3-env) (exp|loadtest|demo)#\1 placeholder_env#" .circleci/config.yml
+
+#
+# ----- END NON-ATO DEPLOYMENT TARGETS -----
+#
+
+
+#
+# ----- START NON-ATO DEPLOYMENT TARGETS -----
+#
+
+.PHONY: nonato_gitlab_deploy_prepare
+nonato_gitlab_deploy_prepare:  ## Replace placeholders in config to deploy to a non-ATO env. Requires DEPLOY_ENV to be set to exp, loadtest, or demo.
+ifeq ($(DEPLOY_ENV), exp)
+	@echo "Preparing for deploy to experimental"
+else ifeq ($(DEPLOY_ENV), loadtest)
+	@echo "Preparing for deploy to loadtest"
+else ifeq ($(DEPLOY_ENV), demo)
+	@echo "Preparing for deploy to demo"
+else
+	$(error DEPLOY_ENV must be exp, loadtest, or demo)
+endif
+	sed -E -i '' "s#(&dp3_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_mtls_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&client_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&server_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&dp3_env) placeholder_env#\1 $(DEPLOY_ENV)#" .gitlab-ci.yml
+	@git --no-pager diff .gitlab-ci.yml
+	@echo "Please make sure to commit the changes in .gitlab-ci.yml in order to have CircleCI deploy $(GIT_BRANCH) to the Non-ATO $(DEPLOY_ENV) environment."
+
+.PHONY: nonato_gitlab_deploy_restore
+nonato_gitlab_deploy_restore:  ## Restore placeholders in config after deploy to a non-ATO env
+	sed -E -i '' "s#(&dp3_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_mtls_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&client_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&server_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&dp3_env) (exp|loadtest|demo)#\1 placeholder_env#" .gitlab-ci.yml
 
 #
 # ----- END NON-ATO DEPLOYMENT TARGETS -----
