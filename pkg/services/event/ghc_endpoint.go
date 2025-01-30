@@ -183,6 +183,10 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "approveShipment",
 	},
+	GhcApproveShipmentsEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "approveShipments",
+	},
 	GhcRequestShipmentDiversionEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "requestShipmentDiversion",
