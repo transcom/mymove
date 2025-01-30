@@ -1,7 +1,32 @@
 import React from 'react';
-import { Datagrid, DateField, Filter, List, ReferenceField, TextField, TextInput, TopToolbar } from 'react-admin';
+import {
+  Datagrid,
+  DateField,
+  Filter,
+  List,
+  ReferenceField,
+  TextField,
+  TextInput,
+  TopToolbar,
+  useRecordContext,
+} from 'react-admin';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
+
+const RejectedOfficeUserShowRoles = () => {
+  const officeUser = useRecordContext();
+  if (!officeUser?.roles) return <p>This user has not rejected any roles.</p>;
+
+  const uniqueRoleNamesList = [];
+  const rejectedRoles = officeUser.roles;
+  for (let i = 0; i < rejectedRoles.length; i += 1) {
+    if (!uniqueRoleNamesList.includes(rejectedRoles[i].roleName)) {
+      uniqueRoleNamesList.push(rejectedRoles[i].roleName);
+    }
+  }
+
+  return <p>{uniqueRoleNamesList.join(', ')}</p>;
+};
 
 // Overriding the default toolbar
 const ListActions = () => {
@@ -35,6 +60,7 @@ const RejectedOfficeUserList = () => (
       <TextField source="status" />
       <TextField source="rejectionReason" label="Reason for rejection" />
       <DateField showTime source="rejectedOn" label="Rejected date" />
+      <RejectedOfficeUserShowRoles sortable={false} source="roles" label="Rejected Roles" />
     </Datagrid>
   </List>
 );

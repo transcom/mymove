@@ -1,5 +1,4 @@
-import { Alert, Label, TextInput } from '@trussworks/react-uswds';
-import React, { useState } from 'react';
+import React from 'react';
 import {
   ArrayField,
   Datagrid,
@@ -10,8 +9,6 @@ import {
   TextField,
   useRecordContext,
 } from 'react-admin';
-
-import styles from './RejectedOfficeUserShow.module.scss';
 
 const RejectedOfficeUserShowTitle = () => {
   const record = useRecordContext();
@@ -30,43 +27,6 @@ const RejectedOfficeUserShowRoles = () => {
         <TextField source="roleName" />
       </Datagrid>
     </ArrayField>
-  );
-};
-
-// renders server and rej reason alerts
-// renders approve/reject/edit buttons
-// handles logic of approving/rejecting user
-const RejectedOfficeUserActionButtons = () => {
-  const [serverError] = useState('');
-  const [rejectionReason, setRejectionReason] = useState('');
-  const [rejectionReasonCheck, setRejectionReasonCheck] = useState('');
-
-  return (
-    <>
-      {serverError && (
-        <Alert type="error" slim className={styles.error}>
-          {serverError}
-        </Alert>
-      )}
-      {rejectionReasonCheck && (
-        <Alert type="error" slim className={styles.error}>
-          {rejectionReasonCheck}
-        </Alert>
-      )}
-      <div className={styles.rejectionInput}>
-        <Label>Rejection reason (required if rejecting)</Label>
-        <TextInput
-          label="Rejection reason"
-          source="rejectionReason"
-          value={rejectionReason}
-          onChange={(e) => {
-            setRejectionReason(e.target.value);
-            // removing error banner if text is entered
-            setRejectionReasonCheck('');
-          }}
-        />
-      </div>
-    </>
   );
 };
 
@@ -90,7 +50,6 @@ const RejectedOfficeUserShow = () => {
         </ReferenceField>
         <DateField label="Account rejected at" source="createdAt" showTime />
       </SimpleShowLayout>
-      <RejectedOfficeUserActionButtons />
     </Show>
   );
 };
