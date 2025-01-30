@@ -300,7 +300,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 			},
 		})
 
-		domServiceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+		domServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
 				ContractID: contract.ID,
 			},
