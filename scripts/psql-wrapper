@@ -13,6 +13,8 @@ command="${*:-}"
 # nix-friendly option
 if [ -n "${NIX_PROFILE+x}" ]; then
   psql_exe="/nix/var/nix/profiles/per-user/${LOGNAME}/mymove/bin/psql"
+elif [[ $(uname -s) == "Linux" ]]; then
+  psql_exe="/usr/bin/psql"
 else
   # Check if Homebrew is installed and fail with an error message if it isn't for
   # some reason.
