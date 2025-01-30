@@ -85,6 +85,7 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
     onSubmit = (values) => {
       const {
         sitCustomerContacted,
+        sitEntryDate,
         sitDepartureDate,
         sitRequestedDelivery,
         updateReason,
@@ -94,6 +95,7 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
       } = values;
 
       const body = {
+        sitEntryDate: sitEntryDate === 'Invalid date' ? null : formatDateForSwagger(sitEntryDate),
         sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
         sitRequestedDelivery:
           sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
