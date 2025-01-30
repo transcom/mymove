@@ -20,6 +20,20 @@ const ReviewAccountingCodesItem = ({ shipmentId, shipmentType, tac, sac, amount 
   );
 };
 
+//  Renders Move level services such as Move management (MS) and Counseling(CS) that not associated to a shipment.
+const ReviewMoveLevelServiceItems = ({ services }) => {
+  return (
+    <div className={`${styles.MoveLevelServiceItems}`}>
+      {services.map((item) => (
+        <div key={item.id}>
+          <div className={styles.MoveLevelServiceItemsAmount}>{toDollarString(item.amount)}</div>
+          <div className={styles.MoveLevelServiceItemsName}>{item.mtoServiceItemName} fee</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 ReviewAccountingCodesItem.propTypes = {
   shipmentId: PropTypes.string,
   shipmentType: PropTypes.string,
@@ -58,7 +72,13 @@ const ReviewAccountingCodes = ({ TACs, SACs, cards }) => {
       }, {}),
   );
 
-  if (shipments.length === 0) {
+  //  Create move level service items. Move level service will not have an associated MTO Shipment ID
+  const moveLevelServices = [];
+  cards
+    .filter((card) => !card.mtoShipmentID && card.status === PAYMENT_SERVICE_ITEM_STATUS.APPROVED)
+    .forEach((item) => moveLevelServices.push(item));
+
+  if (shipments.length === 0 && moveLevelServices.length === 0) {
     return null;
   }
 
@@ -77,6 +97,8 @@ const ReviewAccountingCodes = ({ TACs, SACs, cards }) => {
           />
         );
       })}
+
+      {moveLevelServices.length > 0 && <ReviewMoveLevelServiceItems services={moveLevelServices} />}
     </div>
   );
 };

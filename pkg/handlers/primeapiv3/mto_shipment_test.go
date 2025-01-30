@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -93,6 +94,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 	mockCreator := mocks.ShipmentCreator{}
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	var pickupAddress primev3messages.Address
 	var secondaryPickupAddress primev3messages.Address
@@ -105,7 +107,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()

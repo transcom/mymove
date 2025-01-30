@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -579,6 +580,8 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 }
 
 func (suite *HandlerSuite) TestApproveShipmentHandler() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -598,7 +601,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moveservices.NewMoveRouter()
 		planner := &routemocks.Planner{}
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -2092,6 +2095,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -2127,7 +2131,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2186,7 +2190,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2242,7 +2246,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2299,7 +2303,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2357,7 +2361,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2414,7 +2418,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2682,6 +2686,8 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 }
 
 func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Returns 200 and updates SIT days allowance when validations pass", func() {
 		sitDaysAllowance := 20
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
@@ -2752,7 +2758,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 			mock.Anything,
 			false,
 		).Return(400, nil)
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2874,6 +2880,8 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 }
 
 func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment without an allowance when validations pass", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
@@ -2893,7 +2901,7 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 			mock.Anything,
 			false,
 		).Return(400, nil)
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2977,7 +2985,7 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 			mock.Anything,
 			false,
 		).Return(400, nil)
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -4040,6 +4048,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -4049,7 +4058,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		false,
 	).Return(400, nil)
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
