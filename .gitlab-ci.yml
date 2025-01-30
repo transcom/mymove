@@ -241,13 +241,12 @@ stages:
       export OKTA_OFFICE_GROUP_ID=notrealgroupId
       export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
 
-#
-# .setup_host_intergration_tests: &setup_host_intergration_tests
-#    - echo "Setting up /etc/hosts for local domain simulation"
-#   - echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
-#   - echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
-#   - echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
-#   - echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
+.setup_host_intergration_tests: &setup_host_intergration_tests
+    - echo "Setting up /etc/hosts for local domain simulation"
+    - echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
+    - echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
+    - echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
+    - echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
 
 .setup_env_intergration_mtls: &setup_env_intergration_mtls
   - |
@@ -935,6 +934,7 @@ integration_test_mtls:
     - compile_app_server
   before_script:
     - *setup_milmove_env
+    - *setup_host_intergration_tests
     - *setup_env_intergration_mtls
   script:
     - echo "TODO Add steps"
