@@ -26,14 +26,14 @@ const brooklynNYPostalCode = "11220"
 func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 	shipmentRateAreaFetcher := NewMTOShipmentRateAreaFetcher()
 
-	setupDomesticRateAreaAndZip3s := func(rateAreaCode string, rateAreaName string, postalCodes map[string]string, contract models.ReContract, domesticServiceArea models.ReDomesticServiceArea) (models.ReRateArea, error) {
+	setupDomesticRateAreaAndZip3s := func(rateAreaCode string, rateAreaName string, postalCodes map[string]string, domesticServiceArea models.ReDomesticServiceArea) (models.ReRateArea, error) {
 		rateArea := models.ReRateArea{
 			ID:         uuid.Must(uuid.NewV4()),
-			ContractID: contract.ID,
+			ContractID: domesticServiceArea.ContractID,
 			IsOconus:   false,
 			Code:       rateAreaCode,
 			Name:       rateAreaName,
-			Contract:   contract,
+			Contract:   domesticServiceArea.Contract,
 		}
 		verrs, err := suite.DB().ValidateAndCreate(&rateArea)
 		if verrs.HasAny() {
@@ -46,8 +46,8 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		for postalCode, basePointCity := range postalCodes {
 			zip3 := models.ReZip3{
 				ID:                    uuid.Must(uuid.NewV4()),
-				ContractID:            contract.ID,
-				Contract:              contract,
+				ContractID:            domesticServiceArea.ContractID,
+				Contract:              domesticServiceArea.Contract,
 				Zip3:                  postalCode[0:3],
 				RateAreaID:            models.UUIDPointer(rateArea.ID),
 				HasMultipleRateAreas:  false,
@@ -218,7 +218,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		// setup Wasilla to have it's own RateArea
 		rateArea2 := setupRateAreaToPostalCodeData(setupRateArea(*contract), wasillaAlaskaPostalCode)
 
-		rateAreaCA, err := setupDomesticRateAreaAndZip3s("US88", "California-South", map[string]string{beverlyHillsCAPostalCode: "Beverly Hills", sanDiegoCAPostalCode: "San Diego"}, *contract, domServiceArea)
+		rateAreaCA, err := setupDomesticRateAreaAndZip3s("US88", "California-South", map[string]string{beverlyHillsCAPostalCode: "Beverly Hills", sanDiegoCAPostalCode: "San Diego"}, domServiceArea)
 		if err != nil {
 			suite.Fail(err.Error())
 		}
@@ -288,30 +288,31 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 			},
 		}
 
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		suite.NotNil(contract)
+		domServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ServiceArea:      "004",
+				ServicesSchedule: 2,
+			},
+			ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
+		})
+		suite.NotNil(domServiceArea)
+		suite.NotNil(domServiceArea.Contract)
 
 		// setup contract year within availableToPrimeAtTime time
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate:  availableToPrimeAtTime,
 				EndDate:    time.Now(),
-				ContractID: contract.ID,
+				ContractID: domServiceArea.ContractID,
 			},
 		})
 
-		domServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
-			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				ContractID: contract.ID,
-			},
-		})
-
-		rateAreaCA, err := setupDomesticRateAreaAndZip3s("US88", "California-South", map[string]string{beverlyHillsCAPostalCode: "Beverly Hills", sanDiegoCAPostalCode: "San Diego"}, contract, domServiceArea)
+		rateAreaCA, err := setupDomesticRateAreaAndZip3s("US88", "California-South", map[string]string{beverlyHillsCAPostalCode: "Beverly Hills", sanDiegoCAPostalCode: "San Diego"}, domServiceArea)
 		if err != nil {
 			suite.Fail(err.Error())
 		}
 
-		rateAreaNY, err := setupDomesticRateAreaAndZip3s("US17", "New York", map[string]string{brooklynNYPostalCode: "Brooklyn"}, contract, domServiceArea)
+		rateAreaNY, err := setupDomesticRateAreaAndZip3s("US17", "New York", map[string]string{brooklynNYPostalCode: "Brooklyn"}, domServiceArea)
 		if err != nil {
 			suite.Fail(err.Error())
 		}
