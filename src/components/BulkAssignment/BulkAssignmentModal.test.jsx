@@ -95,4 +95,24 @@ describe('BulkAssignmentModal', () => {
     });
     expect(screen.getAllByTestId('bulkAssignmentUserWorkload')[0]).toHaveTextContent('1');
   });
+
+  it('submits the bulk assignment data', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    const saveButton = await screen.getByTestId('modalSubmitButton');
+    await userEvent.click(saveButton);
+    await waitFor(() => {
+      const payload = {
+        bulkAssignmentSavePayload: {
+          moveData: [
+            'b3baf6ce-f43b-437c-85be-e1145c0ddb96',
+            '962ce8d2-03a2-435c-94ca-6b9ef6c226c1',
+            'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed3',
+          ],
+          userData: [],
+        },
+      };
+
+      expect(onSubmit).toHaveBeenCalledWith(payload);
+    });
+  });
 });

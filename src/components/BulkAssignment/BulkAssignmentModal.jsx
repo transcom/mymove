@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 import styles from './BulkAssignmentModal.module.scss';
 
@@ -18,12 +19,16 @@ const initialValues = {
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
   // fetch bulk assignment data
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         getBulkAssignmentData(queueType).then((data) => {
           setBulkAssignmentData(data);
+          if (data.bulkAssignmentMoveIDs === undefined) {
+            setIsDisabled(true);
+          }
         });
       } catch (err) {
         setBulkAssignmentData({});
@@ -36,6 +41,10 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
 
   // adds move data to the initialValues obj
   initialValues.moveData = bulkAssignmentData?.bulkAssignmentMoveIDs;
+
+  const validationSchema = Yup.object().shape({
+    assignment: Yup.number().min(0).typeError('Assignment must be a number'),
+  });
 
   return (
     <Modal>
@@ -53,6 +62,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
             onSubmit({ bulkAssignmentSavePayload });
             onClose();
           }}
+          validationSchema={validationSchema}
           initialValues={initialValues}
         >
           {({ handleChange, setValues, values }) => {
@@ -79,6 +89,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                           <input
                             className={styles.BulkAssignmentAssignment}
                             type="number"
+                            name="assignment"
                             id={user.officeUserId}
                             defaultValue={0}
                             min={0}
@@ -118,7 +129,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     className="usa-button--submit"
                     type="submit"
                     data-testid="modalSubmitButton"
-                    disabled={bulkAssignmentData?.bulkAssignmentMoveIDs < 1}
+                    disabled={isDisabled}
                   >
                     {submitText}
                   </Button>
