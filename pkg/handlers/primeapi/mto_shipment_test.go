@@ -59,6 +59,30 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 
 	}
 
+	suite.Run("POST failure - 500 Internal Server GetLocationsByZipCityState returns error", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+
+		expectedError := models.ErrFetchNotFound
+		vLocationFetcher := &mocks.VLocation{}
+		vLocationFetcher.On("GetLocationsByZipCityState",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, expectedError).Once()
+
+		handler := UpdateShipmentDestinationAddressHandler{
+			HandlerConfig:                  suite.HandlerConfig(),
+			ShipmentAddressUpdateRequester: &mockCreator,
+			VLocation:                      vLocationFetcher,
+		}
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressInternalServerError{}, response)
+	})
+
 	suite.Run("POST failure - 422 Unprocessable Entity Error Invalid Address", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}

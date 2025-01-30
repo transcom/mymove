@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
+	servicemocks "github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
@@ -394,5 +395,56 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Failure - Internal Error mock GetLocationsByZipCityState return error", func() {
+		// Testcase:   address is updated on a shipment that's available to MTO with invalid address
+		// Expected:   Failure response 422
+		// Under Test: UpdateMTOShipmentAddress handler code and mtoShipmentAddressUpdater service object
+		handler, availableMove := setupTestData()
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
+		newAddress2 := models.Address{
+			StreetAddress1: "7 Q St",
+			StreetAddress2: models.StringPointer("6622 Airport Way S #1430"),
+			StreetAddress3: models.StringPointer("441 SW Río de la Plata Drive"),
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     "90210",
+		}
+
+		// Update with new address
+		payload := payloads.Address(&newAddress2)
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), shipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
+			HTTPRequest:   req,
+			AddressID:     *handlers.FmtUUID(shipment.PickupAddress.ID),
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          payload,
+			IfMatch:       etag.GenerateEtag(shipment.PickupAddress.UpdatedAt),
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		expectedError := models.ErrFetchNotFound
+		vLocationFetcher := &servicemocks.VLocation{}
+		vLocationFetcher.On("GetLocationsByZipCityState",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, expectedError).Once()
+
+		handler.VLocation = vLocationFetcher
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressInternalServerError{}, response)
 	})
 }

@@ -1963,6 +1963,81 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, errResponse)
 	})
+
+	suite.Run("PATCH failure - Internal Server error GetLocationsByZipCityState", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Mock location to return an error
+		// Expected:   500 Response returned
+		expectedError := models.ErrFetchNotFound
+		vLocationFetcher := &mocks.VLocation{}
+		vLocationFetcher.On("GetLocationsByZipCityState",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, expectedError).Once()
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		patchHandler := UpdateMTOShipmentHandler{
+			HandlerConfig:   suite.HandlerConfig(),
+			ShipmentUpdater: shipmentUpdater,
+			VLocation:       vLocationFetcher,
+		}
+
+		now := time.Now()
+		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+		}, nil)
+		move := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		var testMove models.Move
+		err := suite.DB().EagerPreload("MTOShipments.PPMShipment").Find(&testMove, move.ID)
+		suite.NoError(err)
+		var testMtoShipment models.MTOShipment
+		err = suite.DB().Find(&testMtoShipment, mto_shipment.ID)
+		suite.NoError(err)
+		testMtoShipment.MoveTaskOrderID = testMove.ID
+		testMtoShipment.MoveTaskOrder = testMove
+		err = suite.DB().Save(&testMtoShipment)
+		suite.NoError(err)
+		testMove.MTOShipments = append(testMove.MTOShipments, mto_shipment)
+		err = suite.DB().Save(&testMove)
+		suite.NoError(err)
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", testMove.MTOShipments[0].ID), nil)
+
+		eTag := etag.GenerateEtag(testMtoShipment.UpdatedAt)
+		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(testMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+		tertiaryAddress := GetTestAddress()
+		patchParams.Body = &primev3messages.UpdateMTOShipment{
+			TertiaryDeliveryAddress: struct{ primev3messages.Address }{tertiaryAddress},
+		}
+
+		patchResponse := patchHandler.Handle(patchParams)
+		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentInternalServerError)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentInternalServerError{}, errResponse)
+	})
 }
 func GetTestAddress() primev3messages.Address {
 	newAddress := factory.BuildAddress(nil, []factory.Customization{
