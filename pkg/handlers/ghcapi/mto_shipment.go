@@ -770,7 +770,7 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 func (h ApproveShipmentsHandler) triggerShipmentApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentsParams) {
 
 	_, err := event.TriggerEvent(event.Event{
-		EndpointKey: event.GhcApproveShipmentEndpointKey,
+		EndpointKey: event.GhcApproveShipmentsEndpointKey,
 		// Endpoint that is being handled
 		EventKey:        event.ShipmentApproveEventKey, // Event that you want to trigger
 		UpdatedObjectID: shipmentID,                    // ID of the updated logical object
@@ -781,7 +781,7 @@ func (h ApproveShipmentsHandler) triggerShipmentApprovalEvent(appCtx appcontext.
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		appCtx.Logger().Error("ghcapi.ApproveShipmentHandler could not generate the event", zap.Error(err))
+		appCtx.Logger().Error("ghcapi.ApproveShipmentsHandler could not generate the event", zap.Error(err))
 	}
 }
 
