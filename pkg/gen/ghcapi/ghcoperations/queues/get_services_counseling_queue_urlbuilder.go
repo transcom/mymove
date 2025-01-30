@@ -16,6 +16,7 @@ import (
 
 // GetServicesCounselingQueueURL generates an URL for the get services counseling queue operation
 type GetServicesCounselingQueueURL struct {
+	ActiveRole              *string
 	AssignedTo              *string
 	Branch                  *string
 	CloseoutInitiated       *strfmt.DateTime
@@ -74,6 +75,14 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var activeRoleQ string
+	if o.ActiveRole != nil {
+		activeRoleQ = *o.ActiveRole
+	}
+	if activeRoleQ != "" {
+		qs.Set("activeRole", activeRoleQ)
+	}
 
 	var assignedToQ string
 	if o.AssignedTo != nil {

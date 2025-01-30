@@ -195,7 +195,8 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	var officeUsers models.OfficeUsers
 	var officeUsersSafety models.OfficeUsers
 	officeUsers = append(officeUsers, officeUser)
-	var paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+	activeRole := string(roles.RoleTypeTIO)
+	var paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 
 	suite.Run("Test Payment request is assignable due to not being assigend", func() {
 		paymentRequestCopy := *paymentRequestsQueue
@@ -214,7 +215,7 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUserTIO
 	paymentRequests[0].MoveTaskOrder.CounselingOffice = &transportationOffice
 
-	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 
 	suite.Run("Test PaymentRequest has both Counseling Office and TIO AssignedUser ", func() {
 		PaymentRequestsCopy := *paymentRequestsQueue
@@ -228,14 +229,14 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	})
 
 	suite.Run("Test PaymentRequest is assignable due to user Supervisor role", func() {
-		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 		paymentRequestCopy := *paymentRequests
 		suite.Equal(paymentRequestCopy[0].Assignable, true)
 	})
 
-	officeUserHQ := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
+	activeRole = string(roles.RoleTypeHQ)
 	suite.Run("Test PaymentRequest is not assignable due to user HQ role", func() {
-		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUserHQ, officeUsersSafety)
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 		paymentRequestCopy := *paymentRequests
 		suite.Equal(paymentRequestCopy[0].Assignable, false)
 	})

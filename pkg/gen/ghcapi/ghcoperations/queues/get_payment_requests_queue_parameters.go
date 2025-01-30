@@ -34,6 +34,10 @@ type GetPaymentRequestsQueueParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*user's actively logged in role
+	  In: query
+	*/
+	ActiveRole *string
 	/*Used to illustrate which user is assigned to this payment request.
 
 	  In: query
@@ -117,6 +121,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
+
+	qActiveRole, qhkActiveRole, _ := qs.GetOK("activeRole")
+	if err := o.bindActiveRole(qActiveRole, qhkActiveRole, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	qAssignedTo, qhkAssignedTo, _ := qs.GetOK("assignedTo")
 	if err := o.bindAssignedTo(qAssignedTo, qhkAssignedTo, route.Formats); err != nil {
@@ -205,6 +214,24 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindActiveRole binds and validates parameter ActiveRole from query.
+func (o *GetPaymentRequestsQueueParams) bindActiveRole(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.ActiveRole = &raw
+
 	return nil
 }
 

@@ -65,6 +65,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		"MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice",
 		"MoveTaskOrder.Orders.OriginDutyLocation.Address",
 		"MoveTaskOrder.TIOAssignedUser",
+		"MoveTaskOrder.TIOAssignedUser.TransportationOfficeID",
 		"MoveTaskOrder.CounselingOffice",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
 		// "MoveTaskOrder.Orders.ServiceMember",
