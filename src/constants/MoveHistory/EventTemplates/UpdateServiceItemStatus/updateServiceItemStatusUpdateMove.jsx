@@ -10,5 +10,17 @@ export default {
   eventName: o.updateMTOServiceItemStatus,
   tableName: t.moves,
   getEventNameDisplay: () => 'Updated move',
-  getDetails: (historyRecord) => <LabeledDetails historyRecord={historyRecord} />,
+  getDetails: (historyRecord) => {
+    return (
+      <>
+        <LabeledDetails historyRecord={historyRecord} />
+        {historyRecord?.changedValues?.too_assigned_id !== undefined ? (
+          <>
+            <div>Service Items Addressed</div>
+            <div>Task Ordering Officer Unassigned</div>
+          </>
+        ) : null}
+      </>
+    );
+  },
 };

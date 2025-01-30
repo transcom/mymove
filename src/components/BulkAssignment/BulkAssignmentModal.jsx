@@ -1,46 +1,168 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+
+import styles from './BulkAssignmentModal.module.scss';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
+import { Form } from 'components/form';
+import { getBulkAssignmentData } from 'services/ghcApi';
+import { milmoveLogger } from 'utils/milmoveLog';
 
-export const BulkAssignmentModal = ({ onClose, onSubmit, title, content, submitText, closeText }) => (
-  <Modal>
-    <ModalClose handleClick={() => onClose()} />
-    <ModalTitle>
-      <h3>{title}</h3>
-    </ModalTitle>
-    <p>{content}</p>
-    <ModalActions autofocus="true">
-      <Button
-        data-focus="true"
-        className="usa-button--destructive"
-        type="submit"
-        data-testid="modalSubmitButton"
-        onClick={() => onSubmit()}
-      >
-        {submitText}
-      </Button>
-      <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
-        {closeText}
-      </Button>
-    </ModalActions>
-  </Modal>
-);
+const initialValues = {
+  userData: [],
+  moveData: [],
+};
+
+export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
+  // fetch bulk assignment data
+  const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        getBulkAssignmentData(queueType).then((data) => {
+          setBulkAssignmentData(data);
+          if (data.bulkAssignmentMoveIDs === undefined) {
+            setIsDisabled(true);
+          }
+        });
+      } catch (err) {
+        setBulkAssignmentData({});
+        milmoveLogger.error('Error fetching bulk assignment data:', err);
+      }
+    };
+
+    fetchData();
+  }, [queueType]);
+
+  // adds move data to the initialValues obj
+  initialValues.moveData = bulkAssignmentData?.bulkAssignmentMoveIDs;
+
+  const validationSchema = Yup.object().shape({
+    assignment: Yup.number().min(0).typeError('Assignment must be a number'),
+  });
+
+  return (
+    <Modal>
+      <ModalClose handleClick={() => onClose()} />
+      <ModalTitle>
+        <h3>
+          {title} (
+          {bulkAssignmentData?.bulkAssignmentMoveIDs == null ? 0 : bulkAssignmentData?.bulkAssignmentMoveIDs?.length})
+        </h3>
+      </ModalTitle>
+      <div className={styles.BulkAssignmentTable}>
+        <Formik
+          onSubmit={(values) => {
+            const bulkAssignmentSavePayload = values;
+            onSubmit({ bulkAssignmentSavePayload });
+            onClose();
+          }}
+          validationSchema={validationSchema}
+          initialValues={initialValues}
+        >
+          {({ handleChange, setValues, values }) => {
+            return (
+              <Form>
+                <table>
+                  <tr>
+                    <th>User</th>
+                    <th>Workload</th>
+                    <th>Assignment</th>
+                  </tr>
+                  {bulkAssignmentData?.availableOfficeUsers?.map((user, i) => {
+                    return (
+                      <tr key={user.officeUserId}>
+                        <td>
+                          <p data-testid="bulkAssignmentUser">
+                            {user.lastName}, {user.firstName}
+                          </p>
+                        </td>
+                        <td className={styles.BulkAssignmentDataCenter}>
+                          <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
+                        </td>
+                        <td className={styles.BulkAssignmentDataCenter}>
+                          <input
+                            className={styles.BulkAssignmentAssignment}
+                            type="number"
+                            name="assignment"
+                            id={user.officeUserId}
+                            data-testid="assignment"
+                            defaultValue={0}
+                            min={0}
+                            onChange={(event) => {
+                              handleChange(event);
+
+                              let newUserAssignment;
+                              if (event.target.value !== '') {
+                                newUserAssignment = {
+                                  ID: event.target.id,
+                                  moveAssignments: +event.target.value,
+                                };
+                              } else {
+                                newUserAssignment = {
+                                  ID: event.target.id,
+                                  moveAssignments: 0,
+                                };
+                              }
+
+                              const newValues = values;
+                              newValues.userData[i] = newUserAssignment;
+
+                              setValues({
+                                ...values,
+                                userData: newValues.userData,
+                              });
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </table>
+                <ModalActions autofocus="true">
+                  <Button
+                    data-focus="true"
+                    className="usa-button--submit"
+                    type="submit"
+                    data-testid="modalSubmitButton"
+                    disabled={isDisabled}
+                  >
+                    {submitText}
+                  </Button>
+                  <button
+                    className={styles.backbutton}
+                    type="button"
+                    onClick={() => onClose()}
+                    data-testid="modalBackButton"
+                  >
+                    {closeText}
+                  </button>
+                </ModalActions>
+              </Form>
+            );
+          }}
+        </Formik>
+      </div>
+    </Modal>
+  );
+};
 
 BulkAssignmentModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 
   title: PropTypes.string,
-  content: PropTypes.string,
   submitText: PropTypes.string,
   closeText: PropTypes.string,
 };
 
 BulkAssignmentModal.defaultProps = {
   title: 'Bulk Assignment',
-  content: 'Here we will display moves to be assigned in bulk.',
   submitText: 'Save',
   closeText: 'Cancel',
 };
