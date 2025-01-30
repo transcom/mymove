@@ -29,6 +29,7 @@ button.cancelButton {
   font-weight: 700;
   padding: 0.75rem 1.25rem;
   justify-content: center;
+  min-width: 4vw;
 
   &:hover,
   &:focus {
@@ -37,5 +38,6 @@ button.cancelButton {
     border: 2px solid $primary-dark;
     cursor: pointer;
     color: $primary-dark;
+    min-width: 4vw;
   }
 }
