@@ -3,12 +3,14 @@ package adminapi
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -156,13 +158,18 @@ type IndexRequestedOfficeUsersHandler struct {
 	services.NewPagination
 }
 
-var requestedOfficeUserFilterConverters = map[string]func(string) []services.QueryFilter{
-	"search": func(content string) []services.QueryFilter {
-		nameSearch := fmt.Sprintf("%s%%", content)
-		return []services.QueryFilter{
-			query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", content)),
-			query.NewQueryFilter("first_name", "ILIKE", nameSearch),
-			query.NewQueryFilter("last_name", "ILIKE", nameSearch),
+var requestedOfficeUserFilterConverters = map[string]func(string) func(*pop.Query){
+	"search": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			nameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.email ILIKE ? OR office_users.first_name ILIKE ? OR office_users.last_name ILIKE ?", nameSearch, nameSearch, nameSearch)
+		}
+	},
+
+	"offices": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			nameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("transportation_offices.name ILIKE ?", nameSearch)
 		}
 	},
 }
@@ -172,27 +179,27 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			// adding in filters for when a search or filtering is done
-			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, requestedOfficeUserFilterConverters)
+			// react-admin sends us JSON when filtering,
+			// so we need to create a map to store those filters after unmarshaling
+			var filtersMap map[string]string
+			if params.Filter != nil && *params.Filter != "" {
+				err := json.Unmarshal([]byte(*params.Filter), &filtersMap)
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), errors.New("invalid filter format")), err
+				}
+			}
 
-			// We only want users that are in a REQUESTED status
-			queryFilters = append(queryFilters, query.NewQueryFilter("status", "=", "REQUESTED"))
+			var filterFuncs []func(*pop.Query)
+			for key, filterFunc := range requestedOfficeUserFilterConverters {
+				if filterValue, exists := filtersMap[key]; exists {
+					filterFuncs = append(filterFuncs, filterFunc(filterValue))
+				}
+			}
 
-			// adding in pagination for the UI
 			pagination := h.NewPagination(params.Page, params.PerPage)
 			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-			// need to also get the user's roles
-			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
-				query.NewQueryAssociation("User.Roles"),
-			})
-
-			officeUsers, err := h.RequestedOfficeUserListFetcher.FetchRequestedOfficeUsersList(appCtx, queryFilters, queryAssociations, pagination, ordering)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			totalOfficeUsersCount, err := h.RequestedOfficeUserListFetcher.FetchRequestedOfficeUsersCount(appCtx, queryFilters)
+			officeUsers, count, err := h.RequestedOfficeUserListFetcher.FetchRequestedOfficeUsersList(appCtx, filterFuncs, pagination, ordering)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
@@ -205,7 +212,7 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 				payload[i] = payloadForRequestedOfficeUserModel(s)
 			}
 
-			return requested_office_users.NewIndexRequestedOfficeUsersOK().WithContentRange(fmt.Sprintf("requested office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload), nil
+			return requested_office_users.NewIndexRequestedOfficeUsersOK().WithContentRange(fmt.Sprintf("requested office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, count)).WithPayload(payload), nil
 		})
 }
 
