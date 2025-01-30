@@ -98,6 +98,18 @@ describe('BulkAssignmentModal', () => {
 
   it('submits the bulk assignment data', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    const userTable = await screen.findByRole('table');
+    expect(userTable).toBeInTheDocument();
+    expect(screen.getByText('User')).toBeInTheDocument();
+    expect(screen.getByText('Workload')).toBeInTheDocument();
+    expect(screen.getByText('Assignment')).toBeInTheDocument();
+    await act(async () => {
+      expect(await screen.getByText('user, sc')).toBeInTheDocument();
+      const assignment = await screen.getAllByTestId('assignment')[0];
+      await userEvent.type(assignment, '1');
+    });
+    expect(screen.getAllByTestId('bulkAssignmentUserWorkload')[0]).toHaveTextContent('1');
+
     const saveButton = await screen.getByTestId('modalSubmitButton');
     await userEvent.click(saveButton);
     await waitFor(() => {
@@ -108,7 +120,12 @@ describe('BulkAssignmentModal', () => {
             '962ce8d2-03a2-435c-94ca-6b9ef6c226c1',
             'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed3',
           ],
-          userData: [],
+          userData: [
+            {
+              ID: '045c3048-df9a-4d44-88ed-8cd6e2100e08',
+              moveAssignments: 1,
+            },
+          ],
         },
       };
 

@@ -91,6 +91,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                             type="number"
                             name="assignment"
                             id={user.officeUserId}
+                            data-testid="assignment"
                             defaultValue={0}
                             min={0}
                             onChange={(event) => {
