@@ -1,13 +1,14 @@
 package adminuser
 
 import (
+	"github.com/gobuffalo/pop/v6"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type requestedOfficeUsersListQueryBuilder interface {
-	FetchMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
 	Count(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error)
 }
 
@@ -16,10 +17,29 @@ type requestedOfficeUserListFetcher struct {
 }
 
 // FetchAdminUserList uses the passed query builder to fetch a list of office users
-func (o *requestedOfficeUserListFetcher) FetchRequestedOfficeUsersList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.OfficeUsers, error) {
+func (o *requestedOfficeUserListFetcher) FetchRequestedOfficeUsersList(appCtx appcontext.AppContext, filterFuncs []func(*pop.Query), pagination services.Pagination, ordering services.QueryOrder) (models.OfficeUsers, int, error) {
+	var query *pop.Query
 	var requestedUsers models.OfficeUsers
-	err := o.builder.FetchMany(appCtx, &requestedUsers, filters, associations, pagination, ordering)
-	return requestedUsers, err
+
+	query = appCtx.DB().Q().EagerPreload(
+		"User.Roles",
+		"TransportationOffice").
+		Join("transportation_offices", "office_users.transportation_office_id = transportation_offices.id")
+
+	for _, filterFunc := range filterFuncs {
+		filterFunc(query)
+	}
+
+	query = query.Where("status = ?", models.OfficeUserStatusREQUESTED)
+
+	err := query.Paginate(pagination.Page(), pagination.PerPage()).All(&requestedUsers)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	count := query.Paginator.TotalEntriesSize
+
+	return requestedUsers, count, nil
 }
 
 // FetchAdminUserList uses the passed query builder to fetch a list of office users
