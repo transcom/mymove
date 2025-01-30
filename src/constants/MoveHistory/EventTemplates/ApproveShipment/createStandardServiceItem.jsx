@@ -1,5 +1,6 @@
 import React from 'react';
 
+import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import { shipmentTypes as SHIPMENT_TYPE } from 'constants/shipments';
@@ -7,7 +8,7 @@ import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 export default {
   action: a.INSERT,
-  eventName: '*', // both approveShipment and approveShipments events can render this template
+  eventName: o.approveShipment,
   tableName: t.mto_service_items,
   getEventNameDisplay: () => 'Approved service item',
   getDetails: (historyRecord) => {
