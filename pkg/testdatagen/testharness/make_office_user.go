@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/factory"
@@ -32,13 +33,17 @@ func MakeRejectedOfficeUserWithTOO(appCtx appcontext.AppContext) models.User {
 		},
 	}, nil)
 	rejectedStatus := models.OfficeUserStatusREJECTED
+	rejectionReason := "testing"
+	rejectedOn := time.Now()
 	factory.BuildOfficeUserWithRoles(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.OfficeUser{
-				Email:  email,
-				Active: true,
-				UserID: &user.ID,
-				Status: &rejectedStatus,
+				Email:           email,
+				Active:          true,
+				UserID:          &user.ID,
+				Status:          &rejectedStatus,
+				RejectedOn:      &rejectedOn,
+				RejectionReason: &rejectionReason,
 			},
 		},
 		{
