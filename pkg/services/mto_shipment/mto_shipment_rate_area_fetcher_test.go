@@ -323,8 +323,8 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		// setup contract year within availableToPrimeAtTime time
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				StartDate:  availableToPrimeAtTime,
-				EndDate:    time.Now(),
+				// StartDate:  availableToPrimeAtTime,
+				// EndDate:    time.Now(),
 				ContractID: domServiceArea.ContractID,
 			},
 		})
