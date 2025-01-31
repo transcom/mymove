@@ -357,6 +357,8 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
+  MTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalShuttle.yaml'
   CreateMTOShipment:
     type: object
     properties:
@@ -611,12 +613,15 @@ definitions:
         * DOFSIT - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
+        * IDSHUT - UpdateMTOServiceItemInternationalShuttle
+        * IOSHUT - UpdateMTOServiceItemInternationalShuttle
 
       The documentation will then update with the supported fields.
     type: string
     enum:
       - UpdateMTOServiceItemSIT
       - UpdateMTOServiceItemShuttle
+      - UpdateMTOServiceItemInternationalShuttle
   UpdateMTOServiceItem:
     description: UpdateMTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
     type: object
@@ -656,6 +661,35 @@ definitions:
             enum:
               - DDSHUT # Domestic Destination Shuttle
               - DOSHUT # Domestic Origin Shuttle
+  UpdateMTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: |
+      Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          actualWeight:
+            type: integer
+            example: 4000
+            description: Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT & IOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT & IOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - IDSHUT # Domestic Destination Shuttle
+              - IOSHUT # Domestic Origin Shuttle
   UpdatePPMShipment:
     description: The PPM specific fields of the shipment with values being changed
     type: object
