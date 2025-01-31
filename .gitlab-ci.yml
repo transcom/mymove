@@ -87,6 +87,8 @@ stages:
       export AWS_ACCOUNT_ID=$(eval echo \$${ENV}_ACCOUNT_ID);
       export AWS_ACCESS_KEY_ID=$(eval echo \$${ENV}_ACCESS_KEY_ID);
       export AWS_SECRET_ACCESS_KEY=$(eval echo \$${ENV}_SECRET_ACCESS_KEY);
+      export SERVICE_RESERVATION_CPU=2048
+      export SERVICE_RESERVATION_MEM=3072
     fi
 
 .setup_release_dp3: &setup_release_dp3
@@ -119,6 +121,8 @@ stages:
   - export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID
   - export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
+  - export SERVICE_RESERVATION_CPU=2048
+  - export SERVICE_RESERVATION_MEM=8192
 
 .setup_tls_vars_prd: &setup_tls_vars_prd
   - export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT
