@@ -747,6 +747,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			AccompaniedTour:                models.BoolPointer(true),
 			DependentsTwelveAndOver:        models.Int64Pointer(1),
 			DependentsUnderTwelve:          models.Int64Pointer(2),
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -832,6 +833,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -881,6 +883,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), orderWithoutDefaults.ID, payload, eTag)
@@ -932,6 +935,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -968,6 +972,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)

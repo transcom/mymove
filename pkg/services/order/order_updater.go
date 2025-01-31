@@ -536,6 +536,7 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 
 	return order, nil
 }
+
 func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) (models.Order, error) {
 	order := existingOrder
 	waf := entitlements.NewWeightAllotmentFetcher()
@@ -640,7 +641,6 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 
 	return order, nil
 }
-
 func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext, doc *models.Document) (*models.Document, error) {
 	var docID uuid.UUID
 	if doc != nil {
