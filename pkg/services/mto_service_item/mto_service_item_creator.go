@@ -893,6 +893,12 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 		return nil, err
 	}
 
+	//SIT Entry Date must be before SIT Departure Date
+	err = o.checkSITEntryDateBeforeDepartureDate(serviceItem)
+	if err != nil {
+		return nil, err
+	}
+
 	verrs := validate.NewErrors()
 
 	// check if the address IDs are nil
