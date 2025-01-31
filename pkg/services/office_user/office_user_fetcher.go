@@ -19,6 +19,8 @@ type officeUserQueryBuilder interface {
 	QueryForAssociations(appCtx appcontext.AppContext, model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error
 	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
 	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
+	DeleteOne(appCtx appcontext.AppContext, model interface{}) error
+	DeleteMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
 }
 
 type officeUserFetcher struct {
