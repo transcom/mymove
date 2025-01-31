@@ -609,7 +609,7 @@ const ServicesCounselingQueue = ({
     return <TabNav className={styles.tableTabs} items={navTabs()} />;
   };
 
-  if (queueType === 'Search') {
+  if (queueType === 'search') {
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
