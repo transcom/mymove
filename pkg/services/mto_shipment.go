@@ -163,5 +163,5 @@ type ShipmentPostalCodeRateArea struct {
 //
 //go:generate mockery --name ShipmentRateAreaFinder
 type ShipmentRateAreaFinder interface {
-	GetPrimeMoveShipmentOconusRateArea(appCtx appcontext.AppContext, move models.Move) (*[]ShipmentPostalCodeRateArea, error)
+	GetPrimeMoveShipmentRateAreas(appCtx appcontext.AppContext, move models.Move) (*[]ShipmentPostalCodeRateArea, error)
 }

@@ -106,7 +106,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			/** End of Feature Flag **/
 
 			// Add oconus rate area information to payload
-			shipmentPostalCodeRateArea, err := h.shipmentRateAreaFinder.GetPrimeMoveShipmentOconusRateArea(appCtx, *mto)
+			shipmentPostalCodeRateArea, err := h.shipmentRateAreaFinder.GetPrimeMoveShipmentRateAreas(appCtx, *mto)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.GetMoveTaskOrderHandler error", zap.Error(err))
 				return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(
