@@ -384,29 +384,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
     case SERVICE_ITEM_CODES.DDFSIT:
     case SERVICE_ITEM_CODES.DDASIT:
     case SERVICE_ITEM_CODES.IDFSIT:
-    case SERVICE_ITEM_CODES.IDASIT: {
-      detailSection = generateDestinationSITDetailSection(
-        id,
-        serviceRequestDocUploads,
-        details,
-        code,
-        shipment,
-        sitStatus,
-      );
-      break;
-    }
+    case SERVICE_ITEM_CODES.IDASIT:
     case SERVICE_ITEM_CODES.DDDSIT:
-    case SERVICE_ITEM_CODES.IDDSIT: {
-      detailSection = generateDestinationSITDetailSection(
-        id,
-        serviceRequestDocUploads,
-        details,
-        code,
-        shipment,
-        sitStatus,
-      );
-      break;
-    }
+    case SERVICE_ITEM_CODES.IDDSIT:
     case SERVICE_ITEM_CODES.DDSFSC:
     case SERVICE_ITEM_CODES.IDSFSC: {
       detailSection = generateDestinationSITDetailSection(
