@@ -39,7 +39,7 @@ variables:
   CLIENT_IGNORE_BRANCH: &client_ignore_branch B-22106-ServerTest
   SERVER_IGNORE_BRANCH: &server_ignore_branch B-22106-ServerTest
 
-  RUNNER_TAG: &runner_tag eks_cluster_runner
+  RUNNER_TAG: &runner_tag milmove
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
 
   postgres: &postgres postgres:16.4
@@ -87,8 +87,6 @@ stages:
       export AWS_ACCOUNT_ID=$(eval echo \$${ENV}_ACCOUNT_ID);
       export AWS_ACCESS_KEY_ID=$(eval echo \$${ENV}_ACCESS_KEY_ID);
       export AWS_SECRET_ACCESS_KEY=$(eval echo \$${ENV}_SECRET_ACCESS_KEY);
-      export SERVICE_RESERVATION_CPU=2048
-      export SERVICE_RESERVATION_MEM=3072
     fi
 
 .setup_release_dp3: &setup_release_dp3
@@ -123,6 +121,7 @@ stages:
   - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=8192
+
 
 .setup_tls_vars_prd: &setup_tls_vars_prd
   - export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT
@@ -245,13 +244,6 @@ stages:
       export OKTA_OFFICE_GROUP_ID=notrealgroupId
       export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
 
-.setup_host_intergration_tests: &setup_host_intergration_tests
-    - echo "Setting up /etc/hosts for local domain simulation"
-    - echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
-    - echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
-    - echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
-    - echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
-
 .setup_env_intergration_mtls: &setup_env_intergration_mtls
   - |
     echo "Setting up environment variables"
@@ -269,33 +261,11 @@ stages:
     export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
     export LOGIN_GOV_CALLBACK_PORT=4000
     export LOGIN_GOV_CALLBACK_PROTOCOL=http
-
-    export SERVE_API_SUPPORT=true
-    export SERVE_PRIME_SIMULATOR=true
-    export DEVLOCAL_CA=$(cat config/tls/devlocal-ca.pem)
-    export DOD_CA_PACKAGE=$(cat config/tls/milmove-cert-bundle.p7b)
-
-   # export HTTP_ADMIN_SERVER_NAME=adminlocal
-   # export HTTP_MY_SERVER_NAME=milmovelocal
-   # export HTTP_OFFICE_SERVER_NAME=officelocal
-   # export HTTP_ORDERS_SERVER_NAME=orderslocal
-   # export HTTP_PRIME_SERVER_NAME=primelocal
-  - |
-    export ENVIRONMENT=test
-    export MUTUAL_TLS_ENABLED=true
-    export MUTUAL_TLS_PORT=9443
-    export SERVE_API_PRIME=true
-  # disable for speed, tests can fail otherwise
-  - |
-    export DB_DEBUG=false
-
     make db_dev_create
     bin/milmove migrate
-  # mtls tests do not need client
-  -  mkdir -p build
-  -  touch build/index.html
-  # mtls tests DO NOT NEED SEED DATA
-  -  bin/milmove serve 2>&1 | tee server.log &
+    mkdir -p build
+    touch build/index.html
+    bin/milmove serve 2>&1 | tee server.log &
 
 .e2e_tests_playwright: &e2e_tests_playwright
   - |
@@ -535,16 +505,18 @@ deploy_storybook_dp3:
     - build_storybook
   before_script:
     - *setup_milmove_env
+    - *setup_aws_vars_dp3
+    - ls -l $CI_PROJECT_DIR/storybook-static || echo "storybook-static directory not found!"
   script:
-   - echo "TODO Add steps"
-   - echo "deploy_storybook_dp3"
+    - echo "Deploying Storybook to S3..."
+    - ./scripts/push-storybook-assets "storybook.$APP_ENVIRONMENT.move.mil"
   after_script:
     - *announce_failure
   artifacts:
     paths:
       - /builds/milmove/mymove/storybook-static
   rules:
-    - *check_main
+  - *check_main
 
 compile_app_client:
   stage: build
@@ -1244,17 +1216,23 @@ push_otel_collector_image_dp3:
     - compile_app_server
     - compile_app_client
   script:
-     - echo "Logging in to Amazon ECR with Crane..."
-     - aws ecr get-login-password --region ${AWS_REGION} | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+    - echo "Logging in to DockerHub with Crane..."
+    - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
-     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
+    - echo "Pulling the AWS OTel Collector image from DockerHub..."
+    - crane pull ${ECR_REPOSITORY_OTEL}:${OTEL_VERSION} image.tar
 
-     - echo "Pushing the image to our private ECR using Crane..."
-     - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
+    - echo "Extracting the OTel image tag..."
+    - export OTEL_IMAGE_TAG="git-${OTEL_VERSION}-${CI_COMMIT_SHORT_SHA}"
 
-     - echo "Cleaning up the temporary image file..."
-     - rm image.tar
+    - echo "Logging into AWS ECR with Crane..."
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com -u AWS --password-stdin
+
+    - echo "Pushing the image to our private ECR using Crane..."
+    - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${OTEL_IMAGE_TAG}
+
+    - echo "Cleaning up temporary image file..."
+    - rm image.tar
   allow_failure: false
   after_script:
     - *announce_failure
@@ -1349,7 +1327,7 @@ deploy_app_client_tls_dp3:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector Digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=git-${OTEL_VERSION}-${CI_COMMIT_SHORT_SHA} --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -1400,7 +1378,7 @@ deploy_app_dp3:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=git-${OTEL_VERSION}-${CI_COMMIT_SHORT_SHA} --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -1507,17 +1485,24 @@ push_otel_collector_image_stg:
     - *setup_aws_vars_stg
     - *setup_release_stg
   script:
-     - echo "Logging in to Amazon ECR with Crane..."
-     - aws ecr get-login-password --region ${AWS_REGION} | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+    - echo "Logging in to DockerHub with Crane..."
+    - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
-     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
+    - echo "Pulling the AWS OTel Collector image from DockerHub..."
+    - crane pull ${ECR_REPOSITORY_OTEL}:${OTEL_VERSION} image.tar
 
-     - echo "Pushing the image to our private ECR using Crane..."
-     - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
+    - echo "Extracting the OTel image tag..."
+    - export OTEL_IMAGE_TAG="git-${OTEL_VERSION}-${CI_COMMIT_SHORT_SHA}"
+    - echo "${OTEL_IMAGE_TAG}"
 
-     - echo "Cleaning up the temporary image file..."
-     - rm image.tar
+    - echo "Logging into AWS ECR with Crane..."
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com -u AWS --password-stdin
+
+    - echo "Pushing the image to our private ECR using Crane..."
+    - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${OTEL_IMAGE_TAG}
+
+    - echo "Cleaning up temporary image file..."
+    - rm image.tar
   allow_failure: false
   after_script:
     - *announce_failure
@@ -1610,7 +1595,7 @@ deploy_app_client_tls_stg:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector Digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=git-${OTEL_VERSION}-$CI_COMMIT_SHORT_SHA} --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -1662,7 +1647,7 @@ deploy_app_stg:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=git-${OTEL_VERSION}-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -1789,17 +1774,24 @@ push_otel_collector_image_prd:
     - *setup_aws_vars_prd
     - *setup_release_prd
   script:
-     - echo "Logging in to Amazon ECR with Crane..."
-     - aws ecr get-login-password --region ${AWS_REGION} | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+    - echo "Logging in to DockerHub with Crane..."
+    - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
-     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
+    - echo "Pulling the AWS OTel Collector image from DockerHub..."
+    - crane pull ${ECR_REPOSITORY_OTEL}:${OTEL_VERSION} image.tar
 
-     - echo "Pushing the image to our private ECR using Crane..."
-     - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
+    - echo "Extracting the OTel image tag..."
+    - export OTEL_IMAGE_TAG="git-${OTEL_VERSION}-${CI_COMMIT_SHORT_SHA}"
+    - echo "${OTEL_IMAGE_TAG}"
 
-     - echo "Cleaning up the temporary image file..."
-     - rm image.tar
+    - echo "Logging into AWS ECR with Crane..."
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com -u AWS --password-stdin
+
+    - echo "Pushing the image to our private ECR using Crane..."
+    - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${OTEL_IMAGE_TAG}
+
+    - echo "Cleaning up temporary image file..."
+    - rm image.tar
   allow_failure: false
   after_script:
     - *announce_failure
@@ -1894,7 +1886,7 @@ deploy_app_client_tls_prd:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector Digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=git-${OTEL_VERSION}-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -1946,7 +1938,7 @@ deploy_app_prd:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=git-${OTEL_VERSION}-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
