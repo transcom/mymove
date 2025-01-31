@@ -505,16 +505,18 @@ deploy_storybook_dp3:
     - build_storybook
   before_script:
     - *setup_milmove_env
+    - *setup_aws_vars_dp3
+    - ls -l $CI_PROJECT_DIR/storybook-static || echo "storybook-static directory not found!"
   script:
-   - echo "TODO Add steps"
-   - echo "deploy_storybook_dp3"
+    - echo "Deploying Storybook to S3..."
+    - ./scripts/push-storybook-assets "storybook.$APP_ENVIRONMENT.move.mil"
   after_script:
     - *announce_failure
   artifacts:
     paths:
       - /builds/milmove/mymove/storybook-static
   rules:
-    - *check_main
+  - *check_main
 
 compile_app_client:
   stage: build
@@ -1257,7 +1259,7 @@ deploy_migrations_dp3:
   script:
     # Step 1: Get the Digest
     - echo "Getting Digest from AWS"
-    - $ export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     # Step 2: Ensure exclusive execution and Snapshot
     - echo "Snapshotting database"
     - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
