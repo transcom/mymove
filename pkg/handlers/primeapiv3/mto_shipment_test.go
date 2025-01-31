@@ -1441,10 +1441,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 					ExpectedDepartureDate:  handlers.FmtDate(expectedDepartureDate),
 					PickupAddress:          struct{ primev3messages.Address }{pickupAddress},
 					SecondaryPickupAddress: struct{ primev3messages.Address }{secondaryPickupAddress},
+					TertiaryPickupAddress:  struct{ primev3messages.Address }{tertiaryPickupAddress},
 					DestinationAddress: struct {
 						primev3messages.PPMDestinationAddress
 					}{ppmDestinationAddress},
 					SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
+					TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
 					SitExpected:                 &sitExpected,
 					SitLocation:                 &sitLocation,
 					SitEstimatedWeight:          handlers.FmtPoundPtr(&sitEstimatedWeight),
@@ -2283,6 +2285,27 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Under Test: UpdateMTOShipmentHandler
 		// Setup:   Mock location to return an error
 		// Expected:   500 Response returned
+		handler, move := setupTestData(false, true)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
+				Agents:               nil,
+				CustomerRemarks:      nil,
+				PointOfContact:       "John Doe",
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		expectedError := models.ErrFetchNotFound
 		vLocationFetcher := &mocks.VLocation{}
 		vLocationFetcher.On("GetLocationsByZipCityState",
@@ -2292,66 +2315,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, expectedError).Once()
-
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
-		patchHandler := UpdateMTOShipmentHandler{
-			HandlerConfig:   suite.HandlerConfig(),
-			ShipmentUpdater: shipmentUpdater,
-			VLocation:       vLocationFetcher,
-		}
-
-		now := time.Now()
-		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "Beverly Hills",
-					State:          "CA",
-					PostalCode:     "90210",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-		}, nil)
-		move := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					AvailableToPrimeAt: &now,
-					ApprovedAt:         &now,
-					Status:             models.MoveStatusAPPROVED,
-				},
-			},
-		}, nil)
-
-		var testMove models.Move
-		err := suite.DB().EagerPreload("MTOShipments.PPMShipment").Find(&testMove, move.ID)
-		suite.NoError(err)
-		var testMtoShipment models.MTOShipment
-		err = suite.DB().Find(&testMtoShipment, mto_shipment.ID)
-		suite.NoError(err)
-		testMtoShipment.MoveTaskOrderID = testMove.ID
-		testMtoShipment.MoveTaskOrder = testMove
-		err = suite.DB().Save(&testMtoShipment)
-		suite.NoError(err)
-		testMove.MTOShipments = append(testMove.MTOShipments, mto_shipment)
-		err = suite.DB().Save(&testMove)
-		suite.NoError(err)
-
-		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", testMove.MTOShipments[0].ID), nil)
-
-		eTag := etag.GenerateEtag(testMtoShipment.UpdatedAt)
-		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   patchReq,
-			MtoShipmentID: strfmt.UUID(testMtoShipment.ID.String()),
-			IfMatch:       eTag,
-		}
-		tertiaryAddress := GetTestAddress()
-		patchParams.Body = &primev3messages.UpdateMTOShipment{
-			TertiaryDeliveryAddress: struct{ primev3messages.Address }{tertiaryAddress},
-		}
-
-		patchResponse := patchHandler.Handle(patchParams)
-		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentInternalServerError)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentInternalServerError{}, errResponse)
+		handler.VLocation = vLocationFetcher
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
 	})
 }
 func GetTestAddress() primev3messages.Address {
