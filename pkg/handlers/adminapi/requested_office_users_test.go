@@ -177,6 +177,38 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(officeUser1.ID.String(), okResponse.Payload[0].ID.String())
 	})
+
+	suite.Run("able to search by role", func() {
+		requestedStatus := models.OfficeUserStatusREQUESTED
+		officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Status: &requestedStatus,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		filterJSON := "{\"rolesSearch\":\"services\"}"
+		params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := IndexRequestedOfficeUsersHandler{
+			HandlerConfig:                  suite.HandlerConfig(),
+			NewQueryFilter:                 query.NewQueryFilter,
+			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
+			NewPagination:                  pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse := response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(officeUser1.ID.String(), okResponse.Payload[0].ID.String())
+	})
 }
 
 func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {

@@ -156,6 +156,8 @@ type IndexRequestedOfficeUsersHandler struct {
 	services.RequestedOfficeUserListFetcher
 	services.NewQueryFilter
 	services.NewPagination
+	services.TransportationOfficesFetcher
+	services.RoleAssociater
 }
 
 var requestedOfficeUserFilterConverters = map[string]func(string) func(*pop.Query){
@@ -170,6 +172,13 @@ var requestedOfficeUserFilterConverters = map[string]func(string) func(*pop.Quer
 		return func(query *pop.Query) {
 			nameSearch := fmt.Sprintf("%%%s%%", content)
 			query.Where("transportation_offices.name ILIKE ?", nameSearch)
+		}
+	},
+
+	"rolesSearch": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			nameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("roles.role_name ILIKE ?", nameSearch)
 		}
 	},
 }

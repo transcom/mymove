@@ -24,6 +24,9 @@ func (o *requestedOfficeUserListFetcher) FetchRequestedOfficeUsersList(appCtx ap
 	query = appCtx.DB().Q().EagerPreload(
 		"User.Roles",
 		"TransportationOffice").
+		Join("users", "users.id = office_users.user_id").
+		Join("users_roles", "users.id = users_roles.user_id").
+		Join("roles", "users_roles.role_id = roles.id").
 		Join("transportation_offices", "office_users.transportation_office_id = transportation_offices.id")
 
 	for _, filterFunc := range filterFuncs {
@@ -31,6 +34,8 @@ func (o *requestedOfficeUserListFetcher) FetchRequestedOfficeUsersList(appCtx ap
 	}
 
 	query = query.Where("status = ?", models.OfficeUserStatusREQUESTED)
+
+	query.Select("DISTINCT ON (office_users.id) office_users.*")
 
 	err := query.Paginate(pagination.Page(), pagination.PerPage()).All(&requestedUsers)
 	if err != nil {
