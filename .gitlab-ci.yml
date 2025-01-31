@@ -1327,7 +1327,7 @@ deploy_app_client_tls_dp3:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector Digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=git-${OTEL_VERSION}-$CI_COMMIT_SHORT_SHA} --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=git-${OTEL_VERSION}-${CI_COMMIT_SHORT_SHA} --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
