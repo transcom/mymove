@@ -241,14 +241,6 @@ stages:
       export OKTA_OFFICE_GROUP_ID=notrealgroupId
       export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
 
-#
-# .setup_host_intergration_tests: &setup_host_intergration_tests
-#    - echo "Setting up /etc/hosts for local domain simulation"
-#   - echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
-#   - echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
-#   - echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
-#   - echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
-
 .setup_env_intergration_mtls: &setup_env_intergration_mtls
   - |
     echo "Setting up environment variables"
@@ -284,14 +276,40 @@ stages:
      export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
      sed 's,^,export ,' config/env/review.app.env > server_env
      source server_env
-     make db_dev_create
-     bin/milmove migrate
-     bin/milmove serve &
-     echo "Waiting for server to start"
-     dockerize -wait http://milmovelocal:4000 -timeout 5m
-     echo "Installing Playwright dependencies"
-     yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
-     ./node_modules/.bin/playwright install
+
+     export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
+     export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
+     export LOGIN_GOV_CALLBACK_PORT=4000
+     export LOGIN_GOV_CALLBACK_PROTOCOL=http
+
+     export SERVE_API_SUPPORT=true
+     export SERVE_PRIME_SIMULATOR=true
+     export DEVLOCAL_CA=$(cat config/tls/devlocal-ca.pem)
+     export DOD_CA_PACKAGE=$(cat config/tls/milmove-cert-bundle.p7b)
+
+    # export HTTP_ADMIN_SERVER_NAME=adminlocal
+    # export HTTP_MY_SERVER_NAME=milmovelocal
+    # export HTTP_OFFICE_SERVER_NAME=officelocal
+    # export HTTP_ORDERS_SERVER_NAME=orderslocal
+    # export HTTP_PRIME_SERVER_NAME=primelocal
+
+  - |
+      export ENVIRONMENT=test
+      export MUTUAL_TLS_ENABLED=true
+      export MUTUAL_TLS_PORT=9443
+      export SERVE_API_PRIME=true
+    # disable for speed, tests can fail otherwise
+  - |
+      export DB_DEBUG=false
+
+      make db_dev_create
+      bin/milmove migrate
+      bin/milmove serve &
+      echo "Waiting for server to start"
+      dockerize -wait http://milmovelocal:4000 -timeout 5m
+      echo "Installing Playwright dependencies"
+      yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      ./node_modules/.bin/playwright install
 
 
 sast:
