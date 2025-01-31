@@ -218,9 +218,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderStatusOK{}, response)
 		suite.Equal(strfmt.UUID(move.ID.String()), movePayload.ID)
-		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.NotNil(movePayload.ApprovedAt)
-		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
 
 		// also check MTO level service items are properly created
 		var serviceItems models.MTOServiceItems
@@ -264,7 +262,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	// Stale ETags are already unit tested in the move_task_order_updater_test,
 	// so we can mock this here to speed up the test and avoid hitting the DB
 	moveUpdater := &mocks.MoveTaskOrderUpdater{}
-	moveUpdater.On("MakeAvailableToPrime",
+	moveUpdater.On("ApproveMoveAndCreateServiceItems",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,

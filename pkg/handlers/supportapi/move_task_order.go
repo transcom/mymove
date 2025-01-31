@@ -63,9 +63,7 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 
 			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-			mto, err := h.moveTaskOrderAvailabilityUpdater.MakeAvailableToPrime(appCtx, moveTaskOrderID, eTag, false, false)
-
-			if err != nil {
+			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("supportapi.MakeMoveTaskOrderAvailableHandlerFunc error", zap.Error(err))
 				switch typedErr := err.(type) {
 				case apperror.NotFoundError:
@@ -81,6 +79,16 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 					return movetaskorderops.NewMakeMoveTaskOrderAvailableInternalServerError().WithPayload(
 						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
+			}
+
+			_, err := h.moveTaskOrderAvailabilityUpdater.ApproveMoveAndCreateServiceItems(appCtx, moveTaskOrderID, eTag, false, false)
+			if err != nil {
+				return handleError(err)
+			}
+
+			mto, _, err := h.moveTaskOrderAvailabilityUpdater.MakeAvailableToPrime(appCtx, moveTaskOrderID)
+			if err != nil {
+				return handleError(err)
 			}
 
 			moveTaskOrderPayload := payloads.MoveTaskOrder(mto)

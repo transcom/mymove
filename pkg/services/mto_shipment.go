@@ -49,11 +49,17 @@ type ShipmentDeleter interface {
 	DeleteShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (uuid.UUID, error)
 }
 
+type ShipmentIdWithEtag struct {
+	ShipmentID uuid.UUID
+	ETag       string
+}
+
 // ShipmentApprover is the service object interface for approving a shipment
 //
 //go:generate mockery --name ShipmentApprover
 type ShipmentApprover interface {
 	ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+	ApproveShipments(appCtx appcontext.AppContext, shipments []ShipmentIdWithEtag) (*[]models.MTOShipment, error)
 }
 
 // ShipmentDiversionRequester is the service object interface for requesting a shipment diversion

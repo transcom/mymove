@@ -16,12 +16,12 @@ type MoveTaskOrderUpdater struct {
 	mock.Mock
 }
 
-// MakeAvailableToPrime provides a mock function with given fields: appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS
-func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
+// ApproveMoveAndCreateServiceItems provides a mock function with given fields: appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS
+func (_m *MoveTaskOrderUpdater) ApproveMoveAndCreateServiceItems(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
 
 	if len(ret) == 0 {
-		panic("no return value specified for MakeAvailableToPrime")
+		panic("no return value specified for ApproveMoveAndCreateServiceItems")
 	}
 
 	var r0 *models.Move
@@ -44,6 +44,43 @@ func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContex
 	}
 
 	return r0, r1
+}
+
+// MakeAvailableToPrime provides a mock function with given fields: appCtx, moveTaskOrderID
+func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, bool, error) {
+	ret := _m.Called(appCtx, moveTaskOrderID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MakeAvailableToPrime")
+	}
+
+	var r0 *models.Move
+	var r1 bool
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.Move, bool, error)); ok {
+		return rf(appCtx, moveTaskOrderID)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.Move); ok {
+		r0 = rf(appCtx, moveTaskOrderID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Move)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) bool); ok {
+		r1 = rf(appCtx, moveTaskOrderID)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r2 = rf(appCtx, moveTaskOrderID)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // ShowHide provides a mock function with given fields: appCtx, moveTaskOrderID, show

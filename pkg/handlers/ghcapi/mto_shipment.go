@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
@@ -511,6 +512,7 @@ type ApproveShipmentHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentApprover
 	services.ShipmentSITStatus
+	services.MoveTaskOrderUpdater
 }
 
 // Handle approves a shipment
@@ -551,6 +553,49 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 				return handleError(err)
 			}
 
+			move, wasMadeAvailableToPrime, err := h.MakeAvailableToPrime(appCtx, shipment.MoveTaskOrderID)
+			if err != nil {
+				appCtx.Logger().Error("Error making move available to prime", zap.Error(err))
+				return handleError(err)
+			}
+
+			// Execute tasks if the move has just become available to Prime (migrated from move_task_order.go)
+			if wasMadeAvailableToPrime {
+				/* Do not send TOO approving and submitting service items email if BLUEBARK/SAFETY */
+				if move.Orders.CanSendEmailWithOrdersType() {
+					emailErr := h.NotificationSender().SendNotification(appCtx,
+						notifications.NewMoveIssuedToPrime(move.ID),
+					)
+					if emailErr != nil {
+						return handleError(err)
+					}
+				}
+
+				// Prepare move payload for auditing
+				moveTaskOrderPayload, err := payloads.Move(move, h.FileStorer())
+				if err != nil {
+					return handleError(err)
+				}
+				// Audit attempt to make MTO available to prime
+				_, err = audit.Capture(appCtx, move, moveTaskOrderPayload, params.HTTPRequest)
+				if err != nil {
+					appCtx.Logger().Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
+					return handleError(err)
+				}
+				// Move update event
+				_, err = event.TriggerEvent(event.Event{
+					EventKey:        event.MoveTaskOrderUpdateEventKey,
+					MtoID:           move.ID,
+					UpdatedObjectID: move.ID,
+					EndpointKey:     event.GhcUpdateMoveTaskOrderStatusEndpointKey,
+					AppContext:      appCtx,
+					TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
+				})
+				if err != nil {
+					appCtx.Logger().Error("ghcapi.ApproveShipmentHandlerFunc could not generate the event")
+				}
+			}
+
 			h.triggerShipmentApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
@@ -579,6 +624,164 @@ func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(appCtx appcontext.A
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.ApproveShipmentHandler could not generate the event", zap.Error(err))
+	}
+}
+
+// ApproveShipmentsHandler approves one or more shipments
+type ApproveShipmentsHandler struct {
+	handlers.HandlerConfig
+	services.ShipmentApprover
+	services.ShipmentSITStatus
+	services.MoveTaskOrderUpdater
+}
+
+// Handle approves one or more shipments
+func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			// Check user permissions (TOO role required)
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				forbiddenError := apperror.NewForbiddenError("Only TOO role can approve shipments")
+				appCtx.Logger().Error(forbiddenError.Error())
+				return shipmentops.NewApproveShipmentsForbidden(), forbiddenError
+			}
+
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("ghcapi.ApproveShipmentsHandler", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewApproveShipmentsNotFound().WithPayload(payload), err
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Validation errors", "ApproveShipments", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return shipmentops.NewApproveShipmentsUnprocessableEntity().WithPayload(payload), err
+				case apperror.PreconditionFailedError:
+					return shipmentops.NewApproveShipmentsPreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				case apperror.ConflictError, mtoshipment.ConflictStatusError:
+					return shipmentops.NewApproveShipmentsConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				default:
+					return shipmentops.NewApproveShipmentsInternalServerError().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString("Internal server errors")}), err
+				}
+			}
+
+			if len(params.Body.ApproveShipments) == 0 {
+				appCtx.Logger().Error("Invalid mto shipment: params Body is nil")
+				emptyBodyError := apperror.NewBadDataError("The MTO Shipment request body cannot be empty.")
+				payload := payloadForValidationError(
+					"Empty body error",
+					emptyBodyError.Error(),
+					h.GetTraceIDFromRequest(params.HTTPRequest),
+					validate.NewErrors(),
+				)
+
+				return shipmentops.NewApproveShipmentsUnprocessableEntity().WithPayload(payload), emptyBodyError
+			}
+
+			var shipmentIdWithEtagArr []services.ShipmentIdWithEtag
+			for _, shipment := range params.Body.ApproveShipments {
+				shipmentID := uuid.FromStringOrNil(shipment.ShipmentID.String())
+
+				if shipment.ETag == nil {
+					return shipmentops.NewApproveShipmentsPreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString("eTag is required for each shipment")}), nil
+				}
+
+				shipmentIdWithEtagArr = append(shipmentIdWithEtagArr, services.ShipmentIdWithEtag{
+					ShipmentID: shipmentID,
+					ETag:       *shipment.ETag,
+				})
+			}
+
+			// Approve shipments
+			approvedShipments, err := h.ShipmentApprover.ApproveShipments(appCtx, shipmentIdWithEtagArr)
+			if err != nil {
+				appCtx.Logger().Error("Error approving shipments", zap.Error(err))
+				return handleError(err)
+			}
+
+			// Make the move available to prime
+			if approvedShipments != nil && len(*approvedShipments) > 0 {
+				move, wasMadeAvailableToPrime, err := h.MakeAvailableToPrime(appCtx, (*approvedShipments)[0].MoveTaskOrderID)
+				if err != nil {
+					appCtx.Logger().Error("Error making move available to prime", zap.Error(err))
+					return handleError(err)
+				}
+
+				// Execute tasks if the move has just become available to Prime (migrated from move_task_order.go)
+				if wasMadeAvailableToPrime {
+					/* Do not send TOO approving and submitting service items email if BLUEBARK/SAFETY */
+					if move.Orders.CanSendEmailWithOrdersType() {
+						emailErr := h.NotificationSender().SendNotification(appCtx,
+							notifications.NewMoveIssuedToPrime(move.ID),
+						)
+						if emailErr != nil {
+							return handleError(err)
+						}
+					}
+
+					// Prepare move payload for auditing
+					moveTaskOrderPayload, err := payloads.Move(move, h.FileStorer())
+					if err != nil {
+						return handleError(err)
+					}
+					// Audit attempt to make MTO available to prime
+					_, err = audit.Capture(appCtx, move, moveTaskOrderPayload, params.HTTPRequest)
+					if err != nil {
+						appCtx.Logger().Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
+						return handleError(err)
+					}
+					// Move update event
+					_, err = event.TriggerEvent(event.Event{
+						EventKey:        event.MoveTaskOrderUpdateEventKey,
+						MtoID:           move.ID,
+						UpdatedObjectID: move.ID,
+						EndpointKey:     event.GhcUpdateMoveTaskOrderStatusEndpointKey,
+						AppContext:      appCtx,
+						TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
+					})
+					if err != nil {
+						appCtx.Logger().Error("ghcapi.ApproveShipmentsHandlerFunc could not generate the event")
+					}
+				}
+			}
+
+			// Prepare successful response payload
+			payload := make(ghcmessages.MTOShipments, len(*approvedShipments))
+			for i, approvedShipment := range *approvedShipments {
+				h.triggerShipmentApprovalEvent(appCtx, approvedShipment.ID, approvedShipment.MoveTaskOrderID, params)
+
+				shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, approvedShipment)
+				if err != nil {
+					return handleError(err)
+				}
+
+				sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
+				payload[i] = payloads.MTOShipment(h.FileStorer(), &approvedShipment, sitStatusPayload)
+			}
+
+			return shipmentops.NewApproveShipmentsOK().WithPayload(payload), nil
+		})
+}
+
+func (h ApproveShipmentsHandler) triggerShipmentApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentsParams) {
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcApproveShipmentsEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.ShipmentApproveEventKey, // Event that you want to trigger
+		UpdatedObjectID: shipmentID,                    // ID of the updated logical object
+		MtoID:           moveID,                        // ID of the associated Move
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		appCtx.Logger().Error("ghcapi.ApproveShipmentsHandler could not generate the event", zap.Error(err))
 	}
 }
 
