@@ -1,32 +1,25 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/ApproveShipment/approveShipments';
+import e from 'constants/MoveHistory/EventTemplates/ApproveShipments/approveShipmentsApproveMove';
 
-describe('when given an Approved shipment history record', () => {
+describe('when given an Approved shipment, Approved move history record', () => {
   const historyRecord = {
     action: 'UPDATE',
     changedValues: { status: 'APPROVED' },
     eventName: 'approveShipments',
-    oldValues: { shipment_type: 'HHG' },
-    tableName: 'mto_shipments',
-    context: [
-      {
-        shipment_id_abbr: '2fa5c',
-        shipment_type: 'HHG',
-        shipment_locator: 'ABC123-01',
-      },
-    ],
+    oldValues: { status: 'APPROVALS REQUESTED' },
+    tableName: 'moves',
   };
-  it('correctly matches to the Approved shipment template', () => {
+  it('correctly matches to the Approved shipment, Approved move template', () => {
     const template = getTemplate(historyRecord);
     expect(template).toMatchObject(e);
   });
 
   it('displays the proper value in the details field', () => {
     const template = getTemplate(historyRecord);
-
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('HHG shipment #ABC123-01')).toBeInTheDocument();
+    expect(screen.getByText('Status')).toBeInTheDocument();
+    expect(screen.getByText(': APPROVED')).toBeInTheDocument();
   });
 });
