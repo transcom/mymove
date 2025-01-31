@@ -36,6 +36,7 @@ const PrimeUIUpdateOriginSITForm = ({ initialValues, onSubmit, serviceItem }) =>
                   Here you can update specific fields for an origin SIT service item. <br />
                   At this time, only the following values can be updated: <br />{' '}
                   <strong>
+                    SIT Entry Date <br />
                     SIT Departure Date <br />
                     SIT Requested Delivery <br />
                     SIT Customer Contacted <br />
@@ -67,8 +68,12 @@ const PrimeUIUpdateOriginSITForm = ({ initialValues, onSubmit, serviceItem }) =>
                   </div>
                 </dl>
                 <div className={styles.sitDatePickerRow}>
+                  <DatePickerInput name="sitEntryDate" label="SIT Entry Date" />
                   <DatePickerInput name="sitDepartureDate" label="SIT Departure Date" />
                   <DatePickerInput name="sitRequestedDelivery" label="SIT Requested Delivery" />
+                </div>
+                <br />
+                <div className={styles.sitDatePickerRow}>
                   <DatePickerInput name="sitCustomerContacted" label="SIT Customer Contacted" />
                 </div>
                 {serviceItem.status === SERVICE_ITEM_STATUSES.REJECTED && (
