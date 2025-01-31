@@ -344,41 +344,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       break;
     }
     case SERVICE_ITEM_CODES.DOPSIT:
-    case SERVICE_ITEM_CODES.IOPSIT: {
-      detailSection = (
-        <div>
-          <dl>
-            {generateDetailText(
-              {
-                'Original Pickup Address': details.sitOriginHHGOriginalAddress
-                  ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
-                  : '-',
-                'Actual Pickup Address': details.sitOriginHHGActualAddress
-                  ? formatCityStateAndPostalCode(details.sitOriginHHGActualAddress)
-                  : '-',
-                'Delivery miles into SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
-              },
-              id,
-            )}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
-            {!isEmpty(serviceRequestDocUploads) ? (
-              <div className={styles.uploads}>
-                <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
-                    <a href={file.url} download>
-                      {trimFileName(file.filename)}
-                    </a>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </dl>
-        </div>
-      );
-      break;
-    }
+    case SERVICE_ITEM_CODES.IOPSIT:
     case SERVICE_ITEM_CODES.DOSFSC:
     case SERVICE_ITEM_CODES.IOSFSC: {
       detailSection = (
