@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -22,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
+	transportationofficeservice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
@@ -484,6 +486,134 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		response := handler.Handle(params)
 		suite.IsType(requestedofficeuserop.NewGetRequestedOfficeUserInternalServerError(), response)
 	})
+}
+
+func (suite *HandlerSuite) TestFilterByTransportationOffice() {
+
+	transportationOffice1 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPPO Camp Houston",
+				ProvidesCloseout: false,
+			},
+		},
+	}, nil)
+	transportationOffice2 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPPO Camp David",
+				ProvidesCloseout: false,
+			},
+		},
+	}, nil)
+	transportationOffice3 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "Fort Bliss",
+				ProvidesCloseout: false,
+			},
+		},
+	}, nil)
+
+	mockRoleAssociator := &mocks.RoleAssociater{}
+	tioRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTIO)
+	tooRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
+	scRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeServicesCounselor)
+	primeRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypePrimeSimulator)
+	mockRoles := roles.Roles{tioRole, tooRole, scRole, primeRole}
+	mockRoleAssociator.On(
+		"FetchRolesForUser",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+	).Return(mockRoles, nil)
+
+	requestedStatus := models.OfficeUserStatusREQUESTED
+
+	requestedOfficeUsers := models.OfficeUsers{
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice1,
+				LinkOnly: true,
+			},
+			{
+				Model: models.OfficeUser{
+					Status: &requestedStatus,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO}),
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice2,
+				LinkOnly: true,
+			},
+			{
+				Model: models.OfficeUser{
+					Status: &requestedStatus,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTIO}),
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice2,
+				LinkOnly: true,
+			},
+			{
+				Model: models.OfficeUser{
+					Status: &requestedStatus,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor}),
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice3,
+				LinkOnly: true,
+			},
+			{
+				Model: models.OfficeUser{
+					Status: &requestedStatus,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor}),
+	}
+
+	type paramFilter struct {
+		TransportationOfficeSearch string `json:"transportationOfficeSearch"`
+		RolesSearch                string `json:"rolesSearch"`
+	}
+
+	var testParamFilter paramFilter
+
+	testParamFilter.RolesSearch = "Task"
+	testParamFilter.TransportationOfficeSearch = "PPPO"
+
+	testParamFilterJsonStr, err := json.Marshal(testParamFilter)
+	suite.NoError(err)
+
+	rolesSearchFilterString := string(testParamFilterJsonStr)
+	params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
+		HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+		Filter:      &rolesSearchFilterString,
+	}
+
+	queryBuilder := query.NewQueryBuilder()
+	transportationOfficeFetcher := transportationofficeservice.NewTransportationOfficesFetcher()
+
+	handler := IndexRequestedOfficeUsersHandler{
+		HandlerConfig:                  suite.HandlerConfig(),
+		RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
+		NewQueryFilter:                 query.NewQueryFilter,
+		NewPagination:                  pagination.NewPagination,
+		TransportationOfficesFetcher:   transportationOfficeFetcher,
+		RoleAssociater:                 mockRoleAssociator,
+	}
+
+	response := handler.Handle(params)
+
+	suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+	okResponse := response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+	suite.Len(okResponse.Payload, 2)
+	suite.Equal(requestedOfficeUsers[0].ID.String(), okResponse.Payload[0].ID.String())
+	suite.Equal(requestedOfficeUsers[1].ID.String(), okResponse.Payload[1].ID.String())
 }
 
 // Generate and activate Okta endpoints that will be using during the handler
