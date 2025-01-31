@@ -16,4 +16,4 @@ readonly bucket=${1:-}
 # Sync files from source to destination
 # encrypt files on upload
 # delete files at destination that are not on source (bucket versioning is enabled so it only adds a delete marker)
-aws s3 sync --delete --sse AES256 /tmp/storybook/storybook-static/ s3://"${bucket}"/
+aws s3 sync --delete --sse AES256 /builds/milmove/mymove/storybook-static s3://"${bucket}"/
