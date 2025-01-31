@@ -8,6 +8,8 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
+	services "github.com/transcom/mymove/pkg/services"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -39,6 +41,36 @@ func (_m *ShipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipme
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
 		r1 = rf(appCtx, shipmentID, eTag)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ApproveShipments provides a mock function with given fields: appCtx, shipments
+func (_m *ShipmentApprover) ApproveShipments(appCtx appcontext.AppContext, shipments []services.ShipmentIdWithEtag) (*[]models.MTOShipment, error) {
+	ret := _m.Called(appCtx, shipments)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ApproveShipments")
+	}
+
+	var r0 *[]models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.ShipmentIdWithEtag) (*[]models.MTOShipment, error)); ok {
+		return rf(appCtx, shipments)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.ShipmentIdWithEtag) *[]models.MTOShipment); ok {
+		r0 = rf(appCtx, shipments)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*[]models.MTOShipment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.ShipmentIdWithEtag) error); ok {
+		r1 = rf(appCtx, shipments)
 	} else {
 		r1 = ret.Error(1)
 	}

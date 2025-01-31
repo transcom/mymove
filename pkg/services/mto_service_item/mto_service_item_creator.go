@@ -377,7 +377,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		err := o.checkDuplicateServiceCodes(appCtx, serviceItem)
 		if err != nil {
 			appCtx.Logger().Error(fmt.Sprintf("Error trying to create a duplicate MS service item for move ID: %s", move.ID), zap.Error(err))
-			return nil, nil, err
+			return &createdServiceItems, nil, nil
 		}
 	}
 

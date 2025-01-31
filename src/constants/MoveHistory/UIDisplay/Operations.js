@@ -2,6 +2,7 @@ export default {
   acknowledgeExcessWeightRisk: 'acknowledgeExcessWeightRisk',
   acknowledgeExcessUnaccompaniedBaggageWeightRisk: 'acknowledgeExcessUnaccompaniedBaggageWeightRisk',
   approveShipment: 'approveShipment', // ghc.yaml
+  approveShipments: 'approveShipments', // ghc.yaml
   approveShipmentDiversion: 'approveShipmentDiversion',
   counselingUpdateAllowance: 'counselingUpdateAllowance', // ghc.yaml
   counselingUpdateOrder: 'counselingUpdateOrder', // ghc.yaml

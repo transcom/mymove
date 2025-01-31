@@ -52,6 +52,7 @@ const SubmittedRequestedShipments = ({
   customerInfo,
   approveMTO,
   approveMTOShipment,
+  approveMultipleShipments,
   handleAfterSuccess,
   missingRequiredOrdersInfo,
   errorIfMissing,
@@ -149,6 +150,15 @@ const SubmittedRequestedShipments = ({
     );
   };
 
+  const getUpdateMultipleShipmentPayload = (shipments) => {
+    return shipments.map((shipment) => {
+      return {
+        shipmentID: shipment.id,
+        eTag: shipment.eTag,
+      };
+    });
+  };
+
   const queryClient = useQueryClient();
   const shipmentMutation = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipments) => {
@@ -200,7 +210,9 @@ const SubmittedRequestedShipments = ({
       });
 
       try {
-        await Promise.all(ppmShipmentPromise).then(() => {
+        await Promise.all(ppmShipmentPromise);
+
+        await new Promise((resolve, reject) => {
           approveMTO(
             {
               moveTaskOrderID: moveTaskOrder.id,
@@ -211,38 +223,71 @@ const SubmittedRequestedShipments = ({
             {
               onSuccess: async () => {
                 try {
-                  await Promise.all(
-                    filteredShipments.map((shipment) => {
-                      let operationPath = 'shipment.approveShipment';
-
-                      if (shipment.approvedDate && moveTaskOrder.availableToPrimeAt) {
-                        operationPath = 'shipment.approveShipmentDiversion';
-                      }
-                      return approveMTOShipment(
-                        {
-                          shipmentID: shipment.id,
-                          operationPath,
-                          ifMatchETag: shipment.eTag,
-                          normalize: false,
+                  // if the move is not available to prime yet, we use the new approveShipments api
+                  // to approve multiple shipments in one call and make it available to prime at the end.
+                  // else we use the old looping method to account for approveShipmentDiversion api call.
+                  if (!moveTaskOrder.availableToPrimeAt && filteredShipments.length) {
+                    await approveMultipleShipments(
+                      {
+                        payload: getUpdateMultipleShipmentPayload(filteredShipments),
+                        normalize: false,
+                      },
+                      {
+                        onError: () => {
+                          setSubmitting(false);
+                          setFlashMessage(null);
                         },
-                        {
-                          onError: () => {
-                            setSubmitting(false);
-                            setFlashMessage(null);
+                      },
+                    );
+                  } else {
+                    // Approve each shipment asynchronously
+                    await Promise.all(
+                      filteredShipments.map((shipment) => {
+                        if (shipment.approvedDate) {
+                          return approveMTOShipment(
+                            {
+                              shipmentID: shipment.id,
+                              operationPath: 'shipment.approveShipmentDiversion',
+                              ifMatchETag: shipment.eTag,
+                              normalize: false,
+                            },
+                            {
+                              onError: () => {
+                                setSubmitting(false);
+                                setFlashMessage(null);
+                                reject();
+                              },
+                            },
+                          );
+                        }
+                        return approveMultipleShipments(
+                          {
+                            payload: getUpdateMultipleShipmentPayload([shipment]),
+                            normalize: false,
                           },
-                        },
-                      );
-                    }),
-                  ).then(() => {
-                    setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
-                    handleAfterSuccess('../mto', { showMTOpostedMessage: true });
-                  });
+                          {
+                            onError: () => {
+                              setSubmitting(false);
+                              setFlashMessage(null);
+                              reject();
+                            },
+                          },
+                        );
+                      }),
+                    );
+                  }
+                  // All shipments approved, set flash message and navigate
+                  setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
+                  handleAfterSuccess('../mto', { showMTOpostedMessage: true });
+                  resolve();
                 } catch {
                   setSubmitting(false);
+                  reject();
                 }
               },
               onError: () => {
                 setSubmitting(false);
+                reject();
               },
             },
           );
@@ -312,6 +357,7 @@ const SubmittedRequestedShipments = ({
           onSubmit={debouncedSubmit}
           counselingFee={formik.values.counselingFee}
           shipmentManagementFee={formik.values.shipmentManagementFee}
+          isSubmitting={formik.isSubmitting}
         />
       </div>
 

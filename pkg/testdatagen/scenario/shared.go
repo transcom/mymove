@@ -4222,10 +4222,14 @@ func createHHGWithOriginSITServiceItems(
 	handlerConfig := handlers.Config{}
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
-	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	_, approveErr := mtoUpdater.ApproveMoveAndCreateServiceItems(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
+	}
+	_, _, primeErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID)
+	if primeErr != nil {
+		logger.Fatal("Error making move available to Prime")
 	}
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
@@ -4493,7 +4497,11 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	handlerConfig := handlers.Config{}
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
-	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	_, approveErr := mtoUpdater.ApproveMoveAndCreateServiceItems(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	_, _, primeErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID)
+	if primeErr != nil {
+		logger.Fatal("Error making move available to Prime")
+	}
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
 	// same contract as the rest of the timestamps on our move for pricing to work.
@@ -4903,7 +4911,11 @@ func createHHGWithPaymentServiceItems(
 	handlerConfig := handlers.Config{}
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
-	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	_, approveErr := mtoUpdater.ApproveMoveAndCreateServiceItems(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	_, _, primeErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID)
+	if primeErr != nil {
+		logger.Fatal("Error making move available to Prime")
+	}
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
 	// same contract as the rest of the timestamps on our move for pricing to work.
