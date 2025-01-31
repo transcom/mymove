@@ -117,3 +117,5 @@ export { default as UpdatePaymentRequestStatusMoves } from './UpdatePaymentReque
 export { default as reviewShipmentAddressUpdate } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdate';
 export { default as FinishDocumentReviewMoves } from './FinishDocumentReview/FinishDocumentReviewMoves';
 export { default as updatePaymentServiceItemStatus } from './UpdatePaymentServiceItem/UpdatePaymentServiceItemStatus';
+export { default as FinishDocumentReviewMoves } from './FinishDocumentReview/FinishDocumentReviewMoves';
+export { default as saveBulkAssignmentData } from './SaveBulkAssignmentData/SaveBulkAssignmentData';
