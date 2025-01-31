@@ -181,7 +181,8 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			price, _, err = p.destinationPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServiceArea, isPPM)
+			adjustedWeight := GetAdjustedWeight(shipmentWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
+			price, _, err = p.destinationPricer.Price(appCtx, contractCode, *pickupDate, *adjustedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -198,7 +199,9 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = p.linehaulPricer.Price(appCtx, contractCode, *pickupDate, unit.Miles(distance), shipmentWeight, domesticServiceArea.ServiceArea, isPPM)
+
+			adjustedWeight := GetAdjustedWeight(shipmentWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
+			price, _, err = p.linehaulPricer.Price(appCtx, contractCode, *pickupDate, unit.Miles(distance), *adjustedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -209,7 +212,9 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 			if err != nil {
 				return 0, err
 			}
-			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServicesSchedule, isPPM)
+
+			adjustedWeight := GetAdjustedWeight(shipmentWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
+			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, *adjustedWeight, domesticServiceArea.ServicesSchedule, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -235,7 +240,9 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 			if err != nil {
 				return 0, err
 			}
-			price, _, err = p.fuelSurchargePricer.Price(appCtx, *pickupDate, unit.Miles(distance), shipmentWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+
+			adjustedWeight := GetAdjustedWeight(shipmentWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
+			price, _, err = p.fuelSurchargePricer.Price(appCtx, *pickupDate, unit.Miles(distance), *adjustedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
 			if err != nil {
 				return 0, err
 			}
