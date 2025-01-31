@@ -820,7 +820,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	})
 
 	// If the service item we're trying to create is shuttle service and there is no estimated weight, it fails.
-	suite.Run("MTOServiceItemShuttle no prime weight is okay", func() {
+	suite.Run("MTOServiceItemDomesticShuttle no prime weight is okay", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDSHUT service item on a shipment without estimated weight

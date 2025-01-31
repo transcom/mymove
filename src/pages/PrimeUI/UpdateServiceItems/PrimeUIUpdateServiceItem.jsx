@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import PrimeUIUpdateOriginSITForm from './PrimeUIUpdateOriginSITForm';
 import PrimeUIUpdateDestSITForm from './PrimeUIUpdateDestSITForm';
 import PrimeUIUpdateInternationalFuelSurchargeForm from './PrimeUIUpdateInternationalFuelSurchargeForm';
+import PrimeUIUpdateInternationalShuttleForm from './PrimeUIUpdateInternationalShuttleForm';
 
 import { updateMTOServiceItem } from 'services/primeApi';
 import scrollToTop from 'shared/scrollToTop';
@@ -146,6 +147,12 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
                   moveTaskOrder={moveTaskOrder}
                   mtoServiceItemId={mtoServiceItemId}
                   onUpdateServiceItem={createUpdateServiceItemRequestMutation}
+                />
+              ) : null}
+              {modelType === 'MTOServiceItemInternationalShuttle' ? (
+                <PrimeUIUpdateInternationalShuttleForm
+                  onUpdateServiceItem={createUpdateServiceItemRequestMutation}
+                  serviceItem={serviceItem}
                 />
               ) : null}
             </Grid>

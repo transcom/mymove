@@ -200,7 +200,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 				},
 			},
 		}, nil)
-		data := &primemessages.MTOServiceItemShuttle{}
+		data := &primemessages.MTOServiceItemDomesticShuttle{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDOSHUT.ID)
 

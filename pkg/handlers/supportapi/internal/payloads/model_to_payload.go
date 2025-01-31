@@ -350,7 +350,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 			StandaloneCrate: mtoServiceItem.StandaloneCrate,
 		}
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
-		payload = &supportmessages.MTOServiceItemShuttle{
+		payload = &supportmessages.MTOServiceItemDomesticShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:          mtoServiceItem.Reason,
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
