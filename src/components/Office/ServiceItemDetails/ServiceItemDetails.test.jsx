@@ -475,6 +475,33 @@ describe('ServiceItemDetails Domestic Shuttling', () => {
   });
 });
 
+describe('ServiceItemDetails International Shuttling', () => {
+  const shuttleDetails = {
+    ...details,
+    market: 'OCONUS',
+  };
+
+  it.each([['IOSHUT'], ['IDSHUT']])('renders formatted estimated weight and reason', (code) => {
+    render(<ServiceItemDetails id="1" code={code} details={shuttleDetails} serviceRequestDocs={serviceRequestDocs} />);
+
+    expect(screen.getByText('2,500 lbs')).toBeInTheDocument();
+    expect(screen.getByText('estimated weight')).toBeInTheDocument();
+    expect(screen.getByText('Reason:')).toBeInTheDocument();
+    expect(screen.getByText('Market:')).toBeInTheDocument();
+    expect(screen.getByText('some reason')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
+  });
+
+  it.each([['DOSHUT'], ['DDSHUT']])('renders estimated weight nil values with an em dash', (code) => {
+    render(<ServiceItemDetails id="1" code={code} details={nilDetails} />);
+
+    expect(screen.getByText('— lbs')).toBeInTheDocument();
+    expect(screen.getByText('estimated weight')).toBeInTheDocument();
+  });
+});
+
 describe('ServiceItemDetails Crating Rejected', () => {
   it('renders the rejection reason field when it is populated with information', () => {
     render(
