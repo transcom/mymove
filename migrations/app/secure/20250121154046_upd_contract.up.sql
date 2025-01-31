@@ -8,7 +8,7 @@
 --add prod contract id
 INSERT INTO public.re_contracts
 (id, code, "name", created_at, updated_at)
-VALUES('070f7c82-fad0-4ae8-9a83-5de87a56472e'::uuid, 'HTC711-22-D-R002', 'Global HHG Relocation Services', now(), now()) ON CONFLICT DO NOTHING;
+VALUES('070f7c82-fad0-4ae8-9a83-5de87a56472e'::uuid, 'HTC711-22-D-R002', 'Global HHG Relocation Services', now(), now());
 
 --update all pricing for new contract id - re_intl_prices
 update re_domestic_accessorial_prices set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
@@ -25,37 +25,37 @@ update re_zip3s set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where c
 update re_zip5_rate_areas set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
 
 --update current contract to old dates
-update re_contract_years set start_date = start_date - interval '5 years', end_date = end_date - interval '5 years'
+update re_contract_years set start_date = start_date - interval '3 years', end_date = end_date - interval '3 years'
  where id = 'fe25a8b9-d6d8-4182-9193-3730c0700925'
-   and start_date > '2014-06-01';
-
-update re_contract_years set start_date = start_date - interval '5 years', end_date = end_date - interval '5 years'
- where id = '2ed876b2-603b-4930-a026-b4570cdd8515'
-   and start_date > '2015-06-01';
-  
-update re_contract_years set start_date = start_date - interval '5 years', end_date = end_date - interval '5 years'
- where id = 'f81c12ef-696a-45c8-ac1f-df4583eee359'
    and start_date > '2016-06-01';
-  
-update re_contract_years set start_date = start_date - interval '5 years', end_date = end_date - interval '5 years'
- where id = '9ac23b92-742a-4d17-9a50-61ae4cf3f3e3'
+
+update re_contract_years set start_date = start_date - interval '3 years', end_date = end_date - interval '3 years'
+ where id = '2ed876b2-603b-4930-a026-b4570cdd8515'
    and start_date > '2017-06-01';
   
-update re_contract_years set start_date = start_date - interval '5 years', end_date = end_date - interval '5 years'
- where id = 'a6457124-b8d5-4b75-95bd-fd402974a043'
+update re_contract_years set start_date = start_date - interval '3 years', end_date = end_date - interval '3 years'
+ where id = 'f81c12ef-696a-45c8-ac1f-df4583eee359'
    and start_date > '2018-06-01';
   
-update re_contract_years set start_date = start_date - interval '5 years', end_date = end_date - interval '5 years'
- where id = '2546c4de-25dd-499d-a6da-61e4de247649'
+update re_contract_years set start_date = start_date - interval '3 years', end_date = end_date - interval '3 years'
+ where id = '9ac23b92-742a-4d17-9a50-61ae4cf3f3e3'
    and start_date > '2019-06-01';
   
-update re_contract_years set start_date = start_date - interval '5 years', end_date = end_date - interval '5 years'
- where id = '53b69fab-c9d6-4900-9998-03b4980519ba'
+update re_contract_years set start_date = start_date - interval '3 years', end_date = end_date - interval '3 years'
+ where id = 'a6457124-b8d5-4b75-95bd-fd402974a043'
    and start_date > '2020-06-01';
-
-update re_contract_years set start_date = start_date - interval '5 years', end_date = end_date - interval '5 years'
- where id = '741f66ee-34c6-4388-b6ce-c48b6597b6e3'
+  
+update re_contract_years set start_date = start_date - interval '3 years', end_date = end_date - interval '3 years'
+ where id = '2546c4de-25dd-499d-a6da-61e4de247649'
    and start_date > '2021-06-01';
+  
+update re_contract_years set start_date = start_date - interval '3 years', end_date = end_date - interval '3 years'
+ where id = '53b69fab-c9d6-4900-9998-03b4980519ba'
+   and start_date > '2022-06-01';
+
+update re_contract_years set start_date = start_date - interval '3 years', end_date = end_date - interval '3 years'
+ where id = '741f66ee-34c6-4388-b6ce-c48b6597b6e3'
+   and start_date > '2023-06-01';
 
 INSERT INTO re_contract_years (id,contract_id,"name",start_date,end_date,escalation,escalation_compounded,created_at,updated_at) VALUES
 	 ('3b9d9f6f-a341-4e8f-bfbc-5bb8bf3e36c0'::uuid,'070f7c82-fad0-4ae8-9a83-5de87a56472e'::uuid,'Base Period Year 1','2024-06-01','2025-05-31',1.00000,1.00000,'2025-01-21 12:27:36.412','2025-01-21 12:27:36.412'),
