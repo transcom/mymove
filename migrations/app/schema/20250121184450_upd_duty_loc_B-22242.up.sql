@@ -61,7 +61,7 @@ END $$;
 --associate duty loc Yuma, AZ 85365 to transportation office PPPO DMO MCAS Yuma - USMC
 update duty_locations set transportation_office_id = '6ac7e595-1e0c-44cb-a9a4-cd7205868ed4' where id = '9e94208a-881d-47bc-82c0-4f375471751e';
 
---add Joint Base Lews McChord, WA 98438 duty location
+--add Joint Base Lewis McChord, WA 98438 duty location
 DO $$
 BEGIN
 	
@@ -69,8 +69,38 @@ BEGIN
 	
 		INSERT INTO public.duty_locations
 		(id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
-		VALUES('38fc6718-b80f-4761-a077-cfa62e414e27', 'Joint Base Lewis McChord', 'AIR_FORCE', '23d3140b-1ba2-400f-9d57-317034673c06'::uuid, now(), now(), '95abaeaa-452f-4fe0-9264-960cd2a15ccd', true);
+		VALUES('38fc6718-b80f-4761-a077-cfa62e414e27', 'Joint Base Lewis McChord, WA 98438', 'AIR_FORCE', '23d3140b-1ba2-400f-9d57-317034673c06'::uuid, now(), now(), '95abaeaa-452f-4fe0-9264-960cd2a15ccd', true);
 		
 	END IF;
 	
+END $$;
+
+DO $$
+BEGIN
+	
+	--remove duty loc Frankfort, KY 40602
+	IF EXISTS (SELECT 1 FROM duty_locations WHERE id = 'c7fadaa2-902f-4302-a7cd-108c525b96d4') THEN
+	
+		update orders set origin_duty_location_id = '1a973257-cd15-42a9-86be-a14796c014bc' where origin_duty_location_id = 'c7fadaa2-902f-4302-a7cd-108c525b96d4';
+		update orders set new_duty_location_id = '1a973257-cd15-42a9-86be-a14796c014bc' where new_duty_location_id = 'c7fadaa2-902f-4302-a7cd-108c525b96d4';
+		
+		delete from duty_locations where id = 'c7fadaa2-902f-4302-a7cd-108c525b96d4';
+	
+	END IF;
+
+END $$;
+
+DO $$
+BEGIN
+	
+	--remove duty loc Seattle, WA 98111
+	IF EXISTS (SELECT 1 FROM duty_locations WHERE id = '2fb3e898-d6de-4be7-8576-7c7b10c2a706') THEN
+	
+		update orders set origin_duty_location_id = 'e7fdae4f-6be7-4264-99f8-03ee8541499c' where origin_duty_location_id = '2fb3e898-d6de-4be7-8576-7c7b10c2a706';
+		update orders set new_duty_location_id = 'e7fdae4f-6be7-4264-99f8-03ee8541499c' where new_duty_location_id = '2fb3e898-d6de-4be7-8576-7c7b10c2a706';
+		
+		delete from duty_locations where id = '2fb3e898-d6de-4be7-8576-7c7b10c2a706';
+	
+	END IF;
+
 END $$;
