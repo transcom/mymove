@@ -34,6 +34,7 @@ import (
 	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 )
@@ -418,7 +419,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	mockSender := suite.TestNotificationSender()
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 	ppmEstimator := mocks.PPMEstimator{}
@@ -650,7 +651,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		}
 
 		fetcher := fetch.NewFetcher(queryBuilder)
-		moveRouter := moveservices.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		addressCreator := address.NewAddressCreator()
 		portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -691,7 +692,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	// by the handler is working as expected.
 	suite.Run("Successful status update of MTO service item and event trigger", func() {
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		mtoServiceItem, availableMove := suite.createServiceItem()
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -870,7 +871,7 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 	mockSender := suite.TestNotificationSender()
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 	ppmEstimator := mocks.PPMEstimator{}
