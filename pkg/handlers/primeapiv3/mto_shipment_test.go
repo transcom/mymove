@@ -2185,10 +2185,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   Set an invalid zip
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 			vLocationServices,
 		}
 
@@ -2335,10 +2336,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   Set an valid AK address but turn FF on
 		// Expected:   200 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 			vLocationServices,
 		}
 
@@ -2459,10 +2461,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   Set an valid HI address but turn FF on
 		// Expected:   200 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 			vLocationServices,
 		}
 
@@ -2583,10 +2586,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   Set an valid AK address but turn FF off
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 			vLocationServices,
 		}
 
@@ -2716,10 +2720,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   Set an valid HI address but turn FF off
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 			vLocationServices,
 		}
 
