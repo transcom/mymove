@@ -490,6 +490,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             <div key={`${id}-estimatedWeight`} className={styles.detailLine}>
               <dd className={styles.detailType}>{estimatedWeight}</dd> <dt>estimated weight</dt>
             </div>
+            {generateDetailText({
+              'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
             {generateDetailText({ Reason: details.reason })}
             {generateDetailText({ Market: details.market })}
             {details.rejectionReason &&
