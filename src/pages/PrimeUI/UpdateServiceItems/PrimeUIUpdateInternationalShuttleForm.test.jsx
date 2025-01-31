@@ -32,8 +32,8 @@ describe('PrimeUIUpdateInternationalShuttleForm', () => {
     expect(
       screen.getByRole('heading', { name: 'Update International Shuttle Service Item', level: 2 }),
     ).toBeInTheDocument();
-    expect(await screen.getByText('Estimated Weight')).toBeInTheDocument();
-    expect(await screen.getByText('Actual Weight')).toBeInTheDocument();
+    expect(screen.getByTestId('estimatedWeight')).toBeInTheDocument();
+    expect(screen.getByTestId('actualWeight')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
   });
@@ -41,7 +41,7 @@ describe('PrimeUIUpdateInternationalShuttleForm', () => {
   it('fires off onSubmit function when save button is clicked', async () => {
     const onSubmitMock = jest.fn();
     renderWithProviders(
-      <PrimeUIUpdateInternationalShuttleForm serviceItem={serviceItem} onUpdateServiceItem={jest.fn()} />,
+      <PrimeUIUpdateInternationalShuttleForm serviceItem={serviceItem} onUpdateServiceItem={onSubmitMock} />,
     );
 
     const saveButton = await screen.findByRole('button', { name: 'Save' });
