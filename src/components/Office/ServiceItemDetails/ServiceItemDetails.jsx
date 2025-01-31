@@ -39,8 +39,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
     'First available delivery date 1': '-',
     'Customer contact 1': '-',
   });
-  const numberOfDaysApprovedForDOASIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
-  const numberOfDaysApprovedForIOASIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
+  const numberOfDaysApprovedForSIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
   const sitEndDate =
     sitStatus &&
     sitStatus.currentSIT?.sitAuthorizedEndDate &&
@@ -70,7 +69,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 "Add'l SIT Start Date": details.sitEntryDate
                   ? moment.utc(details.sitEntryDate).add(1, 'days').format('DD MMM YYYY')
                   : '-',
-                '# of days approved for': shipment.sitDaysAllowance ? `${numberOfDaysApprovedForDOASIT} days` : '-',
+                '# of days approved for': shipment.sitDaysAllowance ? `${numberOfDaysApprovedForSIT} days` : '-',
                 'SIT expiration date': sitEndDate || '-',
               },
               id,
@@ -99,7 +98,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 "Add'l SIT Start Date": details.sitEntryDate
                   ? moment.utc(details.sitEntryDate).add(1, 'days').format('DD MMM YYYY')
                   : '-',
-                '# of days approved for': shipment.sitDaysAllowance ? `${numberOfDaysApprovedForIOASIT} days` : '-',
+                '# of days approved for': shipment.sitDaysAllowance ? `${numberOfDaysApprovedForSIT} days` : '-',
                 'SIT expiration date': sitEndDate || '-',
               },
               id,
@@ -293,11 +292,11 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
     }
     case SERVICE_ITEM_CODES.DOASIT:
     case SERVICE_ITEM_CODES.IOASIT: {
-      const numberOfDaysApprovedForIOASIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
       const sitEndDate =
         sitStatus &&
         sitStatus.currentSIT?.sitAuthorizedEndDate &&
         formatDateWithUTC(sitStatus.currentSIT.sitAuthorizedEndDate, 'DD MMM YYYY');
+      const numberOfDaysApprovedForSIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
 
       detailSection = (
         <div>
@@ -310,7 +309,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
                 "Add'l SIT Start Date": details.sitEntryDate
                   ? moment.utc(details.sitEntryDate).add(1, 'days').format('DD MMM YYYY')
                   : '-',
-                '# of days approved for': shipment.sitDaysAllowance ? `${numberOfDaysApprovedForIOASIT} days` : '-',
+                '# of days approved for': shipment.sitDaysAllowance ? `${numberOfDaysApprovedForSIT} days` : '-',
                 'SIT expiration date': sitEndDate || '-',
                 'Customer contacted homesafe': details.sitCustomerContacted
                   ? formatDateWithUTC(details.sitCustomerContacted, 'DD MMM YYYY')
