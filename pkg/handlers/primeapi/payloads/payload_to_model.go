@@ -233,7 +233,7 @@ func PPMShipmentModelFromCreate(ppmShipment *primemessages.CreatePPMShipment) *m
 		StreetAddress1: "Deprecated Endpoint Prime V2",
 		StreetAddress2: models.StringPointer("Endpoint no longer supported"),
 		StreetAddress3: models.StringPointer("Update address field to appropriate values"),
-		City:           "DEPV2",
+		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "90210",
 	}
@@ -895,4 +895,20 @@ func validateReasonOriginSIT(m primemessages.MTOServiceItemOriginSIT) *validate.
 		verrs.Add("reason", "reason is required in body.")
 	}
 	return verrs
+}
+
+func VLocationModel(vLocation *primemessages.VLocation) *models.VLocation {
+	if vLocation == nil {
+		return nil
+	}
+
+	usPostRegionCitiesID := uuid.FromStringOrNil(vLocation.UsPostRegionCitiesID.String())
+
+	return &models.VLocation{
+		CityName:             vLocation.City,
+		StateName:            vLocation.State,
+		UsprZipID:            vLocation.PostalCode,
+		UsprcCountyNm:        *vLocation.County,
+		UsPostRegionCitiesID: &usPostRegionCitiesID,
+	}
 }
