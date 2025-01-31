@@ -38,7 +38,7 @@ type MTOServiceItemInternationalShuttle struct {
 	// Example: 4000
 	ActualWeight *int64 `json:"actualWeight"`
 
-	// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+	// An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT & IOSHUT) service item.
 	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight"`
 
@@ -145,7 +145,7 @@ func (m *MTOServiceItemInternationalShuttle) UnmarshalJSON(raw []byte) error {
 		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 
-		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		// An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT & IOSHUT) service item.
 		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
@@ -240,7 +240,7 @@ func (m MTOServiceItemInternationalShuttle) MarshalJSON() ([]byte, error) {
 		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 
-		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		// An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT & IOSHUT) service item.
 		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 

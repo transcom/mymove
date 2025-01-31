@@ -1558,7 +1558,7 @@ func init() {
               "example": 4000
             },
             "estimatedWeight": {
-              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT \u0026 IOSHUT) service item.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
@@ -4485,7 +4485,7 @@ func init() {
               "example": 4000
             },
             "estimatedWeight": {
-              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT \u0026 IOSHUT) service item.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
