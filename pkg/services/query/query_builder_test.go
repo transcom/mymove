@@ -796,3 +796,56 @@ func (suite *QueryBuilderSuite) TestDeleteOne() {
 		suite.Error(err, "Model should be a pointer to a struct")
 	})
 }
+
+func (suite *QueryBuilderSuite) TestDeleteMany() {
+	builder := NewQueryBuilder()
+
+	suite.Run("successfully deletes multiple records with uuid filter", func() {
+		user1 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		user2 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		filters := []services.QueryFilter{
+			NewQueryFilter("id", equals, user1.ID.String()),
+		}
+
+		err := builder.DeleteMany(suite.AppContextForTest(), &[]models.OfficeUser{}, filters)
+		suite.NoError(err)
+
+		// make sure the user is deleted
+		var remainingUsers models.OfficeUsers
+		err = suite.DB().All(&remainingUsers)
+		suite.NoError(err)
+		suite.Len(remainingUsers, 1)
+		suite.Equal(user2.ID, remainingUsers[0].ID)
+	})
+
+	suite.Run("rejects input that is not a pointer to a slice", func() {
+		err := builder.DeleteMany(suite.AppContextForTest(), models.OfficeUser{}, nil)
+		suite.Error(err)
+		suite.Equal("DeleteMany: model must be a pointer to a slice", err.Error())
+
+		err = builder.DeleteMany(suite.AppContextForTest(), []models.OfficeUser{}, nil)
+		suite.Error(err)
+		suite.Equal("DeleteMany: model must be a pointer to a slice", err.Error())
+	})
+
+	suite.Run("fails with invalid column filter", func() {
+		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		filters := []services.QueryFilter{
+			NewQueryFilter("invalid_column", equals, user.ID.String()),
+		}
+
+		err := builder.DeleteMany(suite.AppContextForTest(), &[]models.OfficeUser{}, filters)
+		suite.Error(err)
+		suite.Contains(err.Error(), "invalid_column")
+	})
+
+	suite.Run("fails when not a pointer to slice of structs", func() {
+		var intSlice []int
+
+		err := builder.DeleteMany(suite.AppContextForTest(), &intSlice, []services.QueryFilter{})
+		suite.Error(err)
+		suite.Equal("DeleteMany: model must be a slice of structs", err.Error())
+	})
+}
