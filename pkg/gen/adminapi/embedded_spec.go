@@ -996,6 +996,40 @@ func init() {
           }
         }
       },
+      "delete": {
+        "description": "Deletes a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Deletes an Office User",
+        "operationId": "deleteOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
       "patch": {
         "description": "This endpoint updates a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
@@ -4766,6 +4800,40 @@ func init() {
           },
           "400": {
             "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Deletes an Office User",
+        "operationId": "deleteOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
           },
           "401": {
             "description": "request requires user authentication"
