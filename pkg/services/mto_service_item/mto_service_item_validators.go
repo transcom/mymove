@@ -347,7 +347,7 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 		invalidFieldChange := false
 		if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusRejected {
 			return nil
-		} else if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusSubmitted {
+		} else if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusSubmitted || serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusApproved {
 			if serviceItemData.updatedServiceItem.ReService.Code.String() != "" && serviceItemData.updatedServiceItem.ReService.Code.String() != serviceItemData.oldServiceItem.ReService.Code.String() {
 				invalidFieldChange = true
 			}
@@ -371,34 +371,6 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 				return nil
 			}
 
-		} else if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusApproved {
-			if serviceItemData.updatedServiceItem.ReService.Code.String() != "" && serviceItemData.updatedServiceItem.ReService.Code.String() != serviceItemData.oldServiceItem.ReService.Code.String() {
-				invalidFieldChange = true
-			}
-
-			if serviceItemData.updatedServiceItem.Reason != nil {
-				invalidFieldChange = true
-			}
-
-			if serviceItemData.updatedServiceItem.ActualWeight != nil {
-				invalidFieldChange = true
-			}
-
-			if serviceItemData.updatedServiceItem.EstimatedWeight != nil {
-				invalidFieldChange = true
-			}
-
-			if serviceItemData.updatedServiceItem.RequestedApprovalsRequestedStatus != nil {
-				invalidFieldChange = true
-			}
-
-			if invalidFieldChange {
-				return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
-					"- one or more fields is not allowed to be updated when the shuttle service item has an approved status.")
-			}
-
-			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
-				"- unknown field or fields attempting to be updated.")
 		} else {
 			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
 				"- this shuttle service item cannot be updated because the status is not in an editable state.")
