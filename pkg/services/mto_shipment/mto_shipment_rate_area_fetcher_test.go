@@ -299,21 +299,13 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		suite.NotNil(domServiceArea.Contract)
 
 		// setup contract year within availableToPrimeAtTime time
-		if domServiceArea.ContractID == uuid.FromStringOrNil("51393fa4-b31c-40fe-bedf-b692703c46eb") {
-			testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					ContractID: domServiceArea.ContractID,
-				},
-			})
-		} else {
-			testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					StartDate:  availableToPrimeAtTime,
-					EndDate:    time.Now(),
-					ContractID: domServiceArea.ContractID,
-				},
-			})
-		}
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate:  availableToPrimeAtTime,
+				EndDate:    time.Now(),
+				ContractID: domServiceArea.ContractID,
+			},
+		})
 
 		setupDomesticRateAreaAndZip3s := func(rateAreaCode string, rateAreaName string, postalCodes map[string]string, domesticServiceArea models.ReDomesticServiceArea) (models.ReRateArea, error) {
 			rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
