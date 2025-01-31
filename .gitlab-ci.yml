@@ -15,6 +15,7 @@ variables:
   DOCKER_TOKEN: DOCKER_TOKEN
   registry: https://registry.hub.docker.com/
 
+  #
   #Circle CI need to replace
   #CIRCLE_PROJECT_USERNAME: "my-username"  # Replace with the actual namespace
   CIRCLE_PROJECT_REPONAME: "mymove"      # Replace with your GitLab project name
