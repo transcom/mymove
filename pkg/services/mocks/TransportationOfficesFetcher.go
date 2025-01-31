@@ -16,9 +16,9 @@ type TransportationOfficesFetcher struct {
 	mock.Mock
 }
 
-// FindClosestCounselingOffice provides a mock function with given fields: appCtx, dutyLocationID
-func (_m *TransportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffice, error) {
-	ret := _m.Called(appCtx, dutyLocationID)
+// FindClosestCounselingOffice provides a mock function with given fields: appCtx, dutyLocationID, serviceMemberID
+func (_m *TransportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffice, error) {
+	ret := _m.Called(appCtx, dutyLocationID, serviceMemberID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindClosestCounselingOffice")
@@ -26,19 +26,19 @@ func (_m *TransportationOfficesFetcher) FindClosestCounselingOffice(appCtx appco
 
 	var r0 *models.TransportationOffice
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.TransportationOffice, error)); ok {
-		return rf(appCtx, dutyLocationID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) (*models.TransportationOffice, error)); ok {
+		return rf(appCtx, dutyLocationID, serviceMemberID)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.TransportationOffice); ok {
-		r0 = rf(appCtx, dutyLocationID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) *models.TransportationOffice); ok {
+		r0 = rf(appCtx, dutyLocationID, serviceMemberID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.TransportationOffice)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
-		r1 = rf(appCtx, dutyLocationID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(appCtx, dutyLocationID, serviceMemberID)
 	} else {
 		r1 = ret.Error(1)
 	}
