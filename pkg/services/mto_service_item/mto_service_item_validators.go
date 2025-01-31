@@ -359,6 +359,14 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 				invalidFieldChange = true
 			}
 
+			if serviceItemData.updatedServiceItem.ActualWeight != nil {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.EstimatedWeight != nil {
+				invalidFieldChange = true
+			}
+
 			if serviceItemData.updatedServiceItem.RequestedApprovalsRequestedStatus != nil {
 				invalidFieldChange = true
 			}

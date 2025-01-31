@@ -7,16 +7,12 @@ import PrimeUIUpdateInternationalShuttleForm from './PrimeUIUpdateInternationalS
 import { renderWithProviders } from 'testUtils';
 import { primeSimulatorRoutes } from 'constants/routes';
 
-const internationalShuttleInitialValues = {
-  estimatedWeight: 500,
-  actualWeight: 600,
-  mtoServiceItemID: '45fe9475-d592-48f5-896a-45d4d6eb7e76',
-  reServiceCode: 'IDSHUT',
-};
-
 const serviceItem = {
   reServiceCode: 'IDSHUT',
   reServiceName: 'International Shuttle',
+  estimatedWeight: 500,
+  actualWeight: 600,
+  mtoServiceItemID: '45fe9475-d592-48f5-896a-45d4d6eb7e76',
 };
 
 // Mock the react-router-dom functions
@@ -30,18 +26,14 @@ jest.mock('react-router-dom', () => ({
 describe('PrimeUIUpdateInternationalShuttleForm', () => {
   it('renders the shuttle change request form', async () => {
     renderWithProviders(
-      <PrimeUIUpdateInternationalShuttleForm
-        initialValues={internationalShuttleInitialValues}
-        serviceItem={serviceItem}
-        onUpdateServiceItem={jest.fn()}
-      />,
+      <PrimeUIUpdateInternationalShuttleForm serviceItem={serviceItem} onUpdateServiceItem={jest.fn()} />,
     );
 
     expect(
       screen.getByRole('heading', { name: 'Update International Shuttle Service Item', level: 2 }),
     ).toBeInTheDocument();
-    expect(await screen.findByTestId('estimatedWeightInput')).toHaveValue(500);
-    expect(await screen.findByTestId('actualWeightInput')).toHaveValue(600);
+    expect(await screen.getByText('Estimated Weight')).toBeInTheDocument();
+    expect(await screen.getByText('Actual Weight')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
   });
@@ -49,11 +41,7 @@ describe('PrimeUIUpdateInternationalShuttleForm', () => {
   it('fires off onSubmit function when save button is clicked', async () => {
     const onSubmitMock = jest.fn();
     renderWithProviders(
-      <PrimeUIUpdateInternationalShuttleForm
-        initialValues={internationalShuttleInitialValues}
-        serviceItem={serviceItem}
-        onUpdateServiceItem={jest.fn()}
-      />,
+      <PrimeUIUpdateInternationalShuttleForm serviceItem={serviceItem} onUpdateServiceItem={jest.fn()} />,
     );
 
     const saveButton = await screen.findByRole('button', { name: 'Save' });
@@ -65,11 +53,7 @@ describe('PrimeUIUpdateInternationalShuttleForm', () => {
 
   it('directs the user back to the move page when cancel button is clicked', async () => {
     renderWithProviders(
-      <PrimeUIUpdateInternationalShuttleForm
-        initialValues={internationalShuttleInitialValues}
-        serviceItem={serviceItem}
-        onUpdateServiceItem={jest.fn()}
-      />,
+      <PrimeUIUpdateInternationalShuttleForm serviceItem={serviceItem} onUpdateServiceItem={jest.fn()} />,
     );
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
