@@ -89,6 +89,11 @@ type PaymentRequest struct {
 	TPPSPaidInvoiceReports        TPPSPaidInvoiceReportEntrys `has_many:"tpps_paid_invoice_reports" fk_id:"payment_request_number"`
 }
 
+type PaymentRequestWithEarliestRequestedDate struct {
+	ID                    uuid.UUID `json:"id" db:"id"`
+	EarliestRequestedDate time.Time `db:"requested_at"`
+}
+
 // TableName overrides the table name used by Pop.
 func (p PaymentRequest) TableName() string {
 	return "payment_requests"
