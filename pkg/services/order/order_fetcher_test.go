@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
 	officeuserservice "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -19,7 +20,8 @@ import (
 func (suite *OrderServiceSuite) TestFetchOrder() {
 	expectedMove := factory.BuildMove(suite.DB(), nil, nil)
 	expectedOrder := expectedMove.Orders
-	orderFetcher := NewOrderFetcher()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	order, err := orderFetcher.FetchOrder(suite.AppContextForTest(), expectedOrder.ID)
 	suite.FatalNoError(err)
@@ -49,7 +51,7 @@ func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 	// noticed an exception due to trying to load empty OriginDutyLocations.
 	// This was not caught by any tests, so we're adding one now.
 	expectedOrder := factory.BuildOrder(suite.DB(), nil, nil)
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
 	expectedOrder.Grade = nil
@@ -64,7 +66,7 @@ func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 		},
 	}, nil)
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	order, err := orderFetcher.FetchOrder(suite.AppContextForTest(), expectedOrder.ID)
 
 	suite.FatalNoError(err)
@@ -74,7 +76,7 @@ func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 }
 
 func (suite *OrderServiceSuite) TestListOrders() {
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	agfmPostalCode := "06001"
 	setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
 
@@ -95,7 +97,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
 		return officeUser, move, session
 	}
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("returns moves", func() {
 		// Under test: ListOrders
@@ -614,7 +616,8 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	suite.Equal(createdMove.SCAssignedUser.LastName, moves[0].SCAssignedUser.LastName)
 }
 func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
-	orderFetcher := NewOrderFetcher()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("returns USMC order for USMC office user", func() {
 		marines := models.AffiliationMARINES
@@ -750,7 +753,8 @@ func buildPPMShipmentCloseoutComplete(suite *OrderServiceSuite, move models.Move
 	return ppm
 }
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
-	orderFetcher := NewOrderFetcher()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	var session auth.Session
 
@@ -811,7 +815,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMarines() {
-	orderFetcher := NewOrderFetcher()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("returns Navy order for NAVY office user when there's a ppm shipment in closeout", func() {
 		// It doesn't matter what the Origin GBLOC is for the move. Only the navy
@@ -974,8 +979,10 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 }
 
 func (suite *OrderServiceSuite) TestListOrdersMarines() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("does not return moves where the service member affiliation is Marines for non-USMC office user", func() {
-		orderFetcher := NewOrderFetcher()
+
+		orderFetcher := NewOrderFetcher(waf)
 		marines := models.AffiliationMARINES
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
@@ -1003,7 +1010,7 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 
 func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 	expectedOrder := factory.BuildOrder(suite.DB(), nil, nil)
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
 	expectedOrder.Grade = nil
@@ -1053,7 +1060,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 		AccessToken:     "fakeAccessToken",
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{PerPage: models.Int64Pointer(1), Page: models.Int64Pointer(1)})
 
 	suite.FatalNoError(err)
@@ -1063,6 +1070,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 
 func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	waf := entitlements.NewWeightAllotmentFetcher()
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		Roles:           officeUser.User.Roles,
@@ -1075,7 +1083,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 		factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	params := services.ListOrderParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(1)}
 	moves, count, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 
@@ -1094,7 +1102,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	affiliation := models.AffiliationNAVY
 	edipi := "9999999999"
 	var officeUser models.OfficeUser
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	// SET UP: Dates for sorting by Requested Move Date
 	// - We want dates 2 and 3 to sandwich requestedMoveDate1 so we can test that the min() query is working
 	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 02, 20, 0, 0, 0, 0, time.UTC)
@@ -1156,7 +1164,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		return expectedMove1, expectedMove2, session
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("Sort by locator code", func() {
 		expectedMove1, expectedMove2, session := setupTestData()
@@ -1319,6 +1327,7 @@ func getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite *OrderServiceSuite, clo
 
 func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCloseoutColumnsSort() {
 	defaultShipmentPickupPostalCode := "90210"
+	waf := entitlements.NewWeightAllotmentFetcher()
 	setupTestData := func() models.OfficeUser {
 		// Make an office user → GBLOC X
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -1331,7 +1340,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 
 		return officeUser
 	}
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	var session auth.Session
 
@@ -1595,7 +1604,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 }
 
 func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOCSortFilter() {
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("Filter by origin GBLOC", func() {
 
 		// TESTCASE SCENARIO
@@ -1665,7 +1674,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 			},
 		}, nil)
 		// Setup and run the function under test requesting status NEEDS SERVICE COUNSELING
-		orderFetcher := NewOrderFetcher()
+		orderFetcher := NewOrderFetcher(waf)
 		statuses := []string{"NEEDS SERVICE COUNSELING"}
 		// Sort by origin GBLOC, filter by status
 		params := services.ListOrderParams{Sort: models.StringPointer("originGBLOC"), Order: models.StringPointer("asc"), Status: statuses}
@@ -1683,10 +1692,11 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 	factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 			},
 		},
 	}, nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 	// Make a TOO user and the postal code to GBLOC link.
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	session := auth.Session{
@@ -1697,7 +1707,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 		AccessToken:     "fakeAccessToken",
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 
 	suite.FatalNoError(err)
@@ -1708,7 +1718,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	postalCode := "50309"
 	partialPPMType := models.MovePPMTypePARTIAL
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -1741,7 +1751,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), ppmShipment.PickupAddress.PostalCode, tooOfficeUser.TransportationOffice.Gbloc)
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 	suite.FatalNoError(err)
 	suite.Equal(1, moveCount)
@@ -1751,7 +1761,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 	var hqOfficeUser models.OfficeUser
 	var hqOfficeUserAGFM models.OfficeUser
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 02, 20, 0, 0, 0, 0, time.UTC)
 	requestedMoveDate2 := time.Date(testdatagen.GHCTestYear, 03, 03, 0, 0, 0, 0, time.UTC)
 
@@ -1833,7 +1843,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 		return expectedMove1, expectedMove2, expectedShipment3, hqSession, hqSessionAGFM
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("Sort by locator code", func() {
 		expectedMove1, expectedMove2, expectedShipment3, hqSession, hqSessionAGFM := setupTestData()
@@ -1873,6 +1883,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment() {
 	postalCode := "50309"
 	deletedAt := time.Now()
+	waf := entitlements.NewWeightAllotmentFetcher()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
@@ -1915,7 +1926,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 		AccessToken:     "fakeAccessToken",
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{Status: []string{string(models.MoveStatusSUBMITTED)}})
 	suite.FatalNoError(err)
 	suite.Equal(0, moveCount)
@@ -1925,6 +1936,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmentButOtherExists() {
 	postalCode := "50309"
 	deletedAt := time.Now()
+	waf := entitlements.NewWeightAllotmentFetcher()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
@@ -1995,7 +2007,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 		AccessToken:     "fakeAccessToken",
 	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 	suite.FatalNoError(err)
 	suite.Equal(1, moveCount)
@@ -2003,8 +2015,9 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 }
 
 func (suite *OrderServiceSuite) TestListAllOrderLocations() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("returns a list of all order locations in the current users queue", func() {
-		orderFetcher := NewOrderFetcher()
+		orderFetcher := NewOrderFetcher(waf)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -2028,11 +2041,11 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	edipi := "9999999998"
 	var officeUser models.OfficeUser
 	var session auth.Session
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 05, 20, 0, 0, 0, 0, time.UTC)
 	requestedMoveDate2 := time.Date(testdatagen.GHCTestYear, 07, 03, 0, 0, 0, 0, time.UTC)
 
-	suite.PreloadData(func() {
+	setupData := func() {
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -2079,11 +2092,12 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
 		}
-	})
+	}
 
-	orderFetcher := NewOrderFetcher()
+	orderFetcher := NewOrderFetcher(waf)
 
 	suite.Run("list moves by customer name - full name (last, first)", func() {
+		setupData()
 		// Search "Spacemen, Margaret"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("Spacemen, Margaret"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2093,6 +2107,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - full name (first last)", func() {
+		setupData()
 		// Search "Margaret Spacemen"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("Margaret Spacemen"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2102,6 +2117,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - partial last (multiple)", func() {
+		setupData()
 		// Search "space"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("space"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2112,6 +2128,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - partial last (single)", func() {
+		setupData()
 		// Search "Light"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("Light"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2121,6 +2138,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - partial first", func() {
+		setupData()
 		// Search "leo"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("leo"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2131,6 +2149,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - partial matching within first or last", func() {
+		setupData()
 		// Search "ar"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("ar"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2141,6 +2160,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	})
 
 	suite.Run("list moves by customer name - empty", func() {
+		setupData()
 		// Search "johnny"
 		params := services.ListOrderParams{CustomerName: models.StringPointer("johnny"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
@@ -2150,8 +2170,9 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 }
 
 func (suite *OrderServiceSuite) TestListAllOrderLocationsWithViewAsGBLOCParam() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("returns a list of all order locations in the current users queue", func() {
-		orderFetcher := NewOrderFetcher()
+		orderFetcher := NewOrderFetcher(waf)
 		officeUserFetcher := officeuserservice.NewOfficeUserFetcherPop()
 		movesContainOriginDutyLocation := func(moves models.Moves, keyword string) func() (success bool) {
 			return func() (success bool) {
@@ -2249,26 +2270,26 @@ func (suite *OrderServiceSuite) TestListAllOrderLocationsWithViewAsGBLOCParam() 
 
 func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
 	var session auth.Session
+	waf := entitlements.NewWeightAllotmentFetcher()
 	var expectedMove models.Move
 	var officeUser models.OfficeUser
-	orderFetcher := NewOrderFetcher()
-	suite.PreloadData(func() {
-		setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
-			officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-			session := auth.Session{
-				ApplicationName: auth.OfficeApp,
-				Roles:           officeUser.User.Roles,
-				OfficeUserID:    officeUser.ID,
-				IDToken:         "fake_token",
-				AccessToken:     "fakeAccessToken",
-			}
-			move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
-			return officeUser, move, session
+	orderFetcher := NewOrderFetcher(waf)
+	setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
 		}
-		officeUser, expectedMove, session = setupTestData()
-	})
-	locationName := expectedMove.Orders.OriginDutyLocation.Name
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		return officeUser, move, session
+	}
+
 	suite.Run("Returns orders matching full originDutyLocation name filter", func() {
+		officeUser, expectedMove, session = setupTestData()
+		locationName := expectedMove.Orders.OriginDutyLocation.Name
 		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(locationName, " ")})
 		suite.NoError(err)
 		suite.Equal(1, len(expectedMoves))
@@ -2276,6 +2297,8 @@ func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
 	})
 
 	suite.Run("Returns orders matching partial originDutyLocation name filter", func() {
+		officeUser, expectedMove, session = setupTestData()
+		locationName := expectedMove.Orders.OriginDutyLocation.Name
 		//Split the location name and retrieve a substring (first string) for the search param
 		partialParamSearch := strings.Split(locationName, " ")[0]
 		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(partialParamSearch, " ")})

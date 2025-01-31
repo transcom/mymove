@@ -25,6 +25,7 @@ import (
 const RFC3339Micro = "2006-01-02T15:04:05.999999Z07:00"
 
 type orderFetcher struct {
+	waf services.WeightAllotmentFetcher
 }
 
 // QueryOption defines the type for the functional arguments used for private functions in OrderFetcher
@@ -464,8 +465,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 }
 
 // NewOrderFetcher creates a new struct with the service dependencies
-func NewOrderFetcher() services.OrderFetcher {
-	return &orderFetcher{}
+func NewOrderFetcher(weightAllotmentFetcher services.WeightAllotmentFetcher) services.OrderFetcher {
+	return &orderFetcher{waf: weightAllotmentFetcher}
 }
 
 // FetchOrder retrieves an Order for a given UUID
@@ -487,6 +488,15 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 		default:
 			return &models.Order{}, apperror.NewQueryError("Order", err, "")
 		}
+	}
+
+	// Construct weight allotted if grade is present
+	if order.Grade != nil {
+		allotment, err := f.waf.GetWeightAllotment(appCtx, string(*order.Grade), order.OrdersType)
+		if err != nil {
+			return nil, err
+		}
+		order.Entitlement.WeightAllotted = &allotment
 	}
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
@@ -614,7 +624,7 @@ func appearedInTOOAtFilter(appearedInTOOAt *time.Time) QueryOption {
 func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	return func(query *pop.Query) {
 		if requestedMoveDate != nil {
-			query.Where("(mto_shipments.requested_pickup_date = ? OR ppm_shipments.expected_departure_date = ? OR (mto_shipments.shipment_type = 'HHG_OUTOF_NTS_DOMESTIC' AND mto_shipments.requested_delivery_date = ?))", *requestedMoveDate, *requestedMoveDate, *requestedMoveDate)
+			query.Where("(mto_shipments.requested_pickup_date = ? OR ppm_shipments.expected_departure_date = ? OR (mto_shipments.shipment_type = 'HHG_OUTOF_NTS' AND mto_shipments.requested_delivery_date = ?))", *requestedMoveDate, *requestedMoveDate, *requestedMoveDate)
 		}
 	}
 }
@@ -692,7 +702,7 @@ func gblocFilterForTOO(gbloc *string) QueryOption {
 		if gbloc != nil {
 			// Note: extra parens necessary to keep precedence correct when AND'ing all filters together.
 			query.Where("((mto_shipments.shipment_type != ? AND move_to_gbloc.gbloc = ?) OR (mto_shipments.shipment_type = ? AND orders.gbloc = ?))",
-				models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc, models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc)
+				models.MTOShipmentTypeHHGOutOfNTS, *gbloc, models.MTOShipmentTypeHHGOutOfNTS, *gbloc)
 		}
 	}
 }

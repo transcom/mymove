@@ -891,7 +891,7 @@ commands:
             export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
             export FEATURE_FLAG_MOVE_LOCK=false
             export FEATURE_FLAG_OKTA_DODID_INPUT=false
-            export FEATURE_FLAG_HEADQUARTERS_ROLE=false
+            export FEATURE_FLAG_HEADQUARTERS_ROLE=true
             export FEATURE_FLAG_GSR_ROLE=false
             export FEATURE_FLAG_SAFETY_MOVE=false
             export FEATURE_FLAG_MANAGE_SUPPORTING_DOCS=false
@@ -936,7 +936,7 @@ commands:
             FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
             FEATURE_FLAG_MOVE_LOCK: 'false'
             FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
-            FEATURE_FLAG_HEADQUARTERS_ROLE: 'false'
+            FEATURE_FLAG_HEADQUARTERS_ROLE: 'true'
             FEATURE_FLAG_GSR_ROLE: 'false'
             FEATURE_FLAG_SAFETY_MOVE: 'false'
             FEATURE_FLAG_MANAGE_SUPPORTING_DOCS: 'false'
@@ -2614,28 +2614,28 @@ workflows:
             - compile_app_server
           filters:
             branches:
-              only: main
+              only: nolonger_main
 
       - push_app_stg:
           requires:
             - build_app
           filters:
             branches:
-              only: main
+              only: nolonger_main
 
       - push_migrations_stg:
           requires:
             - build_migrations
           filters:
             branches:
-              only: main
+              only: nolonger_main
 
       - push_tasks_stg:
           requires:
             - build_tasks
           filters:
             branches:
-              only: main
+              only: nolonger_main
 
       - check_circle_against_stg_sha:
           requires:
@@ -2653,7 +2653,7 @@ workflows:
             - integration_tests_mtls
           filters:
             branches:
-              only: main
+              only: nolonger_main
 
       - deploy_stg_migrations:
           requires:
