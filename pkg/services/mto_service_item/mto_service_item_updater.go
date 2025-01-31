@@ -821,22 +821,3 @@ func ValidateUpdateMTOServiceItem(appCtx appcontext.AppContext, serviceItemData 
 
 	return newServiceItem, nil
 }
-
-// Get Adjusted weight for pricing. Returns the weight at 110% or the minimum billable weight whichever is higher, unless it's 0
-func GetAdjustedWeight(incomingWeight unit.Pound, isUB bool) *unit.Pound {
-	// minimum weight billed by GHC is 500 lbs unless it's Unaccompanied Baggage (UB)
-	minimumBilledWeight := unit.Pound(500)
-	if isUB {
-		minimumBilledWeight = unit.Pound(300)
-	}
-
-	// add 110% modifier to billable weight
-	newWeight := (int(incomingWeight.Float64() * 1.1))
-	adjustedWeight := (*unit.Pound)(&newWeight)
-
-	// if the adjusted weight is less than the minimum billable weight but is nonzero, set it to the minimum weight billed
-	if *adjustedWeight < minimumBilledWeight && *adjustedWeight > 0 {
-		*adjustedWeight = minimumBilledWeight
-	}
-	return adjustedWeight
-}
