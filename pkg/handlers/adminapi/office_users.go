@@ -586,3 +586,37 @@ func getPrimaryTransportationOfficeIDFromPayload(payload []*adminmessages.Office
 
 	return transportationOfficeID, apperror.NewBadDataError("Could not identify primary transportaion office from list of assignments")
 }
+
+// DeleteOfficeUserHandler deletes an office user via DELETE /office_user/{officeUserId}
+type DeleteOfficeUserHandler struct {
+	handlers.HandlerConfig
+	services.OfficeUserDeleter
+}
+
+func (h DeleteOfficeUserHandler) Handle(params officeuserop.DeleteOfficeUserParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			// we only allow this to be called from the admin app
+			if !appCtx.Session().IsAdminApp() {
+				return officeuserop.NewDeleteOfficeUserUnauthorized(), nil
+			}
+
+			officeUserID, err := uuid.FromString(params.OfficeUserID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			err = h.OfficeUserDeleter.DeleteOfficeUser(appCtx, officeUserID)
+			if err != nil {
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return officeuserop.NewDeleteOfficeUserNotFound(), err
+				default:
+					return officeuserop.NewDeleteOfficeUserInternalServerError(), err
+				}
+			}
+
+			return officeuserop.NewDeleteOfficeUserNoContent(), nil
+		})
+}

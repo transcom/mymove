@@ -94,7 +94,6 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	subtestData.planner = &mocks.Planner{}
@@ -282,7 +281,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			true,
 		).Return(500, nil)
 
@@ -506,7 +504,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(500, nil)
 
 		preApprovalTime := time.Now()
@@ -626,7 +623,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			createdShipment.PickupAddress.PostalCode,
 			createdShipment.DestinationAddress.PostalCode,
-			false,
 			false,
 		).Return(500, nil)
 
@@ -904,7 +900,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 			false,
-			false,
 		).Return(500, nil).Run(func(args mock.Arguments) {
 			TransitDistancePickupArg = args.Get(1).(string)
 			TransitDistanceDestinationArg = args.Get(2).(string)
@@ -960,7 +955,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 			false,
-			false,
 		).Return(500, nil)
 
 		suite.Equal(8000, *shipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
@@ -1002,7 +996,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 			false,
-			false,
 		).Return(500, nil)
 
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
@@ -1014,6 +1007,208 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		suite.NoError(err)
 
 		suite.NotNil(shipment.MoveTaskOrder.ExcessWeightQualifiedAt)
+	})
+
+	suite.Run("If the CONUS to OCONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "Tester Address",
+					City:           "Des Moines",
+					State:          "IA",
+					PostalCode:     "50314",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode:   models.MarketCodeInternational,
+					Status:       models.MTOShipmentStatusSubmitted,
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		internationalShipmentEtag := etag.GenerateEtag(internationalShipment.UpdatedAt)
+		shipmentApprover := suite.createApproveShipmentSubtestData().shipmentApprover
+		_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag)
+		suite.NoError(err)
+
+		// Get created pre approved service items
+		var serviceItems []models.MTOServiceItem
+		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err2)
+
+		expectedReServiceCodes := []models.ReServiceCode{
+			models.ReServiceCodeUBP,
+			models.ReServiceCodePOEFSC,
+			models.ReServiceCodeIUBPK,
+			models.ReServiceCodeIUBUPK,
+		}
+		expectedReServiceNames := []string{
+			"International UB price",
+			"International POE Fuel Surcharge",
+			"International UB pack",
+			"International UB unpack",
+		}
+
+		suite.Equal(4, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			actualReServiceCode := serviceItems[i].ReService.Code
+			actualReServiceName := serviceItems[i].ReService.Name
+			suite.True(slices.Contains(expectedReServiceCodes, actualReServiceCode), "Contains unexpected code: "+actualReServiceCode.String())
+			suite.True(slices.Contains(expectedReServiceNames, actualReServiceName), "Contains unexpected name: "+actualReServiceName)
+		}
+	})
+
+	suite.Run("If the OCONUS to CONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode:   models.MarketCodeInternational,
+					Status:       models.MTOShipmentStatusSubmitted,
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "Tester Address",
+					City:           "Des Moines",
+					State:          "IA",
+					PostalCode:     "50314",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		internationalShipmentEtag := etag.GenerateEtag(internationalShipment.UpdatedAt)
+		shipmentApprover := suite.createApproveShipmentSubtestData().shipmentApprover
+		_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag)
+		suite.NoError(err)
+
+		// Get created pre approved service items
+		var serviceItems []models.MTOServiceItem
+		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err2)
+
+		expectedReServiceCodes := []models.ReServiceCode{
+			models.ReServiceCodeUBP,
+			models.ReServiceCodePODFSC,
+			models.ReServiceCodeIUBPK,
+			models.ReServiceCodeIUBUPK,
+		}
+		expectedReServiceNames := []string{
+			"International UB price",
+			"International POD Fuel Surcharge",
+			"International UB pack",
+			"International UB unpack",
+		}
+
+		suite.Equal(4, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			actualReServiceCode := serviceItems[i].ReService.Code
+			actualReServiceName := serviceItems[i].ReService.Name
+			suite.True(slices.Contains(expectedReServiceCodes, actualReServiceCode), "Contains unexpected code: "+actualReServiceCode.String())
+			suite.True(slices.Contains(expectedReServiceNames, actualReServiceName), "Contains unexpected name: "+actualReServiceName)
+		}
+	})
+
+	suite.Run("If the OCONUS to OCONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode:   models.MarketCodeInternational,
+					Status:       models.MTOShipmentStatusSubmitted,
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "Tester Address",
+					City:           "Fairbanks",
+					State:          "AK",
+					PostalCode:     "99701",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		internationalShipmentEtag := etag.GenerateEtag(internationalShipment.UpdatedAt)
+		shipmentApprover := suite.createApproveShipmentSubtestData().shipmentApprover
+		_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag)
+		suite.NoError(err)
+
+		// Get created pre approved service items
+		var serviceItems []models.MTOServiceItem
+		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err2)
+
+		expectedReServiceCodes := []models.ReServiceCode{
+			models.ReServiceCodeUBP,
+			models.ReServiceCodeIUBPK,
+			models.ReServiceCodeIUBUPK,
+		}
+		expectedReServiceNames := []string{
+			"International UB price",
+			"International UB pack",
+			"International UB unpack",
+		}
+
+		suite.Equal(3, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			actualReServiceCode := serviceItems[i].ReService.Code
+			actualReServiceName := serviceItems[i].ReService.Name
+			suite.True(slices.Contains(expectedReServiceCodes, actualReServiceCode), "Contains unexpected code: "+actualReServiceCode.String())
+			suite.True(slices.Contains(expectedReServiceNames, actualReServiceName), "Contains unexpected name: "+actualReServiceName)
+		}
 	})
 
 	suite.Run("Given invalid shipment error returned", func() {

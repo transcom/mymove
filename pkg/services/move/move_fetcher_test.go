@@ -434,6 +434,90 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		suite.Equal(assignedMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
 
+	suite.Run("Closeout returns non Navy/USCG/USMC ppms in needs closeout status", func() {
+		moveFetcher := NewMoveFetcherBulkAssignment()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		submittedAt := time.Now()
+
+		// create non USMC/USCG/NAVY ppm in need closeout status
+		factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.PPMShipment{
+					Status:      models.PPMShipmentStatusNeedsCloseout,
+					SubmittedAt: &submittedAt,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		// create non closeout needed ppm
+		factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.PPMShipment{
+					Status:      models.PPMShipmentStatusWaitingOnCustomer,
+					SubmittedAt: &submittedAt,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		marine := models.AffiliationMARINES
+		marinePPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+			{
+				Model: models.PPMShipment{
+					Status:      models.PPMShipmentStatusNeedsCloseout,
+					SubmittedAt: &submittedAt,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					Affiliation: &marine,
+				},
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentCloseout(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.NotEqual(marinePPM.ID, moves[0].ID)
+	})
+
 	suite.Run("TOO: Returns moves that fulfill the query criteria", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
@@ -444,7 +528,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
-
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -457,7 +540,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
-
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -470,7 +552,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
-
 		marine := models.AffiliationMARINES
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
@@ -489,7 +570,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				},
 			},
 		}, nil)
-
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
 		suite.Equal(2, len(moves))
