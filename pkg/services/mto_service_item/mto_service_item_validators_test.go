@@ -296,23 +296,23 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	// Test successful check for SIT departure service item - IDDSIT
 	suite.Run("checkSITDeparture w/ IDDSIT - success", func() {
 		// Under test:  checkSITDeparture checks that the service item is a
-		//			    DDDSIT or DOPSIT if the user is trying to update the
+		//			    IDDSIT or IOPSIT if the user is trying to update the
 		// 			    SITDepartureDate
-		// Set up:      Create an old and new DDDSIT, with a new date and try to update.
-		// Expected outcome: Success if both are DDDSIT
-		oldDDDSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		// Set up:      Create an old and new IDDSIT, with a new date and try to update.
+		// Expected outcome: Success if both are IDDSIT
+		oldIDDSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeIDDSIT,
 				},
 			},
 		}, nil)
-		newDDDSIT := oldDDDSIT
-		newDDDSIT.SITDepartureDate = &now
+		newIDDSIT := oldIDDSIT
+		newIDDSIT.SITDepartureDate = &now
 
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: newDDDSIT,
-			oldServiceItem:     oldDDDSIT,
+			updatedServiceItem: newIDDSIT,
+			oldServiceItem:     oldIDDSIT,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
@@ -321,7 +321,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.NoVerrs(serviceItemData.verrs)
 	})
 
-	// Test successful check for SIT departure service item - DDDSIT
+	// Test successful check for SIT departure service item - IDDSIT
 	suite.Run("checkSITDeparture w/ IDDSIT - success", func() {
 		// Under test:  checkSITDeparture checks that the service item is a
 		//			    IDDSIT or IOPSIT if the user is trying to update the

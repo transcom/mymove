@@ -1244,7 +1244,7 @@ func validateReasonDestSIT(m primev3messages.MTOServiceItemDestSIT) *validate.Er
 	return verrs
 }
 
-// validateReasonDestSIT validates that International Destination SIT service items have required Reason field
+// validateReasonInternationalDestSIT validates that International Destination SIT service items have required Reason field
 func validateReasonInternationalDestSIT(m primev3messages.MTOServiceItemInternationalDestSIT) *validate.Errors {
 	verrs := validate.NewErrors()
 

@@ -105,10 +105,10 @@ func (suite *UpdateSitEntryDateServiceSuite) TestUpdateSitEntryDate() {
 	})
 
 	suite.Run("Not Found Error - international", func() {
-		ddfServiceItem, _ := setupInternationalModels()
+		idfServiceItem, _ := setupInternationalModels()
 		notFoundServiceItem := models.SITEntryDateUpdate{
-			ID:           ddfServiceItem.ID,
-			SITEntryDate: ddfServiceItem.SITEntryDate,
+			ID:           idfServiceItem.ID,
+			SITEntryDate: idfServiceItem.SITEntryDate,
 		}
 		notFoundUUID, err := uuid.NewV4()
 		suite.NoError(err)
@@ -144,24 +144,24 @@ func (suite *UpdateSitEntryDateServiceSuite) TestUpdateSitEntryDate() {
 	})
 
 	suite.Run("Successful update of service items - international", func() {
-		ddfServiceItem, ddaServiceItem := setupInternationalModels()
+		idfServiceItem, idaServiceItem := setupInternationalModels()
 		updatedServiceItem := models.SITEntryDateUpdate{
-			ID:           ddfServiceItem.ID,
-			SITEntryDate: ddfServiceItem.SITEntryDate,
+			ID:           idfServiceItem.ID,
+			SITEntryDate: idfServiceItem.SITEntryDate,
 		}
 		newSitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
 		newSitEntryDateNextDay := newSitEntryDate.Add(24 * time.Hour)
 
 		updatedServiceItem.SITEntryDate = &newSitEntryDate
-		ddaServiceItem.SITEntryDate = &newSitEntryDateNextDay
+		idaServiceItem.SITEntryDate = &newSitEntryDateNextDay
 
 		changedServiceItem, err := updater.UpdateSitEntryDate(suite.AppContextForTest(), &updatedServiceItem)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
-		suite.Equal(ddfServiceItem.ID, updatedServiceItem.ID)
+		suite.Equal(idfServiceItem.ID, updatedServiceItem.ID)
 		suite.Equal(updatedServiceItem.SITEntryDate.Local(), changedServiceItem.SITEntryDate.Local())
-		suite.Equal(ddaServiceItem.SITEntryDate.Local(), newSitEntryDateNextDay.Local())
+		suite.Equal(idaServiceItem.SITEntryDate.Local(), newSitEntryDateNextDay.Local())
 	})
 
 }
