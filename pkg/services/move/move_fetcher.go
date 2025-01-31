@@ -283,16 +283,16 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentPaymentRequest(app
 	sqlQuery := `
 		SELECT
 			moves.id,
-			payment_requests.requested_at AS earliest_date
-		FROM payment_requests
-		INNER JOIN moves on moves.id = payment_requests.move_id
+			min(payment_requests.requested_at) AS earliest_date
+		FROM moves
 		INNER JOIN orders ON orders.id = moves.orders_id
 		INNER JOIN service_members ON orders.service_member_id = service_members.id
+		INNER JOIN payment_requests on payment_requests.move_id = moves.id
 		LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
-		WHERE payment_requests.status = 'PENDING'
-		AND moves.show = $1
+		WHERE moves.show = $1
 		AND (orders.orders_type NOT IN ($2, $3, $4))
-		AND moves.tio_assigned_id IS NULL `
+		AND moves.tio_assigned_id IS NULL
+		AND payment_requests.status = 'PENDING' `
 	if gbloc == "USMC" {
 		sqlQuery += `
 			AND service_members.affiliation ILIKE 'MARINES' `
@@ -302,8 +302,8 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentPaymentRequest(app
 		AND move_to_gbloc.gbloc = '` + gbloc + `' `
 	}
 	sqlQuery += `
-		GROUP BY moves.id, payment_requests.id
-        ORDER BY payment_requests.requested_at ASC`
+		GROUP BY moves.id
+        ORDER BY earliest_date ASC`
 
 	err := appCtx.DB().RawQuery(sqlQuery,
 		models.BoolPointer(true),
