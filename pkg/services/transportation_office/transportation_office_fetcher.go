@@ -47,8 +47,8 @@ func (o transportationOfficesFetcher) GetTransportationOffice(appCtx appcontext.
 	return &transportationOffice, nil
 }
 
-func (o transportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool) (*models.TransportationOffices, error) {
-	officeList, err := FindTransportationOffice(appCtx, search, forPpm)
+func (o transportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool, forAdminOfficeUserReqFilter bool) (*models.TransportationOffices, error) {
+	officeList, err := FindTransportationOffice(appCtx, search, forPpm, forAdminOfficeUserReqFilter)
 
 	if err != nil {
 		switch err {
@@ -62,8 +62,14 @@ func (o transportationOfficesFetcher) GetTransportationOffices(appCtx appcontext
 	return &officeList, nil
 }
 
-func FindTransportationOffice(appCtx appcontext.AppContext, search string, forPpm bool) (models.TransportationOffices, error) {
+func FindTransportationOffice(appCtx appcontext.AppContext, search string, forPpm bool, forAdminOfficeUserReqFilter bool) (models.TransportationOffices, error) {
 	var officeList []models.TransportationOffice
+
+	// Changing return limit for Admin Requested Office Users Transportation Office Filter implementation
+	var limit = 5
+	if forAdminOfficeUserReqFilter {
+		limit = 50
+	}
 
 	// The % operator filters out strings that are below this similarity threshold
 	err := appCtx.DB().Q().RawQuery("SET pg_trgm.similarity_threshold = 0.03").Exec()
@@ -81,13 +87,13 @@ func FindTransportationOffice(appCtx appcontext.AppContext, search string, forPp
 	}
 	sqlQuery += `
 		order by sim desc
-        limit 5)
+        limit $2)
 		select office.*
         from names n inner join transportation_offices office on n.transportation_office_id = office.id
         group by office.id
         order by max(n.sim) desc, office.name
-        limit 5`
-	query := appCtx.DB().Q().RawQuery(sqlQuery, search)
+        limit $2`
+	query := appCtx.DB().Q().RawQuery(sqlQuery, search, limit)
 	if err := query.All(&officeList); err != nil {
 		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
 			return officeList, err
