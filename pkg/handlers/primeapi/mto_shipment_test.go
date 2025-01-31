@@ -138,7 +138,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
 	})
 
-	suite.Run("POST failure - 422 Unprocessable Entity Error Valid AK Address FF off", func() {
+	suite.Run("POST failure - 422 Unprocessable Entity Error Valid HI Address FF off", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		vLocationServices := address.NewVLocation()
@@ -147,7 +147,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		handlerConfig := suite.HandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
-			Key:   "enable_alaska",
+			Key:   "enable_hawaii",
 			Match: false,
 		}
 
