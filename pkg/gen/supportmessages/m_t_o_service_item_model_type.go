@@ -20,6 +20,7 @@ import (
 //   - DOFSIT, DOASIT - MTOServiceItemOriginSIT
 //   - DDFSIT, DDASIT - MTOServiceItemDestSIT
 //   - DOSHUT, DDSHUT - MTOServiceItemShuttle
+//   - IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle
 //   - DCRT, DUCRT - MTOServiceItemDomesticCrating
 //   - ICRT, IUCRT - MTOServiceItemInternationalCrating
 //
