@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -148,12 +149,55 @@ func CreateOfficeOktaAccount(appCtx appcontext.AppContext, params requested_offi
 	return res, nil
 }
 
+// Function that filters Requested Office Users based on filtered Transportation Offices
+func filterByTransportationOffice(officeUsers models.OfficeUsers, filteredTransportationOffices models.TransportationOffices) models.OfficeUsers {
+	var filteredOfficeUsers models.OfficeUsers
+	var currentOfficeUser models.OfficeUser
+	var currentTransportationOffice models.TransportationOffice
+
+	for i := range officeUsers {
+		currentOfficeUser = officeUsers[i]
+		for j := range filteredTransportationOffices {
+			currentTransportationOffice = filteredTransportationOffices[j]
+
+			if currentOfficeUser.TransportationOfficeID == currentTransportationOffice.ID {
+				filteredOfficeUsers = append(filteredOfficeUsers, currentOfficeUser)
+			}
+		}
+	}
+
+	return filteredOfficeUsers
+}
+
+// Function that filters Requested Office Users based on filtered Roles
+func filterByRoles(officeUsers models.OfficeUsers, roles roles.Roles) models.OfficeUsers {
+	var filteredOfficeUsers models.OfficeUsers
+
+	roleIDSet := make(map[uuid.UUID]struct{})
+	for _, role := range roles {
+		roleIDSet[role.ID] = struct{}{}
+	}
+
+	for _, officeUser := range officeUsers {
+		for _, userRole := range officeUser.User.Roles {
+			if _, exists := roleIDSet[userRole.ID]; exists {
+				filteredOfficeUsers = append(filteredOfficeUsers, officeUser)
+				break
+			}
+		}
+	}
+
+	return filteredOfficeUsers
+}
+
 // IndexRequestedOfficeUsersHandler returns a list of requested office users via GET /requested_office_users
 type IndexRequestedOfficeUsersHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserListFetcher
 	services.NewQueryFilter
 	services.NewPagination
+	services.TransportationOfficesFetcher
+	services.RoleAssociater
 }
 
 var requestedOfficeUserFilterConverters = map[string]func(string) []services.QueryFilter{
@@ -166,6 +210,9 @@ var requestedOfficeUserFilterConverters = map[string]func(string) []services.Que
 		}
 	},
 }
+
+var TransportationOfficeSearch = "transportationOfficeSearch"
+var RoleSearch = "rolesSearch"
 
 // Handle retrieves a list of requested office users
 func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
@@ -190,6 +237,50 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 			officeUsers, err := h.RequestedOfficeUserListFetcher.FetchRequestedOfficeUsersList(appCtx, queryFilters, queryAssociations, pagination, ordering)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			// Requested office user filters that is being used
+			requestedOfficeUserFilters := map[string]string{}
+
+			if params.Filter != nil {
+				if err := json.Unmarshal([]byte(*params.Filter), &requestedOfficeUserFilters); err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+			}
+
+			var filteredTransportationOffices models.TransportationOffices
+			// If there was a Transportation Office filter applied then get the filtered Transportation Offices
+			if requestedOfficeUserFilters[TransportationOfficeSearch] != "" {
+				searchString := requestedOfficeUserFilters[TransportationOfficeSearch]
+				transportationOfficesFilterResults, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, searchString, false, true)
+				if err != nil {
+					appCtx.Logger().Error("Error searching for Transportation Offices using filter: ", zap.Error(err))
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+
+				filteredTransportationOffices = *transportationOfficesFilterResults
+			}
+
+			// If there was a Roles filter applied then get the filtered Roles
+			var filteredRoles roles.Roles
+			if requestedOfficeUserFilters[RoleSearch] != "" {
+				rolesFilterResult, err := roles.FindRoles(appCtx.DB(), requestedOfficeUserFilters[RoleSearch])
+				if err != nil {
+					appCtx.Logger().Error("Error searching for Roles using filter: ", zap.Error(err))
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+
+				filteredRoles = rolesFilterResult
+			}
+
+			// Filter users by filteredTransportationOffices if the filter is used
+			if len(filteredTransportationOffices) > 0 && len(officeUsers) > 0 {
+				officeUsers = filterByTransportationOffice(officeUsers, filteredTransportationOffices)
+			}
+
+			// Filter users by roles if the filter is used
+			if len(filteredRoles) > 0 && len(officeUsers) > 0 {
+				officeUsers = filterByRoles(officeUsers, filteredRoles)
 			}
 
 			totalOfficeUsersCount, err := h.RequestedOfficeUserListFetcher.FetchRequestedOfficeUsersCount(appCtx, queryFilters)

@@ -186,20 +186,6 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 		}
-		if serviceItem.ReService.Code == models.ReServiceCodeDUPK {
-			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
-			if err != nil {
-				return 0, err
-			}
-
-			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
-
-			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, serviceScheduleDestination, isPPM)
-			if err != nil {
-				return 0, err
-			}
-		}
-
 		// linehaul
 		if serviceItem.ReService.Code == models.ReServiceCodeDLH {
 			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
