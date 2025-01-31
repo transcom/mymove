@@ -171,8 +171,8 @@ func (o *officeUserCreator) checkAndUpdateRejectedOfficeUser(
 
 	// checking if the office user currently exists and has a previous status of rejected
 	var requestedOfficeUser models.OfficeUser
-	previouslyRejectedCheck := query.NewQueryFilter("email", "=", officeUser.Email)
-	fetchErr := o.builder.FetchOne(appCtx, &requestedOfficeUser, []services.QueryFilter{previouslyRejectedCheck})
+
+	fetchErr := appCtx.DB().Where("(status = 'REJECTED' and edipi = (?)) or email = (?)", officeUser.EDIPI, officeUser.Email).First(&requestedOfficeUser)
 	if fetchErr != nil && fetchErr != sql.ErrNoRows {
 		return nil, nil, fetchErr // Return the actual error if it's not a "no rows" error
 	} else if fetchErr == sql.ErrNoRows {
