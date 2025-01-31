@@ -1,7 +1,6 @@
 export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
 export { default as acknowledgeExcessUnaccompaniedBaggageWeightRisk } from './AcknowledgeExcessUnaccompaniedBaggageWeightRisk/acknowledgeExcessUnaccompaniedBaggageWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
-export { default as approveShipments } from './ApproveShipment/approveShipments';
 export { default as approveShipmentDiversion } from './ApproveShipmentDiversion/approveShipmentDiversion';
 export { default as createBasicServiceItem } from './UpdateMoveTaskOrderStatus/createBasicServiceItem';
 export { default as createMTOServiceItem } from './CreateMTOServiceItem/createMTOServiceItem';
@@ -18,7 +17,6 @@ export { default as createPaymentRequestReweighUpdate } from './UpdateReweigh/cr
 export { default as createPaymentRequestShipmentUpdate } from './UpdateMTOShipment/createPaymentRequestShipmentUpdate';
 export { default as createReweighRequestWeightUpdate } from './UpdateMTOShipment/createReweighRequestWeightUpdate';
 export { default as createStandardServiceItem } from './ApproveShipment/createStandardServiceItem';
-export { default as approveShipmentsServiceItem } from './ApproveShipment/approveShipmentsServiceItem';
 export { default as deleteShipment } from './DeleteShipment/deleteShipment';
 export { default as proofOfServiceDocUpload } from './CreateUpload/proofOfServiceDocUpload';
 export { default as requestShipmentCancellation } from './RequestShipmentCancellation/requestShipmentCancellation';
@@ -89,7 +87,6 @@ export { default as submitMoveForApprovalPPMShipments } from './SubmitMoveForApp
 export { default as submitPPMShipmentDocumentation } from './SubmitPPMShipmentDocumentation/SubmitPPMShipmentDocumentation';
 export { default as finishDocumentReview } from './FinishDocumentReview/finishDocumentReview';
 export { default as approveShipmentApproveMove } from './ApproveShipment/approveShipmentApproveMove';
-export { default as approveShipmentsApproveMove } from './ApproveShipment/approveShipmentsApproveMove';
 export { default as createPaymentRequestUpdateShipment } from './CreatePaymentRequest/createPaymentRequestUpdateShipment';
 export { default as updateOrdersUpdateMove } from './UpdateOrders/updateOrdersUpdateMove';
 export { default as updateMTOShipmentByServiceItemStatus } from './UpdateMTOShipment/updateMTOShipmentByServiceItemStatus';
@@ -98,7 +95,7 @@ export { default as approveShipmentUpdateMove } from './ApproveShipment/approveS
 export { default as createSITExtension } from './CreateSITExtension/createSITExtension';
 export { default as updateAllowanceUpdateOrder } from './UpdateAllowances/updateAllowanceUpdateOrder';
 export { default as updateMTOShipmentUpdateAllowance } from './UpdateMTOShipment/updateMTOShipmentUpdateAllowance';
-export { default as approveShipmentsUpdateAllowances } from './ApproveShipment/approveShipmentsUpdateAllowances';
+export { default as approveShipmentUpdateAllowances } from './ApproveShipment/approveShipmentUpdateAllowances';
 export { default as updateOrderUpdateAllowances } from './UpdateOrders/updateOrderUpdateAllowances';
 export { default as patchMTOShipment } from './UpdateMTOShipment/patchMTOShipment';
 export { default as uploadAdditionalDocuments } from './UploadAdditionalDocuments/uploadAdditionalDocuments';
@@ -115,3 +112,7 @@ export { default as cancelMove } from './CancelMove/CancelMove';
 export { default as cancelMoveMTOShipments } from './CancelMove/CancelMoveMTOShipments';
 export { default as cancelMovePPMShipments } from './CancelMove/CancelMovePPMShipments';
 export { default as reviewShipmentAddressUpdate } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdate';
+export { default as approveShipments } from './ApproveShipments/approveShipments';
+export { default as approveShipmentsUpdateAllowances } from './ApproveShipments/approveShipmentsUpdateAllowances';
+export { default as approveShipmentsApproveMove } from './ApproveShipments/approveShipmentsApproveMove';
+export { default as approveShipmentsServiceItem } from './ApproveShipments/approveShipmentsServiceItem';

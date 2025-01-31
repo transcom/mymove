@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/ApproveShipment/approveShipmentsUpdateAllowances';
+import e from 'constants/MoveHistory/EventTemplates/ApproveShipments/approveShipmentsUpdateAllowances';
 
 describe('when given an Approved shipment, Updated allowances history record', () => {
   const historyRecord = {
