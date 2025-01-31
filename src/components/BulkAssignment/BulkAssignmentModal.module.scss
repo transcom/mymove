@@ -2,8 +2,10 @@
 
 .BulkModal {
   min-width: 650px !important;
+  max-width: 90vw;
   overflow-y: auto;
   max-height: 90vh;
+  overflow-x: hidden;
 
   button,
   :global(.usa-button){
