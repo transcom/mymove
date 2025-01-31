@@ -555,6 +555,9 @@ func init() {
             "schema": {
               "$ref": "#/definitions/IndexEntitlements"
             }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -3253,58 +3256,6 @@ func init() {
         "responses": {
           "204": {
             "description": "deleted"
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/uploads/{uploadId}/status": {
-      "get": {
-        "description": "Returns status of an upload based on antivirus run",
-        "produces": [
-          "text/event-stream"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Returns status of an upload",
-        "operationId": "getUploadStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to return status of",
-            "name": "uploadId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "the requested upload status",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "INFECTED",
-                "CLEAN",
-                "PROCESSING"
-              ],
-              "readOnly": true
-            }
           },
           "400": {
             "description": "invalid request",
@@ -9299,6 +9250,9 @@ func init() {
             "schema": {
               "$ref": "#/definitions/IndexEntitlements"
             }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -12429,58 +12383,6 @@ func init() {
         "responses": {
           "204": {
             "description": "deleted"
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/uploads/{uploadId}/status": {
-      "get": {
-        "description": "Returns status of an upload based on antivirus run",
-        "produces": [
-          "text/event-stream"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Returns status of an upload",
-        "operationId": "getUploadStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to return status of",
-            "name": "uploadId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "the requested upload status",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "INFECTED",
-                "CLEAN",
-                "PROCESSING"
-              ],
-              "readOnly": true
-            }
           },
           "400": {
             "description": "invalid request",

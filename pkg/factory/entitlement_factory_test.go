@@ -5,9 +5,12 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 )
 
 func (suite *FactorySuite) TestBuildEntitlement() {
+	fetcher := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Successful creation of default entitlement", func() {
 		// Under test:      BuildEntitlement
 		// Mocked:          None
@@ -27,7 +30,10 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 			RequiredMedicalEquipmentWeight:               1000,
 			OrganizationalClothingAndIndividualEquipment: true,
 		}
-		defEnt.SetWeightAllotment("E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		defEnt.WeightAllotted = &allotment
+
 		defEnt.DBAuthorizedWeight = defEnt.AuthorizedWeight()
 
 		// FUNCTION UNDER TEST
@@ -84,7 +90,9 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		suite.Equal(custEnt.OrganizationalClothingAndIndividualEquipment, entitlement.OrganizationalClothingAndIndividualEquipment)
 
 		// Set the weight allotment on the custom object so as to compare
-		custEnt.SetWeightAllotment("E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		custEnt.WeightAllotted = &allotment
 		custEnt.DBAuthorizedWeight = custEnt.AuthorizedWeight()
 
 		// Check that the created object had the correct allotments set
@@ -129,9 +137,10 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		testEnt := BuildEntitlement(nil, nil, nil)
 		// Set the weight allotment on the custom object to O_9
 		testEnt.DBAuthorizedWeight = nil // clear original value
-		testEnt.SetWeightAllotment("O_9", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "O_9", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		testEnt.WeightAllotted = &allotment
 		testEnt.DBAuthorizedWeight = testEnt.AuthorizedWeight()
-		// Now DBAuthorizedWeight should be appropriate for O_9 grade
 
 		// FUNCTION UNDER TEST
 		grade := internalmessages.OrderPayGrade(models.ServiceMemberGradeO9)

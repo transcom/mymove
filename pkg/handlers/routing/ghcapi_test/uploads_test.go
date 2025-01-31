@@ -1,4 +1,4 @@
-package internalapi_test
+package ghcapi_test
 
 import (
 	"net/http"
@@ -6,11 +6,12 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func (suite *InternalAPISuite) TestUploads() {
+func (suite *GhcAPISuite) TestUploads() {
 
 	suite.Run("Received status for upload, read tag without event queue", func() {
 		orders := factory.BuildOrder(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
@@ -31,7 +32,9 @@ func (suite *InternalAPISuite) TestUploads() {
 		_, err := suite.HandlerConfig().FileStorer().Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
 		suite.NoError(err)
 
-		req := suite.NewAuthenticatedMilRequest("GET", "/internal/uploads/"+uploadUser1.Upload.ID.String()+"/status", nil, orders.ServiceMember)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
+			[]roles.RoleType{roles.RoleTypeTOO})
+		req := suite.NewAuthenticatedOfficeRequest("GET", "/ghc/v1/uploads/"+uploadUser1.Upload.ID.String()+"/status", nil, officeUser)
 		rr := httptest.NewRecorder()
 
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
@@ -60,7 +63,9 @@ func (suite *InternalAPISuite) TestUploads() {
 		_, err := suite.HandlerConfig().FileStorer().Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
 		suite.NoError(err)
 
-		req := suite.NewAuthenticatedMilRequest("GET", "/internal/uploads/"+uploadUser1.Upload.ID.String()+"/status", nil, orders.ServiceMember)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
+			[]roles.RoleType{roles.RoleTypeTOO})
+		req := suite.NewAuthenticatedOfficeRequest("GET", "/ghc/v1/uploads/"+uploadUser1.Upload.ID.String()+"/status", nil, officeUser)
 		rr := httptest.NewRecorder()
 
 		fakeS3, ok := suite.HandlerConfig().FileStorer().(*storageTest.FakeS3Storage)
