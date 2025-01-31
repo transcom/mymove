@@ -40,7 +40,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
       // Find the weight restriction input and reset its value to 0
       const weightRestrictionInput = document.getElementById('weightRestrictionId');
       if (weightRestrictionInput) {
-        weightRestrictionInput.value = '0';
+        weightRestrictionInput.value = '';
       }
     }
   }, [isAdminWeightLocationChecked]);
@@ -50,7 +50,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     setIsAdminWeightLocationChecked(isChecked);
 
     if (!isChecked) {
-      setFieldValue('weightRestriction', '0');
+      setFieldValue('weightRestriction', '');
     }
   };
 
