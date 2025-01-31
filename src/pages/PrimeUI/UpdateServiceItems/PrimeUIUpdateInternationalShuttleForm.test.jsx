@@ -32,8 +32,8 @@ describe('PrimeUIUpdateInternationalShuttleForm', () => {
     expect(
       screen.getByRole('heading', { name: 'Update International Shuttle Service Item', level: 2 }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId('estimatedWeight')).toBeInTheDocument();
-    expect(screen.getByTestId('actualWeight')).toBeInTheDocument();
+    expect(screen.getByTestId('estimatedWeightInput')).toBeInTheDocument();
+    expect(screen.getByTestId('actualWeightInput')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
   });
