@@ -25,9 +25,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
-	// test that everything is wired up
 	suite.Run("requested users result in ok response", func() {
-		// building two office user with requested status
 		requestedOfficeUsers := models.OfficeUsers{
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQae}),
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQae})}
@@ -45,16 +43,143 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		response := handler.Handle(params)
 
-		// should get an ok response
 		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
 		okResponse := response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
 		suite.Len(okResponse.Payload, 2)
 		suite.Equal(requestedOfficeUsers[0].ID.String(), okResponse.Payload[0].ID.String())
 	})
+
+	suite.Run("able to search by name & email", func() {
+		requestedStatus := models.OfficeUserStatusREQUESTED
+		officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Angelina",
+					LastName:  "Jolie",
+					Email:     "laraCroft@mail.mil",
+					Status:    &requestedStatus,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser2 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Billy",
+					LastName:  "Bob",
+					Email:     "bigBob@mail.mil",
+					Status:    &requestedStatus,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTIO})
+		officeUser3 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Nick",
+					LastName:  "Cage",
+					Email:     "conAirKilluh@mail.mil",
+					Status:    &requestedStatus,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// partial first name search
+		filterJSON := "{\"search\":\"Angel\"}"
+		params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := IndexRequestedOfficeUsersHandler{
+			HandlerConfig:                  suite.HandlerConfig(),
+			NewQueryFilter:                 query.NewQueryFilter,
+			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
+			NewPagination:                  pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse := response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(officeUser1.ID.String(), okResponse.Payload[0].ID.String())
+
+		// search by first name
+		filterJSON = "{\"search\":\"Bill\"}"
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(officeUser2.ID.String(), okResponse.Payload[0].ID.String())
+
+		// email search
+		filterJSON = "{\"search\":\"conAir\"}"
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(officeUser3.ID.String(), okResponse.Payload[0].ID.String())
+	})
+
+	suite.Run("able to search by transportation office", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name: "Tinker",
+				},
+			},
+		}, nil)
+		requestedStatus := models.OfficeUserStatusREQUESTED
+		officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					TransportationOfficeID: transportationOffice.ID,
+					Status:                 &requestedStatus,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
+
+		filterJSON := "{\"offices\":\"Tinker\"}"
+		params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := IndexRequestedOfficeUsersHandler{
+			HandlerConfig:                  suite.HandlerConfig(),
+			NewQueryFilter:                 query.NewQueryFilter,
+			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
+			NewPagination:                  pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse := response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(officeUser1.ID.String(), okResponse.Payload[0].ID.String())
+	})
 }
 
 func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
-	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
 		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQae})
 		params := requestedofficeuserop.GetRequestedOfficeUserParams{

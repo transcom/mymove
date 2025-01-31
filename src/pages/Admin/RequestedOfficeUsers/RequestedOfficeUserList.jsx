@@ -1,29 +1,19 @@
 import React from 'react';
-import { Datagrid, DateField, Filter, List, ReferenceField, TextField, TextInput, TopToolbar } from 'react-admin';
+import { Datagrid, DateField, Filter, List, ReferenceField, TextField, TextInput } from 'react-admin';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
-// Overriding the default toolbar
-const ListActions = () => {
-  return <TopToolbar />;
-};
-
-const RequestedOfficeUserListFilter = () => (
-  <Filter>
-    <TextInput source="search" alwaysOn />
+const RequestedOfficeUserListFilter = (props) => (
+  <Filter {...props}>
+    <TextInput label="Search by Name/Email" source="search" alwaysOn />
+    <TextInput label="Transportation Office" source="offices" alwaysOn />
   </Filter>
 );
 
 const defaultSort = { field: 'createdAt', order: 'DESC' };
 
 const RequestedOfficeUserList = () => (
-  <List
-    pagination={<AdminPagination />}
-    perPage={25}
-    sort={defaultSort}
-    filters={<RequestedOfficeUserListFilter />}
-    actions={<ListActions />}
-  >
+  <List pagination={<AdminPagination />} perPage={25} sort={defaultSort} filters={<RequestedOfficeUserListFilter />}>
     <Datagrid bulkActionButtons={false} rowClick="show" data-testid="requested-office-user-fields">
       <TextField source="id" />
       <TextField source="email" />

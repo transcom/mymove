@@ -8,6 +8,8 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
+	pop "github.com/gobuffalo/pop/v6"
+
 	services "github.com/transcom/mymove/pkg/services"
 )
 
@@ -44,34 +46,41 @@ func (_m *RequestedOfficeUserListFetcher) FetchRequestedOfficeUsersCount(appCtx 
 	return r0, r1
 }
 
-// FetchRequestedOfficeUsersList provides a mock function with given fields: appCtx, filters, associations, pagination, ordering
-func (_m *RequestedOfficeUserListFetcher) FetchRequestedOfficeUsersList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.OfficeUsers, error) {
-	ret := _m.Called(appCtx, filters, associations, pagination, ordering)
+// FetchRequestedOfficeUsersList provides a mock function with given fields: appCtx, filterFuncs, pagination, ordering
+func (_m *RequestedOfficeUserListFetcher) FetchRequestedOfficeUsersList(appCtx appcontext.AppContext, filterFuncs []func(*pop.Query), pagination services.Pagination, ordering services.QueryOrder) (models.OfficeUsers, int, error) {
+	ret := _m.Called(appCtx, filterFuncs, pagination, ordering)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchRequestedOfficeUsersList")
 	}
 
 	var r0 models.OfficeUsers
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) (models.OfficeUsers, error)); ok {
-		return rf(appCtx, filters, associations, pagination, ordering)
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []func(*pop.Query), services.Pagination, services.QueryOrder) (models.OfficeUsers, int, error)); ok {
+		return rf(appCtx, filterFuncs, pagination, ordering)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) models.OfficeUsers); ok {
-		r0 = rf(appCtx, filters, associations, pagination, ordering)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []func(*pop.Query), services.Pagination, services.QueryOrder) models.OfficeUsers); ok {
+		r0 = rf(appCtx, filterFuncs, pagination, ordering)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.OfficeUsers)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
-		r1 = rf(appCtx, filters, associations, pagination, ordering)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []func(*pop.Query), services.Pagination, services.QueryOrder) int); ok {
+		r1 = rf(appCtx, filterFuncs, pagination, ordering)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, []func(*pop.Query), services.Pagination, services.QueryOrder) error); ok {
+		r2 = rf(appCtx, filterFuncs, pagination, ordering)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // NewRequestedOfficeUserListFetcher creates a new instance of RequestedOfficeUserListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
