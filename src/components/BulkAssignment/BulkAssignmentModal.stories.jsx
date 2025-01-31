@@ -15,12 +15,4 @@ const ConnectedTemplate = (args) => <BulkAssignmentModal {...args} />;
 export const ConnectedModal = ConnectedTemplate.bind({});
 ConnectedModal.args = {
   isOpen: true,
-  bulkAssignmentData: {
-    bulkAssignmentMoveIDs: ['1', '2', '3', '4', '5', '6', '7', '8'],
-    availableOfficeUsers: [
-      { lastName: 'Monk', firstName: 'Art', workload: 81 },
-      { lastName: 'Green', firstName: 'Darrell', workload: 28 },
-      { lastName: 'Riggins', firstName: 'John', workload: 44 },
-    ],
-  },
 };
