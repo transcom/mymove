@@ -528,7 +528,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
-
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -541,7 +540,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
-
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -554,7 +552,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
-
 		marine := models.AffiliationMARINES
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
@@ -573,7 +570,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				},
 			},
 		}, nil)
-
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
 		suite.Equal(2, len(moves))
