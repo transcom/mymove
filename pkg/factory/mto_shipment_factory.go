@@ -103,6 +103,10 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			newMTOShipment.StorageFacilityID = &storageFacility.ID
 		}
 
+		if newMTOShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && newMTOShipment.StorageFacility != nil {
+			newMTOShipment.PickupAddress = &newMTOShipment.StorageFacility.Address
+		}
+
 		if addPrimeActualWeight {
 			actualWeight := unit.Pound(980)
 			newMTOShipment.PrimeActualWeight = &actualWeight
