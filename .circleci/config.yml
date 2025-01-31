@@ -40,10 +40,10 @@ references:
 
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
-  dp3-branch: &dp3-branch integrationTesting
+  dp3-branch: &dp3-branch placeholder_branch_name
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
-  dp3-env: &dp3-env loadtest
+  dp3-env: &dp3-env placeholder_env
 
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
@@ -2617,28 +2617,28 @@ workflows:
             - compile_app_server
           filters:
             branches:
-              only: main
+              only: nolonger_main
 
       - push_app_stg:
           requires:
             - build_app
           filters:
             branches:
-              only: main
+              only: nolonger_main
 
       - push_migrations_stg:
           requires:
             - build_migrations
           filters:
             branches:
-              only: main
+              only: nolonger_main
 
       - push_tasks_stg:
           requires:
             - build_tasks
           filters:
             branches:
-              only: main
+              only: nolonger_main
 
       - check_circle_against_stg_sha:
           requires:
@@ -2656,7 +2656,7 @@ workflows:
             - integration_tests_mtls
           filters:
             branches:
-              only: main
+              only: nolonger_main
 
       - deploy_stg_migrations:
           requires:

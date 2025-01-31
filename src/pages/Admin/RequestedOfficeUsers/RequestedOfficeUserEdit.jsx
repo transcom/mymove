@@ -11,13 +11,15 @@ import {
   ReferenceInput,
   useRecordContext,
   useRedirect,
+  DeleteButton,
+  Confirm,
 } from 'react-admin';
 
 import styles from './RequestedOfficeUserShow.module.scss';
 
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { edipiValidator, phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
-import { updateRequestedOfficeUser } from 'services/adminApi';
+import { deleteOfficeUser, updateRequestedOfficeUser } from 'services/adminApi';
 import { roleTypes } from 'constants/userRoles';
 
 const RequestedOfficeUserShowTitle = () => {
@@ -62,6 +64,11 @@ const RequestedOfficeUserEdit = () => {
   const redirect = useRedirect();
   const [serverError, setServerError] = useState('');
   const [validationCheck, setValidationCheck] = useState('');
+  const [open, setOpen] = useState(false);
+  const [userData, setUserData] = useState({});
+
+  const handleClick = () => setOpen(true);
+  const handleDialogClose = () => setOpen(false);
 
   // rejects the user with all relevant updates made by admin
   // performs validation to ensure the rejection reason was provided
@@ -125,6 +132,24 @@ const RequestedOfficeUserEdit = () => {
     }
   };
 
+  // hard deletes a user and associated roles/privileges
+  // cannot be undone, but the user is shown a confirmation modal to avoid oopsies
+  const deleteUser = async () => {
+    deleteOfficeUser(userData.id)
+      .then(() => {
+        redirect('/');
+      })
+      .catch((error) => {
+        setServerError(error);
+        redirect(false);
+      });
+  };
+
+  const handleConfirm = () => {
+    deleteUser();
+    setOpen(false);
+  };
+
   // rendering tool bar with added error/validation alerts
   const renderToolBar = () => {
     return (
@@ -161,6 +186,15 @@ const RequestedOfficeUserEdit = () => {
               },
             }}
           />
+          <DeleteButton
+            mutationOptions={{
+              onSuccess: async (data) => {
+                // setting user data so we can use it in the delete function
+                setUserData(data);
+                handleClick();
+              },
+            }}
+          />
         </Toolbar>
       </>
     );
@@ -168,6 +202,13 @@ const RequestedOfficeUserEdit = () => {
 
   return (
     <Edit title={<RequestedOfficeUserShowTitle />}>
+      <Confirm
+        isOpen={open}
+        title={`Delete requested office user ${userData.firstName} ${userData.lastName}?`}
+        content="Are you sure you want to delete this user? It will delete all associated roles, privileges, and user data. This action cannot be undone."
+        onConfirm={handleConfirm}
+        onClose={handleDialogClose}
+      />
       <SimpleForm
         toolbar={renderToolBar()}
         sx={{ '& .MuiInputBase-input': { width: 232 } }}

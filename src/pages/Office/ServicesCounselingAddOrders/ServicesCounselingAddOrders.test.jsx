@@ -8,6 +8,7 @@ import { MockProviders } from 'testUtils';
 import { counselingCreateOrder } from 'services/ghcApi';
 import { setCanAddOrders } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -331,10 +332,13 @@ const fakeResponse = {
   },
 };
 
+const mockParams = { customerId: 'ea51dab0-4553-4732-b843-1f33407f77bd' };
+const mockPath = servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH;
+
 const renderWithMocks = () => {
   const testProps = { customer, setCanAddOrders: jest.fn() };
   render(
-    <MockProviders>
+    <MockProviders path={mockPath} params={mockParams}>
       <ServicesCounselingAddOrders {...testProps} />
     </MockProviders>,
   );
@@ -357,21 +361,21 @@ describe('ServicesCounselingAddOrders component', () => {
 
     const user = userEvent.setup();
 
-    await user.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    await user.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    await user.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+    await user.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText('Pay grade'), ['E-5']);
+    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
 
     // Test Current Duty Location Search Box interaction
-    await user.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 500 });
+    await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
     const selectedOptionCurrent = await screen.findByText(/Altus/);
     await user.click(selectedOptionCurrent);
 
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
     expect(counselingOfficeLabel).toBeFalsy();
 
-    await user.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 500 });
+    await user.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 500 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await user.click(selectedOptionNew);
 
@@ -395,14 +399,14 @@ describe('ServicesCounselingAddOrders component', () => {
 
     const user = userEvent.setup();
 
-    await user.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    await user.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    await user.type(screen.getByLabelText('Report by date'), '29 Nov 2020');
+    await user.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await user.type(screen.getByLabelText(/Report by date/), '29 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText('Pay grade'), ['E-5']);
+    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
 
     // Test Current Duty Location Search Box interaction
-    await user.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 500 });
+    await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
     const selectedOptionCurrent = await screen.findByText(/Hill/);
     await user.click(selectedOptionCurrent);
 
@@ -411,7 +415,7 @@ describe('ServicesCounselingAddOrders component', () => {
 
     await userEvent.selectOptions(screen.getByLabelText(/Counseling office/), ['Glendale Luke AFB']);
 
-    await user.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 500 });
+    await user.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 500 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await user.click(selectedOptionNew);
 
@@ -429,17 +433,17 @@ describe('ServicesCounselingAddOrders component', () => {
 
     const user = userEvent.setup();
 
-    await user.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    await user.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    await user.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+    await user.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText('Pay grade'), ['E-5']);
+    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
 
-    await user.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 500 });
+    await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
     const selectedOptionCurrent = await screen.findByText(/Altus/);
     await user.click(selectedOptionCurrent);
 
-    await user.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 500 });
+    await user.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 500 });
     const selectedOptionNew = await screen.findByText(/Outta This World/);
     await user.click(selectedOptionNew);
 

@@ -123,6 +123,12 @@ func unmarshalUpdateMTOServiceItem(data []byte, consumer runtime.Consumer) (Upda
 			return nil, err
 		}
 		return &result, nil
+	case "UpdateMTOServiceItemInternationalShuttle":
+		var result UpdateMTOServiceItemInternationalShuttle
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	case "UpdateMTOServiceItemSIT":
 		var result UpdateMTOServiceItemSIT
 		if err := consumer.Consume(buf2, &result); err != nil {
