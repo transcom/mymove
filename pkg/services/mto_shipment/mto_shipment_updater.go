@@ -426,6 +426,11 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	return updatedShipment, nil
 }
 
+func isPrimeActualOrEstimatedWeightInRequest(dbShipment *models.MTOShipment, newShipment *models.MTOShipment) bool {
+	return (newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight != newShipment.PrimeActualWeight) ||
+		(newShipment.PrimeEstimatedWeight != nil && dbShipment.PrimeEstimatedWeight != newShipment.PrimeEstimatedWeight)
+}
+
 // Takes the validated shipment input and updates the database using a transaction. If any part of the
 // update fails, the entire transaction will be rolled back.
 func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
@@ -768,13 +773,10 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
-		if newShipment.PrimeActualWeight != nil {
-			if dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight {
-				var err error
-				autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
-				if err != nil {
-					return err
-				}
+		if isPrimeActualOrEstimatedWeightInRequest(dbShipment, newShipment) {
+			autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+			if err != nil {
+				return err
 			}
 		}
 
