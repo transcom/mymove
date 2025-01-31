@@ -82,6 +82,8 @@ stages:
     fi
 
 .setup_aws_vars_dp3: &setup_aws_vars_dp3
+  - export SERVICE_RESERVATION_CPU=2048
+  - export SERVICE_RESERVATION_MEM=4096
   - |
     if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
       export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
@@ -514,10 +516,9 @@ deploy_storybook_dp3:
   before_script:
     - *setup_milmove_env
     - *setup_aws_vars_com_dev
-    - ls -l $CI_PROJECT_DIR/storybook-static || echo "storybook-static directory not found!"
   script:
     - echo "Deploying Storybook to S3..."
-    - ./scripts/push-storybook-assets "storybook.dp3.move.mil"
+    - ./scripts/push-storybook-assets "storybook.dp3.us"
   after_script:
     - *announce_failure
   allow_failure: true
