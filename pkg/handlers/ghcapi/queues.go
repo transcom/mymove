@@ -612,7 +612,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				}
 
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
-      case string(models.QueueTypeCloseout):
+      		case string(models.QueueTypeCloseout):
 				// fetch the Services Counselors who work at their office
 				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
 					appCtx,
