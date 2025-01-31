@@ -1299,6 +1299,7 @@ definitions:
       - MTOServiceItemOriginSIT
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
+      - MTOServiceItemInternationalShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
