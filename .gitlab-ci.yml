@@ -500,7 +500,7 @@ build_storybook:
     paths:
       - /builds/milmove/mymove/storybook-static
   rules:
-    - *check_main
+    - *check_client_ignore_branch
 
 deploy_storybook_dp3:
   stage: deploy
@@ -525,7 +525,7 @@ deploy_storybook_dp3:
     paths:
       - /builds/milmove/mymove/storybook-static
   rules:
-  - *check_main
+  - *check_client_ignore_branch
 
 compile_app_client:
   stage: build
