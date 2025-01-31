@@ -719,10 +719,6 @@ definitions:
         type: string
         format: date-time
         readOnly: true
-      deletedOn:
-        type: string
-        format: date-time
-        readOnly: true
     required:
       - id
       - firstName

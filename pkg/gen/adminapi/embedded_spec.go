@@ -2889,11 +2889,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "deletedOn": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
         "edipi": {
           "type": "string"
         },
@@ -6702,11 +6697,6 @@ func init() {
           "type": "boolean"
         },
         "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "deletedOn": {
           "type": "string",
           "format": "date-time",
           "readOnly": true
