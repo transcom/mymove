@@ -172,22 +172,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					if mtoShipment.DestinationAddress != nil {
 						addresses = append(addresses, *mtoShipment.DestinationAddress)
 					}
-
-					if mtoShipment.SecondaryPickupAddress != nil {
-						addresses = append(addresses, *mtoShipment.SecondaryPickupAddress)
-					}
-
-					if mtoShipment.TertiaryPickupAddress != nil {
-						addresses = append(addresses, *mtoShipment.TertiaryPickupAddress)
-					}
-
-					if mtoShipment.SecondaryDeliveryAddress != nil {
-						addresses = append(addresses, *mtoShipment.SecondaryDeliveryAddress)
-					}
-
-					if mtoShipment.TertiaryDeliveryAddress != nil {
-						addresses = append(addresses, *mtoShipment.TertiaryDeliveryAddress)
-					}
 				} else {
 					if mtoShipment.PPMShipment.PickupAddress != nil {
 						addresses = append(addresses, *mtoShipment.PPMShipment.PickupAddress)
@@ -195,22 +179,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 					if mtoShipment.PPMShipment.DestinationAddress != nil {
 						addresses = append(addresses, *mtoShipment.PPMShipment.DestinationAddress)
-					}
-
-					if mtoShipment.PPMShipment.SecondaryPickupAddress != nil {
-						addresses = append(addresses, *mtoShipment.PPMShipment.SecondaryPickupAddress)
-					}
-
-					if mtoShipment.PPMShipment.TertiaryPickupAddress != nil {
-						addresses = append(addresses, *mtoShipment.PPMShipment.TertiaryPickupAddress)
-					}
-
-					if mtoShipment.PPMShipment.SecondaryDestinationAddress != nil {
-						addresses = append(addresses, *mtoShipment.PPMShipment.SecondaryDestinationAddress)
-					}
-
-					if mtoShipment.PPMShipment.TertiaryDestinationAddress != nil {
-						addresses = append(addresses, *mtoShipment.PPMShipment.TertiaryDestinationAddress)
 					}
 				}
 
@@ -224,13 +192,10 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 						case apperror.UnprocessableEntityError:
 							payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
 							return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload), err
-						case apperror.InternalServerError:
+						default:
 							errStr := e.Error() // we do this because InternalServerError wants a *string
 							payload := payloads.InternalServerError(&errStr, h.GetTraceIDFromRequest(params.HTTPRequest))
 							return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payload), e
-						default:
-							return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
-								payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 						}
 					}
 				}
@@ -352,20 +317,12 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 					addresses = append(addresses, *mtoShipment.SecondaryPickupAddress)
 				}
 
-				if mtoShipment.TertiaryPickupAddress != nil {
-					addresses = append(addresses, *mtoShipment.TertiaryPickupAddress)
-				}
-
 				if mtoShipment.DestinationAddress != nil {
 					addresses = append(addresses, *mtoShipment.DestinationAddress)
 				}
 
 				if mtoShipment.SecondaryDeliveryAddress != nil {
 					addresses = append(addresses, *mtoShipment.SecondaryDeliveryAddress)
-				}
-
-				if mtoShipment.TertiaryDeliveryAddress != nil {
-					addresses = append(addresses, *mtoShipment.TertiaryDeliveryAddress)
 				}
 			} else {
 				if mtoShipment.PPMShipment.PickupAddress != nil {
@@ -376,20 +333,12 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 					addresses = append(addresses, *mtoShipment.PPMShipment.SecondaryPickupAddress)
 				}
 
-				if mtoShipment.PPMShipment.TertiaryPickupAddress != nil {
-					addresses = append(addresses, *mtoShipment.PPMShipment.TertiaryPickupAddress)
-				}
-
 				if mtoShipment.PPMShipment.DestinationAddress != nil {
 					addresses = append(addresses, *mtoShipment.PPMShipment.DestinationAddress)
 				}
 
 				if mtoShipment.PPMShipment.SecondaryDestinationAddress != nil {
 					addresses = append(addresses, *mtoShipment.PPMShipment.SecondaryDestinationAddress)
-				}
-
-				if mtoShipment.PPMShipment.TertiaryDestinationAddress != nil {
-					addresses = append(addresses, *mtoShipment.PPMShipment.TertiaryDestinationAddress)
 				}
 			}
 

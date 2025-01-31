@@ -222,13 +222,10 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 						case apperror.UnprocessableEntityError:
 							payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
 							return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload), err
-						case apperror.InternalServerError:
+						default:
 							errStr := e.Error() // we do this because InternalServerError wants a *string
 							payload := payloads.InternalServerError(&errStr, h.GetTraceIDFromRequest(params.HTTPRequest))
 							return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payload), e
-						default:
-							return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
-								payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 						}
 					}
 				}

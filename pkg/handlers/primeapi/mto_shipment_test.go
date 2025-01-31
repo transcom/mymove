@@ -101,6 +101,80 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
 	})
 
+	suite.Run("POST failure - 422 Unprocessable Entity Error Valid AK Address FF off", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		vLocationServices := address.NewVLocation()
+
+		// setting the AK flag to false and use a valid address
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		handler := UpdateShipmentDestinationAddressHandler{
+			handlerConfig,
+			&mockCreator,
+			vLocationServices,
+		}
+
+		subtestData.Body.NewAddress.City = handlers.FmtString("JUNEAU")
+		subtestData.Body.NewAddress.State = handlers.FmtString("AK")
+		subtestData.Body.NewAddress.PostalCode = handlers.FmtString("99801")
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
+	})
+
+	suite.Run("POST failure - 422 Unprocessable Entity Error Valid AK Address FF off", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		vLocationServices := address.NewVLocation()
+
+		// setting the AK flag to false and use a valid address
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		handler := UpdateShipmentDestinationAddressHandler{
+			handlerConfig,
+			&mockCreator,
+			vLocationServices,
+		}
+
+		subtestData.Body.NewAddress.City = handlers.FmtString("HONOLULU")
+		subtestData.Body.NewAddress.State = handlers.FmtString("HI")
+		subtestData.Body.NewAddress.PostalCode = handlers.FmtString("96835")
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
+	})
+
 	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
