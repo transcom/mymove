@@ -437,6 +437,18 @@ func GBLOCs(gblocs []string) ghcmessages.GBLOCs {
 	return payload
 }
 
+func CounselingOffices(counselingOffices models.TransportationOffices) ghcmessages.CounselingOffices {
+	payload := make(ghcmessages.CounselingOffices, len(counselingOffices))
+
+	for i, counselingOffice := range counselingOffices {
+		payload[i] = &ghcmessages.CounselingOffice{
+			ID:   handlers.FmtUUID(counselingOffice.ID),
+			Name: models.StringPointer(counselingOffice.Name),
+		}
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{
