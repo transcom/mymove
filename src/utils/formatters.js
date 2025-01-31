@@ -649,3 +649,19 @@ export function formatPortInfo(port) {
   }
   return '-';
 }
+
+export const userName = (user) => {
+  let formattedUser = '';
+  if (user.firstName && user.lastName) {
+    formattedUser += `${user.lastName}, `;
+    formattedUser += ` ${user.firstName}`;
+  } else {
+    if (user.firstName) {
+      formattedUser += ` ${user.firstName}`;
+    }
+    if (user.lastName) {
+      formattedUser += ` ${user.lastName}`;
+    }
+  }
+  return formattedUser;
+};
