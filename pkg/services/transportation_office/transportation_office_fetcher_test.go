@@ -750,8 +750,15 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 			},
 		},
 	}, nil)
-
-	offices, err := suite.toFetcher.FindClosestCounselingOffice(suite.AppContextForTest(), origDutyLocation.ID)
+	armyAffliation := models.AffiliationARMY
+	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &armyAffliation,
+			},
+		},
+	}, nil)
+	offices, err := suite.toFetcher.FindClosestCounselingOffice(suite.AppContextForTest(), origDutyLocation.ID, serviceMember.ID)
 	suite.NoError(err)
 	suite.Equal(offices.Name, "PPPO Jacksonville - USN")
 }
@@ -906,7 +913,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 				ServiceMemberID: serviceMember.ID,
 			})
-			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
+			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, serviceMember.ID)
 			suite.NotNil(departmentIndictor)
 			suite.Nil(err)
 			suite.Nil(departmentIndictor.DepartmentIndicator)
@@ -1100,7 +1107,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 					ServiceMemberID: serviceMember.ID,
 				})
-				offices, err := suite.toFetcher.FindClosestCounselingOffice(appCtx, dutylocation.ID)
+				offices, err := suite.toFetcher.FindClosestCounselingOffice(appCtx, dutylocation.ID, serviceMember.ID)
 				suite.NotNil(offices)
 				suite.Nil(err)
 				suite.Equal(testTransportationName, offices.Name)
@@ -1108,7 +1115,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 					ServiceMemberID: serviceMember.ID,
 				})
-				offices, err := suite.toFetcher.FindClosestCounselingOffice(appCtx, dutylocation.ID)
+				offices, err := suite.toFetcher.FindClosestCounselingOffice(appCtx, dutylocation.ID, serviceMember.ID)
 				suite.NotNil(offices)
 				suite.Nil(err)
 				suite.Equal(testTransportationName2, offices.Name)
