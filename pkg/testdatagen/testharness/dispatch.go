@@ -224,6 +224,12 @@ var actionDispatcher = map[string]actionFunc{
 	"OfficeUserWithTOOAndTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithTOOAndTIO(appCtx)
 	},
+	"RequestedOfficeUser": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeRequestedOfficeUserWithTOO(appCtx)
+	},
+	"RejectedOfficeUser": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeRejectedOfficeUserWithTOO(appCtx)
+	},
 	"WebhookSubscription": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testdatagen.MakeWebhookSubscription(appCtx.DB(), testdatagen.Assertions{})
 	},
