@@ -30,7 +30,7 @@ func (suite *ConfigSuite) TestConfigHandler() {
 
 		appCtx := suite.AppContextForTest()
 		sessionManagers := auth.SetupSessionManagers(nil, false, time.Duration(180*time.Second), time.Duration(180*time.Second))
-		handler := NewHandlerConfig(appCtx.DB(), nil, "", nil, nil, nil, nil, nil, false, nil, nil, false, ApplicationTestServername(), sessionManagers, nil)
+		handler := NewHandlerConfig(appCtx.DB(), nil, "", nil, nil, nil, nil, nil, nil, false, nil, nil, false, ApplicationTestServername(), sessionManagers, nil)
 		req, err := http.NewRequest("GET", "/", nil)
 		suite.NoError(err)
 		myMethodCalled := false
