@@ -15,6 +15,7 @@ variables:
   DOCKER_TOKEN: DOCKER_TOKEN
   registry: https://registry.hub.docker.com/
 
+  #
   #Circle CI need to replace
   #CIRCLE_PROJECT_USERNAME: "my-username"  # Replace with the actual namespace
   CIRCLE_PROJECT_REPONAME: "mymove"      # Replace with your GitLab project name
@@ -39,6 +40,8 @@ variables:
   CLIENT_IGNORE_BRANCH: &client_ignore_branch B-22106-work-on-mtls-test
   SERVER_IGNORE_BRANCH: &server_ignore_branch B-22106-work-on-mtls-test
 
+  OTEL_IMAGE_TAG: &otel_image_tag "git-$OTEL_VERSION-$CI_COMMIT_SHORT_SHA"
+
   RUNNER_TAG: &runner_tag milmove
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
 
@@ -60,7 +63,7 @@ stages:
 #set safe directory and path
 .setup_milmove_env: &setup_milmove_env
     - git config --global --add safe.directory /builds/milmove/mymove
-    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
+    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove:/builds/milmove/mymove/scripts
     - export REACT_APP_ERROR_LOGGING=otel
 
 .announce_failure: &announce_failure
@@ -80,6 +83,8 @@ stages:
     fi
 
 .setup_aws_vars_dp3: &setup_aws_vars_dp3
+  - export SERVICE_RESERVATION_CPU=2048
+  - export SERVICE_RESERVATION_MEM=4096
   - |
     if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
       export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
@@ -101,6 +106,12 @@ stages:
       export APP_ENVIRONMENT=$DP3_ENV
     fi
 
+.setup_aws_vars_com_dev: &setup_aws_vars_com_dev
+  - export AWS_DEFAULT_REGION=$COM_REGION
+  - export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID
+  - export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID
+  - export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY
+
 .setup_aws_vars_stg: &setup_aws_vars_stg
   - export AWS_DEFAULT_REGION=$STG_REGION
   - export AWS_ACCOUNT_ID=$STG_ACCOUNT_ID
@@ -119,6 +130,9 @@ stages:
   - export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID
   - export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
+  - export SERVICE_RESERVATION_CPU=2048
+  - export SERVICE_RESERVATION_MEM=8192
+
 
 .setup_tls_vars_prd: &setup_tls_vars_prd
   - export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT
@@ -316,6 +330,7 @@ sast:
   stage: pre_checks
   tags:
     - $RUNNER_TAG
+  interruptible: true
 include:
 - template: Jobs/SAST.gitlab-ci.yml
 - template: Jobs/Dependency-Scanning.gitlab-ci.yml
@@ -354,6 +369,7 @@ anti_virus:
 # This is needed for things like pdfjs-dist
 prep_server_hosted_client_deps:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -370,6 +386,7 @@ prep_server_hosted_client_deps:
 
 pre_deps_golang:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -401,6 +418,7 @@ pre_deps_golang:
 
 pre_deps_yarn:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -431,6 +449,7 @@ check_generated_code:
 
 check_tls_certificate_dp3:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE # Replace with your appropriate Docker image.
@@ -455,6 +474,7 @@ check_tls_certificate_dp3:
 
 check_tls_certificate_stg:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -469,6 +489,7 @@ check_tls_certificate_stg:
 
 check_tls_certificate_prd:
   stage: pre_checks
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -483,6 +504,7 @@ check_tls_certificate_prd:
 
 build_storybook:
   stage: build
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -511,6 +533,7 @@ build_storybook:
 
 deploy_storybook_dp3:
   stage: deploy
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -519,19 +542,22 @@ deploy_storybook_dp3:
     - build_storybook
   before_script:
     - *setup_milmove_env
+    - *setup_aws_vars_com_dev
   script:
-   - echo "TODO Add steps"
-   - echo "deploy_storybook_dp3"
+    - echo "Deploying Storybook to S3..."
+    - ./scripts/push-storybook-assets "storybook.dp3.us"
   after_script:
     - *announce_failure
+  allow_failure: true
   artifacts:
     paths:
       - /builds/milmove/mymove/storybook-static
   rules:
-    - *check_main
+  - *check_main
 
 compile_app_client:
   stage: build
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -564,6 +590,7 @@ compile_app_client:
 
 compile_app_server:
   stage: build
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -612,6 +639,7 @@ compile_app_server:
 
 pre_test:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -670,6 +698,7 @@ pre_test:
 
 server_test:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -740,6 +769,7 @@ server_test:
 
 server_test_coverage:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -770,6 +800,7 @@ server_test_coverage:
 
 client_test:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -806,6 +837,7 @@ client_test:
 
 client_test_coverage:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -829,6 +861,7 @@ client_test_coverage:
 
 integration_test_devseed:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -878,6 +911,7 @@ integration_test_devseed:
 
 integration_tests:
   stage: test
+  interruptible: true
   tags:
     - $RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -902,6 +936,7 @@ integration_tests:
 
 integration_test_mtls:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -954,6 +989,7 @@ integration_test_mtls:
 
 integration_test_admin:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -1011,6 +1047,7 @@ integration_test_admin:
 
 integration_test_my:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -1069,6 +1106,7 @@ integration_test_my:
 
 integration_test_office:
   stage: test
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
@@ -1129,6 +1167,7 @@ integration_test_office:
 ###############################################################
 build_push_app_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1144,7 +1183,7 @@ build_push_app_dp3:
     - *kaniko_before_setup
   script:
     - echo "Building and Pushing app Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:git-$CI_COMMIT_SHORT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1152,6 +1191,7 @@ build_push_app_dp3:
 
 build_push_migrations_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1167,7 +1207,7 @@ build_push_migrations_dp3:
     - *kaniko_before_setup
   script:
     - echo "Building and Pushing migrations Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:git-$CI_COMMIT_SHORT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1175,6 +1215,7 @@ build_push_migrations_dp3:
 
 build_push_tasks_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1190,7 +1231,7 @@ build_push_tasks_dp3:
     - *kaniko_before_setup
   script:
     - echo "Building tasks Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:git-$CI_COMMIT_SHORT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1198,6 +1239,7 @@ build_push_tasks_dp3:
 
 push_otel_collector_image_dp3:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1211,20 +1253,20 @@ push_otel_collector_image_dp3:
     - compile_app_server
     - compile_app_client
   script:
-     - echo "Logging in to DockerHub with Crane..."
-     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
+    - echo "Logging in to DockerHub with Crane..."
+    - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
-     - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
+    - echo "Pulling the AWS OTel Collector image from DockerHub..."
+    - crane pull ${ECR_REPOSITORY_OTEL}:${OTEL_VERSION} image.tar
 
-     - echo "Logging in to AWS ECR with Crane..."
-     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+    - echo "Logging into AWS ECR with Crane..."
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com -u AWS --password-stdin
 
-     - echo "Pushing the image to our private ECR using Crane..."
-     - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
+    - echo "Pushing the image to our private ECR using Crane..."
+    - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${OTEL_IMAGE_TAG}
 
-     - echo "Cleaning up the temporary image file..."
-     - rm image.tar
+    - echo "Cleaning up temporary image file..."
+    - rm image.tar
   allow_failure: false
   after_script:
     - *announce_failure
@@ -1233,6 +1275,7 @@ push_otel_collector_image_dp3:
 
 deploy_migrations_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1250,7 +1293,7 @@ deploy_migrations_dp3:
   script:
     # Step 1: Get the Digest
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     # Step 2: Ensure exclusive execution and Snapshot
     - echo "Snapshotting database"
     - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
@@ -1264,6 +1307,7 @@ deploy_migrations_dp3:
 
 deploy_tasks_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1280,7 +1324,7 @@ deploy_tasks_dp3:
     - *setup_release_dp3
   script:
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Deploying GHC fuel price data task service"
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
@@ -1292,6 +1336,7 @@ deploy_tasks_dp3:
 
 deploy_app_client_tls_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1314,9 +1359,9 @@ deploy_app_client_tls_dp3:
     # - echo "Comparing against deployed commit"
     # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector Digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=${OTEL_IMAGE_TAG} --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -1333,6 +1378,7 @@ deploy_app_client_tls_dp3:
 
 deploy_app_dp3:
   stage: deploy
+  resource_group: $DP3_ENV
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1364,9 +1410,9 @@ deploy_app_dp3:
         echo $GO_VERSION > .go-version
       fi
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=git-${OTEL_VERSION}-${CI_COMMIT_SHORT_SHA} --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
@@ -1387,6 +1433,7 @@ deploy_app_dp3:
 
 build_push_app_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1402,7 +1449,7 @@ build_push_app_stg:
     - *kaniko_before_setup
   script:
     - echo "Building and Pushing app Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:git-$CI_COMMIT_SHORT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1410,6 +1457,7 @@ build_push_app_stg:
 
 build_push_migrations_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1425,7 +1473,7 @@ build_push_migrations_stg:
     - *kaniko_before_setup
   script:
     - echo "Building and Pushing migrations Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:git-$CI_COMMIT_SHORT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1433,6 +1481,7 @@ build_push_migrations_stg:
 
 build_push_tasks_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1448,7 +1497,7 @@ build_push_tasks_stg:
     - *kaniko_before_setup
   script:
     - echo "Building tasks Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:git-$CI_COMMIT_SHORT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1456,6 +1505,7 @@ build_push_tasks_stg:
 
 push_otel_collector_image_stg:
   stage: push
+  interruptible: true
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1469,20 +1519,20 @@ push_otel_collector_image_stg:
     - *setup_aws_vars_stg
     - *setup_release_stg
   script:
-     - echo "Logging in to DockerHub with Crane..."
-     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
+    - echo "Logging in to DockerHub with Crane..."
+    - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
-     - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
+    - echo "Pulling the AWS OTel Collector image from DockerHub..."
+    - crane pull ${ECR_REPOSITORY_OTEL}:${OTEL_VERSION} image.tar
 
-     - echo "Logging in to AWS ECR with Crane..."
-     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+    - echo "Logging into AWS ECR with Crane..."
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com -u AWS --password-stdin
 
-     - echo "Pushing the image to our private ECR using Crane..."
-     - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
+    - echo "Pushing the image to our private ECR using Crane..."
+    - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${OTEL_IMAGE_TAG}
 
-     - echo "Cleaning up the temporary image file..."
-     - rm image.tar
+    - echo "Cleaning up temporary image file..."
+    - rm image.tar
   allow_failure: false
   after_script:
     - *announce_failure
@@ -1491,6 +1541,7 @@ push_otel_collector_image_stg:
 
 deploy_migrations_stg:
   stage: deploy
+  resource_group: staging
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1508,7 +1559,7 @@ deploy_migrations_stg:
   script:
     # Step 1: Get the Digest
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     # Step 2: Ensure exclusive execution and Snapshot
     - echo "Snapshotting database"
     - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
@@ -1522,6 +1573,7 @@ deploy_migrations_stg:
 
 deploy_tasks_stg:
   stage: deploy
+  resource_group: staging
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1538,7 +1590,7 @@ deploy_tasks_stg:
     - *setup_release_stg
   script:
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Deploying GHC fuel price data task service"
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
@@ -1550,6 +1602,7 @@ deploy_tasks_stg:
 
 deploy_app_client_tls_stg:
   stage: deploy
+  resource_group: staging
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1570,19 +1623,19 @@ deploy_app_client_tls_stg:
     # - echo "Comparing against deployed commit"
     # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector Digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=${OTEL_IMAGE_TAG} --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
     - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.move.mil" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
   after_script:
     - *announce_failure
   rules:
@@ -1590,6 +1643,7 @@ deploy_app_client_tls_stg:
 
 deploy_app_stg:
   stage: deploy
+  resource_group: staging
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1621,19 +1675,19 @@ deploy_app_stg:
         echo $GO_VERSION > .go-version
       fi
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=${OTEL_IMAGE_TAG} --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --log-level info --timeout 15m
+    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil --log-level info --timeout 15m
     - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA"
+    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil" "$CI_COMMIT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1644,6 +1698,7 @@ deploy_app_stg:
 ##############################################################################
 prod_approval:
   stage: prod_approval
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd_approval
@@ -1661,6 +1716,7 @@ prod_approval:
 
 build_push_app_prd:
   stage: push_prd
+  resource_group: production
   environment: prd
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1675,7 +1731,7 @@ build_push_app_prd:
       - *kaniko_before_setup
   script:
     - echo "Building and Pushing app Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:git-$CI_COMMIT_SHORT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1683,6 +1739,7 @@ build_push_app_prd:
 
 build_push_migrations_prd:
   stage: push_prd
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd
@@ -1699,7 +1756,7 @@ build_push_migrations_prd:
     - *kaniko_before_setup
   script:
     - echo "Building and Pushing migrations Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:git-$CI_COMMIT_SHORT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1707,6 +1764,7 @@ build_push_migrations_prd:
 
 build_push_tasks_prd:
   stage: push_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1723,7 +1781,7 @@ build_push_tasks_prd:
     - *kaniko_before_setup
   script:
     - echo "Building tasks Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:git-$CI_COMMIT_SHORT_SHA"
   after_script:
     - *announce_failure
   rules:
@@ -1731,6 +1789,7 @@ build_push_tasks_prd:
 
 push_otel_collector_image_prd:
   stage: push_prd
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd
@@ -1745,20 +1804,20 @@ push_otel_collector_image_prd:
     - *setup_aws_vars_prd
     - *setup_release_prd
   script:
-     - echo "Logging in to DockerHub with Crane..."
-     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
+    - echo "Logging in to DockerHub with Crane..."
+    - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-     - echo "Pulling the AWS OTel Collector image from Dockerhub with Crane..."
-     - crane pull $ECR_REPOSITORY_OTEL:$OTEL_VERSION image.tar
+    - echo "Pulling the AWS OTel Collector image from DockerHub..."
+    - crane pull ${ECR_REPOSITORY_OTEL}:${OTEL_VERSION} image.tar
 
-     - echo "Logging in to AWS ECR with Crane..."
-     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+    - echo "Logging into AWS ECR with Crane..."
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | crane auth login ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com -u AWS --password-stdin
 
-     - echo "Pushing the image to our private ECR using Crane..."
-     - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
+    - echo "Pushing the image to our private ECR using Crane..."
+    - crane push image.tar ${ECR_REPOSITORY_URI}/otel-collector:${OTEL_IMAGE_TAG}
 
-     - echo "Cleaning up the temporary image file..."
-     - rm image.tar
+    - echo "Cleaning up temporary image file..."
+    - rm image.tar
   allow_failure: false
   after_script:
     - *announce_failure
@@ -1767,6 +1826,7 @@ push_otel_collector_image_prd:
 
 deploy_migrations_prd:
   stage: deploy_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1784,7 +1844,7 @@ deploy_migrations_prd:
   script:
     # Step 1: Get the Digest
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     # Step 2: Ensure exclusive execution and Snapshot
     - echo "Snapshotting database"
     - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
@@ -1798,6 +1858,7 @@ deploy_migrations_prd:
 
 deploy_tasks_prd:
   stage: deploy_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1814,7 +1875,7 @@ deploy_tasks_prd:
     - *setup_release_prd
   script:
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Deploying GHC fuel price data task service"
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
@@ -1826,6 +1887,7 @@ deploy_tasks_prd:
 
 deploy_app_client_tls_prd:
   stage: deploy_prd
+  resource_group: production
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1848,19 +1910,19 @@ deploy_app_client_tls_prd:
     # - echo "Comparing against deployed commit"
     # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector Digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=${OTEL_IMAGE_TAG} --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
     - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.move.mil" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
   after_script:
     - *announce_failure
   rules:
@@ -1868,6 +1930,7 @@ deploy_app_client_tls_prd:
 
 deploy_app_prd:
   stage: deploy_prd
+  resource_group: production
   tags:
     - $RUNNER_TAG
   environment: prd
@@ -1899,19 +1962,19 @@ deploy_app_prd:
         echo $GO_VERSION > .go-version
       fi
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector digest from AWS"
-    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=${OTEL_IMAGE_TAG} --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us --log-level info --timeout 15m
+    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil --log-level info --timeout 15m
     - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.dp3.us,office.$APP_ENVIRONMENT.dp3.us,admin.$APP_ENVIRONMENT.dp3.us" "$CI_COMMIT_SHA"
+    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil" "$CI_COMMIT_SHA"
   after_script:
     - *announce_failure
   rules:
