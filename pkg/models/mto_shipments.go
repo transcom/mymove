@@ -48,6 +48,8 @@ var internationalAccessorialServiceItems = []ReServiceCode{
 	ReServiceCodeIDDSIT,
 	ReServiceCodeIDSHUT,
 	ReServiceCodeIOSHUT,
+	ReServiceCodeIOSFSC,
+	ReServiceCodeIDSFSC,
 }
 
 const (
