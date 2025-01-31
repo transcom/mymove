@@ -17,8 +17,7 @@ VALUES('3d617fab-bf6f-4f07-8ab5-f7652b8e7f3e'::uuid, 'n/a', NULL, 'NAS N ISLAND'
 
 INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_at,transportation_office_id,provides_services_counseling) VALUES
 	 ('56255626-bbbe-4834-8324-1c08f011f2f6'::uuid,'NAS N Island, CA 92135',NULL,'3d617fab-bf6f-4f07-8ab5-f7652b8e7f3e'::uuid,now(),now(),null,true),
-	 ('7156098f-13cf-4455-bcd5-eb829d57c714'::uuid,'NAS North Island, CA 92135',NULL,'8d613f71-b80e-4ad4-95e7-00781b084c7c'::uuid,now(),now(),null,true),
-	 ('6555ccb2-a8a1-4961-98cc-b507490580ed'::uuid,'San Diego, CA 92135',NULL,'cb437e3d-a2e8-4315-95c6-6da85b6c242a'::uuid,now(),now(),null,true);
+	 ('7156098f-13cf-4455-bcd5-eb829d57c714'::uuid,'NAS North Island, CA 92135',NULL,'8d613f71-b80e-4ad4-95e7-00781b084c7c'::uuid,now(),now(),null,true);
 
 --add Cannon AFB 88101 duty location
 INSERT INTO addresses
