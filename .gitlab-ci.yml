@@ -949,19 +949,22 @@ integration_test_mtls:
 
   script:
     - |
-      export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
-      export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
-      export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
-      export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
+      export MOVE_MIL_DOD_CA_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+      export MOVE_MIL_DOD_TLS_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
+      export MOVE_MIL_DOD_TLS_KEY=$(cat /builds/milmove/mymove/config/tls/devlocal-https.key)
+      export CLIENT_AUTH_SECRET_KEY=$(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
       export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
       export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
       export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
       # pull in review app settings here so we don't have to
       # reproduce them
-      sed 's,^,export ,' config/env/review.app.env > server_env
+      sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
       source server_env
 
-      # now do a few overrides
+
+    # now do a few overrides
+
+    - |
       export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
       export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
       export LOGIN_GOV_CALLBACK_PORT=4000
@@ -983,17 +986,19 @@ integration_test_mtls:
       export SERVE_PRIME_SIMULATOR=true
       export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
       export DOD_CA_PACKAGE=$PWD/config/tls/milmove-cert-bundle.p7b
-      export HTTP_ADMIN_SERVER_NAME=adminlocal
-      export HTTP_MY_SERVER_NAME=milmovelocal
-      export HTTP_OFFICE_SERVER_NAME=officelocal
-      export HTTP_ORDERS_SERVER_NAME=orderslocal
-      export HTTP_PRIME_SERVER_NAME=primelocal
+
+    # export HTTP_ADMIN_SERVER_NAME=adminlocal
+    # export HTTP_MY_SERVER_NAME=milmovelocal
+    # export HTTP_OFFICE_SERVER_NAME=officelocal
+    # export HTTP_ORDERS_SERVER_NAME=orderslocal
+    # export HTTP_PRIME_SERVER_NAME=primelocal
+    - |
       export ENVIRONMENT=test
       export MUTUAL_TLS_ENABLED=true
       export MUTUAL_TLS_PORT=9443
       export SERVE_API_PRIME=true
-      # disable for speed, tests can fail otherwise
-      export DB_DEBUG=false
+    # disable for speed, tests can fail otherwise
+    -  export DB_DEBUG=false
 
       make db_dev_create
       bin/milmove migrate
