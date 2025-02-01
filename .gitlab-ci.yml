@@ -229,6 +229,66 @@ stages:
       export ENVIRONMENT=development
       export DOD_CA_PACKAGE=/builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
 
+.setup_tests_mtls: &setup_tests_mtls
+    - |
+      export MOVE_MIL_DOD_CA_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+      export MOVE_MIL_DOD_TLS_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
+      export MOVE_MIL_DOD_TLS_KEY=$(cat /builds/milmove/mymove/config/tls/devlocal-https.key)
+      export CLIENT_AUTH_SECRET_KEY=$(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
+      export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+      export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
+      export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
+    # pull in review app settings here so we don't have to
+    # reproduce them
+    -   sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
+    -   source server_env
+
+
+    # now do a few overrides
+
+    - |
+      export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
+      export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
+      export LOGIN_GOV_CALLBACK_PORT=4000
+      export LOGIN_GOV_CALLBACK_PROTOCOL=http
+      export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
+      export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
+      export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
+      export OKTA_CUSTOMER_SECRET_KEY=notrealkey
+      export OKTA_OFFICE_SECRET_KEY=notrealkey1
+      export OKTA_ADMIN_SECRET_KEY=notrealkey2
+      export OKTA_TENANT_CALLBACK_PORT=4000
+      export OKTA_TENANT_CALLBACK_PROTOCOL=http
+      export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
+      export OKTA_API_KEY=notrealapikey
+      export OKTA_OFFICE_GROUP_ID=notrealgroupId
+      export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+
+      export SERVE_API_SUPPORT=true
+      export SERVE_PRIME_SIMULATOR=true
+      export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
+      export DOD_CA_PACKAGE=$PWD/config/tls/milmove-cert-bundle.p7b
+
+      export HTTP_ADMIN_SERVER_NAME=adminlocal
+      export HTTP_MY_SERVER_NAME=milmovelocal
+      export HTTP_OFFICE_SERVER_NAME=officelocal
+      export HTTP_ORDERS_SERVER_NAME=orderslocal
+      export HTTP_PRIME_SERVER_NAME=primelocal
+    - |
+      export ENVIRONMENT=test
+      export MUTUAL_TLS_ENABLED=true
+      export MUTUAL_TLS_PORT=9443
+      export SERVE_API_PRIME=true
+    # disable for speed, tests can fail otherwise
+    -  export DB_DEBUG=false
+
+      make db_dev_create
+      bin/milmove migrate
+      mkdir -p build
+      touch build/index.html
+      bin/milmove serve 2>&1 | tee server.log &
+
+
 .setup_server_env_variables: &setup_server_env_variables
     - |
       echo "make server_test_build for app"
@@ -946,65 +1006,8 @@ integration_test_mtls:
     - compile_app_server
   before_script:
     - *setup_milmove_env
-
+    - *setup_tests_mtls
   script:
-    - |
-      export MOVE_MIL_DOD_CA_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
-      export MOVE_MIL_DOD_TLS_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
-      export MOVE_MIL_DOD_TLS_KEY=$(cat /builds/milmove/mymove/config/tls/devlocal-https.key)
-      export CLIENT_AUTH_SECRET_KEY=$(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
-      export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
-      export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
-      export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
-    # pull in review app settings here so we don't have to
-    # reproduce them
-    -   sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
-    -   source server_env
-
-
-    # now do a few overrides
-
-    - |
-      export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
-      export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
-      export LOGIN_GOV_CALLBACK_PORT=4000
-      export LOGIN_GOV_CALLBACK_PROTOCOL=http
-      export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
-      export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
-      export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
-      export OKTA_CUSTOMER_SECRET_KEY=notrealkey
-      export OKTA_OFFICE_SECRET_KEY=notrealkey1
-      export OKTA_ADMIN_SECRET_KEY=notrealkey2
-      export OKTA_TENANT_CALLBACK_PORT=4000
-      export OKTA_TENANT_CALLBACK_PROTOCOL=http
-      export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
-      export OKTA_API_KEY=notrealapikey
-      export OKTA_OFFICE_GROUP_ID=notrealgroupId
-      export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
-
-      export SERVE_API_SUPPORT=true
-      export SERVE_PRIME_SIMULATOR=true
-      export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
-      export DOD_CA_PACKAGE=$PWD/config/tls/milmove-cert-bundle.p7b
-
-      export HTTP_ADMIN_SERVER_NAME=adminlocal
-      export HTTP_MY_SERVER_NAME=milmovelocal
-      export HTTP_OFFICE_SERVER_NAME=officelocal
-      export HTTP_ORDERS_SERVER_NAME=orderslocal
-      export HTTP_PRIME_SERVER_NAME=primelocal
-    - |
-      export ENVIRONMENT=test
-      export MUTUAL_TLS_ENABLED=true
-      export MUTUAL_TLS_PORT=9443
-      export SERVE_API_PRIME=true
-    # disable for speed, tests can fail otherwise
-    -  export DB_DEBUG=false
-
-      make db_dev_create
-      bin/milmove migrate
-      mkdir -p build
-      touch build/index.html
-      bin/milmove serve 2>&1 | tee server.log &
     - echo "integration_test_mtls"
     - echo "Waiting for server to start"
     - dockerize -wait http://milmovelocal:4000 -timeout 5m
