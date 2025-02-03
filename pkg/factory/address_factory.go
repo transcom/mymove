@@ -201,3 +201,93 @@ func GetTraitAddress4() []Customization {
 		},
 	}
 }
+
+// GetTraitAddressAKZone1 is an address in Zone 1 of AK
+func GetTraitAddressAKZone1() []Customization {
+
+	return []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "82 Joe Gibbs Rd",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "ANCHORAGE",
+				State:          "AK",
+				PostalCode:     "99695",
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}
+}
+
+// GetTraitAddressAKZone2 is an address in Zone 2 of Alaska
+func GetTraitAddressAKZone2() []Customization {
+
+	return []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "44 John Riggins Rd",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "FAIRBANKS",
+				State:          "AK",
+				PostalCode:     "99703",
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}
+}
+
+// GetTraitAddressAKZone3 is an address in Zone 3 of Alaska
+func GetTraitAddressAKZone3() []Customization {
+
+	return []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "26 Clinton Portis Rd",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "KODIAK",
+				State:          "AK",
+				PostalCode:     "99697",
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}
+}
+
+// GetTraitAddressAKZone4 is an address in Zone 4 of Alaska
+func GetTraitAddressAKZone4() []Customization {
+
+	return []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "8 Alex Ovechkin Rd",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "JUNEAU",
+				State:          "AK",
+				PostalCode:     "99801",
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}
+}
+
+// GetTraitAddressAKZone5 is an address in Zone 5 of Alaska for NSRA15 rates
+func GetTraitAddressAKZone5() []Customization {
+
+	return []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "Street Address 1",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "ANAKTUVUK",
+				State:          "AK",
+				PostalCode:     "99721",
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}
+}
