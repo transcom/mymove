@@ -597,7 +597,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		var moveWeights services.MoveWeights
 
 		// Approve international shipment
-		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
+		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights, mtoUpdater, moveRouter)
 		_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag)
 		suite.NoError(err)
 
@@ -676,7 +676,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		var moveWeights services.MoveWeights
 
 		// Approve international shipment
-		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
+		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights, mtoUpdater, moveRouter)
 		_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag)
 		suite.NoError(err)
 
