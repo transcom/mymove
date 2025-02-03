@@ -1754,7 +1754,6 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.Len(payload.AvailableOfficeUsers, 1)
 		suite.Len(payload.BulkAssignmentMoveIDs, 1)
 	})
-
 	suite.Run("TOO: returns properly formatted bulk assignment data", func() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
@@ -1805,6 +1804,79 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		params := queues.GetBulkAssignmentDataParams{
 			HTTPRequest: request,
 			QueueType:   models.StringPointer("TASK_ORDER"),
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := GetBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcherBulkAssignment(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetBulkAssignmentDataOK{}, response)
+		payload := response.(*queues.GetBulkAssignmentDataOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.AvailableOfficeUsers, 1)
+		suite.Len(payload.BulkAssignmentMoveIDs, 1)
+	})
+	suite.Run("returns properly formatted closeout bulk assignment data", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		submittedAt := time.Now()
+
+		// move to appear in the return
+		factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.PPMShipment{
+					Status:      models.PPMShipmentStatusNeedsCloseout,
+					SubmittedAt: &submittedAt,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		request := httptest.NewRequest("GET", "/queues/bulk-assignment", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetBulkAssignmentDataParams{
+			HTTPRequest: request,
+			QueueType:   models.StringPointer("CLOSEOUT"),
 		}
 		handlerConfig := suite.HandlerConfig()
 		handler := GetBulkAssignmentDataHandler{
