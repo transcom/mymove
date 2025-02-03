@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -1218,6 +1219,114 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
 		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
 	})
+
+	suite.Run("sets Sort from correct serviceItem", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		reServiceItems := make(models.ReServiceItems, 3)
+		mockReService := models.ReService{
+			ID:             reServiceID,
+			Code:           models.ReServiceCodeUBP,
+			Name:           "Test ReService",
+			ReServiceItems: &reServiceItems,
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeInternational,
+		}
+
+		reServiceItems[0] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeHHG,
+			MarketCode:   models.MarketCodeInternational,
+			Sort:         models.StringPointer("0"),
+		}
+		reServiceItems[1] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeInternational,
+			Sort:         models.StringPointer("1"),
+		}
+		reServiceItems[2] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeDomestic,
+			Sort:         models.StringPointer("2"),
+		}
+
+		mockMtoServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockMtoServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal("1", *result.Sort, "Expected to get the Sort value by matching the correct ReServiceItem using ShipmentType and MarketCode.")
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipment() {
+	suite.Run("transforms standard MTOShipment without SIT overrides", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		mtoShipment.PrimeEstimatedWeight = models.PoundPointer(1000)
+		mtoShipment.PrimeActualWeight = models.PoundPointer(1100)
+		miles := unit.Miles(1234)
+		mtoShipment.Distance = &miles
+
+		payload := MTOShipment(suite.storer, &mtoShipment, nil)
+
+		suite.NotNil(payload)
+		suite.Equal(strfmt.UUID(mtoShipment.ID.String()), payload.ID)
+		suite.Equal(handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight), payload.PrimeEstimatedWeight)
+		suite.Equal(handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight), payload.PrimeActualWeight)
+		suite.Equal(handlers.FmtInt64(1234), payload.Distance)
+		suite.Nil(payload.SitStatus)
+	})
+
+	suite.Run("SIT overrides total SIT days with SITStatus payload", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		mtoShipment.SITDaysAllowance = models.IntPointer(90)
+
+		sitStatusPayload := &ghcmessages.SITStatus{
+			TotalSITDaysUsed:   handlers.FmtInt64(int64(10)),
+			TotalDaysRemaining: handlers.FmtInt64(int64(40)),
+		}
+
+		payload := MTOShipment(suite.storer, &mtoShipment, sitStatusPayload)
+
+		suite.NotNil(payload)
+		suite.NotNil(payload.SitDaysAllowance)
+		suite.Equal(int64(50), *payload.SitDaysAllowance)
+		suite.Equal(sitStatusPayload, payload.SitStatus)
+	})
+
+	suite.Run("handles nil Distance", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		mtoShipment.Distance = nil
+
+		payload := MTOShipment(suite.storer, &mtoShipment, nil)
+		suite.Nil(payload.Distance)
+	})
+
+	suite.Run("checks scheduled dates and actual dates set", func() {
+		now := time.Now()
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ScheduledPickupDate:   &now,
+					ScheduledDeliveryDate: &now,
+					ActualPickupDate:      models.TimePointer(now.AddDate(0, 0, 1)),
+					ActualDeliveryDate:    models.TimePointer(now.AddDate(0, 0, 2)),
+				},
+			},
+		}, nil)
+		payload := MTOShipment(suite.storer, &mtoShipment, nil)
+		suite.NotNil(payload.ScheduledPickupDate)
+		suite.NotNil(payload.ScheduledDeliveryDate)
+		suite.NotNil(payload.ActualPickupDate)
+		suite.NotNil(payload.ActualDeliveryDate)
+	})
 }
 
 func (suite *PayloadsSuite) TestPort() {
@@ -1266,6 +1375,198 @@ func (suite *PayloadsSuite) TestPort() {
 		suite.Equal(portLocation.UsPostRegionCity.UsPostRegion.State.StateName, result.State)
 		suite.Equal(portLocation.UsPostRegionCity.UsprZipID, result.Zip)
 		suite.Equal(portLocation.Country.CountryName, result.Country)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipments() {
+	suite.Run("multiple shipments with partial SIT status map", func() {
+		shipment1 := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		shipment2 := factory.BuildMTOShipment(suite.DB(), nil, nil)
+
+		shipments := models.MTOShipments{shipment1, shipment2}
+
+		// SIT status map that only has SIT info for shipment2
+		sitStatusMap := map[string]*ghcmessages.SITStatus{
+			shipment2.ID.String(): {
+				TotalDaysRemaining: handlers.FmtInt64(30),
+				TotalSITDaysUsed:   handlers.FmtInt64(10),
+			},
+		}
+
+		payload := MTOShipments(suite.storer, &shipments, sitStatusMap)
+		suite.NotNil(payload)
+		suite.Len(*payload, 2)
+
+		// Shipment1 has no SIT override
+		suite.Nil((*payload)[0].SitStatus)
+
+		// Shipment2 has SIT override
+		suite.NotNil((*payload)[1].SitStatus)
+		suite.Equal(int64(40), *(*payload)[1].SitDaysAllowance)
+	})
+
+	suite.Run("nil slice returns empty payload (or nil) gracefully", func() {
+		var emptyShipments models.MTOShipments
+		payload := MTOShipments(suite.storer, &emptyShipments, nil)
+		suite.NotNil(payload)
+		suite.Len(*payload, 0)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOAgent() {
+	suite.Run("transforms a single MTOAgent", func() {
+		agent := factory.BuildMTOAgent(suite.DB(), nil, nil)
+		payload := MTOAgent(&agent)
+		suite.NotNil(payload)
+		suite.Equal(strfmt.UUID(agent.ID.String()), payload.ID)
+		suite.Equal(string(agent.MTOAgentType), payload.AgentType)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOAgents() {
+	suite.Run("transforms multiple MTOAgents", func() {
+		agent1 := factory.BuildMTOAgent(suite.DB(), nil, nil)
+		agent2 := factory.BuildMTOAgent(suite.DB(), nil, nil)
+		agents := models.MTOAgents{agent1, agent2}
+
+		payload := MTOAgents(&agents)
+		suite.Len(*payload, 2)
+		suite.Equal(strfmt.UUID(agent1.ID.String()), (*payload)[0].ID)
+		suite.Equal(strfmt.UUID(agent2.ID.String()), (*payload)[1].ID)
+	})
+
+	suite.Run("empty slice yields empty payload", func() {
+		agents := models.MTOAgents{}
+		payload := MTOAgents(&agents)
+		suite.NotNil(payload)
+		suite.Len(*payload, 0)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentRequests() {
+	suite.Run("transforms multiple PaymentRequests", func() {
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		prs := models.PaymentRequests{pr}
+
+		payload, err := PaymentRequests(suite.AppContextForTest(), &prs, suite.storer)
+		suite.NoError(err)
+		suite.Len(*payload, 1)
+		suite.Equal(strfmt.UUID(pr.ID.String()), (*payload)[0].ID)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentRequest() {
+	suite.Run("single PaymentRequest with EDI error info, GEX timestamps, TPPS data", func() {
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		pr.SentToGexAt = models.TimePointer(time.Now().Add(-1 * time.Hour))
+		pr.ReceivedByGexAt = models.TimePointer(time.Now())
+
+		tppsReport := models.TPPSPaidInvoiceReportEntry{
+			LineNetCharge:                   2500,
+			SellerPaidDate:                  time.Now(),
+			InvoiceTotalChargesInMillicents: 500000,
+		}
+		pr.TPPSPaidInvoiceReports = models.TPPSPaidInvoiceReportEntrys{tppsReport}
+
+		result, err := PaymentRequest(suite.AppContextForTest(), &pr, suite.storer)
+		suite.NoError(err)
+		suite.NotNil(result)
+		suite.NotNil(result.EdiErrorType)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItem() {
+	suite.Run("transforms PaymentServiceItem including MTOServiceItem code and name", func() {
+		psi := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
+		psi.MTOServiceItem.ReService.Code = models.ReServiceCodeDLH
+		psi.MTOServiceItem.ReService.Name = "Domestic Linehaul"
+
+		payload := PaymentServiceItem(&psi)
+		suite.NotNil(payload)
+		suite.Equal(string(models.ReServiceCodeDLH), payload.MtoServiceItemCode)
+		suite.Equal("Domestic Linehaul", payload.MtoServiceItemName)
+		suite.Equal(ghcmessages.PaymentServiceItemStatus(psi.Status), payload.Status)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItems() {
+	suite.Run("transforms multiple PaymentServiceItems with TPPS data", func() {
+		psi1 := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
+		psi2 := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
+		items := models.PaymentServiceItems{psi1, psi2}
+
+		tppsReports := models.TPPSPaidInvoiceReportEntrys{
+			{
+				ProductDescription: string(psi1.MTOServiceItem.ReService.Code),
+				LineNetCharge:      1500,
+			},
+		}
+
+		payload := PaymentServiceItems(&items, &tppsReports)
+		suite.NotNil(payload)
+		suite.Len(*payload, 2)
+		suite.Equal(int64(1500), *(*payload)[0].TppsInvoiceAmountPaidPerServiceItemMillicents)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemParam() {
+	suite.Run("transforms PaymentServiceItemParam", func() {
+		paramKey := factory.BuildServiceItemParamKey(suite.DB(), nil, nil)
+		param := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{Model: paramKey},
+		}, nil)
+
+		payload := PaymentServiceItemParam(param)
+		suite.NotNil(payload)
+	})
+
+	suite.Run("handles minimal PaymentServiceItemParam", func() {
+		param := models.PaymentServiceItemParam{}
+		payload := PaymentServiceItemParam(param)
+		suite.NotNil(payload)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemParams() {
+	suite.Run("transforms slice of PaymentServiceItemParams", func() {
+		param1 := factory.BuildPaymentServiceItemParam(suite.DB(), nil, nil)
+		param2 := factory.BuildPaymentServiceItemParam(suite.DB(), nil, nil)
+		params := models.PaymentServiceItemParams{param1, param2}
+
+		payload := PaymentServiceItemParams(&params)
+		suite.NotNil(payload)
+		suite.Len(*payload, 2)
+	})
+}
+
+func (suite *PayloadsSuite) TestServiceRequestDoc() {
+	suite.Run("transforms ServiceRequestDocument with multiple uploads", func() {
+		serviceRequest := factory.BuildServiceRequestDocument(suite.DB(), nil, nil)
+		payload, err := ServiceRequestDoc(serviceRequest, suite.storer)
+		suite.NoError(err)
+		suite.NotNil(payload)
+	})
+
+	suite.Run("handles empty list of uploads", func() {
+		serviceRequest := models.ServiceRequestDocument{}
+		payload, err := ServiceRequestDoc(serviceRequest, suite.storer)
+		suite.NoError(err)
+		suite.NotNil(payload)
+		suite.Empty(payload.Uploads)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemSingleModel() {
+	suite.Run("transforms basic MTOServiceItem with SIT data", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{Model: mtoShipment, LinkOnly: true},
+		}, nil)
+		serviceItem.SITEntryDate = models.TimePointer(time.Now().AddDate(0, 0, -2))
+
+		payload := MTOServiceItemSingleModel(&serviceItem)
+		suite.NotNil(payload)
+		suite.Equal(handlers.FmtDateTimePtr(serviceItem.SITEntryDate), payload.SitEntryDate)
 	})
 }
 
@@ -1352,5 +1653,161 @@ func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
 		suite.Equal("PDX", payload.PodLocation.PortCode, "Expected POD Port Code to match")
 		suite.Equal("PORTLAND INTL", payload.PodLocation.PortName, "Expected POD Port Name to match")
 		suite.Nil(payload.PoeLocation, "Expected PODLocation to be nil when PODLocation is set")
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemPayload() {
+	mtoServiceItemID := uuid.Must(uuid.NewV4())
+	mtoShipmentID := uuid.Must(uuid.NewV4())
+	psID := uuid.Must(uuid.NewV4())
+	reServiceCode := models.ReServiceCodeDLH
+	reServiceName := "Domestic Linehaul"
+	shipmentType := models.MTOShipmentTypeHHG
+	priceCents := unit.Cents(12345)
+	rejectionReason := models.StringPointer("Some reason")
+	status := models.PaymentServiceItemStatusDenied
+	referenceID := "REF123"
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	paymentServiceItemParams := []models.PaymentServiceItemParam{
+		{
+			ID:                   uuid.Must(uuid.NewV4()),
+			PaymentServiceItemID: psID,
+			Value:                "1000",
+		},
+	}
+
+	paymentServiceItem := models.PaymentServiceItem{
+		ID:               psID,
+		MTOServiceItemID: mtoServiceItemID,
+		MTOServiceItem: models.MTOServiceItem{
+			ID: mtoServiceItemID,
+			MTOShipment: models.MTOShipment{
+				ID:           mtoShipmentID,
+				ShipmentType: shipmentType,
+			},
+			ReService: models.ReService{
+				Code: reServiceCode,
+				Name: reServiceName,
+			},
+		},
+		PriceCents:               &priceCents,
+		RejectionReason:          rejectionReason,
+		Status:                   status,
+		ReferenceID:              referenceID,
+		PaymentServiceItemParams: paymentServiceItemParams,
+		CreatedAt:                createdAt,
+		UpdatedAt:                updatedAt,
+	}
+
+	suite.Run("Success - Returns a ghcmessages PaymentServiceItem payload", func() {
+		returnedPaymentServiceItem := PaymentServiceItem(&paymentServiceItem)
+
+		suite.NotNil(returnedPaymentServiceItem)
+		suite.IsType(&ghcmessages.PaymentServiceItem{}, returnedPaymentServiceItem)
+		suite.Equal(handlers.FmtUUID(paymentServiceItem.ID), &returnedPaymentServiceItem.ID)
+		suite.Equal(handlers.FmtUUID(paymentServiceItem.MTOServiceItemID), &returnedPaymentServiceItem.MtoServiceItemID)
+		suite.Equal(string(paymentServiceItem.MTOServiceItem.ReService.Code), returnedPaymentServiceItem.MtoServiceItemCode)
+		suite.Equal(paymentServiceItem.MTOServiceItem.ReService.Name, returnedPaymentServiceItem.MtoServiceItemName)
+		suite.Equal(ghcmessages.MTOShipmentType(paymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType), returnedPaymentServiceItem.MtoShipmentType)
+		suite.Equal(handlers.FmtUUIDPtr(paymentServiceItem.MTOServiceItem.MTOShipmentID), returnedPaymentServiceItem.MtoShipmentID)
+		suite.Equal(handlers.FmtCost(paymentServiceItem.PriceCents), returnedPaymentServiceItem.PriceCents)
+		suite.Equal(paymentServiceItem.RejectionReason, returnedPaymentServiceItem.RejectionReason)
+		suite.Equal(ghcmessages.PaymentServiceItemStatus(paymentServiceItem.Status), returnedPaymentServiceItem.Status)
+		suite.Equal(paymentServiceItem.ReferenceID, returnedPaymentServiceItem.ReferenceID)
+		suite.Equal(etag.GenerateEtag(paymentServiceItem.UpdatedAt), returnedPaymentServiceItem.ETag)
+
+		suite.Equal(len(paymentServiceItem.PaymentServiceItemParams), len(returnedPaymentServiceItem.PaymentServiceItemParams))
+		for i, param := range paymentServiceItem.PaymentServiceItemParams {
+			suite.Equal(param.Value, returnedPaymentServiceItem.PaymentServiceItemParams[i].Value)
+		}
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemsPayload() {
+	mtoServiceItemID1 := uuid.Must(uuid.NewV4())
+	mtoServiceItemID2 := uuid.Must(uuid.NewV4())
+	psID1 := uuid.Must(uuid.NewV4())
+	psID2 := uuid.Must(uuid.NewV4())
+	priceCents1 := unit.Cents(12345)
+	priceCents2 := unit.Cents(54321)
+	reServiceCode1 := models.ReServiceCodeDLH
+	reServiceCode2 := models.ReServiceCodeDOP
+	reServiceName1 := "Domestic Linehaul"
+	reServiceName2 := "Domestic Origin Pack"
+	shipmentType := models.MTOShipmentTypeHHG
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	paymentServiceItems := models.PaymentServiceItems{
+		{
+			ID:               psID1,
+			MTOServiceItemID: mtoServiceItemID1,
+			MTOServiceItem: models.MTOServiceItem{
+				ID: mtoServiceItemID1,
+				MTOShipment: models.MTOShipment{
+					ID:           uuid.Must(uuid.NewV4()),
+					ShipmentType: shipmentType,
+				},
+				ReService: models.ReService{
+					Code: reServiceCode1,
+					Name: reServiceName1,
+				},
+			},
+			PriceCents: &priceCents1,
+			CreatedAt:  createdAt,
+			UpdatedAt:  updatedAt,
+		},
+		{
+			ID:               psID2,
+			MTOServiceItemID: mtoServiceItemID2,
+			MTOServiceItem: models.MTOServiceItem{
+				ID: mtoServiceItemID2,
+				MTOShipment: models.MTOShipment{
+					ID:           uuid.Must(uuid.NewV4()),
+					ShipmentType: shipmentType,
+				},
+				ReService: models.ReService{
+					Code: reServiceCode2,
+					Name: reServiceName2,
+				},
+			},
+			PriceCents: &priceCents2,
+			CreatedAt:  createdAt,
+			UpdatedAt:  updatedAt,
+		},
+	}
+
+	// TPPSPaidInvoiceReportData
+	lineNetCharge1 := int64(200000)
+	tppsPaidReportData := models.TPPSPaidInvoiceReportEntrys{
+		{
+			ProductDescription: string(reServiceCode1),
+			LineNetCharge:      unit.Millicents(lineNetCharge1),
+		},
+	}
+
+	suite.Run("Success - Returns ghcmessages.PaymentServiceItems payload", func() {
+		returnedPaymentServiceItems := PaymentServiceItems(&paymentServiceItems, &tppsPaidReportData)
+
+		suite.NotNil(returnedPaymentServiceItems)
+		suite.Len(*returnedPaymentServiceItems, 2)
+
+		psItem1 := (*returnedPaymentServiceItems)[0]
+		suite.Equal(handlers.FmtUUID(psID1), &psItem1.ID)
+		suite.Equal(handlers.FmtCost(&priceCents1), psItem1.PriceCents)
+		suite.Equal(string(reServiceCode1), psItem1.MtoServiceItemCode)
+		suite.Equal(reServiceName1, psItem1.MtoServiceItemName)
+		suite.Equal(ghcmessages.MTOShipmentType(shipmentType), psItem1.MtoShipmentType)
+		suite.NotNil(psItem1.TppsInvoiceAmountPaidPerServiceItemMillicents)
+
+		psItem2 := (*returnedPaymentServiceItems)[1]
+		suite.Equal(handlers.FmtUUID(psID2), &psItem2.ID)
+		suite.Equal(handlers.FmtCost(&priceCents2), psItem2.PriceCents)
+		suite.Equal(string(reServiceCode2), psItem2.MtoServiceItemCode)
+		suite.Equal(reServiceName2, psItem2.MtoServiceItemName)
+		suite.Equal(ghcmessages.MTOShipmentType(shipmentType), psItem2.MtoShipmentType)
+		suite.Nil(psItem2.TppsInvoiceAmountPaidPerServiceItemMillicents)
 	})
 }
