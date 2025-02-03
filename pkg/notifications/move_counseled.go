@@ -92,7 +92,7 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	}
 
 	var weightRestriction *int64
-	if orders.Entitlement.WeightRestriction != nil {
+	if orders.Entitlement != nil && orders.Entitlement.WeightRestriction != nil {
 		weightRestrictionInt64 := int64(*orders.Entitlement.WeightRestriction)
 		weightRestriction = &weightRestrictionInt64
 	}
