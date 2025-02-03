@@ -691,7 +691,7 @@ prep_integration_docker_microservice:
     - pre_deps_yarn
     - compile_app_server
   before_script:
-    - docker login registry.csde.caci.com
+    - echo "$GITLAB_CR_TOKEN" | docker login -u gcr_user --password-stdin registry.csde.caci.com
   script:
     - docker build -t registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA} f Dockerfile_gitlabtests_dp3 .
     - docker push registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
