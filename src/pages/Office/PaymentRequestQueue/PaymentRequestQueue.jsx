@@ -195,7 +195,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
   return cols;
 };
 
-const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmentFFEnabled }) => {
+const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmentFFEnabled, activeRole }) => {
   const { queueType } = useParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
@@ -339,6 +339,7 @@ const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBul
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.PAYMENT_REQUEST}
+          activeRole={activeRole}
         />
       </div>
     );

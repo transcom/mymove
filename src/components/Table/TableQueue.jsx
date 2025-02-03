@@ -126,6 +126,7 @@ const TableQueue = ({
     currentPage,
     currentPageSize,
     viewAsGBLOC: selectedGbloc,
+    activeRole,
   });
   const tableData = useMemo(() => data, [data]);
 

@@ -1121,6 +1121,44 @@ paths:
           $ref: "#/responses/UnprocessableEntity"
         "500":
           $ref: "#/responses/ServerError"
+  '/shipments/approve':
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApproveShipments'
+      responses:
+        '200':
+          description: Successfully approved the shipments
+          schema:
+            type: array
+            items:
+              $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Approves multiple shipments in one request
+      operationId: approveShipments
+      summary: Approves multiple shipments at once
+      x-permissions:
+        - update.shipment
   "/shipments/{shipmentID}/approve":
     parameters:
       - description: ID of the shipment
@@ -2272,9 +2310,9 @@ paths:
           $ref: "#/responses/ServerError"
       tags:
         - moveTaskOrder
-      description: Changes move task order status to make it available to prime
+      description: Changes move task order status
       operationId: updateMoveTaskOrderStatus
-      summary: Change the status of a move task order to make it available to prime
+      summary: Change the status of a move task order
       x-permissions:
         - update.move
         - create.serviceItem
@@ -3512,6 +3550,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this payment request.
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
       responses:
         "200":
           description: Successfully returned all moves matching the criteria
@@ -3763,6 +3805,10 @@ paths:
           name: counselingOffice
           type: string
           description: filters using a counselingOffice name of the move
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
       responses:
         "200":
           description: Successfully returned all moves matching the criteria
@@ -3872,6 +3918,10 @@ paths:
           type: string
           description: |
             Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
       responses:
         "200":
           description: Successfully returned all moves matching the criteria
@@ -6757,6 +6807,24 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+  ApproveShipments:
+    type: object
+    properties:
+      approveShipments:
+        type: array
+        items:
+          type: object
+          properties:
+            shipmentID:
+              type: string
+              format: uuid
+            eTag:
+              type: string
+          required:
+            - shipmentID
+            - eTag
+    required:
+      - approveShipments
   MTOShipments:
     items:
       $ref: "definitions/MTOShipment.yaml"
