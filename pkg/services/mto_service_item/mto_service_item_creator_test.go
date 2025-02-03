@@ -596,7 +596,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Then create service items for CS or MS. Then try to create again.
 		// Expected outcome:
-		//             Fail, MS cannot be created if there is one already created for the move.
+		//             Return empty MTOServiceItems and continue, MS cannot be created if there is one already created for the move.
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
@@ -648,10 +648,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		createdServiceItemsMSDupe, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
 
-		fakeMTOShipmentRouterErr := apperror.NewConflictError(serviceItemMS.ID, fmt.Sprintf("for creating a service item. A service item with reServiceCode %s already exists for this move and/or shipment.", serviceItemMS.ReService.Code))
-
-		suite.Nil(createdServiceItemsMSDupe)
-		suite.Equal(fakeMTOShipmentRouterErr.Error(), err.Error())
+		suite.Nil(err)
+		suite.NotNil(createdServiceItemsMSDupe)
+		suite.Equal(*createdServiceItemsMSDupe, models.MTOServiceItems(nil))
 	})
 
 	// Should not be able to create CS or MS service items unless a shipment within the move has a requested pickup date

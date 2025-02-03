@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 
 import {
   shipments,
+  shipmentsNoApprovedDate,
   ntsExternalVendorShipments,
   ordersInfo,
   allowancesInfo,
@@ -479,6 +480,242 @@ describe('RequestedShipments', () => {
         expect(counselorRemarks.at(1).textContent).toBe('looks good');
       },
     );
+
+    it('calls approveMultipleShipments if move is not available to prime', async () => {
+      const mockOnSubmit = jest.fn((_, { onSuccess }) => {
+        return new Promise((resolve) => {
+          resolve({ response: { status: 200 } });
+        }).then(async () => {
+          await onSuccess();
+        });
+      });
+
+      const approveMultipleShipments = jest.fn(() => {
+        return new Promise((resolve) => {
+          resolve({ response: { status: 200 } });
+        });
+      });
+
+      const { container } = render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <SubmittedRequestedShipments
+            mtoShipments={shipmentsNoApprovedDate}
+            ordersInfo={ordersInfo}
+            allowancesInfo={allowancesInfo}
+            customerInfo={customerInfo}
+            moveTaskOrder={moveTaskOrder}
+            approveMTO={mockOnSubmit}
+            approveMultipleShipments={approveMultipleShipments}
+            moveCode="TE5TC0DE"
+          />
+        </MockProviders>,
+      );
+
+      const shipmentInput = container.querySelector('input[name="shipments"]');
+      await userEvent.type(shipmentInput, 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
+
+      const shipmentManagementFeeInput = screen.getByRole('checkbox', { name: 'Move management' });
+      await userEvent.click(shipmentManagementFeeInput);
+
+      const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
+      await userEvent.click(counselingFeeInput);
+      await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
+
+      await userEvent.click(screen.getByText('Approve and send'));
+
+      expect(mockOnSubmit).toHaveBeenCalled();
+      expect(mockOnSubmit.mock.calls[0]).toEqual([
+        {
+          moveTaskOrderID: moveTaskOrder.id,
+          ifMatchETag: moveTaskOrder.eTag,
+          mtoApprovalServiceItemCodes: {
+            serviceCodeCS: true,
+            serviceCodeMS: true,
+          },
+          normalize: false,
+        },
+        {
+          onSuccess: expect.any(Function),
+          onError: expect.any(Function),
+        },
+      ]);
+      expect(approveMultipleShipments).toHaveBeenCalled();
+      expect(approveMultipleShipments.mock.calls[0]).toEqual([
+        {
+          payload: [
+            {
+              shipmentID: shipments[0].id,
+              eTag: shipments[0].eTag,
+            },
+          ],
+          normalize: false,
+        },
+        {
+          onError: expect.any(Function),
+        },
+      ]);
+    });
+
+    it('calls approveMultipleShipments when move is available to prime does NOT have approveDate', async () => {
+      const mockOnSubmit = jest.fn((_, { onSuccess }) => {
+        return new Promise((resolve) => {
+          resolve({ response: { status: 200 } });
+        }).then(async () => {
+          await onSuccess();
+        });
+      });
+
+      const approveMTOShipment = jest.fn(() => {
+        return new Promise((resolve) => {
+          resolve({ response: { status: 200 } });
+        });
+      });
+      const approveMultipleShipments = jest.fn(() => {
+        return new Promise((resolve) => {
+          resolve({ response: { status: 200 } });
+        });
+      });
+
+      const { container } = render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <SubmittedRequestedShipments
+            mtoShipments={shipmentsNoApprovedDate}
+            ordersInfo={ordersInfo}
+            allowancesInfo={allowancesInfo}
+            customerInfo={customerInfo}
+            moveTaskOrder={moveTaskOrderAvailableToPrimeAt}
+            approveMTO={mockOnSubmit}
+            approveMTOShipment={approveMTOShipment}
+            approveMultipleShipments={approveMultipleShipments}
+            moveCode="TE5TC0DE"
+          />
+        </MockProviders>,
+      );
+
+      const shipmentInput = container.querySelector('input[name="shipments"]');
+      await userEvent.type(shipmentInput, 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
+
+      const shipmentManagementFeeInput = screen.getByRole('checkbox', { name: 'Move management' });
+      await userEvent.click(shipmentManagementFeeInput);
+
+      const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
+      await userEvent.click(counselingFeeInput);
+      await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
+
+      await userEvent.click(screen.getByText('Approve and send'));
+
+      expect(mockOnSubmit).toHaveBeenCalled();
+      expect(mockOnSubmit.mock.calls[0]).toEqual([
+        {
+          moveTaskOrderID: moveTaskOrder.id,
+          ifMatchETag: moveTaskOrder.eTag,
+          mtoApprovalServiceItemCodes: {
+            serviceCodeCS: true,
+            serviceCodeMS: false,
+          },
+          normalize: false,
+        },
+        {
+          onSuccess: expect.any(Function),
+          onError: expect.any(Function),
+        },
+      ]);
+      expect(approveMultipleShipments).toHaveBeenCalled();
+      expect(approveMultipleShipments.mock.calls[0]).toEqual([
+        {
+          payload: [
+            {
+              shipmentID: shipments[0].id,
+              eTag: shipments[0].eTag,
+            },
+          ],
+          normalize: false,
+        },
+        {
+          onError: expect.any(Function),
+        },
+      ]);
+      expect(approveMTOShipment).not.toHaveBeenCalled();
+    });
+
+    it('calls approveMTOShipment when move is available to prime and has approveDate', async () => {
+      const mockOnSubmit = jest.fn((_, { onSuccess }) => {
+        return new Promise((resolve) => {
+          resolve({ response: { status: 200 } });
+        }).then(async () => {
+          await onSuccess();
+        });
+      });
+
+      const approveMTOShipment = jest.fn(() => {
+        return new Promise((resolve) => {
+          resolve({ response: { status: 200 } });
+        });
+      });
+      const approveMultipleShipments = jest.fn(() => {
+        return new Promise((resolve) => {
+          resolve({ response: { status: 200 } });
+        });
+      });
+
+      const { container } = render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <SubmittedRequestedShipments
+            mtoShipments={shipments}
+            ordersInfo={ordersInfo}
+            allowancesInfo={allowancesInfo}
+            customerInfo={customerInfo}
+            moveTaskOrder={moveTaskOrderAvailableToPrimeAt}
+            approveMTO={mockOnSubmit}
+            approveMTOShipment={approveMTOShipment}
+            approveMultipleShipments={approveMultipleShipments}
+            moveCode="TE5TC0DE"
+          />
+        </MockProviders>,
+      );
+
+      const shipmentInput = container.querySelector('input[name="shipments"]');
+      await userEvent.type(shipmentInput, 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
+
+      const shipmentManagementFeeInput = screen.getByRole('checkbox', { name: 'Move management' });
+      await userEvent.click(shipmentManagementFeeInput);
+
+      const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
+      await userEvent.click(counselingFeeInput);
+      await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
+
+      await userEvent.click(screen.getByText('Approve and send'));
+
+      expect(mockOnSubmit).toHaveBeenCalled();
+      expect(mockOnSubmit.mock.calls[0]).toEqual([
+        {
+          moveTaskOrderID: moveTaskOrder.id,
+          ifMatchETag: moveTaskOrder.eTag,
+          mtoApprovalServiceItemCodes: {
+            serviceCodeCS: true,
+            serviceCodeMS: false,
+          },
+          normalize: false,
+        },
+        {
+          onSuccess: expect.any(Function),
+          onError: expect.any(Function),
+        },
+      ]);
+      expect(approveMTOShipment).toHaveBeenCalled();
+      expect(approveMTOShipment.mock.calls[0]).toEqual([
+        {
+          shipmentID: shipments[0].id,
+          ifMatchETag: shipments[0].eTag,
+          operationPath: 'shipment.approveShipmentDiversion',
+          normalize: false,
+        },
+        {
+          onError: expect.any(Function),
+        },
+      ]);
+      expect(approveMultipleShipments).not.toHaveBeenCalled();
+    });
   });
 
   describe('External vendor shipments', () => {
