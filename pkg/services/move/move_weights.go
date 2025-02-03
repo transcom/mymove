@@ -263,15 +263,15 @@ func calculateSumOfWeights(move models.Move, updatedShipment *models.MTOShipment
 }
 
 // GetAutoReweighShipments returns all shipments that need to be reweighed
-func GetAutoReweighShipments(move *models.Move, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
+func (w moveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
 	results := models.MTOShipments{}
-	weightLimit := 0
 
-	if move.Orders.Entitlement.DBAuthorizedWeight != nil {
-		weightLimit = *move.Orders.Entitlement.DBAuthorizedWeight
-	} else {
-		return nil, errors.New("No Authorized Weight could be found when checking for auto-reweigh on " + move.ID.String())
+	totalWeightAllowance, err := w.WeightAllotmentFetcher.GetWeightAllotment(appCtx, string(*move.Orders.Grade), move.Orders.OrdersType)
+	if err != nil {
+		return nil, err
 	}
+
+	maxWeight := int(math.Round(float64(totalWeightAllowance.TotalWeightSelfPlusDependents) * 0.9))
 
 	totalActualWeight := 0
 	totalEstimatedWeight := 0
@@ -299,12 +299,12 @@ func GetAutoReweighShipments(move *models.Move, updatedShipment *models.MTOShipm
 	}
 
 	// Check actual weight first
-	if int(totalActualWeight) >= int(math.Round(float64(weightLimit)*0.9)) {
+	if int(totalActualWeight) >= maxWeight {
 		return results, nil
 	}
 
 	// Check estimated weight second
-	if int(totalEstimatedWeight) >= int(math.Round(float64(weightLimit)*0.9)) {
+	if int(totalEstimatedWeight) >= maxWeight {
 		return results, nil
 	}
 
@@ -326,7 +326,7 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		return nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	autoReweighShipments, err := GetAutoReweighShipments(&move, updatedShipment)
+	autoReweighShipments, err := w.GetAutoReweighShipments(appCtx, &move, updatedShipment)
 	if err != nil {
 		return nil, err
 	}
