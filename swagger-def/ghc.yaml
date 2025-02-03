@@ -3512,6 +3512,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this payment request.
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
       responses:
         "200":
           description: Successfully returned all moves matching the criteria
@@ -3734,6 +3738,10 @@ paths:
           name: counselingOffice
           type: string
           description: filters using a counselingOffice name of the move
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
       responses:
         "200":
           description: Successfully returned all moves matching the criteria
@@ -3843,6 +3851,10 @@ paths:
           type: string
           description: |
             Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
       responses:
         "200":
           description: Successfully returned all moves matching the criteria
@@ -4145,7 +4157,7 @@ paths:
           $ref: "#/responses/NotFound"
         "500":
           $ref: "#/responses/ServerError"
-  /transportation_offices/{dutyLocationId}/counseling_offices:
+  /transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}:
     get:
       summary: Returns the counseling locations in the GBLOC matching the duty location
       description: Returns the counseling locations matching the GBLOC from the selected duty location
@@ -4159,6 +4171,12 @@ paths:
           type: string
           required: true
           description: UUID of the duty location
+        - in: path
+          name: serviceMemberId
+          format: uuid
+          type: string
+          required: true
+          description: UUID of the service member, some counseling offices are branch specific
       produces:
         - application/json
       responses:
@@ -4166,6 +4184,12 @@ paths:
           description: Successfully retrieved counseling offices
           schema:
             $ref: '#/definitions/CounselingOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
         '500':
           description: internal server error
   /uploads:
