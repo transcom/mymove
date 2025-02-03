@@ -617,9 +617,6 @@ func Order(order *models.Order) *ghcmessages.Order {
 
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
-	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
-	}
 	entitlements := Entitlement(order.Entitlement)
 
 	var deptIndicator ghcmessages.DeptIndicator
@@ -1864,6 +1861,15 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 			serviceRequestDocs[i] = payload
 		}
 	}
+	var sort *string
+	if s.ReService.ReServiceItems != nil {
+		for _, reServiceItem := range *s.ReService.ReServiceItems {
+			if s.MTOShipment.MarketCode == reServiceItem.MarketCode && s.MTOShipment.ShipmentType == reServiceItem.ShipmentType {
+				sort = reServiceItem.Sort
+				break
+			}
+		}
+	}
 	payload := &ghcmessages.MTOServiceItem{
 		ID:                            handlers.FmtUUID(s.ID),
 		MoveTaskOrderID:               handlers.FmtUUID(s.MoveTaskOrderID),
@@ -1879,6 +1885,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDepartureDate:              handlers.FmtDateTimePtr(s.SITDepartureDate),
 		SitCustomerContacted:          handlers.FmtDatePtr(s.SITCustomerContacted),
 		SitRequestedDelivery:          handlers.FmtDatePtr(s.SITRequestedDelivery),
+		Sort:                          sort,
 		Status:                        ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:                   handlers.FmtStringPtr(s.Description),
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),

@@ -25,6 +25,7 @@ import (
 const RFC3339Micro = "2006-01-02T15:04:05.999999Z07:00"
 
 type orderFetcher struct {
+	waf services.WeightAllotmentFetcher
 }
 
 // QueryOption defines the type for the functional arguments used for private functions in OrderFetcher
@@ -607,8 +608,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 }
 
 // NewOrderFetcher creates a new struct with the service dependencies
-func NewOrderFetcher() services.OrderFetcher {
-	return &orderFetcher{}
+func NewOrderFetcher(weightAllotmentFetcher services.WeightAllotmentFetcher) services.OrderFetcher {
+	return &orderFetcher{waf: weightAllotmentFetcher}
 }
 
 // FetchOrder retrieves an Order for a given UUID
@@ -630,6 +631,15 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 		default:
 			return &models.Order{}, apperror.NewQueryError("Order", err, "")
 		}
+	}
+
+	// Construct weight allotted if grade is present
+	if order.Grade != nil {
+		allotment, err := f.waf.GetWeightAllotment(appCtx, string(*order.Grade), order.OrdersType)
+		if err != nil {
+			return nil, err
+		}
+		order.Entitlement.WeightAllotted = &allotment
 	}
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
