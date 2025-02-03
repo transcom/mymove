@@ -151,7 +151,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	tppsFilename := ""
 	logger.Info(tppsFilename)
 
-	timezone, err := time.LoadLocation("America/New_York")
+	timezone, err := time.LoadLocation("UTC")
 	if err != nil {
 		logger.Error("Error loading timezone for process-tpps ECS task", zap.Error(err))
 	}
@@ -163,9 +163,17 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		// process the filename for yesterday's date (like the TPPS lambda does)
 		// the previous day's TPPS payment file should be available on external server
 		yesterday := time.Now().In(timezone).AddDate(0, 0, -1)
+		logger.Info(fmt.Sprintf("yesterday: %s\n", yesterday))
+
 		previousDay := yesterday.Format("20060102")
+		logger.Info(fmt.Sprintf("previousDay: %s\n", previousDay))
+
 		tppsFilename = fmt.Sprintf("MILMOVE-en%s.csv", previousDay)
+		logger.Info(fmt.Sprintf("tppsFilename: %s\n", tppsFilename))
+
 		previousDayFormatted := yesterday.Format("January 02, 2006")
+		logger.Info(fmt.Sprintf("previousDayFormatted: %s\n", previousDayFormatted))
+
 		logger.Info(fmt.Sprintf("Starting transfer of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
 	} else {
 		logger.Info("Custom filepath provided to process")
