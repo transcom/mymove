@@ -162,7 +162,7 @@ stages:
   echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
 
 .check_dp3: &check_dp3
- - if: (($DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo") && $DP3_BRANCH == $CI_COMMIT_BRANCH)
+  - if: (($DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo") && $DP3_BRANCH == $CI_COMMIT_BRANCH)
 
 .check_main: &check_main
   - if: '$CI_COMMIT_BRANCH == "main"'
