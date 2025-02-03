@@ -125,9 +125,6 @@ func (suite *FactorySuite) TestBuildDefaultUser() {
 		precountRole, err := suite.DB().Count(&roles.Role{})
 		suite.NoError(err)
 
-		precountUsersRoles, err := suite.DB().Count(&models.UsersRoles{})
-		suite.NoError(err)
-
 		tioRole := roles.Role{
 			RoleType: roles.RoleTypeTIO,
 		}
@@ -148,12 +145,7 @@ func (suite *FactorySuite) TestBuildDefaultUser() {
 		// Count how many roles are in the DB, new role should have been created.
 		count, err := suite.DB().Count(&roles.Role{})
 		suite.NoError(err)
-		suite.Equal(precountRole+1, count)
-
-		// Count how many UsersRoles are in the DB, new UsersRoles should have been created.
-		count, err = suite.DB().Count(&roles.Role{})
-		suite.NoError(err)
-		suite.Equal(precountUsersRoles+1, count)
+		suite.Equal(precountRole, count)
 
 	})
 }

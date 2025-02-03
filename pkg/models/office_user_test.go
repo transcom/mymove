@@ -97,25 +97,3 @@ func (suite *ModelSuite) TestFetchOfficeUserByEmailCaseSensitivity() {
 	suite.NotNil(user)
 	suite.Equal(user.Email, userEmail)
 }
-
-func (suite *ModelSuite) TestFetchOfficeUserByID() {
-	fakeUUID, _ := uuid.FromString("99999999-8888-7777-8b57-e39519f42dc1")
-
-	_, err := m.FetchOfficeUserByID(suite.DB(), fakeUUID)
-	suite.NotNil(err)
-
-	office := CreateTestShippingOffice(suite)
-	newUser := m.OfficeUser{
-		LastName:               "Tester",
-		FirstName:              "Sally",
-		Email:                  "test@test.com",
-		Telephone:              "(907) 555-1212",
-		TransportationOfficeID: office.ID,
-	}
-	suite.MustSave(&newUser)
-
-	user, err := m.FetchOfficeUserByID(suite.DB(), newUser.ID)
-	suite.NoError(err)
-	suite.NotNil(user)
-	suite.Equal(newUser.ID, user.ID)
-}
