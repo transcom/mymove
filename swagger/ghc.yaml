@@ -7440,6 +7440,7 @@ definitions:
         type: boolean
       workload:
         type: integer
+        x-omitempty: false
   BulkAssignmentData:
     type: object
     properties:
