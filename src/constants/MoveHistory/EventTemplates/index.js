@@ -1,4 +1,5 @@
 export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
+export { default as acknowledgeExcessUnaccompaniedBaggageWeightRisk } from './AcknowledgeExcessUnaccompaniedBaggageWeightRisk/acknowledgeExcessUnaccompaniedBaggageWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
 export { default as approveShipmentDiversion } from './ApproveShipmentDiversion/approveShipmentDiversion';
 export { default as createBasicServiceItem } from './UpdateMoveTaskOrderStatus/createBasicServiceItem';
@@ -29,6 +30,7 @@ export { default as updateBillableWeightAsTIO } from './UpdateBillableWeight/upd
 export { default as updateBillableWeightRemarksAsTIO } from './UpdateBillableWeight/updateBillableWeightRemarksAsTIO';
 export { default as updateMoveTaskOrderStatus } from './UpdateMoveTaskOrderStatus/updateMoveTaskOrderStatus';
 export { default as updateMTOServiceItem } from './UpdateMTOServiceItem/updateMTOServiceItem';
+export { default as updateServiceItemPricingAndWeights } from './UpdateMTOServiceItem/updateServiceItemPricingAndWeights';
 export { default as updateMTOShipment } from './UpdateMTOShipment/updateMTOShipment';
 export { default as updateMTOShipmentAgent } from './UpdateMTOShipment/updateMTOShipmentAgent';
 export { default as updateMTOShipmentDeprecatePaymentRequest } from './UpdateMTOShipment/updateMTOShipmentDeprecatePaymentRequest';
@@ -109,3 +111,4 @@ export { default as moveCancelerPPMShipments } from './MoveCanceler/MoveCanceler
 export { default as cancelMove } from './CancelMove/CancelMove';
 export { default as cancelMoveMTOShipments } from './CancelMove/CancelMoveMTOShipments';
 export { default as cancelMovePPMShipments } from './CancelMove/CancelMovePPMShipments';
+export { default as reviewShipmentAddressUpdate } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdate';
