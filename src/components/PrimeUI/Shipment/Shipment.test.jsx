@@ -432,6 +432,11 @@ const ppmShipment = {
     status: 'SUBMITTED',
     submittedAt: '2022-07-01T13:41:33.252Z',
     updatedAt: '2022-07-01T14:23:19.780Z',
+    originRateArea: {
+      id: 'bfe61147-5fd7-426e-b473-54ccf77bde38',
+      rateAreaName: 'Kentucky',
+      rateAreaId: 'US28',
+    },
     pickupAddress: {
       streetAddress1: '111 Test Street',
       streetAddress2: '222 Test Street',
@@ -447,6 +452,11 @@ const ppmShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42702',
+    },
+    destinationRateArea: {
+      id: 'bfe61147-5fd7-426e-b473-54ccf77bde38',
+      rateAreaName: 'Kentucky',
+      rateAreaId: 'US28',
     },
     destinationAddress: {
       streetAddress1: '222 Test Street',
@@ -568,6 +578,28 @@ describe('PPM shipments are handled', () => {
 
     field = screen.queryByText('Actual Spouse Pro Gear Weight:');
     expect(field).not.toBeInTheDocument();
+  });
+
+  it('PPM displays rate areas', async () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={ppmShipment} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    let field = screen.getByText('Origin Rate Area:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toContain(ppmShipment.ppmShipment.originRateArea.rateAreaName);
+    expect(field.nextElementSibling.nextElementSibling.textContent).toContain(
+      ppmShipment.ppmShipment.originRateArea.rateAreaId,
+    );
+
+    field = screen.getByText('Destination Rate Area:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toContain(ppmShipment.ppmShipment.destinationRateArea.rateAreaName);
+    expect(field.nextElementSibling.nextElementSibling.textContent).toContain(
+      ppmShipment.ppmShipment.destinationRateArea.rateAreaId,
+    );
   });
 
   it('PPM can be deleted', async () => {
