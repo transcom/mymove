@@ -9,7 +9,11 @@ import {
   TextInput,
   TopToolbar,
   useRecordContext,
+  downloadCSV,
+  useListController,
+  ExportButton,
 } from 'react-admin';
+import * as jsonexport from 'jsonexport/dist';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
@@ -28,9 +32,42 @@ const RejectedOfficeUserShowRoles = () => {
   return <p>{uniqueRoleNamesList.join(', ')}</p>;
 };
 
+// Custom exporter to flatten out role  types
+const exporter = (data) => {
+  const usersForExport = data.map((rowData) => {
+    const { roles, email, firstName, lastName, status, rejectionReason, rejectedOn } = rowData;
+
+    const flattenedRoles = roles ? [...new Set(roles.map((role) => role.roleName))].join(',') : '';
+
+    return {
+      email,
+      firstName,
+      lastName,
+      status,
+      rejectionReason,
+      rejectedOn,
+
+      roles: flattenedRoles,
+    };
+  });
+
+  // convert data to csv and download
+  jsonexport(usersForExport, {}, (err, csv) => {
+    if (err) throw err;
+    downloadCSV(csv, 'rejected-office-users');
+  });
+};
+
 // Overriding the default toolbar
 const ListActions = () => {
-  return <TopToolbar />;
+  // return <TopToolbar />;
+  const { total, resource, sort, filterValues } = useListController();
+
+  return (
+    <TopToolbar>
+      <ExportButton disabled={total === 0} resource={resource} sort={sort} filter={filterValues} exporter={exporter} />
+    </TopToolbar>
+  );
 };
 
 const RejectedOfficeUserListFilter = () => (
