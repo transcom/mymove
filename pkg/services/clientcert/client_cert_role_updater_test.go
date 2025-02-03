@@ -13,14 +13,6 @@ func (suite *ClientCertServiceSuite) TestClientCertRoleUpdater() {
 	associator := usersroles.NewUsersRolesCreator()
 
 	suite.Run("Cert with allow prime, user without prime role", func() {
-		// make sure the prime role exists
-		factory.BuildRole(suite.DB(), []factory.Customization{
-			{
-				Model: roles.Role{
-					RoleType: roles.RoleTypePrime,
-				},
-			},
-		}, nil)
 
 		clientCert := factory.BuildClientCert(suite.DB(), []factory.Customization{
 			{
@@ -44,14 +36,6 @@ func (suite *ClientCertServiceSuite) TestClientCertRoleUpdater() {
 	})
 
 	suite.Run("Cert without allow prime, user without prime role", func() {
-		// make sure the prime role exists
-		factory.BuildRole(suite.DB(), []factory.Customization{
-			{
-				Model: roles.Role{
-					RoleType: roles.RoleTypePrime,
-				},
-			},
-		}, nil)
 
 		clientCert := factory.BuildClientCert(suite.DB(), []factory.Customization{
 			{
@@ -74,14 +58,6 @@ func (suite *ClientCertServiceSuite) TestClientCertRoleUpdater() {
 	})
 
 	suite.Run("Cert removed, user without prime role", func() {
-		// make sure the prime role exists
-		factory.BuildRole(suite.DB(), []factory.Customization{
-			{
-				Model: roles.Role{
-					RoleType: roles.RoleTypePrime,
-				},
-			},
-		}, nil)
 
 		user := factory.BuildUser(suite.DB(), nil, nil)
 
@@ -98,14 +74,6 @@ func (suite *ClientCertServiceSuite) TestClientCertRoleUpdater() {
 	})
 
 	suite.Run("Cert removed, user with prime role and another cert", func() {
-		// make sure the prime role exists
-		factory.BuildRole(suite.DB(), []factory.Customization{
-			{
-				Model: roles.Role{
-					RoleType: roles.RoleTypePrime,
-				},
-			},
-		}, nil)
 
 		clientCert := factory.BuildClientCert(suite.DB(), []factory.Customization{
 			{
@@ -140,14 +108,6 @@ func (suite *ClientCertServiceSuite) TestClientCertRoleUpdater() {
 	})
 
 	suite.Run("Cert removed, user with prime role and another cert without prime", func() {
-		// make sure the prime role exists
-		factory.BuildRole(suite.DB(), []factory.Customization{
-			{
-				Model: roles.Role{
-					RoleType: roles.RoleTypePrime,
-				},
-			},
-		}, nil)
 
 		clientCert := factory.BuildClientCert(suite.DB(), []factory.Customization{
 			{

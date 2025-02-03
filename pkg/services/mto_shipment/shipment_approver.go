@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"math"
+	"slices"
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -80,7 +81,8 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create international shipment service items before approving
 		// we use a database proc to create the basic auto-approved service items
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.MarketCode == models.MarketCodeInternational {
+		internationalShipmentTypes := []models.MTOShipmentType{models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGIntoNTS, models.MTOShipmentTypeUnaccompaniedBaggage}
+		if slices.Contains(internationalShipmentTypes, shipment.ShipmentType) && shipment.MarketCode == models.MarketCodeInternational {
 			err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
 			if err != nil {
 				return err
@@ -106,7 +108,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 						destZip = shipment.DestinationAddress.PostalCode
 					}
 					// we need to get the mileage from DTOD first, the db proc will consume that
-					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
 					if err != nil {
 						return err
 					}
