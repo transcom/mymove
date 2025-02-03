@@ -115,6 +115,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		transportaionOfficeAssignmentUpdater,
 	}
 
+	adminAPI.OfficeUsersDeleteOfficeUserHandler = DeleteOfficeUserHandler{
+		handlerConfig,
+		officeuser.NewOfficeUserDeleter(queryBuilder),
+	}
+
 	adminAPI.TransportationOfficesIndexOfficesHandler = IndexOfficesHandler{
 		handlerConfig,
 		office.NewOfficeListFetcher(queryBuilder),

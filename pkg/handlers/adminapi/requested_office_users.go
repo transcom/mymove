@@ -325,7 +325,7 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 			roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *requestedOfficeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
-				return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), err
+				return requested_office_users.NewGetRequestedOfficeUserInternalServerError(), err
 			}
 
 			requestedOfficeUser.User.Roles = roles
@@ -336,7 +336,7 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 		})
 }
 
-// GetRequestedOfficeUserHandler returns a list of office users via GET /requested_office_users/{officeUserId}
+// UpdateRequestedOfficeUserHandler updates a requested office user via PATCH /requested_office_users/{officeUserId}
 type UpdateRequestedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserUpdater
