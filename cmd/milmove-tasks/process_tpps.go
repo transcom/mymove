@@ -1,10 +1,20 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"io"
+	"log"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/smithy-go"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -98,12 +108,6 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		logger.Info(fmt.Sprintf("Duration of processTPPS task:: %v", elapsedTime))
 	}()
 
-	// initProcessTPPSFlags(flag)
-	// err = flag.Parse(os.Args[1:])
-	// if err != nil {
-	// 	log.Fatal("failed to parse flags", zap.Error(err))
-	// }
-
 	err = checkProcessTPPSConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
@@ -116,12 +120,6 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	}
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
-	// dbEnv := v.GetString(cli.DbEnvFlag)
-
-	// isDevOrTest := dbEnv == "experimental" || dbEnv == "development" || dbEnv == "test"
-	// if isDevOrTest {
-	// 	logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
-	// }
 
 	// certLogger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	// if err != nil {
@@ -135,19 +133,23 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	tppsInvoiceProcessor := invoice.NewTPPSPaidInvoiceReportProcessor()
 
 	// Process TPPS paid invoice report
+	// The daily run of the task will process the previous day's payment file (matching the TPPS lambda schedule of working with the previous day's file).
+	// Example for running the task February 3, 2025 - we process February 2's payment file: MILMOVE-en20250202.csv
+
+	// Should we need to process a filename from a specific day instead of the daily scheduled run:
+	// 1. Find the ProcessTPPSCustomDateFile in the AWS parameter store
+	// 2. Verify that it has default value of "MILMOVE-enYYYYMMDD.csv"
+	// 3. Fill in the YYYYMMDD with the desired date value of the file needing processed
+	// 4. Manually run the process-tpps task
+	// 5. *IMPORTANT*: Set the ProcessTPPSCustomDateFile value back to default value of "MILMOVE-enYYYYMMDD.csv" in the environment that it was modified in
+
 	s3BucketTPPSPaidInvoiceReport := v.GetString(cli.ProcessTPPSInvoiceReportPickupDirectory)
+	logger.Info(fmt.Sprintf("s3BucketTPPSPaidInvoiceReport: %s\n", s3BucketTPPSPaidInvoiceReport))
 
-	// Handling errors with processing a file or wanting to process specific TPPS payment file:
+	customFilePathToProcess := v.GetString(cli.ProcessTPPSCustomDateFile)
+	logger.Info(fmt.Sprintf("customFilePathToProcess: %s\n", customFilePathToProcess))
 
-	// TODO have a parameter stored in s3 (customFilePathToProcess) that we could modify to have a specific date, should we need to rerun a filename from a specific day
-	// the parameter value will be 'MILMOVE-enYYYYMMDD.csv' so that it's easy to look at the param value and know
-	// the filepath format needed to grab files from the SFTP server (example filename = MILMOVE-en20241227.csv)
-
-	customFilePathToProcess := "MILMOVE-enYYYYMMDD.csv" // TODO replace with the line below after param added to AWS
-	// customFilePathToProcess := v.GetString(cli.TODOAddcustomFilePathToProcessParamHere)
-
-	// The param will normally be MILMOVE-enYYYYMMDD.csv, so have a check in this function for if it's MILMOVE-enYYYYMMDD.csv
-	tppsSFTPFileFormatNoCustomDate := "MILMOVE-enYYYYMMDD.csv"
+	const tppsSFTPFileFormatNoCustomDate = "MILMOVE-enYYYYMMDD.csv"
 	tppsFilename := ""
 	logger.Info(tppsFilename)
 
@@ -157,29 +159,17 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	}
 
 	logger.Info(tppsFilename)
-	if customFilePathToProcess == tppsSFTPFileFormatNoCustomDate {
+	if customFilePathToProcess == tppsSFTPFileFormatNoCustomDate || customFilePathToProcess == "" {
+		// Process the previous day's payment file
 		logger.Info("No custom filepath provided to process, processing payment file for yesterday's date.")
-		// if customFilePathToProcess = MILMOVE-enYYYYMMDD.csv
-		// process the filename for yesterday's date (like the TPPS lambda does)
-		// the previous day's TPPS payment file should be available on external server
 		yesterday := time.Now().In(timezone).AddDate(0, 0, -1)
-		logger.Info(fmt.Sprintf("yesterday: %s\n", yesterday))
-
 		previousDay := yesterday.Format("20060102")
-		logger.Info(fmt.Sprintf("previousDay: %s\n", previousDay))
-
 		tppsFilename = fmt.Sprintf("MILMOVE-en%s.csv", previousDay)
-		logger.Info(fmt.Sprintf("tppsFilename: %s\n", tppsFilename))
-
 		previousDayFormatted := yesterday.Format("January 02, 2006")
-		logger.Info(fmt.Sprintf("previousDayFormatted: %s\n", previousDayFormatted))
-
 		logger.Info(fmt.Sprintf("Starting transfer of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
 	} else {
+		// Process the custom date specified by the ProcessTPPSCustomDateFile AWS parameter store value
 		logger.Info("Custom filepath provided to process")
-		// if customFilePathToProcess != MILMOVE-enYYYYMMDD.csv (meaning we have given an ACTUAL specific filename we want processed instead of placeholder MILMOVE-enYYYYMMDD.csv)
-		// then append customFilePathToProcess to the s3 bucket path and process that INSTEAD OF
-		// processing the filename for yesterday's date
 		tppsFilename = customFilePathToProcess
 		logger.Info(fmt.Sprintf("Starting transfer of TPPS data file: %s\n", tppsFilename))
 	}
@@ -187,13 +177,87 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	pathTPPSPaidInvoiceReport := s3BucketTPPSPaidInvoiceReport + "/" + tppsFilename
 	// temporarily adding logging here to see that s3 path was found
 	logger.Info(fmt.Sprintf("Entire TPPS filepath pathTPPSPaidInvoiceReport: %s", pathTPPSPaidInvoiceReport))
-	err = tppsInvoiceProcessor.ProcessFile(appCtx, pathTPPSPaidInvoiceReport, "")
 
+	var s3Client *s3.Client
+	s3Region := v.GetString(cli.AWSS3RegionFlag)
+	cfg, errCfg := config.LoadDefaultConfig(context.Background(),
+		config.WithRegion(s3Region),
+	)
+	if errCfg != nil {
+		logger.Info("error loading rds aws config", zap.Error(errCfg))
+	}
+	s3Client = s3.NewFromConfig(cfg)
+
+	// get the S3 object, check the ClamAV results, download file to /tmp dir for processing if clean
+	localFilePath, scanResult, err := downloadS3FileIfClean(logger, s3Client, s3BucketTPPSPaidInvoiceReport, pathTPPSPaidInvoiceReport)
 	if err != nil {
-		logger.Error("Error reading TPPS Paid Invoice Report application advice responses", zap.Error(err))
-	} else {
-		logger.Info("Successfully processed TPPS Paid Invoice Report application advice responses")
+		logger.Error("Error with getting the S3 object data via GetObject", zap.Error(err))
+	}
+	if scanResult == "CLEAN" {
+
+		err = tppsInvoiceProcessor.ProcessFile(appCtx, localFilePath, "")
+
+		if err != nil {
+			logger.Error("Error reading TPPS Paid Invoice Report application advice responses", zap.Error(err))
+		} else {
+			logger.Info("Successfully processed TPPS Paid Invoice Report application advice responses")
+		}
 	}
 
 	return nil
+}
+
+func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key string) (string, string, error) {
+	// one call to GetObject will give us the metadata for checking the ClamAV scan results and the file data itself
+	response, err := s3Client.GetObject(context.Background(),
+		&s3.GetObjectInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(key),
+		})
+	if err != nil {
+		var ae smithy.APIError
+		logger.Info("Error retrieving TPPS file metadata")
+		if errors.As(err, &ae) {
+			logger.Error("AWS Error Code", zap.String("code", ae.ErrorCode()), zap.String("message", ae.ErrorMessage()), zap.Any("ErrorFault", ae.ErrorFault()))
+		}
+		return "", "", err
+	}
+	defer response.Body.Close()
+
+	result := ""
+	// get the ClamAV results
+	result, found := response.Metadata["av-status"]
+	if !found {
+		result = "UNKNOWN"
+		return "", result, err
+	}
+	logger.Info(fmt.Sprintf("Result of ClamAV scan: %s\n", result))
+
+	if result != "CLEAN" {
+		logger.Info(fmt.Sprintf("ClamAV scan value was not CLEAN for TPPS file: %s\n", key))
+		return "", result, err
+	}
+
+	localFilePath := ""
+	if result == "CLEAN" {
+		// create a temp file in /tmp directory to store the CSV from the S3 bucket
+		// the /tmp directory will only exist for the duration of the task, so no cleanup is required
+		tempDir := "/tmp"
+		localFilePath = filepath.Join(tempDir, filepath.Base(key))
+		logger.Info(fmt.Sprintf("localFilePath: %s\n", localFilePath))
+		file, err := os.Create(localFilePath)
+		if err != nil {
+			log.Fatalf("Failed to create temporary file: %v", err)
+		}
+		defer file.Close()
+
+		// write the S3 object file contents to the tmp file
+		_, err = io.Copy(file, response.Body)
+		if err != nil {
+			log.Fatalf("Failed to write S3 object to file: %v", err)
+		}
+	}
+
+	logger.Info(fmt.Sprintf("Successfully wrote to tmp file at: %s\n", localFilePath))
+	return localFilePath, result, err
 }
