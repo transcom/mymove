@@ -15,6 +15,7 @@ import {
 } from 'react-admin';
 import * as jsonexport from 'jsonexport/dist';
 
+import { getTransportationOfficeByID } from 'services/adminApi';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const RejectedOfficeUserShowRoles = () => {
@@ -33,12 +34,13 @@ const RejectedOfficeUserShowRoles = () => {
 };
 
 // Custom exporter to flatten out role  types
-const exporter = (data) => {
-  const usersForExport = data.map((rowData) => {
-    const { roles, email, firstName, lastName, status, rejectionReason, rejectedOn } = rowData;
+const exporter = async (data) => {
+  const usersForExportPromises = data.map(async (rowData) => {
+    const { roles, email, firstName, lastName, status, rejectionReason, rejectedOn, transportationOfficeId } = rowData;
 
     const flattenedRoles = roles ? [...new Set(roles.map((role) => role.roleName))].join(',') : '';
-
+    const transportationOffice = await getTransportationOfficeByID(transportationOfficeId);
+    const officeName = transportationOffice.name;
     return {
       email,
       firstName,
@@ -46,10 +48,12 @@ const exporter = (data) => {
       status,
       rejectionReason,
       rejectedOn,
-
+      officeName,
       roles: flattenedRoles,
     };
   });
+
+  const usersForExport = await Promise.all(usersForExportPromises);
 
   // convert data to csv and download
   jsonexport(usersForExport, {}, (err, csv) => {

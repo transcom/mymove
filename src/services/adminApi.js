@@ -38,3 +38,8 @@ export async function updateRequestedOfficeUser(officeUserId, body) {
     { normalize: false },
   );
 }
+
+export async function getTransportationOfficeByID(officeId) {
+  const operationPath = 'Transportation offices.getOfficeById';
+  return makeAdminRequest(operationPath, { officeId }, { normalize: false });
+}
