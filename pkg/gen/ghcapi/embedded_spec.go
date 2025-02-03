@@ -4617,6 +4617,12 @@ func init() {
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4820,6 +4826,12 @@ func init() {
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4973,6 +4985,12 @@ func init() {
             "type": "string",
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
             "in": "query"
           }
         ],
@@ -21399,6 +21417,12 @@ func init() {
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -21614,6 +21638,12 @@ func init() {
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -21773,6 +21803,12 @@ func init() {
             "type": "string",
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
             "in": "query"
           }
         ],
