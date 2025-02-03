@@ -11,12 +11,14 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	m "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	setupTestData := func() (models.Move, models.MTOShipment) {
 
@@ -61,7 +63,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		return expectedMTO, primeShipment
 	}
 
-	mtoFetcher := m.NewMoveTaskOrderFetcher()
+	mtoFetcher := m.NewMoveTaskOrderFetcher(waf)
 
 	suite.Run("Success with fetching a MTO that has a shipment address update", func() {
 		traits := []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved}
@@ -645,8 +647,9 @@ func (suite *MoveTaskOrderServiceSuite) TestGetMoveTaskOrderFetcher() {
 
 		return expectedMTO
 	}
+	waf := entitlements.NewWeightAllotmentFetcher()
 
-	mtoFetcher := m.NewMoveTaskOrderFetcher()
+	mtoFetcher := m.NewMoveTaskOrderFetcher(waf)
 
 	suite.Run("success getting a move using GetMove for Prime user", func() {
 		expectedMTO := setupTestData()
@@ -774,6 +777,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	// Set up a hidden move so we can check if it's in the output:
 	now := time.Now()
 	show := false
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	setupTestData := func() (models.Move, models.Move, models.MTOShipment) {
 		hiddenMTO := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
 			{
@@ -812,7 +817,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		return hiddenMTO, mto, primeShipment
 	}
 
-	mtoFetcher := m.NewMoveTaskOrderFetcher()
+	mtoFetcher := m.NewMoveTaskOrderFetcher(waf)
 
 	suite.Run("all move task orders", func() {
 		hiddenMTO, mto, _ := setupTestData()
@@ -919,6 +924,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	now := time.Now()
+	waf := entitlements.NewWeightAllotmentFetcher()
 	// Set up a hidden move so we can check if it's in the output:
 	hiddenMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
 		{
@@ -948,7 +954,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	suite.Require().NoError(suite.DB().RawQuery("UPDATE mto_shipments SET updated_at=$1 WHERE id=$2;",
 		now.Add(-10*time.Second), shipmentForPrimeMove4.ID).Exec())
 
-	fetcher := m.NewMoveTaskOrderFetcher()
+	fetcher := m.NewMoveTaskOrderFetcher(waf)
 	page := int64(1)
 	perPage := int64(20)
 	// filling out search params to allow for pagination
@@ -981,6 +987,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFetcher() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Test with and without filter of moves containing amendments", func() {
 		now := time.Now()
 		// Set up a hidden move so we can check if it's in the output:
@@ -1064,7 +1072,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 		suite.Require().NoError(suite.DB().RawQuery("UPDATE mto_shipments SET updated_at=$1 WHERE id=$2;",
 			now.Add(-10*time.Second), shipmentForPrimeMove4.ID).Exec())
 
-		fetcher := m.NewMoveTaskOrderFetcher()
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
 		page := int64(1)
 		perPage := int64(20)
 		// filling out search params to allow for pagination
@@ -1140,7 +1148,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 		suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3);",
 			now.Add(-10*time.Second), primeMove1.ID, primeMove2.ID).Exec())
 
-		fetcher := m.NewMoveTaskOrderFetcher()
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
 		page := int64(1)
 		perPage := int64(20)
 		// filling out search params to allow for pagination

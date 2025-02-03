@@ -21,11 +21,14 @@ import (
 )
 
 type moveTaskOrderFetcher struct {
+	waf services.WeightAllotmentFetcher
 }
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
-func NewMoveTaskOrderFetcher() services.MoveTaskOrderFetcher {
-	return &moveTaskOrderFetcher{}
+func NewMoveTaskOrderFetcher(weightAllotmentFetcher services.WeightAllotmentFetcher) services.MoveTaskOrderFetcher {
+	return &moveTaskOrderFetcher{
+		waf: weightAllotmentFetcher,
+	}
 }
 
 // ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime, and may or may not be enabled.
@@ -210,6 +213,16 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		mto.MTOShipments[i].MTOAgents = nonDeletedAgents
 	}
 
+	// Now that we have the move and order, construct the allotment (hhg allowance)
+	// Only fetch if grade is not nil
+	if mto.Orders.Grade != nil {
+		allotment, err := f.waf.GetWeightAllotment(appCtx, string(*mto.Orders.Grade), mto.Orders.OrdersType)
+		if err != nil {
+			return nil, err
+		}
+		mto.Orders.Entitlement.WeightAllotted = &allotment
+	}
+
 	// Due to a bug in Pop for EagerPreload the New Address of the DeliveryAddressUpdate and the PortLocation (City, Country, UsPostRegionCity.UsPostRegion.State") must be loaded manually.
 	// The bug occurs in EagerPreload when there are two or more eager paths with 3+ levels
 	// where the first 2 levels match.  For example:
@@ -241,6 +254,20 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("POELocation", loadErr, "")
 			}
+		}
+	}
+
+	// Load the backup contacts outside of the EagerPreload query, due to issue referenced in
+	// https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#associations-with-3-path-elements-where-the-first-2-path-elements-match
+	if mto.Orders.ServiceMember.ID != uuid.Nil {
+		loadErr := appCtx.DB().Load(&mto.Orders.ServiceMember, "BackupContacts")
+		if loadErr != nil {
+			return &models.Move{}, apperror.NewQueryError("BackupContacts", loadErr, "")
+		}
+		if len(mto.Orders.ServiceMember.BackupContacts) == 0 {
+			appCtx.Logger().Warn("No backup contacts found for service member")
+		} else {
+			appCtx.Logger().Info("Successfully loaded %d backup contacts", zap.Int("count", len(mto.Orders.ServiceMember.BackupContacts)))
 		}
 	}
 
