@@ -21,7 +21,6 @@ COPY config/tls/api.exp.dp3.us.chain.der.p7b /config/tls/api.exp.dp3.us.chain.de
 COPY config/tls/api.exp.dp3.us.crt /config/tls/api.exp.dp3.us.crt
 
 COPY swagger/* /swagger/
-COPY build /build
 COPY public/static/react-file-viewer /public/static/react-file-viewer
 
 # Mount mutable tmp for app packages like pdfcpu
