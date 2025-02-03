@@ -6809,7 +6809,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -9449,6 +9450,11 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "sort": {
+          "description": "Sort order for service items to be displayed for a given shipment type.",
+          "type": "string",
           "x-nullable": true
         },
         "standaloneCrate": {
@@ -23851,7 +23857,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -26495,6 +26502,11 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "sort": {
+          "description": "Sort order for service items to be displayed for a given shipment type.",
+          "type": "string",
           "x-nullable": true
         },
         "standaloneCrate": {

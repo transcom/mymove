@@ -7440,6 +7440,7 @@ definitions:
         type: boolean
       workload:
         type: integer
+        x-omitempty: false
   BulkAssignmentData:
     type: object
     properties:
@@ -8890,6 +8891,12 @@ definitions:
         description: >-
           To identify whether the service was provided within (CONUS) or
           (OCONUS)
+        x-nullable: true
+      sort:
+        type: string
+        description: >-
+          Sort order for service items to be displayed for a given shipment
+          type.
         x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
