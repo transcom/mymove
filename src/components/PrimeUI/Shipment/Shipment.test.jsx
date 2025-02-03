@@ -41,6 +41,11 @@ const approvedMoveTaskOrder = {
           streetAddress2: 'P.O. Box 9876',
           streetAddress3: 'c/o Some Person',
         },
+        destinationRateArea: {
+          id: 'bfe61147-5fd7-426e-b473-54ccf77bde37',
+          rateAreaName: 'California-North',
+          rateAreaId: 'US87',
+        },
         eTag: 'MjAyMS0xMC0xOFQxODoyNDo0MS4zNzc5Nzha',
         firstAvailableDeliveryDate: null,
         id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
@@ -53,6 +58,11 @@ const approvedMoveTaskOrder = {
           streetAddress1: '123 Any Street',
           streetAddress2: 'P.O. Box 12345',
           streetAddress3: 'c/o Some Person',
+        },
+        originRateArea: {
+          id: 'bfe61147-5fd7-426e-b473-54ccf77bde36',
+          rateAreaName: 'California-South',
+          rateAreaId: 'US88',
         },
         primeActualWeight: 2000,
         primeEstimatedWeight: 1400,
@@ -209,6 +219,11 @@ describe('Shipment details component', () => {
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.actualSpouseProGearWeight.toString());
 
+    field = screen.getByText('Origin Rate Area:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toContain(shipment.originRateArea.rateAreaName);
+    expect(field.nextElementSibling.nextElementSibling.textContent).toContain(shipment.originRateArea.rateAreaId);
+
     field = screen.getByText('Pickup Address:');
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.city);
@@ -216,6 +231,11 @@ describe('Shipment details component', () => {
     expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.streetAddress1);
     expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.streetAddress2);
     expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.postalCode);
+
+    field = screen.getByText('Destination Rate Area:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toContain(shipment.destinationRateArea.rateAreaName);
+    expect(field.nextElementSibling.nextElementSibling.textContent).toContain(shipment.destinationRateArea.rateAreaId);
 
     field = screen.getByText('Delivery Address:');
     expect(field).toBeInTheDocument();
