@@ -489,7 +489,7 @@ func (v *updateMTOServiceItemData) checkSITDepartureDate(_ appcontext.AppContext
 		}
 		// Check that departure date is not before or equal to the current entry date
 		if v.updatedServiceItem.SITDepartureDate.Compare(*SITEntryDate) != 1 {
-			v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set before or equal the SIT entry date.")
+			v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set before or equal to the SIT entry date.")
 		}
 	}
 	return nil

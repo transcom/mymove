@@ -827,7 +827,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 				},
 				{
 					Model: models.MTOServiceItem{
-						SITEntryDate: &later,
+						SITEntryDate: &before,
 					},
 				},
 			}, nil)
@@ -848,11 +848,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			suite.NoError(err)
 			if tc.reServiceCode == models.ReServiceCodeDOPSIT {
 				suite.True(mtoShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour).Equal(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
-				suite.True(newSITServiceItem.SITEntryDate.Truncate(24 * time.Hour).After(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
+				suite.True(newSITServiceItem.SITDepartureDate.Truncate(24 * time.Hour).After(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
 			}
 			if tc.reServiceCode == models.ReServiceCodeDDDSIT {
 				suite.True(mtoShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour).Equal(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
-				suite.True(newSITServiceItem.SITEntryDate.Truncate(24 * time.Hour).After(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
+				suite.True(newSITServiceItem.SITDepartureDate.Truncate(24 * time.Hour).After(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
 			}
 		}
 
@@ -903,7 +903,57 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			suite.NoError(err) // Just verrs
 			suite.True(serviceItemData.verrs.HasAny())
 			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
-			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before the SIT entry date.")
+			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before or equal to the SIT entry date.")
+		}
+
+	})
+
+	suite.Run("SITDepartureDate - errors when set equal to the SIT entry date", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
+					DestinationSITAuthEndDate: &now},
+			},
+		}, nil)
+		testCases := []struct {
+			reServiceCode models.ReServiceCode
+		}{
+			{
+				reServiceCode: models.ReServiceCodeDOPSIT,
+			},
+			{
+				reServiceCode: models.ReServiceCodeDDDSIT,
+			},
+		}
+		for _, tc := range testCases {
+			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: tc.reServiceCode,
+					},
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate: &now,
+					},
+				},
+			}, nil)
+			newSITServiceItem := oldSITServiceItem
+			newSITServiceItem.SITDepartureDate = &now
+			serviceItemData := updateMTOServiceItemData{
+				updatedServiceItem: newSITServiceItem,
+				oldServiceItem:     oldSITServiceItem,
+				verrs:              validate.NewErrors(),
+			}
+			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+			suite.NoError(err) // Just verrs
+			suite.True(serviceItemData.verrs.HasAny())
+			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
+			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before or equal to the SIT entry date.")
 		}
 
 	})
