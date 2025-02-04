@@ -1007,32 +1007,32 @@ integration_test_mtls:
   services:
     - name: docker:dind
       alias: docker
-    # - name: $postgres
+    - name: $postgres
     # - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-ca40daf2
       alias: milmovelocal
   variables:
     DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
     DOCKER_TLS_CERTDIR: ""
-    # APPLICATION: app
-    # DB_PASSWORD: mysecretpassword
-    # DB_USER_LOW_PRIV: crud
-    # DB_PASSWORD_LOW_PRIV: mysecretpassword
+    APPLICATION: app
+    DB_PASSWORD: mysecretpassword
+    DB_USER_LOW_PRIV: crud
+    DB_PASSWORD_LOW_PRIV: mysecretpassword
     CI_REGISTRY: $CI_REGISTRY
     CI_REGISTRY_PASSWORD: $CI_REGISTRY_PASSWORD
     CI_REGISTRY_USER: $CI_REGISTRY_USER
-    # DB_USER: postgres
-    # DB_HOST: localhost
-    # DB_PORT: 5432
-    # DB_NAME: dev_db
-    # DB_NAME_DEV: dev_db
-    # MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
-    # MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
-    # EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-    # ENVIRONMENT: development
-    # DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
-    # POSTGRES_PASSWORD: mysecretpassword
-    # POSTGRES_DB: test_db
+    DB_USER: postgres
+    DB_HOST: localhost
+    DB_PORT: 5432
+    DB_NAME: dev_db
+    DB_NAME_DEV: dev_db
+    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+    ENVIRONMENT: development
+    DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_DB: test_db
   # needs:
   #   - prep_integration_docker_microservice
   before_script:
@@ -1040,6 +1040,7 @@ integration_test_mtls:
     - *setup_milmove_env
     - *setup_tests_mtls
   script:
+    - curl http://milmovelocal:4000
     - echo "Running E2E mTLS tests"
     - ./scripts/run-e2e-mtls-test
   artifacts:
