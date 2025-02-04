@@ -794,8 +794,10 @@ client_test:
   dependencies:
     - pre_deps_yarn
   script:
-    - echo "client test coverage"
-    - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false >> $CI_PROJECT_DIR/coverage.output
+    - echo "client test coverage" | tee -a $CI_PROJECT_DIR/job.log
+    - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false >> $CI_PROJECT_DIR/coverage.output 2>&1
+    - echo "Yarn test coverage logs saved to coverage.output" | tee -a $CI_PROJECT_DIR/job.log
+    - echo "Full test logs saved to artifacts." | tee -a $CI_PROJECT_DIR/job.log
   artifacts:
     when: always
     reports:
@@ -804,6 +806,8 @@ client_test:
     paths:
       - /builds/milmove/mymove/coverage
       - /builds/milmove/mymove/jest-junit-reports
+      - $CI_PROJECT_DIR/job.log  # General logs artifact
+      - $CI_PROJECT_DIR/coverage.output  # Yarn test logs artifact
   after_script:
     - *announce_failure
   rules:
