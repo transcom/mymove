@@ -49,3 +49,10 @@ type OfficeUserCreator interface {
 type OfficeUserUpdater interface {
 	UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate, primaryTransportationOfficeId uuid.UUID) (*models.OfficeUser, *validate.Errors, error)
 }
+
+// OfficeUserDeleter is the exported interface for hard deleting an office user and its associations (roles, privileges)
+//
+//go:generate mockery --name OfficeUserDeleter
+type OfficeUserDeleter interface {
+	DeleteOfficeUser(appCtx appcontext.AppContext, id uuid.UUID) error
+}
