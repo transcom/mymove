@@ -205,11 +205,12 @@ SELECT move_id, gbloc FROM (
      ORDER BY sh.move_id, sh.created_at) as m;
 
 
+-- used for the destination queue
 CREATE OR REPLACE VIEW move_to_dest_gbloc
 AS
 SELECT distinct move_id, gbloc FROM (
   SELECT sh.move_id, s.affiliation,
-    COALESCE(pctg.gbloc, coalesce(pctg_oconus_bos.gbloc, coalesce(pctg_oconus.gbloc, pctg_ppm.gbloc))) AS gbloc
+    COALESCE(case when s.affiliation = 'MARINES' then 'USMC' else pctg.gbloc end, coalesce(pctg_oconus_bos.gbloc, coalesce(pctg_oconus.gbloc, pctg_ppm.gbloc))) AS gbloc
   FROM mto_shipments sh
   JOIN moves m ON sh.move_id = m.id
   JOIN orders o on m.orders_id = o.id
@@ -244,7 +245,7 @@ SELECT distinct move_id, gbloc FROM (
      WHERE sh.deleted_at IS NULL) as m;
 
 -- database function that returns a list of moves that have destination requests
--- this includes shipment address update requests & destination service items
+-- this includes shipment address update requests, destination SIT, & destination shuttle
 CREATE OR REPLACE FUNCTION get_destination_queue(
     user_gbloc TEXT DEFAULT NULL,
     customer_name TEXT DEFAULT NULL,
@@ -259,7 +260,9 @@ CREATE OR REPLACE FUNCTION get_destination_queue(
     counseling_office TEXT DEFAULT NULL,
     too_assigned_user TEXT DEFAULT NULL,
     page INTEGER DEFAULT 1,
-    per_page INTEGER DEFAULT 20
+    per_page INTEGER DEFAULT 20,
+    sort TEXT DEFAULT NULL,
+    sort_direction TEXT DEFAULT NULL
 )
 RETURNS TABLE (
     id UUID,
@@ -279,6 +282,8 @@ RETURNS TABLE (
 DECLARE
     sql_query TEXT;
     offset_value INTEGER;
+    sort_column TEXT;
+    sort_order TEXT;
 BEGIN
     IF page < 1 THEN
         page := 1;
@@ -418,7 +423,7 @@ BEGIN
         sql_query := sql_query || ' AND (too_user.first_name || '' '' || too_user.last_name) ILIKE ''%'' || $12 || ''%'' ';
     END IF;
 
-    -- add destination queue-specific filters (pending dest address requests, dest SIT & shuttle service items)
+    -- add destination queue-specific filters (pending dest address requests, dest SIT & dest shuttle service items)
     sql_query := sql_query || '
         AND (
             shipment_address_updates.status = ''REQUESTED''
@@ -428,6 +433,36 @@ BEGIN
             )
         )
     ';
+
+    -- default sorting values if none are provided (move.id)
+    sort_column := 'id';
+    sort_order := 'ASC';
+
+    IF sort IS NOT NULL THEN
+        CASE sort
+            WHEN 'locator' THEN sort_column := 'moves.locator';
+            WHEN 'status' THEN sort_column := 'moves.status';
+            WHEN 'customerName' THEN sort_column := 'service_members.last_name';
+            WHEN 'edipi' THEN sort_column := 'service_members.edipi';
+            WHEN 'emplid' THEN sort_column := 'service_members.emplid';
+            WHEN 'requestedMoveDate' THEN sort_column := 'COALESCE(mto_shipments.requested_pickup_date, ppm_shipments.expected_departure_date, mto_shipments.requested_delivery_date)';
+            WHEN 'appearedInTooAt' THEN sort_column := 'COALESCE(moves.submitted_at, moves.approvals_requested_at)';
+            WHEN 'branch' THEN sort_column := 'service_members.affiliation';
+            WHEN 'originDutyLocation' THEN sort_column := 'origin_duty_locations.name';
+            WHEN 'counselingOffice' THEN sort_column := 'counseling_offices.name';
+            WHEN 'assignedTo' THEN sort_column := 'too_user.last_name';
+            ELSE
+                sort_column := 'moves.id';
+        END CASE;
+    END IF;
+
+    IF sort_direction IS NOT NULL THEN
+        IF LOWER(sort_direction) = 'desc' THEN
+            sort_order := 'DESC';
+        ELSE
+            sort_order := 'ASC';
+        END IF;
+    END IF;
 
     sql_query := sql_query || '
         GROUP BY
@@ -439,6 +474,9 @@ BEGIN
             moves.locked_by,
             moves.too_assigned_id,
             moves.counseling_transportation_office_id,
+            mto_shipments.requested_pickup_date,
+            mto_shipments.requested_delivery_date,
+            ppm_shipments.expected_departure_date,
             orders.id,
             service_members.id,
             service_members.first_name,
@@ -450,7 +488,7 @@ BEGIN
             counseling_offices.name,
             too_user.first_name,
             too_user.last_name';
-    sql_query := sql_query || ' ORDER BY moves.id ASC ';
+    sql_query := sql_query || format(' ORDER BY %s %s ', sort_column, sort_order);
     sql_query := sql_query || ' LIMIT $13 OFFSET $14 ';
 
     RETURN QUERY EXECUTE sql_query
