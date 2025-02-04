@@ -343,7 +343,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 		return rateArea, oconusRateArea, *usprc, found_duty_location
 	}
 
-	suite.Run("success - findOconusGblocDepartmentIndicator - returns default GLOC for departmentAffiliation if no specific departmentAffilation mapping is defined", func() {
+	suite.Run("success - findOconusGblocDepartmentIndicator - returns default GBLOC for departmentAffiliation if no specific departmentAffilation mapping is defined", func() {
 		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
 		suite.FatalNoError(err)
@@ -377,7 +377,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 				ServiceMemberID: serviceMember.ID,
 			})
 			suite.Nil(err)
-			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, uuid.Nil)
+			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, serviceMember.ID)
 			suite.NotNil(departmentIndictor)
 			suite.Nil(err)
 			suite.Nil(departmentIndictor.DepartmentIndicator)
@@ -638,7 +638,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 					ServiceMemberID: serviceMember.ID,
 				})
-				offices, err := findCounselingOffice(appCtx, dutylocation.ID, uuid.Nil)
+				offices, err := findCounselingOffice(appCtx, dutylocation.ID, serviceMember.ID)
 				suite.NotNil(offices)
 				suite.Nil(err)
 				suite.Equal(1, len(offices))
