@@ -479,7 +479,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		}
 
 		model.Reason = originsit.Reason
-		// Check for reason required field on a DDFSIT
+		// Check for reason required field on a IOASIT
 		if model.ReService.Code == models.ReServiceCodeIOASIT {
 			reasonVerrs := validateReasonInternationalOriginSIT(*originsit)
 
