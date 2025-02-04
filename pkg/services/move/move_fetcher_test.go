@@ -436,7 +436,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 		suite.Equal(assignedMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
 
-	suite.Run("TOO: Returns moves that fulfill the query criteria", func() {
+	suite.Run("Closeout returns non Navy/USCG/USMC ppms in needs closeout status", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
