@@ -167,6 +167,60 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCounseling(appCtx 
 	return moves, nil
 }
 
+func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
+	var moves []models.MoveWithEarliestDate
+
+	query := `SELECT
+					moves.id,
+					ppm_shipments.submitted_at AS earliest_date
+				FROM moves
+				INNER JOIN orders ON orders.id = moves.orders_id
+				INNER JOIN service_members ON service_members.id = orders.service_member_id
+				INNER JOIN mto_shipments ON mto_shipments.move_id = moves.id
+				INNER JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
+				WHERE
+					(moves.status IN ('APPROVED', 'SERVICE COUNSELING COMPLETED'))
+					AND moves.show = $1
+					AND moves.sc_assigned_id IS NULL`
+
+	switch gbloc {
+	case "NAVY":
+		query += ` AND (service_members.affiliation in ('` + string(models.AffiliationNAVY) + `'))`
+	case "TVCB":
+		query += ` AND (service_members.affiliation in ('` + string(models.AffiliationMARINES) + `'))`
+	case "USCG":
+		query += ` AND (service_members.affiliation in ('` + string(models.AffiliationCOASTGUARD) + `'))`
+	default:
+		query += ` AND moves.closeout_office_id = '` + officeId.String() + `'
+				   AND (service_members.affiliation NOT IN ('` +
+			string(models.AffiliationNAVY) + `', '` +
+			string(models.AffiliationMARINES) + `', '` +
+			string(models.AffiliationCOASTGUARD) + `'))`
+	}
+
+	query += ` AND (ppm_shipments.status IN ($2))
+					AND (orders.orders_type NOT IN ($3, $4, $5))
+				GROUP BY moves.id, ppm_shipments.submitted_at
+				ORDER BY earliest_date ASC`
+
+	err := appCtx.DB().RawQuery(query,
+		models.BoolPointer(true),
+		models.PPMShipmentStatusNeedsCloseout,
+		internalmessages.OrdersTypeBLUEBARK,
+		internalmessages.OrdersTypeWOUNDEDWARRIOR,
+		internalmessages.OrdersTypeSAFETY).All(&moves)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching moves for office: %s with error %w", officeId, err)
+	}
+
+	if len(moves) < 1 {
+		return nil, nil
+	}
+
+	return moves, nil
+}
+
 func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentTaskOrder(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
 	var moves []models.MoveWithEarliestDate
 
