@@ -85,13 +85,6 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
-	adminAPI.RejectedOfficeUsersGetRejectedOfficeUserHandler = GetRejectedOfficeUserHandler{
-		handlerConfig,
-		rejectedofficeusers.NewRejectedOfficeUserFetcher(queryBuilder),
-		newRolesFetcher,
-		query.NewQueryFilter,
-	}
-
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),
