@@ -188,12 +188,20 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	}
 	s3Client = s3.NewFromConfig(cfg)
 
+	logger.Info("Created S3 client")
+
 	// get the S3 object, check the ClamAV results, download file to /tmp dir for processing if clean
 	localFilePath, scanResult, err := downloadS3FileIfClean(logger, s3Client, s3BucketTPPSPaidInvoiceReport, pathTPPSPaidInvoiceReport)
 	if err != nil {
 		logger.Error("Error with getting the S3 object data via GetObject", zap.Error(err))
 	}
+
+	logger.Info(fmt.Sprintf("localFilePath from calling downloadS3FileIfClean: %s\n", localFilePath))
+	logger.Info(fmt.Sprintf("scanResult from calling downloadS3FileIfClean: %s\n", scanResult))
+
 	if scanResult == "CLEAN" {
+
+		logger.Info("Scan result was clean")
 
 		err = tppsInvoiceProcessor.ProcessFile(appCtx, localFilePath, "")
 
