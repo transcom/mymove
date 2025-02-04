@@ -1092,7 +1092,7 @@ integration_test_mtls:
     # - mkdir -p build
     # - touch build/index.html
     # - bin/milmove serve 2>&1 | tee server.log &
-    - until $(curl --output /dev/null --silent --head --fail http://milmove_micro:4000); do printf '.'; sleep 1; done
+    - until $(curl --output /dev/null --silent --head --fail http://milmovemicroservice:4000); do printf '.'; sleep 1; done
     - curl http://milmovelocal:4000
     - echo "Running E2E mTLS tests"
     - ./scripts/run-e2e-mtls-test
