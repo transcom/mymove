@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -292,6 +293,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 }
 
 func (suite *PayloadsSuite) TestEntitlement() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	suite.Run("Success - Returns the entitlement payload with only required fields", func() {
 		entitlement := models.Entitlement{
@@ -353,8 +355,9 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
-
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 		payload := Entitlement(&entitlement)
 
 		suite.Equal(strfmt.UUID(entitlement.ID.String()), payload.ID)
@@ -394,7 +397,9 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 
 		payload := Entitlement(&entitlement)
 
@@ -954,6 +959,88 @@ func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 	suite.NotNil(resultDDSHUT)
 
 	_, ok := resultDDSHUT.(*primemessages.MTOServiceItemShuttle)
+
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemIDSHUT() {
+	reServiceCode := models.ReServiceCodeIDSHUT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	standaloneCrate := false
+
+	mtoServiceItemIDSHUT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: reServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultIDSHUT := MTOServiceItem(mtoServiceItemIDSHUT)
+
+	suite.NotNil(resultIDSHUT)
+
+	_, ok := resultIDSHUT.(*primemessages.MTOServiceItemInternationalShuttle)
+
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemIOSHUT() {
+	reServiceCode := models.ReServiceCodeIOSHUT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	standaloneCrate := false
+
+	mtoServiceItemIOSHUT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: reServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultIOSHUT := MTOServiceItem(mtoServiceItemIOSHUT)
+
+	suite.NotNil(resultIOSHUT)
+
+	_, ok := resultIOSHUT.(*primemessages.MTOServiceItemInternationalShuttle)
 
 	suite.True(ok)
 }

@@ -156,9 +156,6 @@ func Order(order *models.Order) *primev3messages.Order {
 	}
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
-	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
-	}
 
 	var grade string
 	if order.Grade != nil {
@@ -872,6 +869,32 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
 			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
+	case models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
+		shuttleSI := &primev3messages.MTOServiceItemInternationalShuttle{
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			RequestApprovalsRequestedStatus: mtoServiceItem.RequestedApprovalsRequestedStatus,
+			EstimatedWeight:                 handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:                    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIOSHUT && mtoServiceItem.MTOShipment.PickupAddress != nil {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
+				shuttleSI.Market = models.MarketOconus.FullString()
+			} else {
+				shuttleSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIDSHUT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
+				shuttleSI.Market = models.MarketOconus.FullString()
+			} else {
+				shuttleSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		payload = shuttleSI
 
 	case models.ReServiceCodePODFSC, models.ReServiceCodePOEFSC:
 		var portCode string
