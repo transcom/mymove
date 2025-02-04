@@ -191,7 +191,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	logger.Info("Created S3 client")
 
 	// get the S3 object, check the ClamAV results, download file to /tmp dir for processing if clean
-	localFilePath, scanResult, err := downloadS3FileIfClean(logger, s3Client, s3BucketTPPSPaidInvoiceReport, pathTPPSPaidInvoiceReport)
+	localFilePath, scanResult, err := downloadS3FileIfClean(logger, s3Client, s3BucketTPPSPaidInvoiceReport, tppsFilename)
 	if err != nil {
 		logger.Error("Error with getting the S3 object data via GetObject", zap.Error(err))
 	}
@@ -219,8 +219,8 @@ func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key 
 	// one call to GetObject will give us the metadata for checking the ClamAV scan results and the file data itself
 	response, err := s3Client.GetObject(context.Background(),
 		&s3.GetObjectInput{
-			Bucket: aws.String(bucket),
-			Key:    aws.String(key),
+			Bucket: aws.String("app-tpps-transfer-exp-us-gov-west-1"),
+			Key:    aws.String("connector-files/MILMOVE-en20250203.csv"),
 		})
 	if err != nil {
 		var ae smithy.APIError
