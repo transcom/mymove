@@ -54,6 +54,8 @@ const SERVICE_ITEM_PARAM_KEYS = {
   StandaloneCrate: 'StandaloneCrate',
   StandaloneCrateCap: 'StandaloneCrateCap',
   UncappedRequestTotal: 'UncappedRequestTotal',
+  MarketOrigin: 'MarketOrigin',
+  MarketDest: 'MarketDest',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
@@ -219,12 +221,14 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DOP,
   SERVICE_ITEM_CODES.DOPSIT,
   SERVICE_ITEM_CODES.DOSHUT,
+  SERVICE_ITEM_CODES.IOSHUT,
   SERVICE_ITEM_CODES.DPK,
   SERVICE_ITEM_CODES.DNPK,
   SERVICE_ITEM_CODES.DSH,
   SERVICE_ITEM_CODES.DUPK,
   SERVICE_ITEM_CODES.FSC,
   SERVICE_ITEM_CODES.DDSHUT,
+  SERVICE_ITEM_CODES.IDSHUT,
   SERVICE_ITEM_CODES.DCRT,
   SERVICE_ITEM_CODES.DUCRT,
   SERVICE_ITEM_CODES.DOSFSC,
