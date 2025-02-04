@@ -436,7 +436,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 		suite.Equal(assignedMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
 
-	suite.Run("Closeout returns non Navy/USCG/USMC ppms in needs closeout status", func() {
+	suite.Run("TOO: Returns moves that fulfill the query criteria", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
@@ -533,7 +533,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
-
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -546,7 +545,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
-
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -699,7 +697,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 				},
 			},
 		}, nil)
-
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
 		suite.Equal(2, len(moves))
