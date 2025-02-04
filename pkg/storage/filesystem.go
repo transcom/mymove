@@ -116,6 +116,8 @@ func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
 // Tags returns the tags for a specified key
 func (fs *Filesystem) Tags(_ string) (map[string]string, error) {
 	tags := make(map[string]string)
+	// Assume anti-virus complete
+	tags["av-status"] = "CLEAN"
 	return tags, nil
 }
 
@@ -151,8 +153,4 @@ func NewFilesystemHandler(fs afero.Fs, root string) http.HandlerFunc {
 		}
 		http.ServeContent(w, r, input, info.ModTime(), f)
 	}
-}
-
-func (_ *Filesystem) StorageType() string {
-	return "Filesystem"
 }
