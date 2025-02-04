@@ -98,7 +98,7 @@ function server_report_cleanup()
     percent=$(grep '(statements)' "${test_dir}/go-coverage.txt" | awk '{print substr($NF, 1, length($NF)-1)}')
     goal_percent=50
     # using a oneline python function to test if percent is less than goal and return a proper exit code
-    if python -c "exit(1) if ${percent} < ${goal_percent} else exit()"; then
+    if python3 -c "exit(1) if ${percent} < ${goal_percent} else exit()"; then
       # coverage is good
       echo "total coverage is ${percent}%"
     else
