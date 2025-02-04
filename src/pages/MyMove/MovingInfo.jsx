@@ -86,10 +86,7 @@ export class MovingInfo extends Component {
                 icon="weight-hanging"
                 headline={`Your standard weight allowance is ${formatWeight(entitlementWeight)} for this move.`}
               >
-                <p>
-                  If you are moving to an administratively restricted HHG weight location this amount may be less. You
-                  will have to pay for any excess weight above this amount.
-                </p>
+                <p>If you are moving to an administratively restricted HHG weight location this amount may be less.</p>
                 <p>
                   You will have to pay for any excess weight above this allowance, so work hard to make sure you stay
                   within your weight limit.

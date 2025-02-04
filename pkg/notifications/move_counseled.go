@@ -6,6 +6,7 @@ import (
 	html "html/template"
 	text "text/template"
 
+	"github.com/dustin/go-humanize"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -97,13 +98,15 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		weightRestriction = &weightRestrictionInt64
 	}
 
+	weightRestrictionFormatted := humanize.Comma(int64(*weightRestriction))
+
 	htmlBody, textBody, err := m.renderTemplates(appCtx, MoveCounseledEmailData{
 		OriginDutyLocation:         originDutyLocationName,
 		DestinationLocation:        destinationAddress,
 		Locator:                    move.Locator,
 		MyMoveLink:                 MyMoveLink,
 		ActualExpenseReimbursement: actualExpenseReimbursement,
-		WeightRestriction:          weightRestriction,
+		WeightRestriction:          weightRestrictionFormatted,
 	})
 
 	if err != nil {
@@ -142,7 +145,7 @@ type MoveCounseledEmailData struct {
 	Locator                    string
 	MyMoveLink                 string
 	ActualExpenseReimbursement bool
-	WeightRestriction          *int64
+	WeightRestriction          string
 }
 
 // RenderHTML renders the html for the email
