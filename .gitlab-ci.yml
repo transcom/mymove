@@ -1010,7 +1010,7 @@ integration_test_mtls:
     - name: $postgres
     # - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-ca40daf2
-      alias: milmove_micro
+      alias: milmovemicroservice
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
   variables:
@@ -1067,7 +1067,7 @@ integration_test_mtls:
 
 
     HTTP_ADMIN_SERVER_NAME: adminlocal
-    HTTP_MY_SERVER_NAME: milmove_micro
+    HTTP_MY_SERVER_NAME: milmovemicroservice
     HTTP_OFFICE_SERVER_NAME: officelocal
     HTTP_ORDERS_SERVER_NAME: orderslocal
     HTTP_PRIME_SERVER_NAME: primelocal
