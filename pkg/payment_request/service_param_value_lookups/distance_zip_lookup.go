@@ -62,7 +62,7 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	isInternationalShipment := mtoShipment.MarketCode == models.MarketCodeInternational
 
 	// if the shipment is international, we need to change the respective ZIP to use the port ZIP and not the address ZIP
-	if mtoShipment.MarketCode == models.MarketCodeInternational {
+	if isInternationalShipment {
 		if mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
 			portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), *mtoShipmentID)
 			if err != nil {
