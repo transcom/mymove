@@ -35,7 +35,7 @@ gotest_args=("-count" "1")
 if [ -z "${NO_RACE+x}" ]; then
    gotest_args+=("-race")
 fi
-if [ -n "${CIRCLECI+x}" ]; then
+if [ -n "${GITLAB+x}" ]; then
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
   gotest_args+=("-parallel" "4")
 	# Add verbose (-v) so gotestsum can parse it for CircleCI
