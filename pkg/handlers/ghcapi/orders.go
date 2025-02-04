@@ -164,6 +164,7 @@ func (h CounselingUpdateOrderHandler) Handle(
 // CounselingUpdateOrderHandler create an order via POST /orders
 type CreateOrderHandler struct {
 	handlers.HandlerConfig
+	services.WeightAllotmentFetcher
 }
 
 // Handle ... creates an order as requested by a services counselor
@@ -237,7 +238,12 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 
 			grade := (internalmessages.OrderPayGrade)(*payload.Grade)
 			ordersType := (internalmessages.OrdersType)(*payload.OrdersType)
-			weightAllotment := models.GetWeightAllotment(grade, ordersType)
+			weightAllotment, err := h.WeightAllotmentFetcher.GetWeightAllotment(appCtx, string(grade), ordersType)
+			if err != nil {
+				err = apperror.NewBadDataError("Weight allotment cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				weight = weightAllotment.TotalWeightSelfPlusDependents
@@ -582,6 +588,59 @@ type AcknowledgeExcessWeightRiskHandler struct {
 	excessWeightRiskManager services.ExcessWeightRiskManager
 }
 
+// AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler is called when a TOO dismissed the alert to acknowledge the excess unaccompanied baggage weight risk via POST /orders/{orderId}/acknowledge-excess-unaccompanied-baggage-weight-risk
+type AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler struct {
+	handlers.HandlerConfig
+	excessWeightRiskManager services.ExcessWeightRiskManager
+}
+
+// Handles acknowledging excess unaccompanied baggage weight
+func (h AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler) Handle(
+	params orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			// handleError is a reusable function to deal with multiple errors
+			// when it comes to updating orders.
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("error acknowledging excess unaccompanied baggage weight risk", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return orderop.NewAcknowledgeExcessUnaccompaniedBaggageWeightRiskNotFound(), err
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return orderop.NewAcknowledgeExcessUnaccompaniedBaggageWeightRiskUnprocessableEntity().WithPayload(payload), err
+				case apperror.PreconditionFailedError:
+					return orderop.NewAcknowledgeExcessUnaccompaniedBaggageWeightRiskPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				case apperror.ForbiddenError:
+					return orderop.NewAcknowledgeExcessUnaccompaniedBaggageWeightRiskForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				default:
+					return orderop.NewAcknowledgeExcessUnaccompaniedBaggageWeightRiskInternalServerError(), err
+				}
+			}
+
+			orderID := uuid.FromStringOrNil(params.OrderID.String())
+			updatedMove, err := h.excessWeightRiskManager.AcknowledgeExcessUnaccompaniedBaggageWeightRisk(
+				appCtx,
+				orderID,
+				params.IfMatch,
+			)
+			if err != nil {
+				return handleError(err)
+			}
+
+			h.triggerAcknowledgeExcessUnaccompaniedBaggageWeightRiskEvent(appCtx, updatedMove.ID, params)
+
+			movePayload, err := payloads.Move(updatedMove, h.FileStorer())
+			if err != nil {
+				return orderop.NewAcknowledgeExcessUnaccompaniedBaggageWeightRiskInternalServerError(), err
+			}
+
+			return orderop.NewAcknowledgeExcessUnaccompaniedBaggageWeightRiskOK().WithPayload(movePayload), nil
+		})
+}
+
 // Handle ... updates the authorized weight
 func (h AcknowledgeExcessWeightRiskHandler) Handle(
 	params orderop.AcknowledgeExcessWeightRiskParams,
@@ -774,6 +833,26 @@ func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEv
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateBillableWeightHandler could not generate the event")
+	}
+}
+
+func (h AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler) triggerAcknowledgeExcessUnaccompaniedBaggageWeightRiskEvent(
+	appCtx appcontext.AppContext,
+	moveID uuid.UUID,
+	params orderop.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams,
+) {
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcAcknowledgeExcessUnaccompaniedBaggageWeightRiskEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.MoveTaskOrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: moveID,                            // ID of the updated logical object
+		MtoID:           moveID,                            // ID of the associated Move
+		AppContext:      appCtx,
+		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
+	})
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		appCtx.Logger().Error("ghcapi.acknowledgeExcessUnaccompaniedBaggageWeightRisk could not generate the event")
 	}
 }
 

@@ -226,6 +226,9 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
         {
           id: 'assignedTo',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
+          },
         },
       ),
     );
@@ -420,6 +423,9 @@ export const closeoutColumns = (
         {
           id: 'assignedTo',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
+          },
         },
       ),
     );

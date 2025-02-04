@@ -61,7 +61,7 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 		backupContacts = []models.BackupContact{{
 			Email: *payload.BackupContact.Email,
 			Name:  *payload.BackupContact.Name,
-			Phone: payload.BackupContact.Phone,
+			Phone: *payload.BackupContact.Phone,
 		}}
 	}
 
