@@ -1917,6 +1917,22 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		}
 	}
 
+	if s.ReService.Code == models.ReServiceCodeIOSHUT && s.MTOShipment.PickupAddress != nil {
+		if *s.MTOShipment.PickupAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
+	if s.ReService.Code == models.ReServiceCodeIDSHUT && s.MTOShipment.DestinationAddress != nil {
+		if *s.MTOShipment.DestinationAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
 	if s.ReService.Code == models.ReServiceCodeIUCRT && s.MTOShipment.DestinationAddress != nil {
 		if *s.MTOShipment.DestinationAddress.IsOconus {
 			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
