@@ -108,7 +108,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 						destZip = shipment.DestinationAddress.PostalCode
 					}
 					// we need to get the mileage from DTOD first, the db proc will consume that
-					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
 					if err != nil {
 						return err
 					}
