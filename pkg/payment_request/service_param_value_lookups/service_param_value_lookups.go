@@ -88,6 +88,8 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameLockedPriceCents,
 	models.ServiceItemParamNamePerUnitCents,
 	models.ServiceItemParamNamePortZip,
+	models.ServiceItemParamNameMarketDest,
+	models.ServiceItemParamNameMarketOrigin,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
@@ -441,6 +443,14 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 		ServiceItem: serviceItem,
 	}
 
+	lookups[models.ServiceItemParamNameMarketOrigin] = MarketOriginLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameMarketDest] = MarketDestinationLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
 	return lookups
 }
 
@@ -538,7 +548,7 @@ func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment mo
 	var ptrPickupAddress *models.Address
 	var addressType string
 	switch mtoShipment.ShipmentType {
-	case models.MTOShipmentTypeHHGOutOfNTSDom:
+	case models.MTOShipmentTypeHHGOutOfNTS:
 		addressType = "storage facility"
 		if mtoShipment.StorageFacility != nil {
 			ptrPickupAddress = &mtoShipment.StorageFacility.Address
@@ -566,7 +576,7 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 	var ptrDestinationAddress *models.Address
 	var addressType string
 	switch mtoShipment.ShipmentType {
-	case models.MTOShipmentTypeHHGIntoNTSDom:
+	case models.MTOShipmentTypeHHGIntoNTS:
 		addressType = "storage facility"
 		if mtoShipment.StorageFacility != nil {
 			ptrDestinationAddress = &mtoShipment.StorageFacility.Address

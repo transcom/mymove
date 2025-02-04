@@ -1,6 +1,9 @@
 package models
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"sort"
 	"time"
 
@@ -185,6 +188,18 @@ func (o *Order) Cancel() error {
 	return nil
 }
 
+var ordersTypeToAllotmentAppParamName = map[internalmessages.OrdersType]string{
+	internalmessages.OrdersTypeSTUDENTTRAVEL: "studentTravelHhgAllowance",
+}
+
+// Helper func to enforce strict unmarshal of application param values into a given  interface
+func strictUnmarshal(data []byte, v interface{}) error {
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	// Fail on unknown fields
+	decoder.DisallowUnknownFields()
+	return decoder.Decode(v)
+}
+
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
@@ -207,6 +222,52 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return Order{}, err
+	}
+
+	// Conduct allotment lookup
+	if order.Entitlement != nil && order.Grade != nil {
+		switch order.OrdersType {
+		case internalmessages.OrdersTypeSTUDENTTRAVEL:
+			// We currently store orders allotment overrides as an application parameter
+			// as it is a current one-off use case introduced by E-06189
+			var jsonData json.RawMessage
+			if paramName, ok := ordersTypeToAllotmentAppParamName[order.OrdersType]; ok {
+				err := db.RawQuery(`
+				SELECT parameter_json
+				FROM application_parameters
+				WHERE parameter_name = $1
+				`, paramName).First(&jsonData)
+
+				if err != nil {
+					return Order{}, fmt.Errorf("failed to fetch weight allotment for orders type %s: %w", order.OrdersType, err)
+				}
+
+				// Convert the JSON data to the WeightAllotment struct
+				err = strictUnmarshal(jsonData, &order.Entitlement.WeightAllotted)
+				if err != nil {
+					return Order{}, fmt.Errorf("failed to parse weight allotment JSON for orders type %s: %w", order.OrdersType, err)
+				}
+			}
+		default:
+			var hhgAllowance HHGAllowance
+			err = db.RawQuery(`
+				SELECT hhg_allowances.*
+				FROM hhg_allowances
+				INNER JOIN pay_grades ON hhg_allowances.pay_grade_id = pay_grades.id
+				WHERE pay_grades.grade = $1
+				LIMIT 1
+			`, order.Grade).First(&hhgAllowance)
+			if err != nil {
+				return Order{}, fmt.Errorf("failed to parse weight allotment JSON for orders type %s: %w", order.OrdersType, err)
+			}
+			order.Entitlement.WeightAllotted = &WeightAllotment{
+				TotalWeightSelf:               hhgAllowance.TotalWeightSelf,
+				TotalWeightSelfPlusDependents: hhgAllowance.TotalWeightSelfPlusDependents,
+				ProGearWeight:                 hhgAllowance.ProGearWeight,
+				ProGearWeightSpouse:           hhgAllowance.ProGearWeightSpouse,
+			}
+
+		}
 	}
 
 	// TODO: Handle case where more than one user is authorized to modify orders
@@ -490,7 +551,7 @@ func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (m
 
 			if o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusRejected &&
 				o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusCanceled &&
-				o.Moves[i].MTOShipments[j].ShipmentType != MTOShipmentTypeHHGIntoNTSDom &&
+				o.Moves[i].MTOShipments[j].ShipmentType != MTOShipmentTypeHHGIntoNTS &&
 				o.Moves[i].MTOShipments[j].DeletedAt == nil {
 				shipments = append(shipments, o.Moves[i].MTOShipments[j])
 			}

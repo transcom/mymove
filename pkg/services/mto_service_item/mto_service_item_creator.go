@@ -128,7 +128,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false, false)
+				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false)
 				if err != nil {
 					return 0, err
 				}
@@ -144,7 +144,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false, false)
+				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false)
 				if err != nil {
 					return 0, err
 				}
@@ -167,7 +167,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 			}
 
 			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false, false)
+				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false)
 				if err != nil {
 					return 0, err
 				}
@@ -303,14 +303,14 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 			originalSITAddressZip = mtoShipment.PickupAddress.PostalCode
 		}
 		if mtoShipment.PickupAddress != nil && originalSITAddressZip != "" {
-			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, originalSITAddressZip, false, false)
+			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, originalSITAddressZip, false)
 		}
 	}
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDDASIT || serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
 		// Creation: Destination SIT: distance between shipment destination address & service item destination address
 		if mtoShipment.DestinationAddress != nil && serviceItem.SITDestinationFinalAddress != nil {
-			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode, false, false)
+			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode, false)
 		}
 	}
 	if err != nil {
@@ -326,6 +326,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	var err error
 	var requestedServiceItems models.MTOServiceItems // used in case additional service items need to be auto-created
 	var createdServiceItems models.MTOServiceItems
+	var createdInternationalServiceItemIds []string
 
 	var move models.Move
 	moveID := serviceItem.MoveTaskOrderID
@@ -605,7 +606,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// DLH, DPK, DOP, DDP, DUPK
 
 	// NTS-release requested pickup dates are for handle out, their pricing is handled differently as their locations are based on storage facilities, not pickup locations
-	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil && mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil && mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
 		serviceItemEstimatedPrice, err := o.findEstimatedPrice(appCtx, serviceItem, mtoShipment)
 		if serviceItemEstimatedPrice != 0 && err == nil {
 			serviceItem.PricingEstimate = &serviceItemEstimatedPrice
@@ -671,9 +672,16 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				}
 			}
 
-			verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
+			if mtoShipment.MarketCode == models.MarketCodeInternational {
+				createdInternationalServiceItemIds, err = models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), *serviceItem.MTOShipmentID, models.MTOServiceItems{*serviceItem})
+				if err != nil {
+					return err
+				}
+			} else {
+				verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
+				if verrs != nil || err != nil {
+					return fmt.Errorf("%#v %e", verrs, err)
+				}
 			}
 
 			// need isOconus information for InternationalCrates in model_to_payload
@@ -682,6 +690,13 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 
 			createdServiceItems = append(createdServiceItems, *requestedServiceItem)
+
+			if mtoShipment.MarketCode == models.MarketCodeInternational {
+				requestedServiceItem.ID, err = uuid.FromString(createdInternationalServiceItemIds[0])
+				if err != nil {
+					return fmt.Errorf("%e", err)
+				}
+			}
 
 			// create dimensions if any
 			for index := range requestedServiceItem.Dimensions {

@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
 )
@@ -31,7 +32,12 @@ type moveTaskOrderUpdater struct {
 
 // NewMoveTaskOrderUpdater creates a new struct with the service dependencies
 func NewMoveTaskOrderUpdater(builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator, moveRouter services.MoveRouter, signedCertificationCreator services.SignedCertificationCreator, signedCertificationUpdater services.SignedCertificationUpdater, estimator services.PPMEstimator) services.MoveTaskOrderUpdater {
-	return &moveTaskOrderUpdater{moveTaskOrderFetcher{}, builder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, estimator}
+	// Fetcher dependency
+	waf := entitlements.NewWeightAllotmentFetcher()
+
+	return &moveTaskOrderUpdater{moveTaskOrderFetcher{
+		waf: waf,
+	}, builder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, estimator}
 }
 
 // UpdateStatusServiceCounselingCompleted updates the status on the move (move task order) to service counseling completed
@@ -58,6 +64,9 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 		if err != nil {
 			return err
 		}
+
+		//When submiting a move for approval - remove the SC assigned user
+		move.SCAssignedID = nil
 
 		// Save the move.
 		var verrs *validate.Errors
@@ -250,6 +259,9 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 	if existingETag != eTag {
 		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
+
+	//When approving a shipment - remove the assigned TOO user
+	move.TOOAssignedID = nil
 
 	// If the move is already been made available to prime, we will not need to approve and update the move,
 	// just the provided service items.

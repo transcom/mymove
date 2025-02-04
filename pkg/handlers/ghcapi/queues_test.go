@@ -15,8 +15,10 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	movefetcher "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	officeusercreator "github.com/transcom/mymove/pkg/services/office_user"
 	order "github.com/transcom/mymove/pkg/services/order"
@@ -24,6 +26,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
 	factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
@@ -76,7 +80,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -110,6 +114,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 func (suite *HandlerSuite) TestListPrimeMovesHandler() {
 	// Default Origin Duty Location GBLOC is KKFA
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	request := httptest.NewRequest("GET", "/queues/listPrimeMoves", nil)
 	params := queues.ListPrimeMovesParams{
@@ -118,7 +123,7 @@ func (suite *HandlerSuite) TestListPrimeMovesHandler() {
 	handlerConfig := suite.HandlerConfig()
 	handler := ListPrimeMovesHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -165,7 +170,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 				},
 			},
 		}, nil)
@@ -180,7 +185,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 				},
 			},
 		}, nil)
@@ -233,6 +238,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	move := models.Move{
 		Status: models.MoveStatusSUBMITTED,
@@ -278,7 +284,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -304,6 +310,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	// Default Origin Duty Location GBLOC is KKFA
 	hhgMove := factory.BuildSubmittedMove(suite.DB(), nil, nil)
@@ -366,7 +373,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -428,6 +435,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	submittedMove := models.Move{
 		Status: models.MoveStatusSUBMITTED,
@@ -515,7 +523,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -676,6 +684,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			},
 		},
 	}, nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	dutyLocation2 := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
@@ -772,7 +781,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -908,6 +917,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -918,7 +928,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -939,6 +949,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 	serviceUser.User.Roles = append(serviceUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeCustomer,
 	})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateRequest(request, serviceUser)
@@ -949,7 +960,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -970,6 +981,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	// Create an order with an origin duty location outside of office user GBLOC
 	excludedMove := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -1001,7 +1013,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -1315,6 +1327,7 @@ type servicesCounselingSubtestData struct {
 func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *servicesCounselingSubtestData) {
 	subtestData = &servicesCounselingSubtestData{}
 	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
 	// Default Origin Duty Location GBLOC is KKFA
@@ -1511,7 +1524,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	subtestData.handler = GetServicesCounselingQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
@@ -1638,5 +1651,245 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 
 		// Validate outgoing payload: nil payload
 		suite.Nil(payload)
+	})
+}
+
+func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
+	suite.Run("returns an unauthorized error when an attempt is made by a non supervisor", func() {
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email: "officeuser1@example.com",
+				},
+			},
+			{
+				Model: models.User{
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		request := httptest.NewRequest("GET", "/queues/bulk-assignment", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetBulkAssignmentDataParams{
+			HTTPRequest: request,
+			QueueType:   models.StringPointer("COUNSELING"),
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := GetBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcherBulkAssignment(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetBulkAssignmentDataUnauthorized{}, response)
+	})
+	suite.Run("returns properly formatted bulk assignment data", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		// move to appear in the return
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		request := httptest.NewRequest("GET", "/queues/bulk-assignment", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetBulkAssignmentDataParams{
+			HTTPRequest: request,
+			QueueType:   models.StringPointer("COUNSELING"),
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := GetBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcherBulkAssignment(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetBulkAssignmentDataOK{}, response)
+		payload := response.(*queues.GetBulkAssignmentDataOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.AvailableOfficeUsers, 1)
+		suite.Len(payload.BulkAssignmentMoveIDs, 1)
+	})
+	suite.Run("TOO: returns properly formatted bulk assignment data", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeTOO,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		// move to appear in the return
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		request := httptest.NewRequest("GET", "/queues/bulk-assignment", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetBulkAssignmentDataParams{
+			HTTPRequest: request,
+			QueueType:   models.StringPointer("TASK_ORDER"),
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := GetBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcherBulkAssignment(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetBulkAssignmentDataOK{}, response)
+		payload := response.(*queues.GetBulkAssignmentDataOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.AvailableOfficeUsers, 1)
+		suite.Len(payload.BulkAssignmentMoveIDs, 1)
+	})
+	suite.Run("returns properly formatted closeout bulk assignment data", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		submittedAt := time.Now()
+
+		// move to appear in the return
+		factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.PPMShipment{
+					Status:      models.PPMShipmentStatusNeedsCloseout,
+					SubmittedAt: &submittedAt,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		request := httptest.NewRequest("GET", "/queues/bulk-assignment", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetBulkAssignmentDataParams{
+			HTTPRequest: request,
+			QueueType:   models.StringPointer("CLOSEOUT"),
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := GetBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcherBulkAssignment(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetBulkAssignmentDataOK{}, response)
+		payload := response.(*queues.GetBulkAssignmentDataOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.AvailableOfficeUsers, 1)
+		suite.Len(payload.BulkAssignmentMoveIDs, 1)
 	})
 }

@@ -75,6 +75,14 @@ type Move struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
+	// Timestamp of when the TOO acknowledged the excess unaccompanied baggage weight risk by either dismissing the alert or updating the max billable weight
+	// Format: date-time
+	ExcessUnaccompaniedBaggageWeightAcknowledgedAt *strfmt.DateTime `json:"excessUnaccompaniedBaggageWeightAcknowledgedAt,omitempty"`
+
+	// Timestamp of when the sum of estimated or actual unaccompanied baggage shipment weights of the move reached 90% of the weight allowance
+	// Format: date-time
+	ExcessUnaccompaniedBaggageWeightQualifiedAt *strfmt.DateTime `json:"excessUnaccompaniedBaggageWeightQualifiedAt,omitempty"`
+
 	// Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight
 	// Format: date-time
 	ExcessWeightAcknowledgedAt *strfmt.DateTime `json:"excess_weight_acknowledged_at,omitempty"`
@@ -209,6 +217,14 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessUnaccompaniedBaggageWeightAcknowledgedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessUnaccompaniedBaggageWeightQualifiedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -493,6 +509,30 @@ func (m *Move) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateExcessUnaccompaniedBaggageWeightAcknowledgedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessUnaccompaniedBaggageWeightAcknowledgedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excessUnaccompaniedBaggageWeightAcknowledgedAt", "body", "date-time", m.ExcessUnaccompaniedBaggageWeightAcknowledgedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateExcessUnaccompaniedBaggageWeightQualifiedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessUnaccompaniedBaggageWeightQualifiedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excessUnaccompaniedBaggageWeightQualifiedAt", "body", "date-time", m.ExcessUnaccompaniedBaggageWeightQualifiedAt.String(), formats); err != nil {
 		return err
 	}
 

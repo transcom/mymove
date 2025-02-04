@@ -2,6 +2,7 @@ package notifications
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	html "html/template"
 	text "text/template"
@@ -53,6 +54,15 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
+	// Nil check here. Previously weight allotments were hard coded and a lookup was placed here.
+	// Since allotments are now stored in the database, to avoid an import circle we enhance the
+	// "FetchOrderForUser" to return the allotment, preventing any need for addtional lookup or db querying.
+	if orders.Entitlement == nil || orders.Entitlement.WeightAllotted == nil {
+		errMsg := "WeightAllotted is nil during move email generation. Ensure orders fetch includes an entitlement join and the correct pay grade exists"
+		appCtx.Logger().Error(errMsg, zap.String("orderID", orders.ID.String()))
+		return nil, errors.New(errMsg)
+	}
+
 	destinationAddress := orders.NewDutyLocation.Name
 	isSeparateeRetiree := orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || orders.OrdersType == internalmessages.OrdersTypeSEPARATION
 	if isSeparateeRetiree && len(move.MTOShipments) > 0 {
@@ -90,15 +100,14 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		originDutyLocationName = &originDutyLocation.Name
 	}
 
-	totalEntitlement := models.GetWeightAllotment(*orders.Grade, orders.OrdersType)
 	unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, originDutyLocation.Address.IsOconus, orders.NewDutyLocation.Address.IsOconus, orders.ServiceMember.Affiliation, orders.Grade, &orders.OrdersType, orders.Entitlement.DependentsAuthorized, orders.Entitlement.AccompaniedTour, orders.Entitlement.DependentsUnderTwelve, orders.Entitlement.DependentsTwelveAndOver)
 	if err == nil {
-		totalEntitlement.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+		orders.Entitlement.WeightAllotted.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 	}
 
-	weight := totalEntitlement.TotalWeightSelf
+	weight := orders.Entitlement.WeightAllotted.TotalWeightSelf
 	if orders.HasDependents {
-		weight = totalEntitlement.TotalWeightSelfPlusDependents
+		weight = orders.Entitlement.WeightAllotted.TotalWeightSelfPlusDependents
 	}
 
 	if serviceMember.PersonalEmail == nil {

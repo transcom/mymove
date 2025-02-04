@@ -1,6 +1,7 @@
-import { checkRequiredFields, checkTelephone, parseRoles } from './validation';
+import { checkRequiredFields, checkTelephone, parseRoles, parsePrivileges } from './validation';
 
 import { adminOfficeRoles, roleTypes } from 'constants/userRoles';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 describe('checkRequiredFields', () => {
   it('success: does nothing if all fields provided', () => {
@@ -69,5 +70,38 @@ describe('parseRoles', () => {
       parseRoles('test_role');
     }
     expect(parseInvalidRoles).toThrowError('Invalid roles provided for row.');
+  });
+});
+
+describe('parsePrivileges', () => {
+  const supervisorPrivilege = { privilegeType: 'supervisor', name: 'Supervisor' };
+  const safetyPrivilege = { privilegeType: 'safety', name: 'Safety Moves' };
+
+  it('fail: throws an error if there are no privileges', () => {
+    function parseEmptyPrivileges() {
+      parsePrivileges('');
+    }
+    expect(parseEmptyPrivileges).toThrowError('Processing Error: Unable to parse privileges for row.');
+  });
+
+  it('success: parses one privilege into an array of len 1', () => {
+    const privileges = elevatedPrivilegeTypes.SUPERVISOR;
+    const privilegesArray = parsePrivileges(privileges);
+    expect(privilegesArray).toHaveLength(1);
+    expect(privilegesArray).toContainEqual(supervisorPrivilege);
+  });
+
+  it('success: parses multiple privileges into an array', () => {
+    const privileges = `${elevatedPrivilegeTypes.SUPERVISOR}, ${elevatedPrivilegeTypes.SAFETY}`;
+    const privilegesArray = parsePrivileges(privileges);
+    expect(privilegesArray).toHaveLength(2);
+    expect(privilegesArray).toEqual(expect.arrayContaining([supervisorPrivilege, safetyPrivilege]));
+  });
+
+  it('fail: throws an error if there is an invalid privilege', () => {
+    function parseInvalidPrivileges() {
+      parsePrivileges('test_privilege');
+    }
+    expect(parseInvalidPrivileges).toThrowError('Invalid privileges provided for row.');
   });
 });

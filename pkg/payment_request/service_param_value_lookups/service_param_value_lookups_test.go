@@ -48,13 +48,11 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(defaultZipDistance, nil)
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		true,
 	).Return(defaultInternationalZipDistance, nil)
 
@@ -776,7 +774,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 				},
 			},
 		}, nil)
@@ -820,7 +818,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 				},
 			},
 		}, nil)

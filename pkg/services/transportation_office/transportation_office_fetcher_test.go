@@ -181,7 +181,16 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		},
 	}, nil)
 
-	offices, err := findCounselingOffice(suite.AppContextForTest(), origDutyLocation.ID)
+	armyAffliation := models.AffiliationARMY
+	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &armyAffliation,
+			},
+		},
+	}, nil)
+
+	offices, err := findCounselingOffice(suite.AppContextForTest(), origDutyLocation.ID, serviceMember.ID)
 
 	suite.NoError(err)
 	suite.Len(offices, 2)
@@ -334,7 +343,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 		return rateArea, oconusRateArea, *usprc, found_duty_location
 	}
 
-	suite.Run("success - findOconusGblocDepartmentIndicator - returns default GLOC for departmentAffiliation if no specific departmentAffilation mapping is defined", func() {
+	suite.Run("success - findOconusGblocDepartmentIndicator - returns default GBLOC for departmentAffiliation if no specific departmentAffilation mapping is defined", func() {
 		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
 		suite.FatalNoError(err)
@@ -368,7 +377,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 				ServiceMemberID: serviceMember.ID,
 			})
 			suite.Nil(err)
-			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
+			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, serviceMember.ID)
 			suite.NotNil(departmentIndictor)
 			suite.Nil(err)
 			suite.Nil(departmentIndictor.DepartmentIndicator)
@@ -427,7 +436,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 				ServiceMemberID: serviceMember.ID,
 			})
 			suite.Nil(err)
-			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
+			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
 			suite.NotNil(departmentIndictor)
 			suite.Nil(err)
 			suite.NotNil(departmentIndictor.DepartmentIndicator)
@@ -455,7 +464,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 			ServiceMemberID: serviceMember.ID,
 		})
 		suite.Nil(err)
-		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
+		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
 		suite.Nil(departmentIndictor)
 		suite.NotNil(err)
 	})
@@ -473,7 +482,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 		})
 
 		suite.Nil(err)
-		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation)
+		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
 		suite.Nil(departmentIndictor)
 		suite.NotNil(err)
 	})
@@ -483,7 +492,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 			ServiceMemberID: uuid.Must(uuid.NewV4()),
 		})
 		unknown_duty_location_id := uuid.Must(uuid.NewV4())
-		offices, err := findCounselingOffice(appCtx, unknown_duty_location_id)
+		offices, err := findCounselingOffice(appCtx, unknown_duty_location_id, appCtx.Session().ServiceMemberID)
 		suite.Nil(offices)
 		suite.NotNil(err)
 	})
@@ -523,7 +532,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 		})
 
 		suite.Nil(err)
-		offices, err := findCounselingOffice(appCtx, dutylocation.ID)
+		offices, err := findCounselingOffice(appCtx, dutylocation.ID, appCtx.Session().ServiceMemberID)
 		suite.NotNil(offices)
 		suite.Nil(err)
 		suite.Equal(1, len(offices))
@@ -539,7 +548,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 				},
 			},
 		}, nil)
-		offices, err = findCounselingOffice(appCtx, dutylocation.ID)
+		offices, err = findCounselingOffice(appCtx, dutylocation.ID, appCtx.Session().ServiceMemberID)
 		suite.NotNil(offices)
 		suite.Nil(err)
 		suite.Equal(2, len(offices))
@@ -618,7 +627,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 					ServiceMemberID: serviceMember.ID,
 				})
-				offices, err := findCounselingOffice(appCtx, dutylocation.ID)
+				offices, err := findCounselingOffice(appCtx, dutylocation.ID, appCtx.Session().ServiceMemberID)
 				suite.NotNil(offices)
 				suite.Nil(err)
 				suite.Equal(1, len(offices))
@@ -629,7 +638,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 					ServiceMemberID: serviceMember.ID,
 				})
-				offices, err := findCounselingOffice(appCtx, dutylocation.ID)
+				offices, err := findCounselingOffice(appCtx, dutylocation.ID, serviceMember.ID)
 				suite.NotNil(offices)
 				suite.Nil(err)
 				suite.Equal(1, len(offices))

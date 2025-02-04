@@ -61,6 +61,141 @@ func (o *ShowCounselingOfficesOK) WriteResponse(rw http.ResponseWriter, producer
 	}
 }
 
+// ShowCounselingOfficesBadRequestCode is the HTTP code returned for type ShowCounselingOfficesBadRequest
+const ShowCounselingOfficesBadRequestCode int = 400
+
+/*
+ShowCounselingOfficesBadRequest The request payload is invalid
+
+swagger:response showCounselingOfficesBadRequest
+*/
+type ShowCounselingOfficesBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewShowCounselingOfficesBadRequest creates ShowCounselingOfficesBadRequest with default headers values
+func NewShowCounselingOfficesBadRequest() *ShowCounselingOfficesBadRequest {
+
+	return &ShowCounselingOfficesBadRequest{}
+}
+
+// WithPayload adds the payload to the show counseling offices bad request response
+func (o *ShowCounselingOfficesBadRequest) WithPayload(payload *ghcmessages.Error) *ShowCounselingOfficesBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the show counseling offices bad request response
+func (o *ShowCounselingOfficesBadRequest) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *ShowCounselingOfficesBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(400)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// ShowCounselingOfficesForbiddenCode is the HTTP code returned for type ShowCounselingOfficesForbidden
+const ShowCounselingOfficesForbiddenCode int = 403
+
+/*
+ShowCounselingOfficesForbidden The request was denied
+
+swagger:response showCounselingOfficesForbidden
+*/
+type ShowCounselingOfficesForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewShowCounselingOfficesForbidden creates ShowCounselingOfficesForbidden with default headers values
+func NewShowCounselingOfficesForbidden() *ShowCounselingOfficesForbidden {
+
+	return &ShowCounselingOfficesForbidden{}
+}
+
+// WithPayload adds the payload to the show counseling offices forbidden response
+func (o *ShowCounselingOfficesForbidden) WithPayload(payload *ghcmessages.Error) *ShowCounselingOfficesForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the show counseling offices forbidden response
+func (o *ShowCounselingOfficesForbidden) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *ShowCounselingOfficesForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(403)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// ShowCounselingOfficesNotFoundCode is the HTTP code returned for type ShowCounselingOfficesNotFound
+const ShowCounselingOfficesNotFoundCode int = 404
+
+/*
+ShowCounselingOfficesNotFound The requested resource wasn't found
+
+swagger:response showCounselingOfficesNotFound
+*/
+type ShowCounselingOfficesNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewShowCounselingOfficesNotFound creates ShowCounselingOfficesNotFound with default headers values
+func NewShowCounselingOfficesNotFound() *ShowCounselingOfficesNotFound {
+
+	return &ShowCounselingOfficesNotFound{}
+}
+
+// WithPayload adds the payload to the show counseling offices not found response
+func (o *ShowCounselingOfficesNotFound) WithPayload(payload *ghcmessages.Error) *ShowCounselingOfficesNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the show counseling offices not found response
+func (o *ShowCounselingOfficesNotFound) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *ShowCounselingOfficesNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(404)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // ShowCounselingOfficesInternalServerErrorCode is the HTTP code returned for type ShowCounselingOfficesInternalServerError
 const ShowCounselingOfficesInternalServerErrorCode int = 500
 
