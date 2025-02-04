@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -1677,5 +1678,161 @@ func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
 		suite.Equal("PDX", payload.PodLocation.PortCode, "Expected POD Port Code to match")
 		suite.Equal("PORTLAND INTL", payload.PodLocation.PortName, "Expected POD Port Name to match")
 		suite.Nil(payload.PoeLocation, "Expected PODLocation to be nil when PODLocation is set")
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemPayload() {
+	mtoServiceItemID := uuid.Must(uuid.NewV4())
+	mtoShipmentID := uuid.Must(uuid.NewV4())
+	psID := uuid.Must(uuid.NewV4())
+	reServiceCode := models.ReServiceCodeDLH
+	reServiceName := "Domestic Linehaul"
+	shipmentType := models.MTOShipmentTypeHHG
+	priceCents := unit.Cents(12345)
+	rejectionReason := models.StringPointer("Some reason")
+	status := models.PaymentServiceItemStatusDenied
+	referenceID := "REF123"
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	paymentServiceItemParams := []models.PaymentServiceItemParam{
+		{
+			ID:                   uuid.Must(uuid.NewV4()),
+			PaymentServiceItemID: psID,
+			Value:                "1000",
+		},
+	}
+
+	paymentServiceItem := models.PaymentServiceItem{
+		ID:               psID,
+		MTOServiceItemID: mtoServiceItemID,
+		MTOServiceItem: models.MTOServiceItem{
+			ID: mtoServiceItemID,
+			MTOShipment: models.MTOShipment{
+				ID:           mtoShipmentID,
+				ShipmentType: shipmentType,
+			},
+			ReService: models.ReService{
+				Code: reServiceCode,
+				Name: reServiceName,
+			},
+		},
+		PriceCents:               &priceCents,
+		RejectionReason:          rejectionReason,
+		Status:                   status,
+		ReferenceID:              referenceID,
+		PaymentServiceItemParams: paymentServiceItemParams,
+		CreatedAt:                createdAt,
+		UpdatedAt:                updatedAt,
+	}
+
+	suite.Run("Success - Returns a ghcmessages PaymentServiceItem payload", func() {
+		returnedPaymentServiceItem := PaymentServiceItem(&paymentServiceItem)
+
+		suite.NotNil(returnedPaymentServiceItem)
+		suite.IsType(&ghcmessages.PaymentServiceItem{}, returnedPaymentServiceItem)
+		suite.Equal(handlers.FmtUUID(paymentServiceItem.ID), &returnedPaymentServiceItem.ID)
+		suite.Equal(handlers.FmtUUID(paymentServiceItem.MTOServiceItemID), &returnedPaymentServiceItem.MtoServiceItemID)
+		suite.Equal(string(paymentServiceItem.MTOServiceItem.ReService.Code), returnedPaymentServiceItem.MtoServiceItemCode)
+		suite.Equal(paymentServiceItem.MTOServiceItem.ReService.Name, returnedPaymentServiceItem.MtoServiceItemName)
+		suite.Equal(ghcmessages.MTOShipmentType(paymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType), returnedPaymentServiceItem.MtoShipmentType)
+		suite.Equal(handlers.FmtUUIDPtr(paymentServiceItem.MTOServiceItem.MTOShipmentID), returnedPaymentServiceItem.MtoShipmentID)
+		suite.Equal(handlers.FmtCost(paymentServiceItem.PriceCents), returnedPaymentServiceItem.PriceCents)
+		suite.Equal(paymentServiceItem.RejectionReason, returnedPaymentServiceItem.RejectionReason)
+		suite.Equal(ghcmessages.PaymentServiceItemStatus(paymentServiceItem.Status), returnedPaymentServiceItem.Status)
+		suite.Equal(paymentServiceItem.ReferenceID, returnedPaymentServiceItem.ReferenceID)
+		suite.Equal(etag.GenerateEtag(paymentServiceItem.UpdatedAt), returnedPaymentServiceItem.ETag)
+
+		suite.Equal(len(paymentServiceItem.PaymentServiceItemParams), len(returnedPaymentServiceItem.PaymentServiceItemParams))
+		for i, param := range paymentServiceItem.PaymentServiceItemParams {
+			suite.Equal(param.Value, returnedPaymentServiceItem.PaymentServiceItemParams[i].Value)
+		}
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemsPayload() {
+	mtoServiceItemID1 := uuid.Must(uuid.NewV4())
+	mtoServiceItemID2 := uuid.Must(uuid.NewV4())
+	psID1 := uuid.Must(uuid.NewV4())
+	psID2 := uuid.Must(uuid.NewV4())
+	priceCents1 := unit.Cents(12345)
+	priceCents2 := unit.Cents(54321)
+	reServiceCode1 := models.ReServiceCodeDLH
+	reServiceCode2 := models.ReServiceCodeDOP
+	reServiceName1 := "Domestic Linehaul"
+	reServiceName2 := "Domestic Origin Pack"
+	shipmentType := models.MTOShipmentTypeHHG
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	paymentServiceItems := models.PaymentServiceItems{
+		{
+			ID:               psID1,
+			MTOServiceItemID: mtoServiceItemID1,
+			MTOServiceItem: models.MTOServiceItem{
+				ID: mtoServiceItemID1,
+				MTOShipment: models.MTOShipment{
+					ID:           uuid.Must(uuid.NewV4()),
+					ShipmentType: shipmentType,
+				},
+				ReService: models.ReService{
+					Code: reServiceCode1,
+					Name: reServiceName1,
+				},
+			},
+			PriceCents: &priceCents1,
+			CreatedAt:  createdAt,
+			UpdatedAt:  updatedAt,
+		},
+		{
+			ID:               psID2,
+			MTOServiceItemID: mtoServiceItemID2,
+			MTOServiceItem: models.MTOServiceItem{
+				ID: mtoServiceItemID2,
+				MTOShipment: models.MTOShipment{
+					ID:           uuid.Must(uuid.NewV4()),
+					ShipmentType: shipmentType,
+				},
+				ReService: models.ReService{
+					Code: reServiceCode2,
+					Name: reServiceName2,
+				},
+			},
+			PriceCents: &priceCents2,
+			CreatedAt:  createdAt,
+			UpdatedAt:  updatedAt,
+		},
+	}
+
+	// TPPSPaidInvoiceReportData
+	lineNetCharge1 := int64(200000)
+	tppsPaidReportData := models.TPPSPaidInvoiceReportEntrys{
+		{
+			ProductDescription: string(reServiceCode1),
+			LineNetCharge:      unit.Millicents(lineNetCharge1),
+		},
+	}
+
+	suite.Run("Success - Returns ghcmessages.PaymentServiceItems payload", func() {
+		returnedPaymentServiceItems := PaymentServiceItems(&paymentServiceItems, &tppsPaidReportData)
+
+		suite.NotNil(returnedPaymentServiceItems)
+		suite.Len(*returnedPaymentServiceItems, 2)
+
+		psItem1 := (*returnedPaymentServiceItems)[0]
+		suite.Equal(handlers.FmtUUID(psID1), &psItem1.ID)
+		suite.Equal(handlers.FmtCost(&priceCents1), psItem1.PriceCents)
+		suite.Equal(string(reServiceCode1), psItem1.MtoServiceItemCode)
+		suite.Equal(reServiceName1, psItem1.MtoServiceItemName)
+		suite.Equal(ghcmessages.MTOShipmentType(shipmentType), psItem1.MtoShipmentType)
+		suite.NotNil(psItem1.TppsInvoiceAmountPaidPerServiceItemMillicents)
+
+		psItem2 := (*returnedPaymentServiceItems)[1]
+		suite.Equal(handlers.FmtUUID(psID2), &psItem2.ID)
+		suite.Equal(handlers.FmtCost(&priceCents2), psItem2.PriceCents)
+		suite.Equal(string(reServiceCode2), psItem2.MtoServiceItemCode)
+		suite.Equal(reServiceName2, psItem2.MtoServiceItemName)
+		suite.Equal(ghcmessages.MTOShipmentType(shipmentType), psItem2.MtoShipmentType)
+		suite.Nil(psItem2.TppsInvoiceAmountPaidPerServiceItemMillicents)
 	})
 }
