@@ -1018,6 +1018,9 @@ integration_test_mtls:
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
     DB_PASSWORD_LOW_PRIV: mysecretpassword
+    CI_REGISTRY: $CI_REGISTRY
+    CI_REGISTRY_PASSWORD: $CI_REGISTRY_PASSWORD
+    CI_REGISTRY_USER: $CI_REGISTRY_USER
     DB_USER: postgres
     DB_HOST: localhost
     DB_PORT: 5432
@@ -1033,6 +1036,7 @@ integration_test_mtls:
   needs:
     - prep_integration_docker_microservice
   before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
     - *setup_milmove_env
     - *setup_tests_mtls
   script:
