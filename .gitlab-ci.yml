@@ -775,7 +775,7 @@ server_test:
     DB_PASSWORD_LOW_PRIV: mysecretpassword
     DB_USER: postgres
     DB_HOST: localhost
-    DB_PORT_TEST: 5433
+    DB_PORT_TEST: 5432
     DB_PORT: 5432
     DB_NAME: test_db
     DB_NAME_TEST: test_db
@@ -794,6 +794,10 @@ server_test:
     OKTA_API_KEY: notrealapikey8675309
     OKTA_OFFICE_GROUP_ID: notrealgroupId
     OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
+    POSTGRES_DB: test_db
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_HOST_AUTH_METHOD: trust
   script:
     - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
     - scripts/check-generated-code go.sum
