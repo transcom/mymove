@@ -1040,6 +1040,7 @@ integration_test_mtls:
     - *setup_milmove_env
     - *setup_tests_mtls
   script:
+    - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     - curl http://milmovelocal:4000
     - echo "Running E2E mTLS tests"
     - ./scripts/run-e2e-mtls-test
