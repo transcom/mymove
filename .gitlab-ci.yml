@@ -42,8 +42,11 @@ variables:
 
   OTEL_IMAGE_TAG: &otel_image_tag "git-$OTEL_VERSION-$CI_COMMIT_SHORT_SHA"
 
-  RUNNER_TAG: &runner_tag milmove
+  RUNNER_TAG: &runner_tag eks_cluster_runner
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
+  CSDE_RUNNER_TAG: &runner_tag milmove
+
+
 
   postgres: &postgres postgres:16.4
   #postgres: &postgres postgres:16.4
@@ -866,7 +869,7 @@ client_test:
   stage: test
   interruptible: true
   tags:
-    - $RUNNER_TAG
+    - $CSDE_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "4"
