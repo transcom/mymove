@@ -59,6 +59,8 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	pickupZip := r.PickupAddress.PostalCode
 	destinationZip := r.DestinationAddress.PostalCode
 
+	isInternationalShipment := mtoShipment.MarketCode == models.MarketCodeInternational
+
 	// if the shipment is international, we need to change the respective ZIP to use the port ZIP and not the address ZIP
 	if mtoShipment.MarketCode == models.MarketCodeInternational {
 		if mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
@@ -128,24 +130,22 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		}
 	}
 
-	internationalShipment := mtoShipment.MarketCode == models.MarketCodeInternational
-
 	if pickupZip == destinationZip {
 		distanceMiles = 1
 		totalDistanceMiles = distanceMiles
 	} else if hasApprovedDestinationSIT {
 		// from pickup zip to delivery zip
-		totalDistanceMiles, err = planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false, internationalShipment)
+		totalDistanceMiles, err = planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, isInternationalShipment)
 		if err != nil {
 			return "", err
 		}
 		// from pickup zip to Destination SIT zip
-		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip, false, internationalShipment)
+		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip, isInternationalShipment)
 		if err != nil {
 			return "", err
 		}
 	} else {
-		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip, false, internationalShipment)
+		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip, isInternationalShipment)
 		if err != nil {
 			return "", err
 		}

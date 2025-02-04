@@ -188,7 +188,7 @@ func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Boo
 
 	buf := new(bytes.Buffer)
 	replace := true
-	err := api.AddBookmarks(inputFile, buf, bookmarks, replace, nil)
+	err := api.AddBookmarks(inputFile, buf, bookmarks, replace, g.pdfConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
 	}
@@ -225,16 +225,16 @@ func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
 		return nil, err
 	}
 	defer file.Close()
-	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
+	return api.PDFInfo(file, fileName, nil, false, g.pdfConfig)
 }
 
 func (g *Generator) GetPdfFileInfoForReadSeeker(rs io.ReadSeeker) (*pdfcpu.PDFInfo, error) {
-	return api.PDFInfo(rs, "", nil, g.pdfConfig)
+	return api.PDFInfo(rs, "", nil, false, g.pdfConfig)
 }
 
 // Get file information of a single PDF
 func (g *Generator) GetPdfFileInfoByContents(file afero.File) (*pdfcpu.PDFInfo, error) {
-	return api.PDFInfo(file, file.Name(), nil, g.pdfConfig)
+	return api.PDFInfo(file, file.Name(), nil, false, g.pdfConfig)
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF

@@ -1,9 +1,17 @@
+-- removing ServiceAreaOrigin
+DELETE FROM service_params
+WHERE service_id = '9f3d551a-0725-430e-897e-80ee9add3ae9'
+AND service_item_param_key_id = '599bbc21-8d1d-4039-9a89-ff52e3582144';
+
 -- function that evaluates a date and returns T/F if it is during peak period
 CREATE OR REPLACE FUNCTION is_peak_period(input_date DATE) RETURNS BOOLEAN AS $$
 DECLARE
     peak_start DATE := MAKE_DATE(EXTRACT(YEAR FROM input_date)::INT, 5, 15); -- May 15th of the input year
     peak_end DATE := MAKE_DATE(EXTRACT(YEAR FROM input_date)::INT, 9, 30);   -- September 30th of the input year
 BEGIN
+    IF input_date IS NULL THEN
+        RAISE EXCEPTION 'Input date cannot be NULL';
+    END IF;
     -- if the input date is between May 15 and September 30 (inclusive), return true
     IF input_date BETWEEN peak_start AND peak_end THEN
         RETURN TRUE;
@@ -172,7 +180,7 @@ BEGIN
                 escalated_price := calculate_escalated_price(o_rate_area_id, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
+                    estimated_price := ROUND((escalated_price * shipment.prime_estimated_weight / 100), 2) * 100;
                     RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
@@ -187,7 +195,7 @@ BEGIN
                 escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
+                    estimated_price := ROUND((escalated_price * shipment.prime_estimated_weight / 100), 2) * 100;
                     RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
@@ -202,7 +210,7 @@ BEGIN
                 escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
+                    estimated_price := ROUND((escalated_price * shipment.prime_estimated_weight / 100), 2) * 100;
                     RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items

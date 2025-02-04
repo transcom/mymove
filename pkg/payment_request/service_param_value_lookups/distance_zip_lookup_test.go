@@ -273,7 +273,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.NoError(err)
 
 		planner := suite.planner.(*mocks.Planner)
-		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode, false, false)
+		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode, false)
 
 		err = suite.DB().Reload(&ppmShipment.Shipment)
 		suite.NoError(err)
@@ -304,7 +304,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.NoError(err)
 
 		planner := suite.planner.(*mocks.Planner)
-		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode, false, false)
+		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode, false)
 
 		err = suite.DB().Reload(&ppmShipment.Shipment)
 		suite.NoError(err)

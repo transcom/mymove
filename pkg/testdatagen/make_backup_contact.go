@@ -22,7 +22,7 @@ func makeBackupContact(db *pop.Connection, assertions Assertions) models.BackupC
 		ServiceMemberID: serviceMember.ID,
 		Name:            "name",
 		Email:           "email@example.com",
-		Phone:           models.StringPointer("555-555-5555"),
+		Phone:           "555-555-5555",
 		Permission:      models.BackupContactPermissionEDIT,
 	}
 
