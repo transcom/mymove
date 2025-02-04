@@ -127,7 +127,8 @@ const NTSRShipmentInfoList = ({
       <div className={requestedPickupDateElementFlags.classes}>
         <dt>Requested pickup date</dt>
         <dd data-testid="requestedPickupDate">
-          {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) || '—'}
+          {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) ||
+            getMissingOrDash('requestedPickupDate')}
         </dd>
       </div>
     </Restricted>

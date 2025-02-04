@@ -186,7 +186,7 @@ func init() {
                       }
                     ],
                     "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
+                    "shipmentType": "HHG_OUTOF_NTS"
                   }
                 },
                 "ppm": {
@@ -563,6 +563,25 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "fake@example.com"
+        },
+        "name": {
+          "type": "string",
+          "example": "Bob Smith"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone"
         }
       }
     },
@@ -1045,6 +1064,9 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
         "branch": {
           "type": "string",
           "example": "COAST_GUARD"
@@ -1666,14 +1688,73 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalShuttle": {
+      "description": "Describes an international shuttle service item.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode"
+          ],
+          "properties": {
+            "actualWeight": {
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `IDSHUT` + "`" + `).\n",
+              "type": "string",
+              "enum": [
+                "IOSHUT",
+                "IDSHUT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
+        "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemInternationalCrating",
         "MTOSerivceItemInternationalFuelSurcharge"
@@ -1822,7 +1903,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -1830,7 +1911,7 @@ func init() {
         "BOAT_TOW_AWAY",
         "HHG",
         "HHG_INTO_NTS",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS",
         "MOBILE_HOME",
         "PPM",
         "UNACCOMPANIED_BAGGAGE"
@@ -1840,7 +1921,7 @@ func init() {
         "BOAT_TOW_AWAY": "Boat shipment that has a road-worthy trailer",
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS": "HHG into Non-temporary storage (NTS)",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
+        "HHG_OUTOF_NTS": "HHG out of Non-temporary storage (NTS Release)",
         "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
@@ -3669,12 +3750,53 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "UpdateMTOServiceItemInternationalShuttle": {
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT \u0026 IOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT \u0026 IOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "IDSHUT",
+                "IOSHUT"
+              ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
-        "UpdateMTOServiceItemShuttle"
+        "UpdateMTOServiceItemShuttle",
+        "UpdateMTOServiceItemInternationalShuttle"
       ]
     },
     "UpdateMTOServiceItemSIT": {
@@ -4495,7 +4617,7 @@ func init() {
                       }
                     ],
                     "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
+                    "shipmentType": "HHG_OUTOF_NTS"
                   }
                 },
                 "ppm": {
@@ -4909,6 +5031,25 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "fake@example.com"
+        },
+        "name": {
+          "type": "string",
+          "example": "Bob Smith"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone"
         }
       }
     },
@@ -5391,6 +5532,9 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
         "branch": {
           "type": "string",
           "example": "COAST_GUARD"
@@ -6012,14 +6156,73 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalShuttle": {
+      "description": "Describes an international shuttle service item.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode"
+          ],
+          "properties": {
+            "actualWeight": {
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `IDSHUT` + "`" + `).\n",
+              "type": "string",
+              "enum": [
+                "IOSHUT",
+                "IDSHUT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
+        "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemInternationalCrating",
         "MTOSerivceItemInternationalFuelSurcharge"
@@ -6168,7 +6371,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -6176,7 +6379,7 @@ func init() {
         "BOAT_TOW_AWAY",
         "HHG",
         "HHG_INTO_NTS",
-        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS",
         "MOBILE_HOME",
         "PPM",
         "UNACCOMPANIED_BAGGAGE"
@@ -6186,7 +6389,7 @@ func init() {
         "BOAT_TOW_AWAY": "Boat shipment that has a road-worthy trailer",
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS": "HHG into Non-temporary storage (NTS)",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
+        "HHG_OUTOF_NTS": "HHG out of Non-temporary storage (NTS Release)",
         "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
@@ -8017,12 +8220,53 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "UpdateMTOServiceItemInternationalShuttle": {
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT \u0026 IOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT \u0026 IOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "IDSHUT",
+                "IOSHUT"
+              ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
-        "UpdateMTOServiceItemShuttle"
+        "UpdateMTOServiceItemShuttle",
+        "UpdateMTOServiceItemInternationalShuttle"
       ]
     },
     "UpdateMTOServiceItemSIT": {

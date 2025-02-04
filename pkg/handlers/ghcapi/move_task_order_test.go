@@ -30,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -44,7 +45,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	moveTaskOrder := factory.BuildMove(suite.DB(), nil, nil)
 	factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 	factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeCS)
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := movetaskorderops.GetMoveTaskOrderParams{
 		HTTPRequest:     request,
@@ -53,7 +54,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	handlerConfig := suite.HandlerConfig()
 	handler := GetMoveTaskOrderHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -190,7 +191,6 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(400, nil)
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -316,7 +316,6 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -405,7 +404,6 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(400, nil)
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
@@ -626,7 +624,6 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(400, nil)
 

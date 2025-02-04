@@ -60,3 +60,28 @@ func (o *IndexEntitlementsOK) WriteResponse(rw http.ResponseWriter, producer run
 		panic(err) // let the recovery middleware deal with this
 	}
 }
+
+// IndexEntitlementsInternalServerErrorCode is the HTTP code returned for type IndexEntitlementsInternalServerError
+const IndexEntitlementsInternalServerErrorCode int = 500
+
+/*
+IndexEntitlementsInternalServerError internal server error
+
+swagger:response indexEntitlementsInternalServerError
+*/
+type IndexEntitlementsInternalServerError struct {
+}
+
+// NewIndexEntitlementsInternalServerError creates IndexEntitlementsInternalServerError with default headers values
+func NewIndexEntitlementsInternalServerError() *IndexEntitlementsInternalServerError {
+
+	return &IndexEntitlementsInternalServerError{}
+}
+
+// WriteResponse to the client
+func (o *IndexEntitlementsInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(500)
+}
