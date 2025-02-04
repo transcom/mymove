@@ -32,9 +32,9 @@ func NewGetDestinationRequestsQueue(ctx *middleware.Context, handler GetDestinat
 /*
 	GetDestinationRequestsQueue swagger:route GET /queues/destination-requests queues getDestinationRequestsQueue
 
-Gets queued list of all customer moves by GBLOC that have destination requests (destination SIT, shuttle, address requests)
+Gets queued list of all customer moves by GBLOC that have both CONUS & OCONUS destination requests (destination SIT, destination shuttle, address requests)
 
-A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items (including shuttle) and destination address requests that are not approved.
+A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items, destination shuttle service items and destination address requests that are not yet approved by the TOO.
 */
 type GetDestinationRequestsQueue struct {
 	Context *middleware.Context

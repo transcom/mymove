@@ -310,6 +310,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	return moves, count, nil
 }
 
+// this is a custom/temporary struct used in the below service object to get destination queue moves
 type MoveWithCount struct {
 	models.Move
 	OrdersRaw           json.RawMessage              `json:"orders" db:"orders"`
@@ -335,16 +336,10 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 	var movesWithCount []MoveWithCount
 
 	// getting the office user's GBLOC
-	var officeUserGbloc string
-	if params.ViewAsGBLOC != nil {
-		officeUserGbloc = *params.ViewAsGBLOC
-	} else {
-		var gblocErr error
-		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
-		officeUserGbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
-		if gblocErr != nil {
-			return []models.Move{}, 0, gblocErr
-		}
+	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+	officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+	if gblocErr != nil {
+		return []models.Move{}, 0, gblocErr
 	}
 
 	// calling the database function with all passed in parameters
@@ -371,7 +366,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		return []models.Move{}, 0, err
 	}
 
-	// each row is sent back with the total count, so we will take the value from the first one
+	// each row is sent back with the total count from the db func, so we will take the value from the first one
 	var count int64
 	if len(movesWithCount) > 0 {
 		count = movesWithCount[0].TotalCount
@@ -414,11 +409,12 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		movesWithCount[i].TOOAssignedUser = &tooAssigned
 	}
 
-	// the handler consumes a Move object, so we have to copy our custom struct into the Move struct
+	// the handler consumes a Move object and NOT the MoveWithCount struct used in this func
+	// so we have to copy our custom struct into the Move struct
 	for _, moveWithCount := range movesWithCount {
 		var move models.Move
 		if err := copier.Copy(&move, &moveWithCount); err != nil {
-			return nil, 0, fmt.Errorf("error copying movesWithCount into Moves: %w", err)
+			return nil, 0, fmt.Errorf("error copying movesWithCount into Moves struct: %w", err)
 		}
 		moves = append(moves, move)
 	}

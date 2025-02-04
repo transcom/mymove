@@ -4684,14 +4684,14 @@ func init() {
     },
     "/queues/destination-requests": {
       "get": {
-        "description": "A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items (including shuttle) and destination address requests that are not approved.\n",
+        "description": "A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items, destination shuttle service items and destination address requests that are not yet approved by the TOO.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "queues"
         ],
-        "summary": "Gets queued list of all customer moves by GBLOC that have destination requests (destination SIT, shuttle, address requests)",
+        "summary": "Gets queued list of all customer moves by GBLOC that have both CONUS \u0026 OCONUS destination requests (destination SIT, destination shuttle, address requests)",
         "operationId": "getDestinationRequestsQueue",
         "parameters": [
           {
@@ -4801,18 +4801,6 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
-            "name": "viewAsGBLOC",
             "in": "query"
           },
           {
@@ -21735,14 +21723,14 @@ func init() {
     },
     "/queues/destination-requests": {
       "get": {
-        "description": "A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items (including shuttle) and destination address requests that are not approved.\n",
+        "description": "A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items, destination shuttle service items and destination address requests that are not yet approved by the TOO.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "queues"
         ],
-        "summary": "Gets queued list of all customer moves by GBLOC that have destination requests (destination SIT, shuttle, address requests)",
+        "summary": "Gets queued list of all customer moves by GBLOC that have both CONUS \u0026 OCONUS destination requests (destination SIT, destination shuttle, address requests)",
         "operationId": "getDestinationRequestsQueue",
         "parameters": [
           {
@@ -21852,18 +21840,6 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
-            "name": "viewAsGBLOC",
             "in": "query"
           },
           {
