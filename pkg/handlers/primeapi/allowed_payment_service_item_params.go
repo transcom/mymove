@@ -88,6 +88,9 @@ var (
 		models.ReServiceCodeIUBUPK: {
 			models.ServiceItemParamNameWeightBilled,
 		},
+		models.ReServiceCodeUBP: {
+			models.ServiceItemParamNameWeightBilled,
+		},
 	}
 )
 

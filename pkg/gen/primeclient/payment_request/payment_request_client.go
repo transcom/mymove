@@ -416,6 +416,19 @@ Just like domestic shipments & service items, if `WeightBilled` is not provided 
 
 ```
 
+	**UBP - International UB**
+
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
 ---
 */
 func (a *Client) CreatePaymentRequest(params *CreatePaymentRequestParams, opts ...ClientOption) (*CreatePaymentRequestCreated, error) {

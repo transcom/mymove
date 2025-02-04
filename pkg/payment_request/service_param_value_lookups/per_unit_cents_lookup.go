@@ -122,6 +122,30 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 		}
 		return reIntlOtherPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
 
+	case models.ReServiceCodeUBP:
+		// UBP: Need rate area IDs for origin and destination
+		originRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.PickupAddressID, &serviceID, contractID)
+		if err != nil {
+			return "", fmt.Errorf("error fetching rate area id for origin address for shipment ID: %s and service ID %s: %s", p.MTOShipment.ID, serviceID, err)
+		}
+		destRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.DestinationAddressID, &serviceID, contractID)
+		if err != nil {
+			return "", fmt.Errorf("error fetching rate area id for destination address for shipment ID: %s and service ID %s: %s", p.MTOShipment.ID, serviceID, err)
+		}
+		isPeakPeriod := ghcrateengine.IsPeakPeriod(*p.MTOShipment.RequestedPickupDate)
+		var reIntlPrice models.ReIntlPrice
+		err = appCtx.DB().Q().
+			Where("contract_id = ?", contractID).
+			Where("service_id = ?", serviceID).
+			Where("is_peak_period = ?", isPeakPeriod).
+			Where("origin_rate_area_id = ?", originRateAreaID).
+			Where("destination_rate_area_id = ?", destRateAreaID).
+			First(&reIntlPrice)
+		if err != nil {
+			return "", fmt.Errorf("error fetching UBP per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, originRateAreaID: %s, and destRateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, originRateAreaID, destRateAreaID, err)
+		}
+		return reIntlPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
+
 	default:
 		return "", fmt.Errorf("unsupported service code to retrieve service item param PerUnitCents")
 	}
