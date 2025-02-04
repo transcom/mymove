@@ -1465,48 +1465,6 @@ func init() {
         }
       }
     },
-    "/rejected-office-users/{officeUserId}": {
-      "get": {
-        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Rejected office users"
-        ],
-        "summary": "Get a Rejected Office User",
-        "operationId": "getRejectedOfficeUser",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "officeUserId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/OfficeUser"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "Office User not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/requested-office-users": {
       "get": {
         "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
@@ -5259,48 +5217,6 @@ func init() {
                 "type": "string",
                 "description": "Used for pagination"
               }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "Office User not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/rejected-office-users/{officeUserId}": {
-      "get": {
-        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Rejected office users"
-        ],
-        "summary": "Get a Rejected Office User",
-        "operationId": "getRejectedOfficeUser",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "officeUserId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/OfficeUser"
             }
           },
           "400": {
