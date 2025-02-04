@@ -321,7 +321,7 @@ class MtoShipmentForm extends Component {
                           )} for this UB shipment. The weight of your UB is part of your authorized weight allowance`
                         : ` Your standard weight allowance is ${formatWeight(
                             orders.authorizedWeight,
-                          )} total. If you are moving to an administratively restricted HHG weight location this amount may be less. `}
+                          )} total. If you are moving to an administratively restricted HHG weight location this amount may be less`}
                       . You’ll be billed for any excess weight you move.
                     </Alert>
                     <Form className={formStyles.form}>
