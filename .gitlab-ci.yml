@@ -1011,6 +1011,8 @@ integration_test_mtls:
     # - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-ca40daf2
       alias: milmovelocal
+      entrypoint: ["/bin/milmove"]
+      command: ["serve"]
   variables:
     DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
     DOCKER_TLS_CERTDIR: ""
