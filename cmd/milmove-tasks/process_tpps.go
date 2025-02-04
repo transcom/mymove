@@ -13,8 +13,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/smithy-go"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -222,15 +220,38 @@ func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key 
 			Bucket: aws.String("app-tpps-transfer-exp-us-gov-west-1"),
 			Key:    aws.String("connector-files/MILMOVE-en20250203.csv"),
 		})
+	// if err != nil {
+	// 	var ae smithy.APIError
+	// 	logger.Info("Error retrieving TPPS file metadata")
+	// 	if errors.As(err, &ae) {
+	// 		logger.Error("AWS Error Code", zap.String("code", ae.ErrorCode()), zap.String("message", ae.ErrorMessage()), zap.Any("ErrorFault", ae.ErrorFault()))
+	// 	}
+	// 	return "", "", err
+	// }
+	// defer response.Body.Close()
+
 	if err != nil {
-		var ae smithy.APIError
-		logger.Info("Error retrieving TPPS file metadata")
-		if errors.As(err, &ae) {
-			logger.Error("AWS Error Code", zap.String("code", ae.ErrorCode()), zap.String("message", ae.ErrorMessage()), zap.Any("ErrorFault", ae.ErrorFault()))
-		}
+		logger.Error("Failed to get S3 object",
+			zap.String("bucket", bucket),
+			zap.String("key", key),
+			zap.Error(err))
 		return "", "", err
 	}
 	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		logger.Error("Failed to read S3 object body", zap.Error(err))
+		return "", "", err
+	}
+
+	logger.Info("Successfully retrieved S3 object",
+		zap.String("bucket", bucket),
+		zap.String("key", key),
+		zap.String("content-type", aws.ToString(response.ContentType)),
+		zap.String("etag", aws.ToString(response.ETag)),
+		zap.Int64("content-length", *response.ContentLength),
+		zap.String("body-preview", string(body[:min(100, len(body))])))
 
 	result := ""
 	// get the ClamAV results
