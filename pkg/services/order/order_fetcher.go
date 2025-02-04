@@ -348,7 +348,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 	}
 
 	// calling the database function with all passed in parameters
-	err := appCtx.DB().RawQuery("SELECT * FROM get_destination_queue($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+	err := appCtx.DB().RawQuery("SELECT * FROM get_destination_queue($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)",
 		officeUserGbloc,
 		params.CustomerName,
 		params.Edipi,
@@ -356,13 +356,15 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		pq.Array(params.Status),
 		params.Locator,
 		params.RequestedMoveDate,
-		params.SubmittedAt,
+		params.AppearedInTOOAt,
 		params.Branch,
 		strings.Join(params.OriginDutyLocation, " "),
 		params.CounselingOffice,
 		params.TOOAssignedUser,
 		params.Page,
-		params.PerPage).
+		params.PerPage,
+		params.Sort,
+		params.Order).
 		All(&movesWithCount)
 
 	if err != nil {
