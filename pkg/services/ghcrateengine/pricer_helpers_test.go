@@ -595,6 +595,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")
 	})
 }
+
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 	suite.Run("crating golden path", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)

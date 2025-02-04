@@ -212,7 +212,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(0, errors.New("error with ZipTransitDistance"))
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), errorPlanner, mtoServiceItemSameZip3, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
