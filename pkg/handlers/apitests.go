@@ -9,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime/debug"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime"
@@ -148,6 +149,11 @@ func (suite *BaseHandlerTestSuite) TestNotificationSender() notifications.Notifi
 	return suite.notificationSender
 }
 
+// TestNotificationReceiver returns the notification sender to use in the suite
+func (suite *BaseHandlerTestSuite) TestNotificationReceiver() notifications.NotificationReceiver {
+	return notifications.NewStubNotificationReceiver()
+}
+
 // HasWebhookNotification checks that there's a record on the WebhookNotifications table for the object and trace IDs
 func (suite *BaseHandlerTestSuite) HasWebhookNotification(objectID uuid.UUID, traceID uuid.UUID) {
 	notification := &models.WebhookNotification{}
@@ -277,8 +283,12 @@ func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 	if err != nil {
 		suite.T().Error(err)
 	}
+	cdRouting := ""
+	if strings.Contains(cwd, "routing") {
+		cdRouting = ".."
+	}
 
-	fixturePath := path.Join(cwd, "..", "..", fixtureDir, name)
+	fixturePath := path.Join(cwd, "..", "..", cdRouting, fixtureDir, name)
 
 	file, err := os.Open(filepath.Clean(fixturePath))
 	if err != nil {
