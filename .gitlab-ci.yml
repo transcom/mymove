@@ -282,11 +282,11 @@ stages:
     # disable for speed, tests can fail otherwise
     -  export DB_DEBUG=false
 
-      make db_dev_create
-      bin/milmove migrate
-      mkdir -p build
-      touch build/index.html
-      bin/milmove serve 2>&1 | tee server.log &
+      # make db_dev_create
+      # bin/milmove migrate
+      # mkdir -p build
+      # touch build/index.html
+      # bin/milmove serve 2>&1 | tee server.log &
 
 
 .setup_server_env_variables: &setup_server_env_variables
