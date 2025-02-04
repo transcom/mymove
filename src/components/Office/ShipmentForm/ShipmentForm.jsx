@@ -357,6 +357,29 @@ const ShipmentForm = (props) => {
     : generatePath(servicesCounselingRoutes.BASE_ORDERS_EDIT_PATH, { moveCode });
 
   const submitMTOShipment = (formValues, actions) => {
+    if (formValues.hasTertiaryDestination === 'true' && formValues.secondaryDestination.address.streetAddress1 === '') {
+      actions.setFieldError('secondaryDestination.address.streetAddress1', 'destination address required');
+      actions.setSubmitting(false);
+      return;
+    }
+    if (formValues.hasTertiaryPickup === 'true' && formValues.secondaryPickup.address.streetAddress1 === '') {
+      actions.setFieldError('secondaryPickup.address.streetAddress1', 'Pickup address required');
+      actions.setSubmitting(false);
+      return;
+    }
+
+    if (formValues.hasTertiaryDelivery === 'yes' && formValues.secondaryDelivery.address.streetAddress1 === '') {
+      actions.setFieldError('secondaryDelivery.address.streetAddress1', 'destination address required');
+      actions.setSubmitting(false);
+      return;
+    }
+
+    if (formValues.hasTertiaryPickup === 'yes' && formValues.secondaryPickup.address.streetAddress1 === '') {
+      actions.setFieldError('secondaryPickup.address.streetAddress1', 'Pickup address required');
+      actions.setSubmitting(false);
+      return;
+    }
+
     //* PPM Shipment *//
     if (isPPM) {
       const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
@@ -1496,7 +1519,7 @@ const ShipmentForm = (props) => {
                                           name="hasTertiaryPickup"
                                           value="false"
                                           title="No, there is not a third pickup address"
-                                          checked={hasTertiaryPickup !== 'true'}
+                                          checked={hasTertiaryPickup !== 'yes'}
                                         />
                                       </div>
                                     </FormGroup>
