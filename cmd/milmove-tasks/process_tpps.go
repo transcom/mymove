@@ -257,18 +257,27 @@ func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key 
 	// get the ClamAV results
 	result, found := response.Metadata["av-status"]
 	if !found {
+		logger.Info(fmt.Sprintf("found was false: %t\n", found))
+		logger.Info(fmt.Sprintf("result: %s\n", result))
+
 		result = "UNKNOWN"
 		return "", result, err
 	}
+	logger.Info(fmt.Sprintf("found: %t\n", found))
+	logger.Info(fmt.Sprintf("result: %s\n", result))
 	logger.Info(fmt.Sprintf("Result of ClamAV scan: %s\n", result))
 
 	if result != "CLEAN" {
+		logger.Info(fmt.Sprintf("found: %t\n", found))
+		logger.Info(fmt.Sprintf("result: %s\n", result))
 		logger.Info(fmt.Sprintf("ClamAV scan value was not CLEAN for TPPS file: %s\n", key))
 		return "", result, err
 	}
 
 	localFilePath := ""
 	if result == "CLEAN" {
+		logger.Info(fmt.Sprintf("found: %t\n", found))
+		logger.Info(fmt.Sprintf("result: %s\n", result))
 		// create a temp file in /tmp directory to store the CSV from the S3 bucket
 		// the /tmp directory will only exist for the duration of the task, so no cleanup is required
 		tempDir := "/tmp"
