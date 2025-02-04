@@ -1010,7 +1010,7 @@ integration_test_mtls:
     - name: $postgres
     # - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-ca40daf2
-      alias: milmovelocal
+      alias: milmove_micro
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
   variables:
@@ -1067,7 +1067,7 @@ integration_test_mtls:
 
 
     HTTP_ADMIN_SERVER_NAME: adminlocal
-    HTTP_MY_SERVER_NAME: milmovelocal
+    HTTP_MY_SERVER_NAME: milmove_micro
     HTTP_OFFICE_SERVER_NAME: officelocal
     HTTP_ORDERS_SERVER_NAME: orderslocal
     HTTP_PRIME_SERVER_NAME: primelocal
@@ -1087,12 +1087,12 @@ integration_test_mtls:
   script:
     - sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
     - source server_env
-    - make db_dev_create
-    - bin/milmove migrate
-    - mkdir -p build
-    - touch build/index.html
-    - bin/milmove serve 2>&1 | tee server.log &
-    - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
+    # - make db_dev_create
+    # - bin/milmove migrate
+    # - mkdir -p build
+    # - touch build/index.html
+    # - bin/milmove serve 2>&1 | tee server.log &
+    - until $(curl --output /dev/null --silent --head --fail http://milmove_micro:4000); do printf '.'; sleep 1; done
     - curl http://milmovelocal:4000
     - echo "Running E2E mTLS tests"
     - ./scripts/run-e2e-mtls-test
