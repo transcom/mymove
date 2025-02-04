@@ -1029,17 +1029,67 @@ integration_test_mtls:
     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-    ENVIRONMENT: development
+    # ENVIRONMENT: development
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_DB: test_db
+
+    MOVE_MIL_DOD_CA_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+    MOVE_MIL_DOD_TLS_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
+    MOVE_MIL_DOD_TLS_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-https.key)
+    CLIENT_AUTH_SECRET_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
+    LOGIN_GOV_SECRET_KEY: $(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+    HERE_MAPS_APP_ID: $E2E_HERE_MAPS_APP_ID
+    HERE_MAPS_APP_CODE: $E2E_HERE_MAPS_APP_CODE
+
+    HERE_MAPS_GEOCODE_ENDPOINT: 'https: //geocoder.api.here.com/6.2/geocode.json'
+    HERE_MAPS_ROUTING_ENDPOINT: 'https: //route.api.here.com/routing/7.2/calculateroute.json'
+    LOGIN_GOV_CALLBACK_PORT: 4000
+    LOGIN_GOV_CALLBACK_PROTOCOL: http
+    OKTA_CUSTOMER_CLIENT_ID: 1q2w3e4r5t6y7u8i9o
+    OKTA_ADMIN_CLIENT_ID: AQ1SW2DE3FR4G5
+    OKTA_OFFICE_CLIENT_ID: 9f9f9s8s90gig9
+    OKTA_CUSTOMER_SECRET_KEY: notrealkey
+    OKTA_OFFICE_SECRET_KEY: notrealkey1
+    OKTA_ADMIN_SECRET_KEY: notrealkey2
+    OKTA_TENANT_CALLBACK_PORT: 4000
+    OKTA_TENANT_CALLBACK_PROTOCOL: http
+    OKTA_TENANT_ORG_URL: test-milmove.okta.mil
+    OKTA_API_KEY: notrealapikey
+    OKTA_OFFICE_GROUP_ID: notrealgroupId
+    OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
+
+    SERVE_API_SUPPORT: true
+    SERVE_PRIME_SIMULATOR: true
+    DEVLOCAL_CA: '/builds/milmove/mymove/config/tls/devlocal-ca.pem'
+
+
+    HTTP_ADMIN_SERVER_NAME: adminlocal
+    HTTP_MY_SERVER_NAME: milmovelocal
+    HTTP_OFFICE_SERVER_NAME: officelocal
+    HTTP_ORDERS_SERVER_NAME: orderslocal
+    HTTP_PRIME_SERVER_NAME: primelocal
+
+    ENVIRONMENT: test
+    MUTUAL_TLS_ENABLED: true
+    MUTUAL_TLS_PORT: 9443
+    SERVE_API_PRIME: true
+
+    DB_DEBUG: false
+
   # needs:
   #   - prep_integration_docker_microservice
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
     - *setup_milmove_env
-    - *setup_tests_mtls
   script:
+    - sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
+    - source server_env
+    - make db_dev_create
+    - bin/milmove migrate
+    - mkdir -p build
+    - touch build/index.html
+    - bin/milmove serve 2>&1 | tee server.log &
     - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     - curl http://milmovelocal:4000
     - echo "Running E2E mTLS tests"
