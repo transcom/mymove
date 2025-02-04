@@ -191,9 +191,9 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TOO or HQ office role",
+					"user is not authenticated with TOO role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetDestinationRequestsQueueForbidden(), forbiddenErr
@@ -214,26 +214,21 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				PerPage:                 params.PerPage,
 				Sort:                    params.Sort,
 				Order:                   params.Order,
-				OrderType:               params.OrderType,
 				TOOAssignedUser:         params.AssignedTo,
 				CounselingOffice:        params.CounselingOffice,
 			}
 
+			// we only care about moves in APPROVALS REQUESTED status
 			if params.Status == nil {
 				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVALSREQUESTED)}
 			}
 
-			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20 for perPage.
+			// default pagination values
 			if params.Page == nil {
 				ListOrderParams.Page = models.Int64Pointer(1)
 			}
-			// Same for perPage
 			if params.PerPage == nil {
 				ListOrderParams.PerPage = models.Int64Pointer(20)
-			}
-
-			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
-				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			moves, count, err := h.OrderFetcher.ListDestinationRequestsOrders(
@@ -244,7 +239,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			)
 			if err != nil {
 				appCtx.Logger().
-					Error("error fetching list of moves for office user", zap.Error(err))
+					Error("error fetching destinaton queue for office user", zap.Error(err))
 				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
 			}
 
@@ -269,7 +264,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
 			}
 
-			// if the TOO/office user is accessing the queue, we need to unlock move/moves they have locked
+			// if the TOO is accessing the queue, we need to unlock move/moves they have locked
 			if appCtx.Session().IsOfficeUser() {
 				officeUserID := appCtx.Session().OfficeUserID
 				for i, move := range moves {
@@ -283,7 +278,6 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 						moves[i] = *unlockedMove
 					}
 				}
-				// checking if moves that are NOT in their queue are locked by the user (using search, etc)
 				err := h.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
 				if err != nil {
 					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))

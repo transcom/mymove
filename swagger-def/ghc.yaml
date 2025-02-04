@@ -3739,9 +3739,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: Gets queued list of all customer moves by GBLOC that have destination requests (destination SIT, shuttle, address requests)
+      summary: Gets queued list of all customer moves by GBLOC that have both CONUS & OCONUS destination requests (destination SIT, destination shuttle, address requests)
       description: >
-        A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items (including shuttle) and destination address requests that are not approved.
+        A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items, destination shuttle service items and destination address requests that are not yet approved by the TOO.
       operationId: getDestinationRequestsQueue
       tags:
         - queues
@@ -3822,15 +3822,6 @@ paths:
               - SUBMITTED
               - SERVICE COUNSELING COMPLETED
               - APPROVALS REQUESTED
-        - in: query
-          name: orderType
-          type: string
-          description: order type
-        - in: query
-          name: viewAsGBLOC
-          type: string
-          description: |
-            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
         - in: query
           name: assignedTo
           type: string
