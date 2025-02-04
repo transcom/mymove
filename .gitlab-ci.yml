@@ -301,22 +301,6 @@ stages:
       export OKTA_OFFICE_SECRET_KEY=notrealkey1
       export OKTA_ADMIN_SECRET_KEY=notrealkey2
       export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
-      export GOTEST_PARALLEL=8
-      export DB_PORT_TEST=5433
-      export DB_NAME=test_db
-      export DB_NAME_TEST=test_db
-      export DTOD_USE_MOCK='true'
-      export ENV=test
-      export ENVIRONMENT=test
-      export SERVER_REPORT=1
-      export COVERAGE=1
-      export SERVE_API_INTERNAL='true'
-      export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
-      export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
-      export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
-      export OKTA_API_KEY=notrealapikey8675309
-      export OKTA_OFFICE_GROUP_ID=notrealgroupId
-      export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
 
 .e2e_tests_playwright: &e2e_tests_playwright
   - |
@@ -811,11 +795,10 @@ server_test:
     OKTA_OFFICE_GROUP_ID: notrealgroupId
     OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
   script:
-    - psql --version
     - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
     - scripts/check-generated-code go.sum
     - make bin/swagger
-    - echo "server test -- TODO Add steps need to potentially pass job id to file and persist"
+    - echo "server test"
     - make -j 2 bin/milmove bin/gotestsum
     - make server_test for app
     # - go install gotest.tools/gotestsum@latest
