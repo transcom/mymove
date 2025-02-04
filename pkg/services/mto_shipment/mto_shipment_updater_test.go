@@ -2594,8 +2594,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			err = suite.DB().Find(&fetchedShipment, shipment.ID)
 			suite.NoError(err)
 			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
-			fmt.Println("fetchedShipment.RequiredDeliveryDate")
-			fmt.Println(fetchedShipment.RequiredDeliveryDate)
 			suite.Equal(rdd20DaysDate.Format(time.RFC3339), fetchedShipment.RequiredDeliveryDate.Format(time.RFC3339))
 		}
 		testCases60Days := []struct {
@@ -2641,8 +2639,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			err = suite.DB().Find(&fetchedShipment, shipment.ID)
 			suite.NoError(err)
 			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
-			fmt.Println("fetchedShipment.RequiredDeliveryDate")
-			fmt.Println(fetchedShipment.RequiredDeliveryDate)
 			suite.Equal(rdd60DaysDate.Format(time.RFC3339), fetchedShipment.RequiredDeliveryDate.Format(time.RFC3339))
 		}
 
@@ -2681,8 +2677,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			err = suite.DB().Find(&fetchedShipment, shipment.ID)
 			suite.NoError(err)
 			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
-			fmt.Println("fetchedShipment.RequiredDeliveryDate")
-			fmt.Println(fetchedShipment.RequiredDeliveryDate)
 			suite.Equal(rdd60DaysDateUB.Format(time.RFC3339), fetchedShipment.RequiredDeliveryDate.Format(time.RFC3339))
 		}
 	})
