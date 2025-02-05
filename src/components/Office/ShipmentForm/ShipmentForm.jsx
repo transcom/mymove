@@ -70,6 +70,7 @@ import { validateDate } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { datePickerFormat, formatDate } from 'shared/dates';
+import { checkPreceedingAddress } from 'shared/utils';
 
 const ShipmentForm = (props) => {
   const {
@@ -357,35 +358,15 @@ const ShipmentForm = (props) => {
     : generatePath(servicesCounselingRoutes.BASE_ORDERS_EDIT_PATH, { moveCode });
 
   const submitMTOShipment = (formValues, actions) => {
-    if (formValues.hasSecondaryDelivery === 'yes' && formValues.delivery.address.streetAddress1 === '') {
-      actions.setFieldError('delivery.address.streetAddress1', 'Delivery address required');
-      actions.setSubmitting(false);
-      return;
-    }
-
-    if (formValues.hasTertiaryPickup === 'true' && formValues.secondaryPickup.address.streetAddress1 === '') {
-      actions.setFieldError('secondaryPickup.address.streetAddress1', 'Pickup address required');
-      actions.setSubmitting(false);
-      return;
-    }
-
-    if (formValues.hasTertiaryDelivery === 'yes' && formValues.secondaryDelivery.address.streetAddress1 === '') {
-      actions.setFieldError('secondaryDelivery.address.streetAddress1', 'Delivery address required');
+    const preceedingAddressError = checkPreceedingAddress(formValues);
+    if (preceedingAddressError !== '') {
+      actions.setFieldError(preceedingAddressError, 'Address required');
       actions.setSubmitting(false);
       return;
     }
 
     //* PPM Shipment *//
     if (isPPM) {
-      if (
-        formValues.hasTertiaryDestination === 'true' &&
-        formValues.secondaryDestination.address.streetAddress1 === ''
-      ) {
-        actions.setFieldError('secondaryDestination.address.streetAddress1', 'Destination address required');
-        actions.setSubmitting(false);
-        return;
-      }
-
       const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
 
       // Allow blank values to be entered into Pro Gear input fields
