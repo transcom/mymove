@@ -190,6 +190,27 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 
 	logger.Info("Created S3 client")
 
+	logger.Info("Getting S3 object tags to check av-status")
+
+	avStatus, s3ObjectTags, err := getS3ObjectTags(logger, s3Client, s3BucketTPPSPaidInvoiceReport, tppsFilename)
+	if err != nil {
+		logger.Info("Failed to get S3 object tags")
+	}
+	logger.Info(fmt.Sprintf("avStatus from calling getS3ObjectTags: %s\n", avStatus))
+
+	awsBucket := aws.String("app-tpps-transfer-exp-us-gov-west-1")
+	bucket := *awsBucket
+	awskey := aws.String("connector-files/MILMOVE-en20250203.csv")
+	key := *awskey
+
+	if avStatus == "INFECTED" {
+		logger.Warn("Skipping infected file",
+			zap.String("bucket", bucket),
+			zap.String("key", key),
+			zap.Any("tags", s3ObjectTags))
+		// return "", "", err
+	}
+
 	// get the S3 object, check the ClamAV results, download file to /tmp dir for processing if clean
 	localFilePath, scanResult, err := downloadS3FileIfClean(logger, s3Client, s3BucketTPPSPaidInvoiceReport, tppsFilename)
 	if err != nil {
@@ -213,6 +234,34 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func getS3ObjectTags(logger *zap.Logger, s3Client *s3.Client, bucket, key string) (string, map[string]string, error) {
+	awsBucket := aws.String("app-tpps-transfer-exp-us-gov-west-1")
+	bucket = *awsBucket
+	awskey := aws.String("connector-files/MILMOVE-en20250203.csv")
+	key = *awskey
+
+	tagResp, err := s3Client.GetObjectTagging(context.Background(),
+		&s3.GetObjectTaggingInput{
+			Bucket: &bucket,
+			Key:    &key,
+		})
+	if err != nil {
+		return "unknown", nil, err
+	}
+
+	tags := make(map[string]string)
+	avStatus := "unknown"
+
+	for _, tag := range tagResp.TagSet {
+		tags[*tag.Key] = *tag.Value
+		if *tag.Key == "av-status" {
+			avStatus = *tag.Value
+		}
+	}
+
+	return avStatus, tags, nil
 }
 
 func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key string) (string, string, error) {
