@@ -3754,10 +3754,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
-	// mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
-	// 	mock.AnythingOfType("*appcontext.appContext"),
-	// 	mock.AnythingOfType("uuid.UUID"),
-	// ).Return(&models.PaymentRequests{}, nil)
 	mockSender := setUpMockNotificationSender()
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
