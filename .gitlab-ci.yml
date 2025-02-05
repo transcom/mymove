@@ -24,7 +24,8 @@ variables:
   #CIRCLE_TOKEN: "$GITLAB_API_TOKEN"       # GitLab API token for querying pipelines
   CIRCLE_BUILD_NUM: "$CI_PIPELINE_ID"
 
-  GOPATH: "$CI_PROJECT_DIR/go"
+  # GOPATH: "$CI_PROJECT_DIR/go"
+  GOPATH: "/home/transcom/go"
   GOLANGCI_LINT_CONCURRENCY: "4"
   GOLANGCI_LINT_VERBOSE: "-v"
 
@@ -35,15 +36,18 @@ variables:
   DP3_BRANCH: &dp3_branch placeholder_branch_name
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
-  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-22106-work-on-mtls-test
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-22106-work-on-mtls-test
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-22106-work-on-mtls-test
+  SERVER_IGNORE_BRANCH: &server_ignore_branch B-22106-work-on-mtls-test
 
   OTEL_IMAGE_TAG: &otel_image_tag "git-$OTEL_VERSION-$CI_COMMIT_SHORT_SHA"
 
-  RUNNER_TAG: &runner_tag milmove
+  RUNNER_TAG: &runner_tag eks_cluster_runner
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
+  CSDE_RUNNER_TAG: &runner_tag milmove
+
+
 
   postgres: &postgres postgres:16.4
   #postgres: &postgres postgres:16.4
@@ -63,7 +67,7 @@ stages:
 #set safe directory and path
 .setup_milmove_env: &setup_milmove_env
     - git config --global --add safe.directory /builds/milmove/mymove
-    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove:/builds/milmove/mymove/scripts
+    - export PATH=${PATH}:${GOPATH}/bin:/builds/milmove/mymove/scripts:/builds/milmove/mymove/bin
     - export REACT_APP_ERROR_LOGGING=otel
 
 .announce_failure: &announce_failure
@@ -229,6 +233,66 @@ stages:
       export ENVIRONMENT=development
       export DOD_CA_PACKAGE=/builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
 
+.setup_tests_mtls: &setup_tests_mtls
+    - |
+      export MOVE_MIL_DOD_CA_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+      export MOVE_MIL_DOD_TLS_CERT=$(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
+      export MOVE_MIL_DOD_TLS_KEY=$(cat /builds/milmove/mymove/config/tls/devlocal-https.key)
+      export CLIENT_AUTH_SECRET_KEY=$(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
+      export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+      export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
+      export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
+    # pull in review app settings here so we don't have to
+    # reproduce them
+    -   sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
+    -   source server_env
+
+
+    # now do a few overrides
+
+    - |
+      export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
+      export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
+      export LOGIN_GOV_CALLBACK_PORT=4000
+      export LOGIN_GOV_CALLBACK_PROTOCOL=http
+      export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
+      export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
+      export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
+      export OKTA_CUSTOMER_SECRET_KEY=notrealkey
+      export OKTA_OFFICE_SECRET_KEY=notrealkey1
+      export OKTA_ADMIN_SECRET_KEY=notrealkey2
+      export OKTA_TENANT_CALLBACK_PORT=4000
+      export OKTA_TENANT_CALLBACK_PROTOCOL=http
+      export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
+      export OKTA_API_KEY=notrealapikey
+      export OKTA_OFFICE_GROUP_ID=notrealgroupId
+      export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+
+      export SERVE_API_SUPPORT=true
+      export SERVE_PRIME_SIMULATOR=true
+      export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
+      export DOD_CA_PACKAGE=$PWD/config/tls/milmove-cert-bundle.p7b
+
+      export HTTP_ADMIN_SERVER_NAME=adminlocal
+      export HTTP_MY_SERVER_NAME=milmovelocal
+      export HTTP_OFFICE_SERVER_NAME=officelocal
+      export HTTP_ORDERS_SERVER_NAME=orderslocal
+      export HTTP_PRIME_SERVER_NAME=primelocal
+    - |
+      export ENVIRONMENT=test
+      export MUTUAL_TLS_ENABLED=true
+      export MUTUAL_TLS_PORT=9443
+      export SERVE_API_PRIME=true
+    # disable for speed, tests can fail otherwise
+    -  export DB_DEBUG=false
+
+      # make db_dev_create
+      # bin/milmove migrate
+      # mkdir -p build
+      # touch build/index.html
+      # bin/milmove serve 2>&1 | tee server.log &
+
+
 .setup_server_env_variables: &setup_server_env_variables
     - |
       echo "make server_test_build for app"
@@ -238,45 +302,6 @@ stages:
       export OKTA_OFFICE_SECRET_KEY=notrealkey1
       export OKTA_ADMIN_SECRET_KEY=notrealkey2
       export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
-      export GOTEST_PARALLEL=8
-      export DB_PORT_TEST=5433
-      export DB_NAME=test_db
-      export DB_NAME_TEST=test_db
-      export DTOD_USE_MOCK='true'
-      export ENV=test
-      export ENVIRONMENT=test
-      export SERVER_REPORT=1
-      export COVERAGE=1
-      export SERVE_API_INTERNAL='true'
-      export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
-      export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
-      export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
-      export OKTA_API_KEY=notrealapikey8675309
-      export OKTA_OFFICE_GROUP_ID=notrealgroupId
-      export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
-
-.setup_env_intergration_mtls: &setup_env_intergration_mtls
-  - |
-    echo "Setting up environment variables"
-    export MIL_MOVE_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
-    export MIL_MOVE_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
-    export MIL_MOVE_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
-    export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
-    export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
-    export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
-    export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
-    echo "Overriding application-specific configurations"
-    sed 's,^,export ,' config/env/review.app.env > server_env
-    source server_env
-    export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
-    export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
-    export LOGIN_GOV_CALLBACK_PORT=4000
-    export LOGIN_GOV_CALLBACK_PROTOCOL=http
-    make db_dev_create
-    bin/milmove migrate
-    mkdir -p build
-    touch build/index.html
-    bin/milmove serve 2>&1 | tee server.log &
 
 .e2e_tests_playwright: &e2e_tests_playwright
   - |
@@ -290,14 +315,40 @@ stages:
      export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
      sed 's,^,export ,' config/env/review.app.env > server_env
      source server_env
-     make db_dev_create
-     bin/milmove migrate
-     bin/milmove serve &
-     echo "Waiting for server to start"
-     dockerize -wait http://milmovelocal:4000 -timeout 5m
-     echo "Installing Playwright dependencies"
-     yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
-     ./node_modules/.bin/playwright install
+
+     export HERE_MAPS_GEOCODE_ENDPOINT=https://geocoder.api.here.com/6.2/geocode.json
+     export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
+     export LOGIN_GOV_CALLBACK_PORT=4000
+     export LOGIN_GOV_CALLBACK_PROTOCOL=http
+
+     export SERVE_API_SUPPORT=true
+     export SERVE_PRIME_SIMULATOR=true
+     export DEVLOCAL_CA=$(cat config/tls/devlocal-ca.pem)
+     export DOD_CA_PACKAGE=$(cat config/tls/milmove-cert-bundle.p7b)
+
+    # export HTTP_ADMIN_SERVER_NAME=adminlocal
+    # export HTTP_MY_SERVER_NAME=milmovelocal
+    # export HTTP_OFFICE_SERVER_NAME=officelocal
+    # export HTTP_ORDERS_SERVER_NAME=orderslocal
+    # export HTTP_PRIME_SERVER_NAME=primelocal
+
+  - |
+      export ENVIRONMENT=test
+      export MUTUAL_TLS_ENABLED=true
+      export MUTUAL_TLS_PORT=9443
+      export SERVE_API_PRIME=true
+    # disable for speed, tests can fail otherwise
+  - |
+      export DB_DEBUG=false
+
+      make db_dev_create
+      bin/milmove migrate
+      bin/milmove serve &
+      echo "Waiting for server to start"
+      dockerize -wait http://milmovelocal:4000 -timeout 5m
+      echo "Installing Playwright dependencies"
+      yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      ./node_modules/.bin/playwright install
 
 
 sast:
@@ -610,6 +661,33 @@ compile_app_server:
 #####################################
 ## Test stages various conditions  ##
 #####################################
+prep_integration_docker_microservice:
+  stage: test
+  interruptible: true
+  tags:
+    - $DOCKER_RUNNER_TAG
+  image: $DOCKER_APP_IMAGE
+  services:
+    - name: docker:dind
+      alias: docker
+    - name: $postgres
+    - name: $redis
+  variables:
+    DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
+    DOCKER_TLS_CERTDIR: ""
+  needs:
+    - pre_deps_yarn
+    - compile_app_server
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
+  script:
+    - docker build -t registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA} -f Dockerfile_gitlabtests_dp3 .
+    - docker push registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
+  allow_failure: true
+  after_script:
+    - *announce_failure
+  rules:
+   - *check_integration_mtls_ignore_branch
 
 pre_test:
   stage: test
@@ -698,7 +776,7 @@ server_test:
     DB_PASSWORD_LOW_PRIV: mysecretpassword
     DB_USER: postgres
     DB_HOST: localhost
-    DB_PORT_TEST: 5433
+    DB_PORT_TEST: 5432
     DB_PORT: 5432
     DB_NAME: test_db
     DB_NAME_TEST: test_db
@@ -717,16 +795,18 @@ server_test:
     OKTA_API_KEY: notrealapikey8675309
     OKTA_OFFICE_GROUP_ID: notrealgroupId
     OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
+    POSTGRES_DB: test_db
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_HOST_AUTH_METHOD: trust
   script:
-    - psql --version
     - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
     - scripts/check-generated-code go.sum
     - make bin/swagger
-    - echo "server test -- TODO Add steps need to potentially pass job id to file and persist"
+    - echo "server test"
     - make -j 2 bin/milmove bin/gotestsum
+    - go mod tidy
     - make server_test for app
-    # - go install gotest.tools/gotestsum@latest
-    # - go mod tidy
     #- bin/gotestsum --junitfile server_test_report.xml --format server_test
   allow_failure: true
   artifacts:
@@ -776,7 +856,7 @@ client_test:
   stage: test
   interruptible: true
   tags:
-    - $RUNNER_TAG
+    - $CSDE_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "4"
@@ -909,7 +989,7 @@ integration_tests:
    - *check_integration_ignore_branch
 
 integration_test_mtls:
-  stage: test
+  stage: pre_checks
   interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
@@ -918,7 +998,11 @@ integration_test_mtls:
     - name: docker:dind
       alias: docker
     - name: $postgres
-    - name: $redis
+    # - name: $redis
+    - name: registry.csde.caci.com/milmove/mymove:e2e-ca40daf2
+      alias: milmovemicroservice
+      entrypoint: ["/bin/milmove"]
+      command: ["serve"]
   variables:
     DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
     DOCKER_TLS_CERTDIR: ""
@@ -926,6 +1010,9 @@ integration_test_mtls:
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
     DB_PASSWORD_LOW_PRIV: mysecretpassword
+    CI_REGISTRY: $CI_REGISTRY
+    CI_REGISTRY_PASSWORD: $CI_REGISTRY_PASSWORD
+    CI_REGISTRY_USER: $CI_REGISTRY_USER
     DB_USER: postgres
     DB_HOST: localhost
     DB_PORT: 5432
@@ -934,21 +1021,69 @@ integration_test_mtls:
     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-    ENVIRONMENT: development
+    # ENVIRONMENT: development
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_DB: test_db
-  needs:
-    - pre_deps_yarn
-    - compile_app_server
+
+    MOVE_MIL_DOD_CA_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+    MOVE_MIL_DOD_TLS_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
+    MOVE_MIL_DOD_TLS_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-https.key)
+    CLIENT_AUTH_SECRET_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
+    LOGIN_GOV_SECRET_KEY: $(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+    HERE_MAPS_APP_ID: $E2E_HERE_MAPS_APP_ID
+    HERE_MAPS_APP_CODE: $E2E_HERE_MAPS_APP_CODE
+
+    HERE_MAPS_GEOCODE_ENDPOINT: 'https: //geocoder.api.here.com/6.2/geocode.json'
+    HERE_MAPS_ROUTING_ENDPOINT: 'https: //route.api.here.com/routing/7.2/calculateroute.json'
+    LOGIN_GOV_CALLBACK_PORT: 4000
+    LOGIN_GOV_CALLBACK_PROTOCOL: http
+    OKTA_CUSTOMER_CLIENT_ID: 1q2w3e4r5t6y7u8i9o
+    OKTA_ADMIN_CLIENT_ID: AQ1SW2DE3FR4G5
+    OKTA_OFFICE_CLIENT_ID: 9f9f9s8s90gig9
+    OKTA_CUSTOMER_SECRET_KEY: notrealkey
+    OKTA_OFFICE_SECRET_KEY: notrealkey1
+    OKTA_ADMIN_SECRET_KEY: notrealkey2
+    OKTA_TENANT_CALLBACK_PORT: 4000
+    OKTA_TENANT_CALLBACK_PROTOCOL: http
+    OKTA_TENANT_ORG_URL: test-milmove.okta.mil
+    OKTA_API_KEY: notrealapikey
+    OKTA_OFFICE_GROUP_ID: notrealgroupId
+    OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
+
+    SERVE_API_SUPPORT: true
+    SERVE_PRIME_SIMULATOR: true
+    DEVLOCAL_CA: '/builds/milmove/mymove/config/tls/devlocal-ca.pem'
+
+
+    HTTP_ADMIN_SERVER_NAME: adminlocal
+    HTTP_MY_SERVER_NAME: milmovemicroservice
+    HTTP_OFFICE_SERVER_NAME: officelocal
+    HTTP_ORDERS_SERVER_NAME: orderslocal
+    HTTP_PRIME_SERVER_NAME: primelocal
+
+    ENVIRONMENT: test
+    MUTUAL_TLS_ENABLED: true
+    MUTUAL_TLS_PORT: 9443
+    SERVE_API_PRIME: true
+
+    DB_DEBUG: false
+
+  # needs:
+  #   - prep_integration_docker_microservice
   before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
     - *setup_milmove_env
-    - *setup_env_intergration_mtls
   script:
-    - echo "TODO Add steps"
-    - echo "integration_test_mtls"
-    - echo "Waiting for server to start"
-    - dockerize -wait http://milmovelocal:4000 -timeout 5m
+    - sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
+    - source server_env
+    # - make db_dev_create
+    # - bin/milmove migrate
+    # - mkdir -p build
+    # - touch build/index.html
+    # - bin/milmove serve 2>&1 | tee server.log &
+    - until $(curl --output /dev/null --silent --head --fail http://milmovemicroservice:4000); do printf '.'; sleep 1; done
+    - curl http://milmovelocal:4000
     - echo "Running E2E mTLS tests"
     - ./scripts/run-e2e-mtls-test
   artifacts:
