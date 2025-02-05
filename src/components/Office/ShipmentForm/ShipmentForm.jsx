@@ -70,6 +70,7 @@ import { validateDate } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { datePickerFormat, formatDate } from 'shared/dates';
+import { checkPreceedingAddress } from 'shared/utils';
 
 const ShipmentForm = (props) => {
   const {
@@ -357,6 +358,13 @@ const ShipmentForm = (props) => {
     : generatePath(servicesCounselingRoutes.BASE_ORDERS_EDIT_PATH, { moveCode });
 
   const submitMTOShipment = (formValues, actions) => {
+    const preceedingAddressError = checkPreceedingAddress(formValues);
+    if (preceedingAddressError !== '') {
+      actions.setFieldError(preceedingAddressError, 'Address required');
+      actions.setSubmitting(false);
+      return;
+    }
+
     //* PPM Shipment *//
     if (isPPM) {
       const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
@@ -564,8 +572,8 @@ const ShipmentForm = (props) => {
       secondaryPickup: hasSecondaryPickup === 'yes' ? secondaryPickup : {},
       hasSecondaryDelivery: hasSecondaryDelivery === 'yes',
       secondaryDelivery: hasSecondaryDelivery === 'yes' ? secondaryDelivery : {},
-      hasTertiaryPickup: hasTertiaryPickup === 'yes',
-      tertiaryPickup: hasTertiaryPickup === 'yes' ? tertiaryPickup : {},
+      hasTertiaryPickup: hasTertiaryPickup === 'true',
+      tertiaryPickup: hasTertiaryPickup === 'true' ? tertiaryPickup : {},
       hasTertiaryDelivery: hasTertiaryDelivery === 'yes',
       tertiaryDelivery: hasTertiaryDelivery === 'yes' ? tertiaryDelivery : {},
     });
@@ -657,7 +665,6 @@ const ShipmentForm = (props) => {
           hasTertiaryDelivery,
           isActualExpenseReimbursement,
         } = values;
-
         const lengthHasError = !!(
           (formikProps.touched.lengthFeet && formikProps.errors.lengthFeet === 'Required') ||
           (formikProps.touched.lengthInches && formikProps.errors.lengthFeet === 'Required')
@@ -997,9 +1004,9 @@ const ShipmentForm = (props) => {
                                             data-testid="has-tertiary-pickup"
                                             label="Yes"
                                             name="hasTertiaryPickup"
-                                            value="yes"
+                                            value="true"
                                             title="Yes, I have a third pickup address"
-                                            checked={hasTertiaryPickup === 'yes'}
+                                            checked={hasTertiaryPickup === 'true'}
                                           />
                                           <Field
                                             as={Radio}
@@ -1007,13 +1014,13 @@ const ShipmentForm = (props) => {
                                             data-testid="no-tertiary-pickup"
                                             label="No"
                                             name="hasTertiaryPickup"
-                                            value="no"
+                                            value="false"
                                             title="No, I do not have a third pickup address"
-                                            checked={hasTertiaryPickup !== 'yes'}
+                                            checked={hasTertiaryPickup !== 'true'}
                                           />
                                         </div>
                                       </FormGroup>
-                                      {hasTertiaryPickup === 'yes' && (
+                                      {hasTertiaryPickup === 'true' && (
                                         <AddressFields
                                           name="tertiaryPickup.address"
                                           locationLookup
