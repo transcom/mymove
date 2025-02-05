@@ -6809,7 +6809,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -11348,6 +11349,27 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "intlLinehaulPrice": {
+          "description": "The full price of international shipping and linehaul (ISLH)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlPackPrice": {
+          "description": "The full price of international packing (IHPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlUnpackPrice": {
+          "description": "The full price of international unpacking (IHUPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "miles": {
           "description": "The distance between the old address and the new address in miles.",
@@ -23856,7 +23878,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -28399,6 +28422,27 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "intlLinehaulPrice": {
+          "description": "The full price of international shipping and linehaul (ISLH)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlPackPrice": {
+          "description": "The full price of international packing (IHPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlUnpackPrice": {
+          "description": "The full price of international unpacking (IHUPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "miles": {
           "description": "The distance between the old address and the new address in miles.",
