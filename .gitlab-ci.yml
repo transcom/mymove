@@ -24,7 +24,7 @@ variables:
   #CIRCLE_TOKEN: "$GITLAB_API_TOKEN"       # GitLab API token for querying pipelines
   CIRCLE_BUILD_NUM: "$CI_PIPELINE_ID"
 
-  GOPATH: "$CI_PROJECT_DIR/go"
+  GOPATH: "/home/transcom/go"  #Go path on the app image
   GOLANGCI_LINT_CONCURRENCY: "4"
   GOLANGCI_LINT_VERBOSE: "-v"
 
@@ -63,7 +63,7 @@ stages:
 #set safe directory and path
 .setup_milmove_env: &setup_milmove_env
     - git config --global --add safe.directory /builds/milmove/mymove
-    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove:/builds/milmove/mymove/scripts
+    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove:/builds/milmove/mymove/scripts:/builds/milmove/mymove/bin
     - export REACT_APP_ERROR_LOGGING=otel
 
 .announce_failure: &announce_failure
@@ -698,7 +698,7 @@ server_test:
     DB_PASSWORD_LOW_PRIV: mysecretpassword
     DB_USER: postgres
     DB_HOST: localhost
-    DB_PORT_TEST: 5433
+    DB_PORT_TEST: 5432
     DB_PORT: 5432
     DB_NAME: test_db
     DB_NAME_TEST: test_db
@@ -717,17 +717,17 @@ server_test:
     OKTA_API_KEY: notrealapikey8675309
     OKTA_OFFICE_GROUP_ID: notrealgroupId
     OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
+    POSTGRES_DB: test_db #for postgres container
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_HOST_AUTH_METHOD: trust
   script:
-    - psql --version
     - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
     - scripts/check-generated-code go.sum
     - make bin/swagger
-    - echo "server test -- TODO Add steps need to potentially pass job id to file and persist"
+    - echo "server test -- build gotestsum and run scripts for report"
     - make -j 2 bin/milmove bin/gotestsum
     - make server_test for app
-    # - go install gotest.tools/gotestsum@latest
-    # - go mod tidy
-    #- bin/gotestsum --junitfile server_test_report.xml --format server_test
   allow_failure: true
   artifacts:
     paths:
