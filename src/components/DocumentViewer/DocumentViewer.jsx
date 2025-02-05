@@ -101,7 +101,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
           setFileStatus(UPLOAD_DOC_STATUS.INFECTED);
           break;
         default:
-          throw new Error(`unrecognized file status : ${status}`);
+          throw new Error(`unrecognized file status`);
       }
     };
     if (!isFileUploading && isJustUploadedFile) {
@@ -110,7 +110,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
 
     let sse;
     if (selectedFile) {
-      sse = new EventSource(`/internal/uploads/${selectedFile.id}/status`, { withCredentials: true });
+      sse = new EventSource(`/ghc/v1/uploads/${selectedFile.id}/status`, { withCredentials: true });
       sse.onmessage = (event) => {
         handleFileProcessing(event.data);
         if (
@@ -159,8 +159,8 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   const alertMessage = getStatusMessage(fileStatus, selectedFile);
   if (alertMessage) {
     return (
-      <Alert type="info" className="usa-width-one-whole" heading="Document Status">
-        {alertMessage}
+      <Alert type="info" className="usa-width-one-whole" heading="Document Status" data-testid="documentStatus">
+        <span data-testid="documentStatusMessage">{alertMessage}</span>
       </Alert>
     );
   }
@@ -168,8 +168,10 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   if (fileStatus === UPLOAD_SCAN_STATUS.INFECTED) {
     return (
       <Alert type="error" className="usa-width-one-whole" heading="Ask for a new file">
-        Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a
-        photo of the original document instead.
+        <span>
+          Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a
+          photo of the original document instead.
+        </span>
       </Alert>
     );
   }
