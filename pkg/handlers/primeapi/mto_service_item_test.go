@@ -218,7 +218,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),

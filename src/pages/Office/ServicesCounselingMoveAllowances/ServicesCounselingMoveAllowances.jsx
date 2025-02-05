@@ -41,13 +41,29 @@ const validationSchema = Yup.object({
     .min(0, 'Storage in transit (days) must be greater than or equal to 0')
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
-  weightRestriction: Yup.number()
-    .min(0, 'Weight restriction must be greater than or equal to 0')
-    .max(18000, 'Weight restriction cannot exceed 18,000 lbs')
-    .transform((value) => (Number.isNaN(value) ? 0 : value))
-    .notRequired(),
+  adminRestrictedWeightLocation: Yup.bool(),
+  weightRestriction: Yup.number().when('adminRestrictedWeightLocation', {
+    is: (value) => {
+      return value === true;
+    },
+    then: (schema) => {
+      return schema
+        .required('Weight restriction is required when location is restricted')
+        .min(1, 'Weight restriction must be greater than 0')
+        .max(18000, 'Weight restriction cannot exceed 18,000 lbs')
+        .transform((value) => {
+          return Number.isNaN(value) ? 0 : value;
+        });
+    },
+    otherwise: (schema) => {
+      return schema
+        .transform((value) => {
+          return Number.isNaN(value) ? 0 : value;
+        })
+        .notRequired();
+    },
+  }),
 });
-
 const ServicesCounselingMoveAllowances = () => {
   const { moveCode } = useParams();
   const navigate = useNavigate();
@@ -149,6 +165,7 @@ const ServicesCounselingMoveAllowances = () => {
     accompaniedTour,
     dependentsUnderTwelve: `${dependentsUnderTwelve}`,
     dependentsTwelveAndOver: `${dependentsTwelveAndOver}`,
+    adminRestrictedWeightLocation: false,
   };
 
   return (

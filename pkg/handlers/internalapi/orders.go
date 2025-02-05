@@ -35,10 +35,10 @@ func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upl
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
-		uploadPayload.Status = "PROCESSING"
+	if err != nil {
+		uploadPayload.Status = string(models.AVStatusPROCESSING)
 	} else {
-		uploadPayload.Status = tags["av-status"]
+		uploadPayload.Status = string(models.GetAVStatusFromTags(tags))
 	}
 	return uploadPayload, nil
 }
@@ -84,6 +84,9 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		}
 		if order.Entitlement.UBAllowance != nil {
 			entitlement.UbAllowance = models.Int64Pointer(int64(*order.Entitlement.UBAllowance))
+		}
+		if order.Entitlement.WeightRestriction != nil {
+			entitlement.WeightRestriction = models.Int64Pointer(int64(*order.Entitlement.WeightRestriction))
 		}
 	}
 	var originDutyLocation models.DutyLocation

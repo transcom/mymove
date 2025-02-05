@@ -583,8 +583,62 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 
+	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+		mockCreator := &mocks.SignedCertificationCreator{}
+
+		mockCreator.On(
+			"CreateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockCreator
+	}
+
+	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+		mockUpdater := &mocks.SignedCertificationUpdater{}
+
+		mockUpdater.On(
+			"UpdateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+			mock.AnythingOfType("string"),
+		).Return(returnValue...)
+
+		return mockUpdater
+	}
+
+	builder := query.NewQueryBuilder()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+		false,
+		false,
+	).Return(400, nil)
+	ppmEstimator := mocks.PPMEstimator{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+		false,
+	).Return(400, nil)
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+		builder,
+		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
+	)
+
 	suite.Run("Returns 200 when all validations pass", func() {
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -614,6 +668,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			&routemocks.Planner{},
 			moveWeights,
+			moveTaskOrderUpdater,
+			moveRouter,
 		)
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
@@ -629,6 +685,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 
 		approveParams := shipmentops.ApproveShipmentParams{
@@ -647,6 +704,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.HasWebhookNotification(shipment.ID, traceID)
+		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -664,6 +722,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -703,6 +762,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -742,6 +802,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -781,6 +842,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -820,6 +882,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -859,6 +922,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -874,6 +938,462 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		// Validate outgoing payload: nil payload
 		suite.Nil(payload)
+	})
+}
+
+// ApproveShipment(s)Handler
+func (suite *HandlerSuite) TestApproveShipmentsHandler() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
+	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+		mockCreator := &mocks.SignedCertificationCreator{}
+
+		mockCreator.On(
+			"CreateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockCreator
+	}
+
+	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+		mockUpdater := &mocks.SignedCertificationUpdater{}
+
+		mockUpdater.On(
+			"UpdateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+			mock.AnythingOfType("string"),
+		).Return(returnValue...)
+
+		return mockUpdater
+	}
+
+	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+	builder := query.NewQueryBuilder()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	planner := &routemocks.Planner{}
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+		false,
+		false,
+	).Return(400, nil)
+
+	ppmEstimator := mocks.PPMEstimator{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+		false,
+	).Return(400, nil)
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+		builder,
+		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
+	)
+
+	suite.Run("Returns 200 when all validations pass", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag1 := etag.GenerateEtag(shipment1.UpdatedAt)
+		eTag2 := etag.GenerateEtag(shipment2.UpdatedAt)
+
+		approver := mtoshipment.NewShipmentApprover(
+			mtoshipment.NewShipmentRouter(),
+			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			&routemocks.Planner{},
+			moveWeights,
+			moveTaskOrderUpdater,
+			moveRouter,
+		)
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment1.ID),
+						ETag:       &eTag1,
+					},
+					{
+						ShipmentID: handlers.FmtUUID(shipment2.ID),
+						ETag:       &eTag2,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsOK{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload[0].Validate(strfmt.Default))
+		suite.NoError(payload[1].Validate(strfmt.Default))
+
+		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
+		suite.HasWebhookNotification(shipment1.ID, traceID)
+		suite.HasWebhookNotification(shipment2.ID, traceID)
+	})
+
+	suite.Run("Returns a 403 when the office user is not a TOO", func() {
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.AssertNumberOfCalls(suite.T(), "ApproveShipments", 0)
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsForbidden{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsForbidden).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
+	})
+
+	suite.Run("Returns 404 when approver returns NotFoundError", func() {
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, apperror.NotFoundError{})
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsNotFound{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsNotFound).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 409 when approver returns Conflict Error", func() {
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, apperror.ConflictError{})
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsConflict{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsConflict).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 412 when eTag does not match", func() {
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(time.Now())
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, apperror.PreconditionFailedError{})
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsPreconditionFailed{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 422 when approver returns validation errors", func() {
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 422 when ApproveShipments body is empty", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 500 when approver returns unexpected error", func() {
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, errors.New("UnexpectedError"))
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsInternalServerError{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsInternalServerError).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 

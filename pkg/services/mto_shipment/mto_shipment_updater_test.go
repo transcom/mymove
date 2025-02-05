@@ -3698,7 +3698,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		mock.Anything,
 		false,
 	).Return(1000, nil)
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
@@ -3839,7 +3839,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 
 		session := auth.Session{}
 		builder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &mocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
