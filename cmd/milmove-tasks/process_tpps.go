@@ -17,6 +17,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
@@ -215,10 +217,15 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 
 func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key string) (string, string, error) {
 	// one call to GetObject will give us the metadata for checking the ClamAV scan results and the file data itself
+
+	awsBucket := aws.String("app-tpps-transfer-exp-us-gov-west-1")
+	bucket = *awsBucket
+	awskey := aws.String("connector-files/MILMOVE-en20250203.csv")
+	key = *awskey
 	response, err := s3Client.GetObject(context.Background(),
 		&s3.GetObjectInput{
-			Bucket: aws.String("app-tpps-transfer-exp-us-gov-west-1"),
-			Key:    aws.String("connector-files/MILMOVE-en20250203.csv"),
+			Bucket: &bucket,
+			Key:    &key,
 		})
 	// if err != nil {
 	// 	var ae smithy.APIError
@@ -245,13 +252,25 @@ func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key 
 		return "", "", err
 	}
 
+	// Convert to UTF-8 encoding
+	bodyText := convertToUTF8(body)
+
+	avStatus := "unknown"
+	if response.Metadata != nil {
+		if val, ok := response.Metadata["av-status"]; ok {
+			avStatus = val
+		}
+	}
+
 	logger.Info("Successfully retrieved S3 object",
 		zap.String("bucket", bucket),
 		zap.String("key", key),
 		zap.String("content-type", aws.ToString(response.ContentType)),
 		zap.String("etag", aws.ToString(response.ETag)),
 		zap.Int64("content-length", *response.ContentLength),
-		zap.String("body-preview", string(body[:min(100, len(body))])))
+		zap.String("av-status", avStatus),
+		zap.Any("metadata", response.Metadata),
+		zap.String("body-preview", string(bodyText[:min(100, len(bodyText))])))
 
 	result := ""
 	// get the ClamAV results
@@ -298,4 +317,20 @@ func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key 
 
 	logger.Info(fmt.Sprintf("Successfully wrote to tmp file at: %s\n", localFilePath))
 	return localFilePath, result, err
+}
+
+// convert to UTF-8 encoding
+func convertToUTF8(data []byte) string {
+
+	if len(data) >= 2 && (data[0] == 0xFF && data[1] == 0xFE) {
+		decoder := unicode.UTF16(unicode.LittleEndian, unicode.ExpectBOM).NewDecoder()
+		utf8Bytes, _, _ := transform.Bytes(decoder, data)
+		return string(utf8Bytes)
+	} else if len(data) >= 2 && (data[0] == 0xFE && data[1] == 0xFF) {
+		decoder := unicode.UTF16(unicode.BigEndian, unicode.ExpectBOM).NewDecoder()
+		utf8Bytes, _, _ := transform.Bytes(decoder, data)
+		return string(utf8Bytes)
+	}
+
+	return string(data)
 }
