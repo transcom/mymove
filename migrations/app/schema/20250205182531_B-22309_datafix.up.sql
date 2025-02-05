@@ -27,3 +27,14 @@ INSERT INTO public.duty_locations
 (id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
 SELECT '031c9627-94ed-459b-a0a1-ec9b4a5d05ff', 'McChord AFB, WA 98439', null, 'e6d83c91-2df6-4c37-865c-27ae783c47eb'::uuid, now(), now(), null, true
 WHERE NOT EXISTS (select * from duty_locations where id = '031c9627-94ed-459b-a0a1-ec9b4a5d05ff');
+
+--set po_box_only to false for zips that have valid duty locations
+update re_us_post_regions 
+   set is_po_box = false 
+ where id in 
+ (select distinct c.us_post_regions_id
+    from duty_locations a, addresses b, v_locations c
+   where c.uprc_id = b.us_post_region_cities_id
+     and a.address_id = b.id
+     and c.is_po_box = true);
+
