@@ -696,6 +696,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					},
 				},
 			}, nil)
+			setupPricerData()
 			newPPM := oldPPMShipment
 			newPPM.HasProGear = models.BoolPointer(false)
 
@@ -1559,6 +1560,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 
 		suite.Run("Final Incentive - does not change when required fields are the same", func() {
+			setupPricerData()
 			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
@@ -1607,6 +1609,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 
 		suite.Run("Final Incentive - set to nil when missing info", func() {
+			setupPricerData()
 			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
@@ -1698,7 +1701,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					},
 				},
 				{
-					Model: &models.Address{
+					Model: models.Address{
 						StreetAddress1: "987 Other Avenue",
 						StreetAddress2: models.StringPointer("P.O. Box 1234"),
 						StreetAddress3: models.StringPointer("c/o Another Person"),
@@ -1710,7 +1713,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					Type: &factory.Addresses.PickupAddress,
 				},
 				{
-					Model: &models.Address{
+					Model: models.Address{
 						StreetAddress1: "987 Other Avenue",
 						StreetAddress2: models.StringPointer("P.O. Box 12345"),
 						StreetAddress3: models.StringPointer("c/o Another Person"),
@@ -1759,30 +1762,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						SITEstimatedEntryDate:     &entryDate,
 						SITEstimatedDepartureDate: &entryDate,
 					},
-				},
-				{
-					Model: models.Address{
-						StreetAddress1: "987 Other Avenue",
-						StreetAddress2: models.StringPointer("P.O. Box 1234"),
-						StreetAddress3: models.StringPointer("c/o Another Person"),
-						City:           "Des Moines",
-						State:          "IA",
-						PostalCode:     "50309",
-						County:         models.StringPointer("POLK"),
-					},
-					Type: &factory.Addresses.PickupAddress,
-				},
-				{
-					Model: models.Address{
-						StreetAddress1: "987 Other Avenue",
-						StreetAddress2: models.StringPointer("P.O. Box 12345"),
-						StreetAddress3: models.StringPointer("c/o Another Person"),
-						City:           "Fort Eisenhower",
-						State:          "GA",
-						PostalCode:     "50309",
-						County:         models.StringPointer("COLUMBIA"),
-					},
-					Type: &factory.Addresses.DeliveryAddress,
 				},
 				{
 					Model:    mtoShipment,
@@ -2046,6 +2025,626 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NoError(err)
 			suite.Nil(shipmentSITNotExpected.SITEstimatedCost)
 			suite.Nil(estimatedSITCost)
+		})
+	})
+}
+
+func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
+	planner := &mocks.Planner{}
+	paymentRequestHelper := &prhelpermocks.Helper{}
+	ppmEstimator := NewEstimatePPM(planner, paymentRequestHelper)
+
+	setupPricerData := func() {
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            startDate,
+				EndDate:              endDate,
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+	}
+
+	suite.Run("Estimated Incentive", func() {
+		suite.Run("Estimated Incentive - Success using estimated weight and not db authorized weight for CONUS -> OCONUS", func() {
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+
+			setupPricerData()
+
+			estimatedWeight := unit.Pound(5000)
+			newPPM := ppm
+			newPPM.EstimatedWeight = &estimatedWeight
+
+			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"74133", "98421", true).Return(3000, nil)
+
+			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(ppmEstimate)
+
+			// it should've called from the pickup -> port and NOT pickup -> dest
+			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"74133", "98421", true)
+			suite.Equal(unit.Cents(459178), *ppmEstimate)
+		})
+
+		suite.Run("Estimated Incentive - Success using estimated weight and not db authorized weight for OCONUS -> CONUS", func() {
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+			}, nil)
+
+			setupPricerData()
+
+			estimatedWeight := unit.Pound(5000)
+			newPPM := ppm
+			newPPM.EstimatedWeight = &estimatedWeight
+
+			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"98421", "74133", true).Return(3000, nil)
+
+			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(ppmEstimate)
+
+			// it should've called from the pickup -> port and NOT pickup -> dest
+			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"98421", "74133", true)
+			suite.Equal(unit.Cents(423178), *ppmEstimate)
+		})
+	})
+
+	suite.Run("Max Incentive", func() {
+		suite.Run("Max Incentive - Success using db authorized weight and not estimated for CONUS -> OCONUS", func() {
+			oconusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+				},
+			}, nil)
+			destDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+				{
+					Model: models.DutyLocation{
+						Name:      "Test OCONUS Duty Location",
+						AddressID: oconusAddress.ID,
+					},
+				},
+			}, nil)
+			order := factory.BuildOrder(suite.DB(), []factory.Customization{
+				{
+					Model: models.Order{
+						NewDutyLocationID: destDutyLocation.ID,
+					},
+				},
+			}, nil)
+			// when the PPM shipment is in draft, we use the estimated weight and not the db authorized weight
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.Move{
+						OrdersID: order.ID,
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+
+			setupPricerData()
+
+			estimatedWeight := unit.Pound(5000)
+			newPPM := ppm
+			newPPM.EstimatedWeight = &estimatedWeight
+
+			// DTOD will be called to get the distance between the origin duty location & the Tacoma Port ZIP
+			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "98421", true).Return(3000, nil)
+
+			ppmMaxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), ppm, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(ppmMaxIncentive)
+
+			// it should've called from the pickup -> port and NOT pickup -> dest
+			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "98421", true)
+			suite.Equal(unit.Cents(656532), *ppmMaxIncentive)
+		})
+
+		suite.Run("Max Incentive - Success using db authorized weight and not estimated for OCONUS -> CONUS", func() {
+			oconusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+				},
+			}, nil)
+			pickupDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+				{
+					Model: models.DutyLocation{
+						Name:      "Test OCONUS Duty Location",
+						AddressID: oconusAddress.ID,
+					},
+				},
+			}, nil)
+			order := factory.BuildOrder(suite.DB(), []factory.Customization{
+				{
+					Model: models.Order{
+						OriginDutyLocationID: &pickupDutyLocation.ID,
+					},
+				},
+			}, nil)
+			// when the PPM shipment is in draft, we use the estimated weight and not the db authorized weight
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.Move{
+						OrdersID: order.ID,
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+
+			setupPricerData()
+
+			estimatedWeight := unit.Pound(5000)
+			newPPM := ppm
+			newPPM.EstimatedWeight = &estimatedWeight
+
+			// DTOD will be called to get the distance between the origin duty location & the Tacoma Port ZIP
+			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"98421", "30813", true).Return(3000, nil)
+
+			ppmMaxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), ppm, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(ppmMaxIncentive)
+
+			// it should've called from the pickup -> port and NOT pickup -> dest
+			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"98421", "30813", true)
+			suite.Equal(unit.Cents(676692), *ppmMaxIncentive)
+		})
+	})
+
+	suite.Run("Final Incentive", func() {
+		suite.Run("Final Incentive - Success using estimated weight for CONUS -> OCONUS", func() {
+			updatedMoveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualMoveDate:  models.TimePointer(updatedMoveDate),
+						Status:          models.PPMShipmentStatusWaitingOnCustomer,
+						EstimatedWeight: models.PoundPointer(4000),
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+
+			newPPM := ppm
+			newFullWeight := unit.Pound(8000)
+			newEmptyWeight := unit.Pound(3000)
+			newPPM.WeightTickets = models.WeightTickets{
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight:  &newFullWeight,
+							EmptyWeight: &newEmptyWeight,
+						},
+					},
+				}, nil),
+			}
+
+			setupPricerData()
+
+			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"74133", "98421", true).Return(3000, nil)
+
+			ppmFinalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(ppmFinalIncentive)
+
+			// it should've called from the pickup -> port and NOT pickup -> dest
+			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"74133", "98421", true)
+			suite.Equal(unit.Cents(459178), *ppmFinalIncentive)
+		})
+
+		suite.Run("Final Incentive - Success using estimated weight for OCONUS -> CONUS", func() {
+			updatedMoveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						ActualMoveDate:  models.TimePointer(updatedMoveDate),
+						Status:          models.PPMShipmentStatusWaitingOnCustomer,
+						EstimatedWeight: models.PoundPointer(4000),
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+			}, nil)
+
+			newPPM := ppm
+			newFullWeight := unit.Pound(8000)
+			newEmptyWeight := unit.Pound(3000)
+			newPPM.WeightTickets = models.WeightTickets{
+				factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.WeightTicket{
+							FullWeight:  &newFullWeight,
+							EmptyWeight: &newEmptyWeight,
+						},
+					},
+				}, nil),
+			}
+
+			setupPricerData()
+
+			planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"98421", "74133", true).Return(3000, nil)
+
+			ppmFinalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(ppmFinalIncentive)
+
+			// it should've called from the pickup -> port and NOT pickup -> dest
+			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"98421", "74133", true)
+			suite.Equal(unit.Cents(423178), *ppmFinalIncentive)
+		})
+	})
+
+	suite.Run("SIT Costs for OCONUS PPMs", func() {
+		suite.Run("CalculateSITCost - Success using estimated weight for CONUS -> OCONUS", func() {
+			originLocation := models.SITLocationTypeOrigin
+			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						EstimatedWeight:           models.PoundPointer(4000),
+						SITExpected:               models.BoolPointer(true),
+						SITLocation:               &originLocation,
+						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
+						SITEstimatedEntryDate:     &entryDate,
+						SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+
+			newPPM := ppm
+			newEstimatedWeight := models.PoundPointer(5500)
+			newPPM.SITEstimatedWeight = newEstimatedWeight
+			setupPricerData()
+
+			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(estimatedSITCost)
+			suite.Equal(unit.Cents(24360), *estimatedSITCost)
+		})
+
+		suite.Run("CalculateSITCost - Success using estimated weight for CONUS -> OCONUS", func() {
+			originLocation := models.SITLocationTypeDestination
+			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						EstimatedWeight:           models.PoundPointer(4000),
+						SITExpected:               models.BoolPointer(true),
+						SITLocation:               &originLocation,
+						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
+						SITEstimatedEntryDate:     &entryDate,
+						SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+
+			newPPM := ppm
+			newEstimatedWeight := models.PoundPointer(5500)
+			newPPM.SITEstimatedWeight = newEstimatedWeight
+			setupPricerData()
+
+			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(estimatedSITCost)
+			suite.Equal(unit.Cents(41080), *estimatedSITCost)
+		})
+
+		suite.Run("CalculatePPMSITEstimatedCost - Success for OCONUS PPM", func() {
+			originLocation := models.SITLocationTypeDestination
+			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						EstimatedWeight:           models.PoundPointer(4000),
+						SITExpected:               models.BoolPointer(true),
+						SITLocation:               &originLocation,
+						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
+						SITEstimatedEntryDate:     &entryDate,
+						SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+
+			newPPM := ppm
+			newEstimatedWeight := models.PoundPointer(5500)
+			newPPM.SITEstimatedWeight = newEstimatedWeight
+			setupPricerData()
+
+			estimatedSITCost, err := ppmEstimator.CalculatePPMSITEstimatedCost(suite.AppContextForTest(), &ppm)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(estimatedSITCost)
+			suite.Equal(unit.Cents(20540), *estimatedSITCost)
+		})
+
+		suite.Run("CalculatePPMSITEstimatedCostBreakdown - Success for OCONUS PPM", func() {
+			originLocation := models.SITLocationTypeDestination
+			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						EstimatedWeight:           models.PoundPointer(4000),
+						SITExpected:               models.BoolPointer(true),
+						SITLocation:               &originLocation,
+						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
+						SITEstimatedEntryDate:     &entryDate,
+						SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+
+			newPPM := ppm
+			newEstimatedWeight := models.PoundPointer(5500)
+			newPPM.SITEstimatedWeight = newEstimatedWeight
+			setupPricerData()
+
+			sitCosts, err := ppmEstimator.CalculatePPMSITEstimatedCostBreakdown(suite.AppContextForTest(), &ppm)
+			suite.NilOrNoVerrs(err)
+			suite.NotNil(sitCosts)
+			suite.Equal(unit.Cents(20540), *sitCosts.EstimatedSITCost)
+			suite.Equal(unit.Cents(12140), *sitCosts.PriceFirstDaySIT)
+			suite.Equal(unit.Cents(8400), *sitCosts.PriceAdditionalDaySIT)
 		})
 	})
 }
