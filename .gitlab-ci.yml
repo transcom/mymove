@@ -735,7 +735,7 @@ server_test:
     - echo "server test -- build gotestsum and run scripts for report"
     - make -j 2 bin/milmove bin/gotestsum
     - make server_test for app
-  allow_failure: true
+  allow_failure: false
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/gotestsum
@@ -745,8 +745,8 @@ server_test:
       junit: /builds/milmove/mymove/tmp/test-results/gotest/app/go-test-report.xml
   after_script:
     - *announce_failure
-  rules:
-   - *check_server_ignore_branch
+  # rules:
+  #  - *check_server_ignore_branch
 
 server_test_coverage:
   stage: test
@@ -837,8 +837,8 @@ client_test_coverage:
       coverage/clover.xml
   after_script:
     - *announce_failure
-  rules:
-   - *check_client_ignore_branch
+  # rules:
+  #  - *check_client_ignore_branch
 
 integration_test_devseed:
   stage: test
