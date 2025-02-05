@@ -631,6 +631,9 @@ pre_test:
     KUBERNETES_CPU_REQUEST: "4"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
     KUBERNETES_MEMORY_LIMIT: "6Gi"
+    GOPATH: /home/circleci/go
+    GOLANGCI_LINT_CONCURRENCY: 4
+    GOLANGCI_LINT_VERBOSE: -v
   before_script: *setup_milmove_env
   script:
     - export GODEBUG=asyncpreemptoff=1
@@ -640,21 +643,18 @@ pre_test:
     - rm -rf ~/transcom/mymove/spectral
     - *install_yarn
     - echo "Run pre-commit tests without golangci-lint, eslint, or prettier"
-    - SKIP=golangci-lint,eslint,prettier,ato-go-linter,gomod,appcontext-linter pre-commit run --all-files
-    - |
-        echo "Run pre-commit tests with ato-go-linter only"
-        pre-commit run -v --all-files ato-go-linter
-    - |
-        echo "Run pre-commit tests with gomod only"
-        pre-commit run -v --all-files gomod,appcontext-linter
-    - |
-        echo "Run pre-commit tests with appcontext-linter only"
-        pre-commit run -v --all-files appcontext-linter
+    - SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
+    # - |
+    #     echo "Run pre-commit tests with ato-go-linter only"
+    #     pre-commit run -v --all-files ato-go-linter
+    # - |
+    #     echo "Run pre-commit tests with gomod only"
+    #     pre-commit run -v --all-files gomod,appcontext-linter
+    # - |
+    #     echo "Run pre-commit tests with appcontext-linter only"
+    #     pre-commit run -v --all-files appcontext-linter
     - echo "Run pre-commit tests with golangci-lint only"
     - |
-        echo 'export GOLANGCI_LINT_CONCURRENCY=4' >> $BASH_ENV
-        echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
-        source $BASH_ENV
         mkdir -p tmp/test-results/pretest
         pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
     -  echo "Run prettier, eslint, danger checks"
