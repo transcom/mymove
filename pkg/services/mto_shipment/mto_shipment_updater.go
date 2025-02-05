@@ -850,12 +850,12 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 		// RDD for UB shipments only need the pick up date, shipment origin address and destination address to determine required delivery date
 		if newShipment.ScheduledPickupDate != nil && !newShipment.ScheduledPickupDate.IsZero() && newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-			calculatedRDD, err := CalculateRequiredDeliveryDateForInternationalShipment(appCtx, *newShipment.PickupAddress, *newShipment.DestinationAddress, *newShipment.ScheduledPickupDate, newShipment.ShipmentType)
+			calculatedRDD, err := CalculateRequiredDeliveryDate(appCtx, f.planner, *newShipment.PickupAddress, *newShipment.DestinationAddress, *newShipment.ScheduledPickupDate, newShipment.PrimeEstimatedWeight.Int(), newShipment.MarketCode, newShipment.MoveTaskOrderID, newShipment.ShipmentType)
 			if err != nil {
 				return err
 			}
 
-			newShipment.RequiredDeliveryDate = &calculatedRDD
+			newShipment.RequiredDeliveryDate = calculatedRDD
 		}
 
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
@@ -1261,6 +1261,32 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 				default:
 					return nil, err
 				}
+			}
+		}
+
+		if pickupIsAlaska {
+			rateAreaID, err = models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
+			if err != nil {
+				return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
+			}
+			err = appCtx.DB().Where("origin_rate_area_id = $1", rateAreaID).First(&intlTransTime)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, fmt.Errorf("no international transit time found for pickup rate area ID: %s", rateAreaID)
+				default:
+					return nil, err
+				}
+			}
+		}
+
+		if shipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
+			if intlTransTime.HhgTransitTime != nil {
+				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.HhgTransitTime)
+			}
+		} else {
+			if intlTransTime.UbTransitTime != nil {
+				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
 			}
 		}
 
