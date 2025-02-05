@@ -88,7 +88,7 @@ BEGIN
 
 END $$;
 
-select * from addresses where id = '23d3140b-1ba2-400f-9d57-317034673c06';
+select * from transportation_offices where name 
 --add Joint Base Lewis McChord, WA 98438 duty location
 DO $$
 BEGIN
@@ -121,3 +121,6 @@ END $$;
 
 --associate duty loc Yuma, AZ 85365 to transportation office PPPO DMO MCAS Yuma - USMC
 update duty_locations set transportation_office_id = '6ac7e595-1e0c-44cb-a9a4-cd7205868ed4' where id = '9e94208a-881d-47bc-82c0-4f375471751e';
+
+--update name for Alameda
+update transportation_offices set name = 'PPSO Base Alameda - USCG' where id = '3fc4b408-1197-430a-a96a-24a5a1685b45';
