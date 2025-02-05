@@ -231,7 +231,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 
 		oldServiceItem, newServiceItem := setupTestData() // Create old and new service item
 
-		// Make both service items of type DOFSIT because this type of service item will be checked by checkForSITItemChanges
+		// Make both service items of type IOFSIT because this type of service item will be checked by checkForSITItemChanges
 		oldServiceItem.ReService.Code = models.ReServiceCodeIOFSIT
 		newServiceItem.ReService.Code = models.ReServiceCodeIOFSIT
 		oldServiceItem.SITDepartureDate, newServiceItem.SITDepartureDate = &now, &now
