@@ -34,20 +34,6 @@ func checkProcessTPPSConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
-	// err = cli.CheckLogging(v)
-	// if err != nil {
-	// 	logger.Info("Reaching process_tpps.go line 36 in checkProcessTPPSConfig")
-	// 	return err
-	// }
-
-	// if err := cli.CheckCert(v); err != nil {
-	// 	logger.Info("Reaching process_tpps.go line 41 in checkProcessTPPSConfig")
-	// 	return err
-	// }
-
-	// logger.Info("Reaching process_tpps.go line 45 in checkProcessTPPSConfig")
-	// return cli.CheckEntrustCert(v)
-
 	return nil
 }
 
@@ -59,14 +45,6 @@ func initProcessTPPSFlags(flag *pflag.FlagSet) {
 
 	// Logging Levels
 	cli.InitLoggingFlags(flag)
-
-	// Certificate
-	// cli.InitCertFlags(flag)
-
-	// // Entrust Certificates
-	// cli.InitEntrustCertFlags(flag)
-
-	// cli.InitTPPSFlags(flag)
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -121,15 +99,6 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
-	// certLogger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
-	// if err != nil {
-	// 	logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
-	// }
-	// certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
-	// if certificates == nil || rootCAs == nil || err != nil {
-	// 	logger.Fatal("Error in getting tls certs", zap.Error(err))
-	// }
-
 	tppsInvoiceProcessor := invoice.NewTPPSPaidInvoiceReportProcessor()
 
 	// Process TPPS paid invoice report
@@ -146,12 +115,15 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	s3BucketTPPSPaidInvoiceReport := v.GetString(cli.ProcessTPPSInvoiceReportPickupDirectory)
 	logger.Info(fmt.Sprintf("s3BucketTPPSPaidInvoiceReport: %s\n", s3BucketTPPSPaidInvoiceReport))
 
+	tppsS3Bucket := v.GetString(cli.TPPSS3Bucket)
+	logger.Info(fmt.Sprintf("tppsS3Bucket: %s\n", tppsS3Bucket))
+	tppsS3Folder := v.GetString(cli.TPPSS3Folder)
+	logger.Info(fmt.Sprintf("tppsS3Folder: %s\n", tppsS3Folder))
+
 	customFilePathToProcess := v.GetString(cli.ProcessTPPSCustomDateFile)
 	logger.Info(fmt.Sprintf("customFilePathToProcess: %s\n", customFilePathToProcess))
 
-	const tppsSFTPFileFormatNoCustomDate = "MILMOVE-enYYYYMMDD.csv"
 	tppsFilename := ""
-	logger.Info(tppsFilename)
 
 	timezone, err := time.LoadLocation("UTC")
 	if err != nil {
@@ -159,6 +131,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	}
 
 	logger.Info(tppsFilename)
+	const tppsSFTPFileFormatNoCustomDate = "MILMOVE-enYYYYMMDD.csv"
 	if customFilePathToProcess == tppsSFTPFileFormatNoCustomDate || customFilePathToProcess == "" {
 		// Process the previous day's payment file
 		logger.Info("No custom filepath provided to process, processing payment file for yesterday's date.")
@@ -166,7 +139,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		previousDay := yesterday.Format("20060102")
 		tppsFilename = fmt.Sprintf("MILMOVE-en%s.csv", previousDay)
 		previousDayFormatted := yesterday.Format("January 02, 2006")
-		logger.Info(fmt.Sprintf("Starting transfer of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
+		logger.Info(fmt.Sprintf("Starting processing of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
 	} else {
 		// Process the custom date specified by the ProcessTPPSCustomDateFile AWS parameter store value
 		logger.Info("Custom filepath provided to process")
@@ -191,6 +164,11 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	logger.Info("Created S3 client")
 
 	logger.Info("Getting S3 object tags to check av-status")
+
+	s3Bucket := tppsS3Bucket
+	s3Key := tppsS3Folder + tppsFilename
+	logger.Info(fmt.Sprintf("s3Bucket: %s\n", s3Bucket))
+	logger.Info(fmt.Sprintf("s3Key: %s\n", s3Key))
 
 	avStatus, s3ObjectTags, err := getS3ObjectTags(logger, s3Client, s3BucketTPPSPaidInvoiceReport, tppsFilename)
 	if err != nil {
