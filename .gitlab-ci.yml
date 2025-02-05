@@ -813,8 +813,8 @@ client_test:
       - /builds/milmove/mymove/jest-junit-reports
   after_script:
     - *announce_failure
-  rules:
-   - *check_client_ignore_branch
+  # rules:
+  #  - *check_client_ignore_branch
 
 client_test_coverage:
   stage: test
@@ -837,8 +837,8 @@ client_test_coverage:
       coverage/clover.xml
   after_script:
     - *announce_failure
-  # rules:
-  #  - *check_client_ignore_branch
+  rules:
+   - *check_client_ignore_branch
 
 integration_test_devseed:
   stage: test
