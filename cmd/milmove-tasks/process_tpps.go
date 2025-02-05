@@ -186,19 +186,21 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 			zap.String("bucket", bucket),
 			zap.String("key", key),
 			zap.Any("tags", s3ObjectTags))
-		// return "", "", err
+		logger.Info("avStatus is INFECTED, not attempting file download")
+		return nil
 	}
 
-	// get the S3 object, check the ClamAV results, download file to /tmp dir for processing if clean
-	localFilePath, scanResult, err := downloadS3FileIfClean(logger, s3Client, s3BucketTPPSPaidInvoiceReport, tppsFilename)
-	if err != nil {
-		logger.Error("Error with getting the S3 object data via GetObject", zap.Error(err))
-	}
+	if avStatus == "CLEAN" {
+		logger.Info("avStatus is clean, attempting file download")
 
-	logger.Info(fmt.Sprintf("localFilePath from calling downloadS3FileIfClean: %s\n", localFilePath))
-	logger.Info(fmt.Sprintf("scanResult from calling downloadS3FileIfClean: %s\n", scanResult))
+		// get the S3 object, check the ClamAV results, download file to /tmp dir for processing if clean
+		localFilePath, scanResult, err := downloadS3FileIfClean(logger, s3Client, s3BucketTPPSPaidInvoiceReport, tppsFilename)
+		if err != nil {
+			logger.Error("Error with getting the S3 object data via GetObject", zap.Error(err))
+		}
 
-	if scanResult == "CLEAN" {
+		logger.Info(fmt.Sprintf("localFilePath from calling downloadS3FileIfClean: %s\n", localFilePath))
+		logger.Info(fmt.Sprintf("scanResult from calling downloadS3FileIfClean: %s\n", scanResult))
 
 		logger.Info("Scan result was clean")
 
@@ -282,12 +284,12 @@ func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key 
 	// Convert to UTF-8 encoding
 	bodyText := convertToUTF8(body)
 
-	avStatus := "unknown"
-	if response.Metadata != nil {
-		if val, ok := response.Metadata["av-status"]; ok {
-			avStatus = val
-		}
-	}
+	// avStatus := "unknown"
+	// if response.Metadata != nil {
+	// 	if val, ok := response.Metadata["av-status"]; ok {
+	// 		avStatus = val
+	// 	}
+	// }
 
 	logger.Info("Successfully retrieved S3 object",
 		zap.String("bucket", bucket),
@@ -295,55 +297,54 @@ func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key 
 		zap.String("content-type", aws.ToString(response.ContentType)),
 		zap.String("etag", aws.ToString(response.ETag)),
 		zap.Int64("content-length", *response.ContentLength),
-		zap.String("av-status", avStatus),
 		zap.Any("metadata", response.Metadata),
 		zap.String("body-preview", string(bodyText[:min(100, len(bodyText))])))
 
-	result := ""
-	// get the ClamAV results
-	result, found := response.Metadata["av-status"]
-	if !found {
-		logger.Info(fmt.Sprintf("found was false: %t\n", found))
-		logger.Info(fmt.Sprintf("result: %s\n", result))
+	// result := ""
+	// // get the ClamAV results
+	// result, found := response.Metadata["av-status"]
+	// if !found {
+	// 	logger.Info(fmt.Sprintf("found was false: %t\n", found))
+	// 	logger.Info(fmt.Sprintf("result: %s\n", result))
 
-		result = "UNKNOWN"
-		return "", result, err
-	}
-	logger.Info(fmt.Sprintf("found: %t\n", found))
-	logger.Info(fmt.Sprintf("result: %s\n", result))
-	logger.Info(fmt.Sprintf("Result of ClamAV scan: %s\n", result))
+	// 	result = "UNKNOWN"
+	// 	return "", result, err
+	// }
+	// logger.Info(fmt.Sprintf("found: %t\n", found))
+	// logger.Info(fmt.Sprintf("result: %s\n", result))
+	// logger.Info(fmt.Sprintf("Result of ClamAV scan: %s\n", result))
 
-	if result != "CLEAN" {
-		logger.Info(fmt.Sprintf("found: %t\n", found))
-		logger.Info(fmt.Sprintf("result: %s\n", result))
-		logger.Info(fmt.Sprintf("ClamAV scan value was not CLEAN for TPPS file: %s\n", key))
-		return "", result, err
-	}
+	// if result != "CLEAN" {
+	// 	logger.Info(fmt.Sprintf("found: %t\n", found))
+	// 	logger.Info(fmt.Sprintf("result: %s\n", result))
+	// 	logger.Info(fmt.Sprintf("ClamAV scan value was not CLEAN for TPPS file: %s\n", key))
+	// 	return "", result, err
+	// }
 
 	localFilePath := ""
-	if result == "CLEAN" {
-		logger.Info(fmt.Sprintf("found: %t\n", found))
-		logger.Info(fmt.Sprintf("result: %s\n", result))
-		// create a temp file in /tmp directory to store the CSV from the S3 bucket
-		// the /tmp directory will only exist for the duration of the task, so no cleanup is required
-		tempDir := "/tmp"
-		localFilePath = filepath.Join(tempDir, filepath.Base(key))
-		logger.Info(fmt.Sprintf("localFilePath: %s\n", localFilePath))
-		file, err := os.Create(localFilePath)
-		if err != nil {
-			log.Fatalf("Failed to create temporary file: %v", err)
-		}
-		defer file.Close()
-
-		// write the S3 object file contents to the tmp file
-		_, err = io.Copy(file, response.Body)
-		if err != nil {
-			log.Fatalf("Failed to write S3 object to file: %v", err)
-		}
+	// if result == "CLEAN" {
+	// logger.Info(fmt.Sprintf("found: %t\n", found))
+	// logger.Info(fmt.Sprintf("result: %s\n", result))
+	// create a temp file in /tmp directory to store the CSV from the S3 bucket
+	// the /tmp directory will only exist for the duration of the task, so no cleanup is required
+	tempDir := "/tmp"
+	localFilePath = filepath.Join(tempDir, filepath.Base(key))
+	logger.Info(fmt.Sprintf("localFilePath: %s\n", localFilePath))
+	file, err := os.Create(localFilePath)
+	if err != nil {
+		log.Fatalf("Failed to create temporary file: %v", err)
 	}
+	defer file.Close()
+
+	// write the S3 object file contents to the tmp file
+	_, err = io.Copy(file, response.Body)
+	if err != nil {
+		log.Fatalf("Failed to write S3 object to file: %v", err)
+	}
+	//}
 
 	logger.Info(fmt.Sprintf("Successfully wrote to tmp file at: %s\n", localFilePath))
-	return localFilePath, result, err
+	return localFilePath, "", err
 }
 
 // convert to UTF-8 encoding
