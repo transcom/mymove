@@ -194,13 +194,13 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		logger.Info("avStatus is clean, attempting file download")
 
 		// get the S3 object, check the ClamAV results, download file to /tmp dir for processing if clean
-		localFilePath, scanResult, err := downloadS3FileIfClean(logger, s3Client, s3BucketTPPSPaidInvoiceReport, tppsFilename)
+		localFilePath, scanResult, err := downloadS3File(logger, s3Client, s3BucketTPPSPaidInvoiceReport, tppsFilename)
 		if err != nil {
 			logger.Error("Error with getting the S3 object data via GetObject", zap.Error(err))
 		}
 
-		logger.Info(fmt.Sprintf("localFilePath from calling downloadS3FileIfClean: %s\n", localFilePath))
-		logger.Info(fmt.Sprintf("scanResult from calling downloadS3FileIfClean: %s\n", scanResult))
+		logger.Info(fmt.Sprintf("localFilePath from calling downloadS3File: %s\n", localFilePath))
+		logger.Info(fmt.Sprintf("scanResult from calling downloadS3File: %s\n", scanResult))
 
 		logger.Info("Scan result was clean")
 
@@ -244,7 +244,7 @@ func getS3ObjectTags(logger *zap.Logger, s3Client *s3.Client, bucket, key string
 	return avStatus, tags, nil
 }
 
-func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key string) (string, string, error) {
+func downloadS3File(logger *zap.Logger, s3Client *s3.Client, bucket, key string) (string, string, error) {
 	// one call to GetObject will give us the metadata for checking the ClamAV scan results and the file data itself
 
 	awsBucket := aws.String("app-tpps-transfer-exp-us-gov-west-1")
@@ -256,15 +256,6 @@ func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key 
 			Bucket: &bucket,
 			Key:    &key,
 		})
-	// if err != nil {
-	// 	var ae smithy.APIError
-	// 	logger.Info("Error retrieving TPPS file metadata")
-	// 	if errors.As(err, &ae) {
-	// 		logger.Error("AWS Error Code", zap.String("code", ae.ErrorCode()), zap.String("message", ae.ErrorMessage()), zap.Any("ErrorFault", ae.ErrorFault()))
-	// 	}
-	// 	return "", "", err
-	// }
-	// defer response.Body.Close()
 
 	if err != nil {
 		logger.Error("Failed to get S3 object",
@@ -283,13 +274,6 @@ func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key 
 
 	// Convert to UTF-8 encoding
 	bodyText := convertToUTF8(body)
-
-	// avStatus := "unknown"
-	// if response.Metadata != nil {
-	// 	if val, ok := response.Metadata["av-status"]; ok {
-	// 		avStatus = val
-	// 	}
-	// }
 
 	logger.Info("Successfully retrieved S3 object",
 		zap.String("bucket", bucket),
@@ -322,7 +306,6 @@ func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key 
 	if err != nil {
 		log.Fatalf("Failed to write S3 object to file: %v", err)
 	}
-	//}
 
 	logger.Info(fmt.Sprintf("Successfully wrote to tmp file at: %s\n", localFilePath))
 	return localFilePath, "", err
