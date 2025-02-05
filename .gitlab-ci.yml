@@ -615,7 +615,7 @@ pre_test:
   stage: test
   interruptible: true
   tags:
-    - $RUNNER_TAG
+    - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   cache:
     - <<: *go_cache
@@ -667,8 +667,8 @@ pre_test:
   allow_failure: true
   after_script:
     - *announce_failure
-  rules:
-   - *check_server_ignore_branch
+  # rules:
+  #  - *check_server_ignore_branch
 
 server_test:
   stage: test
