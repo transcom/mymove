@@ -355,7 +355,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment delivery address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n\n* Resubmitting rejected SIT/Accessorial service items: This endpoint will handle the logic of changing the status of rejected SIT/Accessorial service items from\nREJECTED to SUBMITTED. Please provide the ` + "`" + `requestedApprovalsRequestedStatus: true` + "`" + ` when resubmitting as this will give attention to the TOO to\nreview the resubmitted SIT/Accessorial service item. Another note, ` + "`" + `updateReason` + "`" + ` must have a different value than the current ` + "`" + `reason` + "`" + ` value on the service item.\nIf this value is not updated, then an error will be sent back.\n\nThe following SIT service items can be resubmitted following a rejection:\n- DDASIT\n- DDDSIT\n- DDFSIT\n- DOASIT\n- DOPSIT\n- DOFSIT\n- DDSFSC\n- DOSFSC\n\nThe following Accessorial service items can be resubmitted following a rejection:\n- IOSHUT\n- IDSHUT\n\nAt a MINIMUM, the payload for resubmitting a rejected SIT/Accessorial service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"reServiceCode\": \"DDFSIT\",\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemSIT\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nThe following service items allow you to update the Port that the shipment will use:\n- PODFSC (Port of Debarkation can be updated)\n- POEFSC (Port of Embarkation can be updated)\n\nAt a MINIMUM, the payload for updating the port should contain the reServiceCode (PODFSC or POEFSC), modelType (UpdateMTOServiceItemInternationalPortFSC), portCode, and id for the service item.\nPlease see the example payload below:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"id\": \"1ed224b6-c65e-4616-b88e-8304d26c9562\",\n  \"modelType\": \"UpdateMTOServiceItemInternationalPortFSC\",\n  \"portCode\": \"SEA\",\n  \"reServiceCode\": \"POEFSC\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment delivery address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n\n* Resubmitting rejected SIT/Accessorial service items: This endpoint will handle the logic of changing the status of rejected SIT/Accessorial service items from\nREJECTED to SUBMITTED. Please provide the ` + "`" + `requestedApprovalsRequestedStatus: true` + "`" + ` when resubmitting as this will give attention to the TOO to\nreview the resubmitted SIT/Accessorial service item. Another note, ` + "`" + `updateReason` + "`" + ` must have a different value than the current ` + "`" + `reason` + "`" + ` value on the service item.\nIf this value is not updated, then an error will be sent back.\n\nThe following SIT service items can be resubmitted following a rejection:\n- DDASIT\n- DDDSIT\n- DDFSIT\n- DOASIT\n- DOPSIT\n- DOFSIT\n- DDSFSC\n- DOSFSC\n\nThe following Accessorial service items can be resubmitted following a rejection:\n- IOSHUT\n- IDSHUT\n\nAt a MINIMUM, the payload for resubmitting a rejected SIT/Accessorial service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"reServiceCode\": \"DDFSIT\",\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemSIT\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nThe following service items allow you to update the Port that the shipment will use:\n- PODFSC (Port of Debarkation can be updated)\n- POEFSC (Port of Embarkation can be updated)\n\nAt a MINIMUM, the payload for updating the port should contain the reServiceCode (PODFSC or POEFSC), modelType (UpdateMTOServiceItemInternationalPortFSC), portCode, and id for the service item.\nPlease see the example payload below:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"id\": \"1ed224b6-c65e-4616-b88e-8304d26c9562\",\n  \"modelType\": \"UpdateMTOServiceItemInternationalPortFSC\",\n  \"portCode\": \"SEA\",\n  \"reServiceCode\": \"POEFSC\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nThe following crating/uncrating service items can be resubmitted following a rejection:\n- ICRT\n- IUCRT\n\nAt a MINIMUM, the payload for resubmitting a rejected crating/uncrating service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"item\": {\n    \"length\": 10000,\n    \"width\": 10000,\n    \"height\": 10000\n  },\n  \"crate\": {\n    \"length\": 20000,\n    \"width\": 20000,\n    \"height\": 20000\n  },\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemCrating\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n",
         "consumes": [
           "application/json"
         ],
@@ -4063,6 +4063,67 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "UpdateMTOServiceItemCrating": {
+      "description": "Subtype used to provide the size and types for crating. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "x-nullable": true,
+              "example": "Decorated horse head to be crated."
+            },
+            "externalCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "ICRT",
+                "IUCRT"
+              ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "updateReason": {
+              "description": "Reason for updating service item.",
+              "type": "string",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "UpdateMTOServiceItemInternationalPortFSC": {
       "description": "Subtype used to provide the port for fuel surcharge. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
@@ -4132,13 +4193,14 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * PODFSC - UpdateMTOServiceItemInternationalPortFSC\n  * POEFSC - UpdateMTOServiceItemInternationalPortFSC\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * PODFSC - UpdateMTOServiceItemInternationalPortFSC\n  * POEFSC - UpdateMTOServiceItemInternationalPortFSC\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n  * ICRT - UpdateMTOServiceItemCrating\n  * IUCRT - UpdateMTOServiceItemCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
         "UpdateMTOServiceItemShuttle",
         "UpdateMTOServiceItemInternationalPortFSC",
-        "UpdateMTOServiceItemInternationalShuttle"
+        "UpdateMTOServiceItemInternationalShuttle",
+        "UpdateMTOServiceItemCrating"
       ]
     },
     "UpdateMTOServiceItemSIT": {
@@ -5151,7 +5213,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment delivery address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n\n* Resubmitting rejected SIT/Accessorial service items: This endpoint will handle the logic of changing the status of rejected SIT/Accessorial service items from\nREJECTED to SUBMITTED. Please provide the ` + "`" + `requestedApprovalsRequestedStatus: true` + "`" + ` when resubmitting as this will give attention to the TOO to\nreview the resubmitted SIT/Accessorial service item. Another note, ` + "`" + `updateReason` + "`" + ` must have a different value than the current ` + "`" + `reason` + "`" + ` value on the service item.\nIf this value is not updated, then an error will be sent back.\n\nThe following SIT service items can be resubmitted following a rejection:\n- DDASIT\n- DDDSIT\n- DDFSIT\n- DOASIT\n- DOPSIT\n- DOFSIT\n- DDSFSC\n- DOSFSC\n\nThe following Accessorial service items can be resubmitted following a rejection:\n- IOSHUT\n- IDSHUT\n\nAt a MINIMUM, the payload for resubmitting a rejected SIT/Accessorial service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"reServiceCode\": \"DDFSIT\",\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemSIT\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nThe following service items allow you to update the Port that the shipment will use:\n- PODFSC (Port of Debarkation can be updated)\n- POEFSC (Port of Embarkation can be updated)\n\nAt a MINIMUM, the payload for updating the port should contain the reServiceCode (PODFSC or POEFSC), modelType (UpdateMTOServiceItemInternationalPortFSC), portCode, and id for the service item.\nPlease see the example payload below:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"id\": \"1ed224b6-c65e-4616-b88e-8304d26c9562\",\n  \"modelType\": \"UpdateMTOServiceItemInternationalPortFSC\",\n  \"portCode\": \"SEA\",\n  \"reServiceCode\": \"POEFSC\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment delivery address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n\n* Resubmitting rejected SIT/Accessorial service items: This endpoint will handle the logic of changing the status of rejected SIT/Accessorial service items from\nREJECTED to SUBMITTED. Please provide the ` + "`" + `requestedApprovalsRequestedStatus: true` + "`" + ` when resubmitting as this will give attention to the TOO to\nreview the resubmitted SIT/Accessorial service item. Another note, ` + "`" + `updateReason` + "`" + ` must have a different value than the current ` + "`" + `reason` + "`" + ` value on the service item.\nIf this value is not updated, then an error will be sent back.\n\nThe following SIT service items can be resubmitted following a rejection:\n- DDASIT\n- DDDSIT\n- DDFSIT\n- DOASIT\n- DOPSIT\n- DOFSIT\n- DDSFSC\n- DOSFSC\n\nThe following Accessorial service items can be resubmitted following a rejection:\n- IOSHUT\n- IDSHUT\n\nAt a MINIMUM, the payload for resubmitting a rejected SIT/Accessorial service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"reServiceCode\": \"DDFSIT\",\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemSIT\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nThe following service items allow you to update the Port that the shipment will use:\n- PODFSC (Port of Debarkation can be updated)\n- POEFSC (Port of Embarkation can be updated)\n\nAt a MINIMUM, the payload for updating the port should contain the reServiceCode (PODFSC or POEFSC), modelType (UpdateMTOServiceItemInternationalPortFSC), portCode, and id for the service item.\nPlease see the example payload below:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"id\": \"1ed224b6-c65e-4616-b88e-8304d26c9562\",\n  \"modelType\": \"UpdateMTOServiceItemInternationalPortFSC\",\n  \"portCode\": \"SEA\",\n  \"reServiceCode\": \"POEFSC\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nThe following crating/uncrating service items can be resubmitted following a rejection:\n- ICRT\n- IUCRT\n\nAt a MINIMUM, the payload for resubmitting a rejected crating/uncrating service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"item\": {\n    \"length\": 10000,\n    \"width\": 10000,\n    \"height\": 10000\n  },\n  \"crate\": {\n    \"length\": 20000,\n    \"width\": 20000,\n    \"height\": 20000\n  },\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemCrating\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n",
         "consumes": [
           "application/json"
         ],
@@ -9139,6 +9201,67 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "UpdateMTOServiceItemCrating": {
+      "description": "Subtype used to provide the size and types for crating. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "x-nullable": true,
+              "example": "Decorated horse head to be crated."
+            },
+            "externalCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "ICRT",
+                "IUCRT"
+              ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "updateReason": {
+              "description": "Reason for updating service item.",
+              "type": "string",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "UpdateMTOServiceItemInternationalPortFSC": {
       "description": "Subtype used to provide the port for fuel surcharge. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
@@ -9208,13 +9331,14 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * PODFSC - UpdateMTOServiceItemInternationalPortFSC\n  * POEFSC - UpdateMTOServiceItemInternationalPortFSC\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * PODFSC - UpdateMTOServiceItemInternationalPortFSC\n  * POEFSC - UpdateMTOServiceItemInternationalPortFSC\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n  * ICRT - UpdateMTOServiceItemCrating\n  * IUCRT - UpdateMTOServiceItemCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
         "UpdateMTOServiceItemShuttle",
         "UpdateMTOServiceItemInternationalPortFSC",
-        "UpdateMTOServiceItemInternationalShuttle"
+        "UpdateMTOServiceItemInternationalShuttle",
+        "UpdateMTOServiceItemCrating"
       ]
     },
     "UpdateMTOServiceItemSIT": {

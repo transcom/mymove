@@ -280,3 +280,19 @@ type IntlPortFuelSurchargePricer interface {
 	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
+
+// IntlCratingPricer prices the international crating service for a Move
+//
+//go:generate mockery --name IntlCratingPricer
+type IntlCratingPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, standaloneCrate bool, standaloneCrateCap unit.Cents, externalCrate bool, market models.Market) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlUncratingPricer prices the international uncrating service for a Move
+//
+//go:generate mockery --name IntlUncratingPricer
+type IntlUncratingPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, market models.Market) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
