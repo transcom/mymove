@@ -59,7 +59,6 @@ test.describe('TOO user', () => {
       // Edit the shipment address to AK
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('input[id="delivery.address-location-input"]').fill('99505');
-      await page.keyboard.press('Enter');
 
       await page.getByRole('button', { name: 'Save' }).click();
       await tooFlowPage.waitForPage.moveDetails();
@@ -175,7 +174,6 @@ test.describe('TOO user', () => {
       // Edit the shipment address to AK
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('input[id="delivery.address-location-input"]').fill('99505');
-      await page.keyboard.press('Enter');
 
       await page.getByRole('button', { name: 'Save' }).click();
       await tooFlowPage.waitForPage.moveDetails();
@@ -219,7 +217,7 @@ test.describe('TOO user', () => {
 
       // Approve a requested service item
       expect((await getServiceItemsInTable(requestedServiceItemsTable).count()) > 0);
-      // ICRT
+
       await requestedServiceItemsTable.getByRole('button', { name: 'Accept' }).first().click();
       await tooFlowPage.waitForLoading();
 
@@ -229,7 +227,6 @@ test.describe('TOO user', () => {
       await expect(getServiceItemsInTable(requestedServiceItemsTable)).toHaveCount(requestedServiceItemCount - 1);
       requestedServiceItemCount = await getServiceItemsInTable(requestedServiceItemsTable).count();
 
-      // IUCRT
       await requestedServiceItemsTable.getByRole('button', { name: 'Accept' }).first().click();
       await tooFlowPage.waitForLoading();
 
@@ -242,7 +239,7 @@ test.describe('TOO user', () => {
       // Reject a requested service item
       await expect(page.getByText('Requested Service Items', { exact: false })).toBeVisible();
       expect((await getServiceItemsInTable(requestedServiceItemsTable).count()) > 0);
-      // ICRT
+
       await requestedServiceItemsTable.getByRole('button', { name: 'Reject' }).first().click();
 
       await expect(page.getByTestId('modal')).toBeVisible();
@@ -261,7 +258,6 @@ test.describe('TOO user', () => {
       await expect(getServiceItemsInTable(requestedServiceItemsTable)).toHaveCount(requestedServiceItemCount - 1);
       requestedServiceItemCount = await getServiceItemsInTable(requestedServiceItemsTable).count();
 
-      // IUCRT
       await requestedServiceItemsTable.getByRole('button', { name: 'Reject' }).first().click();
 
       await expect(page.getByTestId('modal')).toBeVisible();
