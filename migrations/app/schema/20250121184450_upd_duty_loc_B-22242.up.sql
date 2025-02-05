@@ -88,7 +88,6 @@ BEGIN
 
 END $$;
 
-select * from transportation_offices where name 
 --add Joint Base Lewis McChord, WA 98438 duty location
 DO $$
 BEGIN
