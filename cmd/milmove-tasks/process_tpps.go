@@ -170,16 +170,15 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	logger.Info(fmt.Sprintf("s3Bucket: %s\n", s3Bucket))
 	logger.Info(fmt.Sprintf("s3Key: %s\n", s3Key))
 
-	avStatus, s3ObjectTags, err := getS3ObjectTags(logger, s3Client, s3BucketTPPSPaidInvoiceReport, tppsFilename)
+	awsBucket := aws.String("app-tpps-transfer-exp-us-gov-west-1")
+	bucket := *awsBucket
+	awskey := aws.String("connector-files/MILMOVE-en20250116.csv")
+	key := *awskey
+	avStatus, s3ObjectTags, err := getS3ObjectTags(logger, s3Client, bucket, key)
 	if err != nil {
 		logger.Info("Failed to get S3 object tags")
 	}
 	logger.Info(fmt.Sprintf("avStatus from calling getS3ObjectTags: %s\n", avStatus))
-
-	awsBucket := aws.String("app-tpps-transfer-exp-us-gov-west-1")
-	bucket := *awsBucket
-	awskey := aws.String("connector-files/MILMOVE-en20250203.csv")
-	key := *awskey
 
 	if avStatus == "INFECTED" {
 		logger.Warn("Skipping infected file",
@@ -194,7 +193,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		logger.Info("avStatus is clean, attempting file download")
 
 		// get the S3 object, check the ClamAV results, download file to /tmp dir for processing if clean
-		localFilePath, scanResult, err := downloadS3File(logger, s3Client, s3BucketTPPSPaidInvoiceReport, tppsFilename)
+		localFilePath, scanResult, err := downloadS3File(logger, s3Client, bucket, key)
 		if err != nil {
 			logger.Error("Error with getting the S3 object data via GetObject", zap.Error(err))
 		}
@@ -217,11 +216,6 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 }
 
 func getS3ObjectTags(logger *zap.Logger, s3Client *s3.Client, bucket, key string) (string, map[string]string, error) {
-	awsBucket := aws.String("app-tpps-transfer-exp-us-gov-west-1")
-	bucket = *awsBucket
-	awskey := aws.String("connector-files/MILMOVE-en20250203.csv")
-	key = *awskey
-
 	tagResp, err := s3Client.GetObjectTagging(context.Background(),
 		&s3.GetObjectTaggingInput{
 			Bucket: &bucket,
@@ -245,12 +239,6 @@ func getS3ObjectTags(logger *zap.Logger, s3Client *s3.Client, bucket, key string
 }
 
 func downloadS3File(logger *zap.Logger, s3Client *s3.Client, bucket, key string) (string, string, error) {
-	// one call to GetObject will give us the metadata for checking the ClamAV scan results and the file data itself
-
-	awsBucket := aws.String("app-tpps-transfer-exp-us-gov-west-1")
-	bucket = *awsBucket
-	awskey := aws.String("connector-files/MILMOVE-en20250203.csv")
-	key = *awskey
 	response, err := s3Client.GetObject(context.Background(),
 		&s3.GetObjectInput{
 			Bucket: &bucket,
@@ -284,8 +272,6 @@ func downloadS3File(logger *zap.Logger, s3Client *s3.Client, bucket, key string)
 		zap.Any("metadata", response.Metadata),
 		zap.String("body-preview", string(bodyText[:min(100, len(bodyText))])))
 
-	localFilePath := ""
-
 	// create a temp file in /tmp directory to store the CSV from the S3 bucket
 	// the /tmp directory will only exist for the duration of the task, so no cleanup is required
 	tempDir := os.TempDir()
@@ -293,7 +279,7 @@ func downloadS3File(logger *zap.Logger, s3Client *s3.Client, bucket, key string)
 		return "", "", fmt.Errorf("tmp directory (%s) is not mutable, cannot configure default pdfcpu generator settings", tempDir)
 	}
 
-	localFilePath = filepath.Join(tempDir, filepath.Base(key))
+	localFilePath := filepath.Join(tempDir, filepath.Base(key))
 	logger.Info(fmt.Sprintf("localFilePath: %s\n", localFilePath))
 	file, err := os.Create(localFilePath)
 	if err != nil {
