@@ -205,3 +205,58 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlAdditionalDaySIT() {
 		suite.Contains(err.Error(), "NumberDaysSIT is required")
 	})
 }
+
+func (suite *GHCRateEngineServiceSuite) TestPriceIntlCratingUncrating() {
+	suite.Run("crating golden path", func() {
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeICRT, icrtTestMarket, icrtTestBasePriceCents, testdatagen.DefaultContractCode, icrtTestEscalationCompounded)
+
+		priceCents, displayParams, err := priceIntlCratingUncrating(suite.AppContextForTest(), models.ReServiceCodeICRT, testdatagen.DefaultContractCode, icrtTestRequestedPickupDate, icrtTestBilledCubicFeet, icrtTestStandaloneCrate, icrtTestStandaloneCrateCap, icrtTestExternalCrate, icrtTestMarket)
+		suite.NoError(err)
+		suite.Equal(icrtTestPriceCents, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(icrtTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(icrtTestBasePriceCents)},
+			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(dcrtTestUncappedRequestTotal)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("invalid service code", func() {
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeICRT, icrtTestMarket, icrtTestBasePriceCents, testdatagen.DefaultContractCode, icrtTestEscalationCompounded)
+		_, _, err := priceIntlCratingUncrating(suite.AppContextForTest(), models.ReServiceCodeCS, testdatagen.DefaultContractCode, icrtTestRequestedPickupDate, icrtTestBilledCubicFeet, icrtTestStandaloneCrate, icrtTestStandaloneCrateCap, icrtTestExternalCrate, icrtTestMarket)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "unsupported international crating/uncrating code")
+	})
+
+	suite.Run("invalid crate size - external crate", func() {
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeICRT, icrtTestMarket, icrtTestBasePriceCents, testdatagen.DefaultContractCode, icrtTestEscalationCompounded)
+
+		badSize := unit.CubicFeet(1.0)
+		_, _, err := priceIntlCratingUncrating(suite.AppContextForTest(), models.ReServiceCodeICRT, testdatagen.DefaultContractCode, icrtTestRequestedPickupDate, badSize, icrtTestStandaloneCrate, icrtTestStandaloneCrateCap, true, icrtTestMarket)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "external crates must be billed for a minimum of 4 cubic feet")
+	})
+
+	suite.Run("not finding a rate record", func() {
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeICRT, icrtTestMarket, icrtTestBasePriceCents, testdatagen.DefaultContractCode, icrtTestEscalationCompounded)
+
+		_, _, err := priceIntlCratingUncrating(suite.AppContextForTest(), models.ReServiceCodeICRT, "BOGUS", icrtTestRequestedPickupDate, icrtTestBilledCubicFeet, icrtTestStandaloneCrate, icrtTestStandaloneCrateCap, icrtTestExternalCrate, icrtTestMarket)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not lookup International Accessorial Area Price")
+	})
+
+	suite.Run("not finding a contract year record", func() {
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeICRT, icrtTestMarket, icrtTestBasePriceCents, testdatagen.DefaultContractCode, icrtTestEscalationCompounded)
+
+		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		_, _, err := priceIntlCratingUncrating(suite.AppContextForTest(), models.ReServiceCodeICRT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, icrtTestBilledCubicFeet, icrtTestStandaloneCrate, icrtTestStandaloneCrateCap, icrtTestExternalCrate, icrtTestMarket)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")
+	})
+}
