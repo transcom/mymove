@@ -93,12 +93,12 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	}
 
 	var weightRestriction *int64
+	var weightRestrictionFormatted string
 	if orders.Entitlement != nil && orders.Entitlement.WeightRestriction != nil {
 		weightRestrictionInt64 := int64(*orders.Entitlement.WeightRestriction)
 		weightRestriction = &weightRestrictionInt64
+		weightRestrictionFormatted = humanize.Comma(int64(*weightRestriction))
 	}
-
-	weightRestrictionFormatted := humanize.Comma(int64(*weightRestriction))
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, MoveCounseledEmailData{
 		OriginDutyLocation:         originDutyLocationName,
