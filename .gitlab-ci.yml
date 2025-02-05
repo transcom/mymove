@@ -721,6 +721,13 @@ server_test:
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_HOST_AUTH_METHOD: trust
+
+    DPS_AUTH_SECRET_KEY: placeholder
+    CSRF_AUTH_KEY: d096fd8529eefaa46497849d11d2ff2e979ddfaed1aff058524ada9bceadd67c
+
+    IWS_RBS_ENABLED: 1
+    IWS_RBS_HOST: "pkict.dmdc.osd.mil"
+
   script:
     - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
     - scripts/check-generated-code go.sum
