@@ -378,7 +378,7 @@ func (o transportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcont
         JOIN addresses ON postal_code_to_gblocs.postal_code = addresses.postal_code
         JOIN duty_locations ON addresses.id = duty_locations.address_id
         JOIN transportation_offices ON postal_code_to_gblocs.gbloc = transportation_offices.gbloc
-        WHERE duty_locations.provides_services_counseling = true and duty_locations.id = $1
+        WHERE duty_locations.id = $1
     )
     SELECT counseling_offices.id, counseling_offices.name
     FROM counseling_offices
