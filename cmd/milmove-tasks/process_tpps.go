@@ -281,19 +281,44 @@ func downloadS3File(logger *zap.Logger, s3Client *s3.Client, bucket, key string)
 
 	localFilePath := filepath.Join(tempDir, filepath.Base(key))
 	logger.Info(fmt.Sprintf("localFilePath: %s\n", localFilePath))
+
 	file, err := os.Create(localFilePath)
 	if err != nil {
-		log.Fatalf("Failed to create temporary file: %v", err)
+		logger.Error("Failed to create temporary file", zap.Error(err))
+		return "", "", err
 	}
 	defer file.Close()
 
-	// write the S3 object file contents to the tmp file
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		log.Fatalf("Failed to write S3 object to file: %v", err)
+		logger.Error("Failed to write S3 object to file", zap.Error(err))
+		return "", "", err
 	}
 
-	logger.Info(fmt.Sprintf("Successfully wrote to tmp file at: %s\n", localFilePath))
+	_, err = file.Seek(0, io.SeekStart)
+	if err != nil {
+		logger.Error("Failed to reset file cursor for logging", zap.Error(err))
+		return "", "", err
+	}
+
+	buffer := make([]byte, 2000)
+	n, err := file.Read(buffer)
+	if err != nil && err != io.EOF {
+		logger.Error("Failed to read file contents for logging", zap.Error(err))
+		return "", "", err
+	}
+
+	logger.Info("File contents preview before closing:",
+		zap.String("filePath", file.Name()),
+		zap.String("content", string(buffer[:n])),
+	)
+
+	logger.Info(fmt.Sprintf("Successfully wrote to tmp file named localFilePath at: %s", localFilePath))
+	logger.Info(fmt.Sprintf("File contents of: %s", localFilePath))
+
+	logFileContents(logger, localFilePath)
+
+	defer file.Close()
 	return localFilePath, "", err
 }
 
@@ -326,4 +351,25 @@ func isDirMutable(path string) bool {
 	file.Close()
 	os.Remove(testFile) // Cleanup the test file, it is mutable here
 	return true
+}
+
+func logFileContents(logger *zap.Logger, filePath string) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		logger.Error("Failed to open file for logging", zap.String("filePath", filePath), zap.Error(err))
+		return
+	}
+	defer file.Close()
+
+	buffer := make([]byte, 2000)
+	n, err := file.Read(buffer)
+	if err != nil && err != io.EOF {
+		logger.Error("Failed to read file contents", zap.String("filePath", filePath), zap.Error(err))
+		return
+	}
+
+	logger.Info("File contents preview:",
+		zap.String("filePath", filePath),
+		zap.String("content", string(buffer[:n])),
+	)
 }
