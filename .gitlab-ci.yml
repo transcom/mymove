@@ -616,7 +616,7 @@ pre_test:
   interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
-  image: $DOCKER_APP_IMAGE
+  image: milmove/circleci-docker:milmove-app
   cache:
     - <<: *go_cache
       policy: pull
