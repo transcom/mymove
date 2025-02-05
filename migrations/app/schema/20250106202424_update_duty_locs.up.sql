@@ -19,6 +19,11 @@ BEGIN
 	SELECT '3d617fab-bf6f-4f07-8ab5-f7652b8e7f3e'::uuid, 'n/a', NULL, 'NAS N ISLAND', 'CA', '39125', now(), now(), NULL, 'SAN DIEGO', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, 'ce42858c-85af-4566-bbef-6b9aaf75c18a'::uuid
 	WHERE NOT EXISTS (select * from addresses where id = '3d617fab-bf6f-4f07-8ab5-f7652b8e7f3e');
 
+	INSERT INTO addresses
+	(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, street_address_3, county, is_oconus, country_id, us_post_region_cities_id)
+	SELECT '8d613f71-b80e-4ad4-95e7-00781b084c7c'::uuid, 'n/a', NULL, 'NAS NORTH ISLAND', 'CA', '39125', now(), now(), NULL, 'SAN DIEGO', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '191165db-d30a-414d-862b-54afdfc7aeb9'::uuid
+	WHERE NOT EXISTS (select * from addresses where id = '8d613f71-b80e-4ad4-95e7-00781b084c7c');
+
 	INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_at,transportation_office_id,provides_services_counseling) 
 	SELECT '56255626-bbbe-4834-8324-1c08f011f2f6'::uuid,'NAS N Island, CA 92135',NULL,'3d617fab-bf6f-4f07-8ab5-f7652b8e7f3e'::uuid,now(),now(),null,true
 	WHERE NOT EXISTS (select * from duty_locations where id = '56255626-bbbe-4834-8324-1c08f011f2f6');
