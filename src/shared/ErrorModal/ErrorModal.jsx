@@ -12,7 +12,7 @@ export const ErrorModal = ({ closeModal, errorMessage, displayHelpDeskLink = tru
     <SystemError>
       {errorMessage}
       {displayHelpDeskLink && (
-        <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-M\ilMove-HD@mail.mil">Technical Help Desk</a>
+        <a href="mailto:=usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">Technical Help Desk</a>
       )}
     </SystemError>
     <ModalActions>
