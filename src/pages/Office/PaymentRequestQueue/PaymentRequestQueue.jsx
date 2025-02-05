@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, NavLink, useParams, Navigate } from 'react-router-dom';
 import { Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { connect } from 'react-redux';
 
 import styles from './PaymentRequestQueue.module.scss';
 
@@ -32,8 +33,9 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { DEFAULT_EMPTY_VALUE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import handleQueueAssignment from 'utils/queues';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import { setShouldRefetchQueue as setShouldRefetchQueueAction } from 'store/general/actions';
 
-export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter = true) => {
+export const columns = (moveLockFlag, isQueueManagementEnabled, setShouldRefetchQueue, showBranchFilter = true) => {
   const cols = [
     createHeader(
       ' ',
@@ -163,6 +165,8 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
                 defaultValue={row.assignedTo?.officeUserId}
                 onChange={(e) => {
                   handleQueueAssignment(row.moveID, e.target.value, roleTypes.TIO);
+
+                  setShouldRefetchQueue(true);
                 }}
                 title="Assigned dropdown"
               >
@@ -191,7 +195,12 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
   return cols;
 };
 
-const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmentFFEnabled }) => {
+const PaymentRequestQueue = ({
+  isQueueManagementFFEnabled,
+  userPrivileges,
+  isBulkAssignmentFFEnabled,
+  setShouldRefetchQueue,
+}) => {
   const { queueType } = useParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
@@ -322,7 +331,7 @@ const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBul
           defaultSortedColumns={[{ id: 'age', desc: true }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
+          columns={columns(moveLockFlag, isQueueManagementFFEnabled, setShouldRefetchQueue, showBranchFilter)}
           title="Payment requests"
           handleClick={handleClick}
           useQueries={usePaymentRequestQueueQueries}
@@ -341,4 +350,12 @@ const PaymentRequestQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBul
   return <NotFound />;
 };
 
-export default PaymentRequestQueue;
+const mapStateToProps = (state) => {
+  return {
+    setShouldRefetchQueue: state.generalState.setShouldRefetchQueue,
+  };
+};
+
+const mapDispatchToProps = { setShouldRefetchQueue: setShouldRefetchQueueAction };
+
+export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequestQueue);
