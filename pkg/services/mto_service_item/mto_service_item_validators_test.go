@@ -832,7 +832,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 				},
 			}, nil)
 			newSITServiceItem := oldSITServiceItem
-			newSITServiceItem.SITDepartureDate = &later
+			newSITDepartureDate := later.AddDate(0, 0, 1)
+			newSITServiceItem.SITDepartureDate = &newSITDepartureDate
 			serviceItemData := updateMTOServiceItemData{
 				updatedServiceItem: newSITServiceItem,
 				oldServiceItem:     oldSITServiceItem,
