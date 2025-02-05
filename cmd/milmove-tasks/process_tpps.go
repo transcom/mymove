@@ -300,34 +300,15 @@ func downloadS3FileIfClean(logger *zap.Logger, s3Client *s3.Client, bucket, key 
 		zap.Any("metadata", response.Metadata),
 		zap.String("body-preview", string(bodyText[:min(100, len(bodyText))])))
 
-	// result := ""
-	// // get the ClamAV results
-	// result, found := response.Metadata["av-status"]
-	// if !found {
-	// 	logger.Info(fmt.Sprintf("found was false: %t\n", found))
-	// 	logger.Info(fmt.Sprintf("result: %s\n", result))
-
-	// 	result = "UNKNOWN"
-	// 	return "", result, err
-	// }
-	// logger.Info(fmt.Sprintf("found: %t\n", found))
-	// logger.Info(fmt.Sprintf("result: %s\n", result))
-	// logger.Info(fmt.Sprintf("Result of ClamAV scan: %s\n", result))
-
-	// if result != "CLEAN" {
-	// 	logger.Info(fmt.Sprintf("found: %t\n", found))
-	// 	logger.Info(fmt.Sprintf("result: %s\n", result))
-	// 	logger.Info(fmt.Sprintf("ClamAV scan value was not CLEAN for TPPS file: %s\n", key))
-	// 	return "", result, err
-	// }
-
 	localFilePath := ""
-	// if result == "CLEAN" {
-	// logger.Info(fmt.Sprintf("found: %t\n", found))
-	// logger.Info(fmt.Sprintf("result: %s\n", result))
+
 	// create a temp file in /tmp directory to store the CSV from the S3 bucket
 	// the /tmp directory will only exist for the duration of the task, so no cleanup is required
-	tempDir := "/tmp"
+	tempDir := os.TempDir()
+	if !isDirMutable(tempDir) {
+		return "", "", fmt.Errorf("tmp directory (%s) is not mutable, cannot configure default pdfcpu generator settings", tempDir)
+	}
+
 	localFilePath = filepath.Join(tempDir, filepath.Base(key))
 	logger.Info(fmt.Sprintf("localFilePath: %s\n", localFilePath))
 	file, err := os.Create(localFilePath)
@@ -361,4 +342,19 @@ func convertToUTF8(data []byte) string {
 	}
 
 	return string(data)
+}
+
+// Identifies if a filepath directory is mutable
+// This is needed in to write contents of S3 stream to
+// local file so that we can open it with os.Open() in the parser
+func isDirMutable(path string) bool {
+	testFile := filepath.Join(path, "tmp")
+	file, err := os.Create(testFile)
+	if err != nil {
+		log.Printf("isDirMutable: failed for %s: %v\n", path, err)
+		return false
+	}
+	file.Close()
+	os.Remove(testFile) // Cleanup the test file, it is mutable here
+	return true
 }
