@@ -140,6 +140,129 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 		suite.Equal(officeUser3.ID.String(), okResponse.Payload[0].ID.String())
 	})
 
+	suite.Run("test the return of sorted requested office users in asc order", func() {
+		requestedStatus := models.OfficeUserStatusREQUESTED
+		officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Angelina",
+					LastName:  "Jolie",
+					Email:     "laraCroft@mail.mil",
+					Status:    &requestedStatus,
+				},
+			},
+			{
+				Model: models.TransportationOffice{
+					Name: "PPPO Kirtland AFB - USAF",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser2 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Billy",
+					LastName:  "Bob",
+					Email:     "bigBob@mail.mil",
+					Status:    &requestedStatus,
+				},
+			},
+			{
+				Model: models.TransportationOffice{
+					Name: "PPPO Fort Knox - USA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTIO})
+		officeUser3 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Nick",
+					LastName:  "Cage",
+					Email:     "conAirKilluh@mail.mil",
+					Status:    &requestedStatus,
+				},
+			},
+			{
+				Model: models.TransportationOffice{
+					Name: "PPPO Detroit Arsenal - USA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		sortColumn := "transportation_office_id"
+		params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Sort:        &sortColumn,
+			Order:       models.BoolPointer(true),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := IndexRequestedOfficeUsersHandler{
+			HandlerConfig:                  suite.HandlerConfig(),
+			NewQueryFilter:                 query.NewQueryFilter,
+			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
+			NewPagination:                  pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse := response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 3)
+		suite.Equal(officeUser3.ID.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(officeUser2.ID.String(), okResponse.Payload[1].ID.String())
+		suite.Equal(officeUser1.ID.String(), okResponse.Payload[2].ID.String())
+
+		// sort by transportation office name in desc order
+		sortColumn = "transportation_office_id"
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Sort:        &sortColumn,
+			Order:       models.BoolPointer(false),
+		}
+
+		queryBuilder = query.NewQueryBuilder()
+		handler = IndexRequestedOfficeUsersHandler{
+			HandlerConfig:                  suite.HandlerConfig(),
+			NewQueryFilter:                 query.NewQueryFilter,
+			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
+			NewPagination:                  pagination.NewPagination,
+		}
+
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 3)
+		suite.Equal(officeUser1.ID.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(officeUser2.ID.String(), okResponse.Payload[1].ID.String())
+		suite.Equal(officeUser3.ID.String(), okResponse.Payload[2].ID.String())
+
+		// sort by first name in asc order
+		sortColumn = "first_name"
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Sort:        &sortColumn,
+			Order:       models.BoolPointer(true),
+		}
+
+		queryBuilder = query.NewQueryBuilder()
+		handler = IndexRequestedOfficeUsersHandler{
+			HandlerConfig:                  suite.HandlerConfig(),
+			NewQueryFilter:                 query.NewQueryFilter,
+			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
+			NewPagination:                  pagination.NewPagination,
+		}
+
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 3)
+		suite.Equal(officeUser1.ID.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(officeUser2.ID.String(), okResponse.Payload[1].ID.String())
+		suite.Equal(officeUser3.ID.String(), okResponse.Payload[2].ID.String())
+	})
+
 	suite.Run("able to search by transportation office", func() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
@@ -217,6 +340,76 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 		okResponse := response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(officeUser1.ID.String(), okResponse.Payload[0].ID.String())
+	})
+
+	suite.Run("return error when querying for unhandled data", func() {
+		requestedStatus := models.OfficeUserStatusREQUESTED
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Status: &requestedStatus,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		sortColumn := "unknown_column"
+		params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Sort:        &sortColumn,
+			Order:       models.BoolPointer(true),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := IndexRequestedOfficeUsersHandler{
+			HandlerConfig:                  suite.HandlerConfig(),
+			NewQueryFilter:                 query.NewQueryFilter,
+			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
+			NewPagination:                  pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&handlers.ErrResponse{}, response)
+		errResponse := response.(*handlers.ErrResponse)
+		suite.Equal(http.StatusInternalServerError, errResponse.Code)
+		errMsg := errResponse.Err.Error()
+		suite.Equal(errMsg, "Unhandled data error encountered")
+	})
+
+	suite.Run("should error when a param filter format is incorrect", func() {
+		requestedStatus := models.OfficeUserStatusREQUESTED
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Status: &requestedStatus,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// Invalid format for filter params
+		filterJSON := "test{\"unknown\":\"value\"}test"
+		params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := IndexRequestedOfficeUsersHandler{
+			HandlerConfig:                  suite.HandlerConfig(),
+			NewQueryFilter:                 query.NewQueryFilter,
+			RequestedOfficeUserListFetcher: requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
+			NewPagination:                  pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		expectedError := models.ErrInvalidFilterFormat
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusInternalServerError,
+			Err:  expectedError,
+		}
+
+		suite.Equal(expectedResponse, response)
 	})
 }
 

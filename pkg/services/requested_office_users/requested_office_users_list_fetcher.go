@@ -40,7 +40,7 @@ func (o *requestedOfficeUserListFetcher) FetchRequestedOfficeUsersList(appCtx ap
 	query.GroupBy("office_users.id")
 
 	var order = "desc"
-	if ordering.SortOrder() != nil && ordering.SortOrder() == models.BoolPointer(true) {
+	if ordering.SortOrder() != nil && *ordering.SortOrder() {
 		order = "asc"
 	}
 
