@@ -569,6 +569,75 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.True(found, "Expected service item ReServiceCodePODFSC")
 	})
 
+	suite.Run("Success - Move contains only deleted MTOAgents", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{Model: models.MTOAgent{
+				MTOAgentType: models.MTOAgentReceiving,
+				DeletedAt:    models.TimePointer(time.Now()),
+			}},
+			{Model: move, LinkOnly: true},
+		}, nil)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: move.ID,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		suite.Equal(move.ID, actualMTO.ID)
+		suite.Len(actualMTO.MTOShipments[0].MTOAgents, 0, "Expected no active agents since all are deleted")
+	})
+
+	suite.Run("Success - Move contains one MTOAgent", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{Model: move,
+				LinkOnly: true},
+		}, nil)
+
+		factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{Model: models.MTOAgent{
+				MTOAgentType: models.MTOAgentReceiving,
+				DeletedAt:    models.TimePointer(time.Now()),
+			}},
+			{Model: move, LinkOnly: true},
+			{Model: shipment, LinkOnly: true},
+		}, nil)
+
+		activeAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{Model: models.MTOAgent{
+				FirstName:    models.StringPointer("John"),
+				LastName:     models.StringPointer("Doe"),
+				Email:        models.StringPointer("John.doe@example.com"),
+				Phone:        models.StringPointer("222-222-2222"),
+				MTOAgentType: models.MTOAgentReleasing,
+			}},
+			{Model: move, LinkOnly: true},
+			{Model: shipment, LinkOnly: true},
+		}, nil)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: move.ID,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		suite.Equal(move.ID, actualMTO.ID)
+		suite.Len(actualMTO.MTOShipments[0].MTOAgents, 1, "Expected only one active agent in the result")
+
+		activeAgentReturned := actualMTO.MTOShipments[0].MTOAgents[0]
+		suite.Equal(activeAgent.FirstName, activeAgentReturned.FirstName, "First names should match")
+		suite.Equal(activeAgent.LastName, activeAgentReturned.LastName, "Last names should match")
+		suite.Equal(activeAgent.Email, activeAgentReturned.Email, "Emails should match")
+		suite.Equal(activeAgent.Phone, activeAgentReturned.Phone, "Phone numbers should match")
+		suite.Equal(activeAgent.MTOAgentType, activeAgentReturned.MTOAgentType, "Agent types should match")
+	})
+
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestGetMoveTaskOrderFetcher() {
