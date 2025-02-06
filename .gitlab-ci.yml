@@ -392,9 +392,7 @@ pre_deps_golang:
 
 golang_lint:
   stage: pre_checks
-  image:
-    default: golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
-    description: "The image to execute golangci"
+  image: golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
   script:
     - golangci-lint run --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
   artifacts:
