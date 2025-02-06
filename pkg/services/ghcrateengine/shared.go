@@ -12,6 +12,9 @@ const minDomesticWeight = unit.Pound(500)
 // minIntlWeightHHG is the minimum weight used in intl calculations (weights below this are upgraded to the min)
 const minIntlWeightHHG = unit.Pound(500)
 
+// minIntlWeightUB is the minimum weight used in intl UB calculations
+const minIntlWeightUB = unit.Pound(300)
+
 // dateInYear represents a specific date in a year (without caring what year it is)
 type dateInYear struct {
 	month time.Month
