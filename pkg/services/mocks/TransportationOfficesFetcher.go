@@ -16,12 +16,12 @@ type TransportationOfficesFetcher struct {
 	mock.Mock
 }
 
-// FindClosestCounselingOffice provides a mock function with given fields: appCtx, dutyLocationID, serviceMemberID
-func (_m *TransportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffice, error) {
+// FindCounselingOfficeForPrimeCounseled provides a mock function with given fields: appCtx, dutyLocationID, serviceMemberID
+func (_m *TransportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffice, error) {
 	ret := _m.Called(appCtx, dutyLocationID, serviceMemberID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for FindClosestCounselingOffice")
+		panic("no return value specified for FindCounselingOfficeForPrimeCounseled")
 	}
 
 	var r0 *models.TransportationOffice
