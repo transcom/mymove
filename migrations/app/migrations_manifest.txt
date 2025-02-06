@@ -1082,3 +1082,4 @@
 20250116200912_disable_homesafe_stg_cert.up.sql
 20250120144247_update_pricing_proc_to_use_110_percent_weight.up.sql
 20250121153007_update_pricing_proc_to_handle_international_shuttle.up.sql
+20250206173204_add_hawaii_data.up.sql
