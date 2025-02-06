@@ -21,6 +21,7 @@
 //	Produces:
 //	  - application/pdf
 //	  - application/json
+//	  - text/event-stream
 //
 // swagger:meta
 package ghcapi
