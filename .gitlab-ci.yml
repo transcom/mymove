@@ -701,11 +701,13 @@ pre_test:
   interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
-  image: milmove/circleci-docker:milmove-app
+  # image: milmove/circleci-docker:milmove-app
+  image: $DOCKER_APP_IMAGE
   cache:
     - <<: *go_cache
       policy: pull
     - <<: *yarn_cache
+      policy: pull
   needs:
     - pre_deps_golang
     - pre_deps_yarn
@@ -715,7 +717,7 @@ pre_test:
     # KUBERNETES_CPU_REQUEST: "4"
     # KUBERNETES_MEMORY_REQUEST: "6Gi"
     # KUBERNETES_MEMORY_LIMIT: "6Gi"
-    GOPATH: /home/circleci/go
+    # GOPATH: /home/circleci/go
     GOLANGCI_LINT_CONCURRENCY: 4
     GOLANGCI_LINT_VERBOSE: -v
   before_script: *setup_milmove_env
