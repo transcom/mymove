@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -843,5 +844,22 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 		_, err = moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &models.MTOShipment{})
 		suite.EqualError(err, "could not determine excess weight entitlement without dependents authorization value")
+	})
+
+	suite.Run("returns error if can't find move when checking for auto-reweigh", func() {
+		randomID, err := uuid.NewV4()
+		suite.NoError(err)
+		_, err = moveWeights.CheckAutoReweigh(suite.AppContextForTest(), randomID, &models.MTOShipment{})
+		suite.EqualError(err, apperror.NewNotFoundError(randomID, "looking for Move").Error())
+	})
+
+	suite.Run("returns error if shipment returns nil when checking for auto-reweigh", func() {
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		err := suite.DB().Save(approvedMove.Orders.Entitlement)
+		suite.NoError(err)
+
+		_, err = moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, nil)
+		suite.EqualError(err, apperror.NewBadDataError("received a nil MTO shipment, an MTO shipment must be supplied for checking reweighs").Error())
 	})
 }

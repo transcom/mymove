@@ -430,7 +430,6 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 // update fails, the entire transaction will be rolled back.
 func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
 	var autoReweighShipments models.MTOShipments
-	var move *models.Move
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
 		updatedAt, err := etag.DecodeEtag(eTag)

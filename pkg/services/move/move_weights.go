@@ -264,6 +264,12 @@ func calculateSumOfWeights(move models.Move, updatedShipment *models.MTOShipment
 
 // GetAutoReweighShipments returns all shipments that need to be reweighed
 func (w moveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
+	if move == nil {
+		return nil, apperror.NewBadDataError("received a nil move, a move must be supplied for checking reweighs")
+	}
+	if updatedShipment == nil {
+		return nil, apperror.NewBadDataError("received a nil MTO shipment, an MTO shipment must be supplied for checking reweighs")
+	}
 	results := models.MTOShipments{}
 
 	totalWeightAllowance, err := w.WeightAllotmentFetcher.GetWeightAllotment(appCtx, string(*move.Orders.Grade), move.Orders.OrdersType)
@@ -312,10 +318,19 @@ func (w moveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move 
 }
 
 func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
+	if updatedShipment == nil {
+		return nil, apperror.NewBadDataError("received a nil MTO shipment, an MTO shipment must be supplied for checking reweighs")
+	}
+
 	var move models.Move
 	err := appCtx.DB().Eager("MTOShipments", "Orders", "Orders.Entitlement", "MTOShipments.ShipmentType", "MTOShipments.Status", "MTOShipments.DeletedAt", "MTOShipments.PrimeActualWeight", "MTOShipments.PrimeEstimatedWeight").Find(&move, moveID)
 	if err != nil {
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveID, "looking for Move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	if move.Orders.Grade == nil {
