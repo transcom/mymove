@@ -164,21 +164,21 @@ var requestedOfficeUserFilterConverters = map[string]func(string) func(*pop.Quer
 	"search": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
 			nameSearch := fmt.Sprintf("%%%s%%", content)
-			query.Where("office_users.email ILIKE ? OR office_users.first_name ILIKE ? OR office_users.last_name ILIKE ?", nameSearch, nameSearch, nameSearch)
+			query.Where("office_users.email ILIKE ? AND office_users.status = 'REQUESTED' OR office_users.first_name ILIKE ? AND office_users.status = 'REQUESTED' OR office_users.last_name ILIKE ? AND office_users.status = 'REQUESTED'", nameSearch, nameSearch, nameSearch)
 		}
 	},
 
 	"offices": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
 			nameSearch := fmt.Sprintf("%%%s%%", content)
-			query.Where("transportation_offices.name ILIKE ?", nameSearch)
+			query.Where("transportation_offices.name ILIKE ? AND office_users.status = 'REQUESTED'", nameSearch)
 		}
 	},
 
 	"rolesSearch": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
 			nameSearch := fmt.Sprintf("%%%s%%", content)
-			query.Where("roles.role_name ILIKE ?", nameSearch)
+			query.Where("roles.role_name ILIKE ? AND office_users.status = 'REQUESTED'", nameSearch)
 		}
 	},
 }
