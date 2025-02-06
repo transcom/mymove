@@ -17,6 +17,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
@@ -302,21 +304,21 @@ func downloadS3File(logger *zap.Logger, s3Client *s3.Client, bucket, key string)
 	return localFilePath, "", nil
 }
 
-// // convert to UTF-8 encoding
-// func convertToUTF8(data []byte) string {
-
-// 	if len(data) >= 2 && (data[0] == 0xFF && data[1] == 0xFE) {
-// 		decoder := unicode.UTF16(unicode.LittleEndian, unicode.ExpectBOM).NewDecoder()
-// 		utf8Bytes, _, _ := transform.Bytes(decoder, data)
-// 		return string(utf8Bytes)
-// 	} else if len(data) >= 2 && (data[0] == 0xFE && data[1] == 0xFF) {
-// 		decoder := unicode.UTF16(unicode.BigEndian, unicode.ExpectBOM).NewDecoder()
-// 		utf8Bytes, _, _ := transform.Bytes(decoder, data)
-// 		return string(utf8Bytes)
-// 	}
-
-// 	return string(data)
-// }
+// convert to UTF-8 encoding
+func convertToUTF8(data []byte) string {
+	if len(data) >= 2 {
+		if data[0] == 0xFF && data[1] == 0xFE { // UTF-16 LE
+			decoder := unicode.UTF16(unicode.LittleEndian, unicode.ExpectBOM).NewDecoder()
+			utf8Bytes, _, _ := transform.Bytes(decoder, data)
+			return string(utf8Bytes)
+		} else if data[0] == 0xFE && data[1] == 0xFF { // UTF-16 BE
+			decoder := unicode.UTF16(unicode.BigEndian, unicode.ExpectBOM).NewDecoder()
+			utf8Bytes, _, _ := transform.Bytes(decoder, data)
+			return string(utf8Bytes)
+		}
+	}
+	return string(data)
+}
 
 // Identifies if a filepath directory is mutable
 // This is needed in to write contents of S3 stream to
@@ -358,9 +360,15 @@ func logFileContents(logger *zap.Logger, filePath string) {
 	}
 
 	const maxPreviewSize = 5000 // Adjust this if needed
-	preview := string(content)
-	if len(content) > maxPreviewSize {
-		preview = preview[:maxPreviewSize] + "..." // Indicate truncation
+	// preview := string(content)
+	// if len(content) > maxPreviewSize {
+	// 	preview = preview[:maxPreviewSize] + "..." // Indicate truncation
+	// }
+	utf8Content := convertToUTF8(content)
+
+	preview := utf8Content
+	if len(utf8Content) > maxPreviewSize {
+		preview = utf8Content[:maxPreviewSize] + "..."
 	}
 
 	// Log file preview
