@@ -81,6 +81,8 @@ export const UPLOAD_DOC_STATUS_DISPLAY_MESSAGE = {
   UPLOADING: 'Uploading',
   SCANNING: 'Scanning',
   ESTABLISHING_DOCUMENT_FOR_VIEW: 'Establishing Document for View',
+  INFECTED_FILE_MESSAGE:
+    'Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a photo of the original document instead.',
 };
 
 export const CONUS_STATUS = {
