@@ -680,12 +680,16 @@ func (suite *TransportationOfficeServiceSuite) Test_GetTransportationOffice() {
 
 func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeCONUS() {
 	suite.toFetcher = NewTransportationOfficesFetcher()
+	address := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "32228",
+				IsOconus:   models.BoolPointer(false),
+			},
+		},
+	}, nil)
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: models.Address{
-			ID:         uuid.Must(uuid.NewV4()),
-			PostalCode: "32228",
-			IsOconus:   models.BoolPointer(false),
-		}, Type: &factory.Addresses.DutyLocationAddress},
+		{Model: address, LinkOnly: true, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: false,
@@ -698,10 +702,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 		},
 	}, nil)
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: models.Address{
-			PostalCode: "32228",
-			IsOconus:   models.BoolPointer(false),
-		}, Type: &factory.Addresses.DutyLocationAddress},
+		{Model: address, LinkOnly: true, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -714,11 +715,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 		},
 	}, nil)
 	origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: models.Address{
-			ID:         uuid.Must(uuid.NewV4()),
-			PostalCode: "32228",
-			IsOconus:   models.BoolPointer(false),
-		}, Type: &factory.Addresses.DutyLocationAddress},
+		{Model: address, LinkOnly: true, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -733,10 +730,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeC
 		},
 	}, nil)
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: models.Address{
-			PostalCode: "32228",
-			IsOconus:   models.BoolPointer(false),
-		}, Type: &factory.Addresses.DutyLocationAddress},
+		{Model: address, LinkOnly: true, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -883,7 +877,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
 		suite.FatalNoError(err)
-		suite.NotNil(contract)
 
 		const fairbanksAlaskaPostalCode = "99790"
 		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testTransportationName)
@@ -925,7 +918,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
 		suite.FatalNoError(err)
-		suite.NotNil(contract)
 
 		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
 
@@ -990,7 +982,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
 		suite.FatalNoError(err)
-		suite.NotNil(contract)
 
 		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
 
@@ -1045,7 +1036,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindClosestCounselingOfficeO
 		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
 		suite.FatalNoError(err)
-		suite.NotNil(contract)
 
 		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(*contract, testPostalCode, testGbloc, testTransportationName)
 
