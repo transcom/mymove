@@ -1,12 +1,16 @@
 package invoice
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -67,61 +71,61 @@ func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 	if err != nil {
 		appCtx.Logger().Error("unable to parse TPPS paid invoice report", zap.Error(err))
 		return fmt.Errorf("unable to parse TPPS paid invoice report")
-	} else {
-		appCtx.Logger().Info("Successfully parsed TPPS Paid Invoice Report")
 	}
 
 	if tppsData != nil {
-		appCtx.Logger().Info("RECEIVED: TPPS Paid Invoice Report Processor received a TPPS Paid Invoice Report")
-		verrs, errs := t.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
+		appCtx.Logger().Info(fmt.Sprintf("Successfully parsed data from the TPPS paid invoice report: %s", TPPSPaidInvoiceReportFilePath))
+		verrs, err := t.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
 		if err != nil {
-			return errs
+			return err
 		} else if verrs.HasAny() {
 			return verrs
 		} else {
 			appCtx.Logger().Info("Successfully stored TPPS Paid Invoice Report information in the database")
 		}
 
-		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			var paymentRequestWithStatusUpdatedToPaid = map[string]string{}
+		var paymentRequestWithStatusUpdatedToPaid = map[string]string{}
 
-			// For the data in the TPPS Paid Invoice Report, find the payment requests that match the
-			// invoice numbers of the rows in the report and update the payment request status to PAID
-			for _, tppsDataForOnePaymentRequest := range tppsData {
-				var paymentRequest models.PaymentRequest
+		// For the data in the TPPS Paid Invoice Report, find the payment requests that match the
+		// invoice numbers of the rows in the report and update the payment request status to PAID
+		for _, tppsDataForOnePaymentRequest := range tppsData {
+			appCtx.Logger().Info(fmt.Sprintf("Processing payment request for invoice: %s", tppsDataForOnePaymentRequest.InvoiceNumber))
+			var paymentRequest models.PaymentRequest
 
-				err = txnAppCtx.DB().Q().
-					Where("payment_requests.payment_request_number = ?", tppsDataForOnePaymentRequest.InvoiceNumber).
-					First(&paymentRequest)
+			err = appCtx.DB().Q().
+				Where("payment_requests.payment_request_number = ?", tppsDataForOnePaymentRequest.InvoiceNumber).
+				First(&paymentRequest)
 
-				if err != nil {
-					return err
+			if err != nil {
+				if errors.Is(err, sql.ErrNoRows) {
+					appCtx.Logger().Warn(fmt.Sprintf("No matching existing payment request found for invoice number %s, can't update status to PAID", tppsDataForOnePaymentRequest.InvoiceNumber))
+					continue
+				} else {
+					appCtx.Logger().Error(fmt.Sprintf("Database error while looking up payment request for invoice number %s", tppsDataForOnePaymentRequest.InvoiceNumber), zap.Error(err))
+					continue
 				}
+			}
 
-				// Since there can be many rows in a TPPS report that reference the same payment request, we want
-				// to keep track of which payment requests we've already updated the status to PAID for and
-				// only update it's status once, using a map to keep track of already updated payment requests
-				_, paymentRequestExistsInUpdatedStatusMap := paymentRequestWithStatusUpdatedToPaid[paymentRequest.ID.String()]
-				if !paymentRequestExistsInUpdatedStatusMap {
-					paymentRequest.Status = models.PaymentRequestStatusPaid
-					err = txnAppCtx.DB().Update(&paymentRequest)
-					if err != nil {
-						txnAppCtx.Logger().Error("failure updating payment request to PAID", zap.Error(err))
-						return fmt.Errorf("failure updating payment request status to PAID: %w", err)
+			if paymentRequest.ID == uuid.Nil {
+				appCtx.Logger().Error(fmt.Sprintf("Invalid payment request ID for invoice number %s", tppsDataForOnePaymentRequest.InvoiceNumber))
+				continue
+			}
+
+			_, paymentRequestExistsInUpdatedStatusMap := paymentRequestWithStatusUpdatedToPaid[paymentRequest.ID.String()]
+			if !paymentRequestExistsInUpdatedStatusMap {
+				paymentRequest.Status = models.PaymentRequestStatusPaid
+				err = appCtx.DB().Update(&paymentRequest)
+				if err != nil {
+					appCtx.Logger().Info(fmt.Sprintf("Failure updating payment request %s to PAID status", paymentRequest.PaymentRequestNumber))
+					continue
+				} else {
+					if tppsDataForOnePaymentRequest.InvoiceNumber != uuid.Nil.String() && paymentRequest.ID != uuid.Nil {
+						t.logTPPSInvoiceReportWithPaymentRequest(appCtx, tppsDataForOnePaymentRequest, paymentRequest)
 					}
-
-					txnAppCtx.Logger().Info("SUCCESS: TPPS Paid Invoice Report Processor updated Payment Request to PAID status")
-					t.logTPPSInvoiceReportWithPaymentRequest(txnAppCtx, tppsDataForOnePaymentRequest, paymentRequest)
 
 					paymentRequestWithStatusUpdatedToPaid[paymentRequest.ID.String()] = paymentRequest.PaymentRequestNumber
 				}
 			}
-			return nil
-		})
-
-		if transactionError != nil {
-			appCtx.Logger().Error(transactionError.Error())
-			return transactionError
 		}
 		return nil
 	} else {
@@ -194,41 +198,53 @@ func priceToMillicents(rawPrice string) (int, error) {
 
 func (t *tppsPaidInvoiceReportProcessor) StoreTPPSPaidInvoiceReportInDatabase(appCtx appcontext.AppContext, tppsData []tppsReponse.TPPSData) (*validate.Errors, error) {
 	var verrs *validate.Errors
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	var failedEntries []error
+	DateParamFormat := "2006-01-02"
 
-		DateParamFormat := "2006-01-02"
+	for _, tppsEntry := range tppsData {
+		timeOfTPPSCreatedDocumentDate, err := time.Parse(DateParamFormat, tppsEntry.TPPSCreatedDocumentDate)
+		if err != nil {
+			appCtx.Logger().Warn("Unable to parse TPPSCreatedDocumentDate", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			continue
+		}
 
-		for _, tppsEntry := range tppsData {
-			timeOfTPPSCreatedDocumentDate, err := time.Parse(DateParamFormat, tppsEntry.TPPSCreatedDocumentDate)
-			if err != nil {
-				appCtx.Logger().Info("unable to parse TPPSCreatedDocumentDate from TPPS paid invoice report", zap.Error(err))
-			}
-			timeOfSellerPaidDate, err := time.Parse(DateParamFormat, tppsEntry.SellerPaidDate)
-			if err != nil {
-				appCtx.Logger().Info("unable to parse SellerPaidDate from TPPS paid invoice report", zap.Error(err))
-				return verrs
-			}
-			invoiceTotalChargesInMillicents, err := priceToMillicents(tppsEntry.InvoiceTotalCharges)
-			if err != nil {
-				appCtx.Logger().Info("unable to parse InvoiceTotalCharges from TPPS paid invoice report", zap.Error(err))
-				return verrs
-			}
-			intLineBillingUnits, err := strconv.Atoi(tppsEntry.LineBillingUnits)
-			if err != nil {
-				appCtx.Logger().Info("unable to parse LineBillingUnits from TPPS paid invoice report", zap.Error(err))
-				return verrs
-			}
-			lineUnitPriceInMillicents, err := priceToMillicents(tppsEntry.LineUnitPrice)
-			if err != nil {
-				appCtx.Logger().Info("unable to parse LineUnitPrice from TPPS paid invoice report", zap.Error(err))
-				return verrs
-			}
-			lineNetChargeInMillicents, err := priceToMillicents(tppsEntry.LineNetCharge)
-			if err != nil {
-				appCtx.Logger().Info("unable to parse LineNetCharge from TPPS paid invoice report", zap.Error(err))
-				return verrs
-			}
+		timeOfSellerPaidDate, err := time.Parse(DateParamFormat, tppsEntry.SellerPaidDate)
+		if err != nil {
+			appCtx.Logger().Warn("Unable to parse SellerPaidDate", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			continue
+		}
 
+		invoiceTotalChargesInMillicents, err := priceToMillicents(tppsEntry.InvoiceTotalCharges)
+		if err != nil {
+			appCtx.Logger().Warn("Unable to parse InvoiceTotalCharges", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			continue
+		}
+
+		intLineBillingUnits, err := strconv.Atoi(tppsEntry.LineBillingUnits)
+		if err != nil {
+			appCtx.Logger().Warn("Unable to parse LineBillingUnits", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			continue
+		}
+
+		lineUnitPriceInMillicents, err := priceToMillicents(tppsEntry.LineUnitPrice)
+		if err != nil {
+			appCtx.Logger().Warn("Unable to parse LineUnitPrice", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			continue
+		}
+
+		lineNetChargeInMillicents, err := priceToMillicents(tppsEntry.LineNetCharge)
+		if err != nil {
+			appCtx.Logger().Warn("Unable to parse LineNetCharge", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			continue
+		}
+
+		txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 			tppsEntryModel := models.TPPSPaidInvoiceReportEntry{
 				InvoiceNumber:                   tppsEntry.InvoiceNumber,
 				TPPSCreatedDocumentDate:         &timeOfTPPSCreatedDocumentDate,
@@ -257,22 +273,40 @@ func (t *tppsPaidInvoiceReportProcessor) StoreTPPSPaidInvoiceReportInDatabase(ap
 
 			verrs, err = txnAppCtx.DB().ValidateAndSave(&tppsEntryModel)
 			if err != nil {
-				appCtx.Logger().Error("failure saving entry from TPPS paid invoice report", zap.Error(err))
-				return err
+				if isForeignKeyConstraintViolation(err) {
+					appCtx.Logger().Warn(fmt.Sprintf("Skipping entry due to missing foreign key reference for invoice number %s", tppsEntry.InvoiceNumber))
+					failedEntries = append(failedEntries, fmt.Errorf("Invoice number %s: Foreign key constraint violation", tppsEntry.InvoiceNumber))
+					return fmt.Errorf("rolling back transaction to prevent blocking")
+				}
+
+				appCtx.Logger().Error(fmt.Sprintf("Failed to save entry for invoice number %s", tppsEntry.InvoiceNumber), zap.Error(err))
+				failedEntries = append(failedEntries, fmt.Errorf("Invoice number %s: %v", tppsEntry.InvoiceNumber, err))
+				return fmt.Errorf("rolling back transaction to prevent blocking")
 			}
+
+			appCtx.Logger().Info(fmt.Sprintf("Successfully saved entry in DB for invoice number: %s", tppsEntry.InvoiceNumber))
+			return nil
+		})
+
+		if txnErr != nil {
+			appCtx.Logger().Error(fmt.Sprintf("Transaction error for invoice number %s", tppsEntry.InvoiceNumber), zap.Error(txnErr))
 		}
-
-		return nil
-	})
-
-	if transactionError != nil {
-		appCtx.Logger().Error(transactionError.Error())
-		return verrs, transactionError
-	}
-	if verrs.HasAny() {
-		appCtx.Logger().Error("unable to process TPPS paid invoice report", zap.Error(verrs))
-		return verrs, nil
 	}
 
-	return nil, nil
+	// Log all failed entries at the end
+	if len(failedEntries) > 0 {
+		for _, err := range failedEntries {
+			appCtx.Logger().Error("Failed entry", zap.Error(err))
+		}
+	}
+
+	// Return verrs but not a hard failure so we can process the rest of the entries
+	return verrs, nil
+}
+
+func isForeignKeyConstraintViolation(err error) bool {
+	if pqErr, ok := err.(*pq.Error); ok {
+		return pqErr.Code == "23503"
+	}
+	return false
 }
