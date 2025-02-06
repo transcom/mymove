@@ -30,6 +30,7 @@ export { default as updateBillableWeightAsTIO } from './UpdateBillableWeight/upd
 export { default as updateBillableWeightRemarksAsTIO } from './UpdateBillableWeight/updateBillableWeightRemarksAsTIO';
 export { default as updateMoveTaskOrderStatus } from './UpdateMoveTaskOrderStatus/updateMoveTaskOrderStatus';
 export { default as updateMTOServiceItem } from './UpdateMTOServiceItem/updateMTOServiceItem';
+export { default as updateServiceItemPricingAndWeights } from './UpdateMTOServiceItem/updateServiceItemPricingAndWeights';
 export { default as updateMTOShipment } from './UpdateMTOShipment/updateMTOShipment';
 export { default as updateMTOShipmentAgent } from './UpdateMTOShipment/updateMTOShipmentAgent';
 export { default as updateMTOShipmentDeprecatePaymentRequest } from './UpdateMTOShipment/updateMTOShipmentDeprecatePaymentRequest';
@@ -110,4 +111,9 @@ export { default as moveCancelerPPMShipments } from './MoveCanceler/MoveCanceler
 export { default as cancelMove } from './CancelMove/CancelMove';
 export { default as cancelMoveMTOShipments } from './CancelMove/CancelMoveMTOShipments';
 export { default as cancelMovePPMShipments } from './CancelMove/CancelMovePPMShipments';
+export { default as reviewShipmentAddressUpdate } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdate';
+export { default as approveShipments } from './ApproveShipments/approveShipments';
+export { default as approveShipmentsUpdateAllowances } from './ApproveShipments/approveShipmentsUpdateAllowances';
+export { default as approveShipmentsApproveMove } from './ApproveShipments/approveShipmentsApproveMove';
+export { default as approveShipmentsServiceItem } from './ApproveShipments/approveShipmentsServiceItem';
 export { default as updatePaymentServiceItemStatus } from './UpdatePaymentServiceItem/UpdatePaymentServiceItemStatus';

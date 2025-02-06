@@ -24,7 +24,13 @@ import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMov
 import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
 import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
 import { useMoveDetailsQueries } from 'hooks/queries';
-import { updateMoveStatus, updateMTOShipmentStatus, cancelMove, updateFinancialFlag } from 'services/ghcApi';
+import {
+  updateMoveStatus,
+  updateMTOShipmentStatus,
+  cancelMove,
+  updateFinancialFlag,
+  updateMultipleShipmentStatus,
+} from 'services/ghcApi';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
@@ -73,10 +79,11 @@ const MoveDetails = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const errorIfMissing = {
     HHG_INTO_NTS: [{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }],
-    HHG_OUTOF_NTS_DOMESTIC: [
+    HHG_OUTOF_NTS: [
       { fieldName: 'storageFacility' },
       { fieldName: 'ntsRecordedWeight' },
       { fieldName: 'serviceOrderNumber' },
+      { fieldName: 'requestedPickupDate' },
       { fieldName: 'tacType' },
     ],
     PPM: [
@@ -115,7 +122,7 @@ const MoveDetails = ({
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
     errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
-    errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
+    errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
   }
 
   let sections = useMemo(() => {
@@ -132,12 +139,23 @@ const MoveDetails = ({
     },
   });
 
-  const { mutate: mutateMTOShipmentStatus } = useMutation(updateMTOShipmentStatus, {
+  const { mutateAsync: mutateMTOShipmentStatus } = useMutation(updateMTOShipmentStatus, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
       queryClient.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
+    },
+  });
+
+  const { mutateAsync: mutateMultipleShipmentStatuses } = useMutation(updateMultipleShipmentStatus, {
+    onSuccess: (updatedMTOShipments) => {
+      updatedMTOShipments.forEach((updatedMTOShipment) => {
+        mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+        queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+        queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+        queryClient.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
+      });
     },
   });
 
@@ -584,6 +602,7 @@ const MoveDetails = ({
                 customerInfo={customerInfo}
                 approveMTO={mutateMoveStatus}
                 approveMTOShipment={mutateMTOShipmentStatus}
+                approveMultipleShipments={mutateMultipleShipmentStatuses}
                 moveTaskOrder={move}
                 missingRequiredOrdersInfo={hasMissingOrdersRequiredInfo}
                 handleAfterSuccess={navigate}

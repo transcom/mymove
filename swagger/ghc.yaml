@@ -1113,6 +1113,7 @@ paths:
         * Releasing / Receiving agents
         * Actual Pro Gear Weight
         * Actual Spouse Pro Gear Weight
+        * Location of the POE/POD
       consumes:
         - application/json
       produces:
@@ -1165,6 +1166,44 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /shipments/approve:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApproveShipments'
+      responses:
+        '200':
+          description: Successfully approved the shipments
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Approves multiple shipments in one request
+      operationId: approveShipments
+      summary: Approves multiple shipments at once
+      x-permissions:
+        - update.shipment
   /shipments/{shipmentID}/approve:
     parameters:
       - description: ID of the shipment
@@ -1473,6 +1512,7 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - shipment
+        - shipment_address_updates
       description: >-
         This endpoint is used to approve a address update request. Office
         remarks are required. Approving the address update will update the
@@ -2348,9 +2388,9 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Changes move task order status to make it available to prime
+      description: Changes move task order status
       operationId: updateMoveTaskOrderStatus
-      summary: Change the status of a move task order to make it available to prime
+      summary: Change the status of a move task order
       x-permissions:
         - update.move
         - create.serviceItem
@@ -6020,6 +6060,10 @@ definitions:
         $ref: '#/definitions/NullableString'
       grade:
         $ref: '#/definitions/Grade'
+      hasDependents:
+        type: boolean
+        title: Are dependents included in your orders?
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -6965,6 +7009,24 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+  ApproveShipments:
+    type: object
+    properties:
+      approveShipments:
+        type: array
+        items:
+          type: object
+          properties:
+            shipmentID:
+              type: string
+              format: uuid
+            eTag:
+              type: string
+          required:
+            - shipmentID
+            - eTag
+    required:
+      - approveShipments
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -7434,6 +7496,7 @@ definitions:
         type: boolean
       workload:
         type: integer
+        x-omitempty: false
   BulkAssignmentData:
     type: object
     properties:
@@ -8885,6 +8948,12 @@ definitions:
           To identify whether the service was provided within (CONUS) or
           (OCONUS)
         x-nullable: true
+      sort:
+        type: string
+        description: >-
+          Sort order for service items to be displayed for a given shipment
+          type.
+        x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
     type: array
@@ -8951,7 +9020,7 @@ definitions:
     enum:
       - HHG
       - HHG_INTO_NTS
-      - HHG_OUTOF_NTS_DOMESTIC
+      - HHG_OUTOF_NTS
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
@@ -8960,7 +9029,7 @@ definitions:
     x-display-value:
       HHG: HHG
       HHG_INTO_NTS: NTS
-      HHG_OUTOF_NTS_DOMESTIC: NTS Release
+      HHG_OUTOF_NTS: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
@@ -10508,6 +10577,102 @@ definitions:
       - originalAddress
       - newAddress
       - contractorRemarks
+  Port:
+    description: A port that is used to move an international shipment.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      portType:
+        type: string
+        description: Port type A (Air), B (Border Crossing), S (Sea)
+        enum:
+          - A
+          - B
+          - S
+      portCode:
+        type: string
+        description: 3 or 4 digit port code
+        example: '0431'
+      portName:
+        type: string
+        description: Name of the port
+        example: PORTLAND INTL
+      city:
+        type: string
+        example: PORTLAND
+      county:
+        type: string
+        example: MULTNOMAH
+      state:
+        type: string
+        description: US state
+        example: OR
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      zip:
+        type: string
+        format: zip
+        title: ZIP
+        example: '99501'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        example: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -10738,6 +10903,10 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
+      podLocation:
+        $ref: '#/definitions/Port'
+      poeLocation:
+        $ref: '#/definitions/Port'
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -10925,6 +11094,24 @@ definitions:
         x-omitempty: false
       unpackPrice:
         description: The full price of all packing/unpacking services.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlPackPrice:
+        description: The full price of international packing (IHPK)
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlUnpackPrice:
+        description: The full price of international unpacking (IHUPK)
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlLinehaulPrice:
+        description: The full price of international shipping and linehaul (ISLH)
         type: integer
         format: cents
         x-nullable: true
@@ -11788,7 +11975,7 @@ definitions:
           - BOAT_TOW_AWAY
           - HHG
           - HHG_INTO_NTS
-          - HHG_OUTOF_NTS_DOMESTIC
+          - HHG_OUTOF_NTS
           - MOBILE_HOME
           - PPM
           - UNACCOMPANIED_BAGGAGE

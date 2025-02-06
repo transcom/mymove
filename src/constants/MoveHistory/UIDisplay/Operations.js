@@ -2,6 +2,7 @@ export default {
   acknowledgeExcessWeightRisk: 'acknowledgeExcessWeightRisk',
   acknowledgeExcessUnaccompaniedBaggageWeightRisk: 'acknowledgeExcessUnaccompaniedBaggageWeightRisk',
   approveShipment: 'approveShipment', // ghc.yaml
+  approveShipments: 'approveShipments', // ghc.yaml
   approveShipmentDiversion: 'approveShipmentDiversion',
   counselingUpdateAllowance: 'counselingUpdateAllowance', // ghc.yaml
   counselingUpdateOrder: 'counselingUpdateOrder', // ghc.yaml
@@ -67,4 +68,5 @@ export default {
   addAppealToViolation: 'addAppealToViolation', // ghc.yaml
   addAppealToSeriousIncident: 'addAppealToSeriousIncident', // ghc.yaml
   cancelMove: 'cancelMove', // internal.yaml
+  reviewShipmentAddressUpdate: 'reviewShipmentAddressUpdate', // ghc.yaml
 };

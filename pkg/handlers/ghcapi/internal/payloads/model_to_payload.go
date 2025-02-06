@@ -579,7 +579,7 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 	bc := &ghcmessages.BackupContact{
 		Name:  &backupContact.Name,
 		Email: &backupContact.Email,
-		Phone: backupContact.Phone,
+		Phone: &backupContact.Phone,
 	}
 
 	payload := ghcmessages.CreatedCustomer{
@@ -617,9 +617,6 @@ func Order(order *models.Order) *ghcmessages.Order {
 
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
-	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
-	}
 	entitlements := Entitlement(order.Entitlement)
 
 	var deptIndicator ghcmessages.DeptIndicator
@@ -682,6 +679,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		MoveCode:                       moveCode,
 		MoveTaskOrderID:                moveTaskOrderID,
 		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(swag.StringValue(order.OriginDutyLocationGBLOC)),
+		HasDependents:                  order.HasDependents,
 	}
 
 	return &payload
@@ -855,11 +853,7 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 		contact := contacts[0]
 		name = contact.Name
 		email = contact.Email
-		phone = ""
-		contactPhone := contact.Phone
-		if contactPhone != nil {
-			phone = *contactPhone
-		}
+		phone = contact.Phone
 	}
 
 	return &ghcmessages.BackupContact{
@@ -1306,13 +1300,16 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		Gcc:                   handlers.FmtCost(ppmCloseout.GCC),
 		Aoa:                   handlers.FmtCost(ppmCloseout.AOA),
 		RemainingIncentive:    handlers.FmtCost(ppmCloseout.RemainingIncentive),
-		HaulType:              (*string)(&ppmCloseout.HaulType),
+		HaulType:              (*string)(ppmCloseout.HaulType),
 		HaulPrice:             handlers.FmtCost(ppmCloseout.HaulPrice),
 		HaulFSC:               handlers.FmtCost(ppmCloseout.HaulFSC),
 		Dop:                   handlers.FmtCost(ppmCloseout.DOP),
 		Ddp:                   handlers.FmtCost(ppmCloseout.DDP),
 		PackPrice:             handlers.FmtCost(ppmCloseout.PackPrice),
 		UnpackPrice:           handlers.FmtCost(ppmCloseout.UnpackPrice),
+		IntlPackPrice:         handlers.FmtCost((ppmCloseout.IntlPackPrice)),
+		IntlUnpackPrice:       handlers.FmtCost((ppmCloseout.IntlUnpackPrice)),
+		IntlLinehaulPrice:     handlers.FmtCost((ppmCloseout.IntlLinehaulPrice)),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
 	}
 
@@ -1523,6 +1520,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
+		PoeLocation:                 Port(mtoShipment.MTOServiceItems, "POE"),
+		PodLocation:                 Port(mtoShipment.MTOServiceItems, "POD"),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -1865,6 +1864,15 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 			serviceRequestDocs[i] = payload
 		}
 	}
+	var sort *string
+	if s.ReService.ReServiceItems != nil {
+		for _, reServiceItem := range *s.ReService.ReServiceItems {
+			if s.MTOShipment.MarketCode == reServiceItem.MarketCode && s.MTOShipment.ShipmentType == reServiceItem.ShipmentType {
+				sort = reServiceItem.Sort
+				break
+			}
+		}
+	}
 	payload := &ghcmessages.MTOServiceItem{
 		ID:                            handlers.FmtUUID(s.ID),
 		MoveTaskOrderID:               handlers.FmtUUID(s.MoveTaskOrderID),
@@ -1880,6 +1888,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDepartureDate:              handlers.FmtDateTimePtr(s.SITDepartureDate),
 		SitCustomerContacted:          handlers.FmtDatePtr(s.SITCustomerContacted),
 		SitRequestedDelivery:          handlers.FmtDatePtr(s.SITRequestedDelivery),
+		Sort:                          sort,
 		Status:                        ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:                   handlers.FmtStringPtr(s.Description),
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
@@ -1905,6 +1914,22 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 
 	if s.ReService.Code == models.ReServiceCodeICRT && s.MTOShipment.PickupAddress != nil {
 		if *s.MTOShipment.PickupAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
+	if s.ReService.Code == models.ReServiceCodeIOSHUT && s.MTOShipment.PickupAddress != nil {
+		if *s.MTOShipment.PickupAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
+	if s.ReService.Code == models.ReServiceCodeIDSHUT && s.MTOShipment.DestinationAddress != nil {
+		if *s.MTOShipment.DestinationAddress.IsOconus {
 			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
 		} else {
 			payload.Market = handlers.FmtString(models.MarketConus.FullString())
@@ -2733,4 +2758,34 @@ func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceI
 		payload[i] = ReServiceItem(&copyOfReServiceItem)
 	}
 	return payload
+}
+
+func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.Port {
+	if mtoServiceItems == nil {
+		return nil
+	}
+
+	for _, mtoServiceItem := range mtoServiceItems {
+		var portLocation *models.PortLocation
+		if portType == "POE" && mtoServiceItem.POELocation != nil {
+			portLocation = mtoServiceItem.POELocation
+		} else if portType == "POD" && mtoServiceItem.PODLocation != nil {
+			portLocation = mtoServiceItem.PODLocation
+		}
+
+		if portLocation != nil {
+			return &ghcmessages.Port{
+				ID:       strfmt.UUID(portLocation.ID.String()),
+				PortType: portLocation.Port.PortType.String(),
+				PortCode: portLocation.Port.PortCode,
+				PortName: portLocation.Port.PortName,
+				City:     portLocation.City.CityName,
+				County:   portLocation.UsPostRegionCity.UsprcCountyNm,
+				State:    portLocation.UsPostRegionCity.UsPostRegion.State.StateName,
+				Zip:      portLocation.UsPostRegionCity.UsprZipID,
+				Country:  portLocation.Country.CountryName,
+			}
+		}
+	}
+	return nil
 }

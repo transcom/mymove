@@ -36,16 +36,14 @@ func (suite *ModelSuite) TestFetchRateAreaID() {
 		service := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIHPK)
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		address := factory.BuildAddress(suite.DB(), nil, nil)
-		rateAreaId, err := models.FetchRateAreaID(suite.DB(), address.ID, service.ID, contract.ID)
+		rateAreaId, err := models.FetchRateAreaID(suite.DB(), address.ID, &service.ID, contract.ID)
 		suite.NotNil(rateAreaId)
 		suite.NoError(err)
 	})
 
 	suite.Run("fail - receive error when not all values are provided", func() {
-		var nilUuid uuid.UUID
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		address := factory.BuildAddress(suite.DB(), nil, nil)
-		rateAreaId, err := models.FetchRateAreaID(suite.DB(), address.ID, nilUuid, contract.ID)
+		rateAreaId, err := models.FetchRateAreaID(suite.DB(), address.ID, nil, uuid.Nil)
 		suite.Equal(uuid.Nil, rateAreaId)
 		suite.Error(err)
 	})

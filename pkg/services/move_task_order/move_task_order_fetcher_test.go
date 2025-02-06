@@ -11,12 +11,14 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	m "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	setupTestData := func() (models.Move, models.MTOShipment) {
 
@@ -41,7 +43,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					UsesExternalVendor: true,
 				},
 			},
@@ -61,7 +63,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		return expectedMTO, primeShipment
 	}
 
-	mtoFetcher := m.NewMoveTaskOrderFetcher()
+	mtoFetcher := m.NewMoveTaskOrderFetcher(waf)
 
 	suite.Run("Success with fetching a MTO that has a shipment address update", func() {
 		traits := []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved}
@@ -567,6 +569,75 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.True(found, "Expected service item ReServiceCodePODFSC")
 	})
 
+	suite.Run("Success - Move contains only deleted MTOAgents", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{Model: models.MTOAgent{
+				MTOAgentType: models.MTOAgentReceiving,
+				DeletedAt:    models.TimePointer(time.Now()),
+			}},
+			{Model: move, LinkOnly: true},
+		}, nil)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: move.ID,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		suite.Equal(move.ID, actualMTO.ID)
+		suite.Len(actualMTO.MTOShipments[0].MTOAgents, 0, "Expected no active agents since all are deleted")
+	})
+
+	suite.Run("Success - Move contains one MTOAgent", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{Model: move,
+				LinkOnly: true},
+		}, nil)
+
+		factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{Model: models.MTOAgent{
+				MTOAgentType: models.MTOAgentReceiving,
+				DeletedAt:    models.TimePointer(time.Now()),
+			}},
+			{Model: move, LinkOnly: true},
+			{Model: shipment, LinkOnly: true},
+		}, nil)
+
+		activeAgent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{
+			{Model: models.MTOAgent{
+				FirstName:    models.StringPointer("John"),
+				LastName:     models.StringPointer("Doe"),
+				Email:        models.StringPointer("John.doe@example.com"),
+				Phone:        models.StringPointer("222-222-2222"),
+				MTOAgentType: models.MTOAgentReleasing,
+			}},
+			{Model: move, LinkOnly: true},
+			{Model: shipment, LinkOnly: true},
+		}, nil)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: move.ID,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		suite.Equal(move.ID, actualMTO.ID)
+		suite.Len(actualMTO.MTOShipments[0].MTOAgents, 1, "Expected only one active agent in the result")
+
+		activeAgentReturned := actualMTO.MTOShipments[0].MTOAgents[0]
+		suite.Equal(activeAgent.FirstName, activeAgentReturned.FirstName, "First names should match")
+		suite.Equal(activeAgent.LastName, activeAgentReturned.LastName, "Last names should match")
+		suite.Equal(activeAgent.Email, activeAgentReturned.Email, "Emails should match")
+		suite.Equal(activeAgent.Phone, activeAgentReturned.Phone, "Phone numbers should match")
+		suite.Equal(activeAgent.MTOAgentType, activeAgentReturned.MTOAgentType, "Agent types should match")
+	})
+
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestGetMoveTaskOrderFetcher() {
@@ -576,8 +647,9 @@ func (suite *MoveTaskOrderServiceSuite) TestGetMoveTaskOrderFetcher() {
 
 		return expectedMTO
 	}
+	waf := entitlements.NewWeightAllotmentFetcher()
 
-	mtoFetcher := m.NewMoveTaskOrderFetcher()
+	mtoFetcher := m.NewMoveTaskOrderFetcher(waf)
 
 	suite.Run("success getting a move using GetMove for Prime user", func() {
 		expectedMTO := setupTestData()
@@ -705,6 +777,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	// Set up a hidden move so we can check if it's in the output:
 	now := time.Now()
 	show := false
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	setupTestData := func() (models.Move, models.Move, models.MTOShipment) {
 		hiddenMTO := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
 			{
@@ -735,7 +809,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					UsesExternalVendor: true,
 				},
 			},
@@ -743,7 +817,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		return hiddenMTO, mto, primeShipment
 	}
 
-	mtoFetcher := m.NewMoveTaskOrderFetcher()
+	mtoFetcher := m.NewMoveTaskOrderFetcher(waf)
 
 	suite.Run("all move task orders", func() {
 		hiddenMTO, mto, _ := setupTestData()
@@ -850,6 +924,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	now := time.Now()
+	waf := entitlements.NewWeightAllotmentFetcher()
 	// Set up a hidden move so we can check if it's in the output:
 	hiddenMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
 		{
@@ -879,7 +954,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	suite.Require().NoError(suite.DB().RawQuery("UPDATE mto_shipments SET updated_at=$1 WHERE id=$2;",
 		now.Add(-10*time.Second), shipmentForPrimeMove4.ID).Exec())
 
-	fetcher := m.NewMoveTaskOrderFetcher()
+	fetcher := m.NewMoveTaskOrderFetcher(waf)
 	page := int64(1)
 	perPage := int64(20)
 	// filling out search params to allow for pagination
@@ -912,6 +987,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFetcher() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Test with and without filter of moves containing amendments", func() {
 		now := time.Now()
 		// Set up a hidden move so we can check if it's in the output:
@@ -995,7 +1072,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 		suite.Require().NoError(suite.DB().RawQuery("UPDATE mto_shipments SET updated_at=$1 WHERE id=$2;",
 			now.Add(-10*time.Second), shipmentForPrimeMove4.ID).Exec())
 
-		fetcher := m.NewMoveTaskOrderFetcher()
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
 		page := int64(1)
 		perPage := int64(20)
 		// filling out search params to allow for pagination
@@ -1071,7 +1148,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 		suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3);",
 			now.Add(-10*time.Second), primeMove1.ID, primeMove2.ID).Exec())
 
-		fetcher := m.NewMoveTaskOrderFetcher()
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
 		page := int64(1)
 		perPage := int64(20)
 		// filling out search params to allow for pagination
