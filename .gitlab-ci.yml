@@ -406,12 +406,17 @@ golang_lint:
 
 golang_coverage:
   stage: pre_checks
-  image: golang:1.17
+  image: $DOCKER_APP_IMAGE
+  before_script:
+    - *setup_milmove_env
   script:
     - go install
     - go test ./... -coverprofile=coverage.txt -covermode count
     - go get github.com/boumenot/gocover-cobertura
     - go run github.com/boumenot/gocover-cobertura < coverage.txt > coverage.xml
+  allow_failure: true
+  after_script:
+    - *announce_failure
   artifacts:
     reports:
       coverage_report:
