@@ -309,7 +309,6 @@ include:
 - template: Jobs/SAST.gitlab-ci.yml
 - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 - template: Jobs/Secret-Detection.gitlab-ci.yml
-- component: $CI_SERVER_FQDN/eakca1/codequality-os-scanners-integration/golangci@0.9.0
 
 anti_virus:
   stage: pre_checks
@@ -390,6 +389,22 @@ pre_deps_golang:
   #     - $GOPATH/pkg/mod
   #     - /builds/milmove/mymove/bin  # Ensure this path is correct and writable.
   # Optionally, you can define an after_script for cleanup or notifications.
+
+golang_lint:
+  stage: pre_checks
+  image:
+    default: golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
+    description: "The image to execute golangci"
+  script:
+    - golangci-lint run --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
+  artifacts:
+      reports:
+        codequality: gl-code-quality-report.json
+      paths:
+        - gl-code-quality-report.json
+      when: always
+  allow_failure: true
+
 
 pre_deps_yarn:
   stage: pre_checks
