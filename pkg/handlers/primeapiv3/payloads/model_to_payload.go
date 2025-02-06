@@ -354,14 +354,12 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev3messages.MTOAgents {
 	if mtoAgents == nil {
 		return nil
 	}
-
 	agents := make(primev3messages.MTOAgents, len(*mtoAgents))
 
 	for i, m := range *mtoAgents {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		agents[i] = MTOAgent(&copyOfM)
 	}
-
 	return &agents
 }
 
