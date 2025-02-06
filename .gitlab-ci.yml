@@ -406,73 +406,73 @@ golang_lint:
       when: always
   allow_failure: true
 
-
-golang_coverage:
-  stage: pre_checks
-  interruptible: true
-  tags:
-    - $DOCKER_RUNNER_TAG
-  image: $DOCKER_APP_IMAGE
-  services:
-    - name: docker:dind
-      alias: docker
-    - name: $postgres
-    - name: $redis
-  before_script:
-    - *setup_milmove_env
-  variables:
-    KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "8Gi"
-    KUBERNETES_MEMORY_LIMIT: "8Gi"
-    DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
-    DOCKER_TLS_CERTDIR: ""
-    APPLICATION: app
-    # 8 since this runs on xlarge with 8 CPUs
-    GOTEST_PARALLEL: 8
-    DB_PASSWORD: mysecretpassword
-    DB_USER_LOW_PRIV: crud
-    DB_PASSWORD_LOW_PRIV: mysecretpassword
-    DB_USER: postgres
-    DB_HOST: localhost
-    DB_PORT_TEST: 5432
-    DB_PORT: 5432
-    DB_NAME: test_db
-    DB_NAME_TEST: test_db
-    DTOD_USE_MOCK: 'true'
-    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
-    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
-    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-    ENV: test
-    ENVIRONMENT: test
-    SERVER_REPORT: 1
-    COVERAGE: 1
-    SERVE_API_INTERNAL: 'true'
-    OKTA_CUSTOMER_CLIENT_ID: 1q2w3e4r5t6y7u8i9o
-    OKTA_ADMIN_CLIENT_ID: AQ1SW2DE3FR4G5
-    OKTA_OFFICE_CLIENT_ID: 9f9f9s8s90gig9
-    OKTA_API_KEY: notrealapikey8675309
-    OKTA_OFFICE_GROUP_ID: notrealgroupId
-    OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
-    POSTGRES_DB: test_db #for postgres container
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: mysecretpassword
-    POSTGRES_HOST_AUTH_METHOD: trust
-    DPS_AUTH_SECRET_KEY: placeholder
-    CSRF_AUTH_KEY: d096fd8529eefaa46497849d11d2ff2e979ddfaed1aff058524ada9bceadd67c
-    IWS_RBS_ENABLED: 0
-    IWS_RBS_HOST: "pkict.dmdc.osd.mil"
-  script:
-    - go test ./... -coverprofile=coverage.txt -covermode count
-    - go get github.com/boumenot/gocover-cobertura
-    - go run github.com/boumenot/gocover-cobertura < coverage.txt > coverage.xml
-  allow_failure: true
-  after_script:
-    - *announce_failure
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: /builds/milmove/mymove/coverage.xml
+# WIP but failing and will need to get back to see if this is a viable option for go test coverage
+# golang_coverage:
+#   stage: pre_checks
+#   interruptible: true
+#   tags:
+#     - $DOCKER_RUNNER_TAG
+#   image: $DOCKER_APP_IMAGE
+#   services:
+#     - name: docker:dind
+#       alias: docker
+#     - name: $postgres
+#     - name: $redis
+#   before_script:
+#     - *setup_milmove_env
+#   variables:
+#     KUBERNETES_CPU_REQUEST: "4"
+#     KUBERNETES_MEMORY_REQUEST: "8Gi"
+#     KUBERNETES_MEMORY_LIMIT: "8Gi"
+#     DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
+#     DOCKER_TLS_CERTDIR: ""
+#     APPLICATION: app
+#     # 8 since this runs on xlarge with 8 CPUs
+#     GOTEST_PARALLEL: 8
+#     DB_PASSWORD: mysecretpassword
+#     DB_USER_LOW_PRIV: crud
+#     DB_PASSWORD_LOW_PRIV: mysecretpassword
+#     DB_USER: postgres
+#     DB_HOST: localhost
+#     DB_PORT_TEST: 5432
+#     DB_PORT: 5432
+#     DB_NAME: test_db
+#     DB_NAME_TEST: test_db
+#     DTOD_USE_MOCK: 'true'
+#     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+#     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+#     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+#     ENV: test
+#     ENVIRONMENT: test
+#     SERVER_REPORT: 1
+#     COVERAGE: 1
+#     SERVE_API_INTERNAL: 'true'
+#     OKTA_CUSTOMER_CLIENT_ID: 1q2w3e4r5t6y7u8i9o
+#     OKTA_ADMIN_CLIENT_ID: AQ1SW2DE3FR4G5
+#     OKTA_OFFICE_CLIENT_ID: 9f9f9s8s90gig9
+#     OKTA_API_KEY: notrealapikey8675309
+#     OKTA_OFFICE_GROUP_ID: notrealgroupId
+#     OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
+#     POSTGRES_DB: test_db #for postgres container
+#     POSTGRES_USER: postgres
+#     POSTGRES_PASSWORD: mysecretpassword
+#     POSTGRES_HOST_AUTH_METHOD: trust
+#     DPS_AUTH_SECRET_KEY: placeholder
+#     CSRF_AUTH_KEY: d096fd8529eefaa46497849d11d2ff2e979ddfaed1aff058524ada9bceadd67c
+#     IWS_RBS_ENABLED: 0
+#     IWS_RBS_HOST: "pkict.dmdc.osd.mil"
+#   script:
+#     - go test ./... -coverprofile=coverage.txt -covermode count
+#     - go get github.com/boumenot/gocover-cobertura
+#     - go run github.com/boumenot/gocover-cobertura < coverage.txt > coverage.xml
+#   allow_failure: true
+#   after_script:
+#     - *announce_failure
+#   artifacts:
+#     reports:
+#       coverage_report:
+#         coverage_format: cobertura
+#         path: /builds/milmove/mymove/coverage.xml
 
 
 pre_deps_yarn:
