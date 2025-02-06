@@ -96,6 +96,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ShipmentApproveShipmentDiversionHandler: shipment.ApproveShipmentDiversionHandlerFunc(func(params shipment.ApproveShipmentDiversionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
 		}),
+		ShipmentApproveShipmentsHandler: shipment.ApproveShipmentsHandlerFunc(func(params shipment.ApproveShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveShipments has not yet been implemented")
+		}),
 		ReportViolationsAssociateReportViolationsHandler: report_violations.AssociateReportViolationsHandlerFunc(func(params report_violations.AssociateReportViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.AssociateReportViolations has not yet been implemented")
 		}),
@@ -465,6 +468,8 @@ type MymoveAPI struct {
 	ShipmentApproveShipmentHandler shipment.ApproveShipmentHandler
 	// ShipmentApproveShipmentDiversionHandler sets the operation handler for the approve shipment diversion operation
 	ShipmentApproveShipmentDiversionHandler shipment.ApproveShipmentDiversionHandler
+	// ShipmentApproveShipmentsHandler sets the operation handler for the approve shipments operation
+	ShipmentApproveShipmentsHandler shipment.ApproveShipmentsHandler
 	// ReportViolationsAssociateReportViolationsHandler sets the operation handler for the associate report violations operation
 	ReportViolationsAssociateReportViolationsHandler report_violations.AssociateReportViolationsHandler
 	// PaymentRequestsBulkDownloadHandler sets the operation handler for the bulk download operation
@@ -775,6 +780,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentApproveShipmentDiversionHandler == nil {
 		unregistered = append(unregistered, "shipment.ApproveShipmentDiversionHandler")
+	}
+	if o.ShipmentApproveShipmentsHandler == nil {
+		unregistered = append(unregistered, "shipment.ApproveShipmentsHandler")
 	}
 	if o.ReportViolationsAssociateReportViolationsHandler == nil {
 		unregistered = append(unregistered, "report_violations.AssociateReportViolationsHandler")
@@ -1204,6 +1212,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/approve-diversion"] = shipment.NewApproveShipmentDiversion(o.context, o.ShipmentApproveShipmentDiversionHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/approve"] = shipment.NewApproveShipments(o.context, o.ShipmentApproveShipmentsHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

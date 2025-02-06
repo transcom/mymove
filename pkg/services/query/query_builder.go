@@ -447,6 +447,35 @@ func (p *Builder) DeleteOne(appCtx appcontext.AppContext, model interface{}) err
 	return nil
 }
 
+func (p *Builder) DeleteMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return errors.New("DeleteMany: model must be a pointer to a slice")
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Slice {
+		return errors.New("DeleteMany: model must be a pointer to a slice")
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return errors.New("DeleteMany: model must be a slice of structs")
+	}
+
+	query := appCtx.DB().Q()
+
+	query, err := filteredQuery(query, filters, t)
+	if err != nil {
+		return err
+	}
+
+	err = query.Delete(model)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // FetchCategoricalCountsFromOneModel returns categorical counts from exactly one model
 func (p *Builder) FetchCategoricalCountsFromOneModel(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
 	t := reflect.TypeOf(model)
