@@ -392,6 +392,7 @@ pre_deps_golang:
 
 golang_lint:
   stage: pre_checks
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
@@ -408,6 +409,7 @@ golang_lint:
 
 golang_coverage:
   stage: pre_checks
+  interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
