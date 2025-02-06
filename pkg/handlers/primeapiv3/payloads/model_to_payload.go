@@ -80,7 +80,7 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 	return payload
 }
 
-func MoveTaskOrderWithShipmentOconusRateArea(appCtx appcontext.AppContext, moveTaskOrder *models.Move, shipmentRateArea *[]services.ShipmentPostalCodeRateArea) *primev3messages.MoveTaskOrder {
+func MoveTaskOrderWithShipmentRateAreas(appCtx appcontext.AppContext, moveTaskOrder *models.Move, shipmentRateArea *[]services.ShipmentPostalCodeRateArea) *primev3messages.MoveTaskOrder {
 	// create default payload
 	var payload = MoveTaskOrder(appCtx, moveTaskOrder)
 
