@@ -228,3 +228,42 @@ export function checkPreceedingAddress(formValues) {
   }
   return formError;
 }
+
+export function isSecondaryPicukupAddressComplete(hasSecondaryPickup, addressValues) {
+  if (
+    (hasSecondaryPickup === 'yes' || hasSecondaryPickup === 'true') &&
+    addressValues.streetAddress1 !== '' &&
+    addressValues.state !== '' &&
+    addressValues.city !== '' &&
+    addressValues.postalCode !== ''
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function isSecondaryDeliveryAddressComplete(hasSecondaryDelivery, addressValues) {
+  if (
+    (hasSecondaryDelivery === 'yes' || hasSecondaryDelivery === 'true') &&
+    addressValues.streetAddress1 !== '' &&
+    addressValues.state !== '' &&
+    addressValues.city !== '' &&
+    addressValues.postalCode !== ''
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function isDeliveryAddressComplete(hasDeliveryAddress, addressValues) {
+  if (
+    hasDeliveryAddress === 'yes' &&
+    addressValues.streetAddress1 !== '' &&
+    addressValues.state !== '' &&
+    addressValues.city !== '' &&
+    addressValues.postalCode !== ''
+  ) {
+    return true;
+  }
+  return false;
+}
