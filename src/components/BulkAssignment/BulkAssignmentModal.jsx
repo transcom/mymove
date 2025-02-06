@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
@@ -13,24 +13,26 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
   const [isDisabled, setIsDisabled] = useState(false);
   const [numberOfMoves, setNumberOfMoves] = useState(0);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        getBulkAssignmentData(queueType).then((data) => {
-          setBulkAssignmentData(data);
-          if (data.bulkAssignmentMoveIDs === undefined) {
-            setIsDisabled(true);
-            setNumberOfMoves(0);
-          } else {
-            setNumberOfMoves(data.bulkAssignmentMoveIDs.length);
-          }
-        });
-      } catch (err) {
-        milmoveLogger.error('Error fetching bulk assignment data:', err);
+  const fetchData = useCallback(async () => {
+    try {
+      const data = await getBulkAssignmentData(queueType);
+      setBulkAssignmentData(data);
+
+      if (!data.bulkAssignmentMoveIDs) {
+        setIsDisabled(true);
+        setNumberOfMoves(0);
+      } else {
+        setNumberOfMoves(data.bulkAssignmentMoveIDs.length);
       }
-    };
-    fetchData();
+    } catch (err) {
+      milmoveLogger.error('Error fetching bulk assignment data:', err);
+    }
   }, [queueType]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   return (
     <div>
       <Modal className={styles.BulkModal}>
@@ -74,7 +76,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           >
             {submitText}
           </Button>
-          <Button outline type="button" onClick={onClose} data-testid="modalCancelButton">
+          <Button type="button" className={styles.button} unstyled onClick={onClose} data-testid="modalCancelButton">
             {closeText}
           </Button>
         </ModalActions>
