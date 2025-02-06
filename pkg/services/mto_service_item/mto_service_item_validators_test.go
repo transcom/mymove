@@ -793,8 +793,9 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 
 	suite.Run("SITDepartureDate - Does not error or update shipment auth end date when set after the authorized end date", func() {
 		// Under test:  checkSITDepartureDate checks that
-		//				the SITDepartureDate is not later than the authorized end date
-		// Set up:      Create an old and new DOPSIT and DDDSIT, with a date later than the
+		//				the SITDepartureDate can be later than the authorized end date
+		//				and that the authorized end dates is not updated when that occurs
+		// Set up:      Create an old and new DOPSIT and DDDSIT, with a departure date later than the
 		// 				shipment and try to update.
 		// Expected outcome: No ERROR if departure date comes after the end date.
 		//					 Shipment auth end date does not change
@@ -842,7 +843,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			suite.NoError(err)
 			suite.False(serviceItemData.verrs.HasAny())
 
-			// Double check the shipment and ensure that the SITDepartureDate is in fact after the authorized end date
+			// Double check the shipment and ensure that the SITDepartureDate is after the authorized end date and does not alter the authorized end date
 			var postUpdateShipment models.MTOShipment
 			err = suite.DB().Find(&postUpdateShipment, mtoShipment.ID)
 			suite.NoError(err)
@@ -858,7 +859,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 
 	})
 
-	suite.Run("SITDepartureDate - errors when set before the SIT entry date", func() {
+	suite.Run("SITDepartureDate - errors when set before or equal the SIT entry date", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
