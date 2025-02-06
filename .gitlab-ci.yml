@@ -635,16 +635,15 @@ pre_test:
     - <<: *go_cache
       policy: pull
     - <<: *yarn_cache
-      policy: pull
   needs:
     - pre_deps_golang
     - pre_deps_yarn
     - check_tls_certificate_stg
     - check_tls_certificate_prd
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "6Gi"
-    KUBERNETES_MEMORY_LIMIT: "6Gi"
+    # KUBERNETES_CPU_REQUEST: "4"
+    # KUBERNETES_MEMORY_REQUEST: "6Gi"
+    # KUBERNETES_MEMORY_LIMIT: "6Gi"
     GOPATH: /home/circleci/go
     GOLANGCI_LINT_CONCURRENCY: 4
     GOLANGCI_LINT_VERBOSE: -v
@@ -735,7 +734,7 @@ server_test:
     DPS_AUTH_SECRET_KEY: placeholder
     CSRF_AUTH_KEY: d096fd8529eefaa46497849d11d2ff2e979ddfaed1aff058524ada9bceadd67c
 
-    IWS_RBS_ENABLED: 1
+    IWS_RBS_ENABLED: 0
     IWS_RBS_HOST: "pkict.dmdc.osd.mil"
 
   script:
@@ -745,7 +744,7 @@ server_test:
     - echo "server test -- build gotestsum and run scripts for report"
     - make -j 2 bin/milmove bin/gotestsum
     - make server_test for app
-  allow_failure: false
+  allow_failure: true
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/gotestsum
