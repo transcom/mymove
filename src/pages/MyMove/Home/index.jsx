@@ -265,12 +265,12 @@ export class Home extends Component {
 
         <dl className={styles.subheaderContainer}>
           <div className={styles.subheaderSubsection}>
-            <dt>Standard weight alloowance</dt>
+            <dt>Standard weight allowance</dt>
             <dd>{formatWeight(orders.authorizedWeight)}.</dd>
           </div>
           {orders?.entitlement?.weight_restriction > 0 && (
             <div className={styles.subheaderSubsection}>
-              <dt>Weight Restriction</dt>
+              <dt>Weight restriction</dt>
               <dd>{formatWeight(orders?.entitlement?.weight_restriction)}</dd>
             </div>
           )}
