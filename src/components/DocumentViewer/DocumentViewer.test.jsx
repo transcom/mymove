@@ -1,8 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 import DocumentViewer from './DocumentViewer';
 import samplePDF from './sample.pdf';
@@ -11,6 +10,8 @@ import samplePNG from './sample2.png';
 import sampleGIF from './sample3.gif';
 
 import { bulkDownloadPaymentRequest } from 'services/ghcApi';
+import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS, UPLOAD_DOC_STATUS_DISPLAY_MESSAGE } from 'shared/constants';
+import { renderWithProviders } from 'testUtils';
 
 const toggleMenuClass = () => {
   const container = document.querySelector('[data-testid="menuButtonContainer"]');
@@ -18,6 +19,23 @@ const toggleMenuClass = () => {
     container.className = container.className === 'closed' ? 'open' : 'closed';
   }
 };
+// Mocking necessary functions/module
+const mockMutateUploads = jest.fn();
+
+jest.mock('@tanstack/react-query', () => ({
+  ...jest.requireActual('@tanstack/react-query'),
+  useMutation: () => ({ mutate: mockMutateUploads }),
+}));
+
+global.EventSource = jest.fn().mockImplementation(() => ({
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  close: jest.fn(),
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const mockFiles = [
   {
@@ -112,11 +130,7 @@ jest.mock('./Content/Content', () => ({
 
 describe('DocumentViewer component', () => {
   it('initial state is closed menu and first file selected', async () => {
-    render(
-      <QueryClientProvider client={new QueryClient()}>
-        <DocumentViewer files={mockFiles} />
-      </QueryClientProvider>,
-    );
+    renderWithProviders(<DocumentViewer files={mockFiles} />);
 
     const selectedFileTitle = await screen.getAllByTestId('documentTitle')[0];
     expect(selectedFileTitle.textContent).toEqual('Test File 4.gif - Added on 16 Jun 2021');
@@ -126,23 +140,14 @@ describe('DocumentViewer component', () => {
   });
 
   it('renders the file creation date with the correctly sorted props', async () => {
-    render(
-      <QueryClientProvider client={new QueryClient()}>
-        <DocumentViewer files={mockFiles} />
-      </QueryClientProvider>,
-    );
-
+    renderWithProviders(<DocumentViewer files={mockFiles} />);
     const files = screen.getAllByRole('listitem');
 
     expect(files[0].textContent).toContain('Test File 4.gif - Added on 2021-06-16T15:09:26.979879Z');
   });
 
   it('renders the title bar with the correct props', async () => {
-    render(
-      <QueryClientProvider client={new QueryClient()}>
-        <DocumentViewer files={mockFiles} />
-      </QueryClientProvider>,
-    );
+    renderWithProviders(<DocumentViewer files={mockFiles} />);
 
     const title = await screen.getAllByTestId('documentTitle')[0];
 
@@ -150,11 +155,7 @@ describe('DocumentViewer component', () => {
   });
 
   it('handles the open menu button', async () => {
-    render(
-      <QueryClientProvider client={new QueryClient()}>
-        <DocumentViewer files={mockFiles} />
-      </QueryClientProvider>,
-    );
+    renderWithProviders(<DocumentViewer files={mockFiles} />);
 
     const openMenuButton = await screen.findByTestId('menuButton');
 
@@ -165,11 +166,7 @@ describe('DocumentViewer component', () => {
   });
 
   it('handles the close menu button', async () => {
-    render(
-      <QueryClientProvider client={new QueryClient()}>
-        <DocumentViewer files={mockFiles} />
-      </QueryClientProvider>,
-    );
+    renderWithProviders(<DocumentViewer files={mockFiles} />);
 
     // defaults to closed so we need to open it first.
     const openMenuButton = await screen.findByTestId('menuButton');
@@ -185,12 +182,8 @@ describe('DocumentViewer component', () => {
   });
 
   it('shows error if file type is unsupported', async () => {
-    render(
-      <QueryClientProvider client={new QueryClient()}>
-        <DocumentViewer
-          files={[{ id: 99, filename: 'archive.zip', contentType: 'zip', url: '/path/to/archive.zip' }]}
-        />
-      </QueryClientProvider>,
+    renderWithProviders(
+      <DocumentViewer files={[{ id: 99, filename: 'archive.zip', contentType: 'zip', url: '/path/to/archive.zip' }]} />,
     );
 
     expect(screen.getByText('id: undefined')).toBeInTheDocument();
@@ -200,38 +193,22 @@ describe('DocumentViewer component', () => {
     const errorMessageText = 'If your document does not display, please refresh your browser.';
     const downloadLinkText = 'Download file';
     it('no error message normally', async () => {
-      render(
-        <QueryClientProvider client={new QueryClient()}>
-          <DocumentViewer files={mockFiles} />
-        </QueryClientProvider>,
-      );
+      renderWithProviders(<DocumentViewer files={mockFiles} />);
       expect(screen.queryByText(errorMessageText)).toBeNull();
     });
 
     it('download link normally', async () => {
-      render(
-        <QueryClientProvider client={new QueryClient()}>
-          <DocumentViewer files={mockFiles} allowDownload />
-        </QueryClientProvider>,
-      );
+      renderWithProviders(<DocumentViewer files={mockFiles} allowDownload />);
       expect(screen.getByText(downloadLinkText)).toBeVisible();
     });
 
     it('show message on content error', async () => {
-      render(
-        <QueryClientProvider client={new QueryClient()}>
-          <DocumentViewer files={mockErrorFiles} />
-        </QueryClientProvider>,
-      );
+      renderWithProviders(<DocumentViewer files={mockErrorFiles} />);
       expect(screen.getByText(errorMessageText)).toBeVisible();
     });
 
     it('download link on content error', async () => {
-      render(
-        <QueryClientProvider client={new QueryClient()}>
-          <DocumentViewer files={mockErrorFiles} allowDownload />
-        </QueryClientProvider>,
-      );
+      renderWithProviders(<DocumentViewer files={mockErrorFiles} allowDownload />);
       expect(screen.getByText(downloadLinkText)).toBeVisible();
     });
   });
@@ -247,16 +224,14 @@ describe('DocumentViewer component', () => {
         data: null,
       };
 
-      render(
-        <QueryClientProvider client={new QueryClient()}>
-          <DocumentViewer
-            files={[
-              { id: 99, filename: 'archive.zip', contentType: 'zip', url: 'path/to/archive.zip' },
-              { id: 99, filename: 'archive.zip', contentType: 'zip', url: 'path/to/archive.zip' },
-            ]}
-            paymentRequestId="PaymentRequestId"
-          />
-        </QueryClientProvider>,
+      renderWithProviders(
+        <DocumentViewer
+          files={[
+            { id: 99, filename: 'archive.zip', contentType: 'zip', url: 'path/to/archive.zip' },
+            { id: 99, filename: 'archive.zip', contentType: 'zip', url: 'path/to/archive.zip' },
+          ]}
+          paymentRequestId="PaymentRequestId"
+        />,
       );
 
       bulkDownloadPaymentRequest.mockImplementation(() => Promise.resolve(mockResponse));
@@ -265,6 +240,104 @@ describe('DocumentViewer component', () => {
       await userEvent.click(downloadButton);
       await waitFor(() => {
         expect(bulkDownloadPaymentRequest).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+});
+
+describe('Test documentViewer file upload statuses', () => {
+  // Trigger status change helper function
+  const triggerStatusChange = (status, fileId, onStatusChange) => {
+    // Mocking EventSource
+    const mockEventSource = jest.fn();
+
+    global.EventSource = mockEventSource;
+
+    // Create a mock EventSource instance and trigger the onmessage event
+    const eventSourceMock = {
+      onmessage: () => {
+        const event = { data: status };
+        onStatusChange(event.data); // Pass status to the callback
+      },
+      close: jest.fn(),
+    };
+
+    mockEventSource.mockImplementationOnce(() => eventSourceMock);
+
+    // Trigger the status change (this would simulate the file status update event)
+    const sse = new EventSource(`/ghc/v1/uploads/${fileId}/status`, { withCredentials: true });
+    sse.onmessage({ data: status });
+  };
+
+  it('displays UPLOADING status when file is uploading', async () => {
+    renderWithProviders(<DocumentViewer files={mockFiles} allowDownload paymentRequestId={1} isFileUploading />);
+    // Trigger UPLOADING status change
+    triggerStatusChange(UPLOAD_DOC_STATUS.UPLOADING, mockFiles[0].id, async () => {
+      // Wait for the component to update and check that the status is reflected
+      await waitFor(() => {
+        expect(screen.getByTestId('documentStatusMessage')).toHaveTextContent(
+          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.UPLOADING,
+        );
+      });
+    });
+  });
+
+  it('displays SCANNING status when file is scanning', async () => {
+    renderWithProviders(
+      <DocumentViewer files={mockFiles} allowDownload paymentRequestId={1} isFileUploading={false} />,
+    );
+
+    // Trigger SCANNING status change
+    triggerStatusChange(UPLOAD_SCAN_STATUS.PROCESSING, mockFiles[0].id, async () => {
+      // Wait for the component to update and check that the status is reflected
+      await waitFor(() => {
+        expect(screen.getByTestId('documentStatusMessage')).toHaveTextContent(
+          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.SCANNING,
+        );
+      });
+    });
+  });
+
+  it('displays ESTABLISHING status when file is establishing', async () => {
+    renderWithProviders(
+      <DocumentViewer files={mockFiles} allowDownload paymentRequestId={1} isFileUploading={false} />,
+    );
+
+    // Trigger ESTABLISHING status change
+    triggerStatusChange('CLEAN', mockFiles[0].id, async () => {
+      // Wait for the component to update and check that the status is reflected
+      await waitFor(() => {
+        const docStatus = screen.getByTestId('documentStatusMessage');
+        expect(docStatus).toHaveTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEW);
+      });
+    });
+  });
+
+  it('displays FILE_NOT_FOUND status when no file is found', async () => {
+    const emptyFileList = [];
+    renderWithProviders(
+      <DocumentViewer files={emptyFileList} allowDownload paymentRequestId={1} isFileUploading={false} />,
+    );
+
+    // Trigger FILE_NOT_FOUND status change (via props)
+    triggerStatusChange('FILE_NOT_FOUND', '', async () => {
+      // Wait for the component to update and check that the status is reflected
+      await waitFor(() => {
+        const fileNotFoundMessage = screen.getByTestId('documentStatusMessage');
+        expect(fileNotFoundMessage).toHaveTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.FILE_NOT_FOUND);
+      });
+    });
+  });
+
+  it('displays INFECTED status when file is infected', async () => {
+    renderWithProviders(
+      <DocumentViewer files={mockFiles} allowDownload paymentRequestId={1} isFileUploading={false} />,
+    );
+    // Trigger INFECTED status change
+    triggerStatusChange(UPLOAD_SCAN_STATUS.INFECTED, mockFiles[0].id, async () => {
+      // Wait for the component to update and check that the status is reflected
+      await waitFor(() => {
+        expect(screen.getByText(/Our antivirus software flagged this file as a security risk/i)).toBeInTheDocument();
       });
     });
   });
