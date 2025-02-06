@@ -314,8 +314,8 @@ func findOconusGblocDepartmentIndicator(appCtx appcontext.AppContext, dutyLocati
 		serviceMember.Affiliation, dutyLocation.Name, *departmentIndicator, dutyLocation.Address.ID))
 }
 
-// Return the closest transportation office in the GBLOC of the given duty location for oconus/conus duty locations
-func (o transportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffice, error) {
+// Return the closest transportation office in the GBLOC of the given duty location for oconus/conus duty locations for a prime counseled
+func (o transportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffice, error) {
 	var closestOffice models.TransportationOffice
 	duty_location, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
 	if err != nil {
@@ -344,7 +344,7 @@ func (o transportationOfficesFetcher) FindClosestCounselingOffice(appCtx appcont
             JOIN jppso_regions j ON gbloc_aors.jppso_regions_id = j.id
             JOIN transportation_offices ON j.code = transportation_offices.gbloc
             JOIN addresses a2 ON a2.id = transportation_offices.address_id
-            WHERE duty_locations.provides_services_counseling = true and duty_locations.id = $1 AND j.code = $2
+            WHERE duty_locations.id = $1 AND j.code = $2
                 AND transportation_offices.provides_ppm_closeout = true
         )
         SELECT counseling_offices.id, counseling_offices.name
