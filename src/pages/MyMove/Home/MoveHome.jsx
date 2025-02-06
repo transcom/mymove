@@ -439,7 +439,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
           </div>
           {orders?.entitlement?.weight_restriction > 0 && (
             <div className={styles.subheaderSubsection}>
-              <dt>Weight Restriction</dt>
+              <dt>Weight restriction</dt>
               <dd>{formatWeight(orders?.entitlement?.weight_restriction)}</dd>
             </div>
           )}
