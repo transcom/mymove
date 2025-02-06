@@ -73,6 +73,7 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
   let onSubmit;
   if (modelType === 'MTOServiceItemOriginSIT' || modelType === 'MTOServiceItemDestSIT') {
     initialValues = {
+      sitEntryDate: formatDateWithUTC(serviceItem.sitEntryDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
       sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
       sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
       sitCustomerContacted: formatDateWithUTC(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
@@ -85,6 +86,7 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
     onSubmit = (values) => {
       const {
         sitCustomerContacted,
+        sitEntryDate,
         sitDepartureDate,
         sitRequestedDelivery,
         updateReason,
@@ -94,6 +96,7 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
       } = values;
 
       const body = {
+        sitEntryDate: sitEntryDate === 'Invalid date' ? null : formatDateForSwagger(sitEntryDate),
         sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
         sitRequestedDelivery:
           sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
