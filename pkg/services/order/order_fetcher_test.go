@@ -2536,13 +2536,25 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, nil)
 
+		move3, shipment3 := buildMoveKKFA()
+		factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment3,
+				LinkOnly: true,
+			},
+			{
+				Model:    move3,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+
 		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
 			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{},
 		)
 
 		suite.FatalNoError(err)
-		suite.Equal(2, moveCount)
-		suite.Len(moves, 2)
+		suite.Equal(3, moveCount)
+		suite.Len(moves, 3)
 	})
 
 	suite.Run("returns moves for MBFL GBLOC including USAF/SF in Alaska Zone II", func() {
