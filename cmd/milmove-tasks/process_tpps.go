@@ -17,8 +17,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-	"golang.org/x/text/encoding/unicode"
-	"golang.org/x/text/transform"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
@@ -254,24 +252,6 @@ func downloadS3File(logger *zap.Logger, s3Client *s3.Client, bucket, key string)
 	}
 	defer response.Body.Close()
 
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		logger.Error("Failed to read S3 object body", zap.Error(err))
-		return "", "", err
-	}
-
-	// Convert to UTF-8 encoding
-	bodyText := convertToUTF8(body)
-
-	logger.Info("Successfully retrieved S3 object",
-		zap.String("bucket", bucket),
-		zap.String("key", key),
-		zap.String("content-type", aws.ToString(response.ContentType)),
-		zap.String("etag", aws.ToString(response.ETag)),
-		zap.Int64("content-length", *response.ContentLength),
-		zap.Any("metadata", response.Metadata),
-		zap.String("body-preview", string(bodyText[:min(100, len(bodyText))])))
-
 	// create a temp file in /tmp directory to store the CSV from the S3 bucket
 	// the /tmp directory will only exist for the duration of the task, so no cleanup is required
 	tempDir := os.TempDir()
@@ -295,48 +275,48 @@ func downloadS3File(logger *zap.Logger, s3Client *s3.Client, bucket, key string)
 		return "", "", err
 	}
 
-	_, err = file.Seek(0, io.SeekStart)
+	content, err := os.ReadFile(localFilePath)
 	if err != nil {
-		logger.Error("Failed to reset file cursor for logging", zap.Error(err))
-		return "", "", err
-	}
-
-	buffer := make([]byte, 2000)
-	n, err := file.Read(buffer)
-	if err != nil && err != io.EOF {
 		logger.Error("Failed to read file contents for logging", zap.Error(err))
 		return "", "", err
 	}
 
+	maxPreviewSize := 5000
+	preview := string(content)
+	if len(content) > maxPreviewSize {
+		preview = string(content[:maxPreviewSize]) + "..."
+	}
+
 	logger.Info("File contents preview before closing:",
-		zap.String("filePath", file.Name()),
-		zap.String("content", string(buffer[:n])),
+		zap.String("filePath", localFilePath),
+		zap.String("content", preview),
 	)
 
-	logger.Info(fmt.Sprintf("Successfully wrote to tmp file named localFilePath at: %s", localFilePath))
-	logger.Info(fmt.Sprintf("File contents of: %s", localFilePath))
+	// Final success message
+	logger.Info("Successfully wrote to tmp file",
+		zap.String("filePath", localFilePath),
+	)
 
 	logFileContents(logger, localFilePath)
 
-	defer file.Close()
-	return localFilePath, "", err
+	return localFilePath, "", nil
 }
 
-// convert to UTF-8 encoding
-func convertToUTF8(data []byte) string {
+// // convert to UTF-8 encoding
+// func convertToUTF8(data []byte) string {
 
-	if len(data) >= 2 && (data[0] == 0xFF && data[1] == 0xFE) {
-		decoder := unicode.UTF16(unicode.LittleEndian, unicode.ExpectBOM).NewDecoder()
-		utf8Bytes, _, _ := transform.Bytes(decoder, data)
-		return string(utf8Bytes)
-	} else if len(data) >= 2 && (data[0] == 0xFE && data[1] == 0xFF) {
-		decoder := unicode.UTF16(unicode.BigEndian, unicode.ExpectBOM).NewDecoder()
-		utf8Bytes, _, _ := transform.Bytes(decoder, data)
-		return string(utf8Bytes)
-	}
+// 	if len(data) >= 2 && (data[0] == 0xFF && data[1] == 0xFE) {
+// 		decoder := unicode.UTF16(unicode.LittleEndian, unicode.ExpectBOM).NewDecoder()
+// 		utf8Bytes, _, _ := transform.Bytes(decoder, data)
+// 		return string(utf8Bytes)
+// 	} else if len(data) >= 2 && (data[0] == 0xFE && data[1] == 0xFF) {
+// 		decoder := unicode.UTF16(unicode.BigEndian, unicode.ExpectBOM).NewDecoder()
+// 		utf8Bytes, _, _ := transform.Bytes(decoder, data)
+// 		return string(utf8Bytes)
+// 	}
 
-	return string(data)
-}
+// 	return string(data)
+// }
 
 // Identifies if a filepath directory is mutable
 // This is needed in to write contents of S3 stream to
@@ -354,6 +334,16 @@ func isDirMutable(path string) bool {
 }
 
 func logFileContents(logger *zap.Logger, filePath string) {
+	stat, err := os.Stat(filePath)
+	if err != nil {
+		logger.Error("File does not exist or cannot be accessed", zap.String("filePath", filePath), zap.Error(err))
+		return
+	}
+	if stat.Size() == 0 {
+		logger.Warn("File is empty", zap.String("filePath", filePath))
+		return
+	}
+
 	file, err := os.Open(filePath)
 	if err != nil {
 		logger.Error("Failed to open file for logging", zap.String("filePath", filePath), zap.Error(err))
@@ -361,15 +351,22 @@ func logFileContents(logger *zap.Logger, filePath string) {
 	}
 	defer file.Close()
 
-	buffer := make([]byte, 2000)
-	n, err := file.Read(buffer)
-	if err != nil && err != io.EOF {
+	content, err := io.ReadAll(file)
+	if err != nil {
 		logger.Error("Failed to read file contents", zap.String("filePath", filePath), zap.Error(err))
 		return
 	}
 
+	const maxPreviewSize = 5000 // Adjust this if needed
+	preview := string(content)
+	if len(content) > maxPreviewSize {
+		preview = preview[:maxPreviewSize] + "..." // Indicate truncation
+	}
+
+	// Log file preview
 	logger.Info("File contents preview:",
 		zap.String("filePath", filePath),
-		zap.String("content", string(buffer[:n])),
+		zap.Int64("fileSize", stat.Size()), // Log the full file size
+		zap.String("content-preview", preview),
 	)
 }
