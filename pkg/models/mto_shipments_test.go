@@ -325,6 +325,61 @@ func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 	})
 }
 
+func (suite *ModelSuite) TestCreateInternationalAccessorialServiceItemsForShipment() {
+	suite.Run("test creating accessorial service items for shipment", func() {
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					RejectionReason: models.StringPointer("not applicable"),
+					MTOShipmentID:   &shipment.ID,
+					Reason:          models.StringPointer("this is a special item"),
+					EstimatedWeight: models.PoundPointer(400),
+					ActualWeight:    models.PoundPointer(500),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIDSHUT,
+				},
+			},
+		}, nil)
+
+		serviceItem.MTOShipment = shipment
+		serviceItemIds, err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), shipment.ID, models.MTOServiceItems{serviceItem})
+		suite.NoError(err)
+		suite.NotNil(serviceItemIds)
+	})
+
+	suite.Run("test error handling for invalid shipment", func() {
+		serviceItemIds, err := models.CreateInternationalAccessorialServiceItemsForShipment(suite.DB(), uuid.Nil, models.MTOServiceItems{})
+		suite.Error(err)
+		suite.Nil(serviceItemIds)
+	})
+}
+
 func (suite *ModelSuite) TestFindShipmentByID() {
 	suite.Run("success - test find", func() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
@@ -483,5 +538,27 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		suite.NoError(err)
 		suite.NotNil(gbloc)
 		suite.Equal(*gbloc, "USMC")
+	})
+}
+
+func (suite *ModelSuite) TestIsPPMShipment() {
+	suite.Run("true - shipment is a ppm", func() {
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+
+		mtoShipment.PPMShipment = &ppmShipment
+		mtoShipment.ShipmentType = models.MTOShipmentTypePPM
+
+		isPPM := mtoShipment.IsPPMShipment()
+		suite.NotNil(isPPM)
+		suite.Equal(isPPM, true)
+	})
+
+	suite.Run("false - shipment is not a ppm", func() {
+		nonPPMshipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+
+		isPPM := nonPPMshipment.IsPPMShipment()
+		suite.NotNil(isPPM)
+		suite.Equal(isPPM, false)
 	})
 }
