@@ -1166,6 +1166,44 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /shipments/approve:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApproveShipments'
+      responses:
+        '200':
+          description: Successfully approved the shipments
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Approves multiple shipments in one request
+      operationId: approveShipments
+      summary: Approves multiple shipments at once
+      x-permissions:
+        - update.shipment
   /shipments/{shipmentID}/approve:
     parameters:
       - description: ID of the shipment
@@ -2350,9 +2388,9 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Changes move task order status to make it available to prime
+      description: Changes move task order status
       operationId: updateMoveTaskOrderStatus
-      summary: Change the status of a move task order to make it available to prime
+      summary: Change the status of a move task order
       x-permissions:
         - update.move
         - create.serviceItem
@@ -6971,6 +7009,24 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+  ApproveShipments:
+    type: object
+    properties:
+      approveShipments:
+        type: array
+        items:
+          type: object
+          properties:
+            shipmentID:
+              type: string
+              format: uuid
+            eTag:
+              type: string
+          required:
+            - shipmentID
+            - eTag
+    required:
+      - approveShipments
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -7440,6 +7496,7 @@ definitions:
         type: boolean
       workload:
         type: integer
+        x-omitempty: false
   BulkAssignmentData:
     type: object
     properties:
@@ -8890,6 +8947,12 @@ definitions:
         description: >-
           To identify whether the service was provided within (CONUS) or
           (OCONUS)
+        x-nullable: true
+      sort:
+        type: string
+        description: >-
+          Sort order for service items to be displayed for a given shipment
+          type.
         x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
@@ -11031,6 +11094,24 @@ definitions:
         x-omitempty: false
       unpackPrice:
         description: The full price of all packing/unpacking services.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlPackPrice:
+        description: The full price of international packing (IHPK)
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlUnpackPrice:
+        description: The full price of international unpacking (IHUPK)
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlLinehaulPrice:
+        description: The full price of international shipping and linehaul (ISLH)
         type: integer
         format: cents
         x-nullable: true
