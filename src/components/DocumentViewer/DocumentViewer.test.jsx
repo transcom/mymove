@@ -246,6 +246,7 @@ describe('DocumentViewer component', () => {
 });
 
 describe('Test documentViewer file upload statuses', () => {
+  const documentStatus = 'Document Status';
   // Trigger status change helper function
   const triggerStatusChange = (status, fileId, onStatusChange) => {
     // Mocking EventSource
@@ -275,7 +276,8 @@ describe('Test documentViewer file upload statuses', () => {
     triggerStatusChange(UPLOAD_DOC_STATUS.UPLOADING, mockFiles[0].id, async () => {
       // Wait for the component to update and check that the status is reflected
       await waitFor(() => {
-        expect(screen.getByTestId('documentStatusMessage')).toHaveTextContent(
+        expect(screen.getByTestId('documentAlertHeading')).toHaveTextContent(documentStatus);
+        expect(screen.getByTestId('documentAlertMessage')).toHaveTextContent(
           UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.UPLOADING,
         );
       });
@@ -291,7 +293,8 @@ describe('Test documentViewer file upload statuses', () => {
     triggerStatusChange(UPLOAD_SCAN_STATUS.PROCESSING, mockFiles[0].id, async () => {
       // Wait for the component to update and check that the status is reflected
       await waitFor(() => {
-        expect(screen.getByTestId('documentStatusMessage')).toHaveTextContent(
+        expect(screen.getByTestId('documentAlertHeading')).toHaveTextContent(documentStatus);
+        expect(screen.getByTestId('documentAlertMessage')).toHaveTextContent(
           UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.SCANNING,
         );
       });
@@ -304,11 +307,13 @@ describe('Test documentViewer file upload statuses', () => {
     );
 
     // Trigger ESTABLISHING status change
-    triggerStatusChange('CLEAN', mockFiles[0].id, async () => {
+    triggerStatusChange(UPLOAD_SCAN_STATUS.CLEAN, mockFiles[0].id, async () => {
       // Wait for the component to update and check that the status is reflected
       await waitFor(() => {
-        const docStatus = screen.getByTestId('documentStatusMessage');
-        expect(docStatus).toHaveTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEW);
+        expect(screen.getByTestId('documentAlertHeading')).toHaveTextContent(documentStatus);
+        expect(screen.getByTestId('documentAlertMessage')).toHaveTextContent(
+          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEW,
+        );
       });
     });
   });
@@ -323,8 +328,10 @@ describe('Test documentViewer file upload statuses', () => {
     triggerStatusChange('FILE_NOT_FOUND', '', async () => {
       // Wait for the component to update and check that the status is reflected
       await waitFor(() => {
-        const fileNotFoundMessage = screen.getByTestId('documentStatusMessage');
-        expect(fileNotFoundMessage).toHaveTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.FILE_NOT_FOUND);
+        expect(screen.getByTestId('documentAlertHeading')).toHaveTextContent(documentStatus);
+        expect(screen.getByTestId('documentAlertMessage')).toHaveTextContent(
+          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.FILE_NOT_FOUND,
+        );
       });
     });
   });
@@ -337,7 +344,10 @@ describe('Test documentViewer file upload statuses', () => {
     triggerStatusChange(UPLOAD_SCAN_STATUS.INFECTED, mockFiles[0].id, async () => {
       // Wait for the component to update and check that the status is reflected
       await waitFor(() => {
-        expect(screen.getByText(/Our antivirus software flagged this file as a security risk/i)).toBeInTheDocument();
+        expect(screen.getByTestId('documentAlertHeading')).toHaveTextContent('Ask for a new file');
+        expect(screen.getByTestId('documentAlertMessage')).toHaveTextContent(
+          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.INFECTED_FILE_MESSAGE,
+        );
       });
     });
   });

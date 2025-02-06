@@ -148,6 +148,8 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
         return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.SCANNING;
       case UPLOAD_DOC_STATUS.ESTABLISHING:
         return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEW;
+      case UPLOAD_DOC_STATUS.INFECTED:
+        return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.INFECTED_FILE_MESSAGE;
       default:
         if (!currentSelectedFile) {
           return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.FILE_NOT_FOUND;
@@ -157,21 +159,13 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   };
 
   const alertMessage = getStatusMessage(fileStatus, selectedFile);
+  const alertType = fileStatus && fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'error' : 'info';
+  const alertHeading =
+    fileStatus && fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'Ask for a new file' : 'Document Status';
   if (alertMessage) {
     return (
-      <Alert type="info" className="usa-width-one-whole" heading="Document Status" data-testid="documentStatus">
-        <span data-testid="documentStatusMessage">{alertMessage}</span>
-      </Alert>
-    );
-  }
-
-  if (fileStatus === UPLOAD_SCAN_STATUS.INFECTED) {
-    return (
-      <Alert type="error" className="usa-width-one-whole" heading="Ask for a new file">
-        <span>
-          Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a
-          photo of the original document instead.
-        </span>
+      <Alert type={alertType} className="usa-width-one-whole" heading={alertHeading} data-testid="documentAlertHeading">
+        <span data-testid="documentAlertMessage">{alertMessage}</span>
       </Alert>
     );
   }
