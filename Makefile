@@ -41,6 +41,15 @@ ifdef CIRCLECI
 	endif
 endif
 
+ifdef GITLAB
+	DB_PORT_DEV=5432
+	DB_PORT_TEST=5432
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		LDFLAGS=-linkmode external -extldflags -static
+	endif
+endif
+
 ifdef GOLAND
 	GOLAND_GC_FLAGS=all=-N -l
 endif
@@ -1209,23 +1218,23 @@ else ifeq ($(DEPLOY_ENV), demo)
 else
 	$(error DEPLOY_ENV must be exp, loadtest, or demo)
 endif
-	sed -E -i '' "s#(&dp3-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
-	sed -E -i '' "s#(&integration-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
-	sed -E -i '' "s#(&integration-mtls-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
-	sed -E -i '' "s#(&client-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
-	sed -E -i '' "s#(&server-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
-	sed -E -i '' "s#(&dp3-env) placeholder_env#\1 $(DEPLOY_ENV)#" .circleci/config.yml
-	@git --no-pager diff .circleci/config.yml
-	@echo "Please make sure to commit the changes in .circleci/config.yml in order to have CircleCI deploy $(GIT_BRANCH) to the Non-ATO $(DEPLOY_ENV) environment."
+	sed -E -i '' "s#(&dp3_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_mtls_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&client_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&server_ignore_branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .gitlab-ci.yml
+	sed -E -i '' "s#(&dp3_env) placeholder_env#\1 $(DEPLOY_ENV)#" .gitlab-ci.yml
+	@git --no-pager diff .gitlab-ci.yml
+	@echo "Please make sure to commit the changes in .gitlab-ci.yml in order to have Gitlab deploy $(GIT_BRANCH) to the Non-ATO $(DEPLOY_ENV) environment."
 
 .PHONY: nonato_deploy_restore
 nonato_deploy_restore:  ## Restore placeholders in config after deploy to a non-ATO env
-	sed -E -i '' "s#(&dp3-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
-	sed -E -i '' "s#(&integration-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
-	sed -E -i '' "s#(&integration-mtls-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
-	sed -E -i '' "s#(&client-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
-	sed -E -i '' "s#(&server-ignore-branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .circleci/config.yml
-	sed -E -i '' "s#(&dp3-env) (exp|loadtest|demo)#\1 placeholder_env#" .circleci/config.yml
+	sed -E -i '' "s#(&dp3_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&integration_mtls_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&client_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&server_ignore_branch) $(GIT_BRANCH)#\1 placeholder_branch_name#" .gitlab-ci.yml
+	sed -E -i '' "s#(&dp3_env) (exp|loadtest|demo)#\1 placeholder_env#" .gitlab-ci.yml
 
 #
 # ----- END NON-ATO DEPLOYMENT TARGETS -----

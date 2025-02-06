@@ -747,6 +747,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			AccompaniedTour:                models.BoolPointer(true),
 			DependentsTwelveAndOver:        models.Int64Pointer(1),
 			DependentsUnderTwelve:          models.Int64Pointer(2),
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -832,6 +833,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -881,6 +883,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), orderWithoutDefaults.ID, payload, eTag)
@@ -932,6 +935,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -968,6 +972,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
+			WeightRestriction:              models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -1046,7 +1051,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+		fakeS3 := storageTest.NewFakeS3Storage(true)
 
 		upload, url, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
 			appCtx,
@@ -1077,7 +1082,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+		fakeS3 := storageTest.NewFakeS3Storage(true)
 
 		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
@@ -1129,7 +1134,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+		fakeS3 := storageTest.NewFakeS3Storage(true)
 
 		_, _, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
 			appCtx,
@@ -1156,7 +1161,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		file, cleanUpFunc := setUpFileToUpload()
 		defer cleanUpFunc()
 
-		fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+		fakeS3 := storageTest.NewFakeS3Storage(true)
 
 		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")

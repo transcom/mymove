@@ -30,7 +30,7 @@ func (suite *PPMShipmentSuite) TestVerifyAOAPacketSuccess() {
 	mockSSWPPMGenerator := &mocks.SSWPPMGenerator{}
 	mockSSWPPMComputer := &mocks.SSWPPMComputer{}
 	mockPrimeDownloadMoveUploadPDFGenerator := &mocks.PrimeDownloadMoveUploadPDFGenerator{}
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.FatalNoError(uploaderErr)
 
@@ -68,7 +68,7 @@ func (suite *PPMShipmentSuite) TestVerifyAOAPacketFail() {
 	mockSSWPPMGenerator := &mocks.SSWPPMGenerator{}
 	mockSSWPPMComputer := &mocks.SSWPPMComputer{}
 	mockPrimeDownloadMoveUploadPDFGenerator := &mocks.PrimeDownloadMoveUploadPDFGenerator{}
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.FatalNoError(uploaderErr)
 
@@ -110,7 +110,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketNotFound() {
 	mockSSWPPMComputer := &mocks.SSWPPMComputer{}
 	mockPrimeDownloadMoveUploadPDFGenerator := &mocks.PrimeDownloadMoveUploadPDFGenerator{}
 	// mockAOAPacketCreator := &mocks.AOAPacketCreator{}
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.FatalNoError(uploaderErr)
 
@@ -148,7 +148,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketNotFound() {
 }
 
 func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.FatalNoError(uploaderErr)
 
@@ -238,7 +238,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
 func (suite *PPMShipmentSuite) TestSaveAOAPacket() {
 	mockPPMShipmentUpdater := &mocks.PPMShipmentUpdater{}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
 

@@ -84,7 +84,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		CreateOrders: payload,
 	}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	createHandler := CreateOrderHandler{handlerConfig, waf}
@@ -212,7 +212,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 		CreateOrders: payload,
 	}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true, nil)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	createHandler := CreateOrderHandler{handlerConfig, waf}
@@ -1532,6 +1532,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
 		StorageInTransit:               models.Int64Pointer(80),
+		WeightRestriction:              models.Int64Pointer(0),
 	}
 
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)

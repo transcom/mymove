@@ -5,10 +5,12 @@ import { Provider } from 'react-redux';
 
 import AddOrdersForm from './AddOrdersForm';
 
+import { MockProviders } from 'testUtils';
 import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 jest.setTimeout(60000);
 
@@ -138,6 +140,8 @@ const testProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
 };
+const mockParams = { customerId: 'ea51dab0-4553-4732-b843-1f33407f77bd' };
+const mockPath = servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH;
 
 describe('CreateMoveCustomerInfo Component', () => {
   it('renders the form inputs', async () => {
@@ -227,7 +231,7 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     isBooleanFlagEnabled.mockResolvedValue(true);
 
     render(
-      <Provider store={mockStore.store}>
+      <Provider params={mockParams} store={mockStore.store}>
         <AddOrdersForm {...testProps} />
       </Provider>,
     );
@@ -423,9 +427,9 @@ describe('AddOrdersForm - With Counseling Office', () => {
   it('displays the counseling office dropdown', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     render(
-      <Provider store={mockStore.store}>
+      <MockProviders params={mockParams} path={mockPath} store={mockStore.store}>
         <AddOrdersForm {...testProps} />
-      </Provider>,
+      </MockProviders>,
     );
 
     await userEvent.selectOptions(await screen.findByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
@@ -456,9 +460,9 @@ describe('AddOrdersForm - With Counseling Office', () => {
   it('disabled submit if counseling office is required and blank', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     render(
-      <Provider store={mockStore.store}>
+      <MockProviders params={mockParams} path={mockPath} store={mockStore.store}>
         <AddOrdersForm {...testProps} />
-      </Provider>,
+      </MockProviders>,
     );
 
     await userEvent.selectOptions(await screen.findByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
@@ -483,25 +487,5 @@ describe('AddOrdersForm - With Counseling Office', () => {
 
     const nextBtn = await screen.getByRole('button', { name: 'Next' }, { delay: 100 });
     expect(nextBtn).toBeDisabled();
-  });
-});
-describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
-  it('disables orders type when safety move is selected', async () => {
-    render(
-      <Provider store={mockStore.store}>
-        <AddOrdersForm {...testProps} isSafetyMoveSelected />
-      </Provider>,
-    );
-
-    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
-  });
-
-  it('disables orders type when bluebark move is selected', async () => {
-    render(
-      <Provider store={mockStore.store}>
-        <AddOrdersForm {...testProps} isBluebarkMoveSelected />
-      </Provider>,
-    );
-    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
   });
 });

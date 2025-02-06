@@ -15,10 +15,10 @@ import (
 
 // FakeS3Storage is used for local testing to stub out calls to S3.
 type FakeS3Storage struct {
-	willSucceed  bool
-	fs           *afero.Afero
-	tempFs       *afero.Afero
-	tagsToReturn map[string]string
+	willSucceed bool
+	fs          *afero.Afero
+	tempFs      *afero.Afero
+	EmptyTags   bool // Used for testing only
 }
 
 // Delete removes a file.
@@ -94,33 +94,25 @@ func (fake *FakeS3Storage) TempFileSystem() *afero.Afero {
 }
 
 // Tags returns the tags for a specified key
-// The following tags must be present for S3 user uploading
-// "av-status": "CLEAN"
-// OR
-// "av-status": "INFECTED"
-// The upload function will hang, attempting to poll the uploaded file until one of these
-// tags are found
 func (fake *FakeS3Storage) Tags(_ string) (map[string]string, error) {
-	if fake.tagsToReturn == nil {
-		// Default to clean file upload
-		return map[string]string{"av-status": "CLEAN"}, nil
+	tags := map[string]string{
+		"av-status": "CLEAN", // Assume anti-virus run
 	}
-	return fake.tagsToReturn, nil
-}
-
-func (_ *FakeS3Storage) StorageType() string {
-	return "S3"
+	if fake.EmptyTags {
+		tags = map[string]string{}
+		fake.EmptyTags = false // Reset after initial return, so future calls (tests) have filled tags
+	}
+	return tags, nil
 }
 
 // NewFakeS3Storage creates a new FakeS3Storage for testing purposes.
-func NewFakeS3Storage(willSucceed bool, tagsToReturn map[string]string) *FakeS3Storage {
+func NewFakeS3Storage(willSucceed bool) *FakeS3Storage {
 	var fs = afero.NewMemMapFs()
 	var tempFs = afero.NewMemMapFs()
 
 	return &FakeS3Storage{
-		willSucceed:  willSucceed,
-		fs:           &afero.Afero{Fs: fs},
-		tempFs:       &afero.Afero{Fs: tempFs},
-		tagsToReturn: tagsToReturn,
+		willSucceed: willSucceed,
+		fs:          &afero.Afero{Fs: fs},
+		tempFs:      &afero.Afero{Fs: tempFs},
 	}
 }
