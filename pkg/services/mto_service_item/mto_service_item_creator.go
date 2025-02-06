@@ -326,6 +326,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	var err error
 	var requestedServiceItems models.MTOServiceItems // used in case additional service items need to be auto-created
 	var createdServiceItems models.MTOServiceItems
+	var createdInternationalServiceItemIds []string
 
 	var move models.Move
 	moveID := serviceItem.MoveTaskOrderID
@@ -374,7 +375,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		err := o.checkDuplicateServiceCodes(appCtx, serviceItem)
 		if err != nil {
 			appCtx.Logger().Error(fmt.Sprintf("Error trying to create a duplicate MS service item for move ID: %s", move.ID), zap.Error(err))
-			return nil, nil, err
+			return &createdServiceItems, nil, nil
 		}
 	}
 
@@ -671,9 +672,16 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				}
 			}
 
-			verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
+			if mtoShipment.MarketCode == models.MarketCodeInternational {
+				createdInternationalServiceItemIds, err = models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), *serviceItem.MTOShipmentID, models.MTOServiceItems{*serviceItem})
+				if err != nil {
+					return err
+				}
+			} else {
+				verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
+				if verrs != nil || err != nil {
+					return fmt.Errorf("%#v %e", verrs, err)
+				}
 			}
 
 			// need isOconus information for InternationalCrates in model_to_payload
@@ -682,6 +690,13 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 
 			createdServiceItems = append(createdServiceItems, *requestedServiceItem)
+
+			if mtoShipment.MarketCode == models.MarketCodeInternational {
+				requestedServiceItem.ID, err = uuid.FromString(createdInternationalServiceItemIds[0])
+				if err != nil {
+					return fmt.Errorf("%e", err)
+				}
+			}
 
 			// create dimensions if any
 			for index := range requestedServiceItem.Dimensions {

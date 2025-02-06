@@ -1249,7 +1249,7 @@ push_otel_collector_image_dp3:
 
 deploy_migrations_dp3:
   stage: deploy
-  resource_group: $DP3_ENV
+  resource_group: $DP3_ENV_migration
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1281,7 +1281,7 @@ deploy_migrations_dp3:
 
 deploy_tasks_dp3:
   stage: deploy
-  resource_group: $DP3_ENV
+  resource_group: $DP3_ENV_task
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1312,7 +1312,7 @@ deploy_tasks_dp3:
 
 deploy_app_client_tls_dp3:
   stage: deploy
-  resource_group: $DP3_ENV
+  resource_group: $DP3_ENV_client
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1354,7 +1354,7 @@ deploy_app_client_tls_dp3:
 
 deploy_app_dp3:
   stage: deploy
-  resource_group: $DP3_ENV
+  resource_group: $DP3_ENV_app
   tags:
     - $RUNNER_TAG
   environment: $DP3_ENV
@@ -1517,7 +1517,7 @@ push_otel_collector_image_stg:
 
 deploy_migrations_stg:
   stage: deploy
-  resource_group: staging
+  resource_group: staging_migration
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1549,7 +1549,7 @@ deploy_migrations_stg:
 
 deploy_tasks_stg:
   stage: deploy
-  resource_group: staging
+  resource_group: staging_task
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1578,7 +1578,7 @@ deploy_tasks_stg:
 
 deploy_app_client_tls_stg:
   stage: deploy
-  resource_group: staging
+  resource_group: staging_client
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1619,7 +1619,7 @@ deploy_app_client_tls_stg:
 
 deploy_app_stg:
   stage: deploy
-  resource_group: staging
+  resource_group: staging_app
   tags:
     - $RUNNER_TAG
   environment: stg
@@ -1692,7 +1692,7 @@ prod_approval:
 
 build_push_app_prd:
   stage: push_prd
-  resource_group: production
+  resource_group: production_app
   environment: prd
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1715,7 +1715,7 @@ build_push_app_prd:
 
 build_push_migrations_prd:
   stage: push_prd
-  resource_group: production
+  resource_group: production_migration
   tags:
     - $RUNNER_TAG
   environment: prd
@@ -1740,7 +1740,7 @@ build_push_migrations_prd:
 
 build_push_tasks_prd:
   stage: push_prd
-  resource_group: production
+  resource_group: production_task
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1765,7 +1765,7 @@ build_push_tasks_prd:
 
 push_otel_collector_image_prd:
   stage: push_prd
-  resource_group: production
+  resource_group: production_otel
   tags:
     - $RUNNER_TAG
   environment: prd
@@ -1802,7 +1802,7 @@ push_otel_collector_image_prd:
 
 deploy_migrations_prd:
   stage: deploy_prd
-  resource_group: production
+  resource_group: production_migration
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1834,7 +1834,7 @@ deploy_migrations_prd:
 
 deploy_tasks_prd:
   stage: deploy_prd
-  resource_group: production
+  resource_group: production_task
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1863,7 +1863,7 @@ deploy_tasks_prd:
 
 deploy_app_client_tls_prd:
   stage: deploy_prd
-  resource_group: production
+  resource_group: production_client
   environment: prd
   tags:
     - $RUNNER_TAG
@@ -1894,11 +1894,11 @@ deploy_app_client_tls_prd:
     - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts api.$APP_ENVIRONMENT.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - bin/health-checker --schemes https --hosts api.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts api.$APP_ENVIRONMENT.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - bin/tls-checker --schemes https --hosts api.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
     - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "api.$APP_ENVIRONMENT.move.mil" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - ./scripts/check-deployed-commit "api.move.mil" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
   after_script:
     - *announce_failure
   rules:
@@ -1906,7 +1906,7 @@ deploy_app_client_tls_prd:
 
 deploy_app_prd:
   stage: deploy_prd
-  resource_group: production
+  resource_group: production_app
   tags:
     - $RUNNER_TAG
   environment: prd
@@ -1946,11 +1946,11 @@ deploy_app_prd:
     - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     #TODO: fix domain make dynamic and pass in preferred
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil --tries 10 --backoff 3 --log-level info --timeout 5m
+    - bin/health-checker --schemes https --hosts my.move.mil,office.move.mil,admin.move.mil --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil --log-level info --timeout 15m
+    - bin/tls-checker --schemes https --hosts my.move.mil,office.move.mil,admin.move.mil --log-level info --timeout 15m
     - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.$APP_ENVIRONMENT.move.mil,office.$APP_ENVIRONMENT.move.mil,admin.$APP_ENVIRONMENT.move.mil" "$CI_COMMIT_SHA"
+    - ./scripts/check-deployed-commit "my.move.mil,office.move.mil,admin.move.mil" "$CI_COMMIT_SHA"
   after_script:
     - *announce_failure
   rules:
