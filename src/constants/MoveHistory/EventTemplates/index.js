@@ -112,3 +112,7 @@ export { default as cancelMove } from './CancelMove/CancelMove';
 export { default as cancelMoveMTOShipments } from './CancelMove/CancelMoveMTOShipments';
 export { default as cancelMovePPMShipments } from './CancelMove/CancelMovePPMShipments';
 export { default as reviewShipmentAddressUpdate } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdate';
+export { default as approveShipments } from './ApproveShipments/approveShipments';
+export { default as approveShipmentsUpdateAllowances } from './ApproveShipments/approveShipmentsUpdateAllowances';
+export { default as approveShipmentsApproveMove } from './ApproveShipments/approveShipmentsApproveMove';
+export { default as approveShipmentsServiceItem } from './ApproveShipments/approveShipmentsServiceItem';
