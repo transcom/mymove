@@ -187,4 +187,96 @@ test.describe('TIO user', () => {
     // in the TIO queue - only "Payment requested" moves will appear
     await expect(paymentSection.locator('td', { hasText: 'Reviewed' })).not.toBeVisible();
   });
+
+  test('can review a payment request for international crating/uncrating service items', async ({
+    page,
+    officePage,
+  }) => {
+    test.slow();
+    const move =
+      await officePage.testHarness.buildIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO();
+    await officePage.signInAsNewTIOUser();
+
+    tioFlowPage = new TioFlowPage(officePage, move, true);
+    await tioFlowPage.waitForLoading();
+    await officePage.tioNavigateToMove(tioFlowPage.moveLocator);
+    await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
+    expect(page.url()).toContain('/payment-requests');
+    await expect(page.getByTestId('MovePaymentRequests')).toBeVisible();
+
+    const prNumber = tioFlowPage.paymentRequest.payment_request_number;
+    const prHeading = page.getByRole('heading', { name: `Payment Request ${prNumber}` });
+    await expect(prHeading).toBeVisible();
+    await tioFlowPage.waitForLoading();
+
+    await page.getByRole('button', { name: 'Review service items' }).click();
+
+    await page.waitForURL(`**/payment-requests/${tioFlowPage.paymentRequest.id}`);
+    await tioFlowPage.waitForLoading();
+
+    // ICRT
+    await expect(page.getByTestId('ReviewServiceItems')).toBeVisible();
+    await expect(page.getByText('International crating')).toBeVisible();
+    await page.getByText('Show calculations').click();
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Crating size (cu ft)');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Description');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Dimensions');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('External crate');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Crating price (per cu ft)');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Market');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Crating date');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('International');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Price escalation factor');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Uncapped request total');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Standalone crate cap');
+    // approve
+    await tioFlowPage.approveServiceItem();
+    await page.getByTestId('nextServiceItem').click();
+    await tioFlowPage.slowDown();
+
+    // IUCRT
+    await expect(page.getByText('International uncrating')).toBeVisible();
+    await page.getByText('Show calculations').click();
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Crating size (cu ft)');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Description');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Dimensions');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Uncrating price (per cu ft)');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Market');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Uncrating date');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('International');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Price escalation factor');
+    // approve
+    await tioFlowPage.approveServiceItem();
+    await page.getByTestId('nextServiceItem').click();
+    await tioFlowPage.slowDown();
+
+    await expect(page.getByText('needs your review')).toHaveCount(0, { timeout: 10000 });
+    await page.getByText('Complete request').click();
+
+    await page.getByText('Authorize payment').click();
+    await tioFlowPage.waitForLoading();
+
+    await tioFlowPage.slowDown();
+    expect(page.url()).toContain('/payment-requests');
+
+    await expect(page.getByTestId('tag')).toBeVisible();
+    await expect(page.getByTestId('tag').getByText('Reviewed')).toHaveCount(1);
+
+    // ensure the payment request we approved no longer has the "Review Service Items" button
+    await expect(page.getByText('Review Service Items')).toHaveCount(0);
+
+    // Go back to queue
+    await page.locator('a[title="Home"]').click();
+    await tioFlowPage.waitForLoading();
+
+    // search for the moveLocator in case this move doesn't show up on the first page
+    await page.locator('#locator').fill(tioFlowPage.moveLocator);
+    await page.locator('#locator').blur();
+    const paymentSection = page.locator(`[data-uuid="${tioFlowPage.paymentRequest.id}"]`);
+    // the payment request that is now in the "Reviewed" status will no longer appear
+    // in the TIO queue - only "Payment requested" moves will appear
+    await expect(paymentSection.locator('td', { hasText: 'Reviewed' })).not.toBeVisible();
+  });
 });
