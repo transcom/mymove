@@ -54,7 +54,7 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 }
 
 func AssignedOfficeUser(officeUser *models.OfficeUser) *ghcmessages.AssignedOfficeUser {
-	if officeUser != nil {
+	if officeUser != nil && officeUser.FirstName != "" && officeUser.LastName != "" {
 		payload := ghcmessages.AssignedOfficeUser{
 			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
 			FirstName:    officeUser.FirstName,
