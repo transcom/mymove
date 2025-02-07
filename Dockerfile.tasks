@@ -8,7 +8,7 @@ RUN apt-get install -y ca-certificates --no-install-recommends
 RUN update-ca-certificates
 
 # hadolint ignore=DL3007
-FROM gcr.io/distroless/base-debian12@sha256:285a0b3bfd35c41aa9d466fde9c0e7f2f0b70245fb43c331821e56f3de6d0c9d
+FROM gcr.io/distroless/base-debian12@sha256:ad04bf079b9ed668d38fe2138cfe575847795985097b38a400f4ef1ff69a561a
 COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 COPY config/tls/milmove-cert-bundle.p7b /config/tls/milmove-cert-bundle.p7b
