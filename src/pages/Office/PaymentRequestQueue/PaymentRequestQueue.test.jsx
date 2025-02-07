@@ -70,6 +70,7 @@ jest.mock('hooks/queries', () => ({
           },
           {
             age: 0.8477863,
+            assignable: true,
             availableOfficeUsers: [
               {
                 firstName: 'Alice',
@@ -95,6 +96,46 @@ jest.mock('hooks/queries', () => ({
             },
             departmentIndicator: 'COAST_GUARD',
             id: '32b90458-2171-4451-bb0a-c5c0db897e34',
+            locator: '0OOGAB',
+            moveID: '8f29e53d-e816-4476-bfee-f38d07b94f2d',
+            originGBLOC: 'LKNQ',
+            counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
+            status: 'PENDING',
+            submittedAt: '2020-10-17T23:48:35.420Z',
+            originDutyLocation: {
+              name: 'Scott AFB',
+            },
+            lockExpiresAt: '2099-10-15T23:48:35.420Z',
+            lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
+          },
+          {
+            age: 0.8477963,
+            assignable: true,
+            availableOfficeUsers: [
+              {
+                firstName: 'Alice',
+                lastName: 'Bob',
+                officeUserId: '404011d1-052a-4c34-b2e0-71dd5082718a',
+              },
+            ],
+            customer: {
+              agency: 'NAVY',
+              cacValidated: true,
+              eTag: 'MjAyNC0xMC0xMFQyMjoyNDo1My4xNjYxNjNa',
+              edipi: '1234567',
+              email: '20241010222310-ae019978709c@example.com',
+              first_name: 'Ooga',
+              id: 'f23b5293-8ef0-453d-bd51-7c21d9730fcb',
+              last_name: 'Booga',
+              middle_name: '',
+              phone: '211-111-1111',
+              phoneIsPreferred: true,
+              secondaryTelephone: '',
+              suffix: '',
+              userID: 'e9d421af-b598-4ff1-b102-d8b14d414129',
+            },
+            departmentIndicator: 'COAST_GUARD',
+            id: '32b90458-2171-4451-bb0a-c5c0db897e35',
             locator: '0OOGAB',
             moveID: '8f29e53d-e816-4476-bfee-f38d07b94f2d',
             originGBLOC: 'LKNQ',
@@ -264,7 +305,6 @@ describe('PaymentRequestQueue', () => {
   it('toggles the sort direction when clicked', () => {
     const wrapper = mount(
       <MockProviders client={client}>
-        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
         <PaymentRequestQueue />
       </MockProviders>,
     );
@@ -444,7 +484,7 @@ describe('PaymentRequestQueue', () => {
       </MockProviders>,
     );
     // expect Payment requested status to appear in the TIO queue
-    expect(screen.getAllByText('Payment requested')).toHaveLength(2);
+    expect(screen.getAllByText('Payment requested')).toHaveLength(3);
     // expect other statuses NOT to appear in the TIO queue
     expect(screen.queryByText('Deprecated')).not.toBeInTheDocument();
     expect(screen.queryByText('Error')).not.toBeInTheDocument();
@@ -513,6 +553,22 @@ describe('PaymentRequestQueue', () => {
     await waitFor(() => {
       const assignedToColumn = screen.queryByText('Assigned');
       expect(assignedToColumn).not.toBeInTheDocument();
+    });
+  });
+  it('refetches queue when assigning an office user', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
+
+    render(
+      <MockProviders>
+        <PaymentRequestQueue isQueueManagementFFEnabled />
+      </MockProviders>,
+    );
+    await waitFor(() => {
+      const assignedToColumn = screen.queryAllByTestId('dropdown')[0];
+      expect(assignedToColumn).toBeInTheDocument();
+      userEvent.selectOptions(assignedToColumn, 'Bob, Alice');
+
+      expect(screen.getAllByText('Bob, Alice')).toHaveLength(3);
     });
   });
 });

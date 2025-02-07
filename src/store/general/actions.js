@@ -12,3 +12,10 @@ export const setCanAddOrders = (value) => ({
   type: SET_CAN_ADD_ORDERS,
   payload: value,
 });
+
+export const SET_SHOULD_REFETCH_QUEUE = 'SET_SHOULD_REFETCH_QUEUE';
+
+export const setShouldRefetchQueue = (value) => ({
+  type: SET_SHOULD_REFETCH_QUEUE,
+  payload: value,
+});

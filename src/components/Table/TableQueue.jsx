@@ -27,6 +27,7 @@ import {
   getSelectionOptionLabel,
 } from 'components/Table/utils';
 import { roleTypes } from 'constants/userRoles';
+import { setShouldRefetchQueue as setShouldRefetchQueueAction } from 'store/general/actions';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -57,6 +58,8 @@ const TableQueue = ({
   officeUser,
   activeRole,
   queueType,
+  shouldRefetchQueue,
+  setShouldRefetchQueue,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -119,6 +122,7 @@ const TableQueue = ({
     },
     isInitialLoading: isLoading,
     isError,
+    refetch,
   } = useQueries({
     sort: id,
     order: desc ? 'desc' : 'asc',
@@ -138,6 +142,13 @@ const TableQueue = ({
     [],
   );
   const tableData = useMemo(() => data, [data]);
+
+  useEffect(() => {
+    if (shouldRefetchQueue)
+      refetch().then(() => {
+        setShouldRefetchQueue(false);
+      });
+  }, [refetch, setShouldRefetchQueue, shouldRefetchQueue]);
 
   const tableColumns = useMemo(() => columns, [columns]);
   const {
@@ -446,7 +457,10 @@ const mapStateToProps = (state) => {
   return {
     officeUser: user?.office_user || {},
     activeRole: state.auth.activeRole,
+    shouldRefetchQueue: state?.generalState?.shouldRefetchQueue || false,
   };
 };
 
-export default connect(mapStateToProps)(TableQueue);
+const mapDispatchToProps = { setShouldRefetchQueue: setShouldRefetchQueueAction };
+
+export default connect(mapStateToProps, mapDispatchToProps)(TableQueue);
