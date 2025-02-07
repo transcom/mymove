@@ -23,7 +23,7 @@ describe('generalStateReducer', () => {
   it('handles the setShouldRefetchQueue', () => {
     expect(generalStateReducer(initialState, setRefetchQueue(true))).toEqual({
       ...initialState,
-      shouldRefetchQueue: true,
+      refetchQueue: true,
     });
   });
 });
