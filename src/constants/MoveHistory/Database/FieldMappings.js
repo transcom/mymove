@@ -148,5 +148,11 @@ export default {
   approvals_requested_at: 'Approvals requested at',
   approved_at: 'Approved at',
   counseling_office_name: 'Counseling office',
+  assigned_sc: 'Counselor assigned',
+  assigned_too: 'Task ordering officer assigned',
+  assigned_tio: 'Task invoicing officer assigned',
+  re_assigned_sc: 'Counselor reassigned',
+  re_assigned_too: 'Task ordering officer reassigned',
+  re_assigned_tio: 'Task invoicing officer reassigned',
   available_to_prime_at: 'Available to Prime at',
 };
