@@ -1242,11 +1242,6 @@ check_against_dp3_sha:
   script:
     - echo "Checking if deployed commit is an ancestor..."
     - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
-    - |
-      if [ -f deploy_halt_flag ]; then
-        echo "Deployment halted due to SHA mismatch."
-        exit 0  # Ensure the pipeline does not fail but halts further execution
-      fi
   artifacts:
     paths:
       - deploy_halt_flag
@@ -1373,6 +1368,7 @@ deploy_migrations_dp3:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
+    - check_against_dp3_sha
     - push_otel_collector_image_dp3
     - build_push_migrations_dp3
     - compile_app_server
@@ -1381,6 +1377,9 @@ deploy_migrations_dp3:
     - *setup_aws_vars_dp3
     - *setup_release_dp3
   script:
+    - if [ -f deploy_halt_flag ]; then echo "Deploy halted due to SHA check failure."; exit 0; fi
+    - echo "Deploying DP3 migrations..."
+    - ./deploy-migrations.sh 
     # Step 1: Get the Digest
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
