@@ -80,7 +80,7 @@ export const UPLOAD_DOC_STATUS_DISPLAY_MESSAGE = {
   FILE_NOT_FOUND: 'File Not Found',
   UPLOADING: 'Uploading',
   SCANNING: 'Scanning',
-  ESTABLISHING_DOCUMENT_FOR_VIEW: 'Establishing Document for View',
+  ESTABLISHING_DOCUMENT_FOR_VIEWING: 'Establishing document for viewing',
   INFECTED_FILE_MESSAGE:
     'Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a photo of the original document instead.',
 };
