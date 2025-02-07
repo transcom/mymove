@@ -1,7 +1,19 @@
+@import 'shared/styles/colors.scss';
+
 .BulkModal {
   min-width: 650px !important;
+  max-width: 90vw;
   overflow-y: auto;
   max-height: 90vh;
+  overflow-x: hidden;
+
+  button,
+  :global(.usa-button) {
+    margin: 0;
+    flex-grow: 0;
+    flex-basis: auto;
+    text-decoration: none;
+  }
 }
 
 .BulkAssignmentTable {
@@ -19,15 +31,8 @@
     .BulkAssignmentAssignment {
       width: 60px;
       text-align: center;
+      padding-left: 15px;
+      padding-top: 4px;
     }
   }
-}
-
-button.backbutton {
-  color: #005ea2;
-  background-color: white;
-  border: 2px solid #005ea2;
-  border-radius: 0.25rem;
-  font-weight: 700;
-  padding: 0.75rem 1.25rem;
 }

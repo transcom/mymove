@@ -56,7 +56,7 @@ describe('BulkAssignmentModal', () => {
       </MockProviders>,
     );
 
-    const closeButton = await screen.findByTestId('modalCloseButton');
+    const closeButton = await screen.findByTestId('modalCancelButton');
 
     await userEvent.click(closeButton);
 
@@ -66,8 +66,7 @@ describe('BulkAssignmentModal', () => {
   it('closes the modal when the Cancel button is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
 
-    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
-
+    const cancelButton = await screen.findByTestId('modalCancelButton');
     await userEvent.click(cancelButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -75,11 +74,8 @@ describe('BulkAssignmentModal', () => {
 
   it('calls the submit function when Save button is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
-
-    const saveButton = await screen.findByRole('button', { name: 'Save' });
-
+    const saveButton = await screen.findByTestId('modalSubmitButton');
     await userEvent.click(saveButton);
-
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 

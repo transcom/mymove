@@ -215,7 +215,6 @@ const TableQueue = ({
 
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
   const isDateFilterValue = (value) => {
     return !Number.isNaN(Date.parse(value));
   };
@@ -351,7 +350,7 @@ const TableQueue = ({
             <h1>{`${title} (${totalCount})`}</h1>
             <div className={styles.queueButtonWrapper}>
               {isSupervisor && isBulkAssignmentFFEnabled && (
-                <Button className={styles.btn} type="button" onClick={handleShowBulkAssignMoveModal}>
+                <Button className={styles.bulkModal} type="button" onClick={handleShowBulkAssignMoveModal}>
                   Bulk Assignment
                 </Button>
               )}
