@@ -92,7 +92,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	startTime := time.Now()
 	defer func() {
 		elapsedTime := time.Since(startTime)
-		logger.Info(fmt.Sprintf("Duration of processTPPS task:: %v", elapsedTime))
+		logger.Info(fmt.Sprintf("Duration of processTPPS task: %v", elapsedTime))
 	}()
 
 	err = checkProcessTPPSConfig(v, logger)
