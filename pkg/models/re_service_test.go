@@ -23,3 +23,19 @@ func (suite *ModelSuite) TestReServiceValidation() {
 		suite.verifyValidationErrors(&emptyReService, expErrors)
 	})
 }
+
+func (suite *ModelSuite) TestFetchReServiceBycode() {
+	suite.Run("success - receive ReService when code is provided", func() {
+		reService, err := models.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIHPK)
+		suite.NoError(err)
+		suite.NotNil(reService)
+	})
+
+	suite.Run("failure - receive error when code is not provided", func() {
+		var blankReServiceCode models.ReServiceCode
+		reService, err := models.FetchReServiceByCode(suite.DB(), blankReServiceCode)
+		suite.Error(err)
+		suite.Nil(reService)
+		suite.Contains(err.Error(), "error fetching from re_services - required code not provided")
+	})
+}
