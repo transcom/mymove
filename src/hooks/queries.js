@@ -660,7 +660,11 @@ export const usePaymentRequestQueueQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
 }) => {
-  const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...paymentRequestsQueueQuery
+  } = useQuery(
     [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
     ({ queryKey }) => getPaymentRequestsQueue(...queryKey),
   );
@@ -672,6 +676,7 @@ export const usePaymentRequestQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 

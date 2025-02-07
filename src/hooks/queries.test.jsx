@@ -947,6 +947,7 @@ describe('usePaymentRequestsQueueQueries', () => {
       isLoading: false,
       isError: false,
       isSuccess: true,
+      refetch: result.current.refetch,
     });
   });
 });
