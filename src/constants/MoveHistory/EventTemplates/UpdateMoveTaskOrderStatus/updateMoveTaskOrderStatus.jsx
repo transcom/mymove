@@ -9,5 +9,12 @@ export default {
   eventName: o.updateMoveTaskOrderStatus,
   tableName: t.moves,
   getEventNameDisplay: () => 'Approved move',
-  getDetails: () => <> Created Move Task Order (MTO) </>,
+  getDetails: ({ changedValues }) => {
+    return (
+      <>
+        <div> Created Move Task Order (MTO) </div>
+        {changedValues?.too_assigned_id !== undefined ? <div> Task Ordering Officer Unassigned </div> : null}
+      </>
+    );
+  },
 };
