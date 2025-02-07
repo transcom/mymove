@@ -105,14 +105,7 @@ func (suite *ModelSuite) TestFetchDeletedDocument() {
 
 	doc, _ := models.FetchDocument(suite.DB(), &session, document.ID)
 
-	// fetches a nil document
+	// FetchDocument should not return the document since it was deleted
 	suite.Equal(doc.ID, uuid.Nil)
 	suite.Equal(doc.ServiceMemberID, uuid.Nil)
-
-	doc2, _ := models.FetchDocument(suite.DB(), &session, document.ID)
-
-	// fetches a nil document
-	suite.Equal(doc2.ID, document.ID)
-	suite.Equal(doc2.ServiceMemberID, serviceMember.ID)
-	suite.Equal(1, len(doc2.UserUploads))
 }

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -102,6 +103,29 @@ func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Sessi
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return Document{}, err
+	}
+
+	// we close all the cursors we opened during the fetch_documents call
+	closeDocCursor := `CLOSE ` + documentCursor + `;`
+	closeUserCursor := `CLOSE ` + userUploadCursor + `;`
+	closeUploadCursor := `CLOSE ` + uploadCursor + `;`
+
+	closeErr := query.RawQuery(closeDocCursor).Exec()
+
+	if closeErr != nil {
+		return Document{}, fmt.Errorf("error closing documents cursor: %w", err)
+	}
+
+	closeErr = query.RawQuery(closeUserCursor).Exec()
+
+	if closeErr != nil {
+		return Document{}, fmt.Errorf("error closing user uploads cursor: %w", err)
+	}
+
+	closeErr = query.RawQuery(closeUploadCursor).Exec()
+
+	if closeErr != nil {
+		return Document{}, fmt.Errorf("error closing uploads cursor: %w", err)
 	}
 
 	// we have an array of UserUploads inside Document so we need to loop and apply the resulting uploads
