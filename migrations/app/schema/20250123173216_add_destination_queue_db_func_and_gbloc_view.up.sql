@@ -351,20 +351,20 @@ BEGIN
             )::JSONB AS too_assigned,
             COUNT(*) OVER() AS total_count
         FROM moves
-        INNER JOIN orders ON moves.orders_id = orders.id
-        LEFT JOIN mto_shipments ON mto_shipments.move_id = moves.id
+        JOIN orders ON moves.orders_id = orders.id
+        JOIN mto_shipments ON mto_shipments.move_id = moves.id
         LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
-        LEFT JOIN mto_service_items ON mto_shipments.id = mto_service_items.mto_shipment_id
-        LEFT JOIN re_services ON mto_service_items.re_service_id = re_services.id
-        LEFT JOIN service_members ON orders.service_member_id = service_members.id
-        LEFT JOIN duty_locations AS new_duty_locations ON orders.new_duty_location_id = new_duty_locations.id
-        LEFT JOIN duty_locations AS origin_duty_locations ON orders.origin_duty_location_id = origin_duty_locations.id
+        JOIN mto_service_items ON mto_shipments.id = mto_service_items.mto_shipment_id
+        JOIN re_services ON mto_service_items.re_service_id = re_services.id
+        JOIN service_members ON orders.service_member_id = service_members.id
+        JOIN duty_locations AS new_duty_locations ON orders.new_duty_location_id = new_duty_locations.id
+        JOIN duty_locations AS origin_duty_locations ON orders.origin_duty_location_id = origin_duty_locations.id
         LEFT JOIN office_users AS too_user ON moves.too_assigned_id = too_user.id
         LEFT JOIN office_users AS locked_user ON moves.locked_by = locked_user.id
         LEFT JOIN transportation_offices AS counseling_offices
             ON moves.counseling_transportation_office_id = counseling_offices.id
         LEFT JOIN shipment_address_updates ON shipment_address_updates.shipment_id = mto_shipments.id
-        LEFT JOIN move_to_dest_gbloc ON move_to_dest_gbloc.move_id = moves.id
+        JOIN move_to_dest_gbloc ON move_to_dest_gbloc.move_id = moves.id
         WHERE moves.show = TRUE
     ';
 
