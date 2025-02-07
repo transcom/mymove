@@ -335,9 +335,11 @@ func logFileContents(logger *zap.Logger, filePath string) {
 	const maxPreviewSize = 5000
 	utf8Content := convertToUTF8(content)
 
-	preview := utf8Content
-	if len(utf8Content) > maxPreviewSize {
-		preview = utf8Content[:maxPreviewSize] + "..."
+	cleanedContent := cleanLogOutput(utf8Content)
+
+	preview := cleanedContent
+	if len(cleanedContent) > maxPreviewSize {
+		preview = cleanedContent[:maxPreviewSize] + "..."
 	}
 
 	logger.Info("File contents preview:",
@@ -345,4 +347,12 @@ func logFileContents(logger *zap.Logger, filePath string) {
 		zap.Int64("fileSize", stat.Size()),
 		zap.String("content-preview", preview),
 	)
+}
+
+func cleanLogOutput(input string) string {
+	cleaned := strings.ReplaceAll(input, "\t", ", ")
+	cleaned = strings.TrimSpace(cleaned)
+	cleaned = strings.Join(strings.Fields(cleaned), " ")
+
+	return cleaned
 }
