@@ -1238,7 +1238,7 @@ check_against_dp3_sha:
   environment: $DP3_ENV
   image: $DOCKER_APP_IMAGE  # Use the correct image for your pipeline
   before_script:
-    - *setup_milmove_env  # Set up environment variables if required
+    - *setup_milmove_env  # Set up environment variables if required.
   script:
     - echo "Checking if deployed commit is an ancestor..."
     - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
