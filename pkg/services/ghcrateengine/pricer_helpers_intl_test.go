@@ -238,7 +238,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlCratingUncrating() {
 		_, _, err := priceIntlCratingUncrating(suite.AppContextForTest(), models.ReServiceCodeICRT, testdatagen.DefaultContractCode, icrtTestRequestedPickupDate, badSize, icrtTestStandaloneCrate, icrtTestStandaloneCrateCap, true, icrtTestMarket)
 
 		suite.Error(err)
-		suite.Contains(err.Error(), "external crates must be billed for a minimum of 4 cubic feet")
+		suite.Contains(err.Error(), "external crates must be billed for a minimum of 4.00 cubic feet")
 	})
 
 	suite.Run("not finding a rate record", func() {
