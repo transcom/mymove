@@ -13,7 +13,6 @@ import {
   BulkExportButton,
   downloadCSV,
   useListContext,
-  Button,
   useDataProvider,
 } from 'react-admin';
 import jsonExport from 'jsonexport/dist';
@@ -21,13 +20,6 @@ import jsonExport from 'jsonexport/dist';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 // Overriding the default toolbar
-const ListActions = () => {
-  return (
-    <Toolbar>
-      <BulkExportButton />
-    </Toolbar>
-  );
-};
 
 const RequestedOfficeUserListFilter = () => (
   <Filter>
@@ -59,7 +51,7 @@ const RolesField = () => {
   return <div>{UserRolesToString(record)}</div>;
 };
 
-const exportButtonHandleOnClick = async (data, dataProvider, selectedIds) => {
+const handleExport = async (data, dataProvider, selectedIds) => {
   const allRequestedOfficeUsers = data;
 
   const selectedUserIdObjects = {};
@@ -114,7 +106,11 @@ const exportButtonHandleOnClick = async (data, dataProvider, selectedIds) => {
 const CustomBulkActions = ({ selectedIds }) => {
   const { data } = useListContext();
   const dataProvider = useDataProvider();
-  return <Button label="Export" onClick={() => exportButtonHandleOnClick(data, dataProvider, selectedIds)} />;
+
+  return <BulkExportButton label="Export" onClick={() => handleExport(data, dataProvider, selectedIds)} />;
+};
+const ListActions = () => {
+  return <Toolbar />;
 };
 
 const RequestedOfficeUserList = () => {
