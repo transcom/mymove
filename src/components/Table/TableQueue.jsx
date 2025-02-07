@@ -27,6 +27,7 @@ import {
   getSelectionOptionLabel,
 } from 'components/Table/utils';
 import { roleTypes } from 'constants/userRoles';
+import { useBulkAssignmentQueries } from 'hooks/queries';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -56,6 +57,7 @@ const TableQueue = ({
   isBulkAssignmentFFEnabled,
   officeUser,
   activeRole,
+  queueType,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -65,6 +67,8 @@ const TableQueue = ({
       setIsPageReload(false);
     }, 500);
   }, []);
+
+  const { bulkAssignmentData } = useBulkAssignmentQueries(queueType);
 
   const [paramSort, setParamSort] = useState(
     getTableQueueSortParamSessionStorageValue(sessionStorageKey) || defaultSortedColumns,
@@ -233,6 +237,8 @@ const TableQueue = ({
     }
     setAllFilters(filters);
   };
+  // const bulkAssignmentRows = bulkAssignmentData.map((item) => Object.values(item));
+  // console.log('bulkAssignmentData: ', bulkAssignmentData);
 
   const renderFilterPillButton = (index, value, buttonTitle, label, dataTestId) => {
     return (
@@ -320,7 +326,11 @@ const TableQueue = ({
     <div className={styles.tabContent}>
       <div className={styles.container}>
         {isBulkAssignModalVisible && (
-          <BulkAssignmentModal isOpen={isBulkAssignModalVisible} onClose={handleCloseBulkAssignModal} />
+          <BulkAssignmentModal
+            isOpen={isBulkAssignModalVisible}
+            onClose={handleCloseBulkAssignModal}
+            bulkAssignmentData={bulkAssignmentData} // drill in the arguments to show in modal
+          />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
           <div className={styles.queueHeader}>

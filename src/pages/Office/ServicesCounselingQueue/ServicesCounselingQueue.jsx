@@ -205,7 +205,11 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
             <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
               <Dropdown
                 defaultValue={row.assignedTo?.officeUserId}
-                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
+                key={row.locator}
+                onChange={(e) => {
+                  handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR);
+                  window.location.reload();
+                }}
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
@@ -670,6 +674,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          queueType="CLOSEOUT"
         />
       </div>
     );
@@ -699,6 +704,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          queueType="COUNSELING"
         />
       </div>
     );
