@@ -9,7 +9,7 @@ RUN update-ca-certificates
 
 
 # hadolint ignore=DL3007
-FROM gcr.io/distroless/base-debian11@sha256:ac69aa622ea5dcbca0803ca877d47d069f51bd4282d5c96977e0390d7d256455
+FROM gcr.io/distroless/base-debian12@sha256:285a0b3bfd35c41aa9d466fde9c0e7f2f0b70245fb43c331821e56f3de6d0c9d
 
 COPY config/tls/dod-wcf-root-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-root-ca-1.pem.crt
 COPY config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-intermediate-ca-1.pem.crt
