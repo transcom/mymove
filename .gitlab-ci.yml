@@ -255,6 +255,7 @@ stages:
       export OKTA_API_KEY=notrealapikey8675309
       export OKTA_OFFICE_GROUP_ID=notrealgroupId
       export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+      export IWS_RBS_HOST=pkict.dmdc.osd.mil
 
 .setup_env_intergration_mtls: &setup_env_intergration_mtls
   - |
@@ -397,7 +398,7 @@ golang_lint:
     - $DOCKER_RUNNER_TAG
   image: golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
   script:
-    - golangci-lint run --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
+    - golangci-lint run --print-issued-lines=false --timeout=25m --out-format code-climate:gl-code-quality-report.json,line-number
   artifacts:
       reports:
         codequality: gl-code-quality-report.json
