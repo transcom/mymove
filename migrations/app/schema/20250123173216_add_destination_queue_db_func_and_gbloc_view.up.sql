@@ -266,6 +266,7 @@ CREATE OR REPLACE FUNCTION get_destination_queue(
 )
 RETURNS TABLE (
     id UUID,
+    show BOOLEAN,
     locator TEXT,
     submitted_at TIMESTAMP WITH TIME ZONE,
     orders_id UUID,
@@ -299,6 +300,7 @@ BEGIN
     sql_query := '
         SELECT
             moves.id AS id,
+            moves.show AS show,
             moves.locator::TEXT AS locator,
             moves.submitted_at::TIMESTAMP WITH TIME ZONE AS submitted_at,
             moves.orders_id AS orders_id,
@@ -467,6 +469,7 @@ BEGIN
     sql_query := sql_query || '
         GROUP BY
             moves.id,
+            moves.show,
             moves.locator,
             moves.submitted_at,
             moves.orders_id,
