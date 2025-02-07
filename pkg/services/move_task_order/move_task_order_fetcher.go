@@ -222,8 +222,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 
 		mto.MTOShipments[i].MTOAgents = nonDeletedAgents
 	}
-
-	// Due to a bug in Pop for EagerPreload the New Address of the DeliveryAddressUpdate and the PortLocation (City, Country, UsPostRegionCity.UsPostRegion.State") must be loaded manually.
 	// The bug occurs in EagerPreload when there are two or more eager paths with 3+ levels
 	// where the first 2 levels match.  For example:
 	//   "MTOShipments.DeliveryAddressUpdate.OriginalAddress" and "MTOShipments.DeliveryAddressUpdate.NewAddress"
