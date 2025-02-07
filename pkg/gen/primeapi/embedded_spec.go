@@ -2330,6 +2330,50 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDomesticShuttle": {
+      "description": "Describes a domestic shuttle service item.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode"
+          ],
+          "properties": {
+            "actualWeight": {
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "example": "Storage items need to be picked up."
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemInternationalCrating": {
       "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
       "allOf": [
@@ -2652,7 +2696,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT\n  * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT\n  * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DOSHUT, DDSHUT - MTOServiceItemDomesticShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -2661,6 +2705,7 @@ func init() {
         "MTOServiceItemInternationalOriginSIT",
         "MTOServiceItemInternationalDestSIT",
         "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticShuttle",
         "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemInternationalCrating",
@@ -7583,6 +7628,50 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDomesticShuttle": {
+      "description": "Describes a domestic shuttle service item.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode"
+          ],
+          "properties": {
+            "actualWeight": {
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "example": "Storage items need to be picked up."
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemInternationalCrating": {
       "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
       "allOf": [
@@ -7905,7 +7994,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT\n  * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT\n  * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DOSHUT, DDSHUT - MTOServiceItemDomesticShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -7914,6 +8003,7 @@ func init() {
         "MTOServiceItemInternationalOriginSIT",
         "MTOServiceItemInternationalDestSIT",
         "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticShuttle",
         "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemInternationalCrating",

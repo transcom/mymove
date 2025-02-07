@@ -24,7 +24,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
     MTOServiceItemDestSIT,
     MTOServiceItemInternationalOriginSIT,
     MTOServiceItemInternationalDestSIT,
-    MTOServiceItemShuttle,
+    MTOServiceItemDomesticShuttle,
     MTOServiceItemDomesticCrating,
     MTOServiceItemInternationalCrating,
     MTOServiceItemInternationalShuttle,
@@ -55,7 +55,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
           <option value={MTOServiceItemDestSIT}>Destination SIT</option>
           <option value={MTOServiceItemInternationalOriginSIT}>International Origin SIT</option>
           <option value={MTOServiceItemInternationalDestSIT}>International Destination SIT</option>
-          <option value={MTOServiceItemShuttle}>Shuttle</option>
+          <option value={MTOServiceItemDomesticShuttle}>Shuttle</option>
           <option value={MTOServiceItemInternationalShuttle}>International Shuttle</option>
           <option value={MTOServiceItemDomesticCrating}>Domestic Crating</option>
           {enableAlaskaFeatureFlag && <option value={MTOServiceItemInternationalCrating}>International Crating</option>}
@@ -75,7 +75,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
         <InternationalDestinationSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
 
-      {selectedServiceItemType === MTOServiceItemShuttle && (
+      {selectedServiceItemType === MTOServiceItemDomesticShuttle && (
         <ShuttleSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
       {selectedServiceItemType === MTOServiceItemInternationalShuttle && (

@@ -1204,7 +1204,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 
 	suite.NotNil(resultDDSHUT)
 
-	_, ok := resultDDSHUT.(*primemessages.MTOServiceItemShuttle)
+	_, ok := resultDDSHUT.(*primemessages.MTOServiceItemDomesticShuttle)
 
 	suite.True(ok)
 }

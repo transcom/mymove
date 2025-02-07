@@ -64,7 +64,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
-	DDSHUTServiceItem := &primev3messages.MTOServiceItemShuttle{
+	DDSHUTServiceItem := &primev3messages.MTOServiceItemDomesticShuttle{
 		ReServiceCode:   &ddshutCode,
 		Reason:          &reason,
 		EstimatedWeight: &estimatedWeight,
@@ -73,7 +73,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	DDSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DDSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
-	DOSHUTServiceItem := &primev3messages.MTOServiceItemShuttle{
+	DOSHUTServiceItem := &primev3messages.MTOServiceItemDomesticShuttle{
 		ReServiceCode:   &doshutCode,
 		Reason:          &reason,
 		EstimatedWeight: &estimatedWeight,

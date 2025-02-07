@@ -352,18 +352,19 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 	}
 
 	if slices.Contains(allAccessorialServiceItemsToCheck, serviceItemData.oldServiceItem.ReService.Code) {
+		invalidFieldChange := false
 		if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusRejected {
 			return nil
-		} else if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusApproved {
-
-			invalidFieldChange := false
-			// Fields that are not allowed to change when status is approved
-
+		} else if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusSubmitted || serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusApproved {
 			if serviceItemData.updatedServiceItem.ReService.Code.String() != "" && serviceItemData.updatedServiceItem.ReService.Code.String() != serviceItemData.oldServiceItem.ReService.Code.String() {
 				invalidFieldChange = true
 			}
 
 			if serviceItemData.updatedServiceItem.Reason != nil {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.EstimatedWeight != nil {
 				invalidFieldChange = true
 			}
 
@@ -374,10 +375,10 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 			if invalidFieldChange {
 				return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
 					"- one or more fields is not allowed to be updated when the shuttle service item has an approved status.")
+			} else {
+				return nil
 			}
 
-			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
-				"- unknown field or fields attempting to be updated.")
 		} else {
 			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
 				"- this shuttle service item cannot be updated because the status is not in an editable state.")

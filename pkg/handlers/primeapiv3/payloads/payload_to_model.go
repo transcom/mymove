@@ -890,6 +890,14 @@ func MTOServiceItemModel(mtoServiceItem primev3messages.MTOServiceItem) (*models
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
 		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
 
+	case primev3messages.MTOServiceItemModelTypeMTOServiceItemDomesticShuttle:
+		shuttleService := mtoServiceItem.(*primev3messages.MTOServiceItemDomesticShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
 	case primev3messages.MTOServiceItemModelTypeMTOServiceItemInternationalShuttle:
 		shuttleService := mtoServiceItem.(*primev3messages.MTOServiceItemInternationalShuttle)
 		// values to get from payload
