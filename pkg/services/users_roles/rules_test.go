@@ -1,8 +1,6 @@
 package usersroles
 
 import (
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -16,20 +14,6 @@ func (suite *UsersRolesServiceSuite) TestCheckTransportationOfficerPolicyViolati
 	setupTestData := func() models.OfficeUser {
 		// Setup
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
-		tioID, _ := uuid.NewV4()
-		tio := roles.Role{
-			ID:       tioID,
-			RoleType: roles.RoleTypeTIO,
-		}
-		tooID, _ := uuid.NewV4()
-		too := roles.Role{
-			ID:       tooID,
-			RoleType: roles.RoleTypeTOO,
-		}
-		// Insert TIO and TOO into db
-		rs := roles.Roles{tio, too}
-		err := suite.DB().Create(rs)
-		suite.NoError(err)
 		return officeUser
 	}
 	suite.Run("Cannot add both TOO and TIO at the same time", func() {

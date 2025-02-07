@@ -19,7 +19,7 @@ import { selectDateFieldByStatus, selectDatePrefixByStatus } from 'utils/dates';
 import { useGHCGetMoveHistory, useMovePaymentRequestsQueries } from 'hooks/queries';
 import ToolTip from 'shared/ToolTip/ToolTip';
 import { ShipmentShape } from 'types';
-import { nullSafeStringCompare } from 'shared/utils';
+import { nullSafeStringCompare } from 'utils/string';
 
 // Sorts service items in an order preferred by the customer
 // Currently only SIT & shorthaul/linehaul receives special sorting
