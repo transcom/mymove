@@ -113,19 +113,19 @@ func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Sessi
 	closeErr := query.RawQuery(closeDocCursor).Exec()
 
 	if closeErr != nil {
-		return Document{}, fmt.Errorf("error closing documents cursor: %w", err)
+		return Document{}, fmt.Errorf("error closing documents cursor: %w", closeErr)
 	}
 
 	closeErr = query.RawQuery(closeUserCursor).Exec()
 
 	if closeErr != nil {
-		return Document{}, fmt.Errorf("error closing user uploads cursor: %w", err)
+		return Document{}, fmt.Errorf("error closing user uploads cursor: %w", closeErr)
 	}
 
 	closeErr = query.RawQuery(closeUploadCursor).Exec()
 
 	if closeErr != nil {
-		return Document{}, fmt.Errorf("error closing uploads cursor: %w", err)
+		return Document{}, fmt.Errorf("error closing uploads cursor: %w", closeErr)
 	}
 
 	// we have an array of UserUploads inside Document so we need to loop and apply the resulting uploads
