@@ -6,15 +6,13 @@ import t from 'constants/MoveHistory/Database/Tables';
 
 export default {
   action: a.UPDATE,
-  eventName: o.updateMTOStatusServiceCounselingCompleted,
+  eventName: o.deleteAssignedOfficeUser,
   tableName: t.moves,
   getEventNameDisplay: () => 'Updated move',
   getDetails: ({ changedValues }) => {
-    return (
-      <>
-        <div> Counseling Completed </div>
-        {changedValues?.sc_assigned_id !== undefined ? <div> Counselor Unassigned </div> : null}
-      </>
-    );
+    if (changedValues.sc_assigned_id === null) return <>Counselor unassigned</>;
+    if (changedValues.too_assigned_id === null) return <>Task ordering officer unassigned</>;
+    if (changedValues.tio_assigned_id === null) return <>Task invoicing officer unassigned</>;
+    return <>Unassigned</>;
   },
 };
