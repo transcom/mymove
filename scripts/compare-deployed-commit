@@ -45,6 +45,9 @@ else
   echo "* Deployed commit ($deployed_commit) is not an ancestor of the local commit ($local_commit)."
   echo "* The deployed commit is either ahead of the local commit or the commits have different histories."
   echo "* Deploy is blocked."
+
+  touch deploy_halt_flag # This flag will tell deployment jobs to stop
+
   exit 0  # This prevents the job from failing while halting further execution
 else
   exit 1
