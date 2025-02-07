@@ -312,7 +312,7 @@ describe('Test documentViewer file upload statuses', () => {
       await waitFor(() => {
         expect(screen.getByTestId('documentAlertHeading')).toHaveTextContent(documentStatus);
         expect(screen.getByTestId('documentAlertMessage')).toHaveTextContent(
-          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEW,
+          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEWING,
         );
       });
     });
