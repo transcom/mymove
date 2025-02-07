@@ -41,12 +41,12 @@ elif git merge-base --is-ancestor "$deployed_commit" "$local_commit"; then
   echo "* Deploy can continue."
   exit 0
 else
+  if [ -n "${GITLAB+x}" ]; then
   echo "* Deployed commit ($deployed_commit) is not an ancestor of the local commit ($local_commit)."
   echo "* The deployed commit is either ahead of the local commit or the commits have different histories."
   echo "* Deploy is blocked."
-  if [ -n "${CIRCLECI+x}" ]; then
-    circleci-agent step halt
-  else
-    exit 1
+  exit 0  # This prevents the job from failing while halting further execution
+else
+  exit 1
   fi
 fi
