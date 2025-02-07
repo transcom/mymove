@@ -131,19 +131,19 @@ describe('formatMtoShipmentForDisplay', () => {
       expect(displayValues.delivery.requestedDate.toDateString()).toBe('Tue Jan 27 2026');
       checkAddressesAreEqual(displayValues.delivery.address, emptyAddressShape);
       checkAgentsAreEqual(displayValues.delivery.agent, emptyAgentShape);
-      expect(displayValues.hasDeliveryAddress).toBe('no');
+      expect(displayValues.hasDeliveryAddress).toBe('false');
 
       checkAddressesAreEqual(displayValues.secondaryPickup.address, emptyAddressShape);
-      expect(displayValues.hasSecondaryPickup).toBe('no');
+      expect(displayValues.hasSecondaryPickup).toBe('false');
 
       checkAddressesAreEqual(displayValues.secondaryDelivery.address, emptyAddressShape);
-      expect(displayValues.hasSecondaryDelivery).toBe('no');
+      expect(displayValues.hasSecondaryDelivery).toBe('false');
 
       checkAddressesAreEqual(displayValues.tertiaryPickup.address, emptyAddressShape);
-      expect(displayValues.hasTertiaryPickup).toBe('no');
+      expect(displayValues.hasTertiaryPickup).toBe('false');
 
       checkAddressesAreEqual(displayValues.tertiaryDelivery.address, emptyAddressShape);
-      expect(displayValues.hasTertiaryDelivery).toBe('no');
+      expect(displayValues.hasTertiaryDelivery).toBe('false');
 
       expect(displayValues.agents).toBeUndefined();
     },
@@ -192,15 +192,15 @@ describe('formatMtoShipmentForDisplay', () => {
 
     const expectedDeliveryAddress = { ...emptyAddressShape, ...destinationAddress };
     checkAddressesAreEqual(displayValues.delivery.address, expectedDeliveryAddress);
-    expect(displayValues.hasDeliveryAddress).toBe('yes');
+    expect(displayValues.hasDeliveryAddress).toBe('true');
 
     const expectedSecondaryPickupAddress = { ...emptyAddressShape, ...secondaryPickupAddress };
     checkAddressesAreEqual(displayValues.secondaryPickup.address, expectedSecondaryPickupAddress);
-    expect(displayValues.hasSecondaryPickup).toBe('yes');
+    expect(displayValues.hasSecondaryPickup).toBe('true');
 
     const expectedSecondaryDeliveryAddress = { ...emptyAddressShape, ...secondaryDeliveryAddress };
     checkAddressesAreEqual(displayValues.secondaryDelivery.address, expectedSecondaryDeliveryAddress);
-    expect(displayValues.hasSecondaryDelivery).toBe('yes');
+    expect(displayValues.hasSecondaryDelivery).toBe('true');
   });
 
   it('can format a shipment with a primary, secondary, and tertiary pickup and destination', () => {
@@ -218,23 +218,23 @@ describe('formatMtoShipmentForDisplay', () => {
 
     const expectedDeliveryAddress = { ...emptyAddressShape, ...destinationAddress };
     checkAddressesAreEqual(displayValues.delivery.address, expectedDeliveryAddress);
-    expect(displayValues.hasDeliveryAddress).toBe('yes');
+    expect(displayValues.hasDeliveryAddress).toBe('true');
 
     const expectedSecondaryPickupAddress = { ...emptyAddressShape, ...secondaryPickupAddress };
     checkAddressesAreEqual(displayValues.secondaryPickup.address, expectedSecondaryPickupAddress);
-    expect(displayValues.hasSecondaryPickup).toBe('yes');
+    expect(displayValues.hasSecondaryPickup).toBe('true');
 
     const expectedSecondaryDeliveryAddress = { ...emptyAddressShape, ...secondaryDeliveryAddress };
     checkAddressesAreEqual(displayValues.secondaryDelivery.address, expectedSecondaryDeliveryAddress);
-    expect(displayValues.hasSecondaryDelivery).toBe('yes');
+    expect(displayValues.hasSecondaryDelivery).toBe('true');
 
     const expectedTertiaryPickupAddress = { ...emptyAddressShape, ...tertiaryPickupAddress };
     checkAddressesAreEqual(displayValues.tertiaryPickup.address, expectedTertiaryPickupAddress);
-    expect(displayValues.hasTertiaryPickup).toBe('yes');
+    expect(displayValues.hasTertiaryPickup).toBe('true');
 
     const expectedTertiaryDeliveryAddress = { ...emptyAddressShape, ...tertiaryDeliveryAddress };
     checkAddressesAreEqual(displayValues.tertiaryDelivery.address, expectedTertiaryDeliveryAddress);
-    expect(displayValues.hasTertiaryDelivery).toBe('yes');
+    expect(displayValues.hasTertiaryDelivery).toBe('false');
   });
 
   it('can format a shipment with lines of accounting', () => {
