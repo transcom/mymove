@@ -21,15 +21,15 @@ readonly tags=("Key=Environment,Value=$environment" "Key=Tool,Value=$(basename "
 
 echo
 echo "Wait for concurrent database snapshots for ${db_instance_identifier} to complete before continuing ..."
-time aws rds wait db-snapshot-completed --db-instance-identifier "$db_instance_identifier"
+time aws rds wait db-snapshot-completed --cli-read-timeout 2100 --cli-connect-timeout 2100  --db-instance-identifier "$db_instance_identifier"
 
 echo
 echo "Create database snapshot for ${db_instance_identifier} with identifier ${db_snapshot_identifier}"
-aws rds create-db-snapshot --cli-read-timeout 0 --cli-connect-timeout 0 --db-instance-identifier "$db_instance_identifier" --db-snapshot-identifier "$db_snapshot_identifier" --tags "${tags[@]}"
+aws rds create-db-snapshot --cli-read-timeout 2100 --cli-connect-timeout 2100 --db-instance-identifier "$db_instance_identifier" --db-snapshot-identifier "$db_snapshot_identifier" --tags "${tags[@]}"
 
 echo
 echo "Wait for current database snapshot ${db_snapshot_identifier} to complete before continuing ..."
-time aws rds wait db-snapshot-completed --db-snapshot-identifier "$db_snapshot_identifier"
+time aws rds wait db-snapshot-completed --cli-read-timeout 2100 --cli-connect-timeout 2100  --db-snapshot-identifier "$db_snapshot_identifier"
 
 echo
 echo "Describe the database snapshot ${db_snapshot_identifier}"
