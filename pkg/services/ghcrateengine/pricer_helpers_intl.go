@@ -239,8 +239,8 @@ func priceIntlCratingUncrating(appCtx appcontext.AppContext, cratingUncratingCod
 		return 0, nil, errors.New("Market is required")
 	}
 
-	if externalCrate && billedCubicFeet < 4.0 {
-		return 0, nil, fmt.Errorf("external crates must be billed for a minimum of 4 cubic feet")
+	if externalCrate && billedCubicFeet < minIntlExternalCrateBilledCubicFeet {
+		return 0, nil, fmt.Errorf("external crates must be billed for a minimum of %.2f cubic feet", minIntlExternalCrateBilledCubicFeet)
 	}
 
 	internationalAccessorialPrice, err := fetchInternationalAccessorialPrice(appCtx, contractCode, cratingUncratingCode, market)
