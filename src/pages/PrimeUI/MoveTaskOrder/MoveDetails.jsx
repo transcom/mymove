@@ -265,6 +265,16 @@ const MoveDetails = ({ setFlashMessage }) => {
                                 <h3 className={styles.serviceItemHeading}>
                                   {serviceItem.reServiceCode} - {serviceItem.reServiceName}
                                 </h3>
+                                <div className={descriptionListStyles.row}>
+                                  <dt>Status:</dt>
+                                  <dd>{serviceItem.status}</dd>
+                                </div>
+                                {serviceItem.market && (
+                                  <div className={descriptionListStyles.row}>
+                                    <dt>Market</dt>
+                                    <dd>{serviceItem.market}</dd>
+                                  </div>
+                                )}
                                 <div className={styles.uploadBtn}>
                                   {SERVICE_ITEMS_ALLOWED_UPDATE.includes(serviceItem.reServiceCode) ? (
                                     <Link

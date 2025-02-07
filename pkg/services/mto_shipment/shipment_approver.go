@@ -220,7 +220,6 @@ func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID
 func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
-		shipment.ShipmentType != models.MTOShipmentTypeUnaccompaniedBaggage &&
 		(shipment.PrimeEstimatedWeight != nil || (shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS &&
 			shipment.NTSRecordedWeight != nil)) {
 
@@ -248,19 +247,12 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 			deliveryLocation = shipment.DestinationAddress
 			weight = shipment.PrimeEstimatedWeight.Int()
 		}
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight, shipment.MarketCode, shipment.MoveTaskOrderID)
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight, shipment.MarketCode, shipment.MoveTaskOrderID, shipment.ShipmentType)
 		if calcErr != nil {
 			return calcErr
 		}
 
 		shipment.RequiredDeliveryDate = requiredDeliveryDate
-	} else if shipment.ScheduledPickupDate != nil && !shipment.ScheduledPickupDate.IsZero() && shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDateForInternationalShipment(appCtx, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.ShipmentType)
-		if calcErr != nil {
-			return calcErr
-		}
-
-		shipment.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
 	return nil
