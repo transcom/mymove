@@ -13,6 +13,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
   const [isDisabled, setIsDisabled] = useState(false);
   const [numberOfMoves, setNumberOfMoves] = useState(0);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const fetchData = useCallback(async () => {
     try {
       const data = await getBulkAssignmentData(queueType);
@@ -36,7 +37,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   return (
     <div>
       <Modal className={styles.BulkModal}>
-        <ModalClose handleClick={onClose} />
+        <ModalClose handleClick={() => setShowCancelModal(true)} />
         <ModalTitle>
           <h3>
             {title} ({numberOfMoves})
@@ -76,11 +77,44 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           >
             {submitText}
           </Button>
-          <Button type="button" className={styles.button} unstyled onClick={onClose} data-testid="modalCancelButton">
+          <Button
+            type="button"
+            className={styles.button}
+            unstyled
+            onClick={() => setShowCancelModal(true)}
+            data-testid="modalCancelButton"
+          >
             {closeText}
           </Button>
         </ModalActions>
       </Modal>
+
+      {showCancelModal && (
+        <div className={styles.CancelConfirmationModalWrapper} data-testid="cancelConfirmationModal">
+          <Modal className={styles.CancelConfirmationModal}>
+            <ModalTitle>Any unsaved work will be lost. Are you sure you want to cancel?</ModalTitle>
+            <ModalActions autofocus="true">
+              <Button
+                data-focus="true"
+                className="usa-button--destructive"
+                type="submit"
+                data-testid="cancelModalYes"
+                onClick={() => onClose()}
+              >
+                Yes
+              </Button>
+              <Button
+                className="usa-button--secondary"
+                type="button"
+                onClick={() => setShowCancelModal(false)}
+                data-testid="cancelModalNo"
+              >
+                No
+              </Button>
+            </ModalActions>
+          </Modal>
+        </div>
+      )}
     </div>
   );
 };

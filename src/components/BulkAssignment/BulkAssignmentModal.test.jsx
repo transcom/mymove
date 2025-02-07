@@ -49,27 +49,23 @@ describe('BulkAssignmentModal', () => {
     expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment (3)' })).toBeInTheDocument();
   });
 
-  it('closes the modal when close icon is clicked', async () => {
-    render(
-      <MockProviders>
-        <BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />
-      </MockProviders>,
-    );
+  it('shows cancel confirmation modal when close icon is clicked', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
 
     const closeButton = await screen.findByTestId('modalCancelButton');
 
     await userEvent.click(closeButton);
 
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('cancelConfirmationModal')).toBeInTheDocument();
   });
 
-  it('closes the modal when the Cancel button is clicked', async () => {
+  it('shows cancel confirmation modal when the Cancel button is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
 
     const cancelButton = await screen.findByTestId('modalCancelButton');
     await userEvent.click(cancelButton);
 
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('cancelConfirmationModal')).toBeInTheDocument();
   });
 
   it('calls the submit function when Save button is clicked', async () => {
@@ -90,5 +86,31 @@ describe('BulkAssignmentModal', () => {
       expect(await screen.getByText('user, sc')).toBeInTheDocument();
     });
     expect(screen.getAllByTestId('bulkAssignmentUserWorkload')[0]).toHaveTextContent('1');
+  });
+
+  it('closes the modal when the close is confirmed', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
+
+    const closeButton = await screen.findByTestId('modalCloseButton');
+
+    await userEvent.click(closeButton);
+
+    const confirmButton = await screen.findByTestId('cancelModalYes');
+    await userEvent.click(confirmButton);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('close confirmation goes away when clicking no', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
+
+    const closeButton = await screen.findByTestId('modalCloseButton');
+
+    await userEvent.click(closeButton);
+
+    const confirmButton = await screen.findByTestId('cancelModalNo');
+    await userEvent.click(confirmButton);
+
+    expect(screen.getByTestId('cancelConfirmationModal')).not.toBeInTheDocument();
   });
 });
