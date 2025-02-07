@@ -82,8 +82,6 @@ func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext
 		"User",
 		"User.Roles",
 		"User.Privileges",
-		"TransportationOffice",
-		"TransportationOffice.Gbloc",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
@@ -109,8 +107,6 @@ func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx 
 		"User",
 		"User.Roles",
 		"User.Privileges",
-		"TransportationOffice",
-		"TransportationOffice.Gbloc",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
@@ -155,7 +151,8 @@ func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCt
 		WHERE roles.role_type = $1
 			AND transportation_offices.id = $2
 			AND office_users.active = TRUE
-		GROUP BY office_users.id, office_users.first_name, office_users.last_name`
+		GROUP BY office_users.id, office_users.first_name, office_users.last_name
+		ORDER BY office_users.last_name ASC, office_users.first_name ASC`
 
 	err := appCtx.DB().RawQuery(query, role, officeID).All(&officeUsers)
 	if err != nil {
