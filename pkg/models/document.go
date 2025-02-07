@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -40,28 +41,27 @@ func (d *Document) Validate(_ *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchDocument returns a document if the user has access to that document
-func FetchDocument(db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool) (Document, error) {
-	return fetchDocumentWithAccessibilityCheck(db, session, id, includeDeletedDocs, true)
+func FetchDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (Document, error) {
+	return fetchDocumentWithAccessibilityCheck(db, session, id, true)
 }
 
 // FetchDocument returns a document regardless if user has access to that document
-func FetchDocumentWithNoRestrictions(db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool) (Document, error) {
-	return fetchDocumentWithAccessibilityCheck(db, session, id, includeDeletedDocs, false)
+func FetchDocumentWithNoRestrictions(db *pop.Connection, session *auth.Session, id uuid.UUID) (Document, error) {
+	return fetchDocumentWithAccessibilityCheck(db, session, id, false)
 }
 
 // FetchDocument returns a document if the user has access to that document
-func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool, checkUserAccessiability bool) (Document, error) {
+func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Session, id uuid.UUID, checkUserAccessiability bool) (Document, error) {
 	var document Document
+	var uploads []Upload
 	query := db.Q()
+	documentCursor := "documentcursor"
+	userUploadCursor := "useruploadcursor"
+	uploadCursor := "uploadcursor"
 
-	if !includeDeletedDocs {
-		query = query.Where("documents.deleted_at is null and u.deleted_at is null")
-	}
+	documentsQuery := `SELECT fetch_documents(?, ?, ?, ?);`
 
-	err := query.Eager("UserUploads.Upload").
-		LeftJoin("user_uploads as uu", "documents.id = uu.document_id").
-		LeftJoin("uploads as u", "uu.upload_id = u.id").
-		Find(&document, id)
+	err := query.RawQuery(documentsQuery, documentCursor, userUploadCursor, uploadCursor, id).Exec()
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -71,10 +71,71 @@ func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Sessi
 		return Document{}, err
 	}
 
-	// encountered issues trying to filter userUploads using pop.
-	// going with the option to filter userUploads after the query.
-	if !includeDeletedDocs {
-		document.UserUploads = document.UserUploads.FilterDeleted()
+	fetchDocument := `FETCH ALL IN ` + documentCursor + `;`
+	fetchUserUploads := `FETCH ALL IN ` + userUploadCursor + `;`
+	fetchUploads := `FETCH ALL IN ` + uploadCursor + `;`
+
+	err = query.RawQuery(fetchDocument).First(&document)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Document{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Document{}, err
+	}
+
+	err = query.RawQuery(fetchUserUploads).All(&document.UserUploads)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Document{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Document{}, err
+	}
+
+	err = query.RawQuery(fetchUploads).All(&uploads)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Document{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Document{}, err
+	}
+
+	// we close all the cursors we opened during the fetch_documents call
+	closeDocCursor := `CLOSE ` + documentCursor + `;`
+	closeUserCursor := `CLOSE ` + userUploadCursor + `;`
+	closeUploadCursor := `CLOSE ` + uploadCursor + `;`
+
+	closeErr := query.RawQuery(closeDocCursor).Exec()
+
+	if closeErr != nil {
+		return Document{}, fmt.Errorf("error closing documents cursor: %w", err)
+	}
+
+	closeErr = query.RawQuery(closeUserCursor).Exec()
+
+	if closeErr != nil {
+		return Document{}, fmt.Errorf("error closing user uploads cursor: %w", err)
+	}
+
+	closeErr = query.RawQuery(closeUploadCursor).Exec()
+
+	if closeErr != nil {
+		return Document{}, fmt.Errorf("error closing uploads cursor: %w", err)
+	}
+
+	// we have an array of UserUploads inside Document so we need to loop and apply the resulting uploads
+	// into the appropriate UserUpload.Upload model by matching the upload ids
+	for i := 0; i < len(document.UserUploads); i++ {
+		for j := 0; j < len(uploads); j++ {
+			if document.UserUploads[i].UploadID == uploads[j].ID {
+				document.UserUploads[i].Upload = uploads[j]
+			}
+		}
 	}
 
 	if checkUserAccessiability {
