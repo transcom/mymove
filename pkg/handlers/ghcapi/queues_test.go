@@ -2380,6 +2380,7 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 		suite.IsNotErrResponse(response)
 		suite.IsType(&queues.SaveBulkAssignmentDataOK{}, response)
 	})
+}
 
 func (suite *HandlerSuite) TestGetDestinationRequestsQueuesHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
