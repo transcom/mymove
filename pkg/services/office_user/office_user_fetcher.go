@@ -82,8 +82,6 @@ func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext
 		"User",
 		"User.Roles",
 		"User.Privileges",
-		"TransportationOffice",
-		"TransportationOffice.Gbloc",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
@@ -109,8 +107,6 @@ func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx 
 		"User",
 		"User.Roles",
 		"User.Privileges",
-		"TransportationOffice",
-		"TransportationOffice.Gbloc",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
