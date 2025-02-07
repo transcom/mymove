@@ -52,7 +52,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(1000, nil)
 	moveRouter := moveservices.NewMoveRouter()
 	waf := entitlements.NewWeightAllotmentFetcher()
@@ -467,14 +466,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"99505",
-			false,
 			true,
 		).Return(1000, nil)
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"97220",
 			"99505",
-			true,
 			true,
 		).Return(1000, nil)
 
@@ -672,14 +669,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"99505",
-			false,
 			true,
 		).Return(1000, nil)
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"97220",
-			true,
 			true,
 		).Return(1000, nil)
 
@@ -2199,7 +2194,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 		false,
-		false,
 	).Return(500, nil).Run(func(args mock.Arguments) {
 		TransitDistancePickupArg = args.Get(1).(string)
 		TransitDistanceDestinationArg = args.Get(2).(string)
@@ -3361,7 +3355,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
@@ -3451,5 +3444,106 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 		suite.NoError(err)
 
 		suite.Equal(models.ReServiceCodeDSH, serviceItems[0].ReService.Code)
+	})
+}
+
+func (suite *MTOShipmentServiceSuite) TestUpdateDomesticServiceItems() {
+
+	expectedReServiceCodes := []models.ReServiceCode{
+		models.ReServiceCodeDLH,
+		models.ReServiceCodeFSC,
+		models.ReServiceCodeDOP,
+		models.ReServiceCodeDDP,
+		models.ReServiceCodeDNPK,
+	}
+
+	var pickupAddress models.Address
+	var storageFacility models.StorageFacility
+	var mto models.Move
+
+	setupTestData := func() {
+		pickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "Test Street 1",
+					City:           "Des moines",
+					State:          "IA",
+					PostalCode:     "50309",
+					IsOconus:       models.BoolPointer(false),
+				},
+			},
+		}, nil)
+
+		storageFacility = factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "Test Street Adress 2",
+					City:           "Des moines",
+					State:          "IA",
+					PostalCode:     "50314",
+					IsOconus:       models.BoolPointer(false),
+				},
+			},
+		}, nil)
+
+		mto = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+	}
+
+	builder := query.NewQueryBuilder()
+	moveRouter := moveservices.NewMoveRouter()
+	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
+
+	suite.Run("Preapproved service items successfully added to domestic nts shipments", func() {
+		setupTestData()
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    storageFacility,
+				Type:     &factory.StorageFacility,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
+					Status:       models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		appCtx := suite.AppContextForTest()
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, eTag)
+		suite.NoError(err)
+
+		serviceItems := models.MTOServiceItems{}
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
+		suite.NoError(err)
+
+		for i := 0; i < len(expectedReServiceCodes); i++ {
+			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
+		}
 	})
 }

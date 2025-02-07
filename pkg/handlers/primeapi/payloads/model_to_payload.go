@@ -172,6 +172,25 @@ func Customer(customer *models.ServiceMember) *primemessages.Customer {
 	if customer.PersonalEmail != nil {
 		payload.Email = *customer.PersonalEmail
 	}
+
+	if len(customer.BackupContacts) > 0 {
+		payload.BackupContact = BackupContact(&customer.BackupContacts[0])
+	}
+
+	return &payload
+}
+
+// BackupContact payload
+func BackupContact(backupContact *models.BackupContact) *primemessages.BackupContact {
+	if backupContact == nil {
+		return nil
+	}
+	payload := primemessages.BackupContact{
+		Name:  backupContact.Name,
+		Email: backupContact.Email,
+		Phone: backupContact.Phone,
+	}
+
 	return &payload
 }
 
@@ -818,6 +837,32 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			PortCode:      portCode,
 		}
 
+	case models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
+		shuttleSI := &primemessages.MTOServiceItemInternationalShuttle{
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			RequestApprovalsRequestedStatus: mtoServiceItem.RequestedApprovalsRequestedStatus,
+			EstimatedWeight:                 handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:                    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIOSHUT && mtoServiceItem.MTOShipment.PickupAddress != nil {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
+				shuttleSI.Market = models.MarketOconus.FullString()
+			} else {
+				shuttleSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIDSHUT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
+				shuttleSI.Market = models.MarketOconus.FullString()
+			} else {
+				shuttleSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		payload = shuttleSI
 	default:
 		// otherwise, basic service item
 		payload = &primemessages.MTOServiceItemBasic{

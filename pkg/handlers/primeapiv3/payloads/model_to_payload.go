@@ -127,6 +127,25 @@ func Customer(customer *models.ServiceMember) *primev3messages.Customer {
 	if customer.PersonalEmail != nil {
 		payload.Email = *customer.PersonalEmail
 	}
+
+	if len(customer.BackupContacts) > 0 {
+		payload.BackupContact = BackupContact(&customer.BackupContacts[0])
+	}
+
+	return &payload
+}
+
+// BackupContact payload
+func BackupContact(backupContact *models.BackupContact) *primev3messages.BackupContact {
+	if backupContact == nil {
+		return nil
+	}
+	payload := primev3messages.BackupContact{
+		Name:  backupContact.Name,
+		Email: backupContact.Email,
+		Phone: backupContact.Phone,
+	}
+
 	return &payload
 }
 
@@ -338,14 +357,12 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev3messages.MTOAgents {
 	if mtoAgents == nil {
 		return nil
 	}
-
 	agents := make(primev3messages.MTOAgents, len(*mtoAgents))
 
 	for i, m := range *mtoAgents {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		agents[i] = MTOAgent(&copyOfM)
 	}
-
 	return &agents
 }
 
@@ -855,6 +872,32 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
 			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
+	case models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
+		shuttleSI := &primev3messages.MTOServiceItemInternationalShuttle{
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			RequestApprovalsRequestedStatus: mtoServiceItem.RequestedApprovalsRequestedStatus,
+			EstimatedWeight:                 handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:                    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIOSHUT && mtoServiceItem.MTOShipment.PickupAddress != nil {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
+				shuttleSI.Market = models.MarketOconus.FullString()
+			} else {
+				shuttleSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIDSHUT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
+				shuttleSI.Market = models.MarketOconus.FullString()
+			} else {
+				shuttleSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		payload = shuttleSI
 
 	case models.ReServiceCodePODFSC, models.ReServiceCodePOEFSC:
 		var portCode string

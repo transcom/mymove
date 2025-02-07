@@ -1106,22 +1106,60 @@ paths:
         "200":
           description: Successfully updated the specified MTO shipment.
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/shipments/{shipmentID}/approve":
+            $ref: 'definitions/MTOShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/shipments/approve':
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApproveShipments'
+      responses:
+        '200':
+          description: Successfully approved the shipments
+          schema:
+            type: array
+            items:
+              $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Approves multiple shipments in one request
+      operationId: approveShipments
+      summary: Approves multiple shipments at once
+      x-permissions:
+        - update.shipment
+  '/shipments/{shipmentID}/approve':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1429,8 +1467,8 @@ paths:
           $ref: "#/responses/ServerError"
       tags:
         - shipment
-      description:
-        This endpoint is used to approve a address update request. Office remarks are required.
+        - shipment_address_updates
+      description: This endpoint is used to approve a address update request. Office remarks are required.
         Approving the address update will update the Destination Final Address of the associated service item
       operationId: reviewShipmentAddressUpdate
       summary: Allows TOO to review a shipment address update
@@ -2272,9 +2310,9 @@ paths:
           $ref: "#/responses/ServerError"
       tags:
         - moveTaskOrder
-      description: Changes move task order status to make it available to prime
+      description: Changes move task order status
       operationId: updateMoveTaskOrderStatus
-      summary: Change the status of a move task order to make it available to prime
+      summary: Change the status of a move task order
       x-permissions:
         - update.move
         - create.serviceItem
@@ -5779,7 +5817,11 @@ definitions:
         example: "N002214CSW32Y9"
         $ref: definitions/NullableString.yaml
       grade:
-        $ref: "#/definitions/Grade"
+        $ref: '#/definitions/Grade'
+      hasDependents:
+        type: boolean
+        title: Are dependents included in your orders?
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -6677,6 +6719,24 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+  ApproveShipments:
+    type: object
+    properties:
+      approveShipments:
+        type: array
+        items:
+          type: object
+          properties:
+            shipmentID:
+              type: string
+              format: uuid
+            eTag:
+              type: string
+          required:
+            - shipmentID
+            - eTag
+    required:
+      - approveShipments
   MTOShipments:
     items:
       $ref: "definitions/MTOShipment.yaml"
@@ -7123,6 +7183,7 @@ definitions:
         type: boolean
       workload:
         type: integer
+        x-omitempty: false
   BulkAssignmentData:
     type: object
     properties:

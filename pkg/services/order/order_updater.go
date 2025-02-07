@@ -421,6 +421,10 @@ func orderFromCounselingPayload(appCtx appcontext.AppContext, existingOrder mode
 		order.Entitlement.DBAuthorizedWeight = &weight
 	}
 
+	if payload.HasDependents != nil {
+		order.HasDependents = *payload.HasDependents
+	}
+
 	return order, nil
 }
 

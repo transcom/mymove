@@ -25,7 +25,7 @@ time aws rds wait db-snapshot-completed --db-instance-identifier "$db_instance_i
 
 echo
 echo "Create database snapshot for ${db_instance_identifier} with identifier ${db_snapshot_identifier}"
-aws rds create-db-snapshot --db-instance-identifier "$db_instance_identifier" --db-snapshot-identifier "$db_snapshot_identifier" --tags "${tags[@]}"
+aws rds create-db-snapshot --cli-read-timeout 0 --cli-connect-timeout 0 --db-instance-identifier "$db_instance_identifier" --db-snapshot-identifier "$db_snapshot_identifier" --tags "${tags[@]}"
 
 echo
 echo "Wait for current database snapshot ${db_snapshot_identifier} to complete before continuing ..."

@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/featureflag"
@@ -158,7 +159,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.SecondaryPickupAddress.Country",
 		"MTOShipments.TertiaryDeliveryAddress.Country",
 		"MTOShipments.TertiaryPickupAddress.Country",
-		"MTOShipments.MTOAgents",
 		"MTOShipments.SITDurationUpdates",
 		"MTOShipments.StorageFacility",
 		"MTOShipments.StorageFacility.Address",
@@ -197,6 +197,20 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		default:
 			return &models.Move{}, apperror.NewQueryError("Move", err, "")
 		}
+	}
+
+	for i := range mto.MTOShipments {
+		var nonDeletedAgents models.MTOAgents
+		loadErr := appCtx.DB().
+			Scope(utilities.ExcludeDeletedScope()).
+			Where("mto_shipment_id = ?", mto.MTOShipments[i].ID).
+			All(&nonDeletedAgents)
+
+		if loadErr != nil {
+			return &models.Move{}, apperror.NewQueryError("MTOAgents", loadErr, "")
+		}
+
+		mto.MTOShipments[i].MTOAgents = nonDeletedAgents
 	}
 
 	// Now that we have the move and order, construct the allotment (hhg allowance)
@@ -240,6 +254,20 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("POELocation", loadErr, "")
 			}
+		}
+	}
+
+	// Load the backup contacts outside of the EagerPreload query, due to issue referenced in
+	// https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#associations-with-3-path-elements-where-the-first-2-path-elements-match
+	if mto.Orders.ServiceMember.ID != uuid.Nil {
+		loadErr := appCtx.DB().Load(&mto.Orders.ServiceMember, "BackupContacts")
+		if loadErr != nil {
+			return &models.Move{}, apperror.NewQueryError("BackupContacts", loadErr, "")
+		}
+		if len(mto.Orders.ServiceMember.BackupContacts) == 0 {
+			appCtx.Logger().Warn("No backup contacts found for service member")
+		} else {
+			appCtx.Logger().Info("Successfully loaded %d backup contacts", zap.Int("count", len(mto.Orders.ServiceMember.BackupContacts)))
 		}
 	}
 
