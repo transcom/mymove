@@ -423,6 +423,20 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		mtoshipment.NewShipmentDeleter(moveTaskOrderUpdater, moveRouter),
 	}
 
+	ghcAPI.ShipmentApproveShipmentsHandler = ApproveShipmentsHandler{
+		handlerConfig,
+		mtoshipment.NewShipmentApprover(
+			mtoshipment.NewShipmentRouter(),
+			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			handlerConfig.HHGPlanner(),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf),
+			moveTaskOrderUpdater,
+			moveRouter,
+		),
+		shipmentSITStatus,
+		moveTaskOrderUpdater,
+	}
+
 	ghcAPI.ShipmentApproveShipmentHandler = ApproveShipmentHandler{
 		handlerConfig,
 		mtoshipment.NewShipmentApprover(
@@ -430,8 +444,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 			mtoServiceItemCreator,
 			handlerConfig.HHGPlanner(),
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf),
+			moveTaskOrderUpdater,
+			moveRouter,
 		),
 		shipmentSITStatus,
+		moveTaskOrderUpdater,
 	}
 
 	ghcAPI.ShipmentRequestShipmentDiversionHandler = RequestShipmentDiversionHandler{
