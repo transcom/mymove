@@ -136,12 +136,12 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		previousDay := yesterday.Format("20060102")
 		tppsFilename = fmt.Sprintf("MILMOVE-en%s.csv", previousDay)
 		previousDayFormatted := yesterday.Format("January 02, 2006")
-		logger.Info(fmt.Sprintf("Starting processing of TPPS data for %s: %s\n", previousDayFormatted, tppsFilename))
+		logger.Info(fmt.Sprintf("Starting processing of TPPS data for %s: %s", previousDayFormatted, tppsFilename))
 	} else {
 		// Process the custom date specified by the ProcessTPPSCustomDateFile AWS parameter store value
 		logger.Info("Custom filepath provided to process")
 		tppsFilename = customFilePathToProcess
-		logger.Info(fmt.Sprintf("Starting transfer of TPPS data file: %s\n", tppsFilename))
+		logger.Info(fmt.Sprintf("Starting transfer of TPPS data file: %s", tppsFilename))
 	}
 
 	var s3Client *s3.Client
@@ -177,8 +177,8 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 			logger.Error("Error with getting the S3 object data via GetObject", zap.Error(err))
 		}
 
-		logger.Info(fmt.Sprintf("localFilePath from calling downloadS3File: %s\n", localFilePath))
-		logger.Info(fmt.Sprintf("scanResult from calling downloadS3File: %s\n", scanResult))
+		logger.Info(fmt.Sprintf("localFilePath from calling downloadS3File: %s", localFilePath))
+		logger.Info(fmt.Sprintf("scanResult from calling downloadS3File: %s", scanResult))
 
 		logger.Info("Scan result was clean")
 
