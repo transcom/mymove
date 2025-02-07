@@ -370,9 +370,9 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
           handleClick={handleClick}
           useQueries={useDestinationRequestsQueueQueries}
           showCSVExport
-          csvExportFileNamePrefix="Task-Order-Queue"
+          csvExportFileNamePrefix="Destination-Requests-Queue"
           csvExportQueueFetcher={getDestinationRequestsQueue}
-          csvExportQueueFetcherKey="queueMoves"
+          csvExportQueueFetcherKey="destinationQueueMoves"
           sessionStorageKey={queueType}
           key={queueType}
         />
