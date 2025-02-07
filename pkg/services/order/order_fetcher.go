@@ -2,6 +2,7 @@ package order
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
@@ -9,6 +10,8 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"github.com/jinzhu/copier"
+	"github.com/lib/pq"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -307,7 +310,118 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	return moves, count, nil
 }
 
-// TODO: Update query to select distinct duty locations
+// this is a custom/temporary struct used in the below service object to get destination queue moves
+type MoveWithCount struct {
+	models.Move
+	OrdersRaw           json.RawMessage              `json:"orders" db:"orders"`
+	Orders              *models.Order                `json:"-"`
+	MTOShipmentsRaw     json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
+	MTOShipments        *models.MTOShipments         `json:"-"`
+	CounselingOfficeRaw json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
+	CounselingOffice    *models.TransportationOffice `json:"-"`
+	TOOAssignedRaw      json.RawMessage              `json:"too_assigned" db:"too_assigned"`
+	TOOAssignedUser     *models.OfficeUser           `json:"-"`
+	TotalCount          int64                        `json:"total_count" db:"total_count"`
+}
+
+type JSONB []byte
+
+func (j *JSONB) UnmarshalJSON(data []byte) error {
+	*j = data
+	return nil
+}
+
+func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
+	var moves []models.Move
+	var movesWithCount []MoveWithCount
+
+	// getting the office user's GBLOC
+	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+	officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+	if gblocErr != nil {
+		return []models.Move{}, 0, gblocErr
+	}
+
+	// calling the database function with all passed in parameters
+	err := appCtx.DB().RawQuery("SELECT * FROM get_destination_queue($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)",
+		officeUserGbloc,
+		params.CustomerName,
+		params.Edipi,
+		params.Emplid,
+		pq.Array(params.Status),
+		params.Locator,
+		params.RequestedMoveDate,
+		params.AppearedInTOOAt,
+		params.Branch,
+		strings.Join(params.OriginDutyLocation, " "),
+		params.CounselingOffice,
+		params.TOOAssignedUser,
+		params.Page,
+		params.PerPage,
+		params.Sort,
+		params.Order).
+		All(&movesWithCount)
+
+	if err != nil {
+		return []models.Move{}, 0, err
+	}
+
+	// each row is sent back with the total count from the db func, so we will take the value from the first one
+	var count int64
+	if len(movesWithCount) > 0 {
+		count = movesWithCount[0].TotalCount
+	} else {
+		count = 0
+	}
+
+	// we have to manually loop through each move and populate the nested objects that the queue uses/needs
+	for i := range movesWithCount {
+		// populating Move.Orders struct
+		var order models.Order
+		if err := json.Unmarshal(movesWithCount[i].OrdersRaw, &order); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling orders JSON: %w", err)
+		}
+		movesWithCount[i].OrdersRaw = nil
+		movesWithCount[i].Orders = &order
+
+		// populating Move.MTOShipments array
+		var shipments models.MTOShipments
+		if err := json.Unmarshal(movesWithCount[i].MTOShipmentsRaw, &shipments); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling shipments JSON: %w", err)
+		}
+		movesWithCount[i].MTOShipmentsRaw = nil
+		movesWithCount[i].MTOShipments = &shipments
+
+		// populating Moves.CounselingOffice struct
+		var counselingTransportationOffice models.TransportationOffice
+		if err := json.Unmarshal(movesWithCount[i].CounselingOfficeRaw, &counselingTransportationOffice); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling counseling_transportation_office JSON: %w", err)
+		}
+		movesWithCount[i].CounselingOfficeRaw = nil
+		movesWithCount[i].CounselingOffice = &counselingTransportationOffice
+
+		// populating Moves.TOOAssigned struct
+		var tooAssigned models.OfficeUser
+		if err := json.Unmarshal(movesWithCount[i].TOOAssignedRaw, &tooAssigned); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling too_assigned JSON: %w", err)
+		}
+		movesWithCount[i].TOOAssignedRaw = nil
+		movesWithCount[i].TOOAssignedUser = &tooAssigned
+	}
+
+	// the handler consumes a Move object and NOT the MoveWithCount struct used in this func
+	// so we have to copy our custom struct into the Move struct
+	for _, moveWithCount := range movesWithCount {
+		var move models.Move
+		if err := copier.Copy(&move, &moveWithCount); err != nil {
+			return nil, 0, fmt.Errorf("error copying movesWithCount into Moves struct: %w", err)
+		}
+		moves = append(moves, move)
+	}
+
+	return moves, int(count), nil
+}
+
 func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, error) {
 	var moves []models.Move
 	var err error
