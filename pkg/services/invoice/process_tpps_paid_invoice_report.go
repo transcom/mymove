@@ -89,7 +89,6 @@ func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 		// For the data in the TPPS Paid Invoice Report, find the payment requests that match the
 		// invoice numbers of the rows in the report and update the payment request status to PAID
 		for _, tppsDataForOnePaymentRequest := range tppsData {
-			appCtx.Logger().Info(fmt.Sprintf("Processing payment request for invoice: %s", tppsDataForOnePaymentRequest.InvoiceNumber))
 			var paymentRequest models.PaymentRequest
 
 			err = appCtx.DB().Q().
@@ -140,7 +139,7 @@ func (t *tppsPaidInvoiceReportProcessor) EDIType() models.EDIType {
 }
 
 func (t *tppsPaidInvoiceReportProcessor) logTPPSInvoiceReportWithPaymentRequest(appCtx appcontext.AppContext, tppsResponse tppsReponse.TPPSData, paymentRequest models.PaymentRequest) {
-	appCtx.Logger().Info("TPPS Paid Invoice Report log",
+	appCtx.Logger().Info("Updated payment request status to PAID",
 		zap.String("TPPSPaidInvoiceReportEntry.InvoiceNumber", tppsResponse.InvoiceNumber),
 		zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
 		zap.String("PaymentRequest.Status", string(paymentRequest.Status)),
