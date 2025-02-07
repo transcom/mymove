@@ -58,4 +58,85 @@ func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUserList(
 		suite.NoError(err)
 		suite.Equal(models.OfficeUsers(nil), requestedOfficeUsers)
 	})
+
+	suite.Run("should sort and order requested office users", func() {
+		requestedStatus := models.OfficeUserStatusREQUESTED
+		officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Angelina",
+					LastName:  "Jolie",
+					Email:     "laraCroft@mail.mil",
+					Status:    &requestedStatus,
+				},
+			},
+			{
+				Model: models.TransportationOffice{
+					Name: "PPPO Kirtland AFB - USAF",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser2 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Billy",
+					LastName:  "Bob",
+					Email:     "bigBob@mail.mil",
+					Status:    &requestedStatus,
+				},
+			},
+			{
+				Model: models.TransportationOffice{
+					Name: "PPPO Fort Knox - USA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTIO})
+		officeUser3 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Nick",
+					LastName:  "Cage",
+					Email:     "conAirKilluh@mail.mil",
+					Status:    &requestedStatus,
+				},
+			},
+			{
+				Model: models.TransportationOffice{
+					Name: "PPPO Detroit Arsenal - USA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		builder := &testRequestedOfficeUsersListQueryBuilder{}
+
+		fetcher := NewRequestedOfficeUsersListFetcher(builder)
+
+		column := "transportation_office_id"
+		ordering := query.NewQueryOrder(&column, models.BoolPointer(true))
+
+		requestedOfficeUsers, _, err := fetcher.FetchRequestedOfficeUsersList(suite.AppContextForTest(), nil, defaultPagination(), ordering)
+
+		suite.NoError(err)
+		suite.Len(requestedOfficeUsers, 3)
+		suite.Equal(officeUser3.ID.String(), requestedOfficeUsers[0].ID.String())
+		suite.Equal(officeUser2.ID.String(), requestedOfficeUsers[1].ID.String())
+		suite.Equal(officeUser1.ID.String(), requestedOfficeUsers[2].ID.String())
+
+		ordering = query.NewQueryOrder(&column, models.BoolPointer(false))
+
+		requestedOfficeUsers, _, err = fetcher.FetchRequestedOfficeUsersList(suite.AppContextForTest(), nil, defaultPagination(), ordering)
+
+		suite.NoError(err)
+		suite.Len(requestedOfficeUsers, 3)
+		suite.Equal(officeUser1.ID.String(), requestedOfficeUsers[0].ID.String())
+		suite.Equal(officeUser2.ID.String(), requestedOfficeUsers[1].ID.String())
+		suite.Equal(officeUser3.ID.String(), requestedOfficeUsers[2].ID.String())
+
+		column = "unknown_column"
+
+		requestedOfficeUsers, _, err = fetcher.FetchRequestedOfficeUsersList(suite.AppContextForTest(), nil, defaultPagination(), ordering)
+
+		suite.Error(err)
+		suite.Len(requestedOfficeUsers, 0)
+	})
 }
