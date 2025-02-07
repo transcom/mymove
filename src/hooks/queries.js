@@ -665,7 +665,11 @@ export const usePaymentRequestQueueQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...paymentRequestsQueueQuery
+  } = useQuery(
     [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getPaymentRequestsQueue(...queryKey),
   );
@@ -677,6 +681,7 @@ export const usePaymentRequestQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 

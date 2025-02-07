@@ -29,6 +29,7 @@ import {
 } from 'components/Table/utils';
 import { roleTypes } from 'constants/userRoles';
 import { saveBulkAssignmentData } from 'services/ghcApi';
+import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -59,6 +60,8 @@ const TableQueue = ({
   officeUser,
   activeRole,
   queueType,
+  refetchQueue,
+  setRefetchQueue,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -139,14 +142,14 @@ const TableQueue = ({
     [],
   );
 
-  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
-    onSuccess: () => {
-      // refetch queue
+  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {});
+
+  useEffect(() => {
+    if (refetchQueue)
       refetch().then(() => {
-        setIsBulkAssignModalVisible(false);
+        setRefetchQueue(false);
       });
-    },
-  });
+  }, [refetch, setRefetchQueue, refetchQueue]);
 
   const tableColumns = useMemo(() => columns, [columns]);
   const {
@@ -327,7 +330,10 @@ const TableQueue = ({
   };
 
   const handleCloseBulkAssignModal = () => {
-    setIsBulkAssignModalVisible(false);
+    refetch().then(() => {
+      setIsBulkAssignModalVisible(false);
+    });
+    // setIsBulkAssignModalVisible(false);
   };
 
   const onSubmitBulk = (bulkAssignmentSavePayload) => {
@@ -464,7 +470,10 @@ const mapStateToProps = (state) => {
   return {
     officeUser: user?.office_user || {},
     activeRole: state.auth.activeRole,
+    refetchQueue: state?.generalState?.refetchQueue || false,
   };
 };
 
-export default connect(mapStateToProps)(TableQueue);
+const mapDispatchToProps = { setRefetchQueue: setRefetchQueueAction };
+
+export default connect(mapStateToProps, mapDispatchToProps)(TableQueue);
