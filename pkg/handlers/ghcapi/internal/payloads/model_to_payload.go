@@ -2400,10 +2400,16 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 				availableOfficeUsers = officeUsersSafety
 			}
 
-			// if the assigned user does not work at the logged in users transportation office
-			// append them to the office users
-			if activeRole == string(roles.RoleTypeTOO) {
-				if move.TOOAssignedUser != nil && move.TOOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+			// if the assigned user is not in the returned list of available users append them to the end
+			if (activeRole == string(roles.RoleTypeTOO)) && (move.TOOAssignedUser != nil) {
+				userFound := false
+				for _, officeUser := range availableOfficeUsers {
+					if officeUser.ID == *move.TOOAssignedID {
+						userFound = true
+						break
+					}
+				}
+				if !userFound {
 					availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
 				}
 			}
@@ -2567,9 +2573,18 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 				availableOfficeUsers = officeUsersSafety
 			}
 
-			// if the assigned TIO doesn't work at the user's counseling office, append them
-			if queuePaymentRequests[i].AssignedTo != nil && paymentRequest.MoveTaskOrder.TIOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-				availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TIOAssignedUser)
+			// if the assigned user is not in the returned list of available users append them to the end
+			if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
+				userFound := false
+				for _, officeUser := range availableOfficeUsers {
+					if officeUser.ID == paymentRequest.MoveTaskOrder.TIOAssignedUser.ID {
+						userFound = true
+						break
+					}
+				}
+				if !userFound {
+					availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TIOAssignedUser)
+				}
 			}
 
 			// if they're not a supervisor and it is assignable, the only option should be themself
