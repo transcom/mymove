@@ -2537,6 +2537,26 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		}, nil)
 
 		move3, shipment3 := buildMoveKKFA()
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeMS,
+				},
+			},
+			{
+				Model:    move3,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment3,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+		}, nil)
 		factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
 			{
 				Model:    shipment3,
@@ -2713,13 +2733,47 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, nil)
 
+		move3, shipment3 := buildMoveZone4AK(usmc)
+		// we need to create a service item and attach it to the move/shipment
+		// else the query will exclude the move since it doesn't use LEFT JOINs
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeMS,
+				},
+			},
+			{
+				Model:    move3,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment3,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+		}, nil)
+		factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment3,
+				LinkOnly: true,
+			},
+			{
+				Model:    move3,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+
 		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
 			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{},
 		)
 
-		// we should get both moves back since they're USMC moves and zone doesn't matter
+		// we should get three moves back since they're USMC moves and zone doesn't matter
 		suite.FatalNoError(err)
-		suite.Equal(2, moveCount)
-		suite.Len(moves, 2)
+		suite.Equal(3, moveCount)
+		suite.Len(moves, 3)
 	})
 }
