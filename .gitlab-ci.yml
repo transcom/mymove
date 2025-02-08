@@ -733,6 +733,7 @@ pre_test:
         export GOLANGCI_LINT_CONCURRENCY=4
         export GOLANGCI_LINT_VERBOSE=-v
         mkdir -p tmp/test-results/pretest
+    # can this be removed in favor of golang_lint?
     - pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
     - echo "Run prettier, eslint, danger checks"
     - yarn prettier-ci
@@ -743,6 +744,14 @@ pre_test:
   allow_failure: true
   after_script:
     - *announce_failure
+  artifacts:
+      reports:
+        codequality: tmp/test-results/pretest/golangci-lint.out
+      paths:
+        - tmp/test-results/pretest/golangci-lint.out #remove if golang_lint works
+        - /tmp/spectral_baseline/*.json #what do we need to store for review?
+        - /spectral/*.json #what do we need to store for review?
+      when: always
   # rules:
   #  - *check_server_ignore_branch
 
