@@ -749,8 +749,8 @@ pre_test:
         codequality: tmp/test-results/pretest/golangci-lint.out
       paths:
         - tmp/test-results/pretest/golangci-lint.out #remove if golang_lint works
-        - /tmp/spectral_baseline/*.json #what do we need to store for review?
-        - /spectral/*.json #what do we need to store for review?
+        - tmp/spectral_baseline/*.json #what do we need to store for review?
+        - spectral/*.json #what do we need to store for review?
       when: always
   # rules:
   #  - *check_server_ignore_branch
