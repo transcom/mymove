@@ -42,14 +42,16 @@ elif git merge-base --is-ancestor "$deployed_commit" "$local_commit"; then
   exit 0
 else
   if [ -n "${GITLAB+x}" ]; then
-  echo "* Deployed commit ($deployed_commit) is not an ancestor of the local commit ($local_commit)."
-  echo "* The deployed commit is either ahead of the local commit or the commits have different histories."
-  echo "* Deploy is blocked."
-
-  touch deploy_halt_flag # This flag will tell deployment jobs to stop
-
-  exit 0  # This prevents the job from failing while halting further execution
-else
-  exit 1
+  if [ "$deployed_commit" != "$local_commit" ]; then
+    echo "* Deployed commit ($deployed_commit) is not an ancestor of the local commit ($local_commit)."
+    echo "* The deployed commit is either ahead of the local commit or the commits have different histories."
+    echo "* Deploy is blocked."
+    echo "failed" > sha_check_status  # Write 'failed' status to a file
+    exit 0  # Mark job as successful
+  else
+    echo "* Deployed commit ($deployed_commit) is an ancestor of the local commit ($local_commit)."
+    echo "* Deploy can continue."
+    echo "success" > sha_check_status  # Write 'success' status to a file
+    exit 0
   fi
 fi
