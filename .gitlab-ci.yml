@@ -1242,13 +1242,17 @@ check_against_dp3_sha:
   script:
     - echo "Checking if deployed commit is an ancestor..."
     - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
+    - echo "Creating sha_check_status..."
+    - echo "success" > sha_check_status  # Create the status file
+    - echo "Checking if sha_check_status exists..."
+    - ls -l sha_check_status || echo "sha_check_status does not exist"  # Debugging step
   artifacts:
     paths:
-      - deploy_halt_flag
+      - sha_check_status  # Store the status for downstream jobs
     expire_in: 1h
+  allow_failure: true  # Ensure the job does not fail the pipeline even if the script detects a SHA mismatch
   rules:
     - *check_dp3  # Ensure this matches your ruleset for conditional execution
-
 
 build_push_app_dp3:
   stage: push
