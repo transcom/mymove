@@ -143,6 +143,17 @@ test.describe('TIO user', () => {
     await page.getByText('Next').click();
     await tioFlowPage.slowDown();
 
+    await expect(page.getByText('International destination shuttle service')).toBeVisible();
+    await page.getByText('Show calculations').click();
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Billable weight (cwt)');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Destination price');
+    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Price escalation factor');
+    // approve
+    await tioFlowPage.approveServiceItem();
+    await page.getByText('Next').click();
+    await tioFlowPage.slowDown();
+
     await expect(page.getByText('International POE Fuel Surcharge')).toBeVisible();
     await page.getByText('Show calculations').click();
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
@@ -159,8 +170,8 @@ test.describe('TIO user', () => {
     await expect(page.getByText('needs your review')).toHaveCount(0, { timeout: 10000 });
     await page.getByText('Complete request').click();
 
-    await expect(page.locator('[data-testid="requested"]')).toContainText('$4,281.48');
-    await expect(page.locator('[data-testid="accepted"]')).toContainText('$4,281.48');
+    await expect(page.locator('[data-testid="requested"]')).toContainText('$4,287.71');
+    await expect(page.locator('[data-testid="accepted"]')).toContainText('$4,287.71');
     await expect(page.locator('[data-testid="rejected"]')).toContainText('$0.00');
 
     await page.getByText('Authorize payment').click();
