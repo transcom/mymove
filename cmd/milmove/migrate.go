@@ -174,7 +174,6 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	// Remove any extra quotes around path
 	trimmedMigrationPaths := strings.Trim(v.GetString(cli.MigrationPathFlag), "\"")
 	migrationPaths := expandPaths(strings.Split(trimmedMigrationPaths, ";"))
-	logger.Info(fmt.Sprintf("using migration paths %q", migrationPaths))
 
 	logger.Info("migration Path from s3")
 
@@ -308,5 +307,120 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(errUp, "error running migrations")
 	}
 
+	// Begin DDL migrations
+	ddlMigrationManifest := expandPath(v.GetString(cli.DDLMigrationManifestFlag))
+	ddlMigrationPath := expandPath(v.GetString(cli.DDLMigrationPathFlag))
+	ddlMigrationPathsExpanded := expandPaths(strings.Split(ddlMigrationPath, ";"))
+
+	if ddlMigrationManifest != "" && len(ddlMigrationPathsExpanded) > 0 {
+		// Define ordered folders
+		orderedFolders := []string{
+			"ddl_tables",
+			"ddl_types",
+			"ddl_views",
+			"ddl_functions",
+			"ddl_procedures",
+		}
+
+		// Create tracking map
+		successfulMigrations := make(map[string][]string)
+
+		// Process each folder in order
+		for _, folder := range orderedFolders {
+			logger.Info("Processing folder", zap.String("current_folder", folder))
+
+			for _, path := range ddlMigrationPathsExpanded {
+				cleanPath := strings.TrimPrefix(path, "file://")
+				pathParts := strings.Split(cleanPath, "/")
+				currentFolder := pathParts[len(pathParts)-1]
+
+				if currentFolder != folder {
+					continue
+				}
+				filenames, errListFiles := fileHelper.ListFiles(path, s3Client)
+				if errListFiles != nil {
+					logger.Fatal(fmt.Sprintf("Error listing DDL migrations directory %s", path), zap.Error(errListFiles))
+				}
+
+				logger.Info(fmt.Sprintf("Found files in %s:", folder))
+				for _, file := range filenames {
+					logger.Info(fmt.Sprintf("  - %s", file))
+				}
+
+				ddlMigrationFiles := map[string][]string{
+					path: filenames,
+				}
+
+				logger.Info(fmt.Sprintf("=== Processing %s Files ===", folder))
+
+				ddlManifest, err := os.Open(ddlMigrationManifest[len("file://"):])
+				if err != nil {
+					return errors.Wrap(err, "error reading DDL manifest")
+				}
+
+				scanner := bufio.NewScanner(ddlManifest)
+				logger.Info(fmt.Sprintf("Reading manifest for folder %s", folder))
+				for scanner.Scan() {
+					target := scanner.Text()
+					logger.Info(fmt.Sprintf("Manifest entry: %s", target))
+
+					if strings.HasPrefix(target, "#") {
+						logger.Info("Skipping commented line")
+						continue
+					}
+
+					if !strings.Contains(target, folder) {
+						logger.Info(fmt.Sprintf("Skipping entry - not in current folder %s", folder))
+						continue
+					}
+
+					logger.Info(fmt.Sprintf("Processing manifest entry: %s", target))
+
+					uri := ""
+					for dir, files := range ddlMigrationFiles {
+						for _, filename := range files {
+							if target == filename {
+								uri = fmt.Sprintf("%s/%s", dir, filename)
+								break
+							}
+						}
+					}
+
+					if len(uri) == 0 {
+						return errors.Errorf("Error finding DDL migration for filename %q", target)
+					}
+
+					m, err := pop.ParseMigrationFilename(target)
+					if err != nil {
+						return errors.Wrapf(err, "error parsing DDL migration filename %q", uri)
+					}
+
+					b := &migrate.Builder{Match: m, Path: uri}
+					migration, errCompile := b.Compile(s3Client, wait, logger)
+					if errCompile != nil {
+						return errors.Wrap(errCompile, "Error compiling DDL migration")
+					}
+
+					if err := migration.Run(dbConnection); err != nil {
+						return errors.Wrap(err, "error executing DDL migration")
+					}
+
+					successfulMigrations[folder] = append(successfulMigrations[folder], target)
+					logger.Info(fmt.Sprintf("Successfully executed: %s", target))
+				}
+				ddlManifest.Close()
+			}
+		}
+
+		logger.Info("=== DDL Migration Summary ===")
+		for _, folder := range orderedFolders {
+			logger.Info(fmt.Sprintf("Folder: %s", folder))
+			if migrations, ok := successfulMigrations[folder]; ok {
+				for _, migration := range migrations {
+					logger.Info(fmt.Sprintf("  ✓ %s", migration))
+				}
+			}
+		}
+	}
 	return nil
 }

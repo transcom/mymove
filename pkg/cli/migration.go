@@ -13,6 +13,10 @@ const (
 	MigrationManifestFlag string = "migration-manifest"
 	// MigrationWaitFlag is the migration wait flag
 	MigrationWaitFlag string = "migration-wait"
+	// DDLMigrationManifestFlag is the ddl migration manifest flag
+	DDLMigrationManifestFlag = "ddl-migration-manifest"
+	// DDLMigrationPathFlag is the ddl migration path flag
+	DDLMigrationPathFlag = "ddl-migration-path"
 )
 
 var (
@@ -23,6 +27,8 @@ var (
 func InitMigrationFlags(flag *pflag.FlagSet) {
 	flag.StringP(MigrationManifestFlag, "m", "migrations/app/migrations_manifest.txt", "Path to the manifest")
 	flag.DurationP(MigrationWaitFlag, "w", time.Millisecond*10, "duration to wait when polling for new data from migration file")
+	flag.String(DDLMigrationManifestFlag, "", "Path to DDL migrations manifest")
+	flag.String(DDLMigrationPathFlag, "", "Path to DDL migrations directory")
 }
 
 // CheckMigration validates migration command line flags
