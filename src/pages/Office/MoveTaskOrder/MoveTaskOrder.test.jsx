@@ -586,7 +586,7 @@ describe('MoveTaskOrder', () => {
             status: 422,
             data: JSON.stringify({
               detail:
-                'UpdateSitEntryDate failed for service item: the SIT Entry Date (2025-03-21) must be before the SIT Departure Date (2025-02-27)',
+                'UpdateSitEntryDate failed for service item: the SIT Entry Date (2025-03-05) must be before the SIT Departure Date (2025-02-27)',
             }),
           },
         });
@@ -616,7 +616,7 @@ describe('MoveTaskOrder', () => {
       const saveButton = within(modal).getByRole('button', { name: /Save/ });
 
       await userEvent.clear(dateInput);
-      await userEvent.type(dateInput, '03 Mar 2025');
+      await userEvent.type(dateInput, '05 Mar 2025');
       await userEvent.type(remarksTextarea, 'Need to update the sit entry date.');
       expect(saveButton).toBeEnabled();
       await userEvent.click(saveButton);
@@ -632,7 +632,7 @@ describe('MoveTaskOrder', () => {
       expect(alert).toBeInTheDocument();
       expect(alert).toHaveClass('usa-alert--error');
       expect(alert).toHaveTextContent(
-        'UpdateSitEntryDate failed for service item: the SIT Entry Date (2025-03-21) must be before the SIT Departure Date (2025-02-27)',
+        'UpdateSitEntryDate failed for service item: the SIT Entry Date (2025-03-05) must be before the SIT Departure Date (2025-02-27)',
       );
     });
 
