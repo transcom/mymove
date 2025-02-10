@@ -1226,16 +1226,15 @@ INSERT INTO duty_locations (id,"name",address_id,created_at,updated_at,provides_
 	 ('046fb749-160c-4d10-91e5-e7b49150a666','Yakima, WA 98904','edca3739-50c5-4ffa-8809-ea54775f0e1c',now(),now(),true),
 	 ('b6c38a84-7b10-4721-bd21-901b9d15d4ae','Yatahey, NM 87375','2a59b7b2-c0a0-4199-bde1-176e4a72440e',now(),now(),true),
 	 ('ac11abbc-e141-4a6f-bf39-ebfc80e98776','Yonkers, NY 10702','e13d049b-3d53-445a-86c6-2885a145b226',now(),now(),true),
-	 ('724de39f-9524-4742-b12e-3b078910ea71','Youngstown, OH 44501','fb7eb3cf-d1eb-480c-a4e1-5c0cb74d38af',now(),now(),true),
+	 ('724de39f-9524-4742-b12e-3b0789f4f2698-8d77-46bd-aaeb-8d5812452c7a910ea71','Youngstown, OH 44501','fb7eb3cf-d1eb-480c-a4e1-5c0cb74d38af',now(),now(),true),
 	 ('88562460-851f-4589-9c90-2db5d9b69320','Yuba City, CA 95992','92646c4b-a12e-4066-8628-c3375aa90a05',now(),now(),true),
 	 ('b01b38e2-7c2e-4217-b620-4fcf38828704','Yukon, OK 73085','8b30ee2d-5cb8-4573-a6db-50aeef7bf682',now(),now(),true);
 
 INSERT INTO duty_locations (id,"name",address_id,created_at,updated_at,provides_services_counseling) VALUES	
---('4f833814-5df7-4f36-a3b7-41a4ef05c41e','Washington, DC 20022','22d24d89-8da2-45b3-bed6-e021d13a1900',now(),now(),true), exists
-	--('bc15c133-7463-41e5-b8a1-adb0419c1bba','Camp Pendleton, CA 92055','0e74e91c-ba09-476e-a086-ddba144c44d7',now(),now(),true), 
-	--('4f833814-5df7-4f36-a3b7-41a4ef05c41e','Washington, DC 20022','22d24d89-8da2-45b3-bed6-e021d13a1900',now(),now(),true),
-	--('1b60502a-f6be-479b-9a77-c29ea7e47043','Twentynine Palms, CA 92278','561ffaee-24f8-405f-b57f-ff8e5daf2cb9',now(),now(),true),
-	--('c0e7d54d-9459-43f1-88ae-b4874ce44ee1','San Diego, CA 92137','0175a222-f462-402f-acb0-b21e0b914c59',now(),now(),true),
+	('4f833814-5df7-4f36-a3b7-41a4ef05c41e','Washington, DC 20022','89c868b1-fd93-4c32-a52e-f98445dfc0c8',now(),now(),true),
+	('bc15c133-7463-41e5-b8a1-adb0419c1bba','Camp Pendleton, CA 92055','a908eca8-8489-4581-a8e5-a7df577e1230',now(),now(),true), 
+	('1b60502a-f6be-479b-9a77-c29ea7e47043','Twentynine Palms, CA 92278','681278cb-7f6c-4c08-9111-a6f608ab15be',now(),now(),true),
+	('c0e7d54d-9459-43f1-88ae-b4874ce44ee1','San Diego, CA 92137','505476b2-3077-45b7-8e3c-754456c63807',now(),now(),true),
 	--('458e5a9a-60b5-473c-b2b0-2540a80445b3','Oceanside, CA 92055','0514a117-1b24-4159-ac02-d2784cb7f3c3',now(),now(),true),
 	--('8bd6c413-524f-47c2-af0e-24745d477aee','Mayport Naval Station, FL 32228','eb72c529-b4c2-4462-a564-b14b841b0641',now(),now(),true),
 	--('39b23554-504a-47cb-84cf-8afcbb68e1f0','Lawton, OK 73558','769fcb75-1133-473a-bca0-1cbac39a9b0b',now(),now(),true),
