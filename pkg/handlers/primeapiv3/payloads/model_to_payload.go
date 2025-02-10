@@ -35,9 +35,11 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 	if err != nil {
 		destGbloc = ""
 	}
-	destZip, err = moveTaskOrder.GetDestinationPostalCode(db)
+	destinationAddress, err := moveTaskOrder.GetDestinationAddress(appCtx.DB())
 	if err != nil {
 		destZip = ""
+	} else {
+		destZip = destinationAddress.PostalCode
 	}
 
 	payload := &primev3messages.MoveTaskOrder{
@@ -78,7 +80,7 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 	return payload
 }
 
-func MoveTaskOrderWithShipmentOconusRateArea(appCtx appcontext.AppContext, moveTaskOrder *models.Move, shipmentRateArea *[]services.ShipmentPostalCodeRateArea) *primev3messages.MoveTaskOrder {
+func MoveTaskOrderWithShipmentRateAreas(appCtx appcontext.AppContext, moveTaskOrder *models.Move, shipmentRateArea *[]services.ShipmentPostalCodeRateArea) *primev3messages.MoveTaskOrder {
 	// create default payload
 	var payload = MoveTaskOrder(appCtx, moveTaskOrder)
 
@@ -357,14 +359,12 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev3messages.MTOAgents {
 	if mtoAgents == nil {
 		return nil
 	}
-
 	agents := make(primev3messages.MTOAgents, len(*mtoAgents))
 
 	for i, m := range *mtoAgents {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		agents[i] = MTOAgent(&copyOfM)
 	}
-
 	return &agents
 }
 
@@ -874,6 +874,32 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
 			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
+	case models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
+		shuttleSI := &primev3messages.MTOServiceItemInternationalShuttle{
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			RequestApprovalsRequestedStatus: mtoServiceItem.RequestedApprovalsRequestedStatus,
+			EstimatedWeight:                 handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:                    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIOSHUT && mtoServiceItem.MTOShipment.PickupAddress != nil {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
+				shuttleSI.Market = models.MarketOconus.FullString()
+			} else {
+				shuttleSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIDSHUT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
+				shuttleSI.Market = models.MarketOconus.FullString()
+			} else {
+				shuttleSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		payload = shuttleSI
 
 	case models.ReServiceCodePODFSC, models.ReServiceCodePOEFSC:
 		var portCode string

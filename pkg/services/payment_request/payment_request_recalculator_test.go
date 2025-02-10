@@ -56,7 +56,6 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,
 		false,
-		false,
 	).Return(recalculateTestZip3Distance, nil)
 
 	// Create an initial payment request.
@@ -297,7 +296,6 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,
-		false,
 		false,
 	).Return(recalculateTestZip3Distance, nil)
 
