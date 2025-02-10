@@ -1183,6 +1183,11 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -1539,6 +1544,7 @@ func init() {
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
+        "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemInternationalCrating"
       ]
@@ -4050,6 +4056,11 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -4406,6 +4417,7 @@ func init() {
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
+        "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemInternationalCrating"
       ]

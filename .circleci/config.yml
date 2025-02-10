@@ -2704,12 +2704,15 @@ workflows:
             - build_storybook
           filters:
             branches:
-              only: main
+              only: nolonger_main
 
       - build_storybook:
           requires:
             - anti_virus
             - pre_deps_yarn
+          filters:
+            branches:
+              only: nolonger_main
 
       - push_otel_collector_image_prd:
           requires:
