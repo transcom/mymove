@@ -1,5 +1,4 @@
 import React from 'react';
-import { Toolbar } from '@material-ui/core';
 import {
   ArrayField,
   Datagrid,
@@ -10,16 +9,15 @@ import {
   TextField,
   TextInput,
   useRecordContext,
-  BulkExportButton,
   downloadCSV,
-  useListContext,
   useDataProvider,
+  TopToolbar,
+  ExportButton,
+  useListController,
 } from 'react-admin';
 import jsonExport from 'jsonexport/dist';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
-
-// Overriding the default toolbar
 
 const RequestedOfficeUserListFilter = () => (
   <Filter>
@@ -49,66 +47,51 @@ const RolesField = () => {
   return <div>{UserRolesToString(record)}</div>;
 };
 
-const handleExport = async (data, dataProvider, selectedIds) => {
-  const allRequestedOfficeUsers = data;
-
-  const selectedUserIdObjects = {};
-  selectedIds.forEach((id) => {
-    if (!selectedUserIdObjects[`${id}`]) {
-      selectedUserIdObjects[`${id}`] = id;
-    }
-  });
-
-  const selectedUsers = [];
-  allRequestedOfficeUsers.forEach((user) => {
-    if (selectedUserIdObjects[`${user.id}`]) {
-      selectedUsers.push(user);
-    }
-  });
-
-  const officeObjects = {};
-  const offices = await dataProvider.getMany('offices');
-  offices.data.forEach((office) => {
-    if (!officeObjects[`${office.id}`]) {
-      officeObjects[`${office.id}`] = office;
-    }
-  });
-
-  const usersWithTransportationOfficeName = selectedUsers.map((user) => ({
-    ...user,
-    transportationOfficeName: officeObjects[user.transportationOfficeId]?.name,
-  }));
-
-  const userToCSV = [];
-  usersWithTransportationOfficeName.forEach((user) => {
-    const userRoles = UserRolesToString(user);
-    const csvUser = {
-      Id: user.id,
-      Email: user.email,
-      'First Name': user.firstName,
-      'Last Name': user.lastName,
-      'Transportation Office': user.transportationOfficeName,
-      Status: user.status,
-      'Requested On': user.createdAt,
-      Roles: userRoles,
-    };
-
-    userToCSV.push(csvUser);
-  });
-
-  jsonExport(userToCSV, (err, csv) => {
-    downloadCSV(csv, 'Requested_Office_Users');
-  });
-};
-
-const CustomBulkActions = ({ selectedIds }) => {
-  const { data } = useListContext();
+const ListActions = () => {
+  const { total, resource, sort, filterValues } = useListController();
   const dataProvider = useDataProvider();
 
-  return <BulkExportButton label="Export" onClick={() => handleExport(data, dataProvider, selectedIds)} />;
-};
-const ListActions = () => {
-  return <Toolbar />;
+  const exporter = async (users) => {
+    const officeObjects = {};
+    const offices = await dataProvider.getMany('offices');
+    offices.data.forEach((office) => {
+      if (!officeObjects[`${office.id}`]) {
+        officeObjects[`${office.id}`] = office;
+      }
+    });
+
+    const usersWithTransportationOfficeName = users.map((user) => ({
+      ...user,
+      transportationOfficeName: officeObjects[user.transportationOfficeId]?.name,
+    }));
+
+    const usersForExport = usersWithTransportationOfficeName.map((user) => {
+      const { id, email, firstName, lastName, transportationOfficeName, status, createdAt } = user;
+      const userRoles = UserRolesToString(user);
+      return {
+        id,
+        email,
+        firstName,
+        lastName,
+        transportationOfficeName,
+        status,
+        createdAt,
+        roles: userRoles,
+      };
+    });
+
+    // convert data to csv and download
+    jsonExport(usersForExport, {}, (err, csv) => {
+      if (err) throw err;
+      downloadCSV(csv, 'requested_office_users');
+    });
+  };
+
+  return (
+    <TopToolbar>
+      <ExportButton disabled={total === 0} resource={resource} sort={sort} filter={filterValues} exporter={exporter} />
+    </TopToolbar>
+  );
 };
 
 const RequestedOfficeUserList = () => {
@@ -120,7 +103,7 @@ const RequestedOfficeUserList = () => {
       filters={<RequestedOfficeUserListFilter />}
       actions={<ListActions />}
     >
-      <Datagrid bulkActionButtons={<CustomBulkActions />} rowClick="show" data-testid="requested-office-user-fields">
+      <Datagrid bulkActionButtons={false} rowClick="show" data-testid="requested-office-user-fields">
         <TextField source="id" />
         <TextField source="email" />
         <TextField source="firstName" />
