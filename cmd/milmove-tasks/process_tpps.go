@@ -124,7 +124,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	customFilePathToProcess := v.GetString(cli.ProcessTPPSCustomDateFile)
 	logger.Info(fmt.Sprintf("customFilePathToProcess: %s", customFilePathToProcess))
 
-	timezone, err := time.LoadLocation("UTC")
+	timezone, err := time.LoadLocation("America/Chicago")
 	if err != nil {
 		logger.Error("Error loading timezone for process-tpps ECS task", zap.Error(err))
 	}
