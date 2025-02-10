@@ -210,25 +210,6 @@ export function checkAddressTogglesToClearAddresses(body) {
   return values;
 }
 
-export function checkPreceedingAddress(formValues) {
-  const values = formValues;
-  let formError = '';
-
-  if (values.hasSecondaryDelivery === 'yes' && values.delivery.address.streetAddress1 === '') {
-    formError = 'delivery.address.streetAddress1';
-  }
-  if (values.hasTertiaryPickup === 'true' && values.secondaryPickup.address.streetAddress1 === '') {
-    formError = 'secondaryPickup.address.streetAddress1';
-  }
-  if (values.hasTertiaryDelivery === 'yes' && values.secondaryDelivery.address.streetAddress1 === '') {
-    formError = 'secondaryDelivery.address.streetAddress1';
-  }
-  if (values.hasTertiaryDestination === 'true' && values.secondaryDestination.address.streetAddress1 === '') {
-    formError = 'secondaryDestination.address.streetAddress1';
-  }
-  return formError;
-}
-
 export function isPreceedingAddressComplete(hasDeliveryAddress, addressValues) {
   if (
     hasDeliveryAddress === 'true' &&
