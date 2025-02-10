@@ -9791,7 +9791,12 @@ func MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO(app
 		{
 			Key:     models.ServiceItemParamNameCubicFeetBilled,
 			KeyType: models.ServiceItemParamTypeDecimal,
-			Value:   "12",
+			Value:   "4.00",
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetCrating,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   "1",
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -9821,17 +9826,17 @@ func MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO(app
 		{
 			Key:     models.ServiceItemParamNameDimensionHeight,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   "10",
+			Value:   "1",
 		},
 		{
 			Key:     models.ServiceItemParamNameDimensionLength,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   "12",
+			Value:   "1",
 		},
 		{
 			Key:     models.ServiceItemParamNameDimensionWidth,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   "3",
+			Value:   "1",
 		},
 	}
 	desc := "description test"
@@ -9920,7 +9925,7 @@ func MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO(app
 		{
 			Key:     models.ServiceItemParamNameCubicFeetBilled,
 			KeyType: models.ServiceItemParamTypeDecimal,
-			Value:   "12",
+			Value:   "8",
 		},
 		{
 			Key:     models.ServiceItemParamNameReferenceDate,
@@ -9935,17 +9940,17 @@ func MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO(app
 		{
 			Key:     models.ServiceItemParamNameDimensionHeight,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   "10",
+			Value:   "2",
 		},
 		{
 			Key:     models.ServiceItemParamNameDimensionLength,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   "12",
+			Value:   "2",
 		},
 		{
 			Key:     models.ServiceItemParamNameDimensionWidth,
 			KeyType: models.ServiceItemParamTypeString,
-			Value:   "3",
+			Value:   "2",
 		},
 	}
 

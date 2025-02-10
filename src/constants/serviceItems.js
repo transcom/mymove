@@ -22,8 +22,6 @@ const SERVICE_ITEM_PARAM_KEYS = {
   EscalationCompounded: 'EscalationCompounded',
   FSCWeightBasedDistanceMultiplier: 'FSCWeightBasedDistanceMultiplier',
   IsPeak: 'IsPeak',
-  MarketDest: 'MarketDest',
-  MarketOrigin: 'MarketOrigin',
   NTSPackingFactor: 'NTSPackingFactor',
   NumberDaysSIT: 'NumberDaysSIT',
   OriginPrice: 'OriginPrice',
@@ -108,10 +106,10 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   Dimensions: 'Dimensions',
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Mileage factor',
-  International: 'International',
   InternationalShippingAndLinehaul: 'ISLH price',
   Market: 'Market',
   Mileage: 'Mileage',
+  MinSizeCrateApplied: 'Minimum crating size applied',
   MileageIntoSIT: 'Mileage into SIT',
   MileageOutOfSIT: 'Mileage out of SIT',
   NTSPackingFactor: 'NTS packing factor',
@@ -283,6 +281,8 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.IUCRT,
 ];
 
+const EXTERNAL_CRATE_MIN_CUBIC_FT = '4.00';
+
 export default SERVICE_ITEM_STATUSES;
 
 export {
@@ -294,4 +294,5 @@ export {
   SERVICE_ITEM_STATUSES,
   SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM,
   SERVICE_ITEMS_ALLOWED_UPDATE,
+  EXTERNAL_CRATE_MIN_CUBIC_FT,
 };

@@ -1,5 +1,5 @@
 # hadolint ignore=DL3007
-FROM gcr.io/distroless/base-debian11@sha256:ac69aa622ea5dcbca0803ca877d47d069f51bd4282d5c96977e0390d7d256455
+FROM gcr.io/distroless/base-debian12@sha256:ad04bf079b9ed668d38fe2138cfe575847795985097b38a400f4ef1ff69a561a
 
 # Demo Environment Certs
 COPY config/tls/api.demo.dp3.us.chain.der.p7b /config/tls/api.demo.dp3.us.chain.der.p7b
