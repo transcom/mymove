@@ -188,7 +188,7 @@ func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Boo
 
 	buf := new(bytes.Buffer)
 	replace := true
-	err := api.AddBookmarks(inputFile, buf, bookmarks, replace, nil)
+	err := api.AddBookmarks(inputFile, buf, bookmarks, replace, g.pdfConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
 	}

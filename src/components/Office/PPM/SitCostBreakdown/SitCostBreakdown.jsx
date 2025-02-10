@@ -24,6 +24,11 @@ export default function SitCostBreakdown({
     actualWeight,
   );
 
+  const isEitherAddressOconus = (ppm) => {
+    return ppm?.destinationAddress?.isOconus || ppm?.pickupAddress?.isOconus;
+  };
+  const isInternationalShipment = isEitherAddressOconus(ppmShipmentInfo);
+
   setEstimatedCost(estimatedCost?.sitCost || 0);
   return (
     <div data-testid="SitCostBreakdown" className={styles.SitCostBreakdown}>
@@ -36,18 +41,25 @@ export default function SitCostBreakdown({
                 SIT Information:
               </small>
             </div>
-            <div data-testid="details" className={styles.row}>
-              <small>
-                {estimatedCost.paramsFirstDaySIT.serviceAreaOrigin
-                  ? `Origin service area: ${estimatedCost?.paramsFirstDaySIT.serviceAreaOrigin}`
-                  : `Destination service area: ${estimatedCost?.paramsFirstDaySIT.serviceAreaDestination}`}
-              </small>
-            </div>
+            {(estimatedCost.paramsFirstDaySIT.serviceAreaOrigin ||
+              estimatedCost.paramsFirstDaySIT.serviceAreaDestination) && (
+              <div data-testid="details" className={styles.row}>
+                <small>
+                  {estimatedCost.paramsFirstDaySIT.serviceAreaOrigin
+                    ? `Origin service area: ${estimatedCost.paramsFirstDaySIT.serviceAreaOrigin}`
+                    : `Destination service area: ${estimatedCost.paramsFirstDaySIT.serviceAreaDestination}`}
+                </small>
+              </div>
+            )}
             <div data-testid="details" className={styles.row}>
               <small>Actual move date: {formatDate(ppmShipmentInfo.actualMoveDate)}</small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>{estimatedCost.paramsFirstDaySIT.isPeak ? 'Domestic peak' : 'Domestic non-peak'}</small>
+              <small>
+                {isInternationalShipment
+                  ? `${estimatedCost.paramsFirstDaySIT.isPeak ? 'International peak' : 'International non-peak'}`
+                  : `${estimatedCost.paramsFirstDaySIT.isPeak ? 'Domestic peak' : 'Domestic non-peak'}`}
+              </small>
             </div>
           </div>
           <div data-testid="column" className={styles.col}>
