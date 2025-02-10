@@ -10518,6 +10518,7 @@ func MakeIntlHHGMoveDestAddressRequestedAKZone2USMC(appCtx appcontext.AppContext
 // contains a SIT extension request requiring TOO action
 func makeIntlHHGMoveSITExtensionRequested(
 	appCtx appcontext.AppContext,
+	isOrigin bool,
 	affiliation models.ServiceMemberAffiliation,
 	streetAddress, city, state, postalCode string,
 ) models.Move {
@@ -10646,11 +10647,15 @@ func makeIntlHHGMoveSITExtensionRequested(
 		},
 	}, nil)
 
-	// build the destination SIT service items and update their status to SUBMITTED
+	// build the origin/destination SIT service items
 	oneMonthLater := now.AddDate(0, 1, 0)
-	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthLater, nil)
+	if isOrigin {
+		factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &oneMonthLater, nil)
+	} else {
+		factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthLater, nil)
+	}
 
-	// build the SIT extension update
+	// build the SIT extension update in PENDING status
 	factory.BuildSITDurationUpdate(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -10668,37 +10673,71 @@ func makeIntlHHGMoveSITExtensionRequested(
 }
 
 // these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
-// containing a destination address request that the TOO will be required to review
-func MakeIntlHHGMoveSITExtensionRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveSITExtensionRequested(appCtx, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+// containing a SIT extension request for a shipment containing origin SIT only
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
-func MakeIntlHHGMoveSITExtensionRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveSITExtensionRequested(appCtx, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
-func MakeIntlHHGMoveSITExtensionRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveSITExtensionRequested(appCtx, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
-func MakeIntlHHGMoveSITExtensionRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveSITExtensionRequested(appCtx, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
-func MakeIntlHHGMoveSITExtensionRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveSITExtensionRequested(appCtx, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
-func MakeIntlHHGMoveSITExtensionRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveSITExtensionRequested(appCtx, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
-func MakeIntlHHGMoveSITExtensionRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveSITExtensionRequested(appCtx, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
-func MakeIntlHHGMoveSITExtensionRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveSITExtensionRequested(appCtx, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing a SIT extension request for a shipment containing destination SIT only
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
 // makeIntlHHGMoveCONUSToAKWithExcessWeight creates an international HHG move
