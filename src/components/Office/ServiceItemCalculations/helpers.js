@@ -1,4 +1,9 @@
-import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
+import {
+  SERVICE_ITEM_CALCULATION_LABELS,
+  SERVICE_ITEM_CODES,
+  SERVICE_ITEM_PARAM_KEYS,
+  EXTERNAL_CRATE_MIN_CUBIC_FT,
+} from 'constants/serviceItems';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
 import { formatDateWithUTC } from 'shared/dates';
 import {
@@ -689,12 +694,26 @@ const unCratingPriceIntl = (params) => {
   );
 };
 
+const isExternalCrateMinSizeApplied = (params) => {
+  const cubicFeetBilled = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetBilled, params);
+  const cubicFeetCrating = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetCrating, params);
+  const externalCrate =
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.ExternalCrate, params)?.toLowerCase() === 'true'
+      ? SERVICE_ITEM_CALCULATION_LABELS.ExternalCrate
+      : '';
+
+  return (
+    cubicFeetCrating !== cubicFeetBilled && externalCrate && cubicFeetBilled?.toString() === EXTERNAL_CRATE_MIN_CUBIC_FT
+  );
+};
+
 const cratingSize = (params, mtoParams) => {
   const cubicFeetBilled = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetBilled, params);
   const length = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionLength, params);
   const height = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionHeight, params);
   const width = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionWidth, params);
   let label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetBilled;
+  let cubicFeetCratingInfo = '';
 
   const description = `${SERVICE_ITEM_CALCULATION_LABELS.Description}: ${mtoParams.description}`;
 
@@ -706,26 +725,24 @@ const cratingSize = (params, mtoParams) => {
       : '';
 
   // currently external intl crate gets 4 cu ft min applied to pricing
-  const minimumSizeApplied = externalCrate && cubicFeetBilled.toString() === '4.00';
+  const isMinCrateSizeApplied = isExternalCrateMinSizeApplied(params);
 
-  if (minimumSizeApplied) {
+  if (isMinCrateSizeApplied) {
     label += ' - Minimum';
-  }
 
-  // show actual size if minimum was applied
-  const cubicFeetCrating = minimumSizeApplied
-    ? `${SERVICE_ITEM_CALCULATION_LABELS.CubicFeetCrating}: ${getParamValue(
-        SERVICE_ITEM_PARAM_KEYS.CubicFeetCrating,
-        params,
-      )} cu ft`
-    : '';
+    // show actual size if minimum was applied
+    cubicFeetCratingInfo = `${SERVICE_ITEM_CALCULATION_LABELS.CubicFeetCrating}: ${getParamValue(
+      SERVICE_ITEM_PARAM_KEYS.CubicFeetCrating,
+      params,
+    )} cu ft`;
+  }
 
   return calculation(
     cubicFeetBilled,
     label,
     formatDetail(description),
     formatDetail(formattedDimensions),
-    formatDetail(cubicFeetCrating),
+    formatDetail(cubicFeetCratingInfo),
     formatDetail(externalCrate),
   );
 };
@@ -752,6 +769,12 @@ const uncappedRequestTotal = (params) => {
   const label = `${SERVICE_ITEM_CALCULATION_LABELS.UncappedRequestTotal}`;
 
   return calculation(value, label);
+};
+
+const minSizeCrateApplied = () => {
+  const label = SERVICE_ITEM_CALCULATION_LABELS.MinSizeCrateApplied;
+
+  return calculation('', label);
 };
 
 const totalAmountRequested = (totalAmount) => {
@@ -1033,6 +1056,9 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       ) {
         result.splice(result.length - 1, 0, uncappedRequestTotal(params));
         result.splice(result.length - 1, 0, standaloneCrate(params));
+      }
+      if (isExternalCrateMinSizeApplied(params)) {
+        result.splice(result.length - 1, 0, minSizeCrateApplied(params));
       }
       break;
     // International uncrating
