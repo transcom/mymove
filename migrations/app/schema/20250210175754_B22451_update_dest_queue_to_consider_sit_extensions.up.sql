@@ -178,11 +178,14 @@ BEGIN
         sql_query := sql_query || ' AND (too_user.first_name || '' '' || too_user.last_name) ILIKE ''%'' || $12 || ''%'' ';
     END IF;
 
-    -- add destination queue-specific filters (pending dest address requests, pending dest SIT extension requests, dest SIT & dest shuttle service items)
+    -- add destination queue-specific filters (pending dest address requests, pending dest SIT extension requests when there are dest SIT service items, submitted dest SIT & dest shuttle service items)
     sql_query := sql_query || '
         AND (
             shipment_address_updates.status = ''REQUESTED''
-            OR sit_extensions.status = ''PENDING''
+            OR (
+                sit_extensions.status = ''PENDING''
+                AND re_services.code IN (''DDFSIT'', ''DDASIT'', ''DDDSIT'', ''DDSFSC'', ''DDSHUT'', ''IDFSIT'', ''IDASIT'', ''IDDSIT'', ''IDSFSC'', ''IDSHUT'')
+            )
             OR (
                 mto_service_items.status = ''SUBMITTED''
                 AND re_services.code IN (''DDFSIT'', ''DDASIT'', ''DDDSIT'', ''DDSFSC'', ''DDSHUT'', ''IDFSIT'', ''IDASIT'', ''IDDSIT'', ''IDSFSC'', ''IDSHUT'')
@@ -254,3 +257,24 @@ BEGIN
 
 END;
 $$ LANGUAGE plpgsql;
+
+-- fixing some capitalization discrepencies for consistency
+UPDATE re_services
+SET name = 'International POE fuel surcharge'
+WHERE name = 'International POE Fuel Surcharge';
+
+UPDATE re_services
+SET name = 'International POD fuel surcharge'
+WHERE name = 'International POD Fuel Surcharge';
+
+UPDATE re_services
+SET name = 'International destination SIT fuel surcharge'
+WHERE name = 'International Destination SIT Fuel Surcharge';
+
+UPDATE re_services
+SET name = 'International origin SIT fuel surcharge'
+WHERE name = 'International Origin SIT Fuel Surcharge';
+
+UPDATE re_services
+SET name = 'International shipping & linehaul'
+WHERE name = 'International Shipping & Linehaul';

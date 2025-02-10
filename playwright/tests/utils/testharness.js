@@ -884,39 +884,75 @@ export class TestHarness {
   }
 
   /**
-   * Use testharness to build international move with a pending SIT extension request
+   * Use testharness to build international move with a pending SIT extension request with origin SIT
    * @returns {Promise<Move>}
    */
-  async buildIntlHHGMoveSITExtensionRequestedAKZone1Army() {
-    return this.buildDefault('IntlHHGMoveSITExtensionRequestedAKZone1Army');
+  async buildIntlHHGMoveOriginSITExtensionRequestedAKZone1Army() {
+    return this.buildDefault('IntlHHGMoveOriginSITExtensionRequestedAKZone1Army');
   }
 
-  async buildIntlHHGMoveSITExtensionRequestedAKZone2Army() {
-    return this.buildDefault('IntlHHGMoveSITExtensionRequestedAKZone2Army');
+  async buildIntlHHGMoveOriginSITExtensionRequestedAKZone2Army() {
+    return this.buildDefault('IntlHHGMoveOriginSITExtensionRequestedAKZone2Army');
   }
 
-  async buildIntlHHGMoveSITExtensionRequestedAKZone1AirForce() {
-    return this.buildDefault('IntlHHGMoveSITExtensionRequestedAKZone1AirForce');
+  async buildIntlHHGMoveOriginSITExtensionRequestedAKZone1AirForce() {
+    return this.buildDefault('IntlHHGMoveOriginSITExtensionRequestedAKZone1AirForce');
   }
 
-  async buildIntlHHGMoveSITExtensionRequestedAKZone2AirForce() {
-    return this.buildDefault('IntlHHGMoveSITExtensionRequestedAKZone2AirForce');
+  async buildIntlHHGMoveOriginSITExtensionRequestedAKZone2AirForce() {
+    return this.buildDefault('IntlHHGMoveOriginSITExtensionRequestedAKZone2AirForce');
   }
 
-  async buildIntlHHGMoveSITExtensionRequestedAKZone1SpaceForce() {
-    return this.buildDefault('IntlHHGMoveSITExtensionRequestedAKZone1SpaceForce');
+  async buildIntlHHGMoveOriginSITExtensionRequestedAKZone1SpaceForce() {
+    return this.buildDefault('IntlHHGMoveOriginSITExtensionRequestedAKZone1SpaceForce');
   }
 
-  async buildIntlHHGMoveSITExtensionRequestedAKZone2SpaceForce() {
-    return this.buildDefault('IntlHHGMoveSITExtensionRequestedAKZone2SpaceForce');
+  async buildIntlHHGMoveOriginSITExtensionRequestedAKZone2SpaceForce() {
+    return this.buildDefault('IntlHHGMoveOriginSITExtensionRequestedAKZone2SpaceForce');
   }
 
-  async buildIntlHHGMoveSITExtensionRequestedAKZone1USMC() {
-    return this.buildDefault('IntlHHGMoveSITExtensionRequestedAKZone1USMC');
+  async buildIntlHHGMoveOriginSITExtensionRequestedAKZone1USMC() {
+    return this.buildDefault('IntlHHGMoveOriginSITExtensionRequestedAKZone1USMC');
   }
 
-  async buildIntlHHGMoveSITExtensionRequestedAKZone2USMC() {
-    return this.buildDefault('IntlHHGMoveSITExtensionRequestedAKZone2USMC');
+  async buildIntlHHGMoveOriginSITExtensionRequestedAKZone2USMC() {
+    return this.buildDefault('IntlHHGMoveOriginSITExtensionRequestedAKZone2USMC');
+  }
+
+  /**
+   * Use testharness to build international move with a pending SIT extension request with destination SIT
+   * @returns {Promise<Move>}
+   */
+  async buildIntlHHGMoveDestSITExtensionRequestedAKZone1Army() {
+    return this.buildDefault('IntlHHGMoveDestSITExtensionRequestedAKZone1Army');
+  }
+
+  async buildIntlHHGMoveDestSITExtensionRequestedAKZone2Army() {
+    return this.buildDefault('IntlHHGMoveDestSITExtensionRequestedAKZone2Army');
+  }
+
+  async buildIntlHHGMoveDestSITExtensionRequestedAKZone1AirForce() {
+    return this.buildDefault('IntlHHGMoveDestSITExtensionRequestedAKZone1AirForce');
+  }
+
+  async buildIntlHHGMoveDestSITExtensionRequestedAKZone2AirForce() {
+    return this.buildDefault('IntlHHGMoveDestSITExtensionRequestedAKZone2AirForce');
+  }
+
+  async buildIntlHHGMoveDestSITExtensionRequestedAKZone1SpaceForce() {
+    return this.buildDefault('IntlHHGMoveDestSITExtensionRequestedAKZone1SpaceForce');
+  }
+
+  async buildIntlHHGMoveDestSITExtensionRequestedAKZone2SpaceForce() {
+    return this.buildDefault('IntlHHGMoveDestSITExtensionRequestedAKZone2SpaceForce');
+  }
+
+  async buildIntlHHGMoveDestSITExtensionRequestedAKZone1USMC() {
+    return this.buildDefault('IntlHHGMoveDestSITExtensionRequestedAKZone1USMC');
+  }
+
+  async buildIntlHHGMoveDestSITExtensionRequestedAKZone2USMC() {
+    return this.buildDefault('IntlHHGMoveDestSITExtensionRequestedAKZone2USMC');
   }
 
   /**
@@ -929,6 +965,18 @@ export class TestHarness {
 
   async buildIntlHHGMoveExcessWeightAKZone2Army() {
     return this.buildDefault('IntlHHGMoveExcessWeightAKZone2Army');
+  }
+
+  /**
+   * Use testharness to build international move with an at risk of UB excess weight
+   * @returns {Promise<Move>}
+   */
+  async buildIntlUBMoveExcessWeightAKZone1Army() {
+    return this.buildDefault('IntlUBMoveExcessWeightAKZone1Army');
+  }
+
+  async buildIntlUBMoveExcessWeightAKZone2Army() {
+    return this.buildDefault('IntlUBMoveExcessWeightAKZone2Army');
   }
 }
 export default TestHarness;
