@@ -229,9 +229,9 @@ export function checkPreceedingAddress(formValues) {
   return formError;
 }
 
-export function isSecondaryPicukupAddressComplete(hasSecondaryPickup, addressValues) {
+export function isPreceedingAddressComplete(hasDeliveryAddress, addressValues) {
   if (
-    (hasSecondaryPickup === 'yes' || hasSecondaryPickup === 'true') &&
+    hasDeliveryAddress === 'true' &&
     addressValues.streetAddress1 !== '' &&
     addressValues.state !== '' &&
     addressValues.city !== '' &&
@@ -242,22 +242,13 @@ export function isSecondaryPicukupAddressComplete(hasSecondaryPickup, addressVal
   return false;
 }
 
-export function isSecondaryDeliveryAddressComplete(hasSecondaryDelivery, addressValues) {
-  if (
-    (hasSecondaryDelivery === 'yes' || hasSecondaryDelivery === 'true') &&
-    addressValues.streetAddress1 !== '' &&
-    addressValues.state !== '' &&
-    addressValues.city !== '' &&
-    addressValues.postalCode !== ''
-  ) {
-    return true;
+export function isSecondaryAddressCompletePPM(hasSecondaryDelivery, addressValues) {
+  if (addressValues === undefined || addressValues.postalCode === undefined) {
+    return false;
   }
-  return false;
-}
 
-export function isDeliveryAddressComplete(hasDeliveryAddress, addressValues) {
   if (
-    hasDeliveryAddress === 'yes' &&
+    hasSecondaryDelivery === 'true' &&
     addressValues.streetAddress1 !== '' &&
     addressValues.state !== '' &&
     addressValues.city !== '' &&
