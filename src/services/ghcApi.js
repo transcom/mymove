@@ -142,6 +142,10 @@ export async function getCustomerSupportRemarksForMove(key, locator) {
   return makeGHCRequest('customerSupportRemarks.getCustomerSupportRemarksForMove', { locator }, { normalize: false });
 }
 
+export async function getBulkAssignmentData(queueType) {
+  return makeGHCRequest('queues.getBulkAssignmentData', { queueType }, { normalize: false });
+}
+
 export async function createCustomerSupportRemarkForMove({ body, locator }) {
   return makeGHCRequest('customerSupportRemarks.createCustomerSupportRemarkForMove', {
     body,
@@ -399,6 +403,11 @@ export async function acknowledgeExcessWeightRisk({ orderID, ifMatchETag }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
 }
 
+export async function acknowledgeExcessUnaccompaniedBaggageWeightRisk({ orderID, ifMatchETag }) {
+  const operationPath = 'order.acknowledgeExcessUnaccompaniedBaggageWeightRisk';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
+}
+
 export async function createCustomerWithOktaOption({ body }) {
   const operationPath = 'customer.createCustomerWithOktaOption';
   return makeGHCRequest(operationPath, { body });
@@ -473,6 +482,17 @@ export function updateMTOShipmentStatus({
       },
     },
     { schemaKey, normalize },
+  );
+}
+
+export function updateMultipleShipmentStatus({ payload, normalize = true }) {
+  const operationPath = 'shipment.approveShipments';
+  return makeGHCRequest(
+    operationPath,
+    {
+      body: { approveShipments: payload },
+    },
+    { normalize },
   );
 }
 

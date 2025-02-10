@@ -84,7 +84,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		{models.ReServiceCodeDOP, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeDDP, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeDPK, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeDNPK, unit.Pound(450), "500", models.MTOShipmentTypeHHGIntoNTSDom},
+		{models.ReServiceCodeDNPK, unit.Pound(450), "500", models.MTOShipmentTypeHHGIntoNTS},
 		{models.ReServiceCodeDUPK, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		// Domestic SIT
 		{models.ReServiceCodeDOFSIT, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
@@ -95,15 +95,15 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		{models.ReServiceCodeDDDSIT, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		// International
 		{models.ReServiceCodeISLH, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeUBP, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeISLH, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeUBP, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeISLH, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeUBP, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeIHPK, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeIHUPK, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeIUBPK, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeIUBUPK, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
+		{models.ReServiceCodePOEFSC, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
+		{models.ReServiceCodePODFSC, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
+		{models.ReServiceCodeUBP, unit.Pound(250), "300", models.MTOShipmentTypeUnaccompaniedBaggage},
+		{models.ReServiceCodeIUBPK, unit.Pound(250), "300", models.MTOShipmentTypeUnaccompaniedBaggage},
+		{models.ReServiceCodeIUBUPK, unit.Pound(250), "300", models.MTOShipmentTypeUnaccompaniedBaggage},
+		{models.ReServiceCodePOEFSC, unit.Pound(250), "300", models.MTOShipmentTypeUnaccompaniedBaggage},
+		{models.ReServiceCodePODFSC, unit.Pound(250), "300", models.MTOShipmentTypeUnaccompaniedBaggage},
 		// International SIT
 		{models.ReServiceCodeIOFSIT, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeIDFSIT, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
@@ -306,7 +306,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookupDivertedShipme
 		childEstimatedWeight := unit.Pound(1600)
 		childActualWeight := unit.Pound(2400)
 
-		_, _, _, _, _, childParamLookup := suite.setupTestDivertedShipmentChain(&parentEstimatedWeight, &childEstimatedWeight, &parentActualWeight, &childActualWeight, nil, nil, models.ReServiceCodeDLH, models.MTOShipmentTypeHHGIntoNTSDom)
+		_, _, _, _, _, childParamLookup := suite.setupTestDivertedShipmentChain(&parentEstimatedWeight, &childEstimatedWeight, &parentActualWeight, &childActualWeight, nil, nil, models.ReServiceCodeDLH, models.MTOShipmentTypeHHGIntoNTS)
 
 		// Use the child shipment
 		valueStr, err := childParamLookup.ServiceParamValue(suite.AppContextForTest(), key)
@@ -324,7 +324,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookupDivertedShipme
 		childEstimatedWeight := unit.Pound(1600)
 		childActualWeight := unit.Pound(2400)
 
-		_, _, _, _, _, childParamLookup := suite.setupTestDivertedShipmentChain(&parentEstimatedWeight, &childEstimatedWeight, &parentActualWeight, &childActualWeight, &parentReweighWeight, nil, models.ReServiceCodeDLH, models.MTOShipmentTypeHHGIntoNTSDom)
+		_, _, _, _, _, childParamLookup := suite.setupTestDivertedShipmentChain(&parentEstimatedWeight, &childEstimatedWeight, &parentActualWeight, &childActualWeight, &parentReweighWeight, nil, models.ReServiceCodeDLH, models.MTOShipmentTypeHHGIntoNTS)
 
 		// Use the child shipment
 		valueStr, err := childParamLookup.ServiceParamValue(suite.AppContextForTest(), key)

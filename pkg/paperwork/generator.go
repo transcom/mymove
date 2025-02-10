@@ -2,11 +2,15 @@ package paperwork
 
 import (
 	"bytes"
+	_ "embed"
+	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
 	"image/png"
 	"io"
+	"log"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -92,16 +96,38 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 	return nil
 }
 
+// Identifies if a filepath directory is mutable
+// This is needed in order to write config and fonts to filesystem
+// as the pdfcpu package hard-code requires it at this time
+// for initial installation and for form filling
+func isDirMutable(path string) bool {
+	testFile := filepath.Join(path, "tmp")
+	file, err := os.Create(testFile)
+	if err != nil {
+		log.Printf("isDirMutable: failed for %s: %v\n", path, err)
+		return false
+	}
+	file.Close()
+	os.Remove(testFile) // Cleanup the test file, it is mutable here
+	return true
+}
+
 // NewGenerator creates a new Generator.
 func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	// Use in memory filesystem for generation. Purpose is to not write
 	// to hard disk due to restrictions in AWS storage. May need better long term solution.
 	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
-	// Disable ConfiDir for AWS deployment purposes.
-	// PDFCPU will attempt to create temp dir using os.create(hard disk).This will prevent it.
-	api.DisableConfigDir()
-	pdfConfig := model.NewDefaultConfiguration()
+	tmpDir := os.TempDir()
+	if !isDirMutable(tmpDir) {
+		return nil, fmt.Errorf("tmp directory (%s) is not mutable, cannot configure default pdfcpu generator settings", tmpDir)
+	}
+	err := api.EnsureDefaultConfigAt(tmpDir)
+	if err != nil {
+		return nil, err
+	}
+
+	pdfConfig := api.LoadConfiguration() // As long as our config was set properly, this will load it and not create a new default config
 	pdfCPU := pdfCPUWrapper{Configuration: pdfConfig}
 
 	directory, err := afs.TempDir("", "generator")
@@ -162,7 +188,7 @@ func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Boo
 
 	buf := new(bytes.Buffer)
 	replace := true
-	err := api.AddBookmarks(inputFile, buf, bookmarks, replace, nil)
+	err := api.AddBookmarks(inputFile, buf, bookmarks, replace, g.pdfConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
 	}
@@ -199,16 +225,16 @@ func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
 		return nil, err
 	}
 	defer file.Close()
-	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
+	return api.PDFInfo(file, fileName, nil, false, g.pdfConfig)
 }
 
 func (g *Generator) GetPdfFileInfoForReadSeeker(rs io.ReadSeeker) (*pdfcpu.PDFInfo, error) {
-	return api.PDFInfo(rs, "", nil, g.pdfConfig)
+	return api.PDFInfo(rs, "", nil, false, g.pdfConfig)
 }
 
 // Get file information of a single PDF
 func (g *Generator) GetPdfFileInfoByContents(file afero.File) (*pdfcpu.PDFInfo, error) {
-	return api.PDFInfo(file, file.Name(), nil, g.pdfConfig)
+	return api.PDFInfo(file, file.Name(), nil, false, g.pdfConfig)
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
@@ -699,7 +725,7 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, f
 	// Fills form using the template reader with json reader, outputs to byte, to be saved to afero file.
 	formerr := api.FillForm(templateReader, readJSON, buf, conf)
 	if formerr != nil {
-		return nil, err
+		return nil, formerr
 	}
 
 	tempFile, err := g.newTempFileWithName(fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
@@ -729,6 +755,10 @@ func (g *Generator) LockPDFForm(templateReader io.ReadSeeker, fileName string) (
 	buf := new(bytes.Buffer)
 	// Reads all form fields on document as []form.Field
 	fields, err := api.FormFields(templateReader, conf)
+	if err != nil {
+		return nil, err
+	}
+
 	// Assembles them to the API's required []string
 	fieldList := make([]string, len(fields))
 	for i, field := range fields {
@@ -786,9 +816,41 @@ func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders
 	return mergedFile, nil
 }
 
+// Pdfcpu does not nil check watermarks as of version 0.9.1
+// This map allows us to preemptively nil check before calling the package
+func createMapOfOnlyWatermarkedPages(m map[int][]*model.Watermark) map[int][]*model.Watermark {
+	validMap := make(map[int][]*model.Watermark)
+	for page, wms := range m {
+		// Skip entries where the slice is nil or empty
+		if len(wms) == 0 {
+			continue
+		}
+
+		// Filter out nil pointers from the slice
+		validWms := []*model.Watermark{}
+		for _, wm := range wms {
+			if wm != nil {
+				validWms = append(validWms, wm)
+			}
+		}
+
+		// Only add the page to the valid map if the filtered slice is not empty
+		if len(validWms) > 0 {
+			validMap[page] = validWms
+		}
+	}
+	return validMap
+}
+
 func (g *Generator) AddWatermarks(inputFile afero.File, m map[int][]*model.Watermark) (afero.File, error) {
+	// Preemptive nil check for the map and its contents
+	watermarkMap := createMapOfOnlyWatermarkedPages(m)
+	if watermarkMap[0] == nil {
+		return nil, fmt.Errorf("no watermarks provided for generation")
+	}
+
 	buf := new(bytes.Buffer)
-	err := api.AddWatermarksSliceMap(inputFile, buf, m, g.pdfConfig)
+	err := api.AddWatermarksSliceMap(inputFile, buf, watermarkMap, g.pdfConfig)
 	if err != nil {
 		return nil, err
 	}

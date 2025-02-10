@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	mocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -49,7 +50,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		false,
 	).Return(400, nil)
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
@@ -329,7 +329,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -454,7 +453,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(1234, nil)
 
@@ -585,7 +583,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -713,7 +710,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -791,7 +787,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -862,7 +857,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(1234, nil)
 
@@ -972,7 +966,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(1234, nil)
 
@@ -1089,7 +1082,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(1234, nil)
 
@@ -1252,7 +1244,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1364,7 +1355,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(1234, apperror.UnprocessableEntityError{})
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1399,7 +1389,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"98158",
-			true,
 			true,
 		).Return(1000, nil)
 
@@ -2179,7 +2168,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
 
@@ -2206,6 +2194,50 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Nil(serviceItem.RejectionReason)
 		suite.Nil(serviceItem.RejectedAt)
 		suite.NotNil(updatedServiceItem)
+	})
+	suite.Run("Handling assigned user When TOO reviews move and approves service item", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &factory.OfficeUsers.TOOAssignedUser,
+			},
+		}, nil)
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.NotNil(move.TOOAssignedUser)
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		err = suite.DB().Find(&serviceItem, serviceItem.ID)
+		suite.NoError(err)
+		suite.Nil(move.TOOAssignedID)
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
 	})
 
 	suite.Run("When TOO approves a DDDSIT service item with an existing SITDestinationFinalAddress", func() {

@@ -40,6 +40,7 @@ func AddressModel(address *primemessages.Address) *models.Address {
 		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
+		County:         address.County,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
@@ -55,6 +56,10 @@ func AddressModel(address *primemessages.Address) *models.Address {
 	}
 	if address.Country != nil {
 		modelAddress.Country = CountryModel(address.Country)
+	}
+	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+	if usPostRegionCitiesID != uuid.Nil {
+		modelAddress.UsPostRegionCityID = &usPostRegionCitiesID
 	}
 	return modelAddress
 }
@@ -532,6 +537,14 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
 		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
 
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalShuttle:
+		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemInternationalShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
 
@@ -716,6 +729,20 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemShuttle)
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
 		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
+
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle:
+		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemInternationalShuttle)
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
+
+		if shuttle.RequestApprovalsRequestedStatus != nil {
+			pointerValue := *shuttle.RequestApprovalsRequestedStatus
+			model.RequestedApprovalsRequestedStatus = &pointerValue
+			model.Status = models.MTOServiceItemStatusSubmitted
+		}
 
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs

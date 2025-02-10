@@ -878,6 +878,10 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -1299,6 +1303,7 @@ definitions:
       - MTOServiceItemOriginSIT
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
+      - MTOServiceItemInternationalShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
@@ -1492,8 +1497,8 @@ definitions:
     example: HHG
     enum:
       - HHG
-      - HHG_INTO_NTS_DOMESTIC
-      - HHG_OUTOF_NTS_DOMESTIC
+      - HHG_INTO_NTS
+      - HHG_OUTOF_NTS
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
@@ -1501,8 +1506,8 @@ definitions:
       - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
-      HHG_INTO_NTS_DOMESTIC: NTS
-      HHG_OUTOF_NTS_DOMESTIC: NTS Release
+      HHG_INTO_NTS: NTS
+      HHG_OUTOF_NTS: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away

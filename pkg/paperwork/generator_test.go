@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
@@ -17,6 +16,9 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+// nolint:unused
+// This func is required by temporarily commented out tests that have an interim fix until
+// https://github.com/pdfcpu/pdfcpu/issues/1089 has been resolved
 func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string, error) {
 	var file afero.File
 	var err error
@@ -114,33 +116,47 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	suite.FatalNil(err)
 	err = os.WriteFile(f.Name(), file, 0600)
 	suite.FatalNil(err)
-	err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
-	suite.FatalNil(err)
-	err = os.Remove(f.Name())
-	suite.FatalNil(err)
 
-	checksums := make([]string, 2)
-	files, err := os.ReadDir(tmpDir)
-	suite.FatalNil(err)
+	// TODO: Delete these few lines after https://github.com/pdfcpu/pdfcpu/issues/1089 is resolved
+	// and we switch from the fork back to main pdfcpu repo with optimization enabled
+	openFile, err := os.Open(f.Name())
+	suite.FatalNil(err, "Failed to open locally written test file")
+	pageCtx, err := api.ReadAndValidate(openFile, generator.pdfConfig)
+	suite.FatalNil(err, "Failed to read and validate the PDF file")
+	// Temporarily assert 2 pages of PDF while optimization is disabled
+	suite.Equal(2, pageCtx.PageCount, "Expected 2 pages in the PDF")
 
-	suite.Equal(4, len(files), "did not find 2 images")
+	// TODO:
+	// Uncomment the remainder of this test as it is the best form of validation for the PDF generation
+	// BUTTTT it requires optimization to be enabled in pdfcpu. We had to disable it due to an overflow bug
+	// being monitored by https://github.com/pdfcpu/pdfcpu/issues/1089
+	// err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
+	// suite.FatalNil(err)
+	// err = os.Remove(f.Name())
+	// suite.FatalNil(err)
 
-	for _, file := range files {
-		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
-		suite.FatalNil(sha256ForPathErr, "error calculating hash")
-		if sha256ForPathErr != nil {
-			suite.FailNow(sha256ForPathErr.Error())
-		}
-		checksums = append(checksums, checksum)
-	}
+	// checksums := make([]string, 2)
+	// files, err := os.ReadDir(tmpDir)
+	// suite.FatalNil(err)
 
-	orders1Checksum, err := suite.sha256ForPath("testdata/orders1.jpg", generator.fs)
-	suite.Nil(err, "error calculating hash")
-	suite.Contains(checksums, orders1Checksum, "did not find hash for orders1.jpg")
+	// suite.Equal(2, len(files), "did not find 2 images")
 
-	orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
-	suite.Nil(err, "error calculating hash")
-	suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
+	// for _, file := range files {
+	// 	checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
+	// 	suite.FatalNil(sha256ForPathErr, "error calculating hash")
+	// 	if sha256ForPathErr != nil {
+	// 		suite.FailNow(sha256ForPathErr.Error())
+	// 	}
+	// 	checksums = append(checksums, checksum)
+	// }
+
+	// orders1Checksum, err := suite.sha256ForPath("testdata/orders1.jpg", generator.fs)
+	// suite.Nil(err, "error calculating hash")
+	// suite.Contains(checksums, orders1Checksum, "did not find hash for orders1.jpg")
+
+	// orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
+	// suite.Nil(err, "error calculating hash")
+	// suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
 }
 
 func (suite *PaperworkSuite) TestPDFFromImagesNoRotation() {
@@ -173,33 +189,44 @@ func (suite *PaperworkSuite) TestPDFFromImagesNoRotation() {
 	suite.FatalNil(err)
 	err = os.WriteFile(f.Name(), file, 0600)
 	suite.FatalNil(err)
-	err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
-	suite.FatalNil(err)
-	err = os.Remove(f.Name())
-	suite.FatalNil(err)
 
-	checksums := make([]string, 2)
-	files, err := os.ReadDir(tmpDir)
-	suite.FatalNil(err)
+	// TODO: Delete these few lines after https://github.com/pdfcpu/pdfcpu/issues/1089 is resolved
+	// and we switch from the fork back to main pdfcpu repo with optimization enabled
+	openFile, err := os.Open(f.Name())
+	suite.FatalNil(err, "Failed to open locally written test file")
+	pageCtx, err := api.ReadAndValidate(openFile, generator.pdfConfig)
+	suite.FatalNil(err, "Failed to read and validate the PDF file")
+	// Temporarily assert 2 pages of PDF while optimization is disabled
+	suite.Equal(2, pageCtx.PageCount, "Expected 2 pages in the PDF")
 
-	suite.Equal(4, len(files), "did not find 2 images")
+	// TODO: Uncomment these lines below when the above lines are deleted
+	// err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
+	// suite.FatalNil(err)
+	// err = os.Remove(f.Name())
+	// suite.FatalNil(err)
 
-	for _, file := range files {
-		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
-		suite.FatalNil(sha256ForPathErr, "error calculating hash")
-		if sha256ForPathErr != nil {
-			suite.FailNow(sha256ForPathErr.Error())
-		}
-		checksums = append(checksums, checksum)
-	}
+	// checksums := make([]string, 2)
+	// files, err := os.ReadDir(tmpDir)
+	// suite.FatalNil(err)
 
-	orders1Checksum, err := suite.sha256ForPath("testdata/orders1.jpg", generator.fs)
-	suite.Nil(err, "error calculating hash")
-	suite.Contains(checksums, orders1Checksum, "did not find hash for orders1.jpg")
+	// suite.Equal(2, len(files), "did not find 2 images")
 
-	orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
-	suite.Nil(err, "error calculating hash")
-	suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
+	// for _, file := range files {
+	// 	checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
+	// 	suite.FatalNil(sha256ForPathErr, "error calculating hash")
+	// 	if sha256ForPathErr != nil {
+	// 		suite.FailNow(sha256ForPathErr.Error())
+	// 	}
+	// 	checksums = append(checksums, checksum)
+	// }
+
+	// orders1Checksum, err := suite.sha256ForPath("testdata/orders1.jpg", generator.fs)
+	// suite.Nil(err, "error calculating hash")
+	// suite.Contains(checksums, orders1Checksum, "did not find hash for orders1.jpg")
+
+	// orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
+	// suite.Nil(err, "error calculating hash")
+	// suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
 }
 
 func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
@@ -264,7 +291,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 	ctx, err := api.ReadContext(file, generator.pdfConfig)
 	suite.FatalNil(err)
 
-	err = validate.XRefTable(ctx.XRefTable)
+	err = validate.XRefTable(ctx)
 	suite.FatalNil(err)
 
 	suite.Equal(3, ctx.PageCount)
@@ -292,7 +319,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDFByContents() {
 	ctx, err := api.ReadContext(file, generator.pdfConfig)
 	suite.FatalNil(err)
 
-	err = validate.XRefTable(ctx.XRefTable)
+	err = validate.XRefTable(ctx)
 	suite.FatalNil(err)
 
 	suite.Equal(2, ctx.PageCount)

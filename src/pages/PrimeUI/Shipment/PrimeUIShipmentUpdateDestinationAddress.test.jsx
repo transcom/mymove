@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { generatePath } from 'react-router-dom';
 
 import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
 import { updateShipmentDestinationAddress } from '../../../services/primeApi';
@@ -26,6 +27,13 @@ jest.mock('services/primeApi', () => ({
   updateShipmentDestinationAddress: jest.fn(),
 }));
 
+const mockSetFlashMessage = jest.fn();
+
+jest.mock('react-redux', () => ({
+  ...jest.requireActual('react-redux'),
+  connect: jest.fn(() => (component) => (props) => component({ ...props, setFlashMessage: mockSetFlashMessage })),
+}));
+
 const routingParams = { moveCodeOrID: 'LN4T89', shipmentId: '4' };
 
 const moveTaskOrder = {
@@ -40,7 +48,7 @@ const moveTaskOrder = {
     },
     {
       id: '3',
-      shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+      shipmentType: 'HHG_INTO_NTS',
       requestedPickupDate: '2021-12-01',
       pickupAddress: { streetAddress1: '800 Madison Avenue', city: 'New York', state: 'NY', postalCode: '10002' },
     },
@@ -87,6 +95,7 @@ const testShipmentReturnValue = {
           streetAddress1: '100 1st Avenue',
           city: 'New York',
           state: 'NY',
+          county: 'New York',
           postalCode: '10001',
         },
       },
@@ -95,6 +104,11 @@ const testShipmentReturnValue = {
   isLoading: false,
   isError: false,
 };
+
+const moveReviewPath = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, {
+  moveCodeOrID: 'LN4T89',
+  setFlashMessage: jest.fn(),
+});
 
 const renderComponent = () => {
   render(
@@ -106,7 +120,7 @@ const renderComponent = () => {
   );
 };
 
-describe('PrimeUIShipmentUpdateAddress page', () => {
+describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
   describe('check loading and error component states', () => {
     const loadingReturnValue = {
       moveTaskOrder: undefined,
@@ -161,9 +175,17 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
         expect(screen.getAllByLabelText('Address 1').length).toBe(1);
         expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(shipment.destinationAddress.streetAddress1);
         expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-        expect(screen.getAllByLabelText('City')[0]).toHaveValue(shipment.destinationAddress.city);
-        expect(screen.getAllByLabelText('State')[0]).toHaveValue(shipment.destinationAddress.state);
-        expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(shipment.destinationAddress.postalCode);
+        expect(screen.getAllByLabelText(/Address 3/)[0]).toBeInTheDocument();
+
+        expect(screen.getAllByText('City')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.city)[0]).toBeInTheDocument();
+        expect(screen.getAllByText('State')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.state)[0]).toBeInTheDocument();
+        expect(screen.getAllByText('County')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.county)[0]).toBeInTheDocument();
+        expect(screen.getAllByText('ZIP')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.postalCode)[0]).toBeInTheDocument();
+
         expect(screen.getAllByLabelText('Contractor Remarks')[0]).toHaveValue('');
       });
     });
@@ -206,7 +228,14 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
       });
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');
+        expect(mockSetFlashMessage).toHaveBeenCalledWith(
+          `MSG_UPDATE_SUCCESS${routingParams.shipmentId}`,
+          'success',
+          'Successfully updated shipment',
+          '',
+          true,
+        );
+        expect(mockNavigate).toHaveBeenCalledWith(moveReviewPath);
       });
     });
   });

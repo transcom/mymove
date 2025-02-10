@@ -1,6 +1,10 @@
 package models
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"sort"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -184,6 +188,18 @@ func (o *Order) Cancel() error {
 	return nil
 }
 
+var ordersTypeToAllotmentAppParamName = map[internalmessages.OrdersType]string{
+	internalmessages.OrdersTypeSTUDENTTRAVEL: "studentTravelHhgAllowance",
+}
+
+// Helper func to enforce strict unmarshal of application param values into a given  interface
+func strictUnmarshal(data []byte, v interface{}) error {
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	// Fail on unknown fields
+	decoder.DisallowUnknownFields()
+	return decoder.Decode(v)
+}
+
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
@@ -206,6 +222,52 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return Order{}, err
+	}
+
+	// Conduct allotment lookup
+	if order.Entitlement != nil && order.Grade != nil {
+		switch order.OrdersType {
+		case internalmessages.OrdersTypeSTUDENTTRAVEL:
+			// We currently store orders allotment overrides as an application parameter
+			// as it is a current one-off use case introduced by E-06189
+			var jsonData json.RawMessage
+			if paramName, ok := ordersTypeToAllotmentAppParamName[order.OrdersType]; ok {
+				err := db.RawQuery(`
+				SELECT parameter_json
+				FROM application_parameters
+				WHERE parameter_name = $1
+				`, paramName).First(&jsonData)
+
+				if err != nil {
+					return Order{}, fmt.Errorf("failed to fetch weight allotment for orders type %s: %w", order.OrdersType, err)
+				}
+
+				// Convert the JSON data to the WeightAllotment struct
+				err = strictUnmarshal(jsonData, &order.Entitlement.WeightAllotted)
+				if err != nil {
+					return Order{}, fmt.Errorf("failed to parse weight allotment JSON for orders type %s: %w", order.OrdersType, err)
+				}
+			}
+		default:
+			var hhgAllowance HHGAllowance
+			err = db.RawQuery(`
+				SELECT hhg_allowances.*
+				FROM hhg_allowances
+				INNER JOIN pay_grades ON hhg_allowances.pay_grade_id = pay_grades.id
+				WHERE pay_grades.grade = $1
+				LIMIT 1
+			`, order.Grade).First(&hhgAllowance)
+			if err != nil {
+				return Order{}, fmt.Errorf("failed to parse weight allotment JSON for orders type %s: %w", order.OrdersType, err)
+			}
+			order.Entitlement.WeightAllotted = &WeightAllotment{
+				TotalWeightSelf:               hhgAllowance.TotalWeightSelf,
+				TotalWeightSelfPlusDependents: hhgAllowance.TotalWeightSelfPlusDependents,
+				ProGearWeight:                 hhgAllowance.ProGearWeight,
+				ProGearWeightSpouse:           hhgAllowance.ProGearWeightSpouse,
+			}
+
+		}
 	}
 
 	// TODO: Handle case where more than one user is authorized to modify orders
@@ -308,6 +370,49 @@ func (o *Order) CreateNewMove(db *pop.Connection, moveOptions MoveOptions) (*Mov
 	return createNewMove(db, *o, moveOptions)
 }
 
+/*
+ * GetOriginPostalCode returns the GBLOC for the postal code of the the origin duty location of the order.
+ */
+func (o Order) GetOriginPostalCode(db *pop.Connection) (string, error) {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return "", errors.WithMessage(ErrInvalidOrderID, "You must create the order in the DB before getting the origin GBLOC.")
+	}
+
+	err := db.Load(&o, "OriginDutyLocation.Address")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return "", errors.WithMessage(err, "No Origin Duty Location was found for the order ID "+o.ID.String())
+		}
+		return "", err
+	}
+
+	return o.OriginDutyLocation.Address.PostalCode, nil
+}
+
+/*
+ * GetOriginGBLOC returns the GBLOC for the postal code of the the origin duty location of the order.
+ */
+func (o Order) GetOriginGBLOC(db *pop.Connection) (string, error) {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination GBLOC.")
+	}
+
+	originPostalCode, err := o.GetOriginPostalCode(db)
+	if err != nil {
+		return "", err
+	}
+
+	var originGBLOC PostalCodeToGBLOC
+	originGBLOC, err = FetchGBLOCForPostalCode(db, originPostalCode)
+	if err != nil {
+		return "", err
+	}
+
+	return originGBLOC.GBLOC, nil
+}
+
 // IsComplete checks if orders have all fields necessary to approve a move
 func (o *Order) IsComplete() bool {
 
@@ -328,6 +433,126 @@ func (o *Order) IsComplete() bool {
 	return true
 }
 
+// FetchAllShipmentsExcludingRejected returns all the shipments associated with an order excluding rejected shipments
+func (o Order) FetchAllShipmentsExcludingRejected(db *pop.Connection) (map[uuid.UUID]MTOShipments, error) {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return nil, errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before fetching associated shipments.")
+	}
+
+	var err error
+
+	err = db.Load(&o, "Moves")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return nil, errors.WithMessage(err, "No Moves were found for the order ID "+o.ID.String())
+		}
+		return nil, errors.WithMessage(err, "Could not load moves for order ID "+o.ID.String())
+	}
+
+	// shipmentsMap is a map of key, value pairs where the key is the move id and the value is a list of associated MTOShipments
+	shipmentsMap := make(map[uuid.UUID]MTOShipments)
+
+	for _, m := range o.Moves {
+		var shipments MTOShipments
+		err = db.Load(&m, "MTOShipments")
+		if err != nil {
+			return nil, errors.WithMessage(err, "Could not load shipments for move "+m.ID.String())
+		}
+
+		for _, s := range m.MTOShipments {
+			err = db.Load(&s, "Status", "DeletedAt", "CreatedAt", "DestinationAddress")
+			if err != nil {
+				return nil, errors.WithMessage(err, "Could not load shipment with ID of "+s.ID.String()+" for move ID "+m.ID.String())
+			}
+
+			if s.Status != MTOShipmentStatusRejected && s.Status != MTOShipmentStatusCanceled && s.DeletedAt == nil {
+				shipments = append(shipments, s)
+			}
+		}
+
+		sort.Slice(shipments, func(i, j int) bool {
+			return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
+		})
+
+		shipmentsMap[m.ID] = shipments
+	}
+
+	return shipmentsMap, nil
+}
+
+/*
+* GetDestinationAddressForAssociatedMoves returns the destination Address for the first shipments from each of
+* the moves that are associated with an order. If there are no shipments returned, it will return the
+* Address of the new duty station addresses.
+ */
+func (o Order) GetDestinationAddressForAssociatedMoves(db *pop.Connection) (*Address, error) {
+	if uuid.UUID.IsNil(o.ID) {
+		return nil, errors.WithMessage(ErrInvalidOrderID, "You must create the order in the DB before getting the destination Address.")
+	}
+
+	err := db.Load(&o, "Moves", "NewDutyLocation.Address")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return nil, errors.WithMessage(err, "No Moves were found for the order ID "+o.ID.String())
+		}
+		return nil, err
+	}
+
+	// addrMap is a map of key, value pairs where the key is the move id and the value is the destination address
+	var destinationAddress Address
+	for i, m := range o.Moves {
+		err = db.Load(&o.Moves[i], "MTOShipments")
+		if err != nil {
+			if err.Error() == RecordNotFoundErrorString {
+				return nil, errors.WithMessage(err, "Could not find shipments for move "+m.ID.String())
+			}
+			return nil, err
+		}
+
+		var shipments MTOShipments
+		for j, s := range o.Moves[i].MTOShipments {
+			err = db.Load(&o.Moves[i].MTOShipments[j], "CreatedAt", "Status", "DeletedAt", "DestinationAddress", "ShipmentType", "PPMShipment", "PPMShipment.Status", "PPMShipment.DestinationAddress")
+			if err != nil {
+				if err.Error() == RecordNotFoundErrorString {
+					return nil, errors.WithMessage(err, "Could not load shipment with ID of "+s.ID.String()+" for move ID "+m.ID.String())
+				}
+				return nil, err
+			}
+
+			if o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusRejected &&
+				o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusCanceled &&
+				o.Moves[i].MTOShipments[j].ShipmentType != MTOShipmentTypeHHGIntoNTS &&
+				o.Moves[i].MTOShipments[j].DeletedAt == nil {
+				shipments = append(shipments, o.Moves[i].MTOShipments[j])
+			}
+		}
+
+		// If we have valid shipments, use the first one's destination address
+		if len(shipments) > 0 {
+			sort.Slice(shipments, func(i, j int) bool {
+				return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
+			})
+
+			addressResult, err := shipments[0].GetDestinationAddress(db)
+			if err != nil {
+				return nil, err
+			}
+
+			if addressResult != nil {
+				destinationAddress = *addressResult
+			} else {
+				return nil, errors.WithMessage(ErrMissingDestinationAddress, "No destination address was able to be found for the order ID "+o.ID.String())
+			}
+		} else {
+			// No valid shipments, use new duty location
+			destinationAddress = o.NewDutyLocation.Address
+		}
+	}
+
+	return &destinationAddress, nil
+}
+
 // IsCompleteForGBL checks if orders have all fields necessary to generate a GBL
 func (o *Order) IsCompleteForGBL() bool {
 
@@ -342,9 +567,8 @@ func (o *Order) IsCompleteForGBL() bool {
 }
 
 func (o *Order) CanSendEmailWithOrdersType() bool {
-	if o.OrdersType != "BLUEBARK" && o.OrdersType != "SAFETY" {
-		return true
+	if o.OrdersType == internalmessages.OrdersTypeBLUEBARK || o.OrdersType == internalmessages.OrdersTypeSAFETY {
+		return false
 	}
-
-	return false
+	return true
 }

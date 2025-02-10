@@ -88,38 +88,40 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 	}
 
 	payload := &ghcmessages.Move{
-		ID:                           strfmt.UUID(move.ID.String()),
-		AvailableToPrimeAt:           handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
-		ApprovedAt:                   handlers.FmtDateTimePtr(move.ApprovedAt),
-		ContractorID:                 handlers.FmtUUIDPtr(move.ContractorID),
-		Contractor:                   Contractor(move.Contractor),
-		Locator:                      move.Locator,
-		OrdersID:                     strfmt.UUID(move.OrdersID.String()),
-		Orders:                       Order(&move.Orders),
-		ReferenceID:                  handlers.FmtStringPtr(move.ReferenceID),
-		Status:                       ghcmessages.MoveStatus(move.Status),
-		ExcessWeightQualifiedAt:      handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
-		BillableWeightsReviewedAt:    handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
-		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
-		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
-		ApprovalsRequestedAt:         handlers.FmtDateTimePtr(move.ApprovalsRequestedAt),
-		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
-		ETag:                         etag.GenerateEtag(move.UpdatedAt),
-		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
-		ExcessWeightAcknowledgedAt:   handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
-		TioRemarks:                   handlers.FmtStringPtr(move.TIORemarks),
-		FinancialReviewFlag:          move.FinancialReviewFlag,
-		FinancialReviewRemarks:       move.FinancialReviewRemarks,
-		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
-		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
-		ShipmentGBLOC:                gbloc,
-		LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
-		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
-		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
-		AdditionalDocuments:          additionalDocumentsPayload,
-		SCAssignedUser:               AssignedOfficeUser(move.SCAssignedUser),
-		TOOAssignedUser:              AssignedOfficeUser(move.TOOAssignedUser),
-		TIOAssignedUser:              AssignedOfficeUser(move.TIOAssignedUser),
+		ID:                      strfmt.UUID(move.ID.String()),
+		AvailableToPrimeAt:      handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ApprovedAt:              handlers.FmtDateTimePtr(move.ApprovedAt),
+		ContractorID:            handlers.FmtUUIDPtr(move.ContractorID),
+		Contractor:              Contractor(move.Contractor),
+		Locator:                 move.Locator,
+		OrdersID:                strfmt.UUID(move.OrdersID.String()),
+		Orders:                  Order(&move.Orders),
+		ReferenceID:             handlers.FmtStringPtr(move.ReferenceID),
+		Status:                  ghcmessages.MoveStatus(move.Status),
+		ExcessWeightQualifiedAt: handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
+		ExcessUnaccompaniedBaggageWeightQualifiedAt: handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightQualifiedAt),
+		BillableWeightsReviewedAt:                   handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
+		CreatedAt:                                   strfmt.DateTime(move.CreatedAt),
+		SubmittedAt:                                 handlers.FmtDateTimePtr(move.SubmittedAt),
+		ApprovalsRequestedAt:                        handlers.FmtDateTimePtr(move.ApprovalsRequestedAt),
+		UpdatedAt:                                   strfmt.DateTime(move.UpdatedAt),
+		ETag:                                        etag.GenerateEtag(move.UpdatedAt),
+		ServiceCounselingCompletedAt:                handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt),
+		ExcessWeightAcknowledgedAt:                     handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
+		TioRemarks:                                     handlers.FmtStringPtr(move.TIORemarks),
+		FinancialReviewFlag:                            move.FinancialReviewFlag,
+		FinancialReviewRemarks:                         move.FinancialReviewRemarks,
+		CloseoutOfficeID:                               handlers.FmtUUIDPtr(move.CloseoutOfficeID),
+		CloseoutOffice:                                 TransportationOffice(move.CloseoutOffice),
+		ShipmentGBLOC:                                  gbloc,
+		LockedByOfficeUserID:                           handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+		LockedByOfficeUser:                             OfficeUser(move.LockedByOfficeUser),
+		LockExpiresAt:                                  handlers.FmtDateTimePtr(move.LockExpiresAt),
+		AdditionalDocuments:                            additionalDocumentsPayload,
+		SCAssignedUser:                                 AssignedOfficeUser(move.SCAssignedUser),
+		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
+		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 	}
 
 	return payload, nil
@@ -577,7 +579,7 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 	bc := &ghcmessages.BackupContact{
 		Name:  &backupContact.Name,
 		Email: &backupContact.Email,
-		Phone: backupContact.Phone,
+		Phone: &backupContact.Phone,
 	}
 
 	payload := ghcmessages.CreatedCustomer{
@@ -615,9 +617,6 @@ func Order(order *models.Order) *ghcmessages.Order {
 
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
-	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
-	}
 	entitlements := Entitlement(order.Entitlement)
 
 	var deptIndicator ghcmessages.DeptIndicator
@@ -680,6 +679,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		MoveCode:                       moveCode,
 		MoveTaskOrderID:                moveTaskOrderID,
 		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(swag.StringValue(order.OriginDutyLocationGBLOC)),
+		HasDependents:                  order.HasDependents,
 	}
 
 	return &payload
@@ -733,6 +733,11 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.UBAllowance != nil {
 		ubAllowance = models.Int64Pointer(int64(*entitlement.UBAllowance))
 	}
+	var weightRestriction *int64
+	if entitlement.WeightRestriction != nil {
+		weightRestriction = models.Int64Pointer(int64(*entitlement.WeightRestriction))
+	}
+
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -750,8 +755,9 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		AccompaniedTour:                accompaniedTour,
 		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		GunSafe: gunSafe,
-		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe:           gunSafe,
+		WeightRestriction: weightRestriction,
+		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -853,11 +859,7 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 		contact := contacts[0]
 		name = contact.Name
 		email = contact.Email
-		phone = ""
-		contactPhone := contact.Phone
-		if contactPhone != nil {
-			phone = *contactPhone
-		}
+		phone = contact.Phone
 	}
 
 	return &ghcmessages.BackupContact{
@@ -1304,13 +1306,16 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		Gcc:                   handlers.FmtCost(ppmCloseout.GCC),
 		Aoa:                   handlers.FmtCost(ppmCloseout.AOA),
 		RemainingIncentive:    handlers.FmtCost(ppmCloseout.RemainingIncentive),
-		HaulType:              (*string)(&ppmCloseout.HaulType),
+		HaulType:              (*string)(ppmCloseout.HaulType),
 		HaulPrice:             handlers.FmtCost(ppmCloseout.HaulPrice),
 		HaulFSC:               handlers.FmtCost(ppmCloseout.HaulFSC),
 		Dop:                   handlers.FmtCost(ppmCloseout.DOP),
 		Ddp:                   handlers.FmtCost(ppmCloseout.DDP),
 		PackPrice:             handlers.FmtCost(ppmCloseout.PackPrice),
 		UnpackPrice:           handlers.FmtCost(ppmCloseout.UnpackPrice),
+		IntlPackPrice:         handlers.FmtCost((ppmCloseout.IntlPackPrice)),
+		IntlUnpackPrice:       handlers.FmtCost((ppmCloseout.IntlUnpackPrice)),
+		IntlLinehaulPrice:     handlers.FmtCost((ppmCloseout.IntlLinehaulPrice)),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
 	}
 
@@ -1521,6 +1526,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
+		PoeLocation:                 Port(mtoShipment.MTOServiceItems, "POE"),
+		PodLocation:                 Port(mtoShipment.MTOServiceItems, "POD"),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -1863,6 +1870,15 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 			serviceRequestDocs[i] = payload
 		}
 	}
+	var sort *string
+	if s.ReService.ReServiceItems != nil {
+		for _, reServiceItem := range *s.ReService.ReServiceItems {
+			if s.MTOShipment.MarketCode == reServiceItem.MarketCode && s.MTOShipment.ShipmentType == reServiceItem.ShipmentType {
+				sort = reServiceItem.Sort
+				break
+			}
+		}
+	}
 	payload := &ghcmessages.MTOServiceItem{
 		ID:                            handlers.FmtUUID(s.ID),
 		MoveTaskOrderID:               handlers.FmtUUID(s.MoveTaskOrderID),
@@ -1878,6 +1894,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDepartureDate:              handlers.FmtDateTimePtr(s.SITDepartureDate),
 		SitCustomerContacted:          handlers.FmtDatePtr(s.SITCustomerContacted),
 		SitRequestedDelivery:          handlers.FmtDatePtr(s.SITRequestedDelivery),
+		Sort:                          sort,
 		Status:                        ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:                   handlers.FmtStringPtr(s.Description),
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
@@ -1903,6 +1920,22 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 
 	if s.ReService.Code == models.ReServiceCodeICRT && s.MTOShipment.PickupAddress != nil {
 		if *s.MTOShipment.PickupAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
+	if s.ReService.Code == models.ReServiceCodeIOSHUT && s.MTOShipment.PickupAddress != nil {
+		if *s.MTOShipment.PickupAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
+	if s.ReService.Code == models.ReServiceCodeIDSHUT && s.MTOShipment.DestinationAddress != nil {
+		if *s.MTOShipment.DestinationAddress.IsOconus {
 			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
 		} else {
 			payload.Market = handlers.FmtString(models.MarketConus.FullString())
@@ -2159,6 +2192,30 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 	return &availableOfficeUsers
 }
 
+func BulkAssignmentData(appCtx appcontext.AppContext, moves []models.MoveWithEarliestDate, officeUsers []models.OfficeUserWithWorkload, officeId uuid.UUID) ghcmessages.BulkAssignmentData {
+	availableOfficeUsers := make(ghcmessages.AvailableOfficeUsers, len(officeUsers))
+	availableMoves := make(ghcmessages.BulkAssignmentMoveIDs, len(moves))
+
+	for i, officeUser := range officeUsers {
+		availableOfficeUsers[i] = &ghcmessages.AvailableOfficeUser{
+			LastName:     officeUser.LastName,
+			FirstName:    officeUser.FirstName,
+			OfficeUserID: *handlers.FmtUUID(officeUser.ID),
+			Workload:     int64(officeUser.Workload),
+		}
+	}
+	for i, move := range moves {
+		availableMoves[i] = ghcmessages.BulkAssignmentMoveID(strfmt.UUID(move.ID.String()))
+	}
+
+	bulkAssignmentData := &ghcmessages.BulkAssignmentData{
+		AvailableOfficeUsers:  availableOfficeUsers,
+		BulkAssignmentMoveIDs: availableMoves,
+	}
+
+	return *bulkAssignmentData
+}
+
 func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.AssignedOfficeUser, isCloseoutQueue bool, officeUser models.OfficeUser, ppmCloseoutGblocs bool) bool {
 	// default to false
 	isAssignable := false
@@ -2260,20 +2317,21 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
 		}
 
-		var gbloc string
+		var originGbloc string
 		if move.Status == models.MoveStatusNeedsServiceCounseling {
-			gbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+			originGbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		} else if len(move.ShipmentGBLOC) > 0 && move.ShipmentGBLOC[0].GBLOC != nil {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
 			// though there can never be more than one GBLOC for a move.
-			gbloc = swag.StringValue(move.ShipmentGBLOC[0].GBLOC)
+			originGbloc = swag.StringValue(move.ShipmentGBLOC[0].GBLOC)
 		} else {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
 			// some reason, then we should get the empty string (no GBLOC).
-			gbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+			originGbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		}
+
 		var closeoutLocation string
 		if move.CloseoutOffice != nil {
 			closeoutLocation = move.CloseoutOffice.Name
@@ -2344,7 +2402,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation), // #nosec G601 new in 1.22.2
-			OriginGBLOC:             ghcmessages.GBLOC(gbloc),
+			OriginGBLOC:             ghcmessages.GBLOC(originGbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
@@ -2560,43 +2618,46 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			originGBLOC = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		}
 
-		var destinationGBLOC ghcmessages.GBLOC
-		var PostalCodeToGBLOC models.PostalCodeToGBLOC
+		// populates the destination gbloc of the move
+		var destinationGBLOC string
 		var err error
-		if numShipments > 0 && move.MTOShipments[0].DestinationAddress != nil {
-			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.MTOShipments[0].DestinationAddress.PostalCode)
-		} else {
-			// If the move has no shipments or the shipment has no destination address fall back to the origin duty location GBLOC
-			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.NewDutyLocation.Address.PostalCode)
-		}
-
+		destinationGBLOC, err = move.GetDestinationGBLOC(appCtx.DB())
 		if err != nil {
-			destinationGBLOC = *ghcmessages.NewGBLOC("")
-		} else if customer.Affiliation.String() == "MARINES" {
-			destinationGBLOC = ghcmessages.GBLOC("USMC/" + PostalCodeToGBLOC.GBLOC)
+			destinationGBLOC = ""
+		}
+		if len(destinationGBLOC) > 0 && customer.Affiliation.String() == "MARINES" {
+			destinationGBLOC = "USMC/" + destinationGBLOC
+		}
+		destinationGblocMessage := ghcmessages.GBLOC(destinationGBLOC)
+
+		// populates the destination postal code of the move
+		var destinationPostalCode string
+		destinationAddress, err := move.GetDestinationAddress(appCtx.DB())
+		if err != nil {
+			destinationPostalCode = ""
 		} else {
-			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
+			destinationPostalCode = destinationAddress.PostalCode
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{
-			FirstName:                         customer.FirstName,
-			LastName:                          customer.LastName,
-			Edipi:                             customer.Edipi,
-			Emplid:                            customer.Emplid,
-			Branch:                            customer.Affiliation.String(),
-			Status:                            ghcmessages.MoveStatus(move.Status),
-			ID:                                *handlers.FmtUUID(move.ID),
-			Locator:                           move.Locator,
-			ShipmentsCount:                    int64(numShipments),
-			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
-			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
-			OrderType:                         string(move.Orders.OrdersType),
-			RequestedPickupDate:               pickupDate,
-			RequestedDeliveryDate:             deliveryDate,
-			OriginGBLOC:                       ghcmessages.GBLOC(originGBLOC),
-			DestinationGBLOC:                  destinationGBLOC,
-			LockedByOfficeUserID:              handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
-			LockExpiresAt:                     handlers.FmtDateTimePtr(move.LockExpiresAt),
+			FirstName:                    customer.FirstName,
+			LastName:                     customer.LastName,
+			Edipi:                        customer.Edipi,
+			Emplid:                       customer.Emplid,
+			Branch:                       customer.Affiliation.String(),
+			Status:                       ghcmessages.MoveStatus(move.Status),
+			ID:                           *handlers.FmtUUID(move.ID),
+			Locator:                      move.Locator,
+			ShipmentsCount:               int64(numShipments),
+			OriginDutyLocationPostalCode: move.Orders.OriginDutyLocation.Address.PostalCode,
+			DestinationPostalCode:        destinationPostalCode,
+			OrderType:                    string(move.Orders.OrdersType),
+			RequestedPickupDate:          pickupDate,
+			RequestedDeliveryDate:        deliveryDate,
+			OriginGBLOC:                  ghcmessages.GBLOC(originGBLOC),
+			DestinationGBLOC:             destinationGblocMessage,
+			LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+			LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
 		}
 	}
 	return &searchMoves
@@ -2705,4 +2766,34 @@ func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceI
 		payload[i] = ReServiceItem(&copyOfReServiceItem)
 	}
 	return payload
+}
+
+func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.Port {
+	if mtoServiceItems == nil {
+		return nil
+	}
+
+	for _, mtoServiceItem := range mtoServiceItems {
+		var portLocation *models.PortLocation
+		if portType == "POE" && mtoServiceItem.POELocation != nil {
+			portLocation = mtoServiceItem.POELocation
+		} else if portType == "POD" && mtoServiceItem.PODLocation != nil {
+			portLocation = mtoServiceItem.PODLocation
+		}
+
+		if portLocation != nil {
+			return &ghcmessages.Port{
+				ID:       strfmt.UUID(portLocation.ID.String()),
+				PortType: portLocation.Port.PortType.String(),
+				PortCode: portLocation.Port.PortCode,
+				PortName: portLocation.Port.PortName,
+				City:     portLocation.City.CityName,
+				County:   portLocation.UsPostRegionCity.UsprcCountyNm,
+				State:    portLocation.UsPostRegionCity.UsPostRegion.State.StateName,
+				Zip:      portLocation.UsPostRegionCity.UsprZipID,
+				Country:  portLocation.Country.CountryName,
+			}
+		}
+	}
+	return nil
 }

@@ -332,7 +332,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 }
 
 // CreateBackupContact creates a backup contact model tied to the service member
-func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, email string, phone *string, permission BackupContactPermission) (BackupContact, *validate.Errors, error) {
+func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, email string, phone string, permission BackupContactPermission) (BackupContact, *validate.Errors, error) {
 	newContact := BackupContact{
 		ServiceMemberID: s.ID,
 		ServiceMember:   s,
@@ -366,7 +366,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
 	packingAndShippingInstructions string,
-	newDutyLocationGBLOC *string) (Order, *validate.Errors, error) {
+	destinationGBLOC *string) (Order, *validate.Errors, error) {
 
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
@@ -395,7 +395,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			SpouseHasProGear:               spouseHasProGear,
 			NewDutyLocationID:              newDutyLocation.ID,
 			NewDutyLocation:                newDutyLocation,
-			DestinationGBLOC:               newDutyLocationGBLOC,
+			DestinationGBLOC:               destinationGBLOC,
 			UploadedOrders:                 uploadedOrders,
 			UploadedOrdersID:               uploadedOrders.ID,
 			Status:                         OrderStatusDRAFT,

@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -77,7 +78,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		false,
 	).Return(400, nil)
 
@@ -490,7 +490,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		params := subtestData.params
 
 		// Set fields appropriately for NTS-Release
-		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTSDOMESTIC
+		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTS
 		params.Body.ShipmentType = &ntsrShipmentType
 		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
 		params.Body.PickupAddress = nil
@@ -736,6 +736,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	testMTOShipmentObjects := suite.setUpMTOShipmentObjects()
 
 	planner := &routemocks.Planner{}
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	planner.On("TransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -743,7 +744,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mock.Anything,
 	).Return(400, nil)
 
-	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
