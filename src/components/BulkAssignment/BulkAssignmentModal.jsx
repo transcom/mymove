@@ -50,7 +50,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
               Yes
             </Button>
             <Button
-              className="usa-button usa-button--secondary"
+              className={styles.cancelNoButton}
               type="button"
               onClick={() => setShowCancelModal(false)}
               data-testid="cancelModalNo"
