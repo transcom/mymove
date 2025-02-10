@@ -50,22 +50,23 @@ describe('BulkAssignmentModal', () => {
   });
 
   it('shows cancel confirmation modal when close icon is clicked', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    const closeButton = await screen.findByTestId('modalCancelButton');
+    const closeButton = await screen.findByTestId('modalCloseButton');
 
     await userEvent.click(closeButton);
 
-    expect(screen.getByTestId('cancelConfirmationModal')).toBeInTheDocument();
+    expect(screen.getByTestId('cancelModalYes')).toBeInTheDocument();
   });
 
   it('shows cancel confirmation modal when the Cancel button is clicked', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    const cancelButton = await screen.findByTestId('modalCancelButton');
+    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
+
     await userEvent.click(cancelButton);
 
-    expect(screen.getByTestId('cancelConfirmationModal')).toBeInTheDocument();
+    expect(screen.getByTestId('cancelModalYes')).toBeInTheDocument();
   });
 
   it('calls the submit function when Save button is clicked', async () => {
@@ -105,12 +106,12 @@ describe('BulkAssignmentModal', () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     const closeButton = await screen.findByTestId('modalCloseButton');
-
     await userEvent.click(closeButton);
 
-    const confirmButton = await screen.findByTestId('cancelModalNo');
-    await userEvent.click(confirmButton);
+    const cancelModalNo = await screen.findByTestId('cancelModalNo');
+    await userEvent.click(cancelModalNo);
 
-    expect(screen.getByTestId('cancelConfirmationModal')).not.toBeInTheDocument();
+    const confirmButton = await screen.queryByTestId('cancelModalYes');
+    expect(confirmButton).not.toBeInTheDocument();
   });
 });
