@@ -15,8 +15,11 @@ BEGIN
     RETURN NEXT $2;
    OPEN $3 FOR
         SELECT uploads.id, uploads.bytes, uploads.checksum, uploads.content_type, uploads.created_at, uploads.deleted_at, uploads.filename,
-        uploads.rotation, uploads.storage_key, uploads.updated_at, uploads.upload_type FROM uploads AS uploads
-        WHERE uploads.deleted_at is null and uploads.id in (SELECT user_uploads.upload_id FROM user_uploads AS user_uploads WHERE user_uploads.deleted_at is null and user_uploads.document_id = _docID);
+        uploads.rotation, uploads.storage_key, uploads.updated_at, uploads.upload_type
+		FROM uploads AS uploads, user_uploads
+        WHERE uploads.deleted_at is null
+ 		  and uploads.id = user_uploads.upload_id
+		  and user_uploads.deleted_at is null and user_uploads.document_id = _docID;
     RETURN NEXT $3;
 END;
 $$ LANGUAGE plpgsql;
