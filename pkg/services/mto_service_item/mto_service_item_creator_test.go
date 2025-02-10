@@ -112,6 +112,45 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 	return serviceItem
 }
 
+func (suite *MTOServiceItemServiceSuite) buildValidIDFSITServiceItemWithValidMove() models.MTOServiceItem {
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	dimension := models.MTOServiceItemDimension{
+		Type:      models.DimensionTypeItem,
+		Length:    12000,
+		Height:    12000,
+		Width:     12000,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	reServiceIDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIDFSIT)
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				MarketCode: models.MarketCodeInternational,
+			},
+		},
+	}, nil)
+	destAddress := factory.BuildDefaultAddress(suite.DB())
+
+	serviceItem := models.MTOServiceItem{
+		MoveTaskOrderID:              move.ID,
+		MoveTaskOrder:                move,
+		ReService:                    reServiceIDFSIT,
+		MTOShipmentID:                &shipment.ID,
+		MTOShipment:                  shipment,
+		Dimensions:                   models.MTOServiceItemDimensions{dimension},
+		Status:                       models.MTOServiceItemStatusSubmitted,
+		SITDestinationFinalAddressID: &destAddress.ID,
+		SITDestinationFinalAddress:   &destAddress,
+	}
+
+	return serviceItem
+}
+
 func (suite *MTOServiceItemServiceSuite) buildValidDOSHUTServiceItemWithValidMove() models.MTOServiceItem {
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	reServiceDOSHUT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
@@ -279,6 +318,60 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(numDDDSITFound, 1)
 		suite.Equal(numDDFSITFound, 1)
 		suite.Equal(numDDSFSCFound, 1)
+	})
+
+	suite.Run("200 Success - International Destination SIT Service Item Creation", func() {
+
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     We create an approved move and attempt to create IDFSIT service item on it. Includes Dimensions
+		//             and a SITDestinationFinalAddress
+		// Expected outcome:
+		//             4 SIT items are created, status of move is APPROVALS_REQUESTED
+
+		sitServiceItem := suite.buildValidIDFSITServiceItemWithValidMove()
+		sitMove := sitServiceItem.MoveTaskOrder
+		sitShipment := sitServiceItem.MTOShipment
+
+		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem)
+		suite.NoError(err)
+		suite.Nil(verrs)
+		suite.NotNil(createdServiceItems)
+
+		var foundMove models.Move
+		err = suite.DB().Find(&foundMove, sitMove.ID)
+		suite.NoError(err)
+
+		createdServiceItemList := *createdServiceItems
+		suite.Equal(len(createdServiceItemList), 4)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+
+		numIDFSITFound := 0
+		numIDASITFound := 0
+		numIDDSITFound := 0
+		numIDSFSCFound := 0
+
+		for _, createdServiceItem := range createdServiceItemList {
+			// checking that the service item final destination address equals the shipment's final destination address
+			suite.Equal(sitShipment.DestinationAddress.StreetAddress1, createdServiceItem.SITDestinationFinalAddress.StreetAddress1)
+			suite.Equal(sitShipment.DestinationAddressID, createdServiceItem.SITDestinationFinalAddressID)
+
+			switch createdServiceItem.ReService.Code {
+			case models.ReServiceCodeIDFSIT:
+				suite.NotEmpty(createdServiceItem.Dimensions)
+				numIDFSITFound++
+			case models.ReServiceCodeIDASIT:
+				numIDASITFound++
+			case models.ReServiceCodeIDDSIT:
+				numIDDSITFound++
+			case models.ReServiceCodeIDSFSC:
+				numIDSFSCFound++
+			}
+		}
+		suite.Equal(numIDASITFound, 1)
+		suite.Equal(numIDDSITFound, 1)
+		suite.Equal(numIDFSITFound, 1)
+		suite.Equal(numIDSFSCFound, 1)
 	})
 
 	// Happy path: If the service item is created successfully it should be returned
@@ -819,7 +912,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	})
 
 	// If the service item we're trying to create is shuttle service and there is no estimated weight, it fails.
-	suite.Run("MTOServiceItemShuttle no prime weight is okay", func() {
+	suite.Run("MTOServiceItemDomesticShuttle no prime weight is okay", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDSHUT service item on a shipment without estimated weight
