@@ -154,23 +154,26 @@ func FetchRelatedDestinationSITServiceItems(tx *pop.Connection, mtoServiceItemID
 }
 
 func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceItem, error) {
-	var serviceItem MTOServiceItem
-	err := db.Eager("SITDestinationOriginalAddress",
-		"SITDestinationFinalAddress",
-		"ReService",
-		"CustomerContacts",
-		"MTOShipment.PickupAddress",
-		"MTOShipment.DestinationAddress",
-		"Dimensions").Where("id = ?", serviceItemID).First(&serviceItem)
+	if db != nil {
+		var serviceItem MTOServiceItem
+		err := db.Eager("SITDestinationOriginalAddress",
+			"SITDestinationFinalAddress",
+			"ReService",
+			"CustomerContacts",
+			"MTOShipment.PickupAddress",
+			"MTOShipment.DestinationAddress",
+			"Dimensions").Where("id = ?", serviceItemID).First(&serviceItem)
 
-	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
-			return MTOServiceItem{}, ErrFetchNotFound
+		if err != nil {
+			if errors.Cause(err).Error() == RecordNotFoundErrorString {
+				return MTOServiceItem{}, ErrFetchNotFound
+			}
+			return MTOServiceItem{}, err
 		}
-		return MTOServiceItem{}, err
+		return serviceItem, nil
+	} else {
+		return MTOServiceItem{}, errors.New("db connection is nil; unable to fetch service item")
 	}
-
-	return serviceItem, nil
 }
 
 func FetchRelatedDestinationSITFuelCharge(tx *pop.Connection, mtoServiceItemID uuid.UUID) (MTOServiceItem, error) {
