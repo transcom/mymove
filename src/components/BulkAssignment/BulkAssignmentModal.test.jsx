@@ -1,8 +1,10 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { BulkAssignmentModal } from 'components/BulkAssignment/BulkAssignmentModal';
+import { QUEUE_TYPES } from 'constants/queues';
+import { MockProviders } from 'testUtils';
 
 let onClose;
 let onSubmit;
@@ -11,84 +13,84 @@ beforeEach(() => {
   onSubmit = jest.fn();
 });
 
-const data = {
+const bulkAssignmentData = {
   availableOfficeUsers: [
     {
-      firstName: 'John',
-      lastName: 'Snow',
-      officeUserId: '123',
-      workload: 0,
-    },
-    {
-      firstName: 'Jane',
-      lastName: 'Doe',
-      officeUserId: '456',
+      firstName: 'sc',
+      lastName: 'user',
+      officeUserId: '045c3048-df9a-4d44-88ed-8cd6e2100e08',
       workload: 1,
     },
     {
-      firstName: 'Jimmy',
-      lastName: 'Page',
-      officeUserId: '789',
-      workload: 50,
+      firstName: 'test1',
+      lastName: 'person',
+      officeUserId: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42a',
     },
   ],
-  bulkAssignmentMoveIDs: ['1', '2', '3', '4', '5'],
+  bulkAssignmentMoveIDs: [
+    'b3baf6ce-f43b-437c-85be-e1145c0ddb96',
+    '962ce8d2-03a2-435c-94ca-6b9ef6c226c1',
+    'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed3',
+  ],
 };
+
+jest.mock('services/ghcApi', () => ({
+  getBulkAssignmentData: jest.fn().mockImplementation(() => Promise.resolve(bulkAssignmentData)),
+}));
 
 describe('BulkAssignmentModal', () => {
   it('renders the component', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} bulkAssignmentData={data} />);
+    render(
+      <MockProviders>
+        <BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />
+      </MockProviders>,
+    );
 
-    expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment (3)' })).toBeInTheDocument();
   });
 
   it('shows cancel confirmation modal when close icon is clicked', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} bulkAssignmentData={data} />);
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     const closeButton = await screen.findByTestId('modalCloseButton');
 
     await userEvent.click(closeButton);
 
-    expect(screen.getByTestId('cancelConfirmationModal')).toBeInTheDocument();
+    expect(screen.getByTestId('cancelModalYes')).toBeInTheDocument();
   });
 
   it('shows cancel confirmation modal when the Cancel button is clicked', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} bulkAssignmentData={data} />);
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
     await userEvent.click(cancelButton);
 
-    expect(screen.getByTestId('cancelConfirmationModal')).toBeInTheDocument();
+    expect(screen.getByTestId('cancelModalYes')).toBeInTheDocument();
   });
 
   it('calls the submit function when Save button is clicked', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} bulkAssignmentData={data} />);
-
-    const saveButton = await screen.findByRole('button', { name: 'Save' });
-
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
+    const saveButton = await screen.findByTestId('modalSubmitButton');
     await userEvent.click(saveButton);
-
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 
   it('renders the user data', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} bulkAssignmentData={data} />);
-
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
     const userTable = await screen.findByRole('table');
-
     expect(userTable).toBeInTheDocument();
-    expect(screen.getByText('Select/Deselect All')).toBeInTheDocument();
     expect(screen.getByText('User')).toBeInTheDocument();
     expect(screen.getByText('Workload')).toBeInTheDocument();
     expect(screen.getByText('Assignment')).toBeInTheDocument();
-
-    expect(screen.getByText('Snow, John')).toBeInTheDocument();
-    expect(screen.getAllByTestId('bulkAssignmentUserWorkload')[0]).toHaveTextContent('0');
+    await act(async () => {
+      expect(await screen.getByText('user, sc')).toBeInTheDocument();
+    });
+    expect(screen.getAllByTestId('bulkAssignmentUserWorkload')[0]).toHaveTextContent('1');
   });
 
   it('closes the modal when the close is confirmed', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} bulkAssignmentData={data} />);
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     const closeButton = await screen.findByTestId('modalCloseButton');
 
@@ -101,15 +103,15 @@ describe('BulkAssignmentModal', () => {
   });
 
   it('close confirmation goes away when clicking no', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} bulkAssignmentData={data} />);
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     const closeButton = await screen.findByTestId('modalCloseButton');
-
     await userEvent.click(closeButton);
 
-    const confirmButton = await screen.findByTestId('cancelModalNo');
-    await userEvent.click(confirmButton);
+    const cancelModalNo = await screen.findByTestId('cancelModalNo');
+    await userEvent.click(cancelModalNo);
 
-    expect(screen.getByTestId('cancelConfirmationModal')).not.toBeInTheDocument();
+    const confirmButton = await screen.queryByTestId('cancelModalYes');
+    expect(confirmButton).not.toBeInTheDocument();
   });
 });

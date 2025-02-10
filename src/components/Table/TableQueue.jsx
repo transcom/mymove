@@ -27,7 +27,6 @@ import {
   getSelectionOptionLabel,
 } from 'components/Table/utils';
 import { roleTypes } from 'constants/userRoles';
-import { useBulkAssignmentQueries } from 'hooks/queries';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -67,8 +66,6 @@ const TableQueue = ({
       setIsPageReload(false);
     }, 500);
   }, []);
-
-  const { bulkAssignmentData } = useBulkAssignmentQueries(queueType);
 
   const [paramSort, setParamSort] = useState(
     getTableQueueSortParamSessionStorageValue(sessionStorageKey) || defaultSortedColumns,
@@ -329,7 +326,7 @@ const TableQueue = ({
           <BulkAssignmentModal
             isOpen={isBulkAssignModalVisible}
             onClose={handleCloseBulkAssignModal}
-            bulkAssignmentData={bulkAssignmentData} // drill in the arguments to show in modal
+            queueType={queueType}
           />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
