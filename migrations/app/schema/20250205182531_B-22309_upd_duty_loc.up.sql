@@ -88,11 +88,13 @@ update re_us_post_regions
 
 --add missing zip and duty loc for Indianapolis, IN 46245
 INSERT INTO public.re_us_post_regions (id, uspr_zip_id, state_id, zip3, created_at, updated_at, is_po_box)
-VALUES('4bd91002-4645-46ac-86cb-b0538b286033'::uuid, '46245', '9bab40ac-cd1a-4d39-bc74-3839bb494d17'::uuid, '464', now(), now(), false);
+VALUES('4bd91002-4645-46ac-86cb-b0538b286033'::uuid, '46245', '9bab40ac-cd1a-4d39-bc74-3839bb494d17'::uuid, '464', now(), now(), false)
+WHERE NOT EXISTS (select * from re_us_post_regions where id = '4bd91002-4645-46ac-86cb-b0538b286033';
 
 INSERT INTO public.us_post_region_cities
 (id, uspr_zip_id, u_s_post_region_city_nm, usprc_county_nm, ctry_genc_dgph_cd, created_at, updated_at, state, us_post_regions_id, cities_id)
-VALUES('0328cd2f-b430-4eef-bca0-429a1c93b419'::uuid, '46245', 'INDIANAPOLIS', 'MARION', 'US', now(), now(), 'IN', '4bd91002-4645-46ac-86cb-b0538b286033'::uuid, 'f733b420-8f2d-4986-b4d3-abc2787f9e68'::uuid);
+VALUES('0328cd2f-b430-4eef-bca0-429a1c93b419'::uuid, '46245', 'INDIANAPOLIS', 'MARION', 'US', now(), now(), 'IN', '4bd91002-4645-46ac-86cb-b0538b286033'::uuid, 'f733b420-8f2d-4986-b4d3-abc2787f9e68'::uuid)
+WHERE NOT EXISTS (select * from us_post_region_cities where id = '0328cd2f-b430-4eef-bca0-429a1c93b419';
 
 INSERT INTO public.addresses
 (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, street_address_3, county, is_oconus, country_id, us_post_region_cities_id)
@@ -107,11 +109,13 @@ WHERE NOT EXISTS (select * from duty_locations where id = 'b60bbd96-2d9b-42e2-9f
 
 --add missing zip and duty loc for Oklahoma City, OK 73175
 INSERT INTO public.re_us_post_regions (id, uspr_zip_id, state_id, zip3, created_at, updated_at, is_po_box)
-VALUES('ab47ac77-9fe9-4896-bd5e-efea69bb03c2'::uuid, '73175', '74a56d2c-eb81-4ed2-853d-96d4627ac3bc'::uuid, '464', now(), now(), false);
+VALUES('ab47ac77-9fe9-4896-bd5e-efea69bb03c2'::uuid, '73175', '74a56d2c-eb81-4ed2-853d-96d4627ac3bc'::uuid, '464', now(), now(), false)
+WHERE NOT EXISTS (select * from re_us_post_regions where id = 'ab47ac77-9fe9-4896-bd5e-efea69bb03c2';
 
 INSERT INTO public.us_post_region_cities
 (id, uspr_zip_id, u_s_post_region_city_nm, usprc_county_nm, ctry_genc_dgph_cd, created_at, updated_at, state, us_post_regions_id, cities_id)
-VALUES('9d45bb1c-e010-4d22-9765-39ba56c55880'::uuid, '73175', 'OKLAHOMA CITY', 'OKLAHOMA', 'US', now(), now(), 'OK', 'ab47ac77-9fe9-4896-bd5e-efea69bb03c2'::uuid, 'd205e5b7-7c2b-4b12-aa42-89c746924f5a'::uuid);
+VALUES('9d45bb1c-e010-4d22-9765-39ba56c55880'::uuid, '73175', 'OKLAHOMA CITY', 'OKLAHOMA', 'US', now(), now(), 'OK', 'ab47ac77-9fe9-4896-bd5e-efea69bb03c2'::uuid, 'd205e5b7-7c2b-4b12-aa42-89c746924f5a'::uuid)
+WHERE NOT EXISTS (select * from us_post_region_cities where id = '9d45bb1c-e010-4d22-9765-39ba56c55880';
 
 INSERT INTO public.addresses
 (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, street_address_3, county, is_oconus, country_id, us_post_region_cities_id)
