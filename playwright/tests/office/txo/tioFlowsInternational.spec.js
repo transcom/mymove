@@ -225,9 +225,7 @@ test.describe('TIO user', () => {
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Actual size');
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('External crate');
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Crating price (per cu ft)');
-    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Market');
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Crating date');
-    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('International');
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Price escalation factor');
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Uncapped request total');
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Standalone crate cap');
@@ -245,9 +243,7 @@ test.describe('TIO user', () => {
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Description');
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Dimensions');
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Uncrating price (per cu ft)');
-    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Market');
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Uncrating date');
-    await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('International');
     await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Price escalation factor');
     // approve
     await tioFlowPage.approveServiceItem();

@@ -33,15 +33,15 @@ const peak = (params) => {
   }`;
 };
 
-const market = (params) => {
-  let marketText = `${SERVICE_ITEM_CALCULATION_LABELS.Market}: `;
+const getMarket = (params) => {
+  let marketText = '';
 
   if (getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketOrigin, params)) {
-    marketText += ` ${
+    marketText = ` ${
       getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketOrigin, params)?.toLowerCase() === 'o' ? 'OCONUS' : 'CONUS'
     }`;
   } else {
-    marketText += ` ${
+    marketText = ` ${
       getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketDest, params)?.toLowerCase() === 'o' ? 'OCONUS' : 'CONUS'
     }`;
   }
@@ -672,26 +672,14 @@ const cratingPriceIntl = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.CratingPrice;
 
-  return calculation(
-    value,
-    label,
-    formatDetail(market(params)),
-    formatDetail(cratingDate(params)),
-    formatDetail(SERVICE_ITEM_CALCULATION_LABELS.International),
-  );
+  return calculation(value, label, formatDetail(cratingDate(params)), formatDetail(getMarket(params)));
 };
 
 const unCratingPriceIntl = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.UncratingPrice;
 
-  return calculation(
-    value,
-    label,
-    formatDetail(market(params)),
-    formatDetail(unCratingDate(params)),
-    formatDetail(SERVICE_ITEM_CALCULATION_LABELS.International),
-  );
+  return calculation(value, label, formatDetail(unCratingDate(params)), formatDetail(getMarket(params)));
 };
 
 const isExternalCrateMinSizeApplied = (params) => {
