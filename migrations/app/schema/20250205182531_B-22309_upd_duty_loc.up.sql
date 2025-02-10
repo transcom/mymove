@@ -84,7 +84,46 @@ delete from duty_locations where id = '295178cd-9dc9-4ddc-9f77-1967d74eeb40';
 update re_us_post_regions
    set is_po_box = true
  where uspr_zip_id = '72190';
- 
+
+
+--add missing zip and duty loc for Indianapolis, IN 46245
+INSERT INTO public.re_us_post_regions (id, uspr_zip_id, state_id, zip3, created_at, updated_at, is_po_box)
+VALUES('4bd91002-4645-46ac-86cb-b0538b286033'::uuid, '46245', '9bab40ac-cd1a-4d39-bc74-3839bb494d17'::uuid, '464', now(), now(), false);
+
+INSERT INTO public.us_post_region_cities
+(id, uspr_zip_id, u_s_post_region_city_nm, usprc_county_nm, ctry_genc_dgph_cd, created_at, updated_at, state, us_post_regions_id, cities_id)
+VALUES('0328cd2f-b430-4eef-bca0-429a1c93b419'::uuid, '46245', 'INDIANAPOLIS', 'MARION', 'US', now(), now(), 'IN', '4bd91002-4645-46ac-86cb-b0538b286033'::uuid, 'f733b420-8f2d-4986-b4d3-abc2787f9e68'::uuid);
+
+INSERT INTO public.addresses
+(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, street_address_3, county, is_oconus, country_id, us_post_region_cities_id)
+SELECT 'be748d27-0690-4a3e-a543-297f42b905c8'::uuid, 'n/a', null, 'INDIANAPOLIS', 'IN', '46245', now(), now(), null, 'MARION', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '0328cd2f-b430-4eef-bca0-429a1c93b419'::uuid
+WHERE NOT EXISTS (select * from addresses where id = 'be748d27-0690-4a3e-a543-297f42b905c8');
+
+INSERT INTO public.duty_locations
+(id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
+SELECT 'b60bbd96-2d9b-42e2-9fb5-66880ddcea19'::uuid, 'Indianapolis, IN 46245', null, 'be748d27-0690-4a3e-a543-297f42b905c8'::uuid, now(), now(), null, true
+WHERE NOT EXISTS (select * from duty_locations where id = 'b60bbd96-2d9b-42e2-9fb5-66880ddcea19');
+
+
+--add missing zip and duty loc for Oklahoma City, OK 73175
+INSERT INTO public.re_us_post_regions (id, uspr_zip_id, state_id, zip3, created_at, updated_at, is_po_box)
+VALUES('ab47ac77-9fe9-4896-bd5e-efea69bb03c2'::uuid, '73175', '74a56d2c-eb81-4ed2-853d-96d4627ac3bc'::uuid, '464', now(), now(), false);
+
+INSERT INTO public.us_post_region_cities
+(id, uspr_zip_id, u_s_post_region_city_nm, usprc_county_nm, ctry_genc_dgph_cd, created_at, updated_at, state, us_post_regions_id, cities_id)
+VALUES('9d45bb1c-e010-4d22-9765-39ba56c55880'::uuid, '73175', 'OKLAHOMA CITY', 'OKLAHOMA', 'US', now(), now(), 'OK', 'ab47ac77-9fe9-4896-bd5e-efea69bb03c2'::uuid, 'd205e5b7-7c2b-4b12-aa42-89c746924f5a'::uuid);
+
+INSERT INTO public.addresses
+(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, street_address_3, county, is_oconus, country_id, us_post_region_cities_id)
+SELECT '1349100a-ad9a-4a69-b40c-35b6b6f7df74'::uuid, 'n/a', null, 'OKLAHOMA CITY', 'OK', '73175', now(), now(), null, 'OKLAHOMA', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '9d45bb1c-e010-4d22-9765-39ba56c55880'::uuid
+WHERE NOT EXISTS (select * from addresses where id = '1349100a-ad9a-4a69-b40c-35b6b6f7df74');
+
+INSERT INTO public.duty_locations
+(id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
+SELECT 'cae54e5f-d14d-4181-af55-4de9457ef9d6'::uuid, 'Oklahoma City, OK 73175', null, '1349100a-ad9a-4a69-b40c-35b6b6f7df74'::uuid, now(), now(), null, true
+WHERE NOT EXISTS (select * from duty_locations where id = 'cae54e5f-d14d-4181-af55-4de9457ef9d6');
+
+
 --set po_box_only to false for zips that have valid duty locations
 update re_us_post_regions 
    set is_po_box = false 
