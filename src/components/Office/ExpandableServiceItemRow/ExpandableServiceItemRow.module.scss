@@ -3,6 +3,7 @@
 @import 'shared/styles/colors';
 
 .ExpandableServiceItemRow {
+  background-color: $bg-gray;
   .accepted {
     svg {
       @include u-margin-right(1);
@@ -71,5 +72,57 @@
 
   &.expandedDetail td {
     padding: 0;
+  }
+
+  .rejectionReasonCol {
+    @include u-padding(2);
+    border: 1px solid $base-lighter;
+    border-radius: 3px;
+    background-color: $bg-gray;
+  }
+
+  .title {
+    font-weight: bold;
+    margin-top: 0;
+    @include u-margin-bottom(2);
+    @include u-padding-left(1);
+    @include u-padding-top(2);
+  }
+
+  .reasonText {
+    font-weight: normal;
+  }
+
+  td[colspan='2']:nth-of-type(2).rejectionReasonTd {
+    vertical-align: top;
+    text-align: start;
+    word-break: break-word;
+    padding-right: 2rem;
+    padding-left: 1rem;
+    border-left: 1px solid #dfe1e2;
+    background-color: $bg-gray;
+  }
+
+  .rejectionReasonContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-left: 1rem;
+    padding-bottom: 1rem;
+    padding-right: 1rem;
+    background-color: $bg-gray;
+
+    svg {
+      path {
+        fill: $error;
+      }
+      height: 1.4rem;
+    }
+  }
+
+  .break {
+    flex-basis: 100%;
+    height: 0;
   }
 }
