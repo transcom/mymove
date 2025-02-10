@@ -1,14 +1,14 @@
-import { React } from 'react';
-import { Toolbar } from '@material-ui/core';
+import React from 'react';
 import {
+  ArrayField,
   Datagrid,
   DateField,
   Filter,
   List,
   ReferenceField,
   TextField,
-  ArrayField,
-  SearchInput,
+  TextInput,
+  TopToolbar,
   useRecordContext,
   BulkExportButton,
   downloadCSV,
@@ -20,12 +20,14 @@ import jsonExport from 'jsonexport/dist';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 // Overriding the default toolbar
-
-const RequestedOfficeUserListFilter = () => (
-  <Filter>
-    <SearchInput source="search" alwaysOn />
-    <SearchInput source="transportationOfficeSearch" alwaysOn resettable placeholder="Transportation Office" />
-    <SearchInput source="rolesSearch" alwaysOn resettable placeholder="Roles" />
+const ListActions = () => {
+  return <TopToolbar />;
+};
+const RequestedOfficeUserListFilter = (props) => (
+  <Filter {...props}>
+    <TextInput label="Search by Name/Email" source="search" alwaysOn resettable />
+    <TextInput label="Transportation Office" source="offices" alwaysOn resettable />
+    <TextInput label="Roles" source="rolesSearch" alwaysOn resettable />
   </Filter>
 );
 
@@ -108,9 +110,6 @@ const CustomBulkActions = ({ selectedIds }) => {
   const dataProvider = useDataProvider();
 
   return <BulkExportButton label="Export" onClick={() => handleExport(data, dataProvider, selectedIds)} />;
-};
-const ListActions = () => {
-  return <Toolbar />;
 };
 
 const RequestedOfficeUserList = () => {
