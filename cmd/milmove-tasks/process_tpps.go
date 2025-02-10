@@ -53,6 +53,7 @@ const (
 	// AVStatusCLEAN string CLEAN
 	AVStatusCLEAN string = "CLEAN"
 
+	// AVStatusCLEAN string UNKNOWN
 	AVStatusUNKNOWN string = "UNKNOWN"
 
 	// Default value for parameter store environment variable

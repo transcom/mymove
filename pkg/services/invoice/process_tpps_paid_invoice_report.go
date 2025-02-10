@@ -51,8 +51,7 @@ type TPPSData struct {
 }
 
 // NewTPPSPaidInvoiceReportProcessor returns a new TPPS paid invoice report processor
-func NewTPPSPaidInvoiceReportProcessor() services.SyncadaFileProcessor {
-
+func NewTPPSPaidInvoiceReportProcessor() services.TPPSPaidInvoiceReportProcessor {
 	return &tppsPaidInvoiceReportProcessor{}
 }
 
