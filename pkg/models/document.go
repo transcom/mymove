@@ -55,6 +55,9 @@ func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Sessi
 	var document Document
 	var uploads []Upload
 	query := db.Q()
+	// Giving the cursors names in which they will be defined as after opened in the database function.
+	// Doing so we can reference the specific cursor we want by the defined name as opposed to <unnamed portal 1>, <unnamed portal 2>
+	// which causes syntax errors when used in the FETCH ALL IN query.
 	documentCursor := "documentcursor"
 	userUploadCursor := "useruploadcursor"
 	uploadCursor := "uploadcursor"
@@ -71,6 +74,8 @@ func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Sessi
 		return Document{}, err
 	}
 
+	// Since we know the name of the cursor we can fetch the specific one we are interested in
+	// using FETCH ALL IN and populate the appropriate model
 	fetchDocument := `FETCH ALL IN ` + documentCursor + `;`
 	fetchUserUploads := `FETCH ALL IN ` + userUploadCursor + `;`
 	fetchUploads := `FETCH ALL IN ` + uploadCursor + `;`
@@ -105,7 +110,17 @@ func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Sessi
 		return Document{}, err
 	}
 
-	// we close all the cursors we opened during the fetch_documents call
+	// We have an array of UserUploads inside Document model, to populate that Upload model we need to loop and apply
+	// the resulting uploads into the appropriate UserUpload.Upload model by matching the upload ids
+	for i := 0; i < len(document.UserUploads); i++ {
+		for j := 0; j < len(uploads); j++ {
+			if document.UserUploads[i].UploadID == uploads[j].ID {
+				document.UserUploads[i].Upload = uploads[j]
+			}
+		}
+	}
+
+	// We close all the cursors we opened during the fetch_documents call
 	closeDocCursor := `CLOSE ` + documentCursor + `;`
 	closeUserCursor := `CLOSE ` + userUploadCursor + `;`
 	closeUploadCursor := `CLOSE ` + uploadCursor + `;`
@@ -126,16 +141,6 @@ func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Sessi
 
 	if closeErr != nil {
 		return Document{}, fmt.Errorf("error closing uploads cursor: %w", closeErr)
-	}
-
-	// we have an array of UserUploads inside Document so we need to loop and apply the resulting uploads
-	// into the appropriate UserUpload.Upload model by matching the upload ids
-	for i := 0; i < len(document.UserUploads); i++ {
-		for j := 0; j < len(uploads); j++ {
-			if document.UserUploads[i].UploadID == uploads[j].ID {
-				document.UserUploads[i].Upload = uploads[j]
-			}
-		}
 	}
 
 	if checkUserAccessiability {
