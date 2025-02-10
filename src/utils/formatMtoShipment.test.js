@@ -234,7 +234,7 @@ describe('formatMtoShipmentForDisplay', () => {
 
     const expectedTertiaryDeliveryAddress = { ...emptyAddressShape, ...tertiaryDeliveryAddress };
     checkAddressesAreEqual(displayValues.tertiaryDelivery.address, expectedTertiaryDeliveryAddress);
-    expect(displayValues.hasTertiaryDelivery).toBe('false');
+    expect(displayValues.hasTertiaryDelivery).toBe('true');
   });
 
   it('can format a shipment with lines of accounting', () => {
