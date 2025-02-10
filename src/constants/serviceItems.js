@@ -22,8 +22,6 @@ const SERVICE_ITEM_PARAM_KEYS = {
   EscalationCompounded: 'EscalationCompounded',
   FSCWeightBasedDistanceMultiplier: 'FSCWeightBasedDistanceMultiplier',
   IsPeak: 'IsPeak',
-  MarketDest: 'MarketDest',
-  MarketOrigin: 'MarketOrigin',
   NTSPackingFactor: 'NTSPackingFactor',
   NumberDaysSIT: 'NumberDaysSIT',
   OriginPrice: 'OriginPrice',
@@ -57,6 +55,8 @@ const SERVICE_ITEM_PARAM_KEYS = {
   StandaloneCrate: 'StandaloneCrate',
   StandaloneCrateCap: 'StandaloneCrateCap',
   UncappedRequestTotal: 'UncappedRequestTotal',
+  MarketOrigin: 'MarketOrigin',
+  MarketDest: 'MarketDest',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
@@ -106,7 +106,6 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   Dimensions: 'Dimensions',
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Mileage factor',
-  International: 'International',
   InternationalShippingAndLinehaul: 'ISLH price',
   Market: 'Market',
   Mileage: 'Mileage',
