@@ -5283,6 +5283,11 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      weightRestriction:
+        type: integer
+        example: 1500
+        x-formatting: weight
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -6214,6 +6219,13 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the weight restriction for the move to a particular
+          location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6317,6 +6329,11 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: Indicates the weight restriction for a move to a particular location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
