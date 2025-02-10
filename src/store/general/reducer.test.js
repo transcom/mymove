@@ -1,5 +1,5 @@
 import generalStateReducer, { initialState } from './reducer';
-import { setCanAddOrders, setMoveId } from './actions';
+import { setCanAddOrders, setMoveId, setShouldRefetchQueue } from './actions';
 
 describe('generalStateReducer', () => {
   it('returns the initial state by default', () => {
@@ -17,6 +17,13 @@ describe('generalStateReducer', () => {
     expect(generalStateReducer(initialState, setCanAddOrders(true))).toEqual({
       ...initialState,
       canAddOrders: true,
+    });
+  });
+
+  it('handles the setShouldRefetchQueue', () => {
+    expect(generalStateReducer(initialState, setShouldRefetchQueue(true))).toEqual({
+      ...initialState,
+      shouldRefetchQueue: true,
     });
   });
 });
