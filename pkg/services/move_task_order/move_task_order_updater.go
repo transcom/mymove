@@ -239,11 +239,11 @@ func (o moveTaskOrderUpdater) UpdateTIORemarks(appCtx appcontext.AppContext, mov
 	return move, nil
 }
 
-// MakeAvailableToPrime approves a Move, makes it available to prime, and
+// ApproveMoveAndCreateServiceItems approves a Move and
 // creates Move-level service items (counseling and move management) if the
 // TOO selected them. If the move received service counseling, the counseling
 // service item will automatically be created without the TOO having to select it.
-func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string,
+func (o *moveTaskOrderUpdater) ApproveMoveAndCreateServiceItems(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string,
 	includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
 
 	searchParams := services.MoveTaskOrderFetcherParams{
@@ -263,14 +263,9 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 	//When approving a shipment - remove the assigned TOO user
 	move.TOOAssignedID = nil
 
-	// If the move is already been made available to prime, we will not need to approve and update the move,
-	// just the provided service items.
 	updateMove := false
-	if move.AvailableToPrimeAt == nil {
+	if move.ApprovedAt == nil {
 		updateMove = true
-		now := time.Now()
-		move.AvailableToPrimeAt = &now
-
 		err = o.moveRouter.Approve(appCtx, move)
 		if err != nil {
 			return &models.Move{}, apperror.NewConflictError(move.ID, err.Error())
@@ -306,6 +301,42 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 	}
 
 	return move, nil
+}
+
+// MakeAvailableToPrime makes the move available to prime
+func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, bool, error) {
+	var move *models.Move
+	var wasMadeAvailableToPrime = false
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: moveTaskOrderID,
+		}
+		var err error
+		move, err = o.FetchMoveTaskOrder(txnAppCtx, &searchParams)
+		if err != nil {
+			return err
+		}
+
+		if move.AvailableToPrimeAt == nil {
+			now := time.Now()
+			move.AvailableToPrimeAt = &now
+
+			err = o.updateMove(txnAppCtx, move, order.CheckRequiredFields())
+			if err != nil {
+				return err
+			}
+			wasMadeAvailableToPrime = true
+		}
+		return nil
+	})
+
+	if transactionError != nil {
+		return &models.Move{}, false, transactionError
+	}
+
+	return move, wasMadeAvailableToPrime, nil
 }
 
 func (o *moveTaskOrderUpdater) updateMove(appCtx appcontext.AppContext, move *models.Move, checks ...order.Validator) error {
