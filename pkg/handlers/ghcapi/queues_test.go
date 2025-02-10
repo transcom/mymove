@@ -1655,7 +1655,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 }
 
 func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
-	suite.Run("returns an unauthorized error when an attempt is made by a non supervisor", func() {
+	suite.Run("SC - returns an unauthorized error when an attempt is made by a non supervisor", func() {
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
@@ -1689,7 +1689,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.IsNotErrResponse(response)
 		suite.IsType(&queues.GetBulkAssignmentDataUnauthorized{}, response)
 	})
-	suite.Run("returns properly formatted bulk assignment data", func() {
+	suite.Run("SC - returns properly formatted bulk assignment data", func() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
@@ -1877,6 +1877,120 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		params := queues.GetBulkAssignmentDataParams{
 			HTTPRequest: request,
 			QueueType:   models.StringPointer("CLOSEOUT"),
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := GetBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcherBulkAssignment(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetBulkAssignmentDataOK{}, response)
+		payload := response.(*queues.GetBulkAssignmentDataOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.AvailableOfficeUsers, 1)
+		suite.Len(payload.BulkAssignmentMoveIDs, 1)
+	})
+
+	suite.Run("TIO - returns an unauthorized error when an attempt is made by a non supervisor", func() {
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email: "officeuser1@example.com",
+				},
+			},
+			{
+				Model: models.User{
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeTIO,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		request := httptest.NewRequest("GET", "/queues/bulk-assignment", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetBulkAssignmentDataParams{
+			HTTPRequest: request,
+			QueueType:   models.StringPointer("PAYMENT_REQUEST"),
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := GetBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcherBulkAssignment(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetBulkAssignmentDataUnauthorized{}, response)
+	})
+	suite.Run("TIO - returns properly formatted bulk assignment data", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeTIO,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		// payment request to appear in the return
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					ID:              uuid.Must(uuid.NewV4()),
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		request := httptest.NewRequest("GET", "/queues/bulk-assignment", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetBulkAssignmentDataParams{
+			HTTPRequest: request,
+			QueueType:   models.StringPointer("PAYMENT_REQUEST"),
 		}
 		handlerConfig := suite.HandlerConfig()
 		handler := GetBulkAssignmentDataHandler{
