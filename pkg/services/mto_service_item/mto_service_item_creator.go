@@ -56,7 +56,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 		currTime := time.Now()
 		var distance int
 		primeEstimatedWeight := mtoShipment.PrimeEstimatedWeight
-		if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+		if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 			newWeight := int(primeEstimatedWeight.Float64() * 1.1)
 			primeEstimatedWeight = (*unit.Pound)(&newWeight)
 		}
