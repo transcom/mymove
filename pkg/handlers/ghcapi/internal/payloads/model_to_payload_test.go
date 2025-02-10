@@ -667,6 +667,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	dependentsTwelveAndOver := 1
 	authorizedWeight := 8000
 	ubAllowance := 300
+	weightRestriction := 1000
 
 	entitlement := &models.Entitlement{
 		ID:                             entitlementID,
@@ -684,6 +685,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		DependentsTwelveAndOver:        &dependentsTwelveAndOver,
 		UpdatedAt:                      time.Now(),
 		UBAllowance:                    &ubAllowance,
+		WeightRestriction:              &weightRestriction,
 	}
 
 	returnedEntitlement := Entitlement(entitlement)
@@ -705,6 +707,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(models.BoolPointer(accompaniedTour), returnedEntitlement.AccompaniedTour)
 	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
 	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
+	suite.Equal(weightRestriction, int(*returnedEntitlement.WeightRestriction))
 }
 
 func (suite *PayloadsSuite) TestCreateCustomer() {
