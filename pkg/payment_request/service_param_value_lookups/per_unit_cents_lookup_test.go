@@ -335,7 +335,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "6997")
+		suite.Equal(perUnitCents, "7250")
 	})
 
 	suite.Run("success - returns perUnitCent value for IUBUPK", func() {
@@ -346,7 +346,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "752")
+		suite.Equal(perUnitCents, "724")
 	})
 
 	suite.Run("success - returns perUnitCent value for UBP", func() {
@@ -413,7 +413,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(perUnitCents, "1605")
+		suite.Equal(perUnitCents, "3411")
 	})
 
 	suite.Run("failure - unauthorized service code", func() {
