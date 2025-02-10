@@ -217,13 +217,19 @@ func (m Move) GetDestinationGBLOC(db *pop.Connection) (string, error) {
 
 	var newGBLOC string
 	if *destinationAddress.IsOconus {
-		err := db.Load(&m.Orders, "ServiceMember")
-		if err != nil {
-			if err.Error() == RecordNotFoundErrorString {
-				return "", errors.WithMessage(err, "No Service Member found in the DB associated with moveID "+m.ID.String())
+		if m.OrdersID != uuid.Nil {
+			err := db.Q().EagerPreload("ServiceMember").
+				Find(&m.Orders, m.OrdersID)
+			if err != nil {
+				if errors.Cause(err).Error() == RecordNotFoundErrorString {
+					return "", ErrFetchNotFound
+				}
+				return "", err
 			}
-			return "", err
+		} else {
+			return "", errors.WithMessage(ErrInvalidOrderID, "Orders ID must have a value in order to get the destination GBLOC")
 		}
+
 		newGBLOCOconus, err := FetchAddressGbloc(db, *destinationAddress, m.Orders.ServiceMember)
 		if err != nil {
 			return "", err
