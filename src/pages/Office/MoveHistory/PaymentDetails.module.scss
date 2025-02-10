@@ -13,6 +13,7 @@
     font-weight: 500;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
   }
   .statusRow {
     display: flex;
@@ -23,5 +24,12 @@
   }
   .rejectTimes {
     color: $error;
+  }
+  .break {
+    flex-basis: 100%;
+    height: 0;
+  }
+  .rejectionReason {
+    text-indent: 1rem;
   }
 }
