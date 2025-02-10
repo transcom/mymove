@@ -185,6 +185,13 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
           </dd>
         </div>
       )}
+      {!shipment.ppmShipment && (
+        <div className={descriptionListStyles.row}>
+          <dt>Origin Rate Area:</dt>
+          <dd>{shipment.originRateArea?.rateAreaName ? shipment.originRateArea.rateAreaName : '—'}</dd>
+          <dd>{shipment.originRateArea?.rateAreaId ? shipment.originRateArea.rateAreaId : '—'}</dd>
+        </div>
+      )}
       <div className={descriptionListStyles.row}>
         <dt>Pickup Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.pickupAddress)}</dd>
@@ -218,6 +225,13 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
           )}
         </dd>
       </div>
+      {!shipment.ppmShipment && (
+        <div className={descriptionListStyles.row}>
+          <dt>Destination Rate Area:</dt>
+          <dd>{shipment.destinationRateArea?.rateAreaName ? shipment.destinationRateArea.rateAreaName : '—'}</dd>
+          <dd>{shipment.destinationRateArea?.rateAreaId ? shipment.destinationRateArea.rateAreaId : '—'}</dd>
+        </div>
+      )}
       <div className={descriptionListStyles.row}>
         <dt>Delivery Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.destinationAddress)}</dd>
@@ -323,6 +337,17 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
             <dd>{formatDateFromIso(shipment.ppmShipment.approvedAt, 'YYYY-MM-DD')}</dd>
           </div>
           <div className={descriptionListStyles.row}>
+            <dt>Origin Rate Area:</dt>
+            <dd>
+              {shipment.ppmShipment?.originRateArea?.rateAreaName
+                ? shipment.ppmShipment?.originRateArea.rateAreaName
+                : '—'}
+            </dd>
+            <dd>
+              {shipment.ppmShipment?.originRateArea?.rateAreaId ? shipment.ppmShipment?.originRateArea.rateAreaId : '—'}
+            </dd>
+          </div>
+          <div className={descriptionListStyles.row}>
             <dt>Pickup Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.pickupAddress)}</dd>
           </div>
@@ -333,6 +358,19 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
           <div className={descriptionListStyles.row}>
             <dt>Third Pickup Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.tertiaryPickupAddress)}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Destination Rate Area:</dt>
+            <dd>
+              {shipment.ppmShipment?.destinationRateArea?.rateAreaName
+                ? shipment.ppmShipment?.destinationRateArea.rateAreaName
+                : '—'}
+            </dd>
+            <dd>
+              {shipment.ppmShipment?.destinationRateArea?.rateAreaId
+                ? shipment.ppmShipment?.destinationRateArea.rateAreaId
+                : '—'}
+            </dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>Delivery Address:</dt>
