@@ -164,3 +164,55 @@ func (suite *ModelSuite) TestGetMTOServiceItemTypeFromServiceItem() {
 		suite.NotNil(returnedShipment)
 	})
 }
+
+func (suite *ModelSuite) TestFetchServiceItem() {
+	suite.Run("successful fetch service item", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		msServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeMS,
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS,
+				},
+			},
+		}, nil)
+		serviceItem, fetchErr := models.FetchServiceItem(suite.DB(), msServiceItem.ID)
+		suite.NoError(fetchErr)
+		suite.NotNil(serviceItem)
+	})
+
+	suite.Run("failed fetch service item - db connection is nil", func() {
+		serviceItem, fetchErr := models.FetchServiceItem(nil, uuid.Must(uuid.NewV4()))
+		suite.Error(fetchErr)
+		suite.EqualError(fetchErr, "db connection is nil; unable to fetch service item")
+		suite.Empty(serviceItem)
+	})
+
+	suite.Run("failed fetch service item - record not found", func() {
+		nonExistentID := uuid.Must(uuid.NewV4())
+		serviceItem, fetchErr := models.FetchServiceItem(suite.DB(), nonExistentID)
+		suite.Error(fetchErr)
+		suite.Equal(fetchErr, models.ErrFetchNotFound)
+		suite.Empty(serviceItem)
+	})
+}

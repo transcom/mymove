@@ -44,7 +44,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		mtoServiceItem models.MTOServiceItem
 	}
 
-	makeSubtestDataWithPPMShipmentType := func(isPPM bool) (subtestData *localSubtestData) {
+	makeSubtestDataWithPPMShipmentType := func(isPPM bool, isInternational bool) (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
 		mtoShipmentID, _ := uuid.NewV4()
 
@@ -63,15 +63,34 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 				},
 			}, nil)
 		} else {
-			subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-				{
-					Model:    mto,
-					LinkOnly: true,
-				},
-			}, nil)
+			if isInternational {
+				subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    mto,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							MarketCode: models.MarketCodeInternational,
+						},
+					},
+				}, nil)
+			} else {
+				subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    mto,
+						LinkOnly: true,
+					},
+				}, nil)
+			}
 		}
 
-		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		if isInternational {
+			factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIOFSIT)
+		} else {
+			factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		}
+
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
@@ -85,10 +104,16 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		// that we properly create the address coming in from the API.
 		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 
+		serviceCode := models.ReService{Code: models.ReServiceCodeDOFSIT}
+
+		if isInternational {
+			serviceCode = models.ReService{Code: models.ReServiceCodeIOFSIT}
+		}
+
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID:                   mto.ID,
 			MTOShipmentID:                     &subtestData.mtoShipment.ID,
-			ReService:                         models.ReService{Code: models.ReServiceCodeDOFSIT},
+			ReService:                         serviceCode,
 			Reason:                            models.StringPointer("lorem ipsum"),
 			SITEntryDate:                      &sitEntryDate,
 			SITPostalCode:                     &sitPostalCode,
@@ -105,7 +130,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	}
 
 	makeSubtestData := func() (subtestData *localSubtestData) {
-		return makeSubtestDataWithPPMShipmentType(false)
+		return makeSubtestDataWithPPMShipmentType(false, false)
+	}
+
+	makeSubtestInternationalData := func() (subtestData *localSubtestData) {
+		return makeSubtestDataWithPPMShipmentType(false, true)
 	}
 
 	suite.Run("Successful POST - Integration Test", func() {
@@ -140,6 +169,34 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		// for _, mtoServiceItem := range okResponse.Payload {
 		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
 		// }
+
+		suite.NotZero(okResponse.Payload[0].ID())
+	})
+
+	suite.Run("Successful POST International - Integration Test", func() {
+		subtestData := makeSubtestInternationalData()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			false,
+			false,
+		).Return(400, nil)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		handler := CreateMTOServiceItemHandler{
+			suite.HandlerConfig(),
+			creator,
+			mtoChecker,
+		}
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData.params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
 
 		suite.NotZero(okResponse.Payload[0].ID())
 	})
@@ -503,7 +560,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	})
 
 	suite.Run("POST failure - Shipment fetch not found", func() {
-		subtestData := makeSubtestDataWithPPMShipmentType(true)
+		subtestData := makeSubtestDataWithPPMShipmentType(true, false)
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
@@ -535,7 +592,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	})
 
 	suite.Run("POST failure - 422 - PPM not allowed to create service item", func() {
-		subtestData := makeSubtestDataWithPPMShipmentType(true)
+		subtestData := makeSubtestDataWithPPMShipmentType(true, false)
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
