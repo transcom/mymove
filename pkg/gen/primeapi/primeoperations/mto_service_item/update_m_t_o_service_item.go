@@ -64,6 +64,14 @@ The following SIT service items can be resubmitted following a rejection:
 - DOFSIT
 - DDSFSC
 - DOSFSC
+- IDASIT
+- IDDSIT
+- IDFSIT
+- IOASIT
+- IOPSIT
+- IOFSIT
+- IDSFSC
+- IOSFSC
 
 The following Accessorial service items can be resubmitted following a rejection:
 - IOSHUT
