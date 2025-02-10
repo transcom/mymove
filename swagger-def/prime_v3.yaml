@@ -340,12 +340,16 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemBasic.yaml'
   MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDestSIT.yaml'
+  MTOServiceItemInternationalDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalDestSIT.yaml'
   MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDomesticCrating.yaml'
   MTOServiceItemInternationalCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemInternationalCrating.yaml'
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
+  MTOServiceItemInternationalOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
   MTOServiceItemDomesticShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
@@ -640,6 +644,10 @@ definitions:
         * DOPSIT - UpdateMTOServiceItemSIT
         * DOASIT - UpdateMTOServiceItemSIT
         * DOFSIT - UpdateMTOServiceItemSIT
+        * IDDSIT - UpdateMTOServiceItemSIT
+        * IOPSIT - UpdateMTOServiceItemSIT
+        * IOASIT - UpdateMTOServiceItemSIT
+        * IOFSIT - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
         * IDSHUT - UpdateMTOServiceItemInternationalShuttle
@@ -1003,6 +1011,10 @@ definitions:
               - DOPSIT # Domestic Origin SIT Pickup
               - DOASIT # Domestic Origin Add'l Days SIT
               - DOFSIT # Domestic Origin 1st Day SIT
+              - IDDSIT # International Destination SIT Delivery
+              - IOPSIT # International Origin SIT Pickup
+              - IOASIT # International Origin Add'l Days SIT
+              - IOFSIT # International Origin 1st Day SIT
           sitDepartureDate:
             format: date
             type: string
