@@ -1,14 +1,14 @@
-import { React } from 'react';
+import React from 'react';
 import {
+  ArrayField,
   Datagrid,
   DateField,
   Filter,
   List,
   ReferenceField,
   TextField,
+  TextInput,
   TopToolbar,
-  ArrayField,
-  SearchInput,
   useRecordContext,
 } from 'react-admin';
 
@@ -18,12 +18,11 @@ import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 const ListActions = () => {
   return <TopToolbar />;
 };
-
-const RequestedOfficeUserListFilter = () => (
-  <Filter>
-    <SearchInput source="search" alwaysOn />
-    <SearchInput source="transportationOfficeSearch" alwaysOn resettable placeholder="Transportation Office" />
-    <SearchInput source="rolesSearch" alwaysOn resettable placeholder="Roles" />
+const RequestedOfficeUserListFilter = (props) => (
+  <Filter {...props}>
+    <TextInput label="Search by Name/Email" source="search" alwaysOn resettable />
+    <TextInput label="Transportation Office" source="offices" alwaysOn resettable />
+    <TextInput label="Roles" source="rolesSearch" alwaysOn resettable />
   </Filter>
 );
 
