@@ -233,7 +233,17 @@ test.describe('Services counselor user', () => {
     // Submit edits
     await page.getByTestId('submitForm').click();
     await scPage.waitForLoading();
-    await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
+    const alerts = await page.locator('.usa-alert__text').all();
+
+    let foundAlert = false;
+    for (const alert of alerts) {
+      const alertText = await alert.innerText();
+      if (alertText.includes('Your changes were saved.')) {
+        foundAlert = true;
+        break;
+      }
+    }
+    expect(foundAlert).toBe(true);
 
     // Check that the data in the shipment card now matches what we just submitted
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
