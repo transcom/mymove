@@ -122,9 +122,6 @@ func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppC
 		return nil, errors.Wrap(err, fmt.Sprintf("error fetching document domain by id: %s", documentID))
 	}
 
-	// filter out deleted uploads from userUploads
-	document.UserUploads = document.UserUploads.FilterDeleted()
-
 	var pdfFileNames []string
 	var pageCounts []int
 	// Document has one or more uploads. Create PDF file for each.
