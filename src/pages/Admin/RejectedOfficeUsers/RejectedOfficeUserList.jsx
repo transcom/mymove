@@ -25,7 +25,7 @@ const RejectedOfficeUserShowRoles = () => {
     }
   }
 
-  return <p>{uniqueRoleNamesList.join(', ')}</p>;
+  return <span>{uniqueRoleNamesList.join(', ')}</span>;
 };
 
 // Overriding the default toolbar
