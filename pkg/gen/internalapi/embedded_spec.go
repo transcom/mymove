@@ -4486,6 +4486,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weight_restriction": {
+          "description": "Indicates the weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -6037,6 +6043,10 @@ func init() {
         },
         "uploaded_orders": {
           "$ref": "#/definitions/Document"
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -13615,6 +13625,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weight_restriction": {
+          "description": "Indicates the weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -15168,6 +15184,10 @@ func init() {
         },
         "uploaded_orders": {
           "$ref": "#/definitions/Document"
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
