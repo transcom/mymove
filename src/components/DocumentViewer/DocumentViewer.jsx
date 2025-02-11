@@ -179,6 +179,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
 
   const handleSelectFile = (index) => {
     selectFile(index);
+    setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
     closeMenu();
   };
 
