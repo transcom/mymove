@@ -363,9 +363,7 @@ func (o transportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appC
 
 		if err := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID, gblocDepartmentIndicator.Gbloc).First(&closestOffice); err != nil {
 			appCtx.Logger().Error("Failed to execute OCONUS SQL query", zap.Error(err))
-			if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
-				return &closestOffice, err
-			}
+			return &closestOffice, err
 		}
 		return &closestOffice, nil
 	} else {
@@ -397,9 +395,7 @@ func (o transportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appC
 
 		if err := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID).First(&closestOffice); err != nil {
 			appCtx.Logger().Error("Failed to execute CONUS SQL query", zap.Error(err))
-			if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
-				return &closestOffice, err
-			}
+			return &closestOffice, err
 		}
 	}
 
