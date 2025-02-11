@@ -3799,7 +3799,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 					ShipmentType:         models.MTOShipmentTypeUnaccompaniedBaggage,
 					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 					PrimeEstimatedWeight: &estimatedWeight,
-					Status:               models.MTOShipmentStatusSubmitted,
+					PrimeActualWeight:    &estimatedWeight,
+					Status:               models.MTOShipmentStatusApproved,
 				},
 			},
 			{
