@@ -67,42 +67,43 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
             })}
           </table>
         </div>
-        <ModalActions autofocus="true">
-          <Button
-            disabled={isDisabled}
-            data-focus="true"
-            type="submit"
-            data-testid="modalSubmitButton"
-            onClick={() => onSubmit()}
-          >
-            {submitText}
-          </Button>
-          <Button
-            type="button"
-            className={styles.button}
-            unstyled
-            onClick={() => setShowCancelModal(true)}
-            data-testid="modalCancelButton"
-          >
-            {closeText}
-          </Button>
-        </ModalActions>
-        {showCancelModal && (
+        {showCancelModal ? (
           <div className={styles.areYouSureSection}>
             <small className={styles.hint}>Any unsaved work will be lost. Are you sure you want to cancel?</small>
             <div className={styles.confirmButtons}>
               <Button
-                className={styles.smallButton}
+                className={styles.cancelNoButton}
                 data-testid="cancelModalNo"
                 onClick={() => setShowCancelModal(false)}
               >
                 No
               </Button>
-              <Button className={styles.smallButton} data-testid="cancelModalYes" secondary onClick={onClose}>
+              <Button className={styles.cancelYesButton} data-testid="cancelModalYes" secondary onClick={onClose}>
                 Discard Changes
               </Button>
             </div>
           </div>
+        ) : (
+          <ModalActions autofocus="true">
+            <Button
+              disabled={isDisabled}
+              data-focus="true"
+              type="submit"
+              data-testid="modalSubmitButton"
+              onClick={() => onSubmit()}
+            >
+              {submitText}
+            </Button>
+            <Button
+              type="button"
+              className={styles.button}
+              unstyled
+              onClick={() => setShowCancelModal(true)}
+              data-testid="modalCancelButton"
+            >
+              {closeText}
+            </Button>
+          </ModalActions>
         )}
       </Modal>
     </div>

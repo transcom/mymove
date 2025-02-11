@@ -17,19 +17,6 @@
   }
 
   /* these styles are used to fix an issue with duplicate usa-button--secondary definitions in USWDS */
-  .cancelYesButton {
-    background-color: $color-red;
-    color: white;
-    padding-left: 1.6rem;
-    padding-right: 1.6rem;
-    padding-bottom: 0.8rem;
-    padding-top: 0.8rem;
-    height: 42px;
-    width: 73px;
-  }
-  .cancelYesButton:hover {
-    background-color: $error-dark;
-  }
   .cancelNoButton {
     border-radius: 0.2666666667rem;
     color: #0050d8;
@@ -71,9 +58,11 @@
   .confirmButtons {
     display: flex;
     gap: 20px;
+    padding: 10px;
   }
 
-  .smallButton {
+  .cancelYesButton {
     font-size: small;
+    max-width: 100px;
   }
 }
