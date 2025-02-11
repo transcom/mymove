@@ -107,6 +107,13 @@ stages:
       export APP_ENVIRONMENT=$DP3_ENV
     fi
 
+.unset_aws_env: &unset_aws_env
+  - unset AWS_DEFAULT_REGION
+  - unset AWS_ACCOUNT_ID
+  - unset AWS_ACCESS_KEY_ID
+  - unset AWS_SECRET_ACCESS_KEY
+
+
 .setup_aws_vars_com_dev: &setup_aws_vars_com_dev
   - export AWS_DEFAULT_REGION=$COM_REGION
   - export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID
@@ -600,6 +607,7 @@ deploy_storybook_dp3:
     - pre_deps_yarn
     - build_storybook
   before_script:
+    - *unset_aws_env
     - *setup_milmove_env
     - *setup_aws_vars_com_dev
   script:
