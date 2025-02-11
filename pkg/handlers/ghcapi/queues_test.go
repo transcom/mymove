@@ -2247,7 +2247,6 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 		suite.Equal(subtestData.officeUsers[0].ID.String(), payload.QueuePaymentRequests[0].AvailableOfficeUsers[0].OfficeUserID.String())
 		suite.Equal(subtestData.officeUsers[1].ID.String(), payload.QueuePaymentRequests[0].AvailableOfficeUsers[1].OfficeUserID.String())
 	})
-
 }
 
 func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {

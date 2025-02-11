@@ -1121,7 +1121,7 @@ paths:
           $ref: "#/responses/UnprocessableEntity"
         "500":
           $ref: "#/responses/ServerError"
-  '/shipments/approve':
+  "/shipments/approve":
     post:
       consumes:
         - application/json
@@ -1159,7 +1159,7 @@ paths:
       summary: Approves multiple shipments at once
       x-permissions:
         - update.shipment
-  "/shipments/{shipmentID}/approve":
+  '/shipments/{shipmentID}/approve':
     parameters:
       - description: ID of the shipment
         in: path
