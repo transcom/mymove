@@ -391,7 +391,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		suite.Assertions.IsType(&handlers.ErrResponse{}, response)
 		internalServerErrorResponse := response.(*handlers.ErrResponse)
 		suite.Equal(internalServerErrorResponse.Code, http.StatusInternalServerError)
-		suite.Equal(internalServerErrorResponse.Err.Error(), "failure saving move when routing move submission")
+		suite.Equal(internalServerErrorResponse.Err.Error(), "Failed to find counseling office that provides counseling")
 
 		// And: SignedCertification was created
 		signedCertification := models.SignedCertification{}
