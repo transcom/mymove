@@ -330,9 +330,9 @@ const TableQueue = ({
   };
 
   const handleCloseBulkAssignModal = () => {
-    refetch().then(() => {
-      setIsBulkAssignModalVisible(false);
-    });
+    refetch();
+
+    setIsBulkAssignModalVisible(false);
   };
 
   const onSubmitBulk = (bulkAssignmentSavePayload) => {
