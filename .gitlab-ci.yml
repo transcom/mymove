@@ -9,7 +9,7 @@ variables:
   #Docker config
   DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
   #hard code sha as newer version of debian is needed for pre-test
-  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app@sha256:ee774e9244afa2063bbbb7f9b973b17f1f5139366a1b7a676155df0b5268a7e1
+  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app
   DOCKER_BASE_IMAGE: milmove01/transcom-docker:base
   DOCKERHUB_USERNAME: DOCKERHUB_USERNAME
   DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
@@ -30,16 +30,16 @@ variables:
   GOLANGCI_LINT_VERBOSE: "-v"
 
   # Specify the environment: loadtest, demo, exp
-  DP3_ENV: &dp3_env exp
+  DP3_ENV: &dp3_env placeholder_env
 
   # Specify the branch to deploy TODO: this might be not needed. So far useless
-  DP3_BRANCH: &dp3_branch B-21322-INT
+  DP3_BRANCH: &dp3_branch placeholder_branch_name
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-21322-INT
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-21322-INT
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-21322-INT
-  SERVER_IGNORE_BRANCH: &server_ignore_branch B-21322-INT
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
+  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
 
   OTEL_IMAGE_TAG: &otel_image_tag "git-$OTEL_VERSION-$CI_COMMIT_SHORT_SHA"
 
