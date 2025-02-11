@@ -91,10 +91,14 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           <div className={styles.areYouSureSection}>
             <small className={styles.hint}>Any unsaved work will be lost. Are you sure you want to cancel?</small>
             <div className={styles.confirmButtons}>
-              <Button className={styles.smallButton} onClick={() => setShowCancelModal(false)}>
+              <Button
+                className={styles.smallButton}
+                data-testid="cancelModalNo"
+                onClick={() => setShowCancelModal(false)}
+              >
                 No
               </Button>
-              <Button className={styles.smallButton} secondary onClick={onClose}>
+              <Button className={styles.smallButton} data-testid="cancelModalYes" secondary onClick={onClose}>
                 Yes, Cancel
               </Button>
             </div>
