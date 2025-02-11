@@ -164,15 +164,9 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		s3Client = s3.NewFromConfig(cfg)
 	}
 
-	logger.Info("Created S3 client")
-
-	tppsFilename = "MILMOVE-en20250208.csv" // temp hard-coding for test
 	tppsS3Bucket := v.GetString(cli.TPPSS3Bucket)
-	logger.Info(fmt.Sprintf("tppsS3Bucket: %s", tppsS3Bucket))
 	tppsS3Folder := v.GetString(cli.TPPSS3Folder)
-	logger.Info(fmt.Sprintf("tppsS3Folder: %s", tppsS3Folder))
 	s3Key := tppsS3Folder + tppsFilename
-	logger.Info(fmt.Sprintf("s3Key: %s", s3Key))
 
 	avStatus, s3ObjectTags, err := getS3ObjectTags(s3Client, tppsS3Bucket, s3Key)
 	if err != nil {

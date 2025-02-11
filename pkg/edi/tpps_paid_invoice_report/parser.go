@@ -223,7 +223,6 @@ func convertToTPPSDataStruct(row []string) TPPSData {
 func cleanHeaders(rawTPPSData []byte) []byte {
 	// Remove first three UTF-8 bytes (0xEF 0xBB 0xBF)
 	if len(rawTPPSData) > 3 && rawTPPSData[0] == 0xEF && rawTPPSData[1] == 0xBB && rawTPPSData[2] == 0xBF {
-		fmt.Println("Removing UTF-8 BOM...")
 		rawTPPSData = rawTPPSData[3:]
 	}
 
