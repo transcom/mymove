@@ -36,83 +36,71 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
 
   return (
     <div>
-      {showCancelModal ? (
-        <Modal className={styles.BulkModal}>
-          <ModalTitle>Any unsaved work will be lost. Are you sure you want to cancel?</ModalTitle>
-          <ModalActions autofocus="true">
-            <Button
-              data-focus="true"
-              className={styles.cancelYesButton}
-              type="cancel"
-              data-testid="cancelModalYes"
-              onClick={() => onClose()}
-            >
-              Yes
-            </Button>
-            <Button
-              className={styles.cancelNoButton}
-              type="button"
-              onClick={() => setShowCancelModal(false)}
-              data-testid="cancelModalNo"
-            >
-              No
-            </Button>
-          </ModalActions>
-        </Modal>
-      ) : (
-        <Modal className={styles.BulkModal}>
-          <ModalClose handleClick={() => setShowCancelModal(true)} />
-          <ModalTitle>
-            <h3>
-              {title} ({numberOfMoves})
-            </h3>
-          </ModalTitle>
-          <div className={styles.BulkAssignmentTable}>
-            <table>
-              <tr>
-                <th>User</th>
-                <th>Workload</th>
-                <th>Assignment</th>
-              </tr>
-              {bulkAssignmentData?.availableOfficeUsers?.map((user) => {
-                return (
-                  <tr key={user}>
-                    <td>
-                      <p data-testid="bulkAssignmentUser">{userName(user)}</p>
-                    </td>
-                    <td className={styles.BulkAssignmentDataCenter}>
-                      <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
-                    </td>
-                    <td className={styles.BulkAssignmentDataCenter}>
-                      <input className={styles.BulkAssignmentAssignment} type="number" min="0" />
-                    </td>
-                  </tr>
-                );
-              })}
-            </table>
+      <Modal className={styles.BulkModal}>
+        <ModalClose handleClick={() => setShowCancelModal(true)} />
+        <ModalTitle>
+          <h3>
+            {title} ({numberOfMoves})
+          </h3>
+        </ModalTitle>
+        <div className={styles.BulkAssignmentTable}>
+          <table>
+            <tr>
+              <th>User</th>
+              <th>Workload</th>
+              <th>Assignment</th>
+            </tr>
+            {bulkAssignmentData?.availableOfficeUsers?.map((user) => {
+              return (
+                <tr key={user}>
+                  <td>
+                    <p data-testid="bulkAssignmentUser">{userName(user)}</p>
+                  </td>
+                  <td className={styles.BulkAssignmentDataCenter}>
+                    <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
+                  </td>
+                  <td className={styles.BulkAssignmentDataCenter}>
+                    <input className={styles.BulkAssignmentAssignment} type="number" min="0" />
+                  </td>
+                </tr>
+              );
+            })}
+          </table>
+        </div>
+        <ModalActions autofocus="true">
+          <Button
+            disabled={isDisabled}
+            data-focus="true"
+            type="submit"
+            data-testid="modalSubmitButton"
+            onClick={() => onSubmit()}
+          >
+            {submitText}
+          </Button>
+          <Button
+            type="button"
+            className={styles.button}
+            unstyled
+            onClick={() => setShowCancelModal(true)}
+            data-testid="modalCancelButton"
+          >
+            {closeText}
+          </Button>
+        </ModalActions>
+        {showCancelModal && (
+          <div className={styles.areYouSureSection}>
+            <small className={styles.hint}>Any unsaved work will be lost. Are you sure you want to cancel?</small>
+            <div className={styles.confirmButtons}>
+              <Button className={styles.smallButton} onClick={() => setShowCancelModal(false)}>
+                No
+              </Button>
+              <Button className={styles.smallButton} secondary onClick={onClose}>
+                Yes, Cancel
+              </Button>
+            </div>
           </div>
-          <ModalActions autofocus="true">
-            <Button
-              disabled={isDisabled}
-              data-focus="true"
-              type="submit"
-              data-testid="modalSubmitButton"
-              onClick={() => onSubmit()}
-            >
-              {submitText}
-            </Button>
-            <Button
-              type="button"
-              className={styles.button}
-              unstyled
-              onClick={() => setShowCancelModal(true)}
-              data-testid="modalCancelButton"
-            >
-              {closeText}
-            </Button>
-          </ModalActions>
-        </Modal>
-      )}
+        )}
+      </Modal>
     </div>
   );
 };
