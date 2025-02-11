@@ -163,7 +163,7 @@ stages:
   echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
 
 .check_dp3: &check_dp3
-  - if: (($DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo") && $DP3_BRANCH == $CI_COMMIT_BRANCH)
+ - if: (($DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo") && $DP3_BRANCH == $CI_COMMIT_BRANCH)
 
 .check_main: &check_main
   - if: '$CI_COMMIT_BRANCH == "main"'
@@ -724,36 +724,36 @@ pre_test:
       [ -d ~/transcom/mymove/spectral ] && cp -r ~/transcom/mymove/spectral /tmp/spectral_baseline || echo "Skipping saving baseline"
     - rm -rf ~/transcom/mymove/spectral
     - *install_yarn
+    # this is so we can avoid go mod downloading and resulting in an error on a false positive
+    - ./scripts/pre-commit-go-mod || exit 0
     - echo "Run pre-commit tests without golangci-lint, eslint, or prettier"
-    - SKIP=golangci-lint,eslint,prettier,ato-go-linter,gomod,appcontext-linter pre-commit run --all-files
-    - |
-        echo "Run pre-commit tests with ato-go-linter only"
-        pre-commit run -v --all-files ato-go-linter
-    - |
-        echo "Run pre-commit tests with gomod only"
-        pre-commit run -v --all-files gomod,appcontext-linter
-    - |
-        echo "Run pre-commit tests with appcontext-linter only"
-        pre-commit run -v --all-files appcontext-linter
+    - SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
     - echo "Run pre-commit tests with golangci-lint only"
     - |
-        echo 'export GOLANGCI_LINT_CONCURRENCY=4' >> $BASH_ENV
-        echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
-        source $BASH_ENV
+        export GOLANGCI_LINT_CONCURRENCY=4
+        export GOLANGCI_LINT_VERBOSE=-v
         mkdir -p tmp/test-results/pretest
-        pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
-    -  echo "Run prettier, eslint, danger checks"
+    # can this be removed in favor of golang_lint?
+    - pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+    - echo "Run prettier, eslint, danger checks"
     - yarn prettier-ci
     - yarn lint
     - yarn danger ci --failOnErrors
-    -  echo "Run spectral linter on all files"
+    - echo "Run spectral linter on all files"
     - ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
-    - ./scripts/pre-commit-go-mod || exit 0
   allow_failure: true
   after_script:
     - *announce_failure
-  rules:
-   - *check_server_ignore_branch
+  artifacts:
+      reports:
+        codequality: tmp/test-results/pretest/golangci-lint.out
+      paths:
+        - tmp/test-results/pretest/golangci-lint.out #remove if golang_lint works
+        - tmp/spectral_baseline/*.json #what do we need to store for review?
+        - spectral/*.json #what do we need to store for review?
+      when: always
+  # rules:
+  #  - *check_server_ignore_branch
 
 server_test:
   stage: test
