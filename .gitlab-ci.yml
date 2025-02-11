@@ -716,7 +716,7 @@ prep_integration_docker_microservice:
   stage: test
   interruptible: true
   tags:
-    - $DOCKER_RUNNER_TAGRUNNER_TAG
+    - $DOCKER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   services:
     - name: docker:dind
@@ -1036,7 +1036,7 @@ integration_tests:
    - *check_integration_ignore_branch
 
 integration_test_mtls:
-  stage: pre_checks
+  stage: test
   interruptible: true
   tags:
     - $RUNNER_TAG
