@@ -200,8 +200,13 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 	switch shipmentType {
 	case models.MTOShipmentTypeUnaccompaniedBaggage:
 		switch code {
-		case models.ReServiceCodeIOSHUT,
-			models.ReServiceCodeIDSHUT:
+		case models.ReServiceCodeUBP,
+			models.ReServiceCodeIUBPK,
+			models.ReServiceCodeIUBUPK,
+			models.ReServiceCodeIOSHUT,
+			models.ReServiceCodeIDSHUT,
+			models.ReServiceCodePODFSC,
+			models.ReServiceCodePOEFSC:
 			if weight < 300 {
 				result = 300
 			}
@@ -238,15 +243,11 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			models.ReServiceCodeIDDSIT,
 			models.ReServiceCodeIOSHUT,
 			models.ReServiceCodeIDSHUT,
-			models.ReServiceCodeFSC:
+			models.ReServiceCodeFSC,
+			models.ReServiceCodePODFSC,
+			models.ReServiceCodePOEFSC:
 			if weight < 500 {
 				result = 500
-			}
-		case models.ReServiceCodeUBP,
-			models.ReServiceCodeIUBPK,
-			models.ReServiceCodeIUBUPK:
-			if weight < 300 {
-				result = 300
 			}
 		}
 	}

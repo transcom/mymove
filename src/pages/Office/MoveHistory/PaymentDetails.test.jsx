@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 
 import PaymentDetails from './PaymentDetails';
 
@@ -46,5 +46,27 @@ describe('PaymentDetails', () => {
     render(<PaymentDetails context={context} />);
 
     expect(screen.getByText(156.78, { exact: false })).toBeInTheDocument();
+  });
+
+  describe('rejected service items', () => {
+    const context = [
+      {
+        name: 'Domestic uncrating',
+        price: '5555',
+        status: 'DENIED',
+        rejection_reason: 'some reason',
+      },
+    ];
+    it('renders a rejected service item and its rejection reason', async () => {
+      render(<PaymentDetails context={context} />);
+
+      expect(screen.getByText('Domestic uncrating')).toBeInTheDocument();
+
+      expect(screen.getByText('Rejection Reason:')).toBeInTheDocument();
+      await act(() => {
+        screen.getByText('Rejection Reason:').click();
+      });
+      expect(screen.getByText('some reason')).toBeVisible();
+    });
   });
 });

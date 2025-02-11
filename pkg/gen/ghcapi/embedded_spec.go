@@ -1516,7 +1516,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Changes move task order status",
+        "description": "Changes move task order status to make it available to prime",
         "consumes": [
           "application/json"
         ],
@@ -1526,7 +1526,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Change the status of a move task order",
+        "summary": "Change the status of a move task order to make it available to prime",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -7148,6 +7148,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -8355,6 +8361,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -14242,6 +14254,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -24327,6 +24345,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -25534,6 +25558,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -31553,6 +31583,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },

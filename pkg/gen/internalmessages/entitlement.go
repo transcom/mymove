@@ -42,6 +42,10 @@ type Entitlement struct {
 	// The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.
 	// Example: 3
 	UbAllowance *int64 `json:"ub_allowance,omitempty"`
+
+	// Indicates the weight restricted to a specific location.
+	// Example: 1500
+	WeightRestriction *int64 `json:"weight_restriction,omitempty"`
 }
 
 // Validate validates this entitlement
