@@ -71,14 +71,14 @@ const ListActions = () => {
       const { id, email, firstName, lastName, transportationOfficeName, status, createdAt } = user;
       const userRoles = UserRolesToString(user);
       return {
-        id,
-        email,
-        firstName,
-        lastName,
-        transportationOfficeName,
-        status,
-        createdAt,
-        roles: userRoles,
+        Id: id,
+        Email: email,
+        'First Name': firstName,
+        'Last Name': lastName,
+        'Transportation Office': transportationOfficeName,
+        Status: status,
+        'Requested On': createdAt,
+        Roles: userRoles,
       };
     });
 
