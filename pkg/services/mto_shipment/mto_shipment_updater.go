@@ -1256,10 +1256,8 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			}
 		} else {
 			if intlTransTime.UbTransitTime != nil {
-				if intlTransTime.UbTransitTime != nil {
-					dayAfterPickupDate := pickupDate.AddDate(0, 0, 1)
-					requiredDeliveryDate = dayAfterPickupDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
-				}
+				dayAfterPickupDate := pickupDate.AddDate(0, 0, 1)
+				requiredDeliveryDate = dayAfterPickupDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
 			}
 		}
 	}
