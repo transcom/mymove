@@ -53,7 +53,7 @@ VALUES('641e7e91-5a13-42e7-8d4e-efab04db8bdb'::uuid, '28310', 'FORT LIBERTY', 'C
 
 INSERT INTO public.addresses
 (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, street_address_3, county, is_oconus, country_id, us_post_region_cities_id)
-VALUES(uuid_generate_v4(), 'n/a', null, 'FORT LIBERTY', 'NC', '28310', now(), now(), null, 'CUMBERLAND', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '641e7e91-5a13-42e7-8d4e-efab04db8bdb'::uuid);
+VALUES('bf9a2547-c737-4a57-bcc2-1bf450b4cc5d'::uuid, 'n/a', null, 'FORT LIBERTY', 'NC', '28310', now(), now(), null, 'CUMBERLAND', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '641e7e91-5a13-42e7-8d4e-efab04db8bdb'::uuid);
 
 update addresses set us_post_region_cities_id = '641e7e91-5a13-42e7-8d4e-efab04db8bdb' where id = '50ebc5c0-97f3-46e7-b2c7-a3f08b3b47b5';
 
