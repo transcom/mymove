@@ -314,6 +314,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move with international crating service items for TOO
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveWithIntlShuttleServiceItemsTOO() {
+    return this.buildDefault('HHGMoveWithIntlShuttleServiceItemsTOO');
+  }
+
+  /**
    * Use testharness to build hhg move for TOO with actualPickupDate in the past
    * @returns {Promise<Move>}
    */

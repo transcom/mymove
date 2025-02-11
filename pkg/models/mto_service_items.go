@@ -154,22 +154,26 @@ func FetchRelatedDestinationSITServiceItems(tx *pop.Connection, mtoServiceItemID
 }
 
 func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceItem, error) {
-	var serviceItem MTOServiceItem
-	err := db.Eager("SITDestinationOriginalAddress",
-		"SITDestinationFinalAddress",
-		"ReService",
-		"CustomerContacts",
-		"MTOShipment.PickupAddress",
-		"MTOShipment.DestinationAddress").Where("id = ?", serviceItemID).First(&serviceItem)
+	if db != nil {
+		var serviceItem MTOServiceItem
+		err := db.Eager("SITDestinationOriginalAddress",
+			"SITDestinationFinalAddress",
+			"ReService",
+			"CustomerContacts",
+			"MTOShipment.PickupAddress",
+			"MTOShipment.DestinationAddress",
+			"Dimensions").Where("id = ?", serviceItemID).First(&serviceItem)
 
-	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
-			return MTOServiceItem{}, ErrFetchNotFound
+		if err != nil {
+			if errors.Cause(err).Error() == RecordNotFoundErrorString {
+				return MTOServiceItem{}, ErrFetchNotFound
+			}
+			return MTOServiceItem{}, err
 		}
-		return MTOServiceItem{}, err
+		return serviceItem, nil
+	} else {
+		return MTOServiceItem{}, errors.New("db connection is nil; unable to fetch service item")
 	}
-
-	return serviceItem, nil
 }
 
 func FetchRelatedDestinationSITFuelCharge(tx *pop.Connection, mtoServiceItemID uuid.UUID) (MTOServiceItem, error) {
@@ -216,6 +220,7 @@ type MTOServiceItemType struct {
 	ServiceLocation                   *ServiceLocationType `json:"service_location"`
 	POELocationID                     *uuid.UUID           `json:"poe_location_id"`
 	PODLocationID                     *uuid.UUID           `json:"pod_location_id"`
+	ExternalCrate                     *bool                `json:"external_crate"`
 }
 
 func (m MTOServiceItem) GetMTOServiceItemTypeFromServiceItem() MTOServiceItemType {
@@ -252,6 +257,7 @@ func (m MTOServiceItem) GetMTOServiceItemTypeFromServiceItem() MTOServiceItemTyp
 		ServiceLocation:                   m.ServiceLocation,
 		POELocationID:                     m.POELocationID,
 		PODLocationID:                     m.PODLocationID,
+		ExternalCrate:                     m.ExternalCrate,
 	}
 }
 
@@ -285,6 +291,7 @@ func (m MTOServiceItem) Value() (driver.Value, error) {
 	var estimatedWeight int64
 	var actualWeight int64
 	var pricingEstimate int64
+	var externalCrate bool
 
 	if m.ID != uuid.Nil {
 		id = m.ID.String()
@@ -378,6 +385,10 @@ func (m MTOServiceItem) Value() (driver.Value, error) {
 		standaloneCrate = *m.StandaloneCrate
 	}
 
+	if m.ExternalCrate != nil {
+		externalCrate = *m.ExternalCrate
+	}
+
 	if m.LockedPriceCents != nil {
 		lockedPriceCents = m.LockedPriceCents.Int64()
 	}
@@ -402,7 +413,7 @@ func (m MTOServiceItem) Value() (driver.Value, error) {
 		pricingEstimate = m.PricingEstimate.Int64()
 	}
 
-	s := fmt.Sprintf("(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%d,%s,%s,%s,%t,%t,%s,%d,%d,%t,%d,%s,%s,%s,%s)",
+	s := fmt.Sprintf("(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%d,%s,%s,%s,%t,%t,%s,%d,%d,%t,%d,%s,%s,%s,%s,%t)",
 		id,
 		moveTaskOrderID,
 		mtoShipmentID,
@@ -437,6 +448,7 @@ func (m MTOServiceItem) Value() (driver.Value, error) {
 		poeLocationID,
 		podLocationID,
 		m.ReService.Code.String(),
+		externalCrate,
 	)
 	return []byte(s), nil
 }
