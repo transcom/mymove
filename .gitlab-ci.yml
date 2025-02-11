@@ -30,16 +30,16 @@ variables:
   GOLANGCI_LINT_VERBOSE: "-v"
 
   # Specify the environment: loadtest, demo, exp
-  DP3_ENV: &dp3_env placeholder_env
+  DP3_ENV: &dp3_env demo
 
   # Specify the branch to deploy TODO: this might be not needed. So far useless
-  DP3_BRANCH: &dp3_branch placeholder_branch_name
+  DP3_BRANCH: &dp3_branch B-22106-integration-mtls
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
-  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-22106-integration-mtls
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-22106-integration-mtls
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-22106-integration-mtls
+  SERVER_IGNORE_BRANCH: &server_ignore_branch B-22106-integration-mtls
 
   OTEL_IMAGE_TAG: &otel_image_tag "git-$OTEL_VERSION-$CI_COMMIT_SHORT_SHA"
 
@@ -776,13 +776,13 @@ server_test:
   - *setup_generic_app_env_variables
   - *setup_server_env_variables
   services:
-    - name: docker:dind
-      alias: docker
+    # - name: docker:dind
+    #   alias: docker
     - name: $postgres
     - name: $redis
   variables:
-    DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
-    DOCKER_TLS_CERTDIR: ""
+    # DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
+    # DOCKER_TLS_CERTDIR: ""
     APPLICATION: app
     # 8 since this runs on xlarge with 8 CPUs
     GOTEST_PARALLEL: 8
