@@ -34,24 +34,23 @@ fi
 if [[ "${deployed_commit}" == "${local_commit}" ]]; then
   echo "* Deployed commit ($deployed_commit) is the local commit ($local_commit)."
   echo "* Deploy can continue."
+  echo "success" > sha_check_status
   exit 0
 # See pattern at https://git-scm.com/docs/git-merge-base
 elif git merge-base --is-ancestor "$deployed_commit" "$local_commit"; then
   echo "* Deployed commit ($deployed_commit) is an ancestor of the local commit ($local_commit)."
   echo "* Deploy can continue."
+  echo "success" > sha_check_status
   exit 0
 else
-  if [ -n "${GITLAB+x}" ]; then
-  if [ "$deployed_commit" != "$local_commit" ]; then
-    echo "* Deployed commit ($deployed_commit) is not an ancestor of the local commit ($local_commit)."
-    echo "* The deployed commit is either ahead of the local commit or the commits have different histories."
-    echo "* Deploy is blocked."
-    echo "failed" > sha_check_status  # Write 'failed' status to a file
-    exit 0  # Mark job as successful
-  else
-    echo "* Deployed commit ($deployed_commit) is an ancestor of the local commit ($local_commit)."
-    echo "* Deploy can continue."
-    echo "success" > sha_check_status  # Write 'success' status to a file
-    exit 0
+  echo "* Deployed commit ($deployed_commit) is an ancestor of the local commit ($local_commit)."
+  echo "* The deployed commit is either ahead of the local commit or the commits have different histories."
+  echo "* Deploy is blocked."
+
+if [ -n "${GITLAB_CI+x}" ]; then
+  echo "failed" > sha_check_status  # Write 'failed' status to a file
+  exit 0  # Prevents the job from failing but allows logical halting  
+else
+    exit 1
   fi
 fi

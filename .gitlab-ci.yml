@@ -1242,10 +1242,6 @@ check_against_dp3_sha:
   script:
     - echo "Checking if deployed commit is an ancestor..."
     - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
-    - echo "Creating sha_check_status..."
-    - echo "success" > sha_check_status  # Create the status file
-    - echo "Checking if sha_check_status exists..."
-    - ls -l sha_check_status || echo "sha_check_status does not exist"  # Debugging step
   artifacts:
     paths:
       - sha_check_status  # Store the status for downstream jobs
@@ -1381,9 +1377,11 @@ deploy_migrations_dp3:
     - *setup_aws_vars_dp3
     - *setup_release_dp3
   script:
-    - if [ -f deploy_halt_flag ]; then echo "Deploy halted due to SHA check failure."; exit 0; fi
+    - if grep -q "failed" sha_check_status; then
+        echo "Deploy halted due to SHA check failure.";
+        exit 0; 
+      fi # Stop the job but don’t fail the pipeline 
     - echo "Deploying DP3 migrations..."
-    - ./deploy-migrations.sh 
     # Step 1: Get the Digest
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
