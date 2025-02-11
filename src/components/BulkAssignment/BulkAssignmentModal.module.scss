@@ -1,5 +1,6 @@
 .BulkModal {
   min-width: 650px !important;
+  max-width: 60vw;
   overflow-y: auto;
   max-height: 90vh;
 }
@@ -19,6 +20,10 @@
     .BulkAssignmentAssignment {
       width: 60px;
       text-align: center;
+    }
+    .officeUserFormattedName {
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }
