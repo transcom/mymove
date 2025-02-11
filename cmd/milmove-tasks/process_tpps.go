@@ -60,19 +60,11 @@ const (
 	tppsSFTPFileFormatNoCustomDate string = "MILMOVE-enYYYYMMDD.csv"
 )
 
-type S3API interface {
-	GetObjectTagging(ctx context.Context, input *s3.GetObjectTaggingInput, optFns ...func(*s3.Options)) (*s3.GetObjectTaggingOutput, error)
-	GetObject(ctx context.Context, input *s3.GetObjectInput, optFns ...func(*s3.Options)) (*s3.GetObjectOutput, error)
-}
-
-var s3Client S3API
-
 func processTPPS(cmd *cobra.Command, args []string) error {
+	flag := pflag.CommandLine
 	flags := cmd.Flags()
-	if flags.Lookup(cli.DbEnvFlag) == nil {
-		flag := pflag.CommandLine
-		cli.InitDatabaseFlags(flag)
-	}
+	cli.InitDatabaseFlags(flag)
+
 	err := cmd.ParseFlags(args)
 	if err != nil {
 		return fmt.Errorf("could not parse args: %w", err)
@@ -153,16 +145,15 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		logger.Info(fmt.Sprintf("Starting transfer of TPPS data file: %s", tppsFilename))
 	}
 
+	var s3Client *s3.Client
 	s3Region := v.GetString(cli.AWSS3RegionFlag)
-	if s3Client == nil {
-		cfg, errCfg := config.LoadDefaultConfig(context.Background(),
-			config.WithRegion(s3Region),
-		)
-		if errCfg != nil {
-			logger.Error("error loading AWS config", zap.Error(errCfg))
-		}
-		s3Client = s3.NewFromConfig(cfg)
+	cfg, errCfg := config.LoadDefaultConfig(context.Background(),
+		config.WithRegion(s3Region),
+	)
+	if errCfg != nil {
+		logger.Info("error loading RDS AWS config", zap.Error(errCfg))
 	}
+	s3Client = s3.NewFromConfig(cfg)
 
 	logger.Info("Created S3 client")
 
@@ -176,18 +167,22 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 
 	avStatus, s3ObjectTags, err := getS3ObjectTags(s3Client, tppsS3Bucket, s3Key)
 	if err != nil {
-		logger.Error("Failed to get S3 object tags", zap.Error(err))
-		return fmt.Errorf("failed to get S3 object tags: %w", err)
+		logger.Info("Failed to get S3 object tags", zap.Error(err))
 	}
 
 	if avStatus == AVStatusCLEAN {
 		logger.Info(fmt.Sprintf("av-status is CLEAN for TPPS file: %s", tppsFilename))
 
 		// get the S3 object, download file to /tmp dir for processing if clean
-		localFilePath, err := downloadS3File(logger, s3Client, tppsS3Bucket, s3Key)
+		localFilePath, scanResult, err := downloadS3File(logger, s3Client, tppsS3Bucket, s3Key)
 		if err != nil {
 			logger.Error("Error with getting the S3 object data via GetObject", zap.Error(err))
 		}
+
+		logger.Info(fmt.Sprintf("localFilePath from calling downloadS3File: %s", localFilePath))
+		logger.Info(fmt.Sprintf("scanResult from calling downloadS3File: %s", scanResult))
+
+		logger.Info("Scan result was clean")
 
 		err = tppsInvoiceProcessor.ProcessFile(appCtx, localFilePath, "")
 
@@ -208,7 +203,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func getS3ObjectTags(s3Client S3API, bucket, key string) (string, map[string]string, error) {
+func getS3ObjectTags(s3Client *s3.Client, bucket, key string) (string, map[string]string, error) {
 	tagResp, err := s3Client.GetObjectTagging(context.Background(),
 		&s3.GetObjectTaggingInput{
 			Bucket: &bucket,
@@ -231,7 +226,7 @@ func getS3ObjectTags(s3Client S3API, bucket, key string) (string, map[string]str
 	return avStatus, tags, nil
 }
 
-func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (string, error) {
+func downloadS3File(logger *zap.Logger, s3Client *s3.Client, bucket, key string) (string, string, error) {
 	response, err := s3Client.GetObject(context.Background(),
 		&s3.GetObjectInput{
 			Bucket: &bucket,
@@ -243,7 +238,7 @@ func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (str
 			zap.String("bucket", bucket),
 			zap.String("key", key),
 			zap.Error(err))
-		return "", err
+		return "", "", err
 	}
 	defer response.Body.Close()
 
@@ -251,7 +246,7 @@ func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (str
 	// the /tmp directory will only exist for the duration of the task, so no cleanup is required
 	tempDir := os.TempDir()
 	if !isDirMutable(tempDir) {
-		return "", fmt.Errorf("tmp directory (%s) is not mutable, cannot write /tmp file for TPPS processing", tempDir)
+		return "", "", fmt.Errorf("tmp directory (%s) is not mutable, cannot write /tmp file for TPPS processing", tempDir)
 	}
 
 	localFilePath := filepath.Join(tempDir, filepath.Base(key))
@@ -259,27 +254,27 @@ func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (str
 	file, err := os.Create(localFilePath)
 	if err != nil {
 		logger.Error("Failed to create tmp file", zap.Error(err))
-		return "", err
+		return "", "", err
 	}
 	defer file.Close()
 
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
 		logger.Error("Failed to write S3 object to tmp file", zap.Error(err))
-		return "", err
+		return "", "", err
 	}
 
 	_, err = os.ReadFile(localFilePath)
 	if err != nil {
 		logger.Error("Failed to read tmp file contents", zap.Error(err))
-		return "", err
+		return "", "", err
 	}
 
 	logger.Info(fmt.Sprintf("Successfully wrote S3 file contents to local file: %s", localFilePath))
 
 	logFileContents(logger, localFilePath)
 
-	return localFilePath, nil
+	return localFilePath, "", nil
 }
 
 // convert to UTF-8 encoding
