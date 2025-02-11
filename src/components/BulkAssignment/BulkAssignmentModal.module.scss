@@ -61,3 +61,19 @@
     }
   }
 }
+
+.areYouSureSection {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding-top: 20px;
+
+  .confirmButtons {
+    display: flex;
+    gap: 20px;
+  }
+
+  .smallButton {
+    font-size: small;
+  }
+}
