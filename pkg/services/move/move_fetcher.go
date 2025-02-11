@@ -188,10 +188,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx ap
 
 	query := `SELECT
 					moves.id,
-					MIN(LEAST(
-						ppm_shipments.submitted_at,
-						'0000-01-01',
-					)) AS earliest_date
+					COALESCE(ppm_shipments.submitted_at, '0001-01-01') AS earliest_date
 				FROM moves
 				INNER JOIN orders ON orders.id = moves.orders_id
 				INNER JOIN service_members ON service_members.id = orders.service_member_id
@@ -302,10 +299,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentPaymentRequest(app
 	sqlQuery := `
 		SELECT
 			moves.id,
-			MIN(LEAST(
-				payment_requests.requested_at,
-				'0000-01-01',
-			)) AS earliest_date
+			COALESCE(payment_requests.requested_at, '0001-01-01') AS earliest_date
 		FROM moves
 		INNER JOIN orders ON orders.id = moves.orders_id
 		INNER JOIN service_members ON orders.service_member_id = service_members.id
