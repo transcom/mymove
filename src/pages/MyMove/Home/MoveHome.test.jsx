@@ -1196,10 +1196,11 @@ describe('Home component', () => {
         wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithUBAllowance);
       });
       await waitFor(() => {
-        expect(wrapper.text()).toContain('Weight allowance');
+        expect(wrapper.text()).toContain('Standard weight allowance');
         expect(wrapper.text()).toContain('11,000 lbs');
         expect(wrapper.text()).toContain('UB allowance');
         expect(wrapper.text()).toContain('2,000 lbs');
+        expect(wrapper.text()).not.toContain('Weight restriction');
       });
 
       const ubToolTip = wrapper.find('ToolTip');
