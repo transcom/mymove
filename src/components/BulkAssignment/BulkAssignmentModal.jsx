@@ -99,7 +99,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                 No
               </Button>
               <Button className={styles.smallButton} data-testid="cancelModalYes" secondary onClick={onClose}>
-                Yes
+                Discard Changes
               </Button>
             </div>
           </div>
