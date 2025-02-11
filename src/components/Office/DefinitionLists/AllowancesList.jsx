@@ -16,7 +16,6 @@ const AllowancesList = ({ info, showVisualCues }) => {
   const visualCuesStyle = classNames(descriptionListStyles.row, {
     [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
   });
-
   useEffect(() => {
     const checkUBFeatureFlag = async () => {
       const enabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
@@ -35,7 +34,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dd data-testid="branch">{info.branch ? ORDERS_BRANCH_OPTIONS[info.branch] : ''}</dd>
         </div>
         <div className={descriptionListStyles.row}>
-          <dt>Weight allowance</dt>
+          <dt>Standard weight allowance</dt>
           <dd data-testid="weightAllowance">{formatWeight(info.totalWeight)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
@@ -104,11 +103,21 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dt>Gun Safe</dt>
           <dd data-testid="gunSafe"> {info.gunSafe ? 'Authorized' : 'Unauthorized'} </dd>
         </div>
+        <div className={visualCuesStyle}>
+          <dt>Admin Weight Restricted Location</dt>
+          <dd data-testid="adminRestrictedWtLoc">{info.weightRestriction > 0 ? 'Yes' : 'No'}</dd>
+        </div>
+
+        <div className={visualCuesStyle}>
+          <dt>Weight Restriction</dt>
+          <dd data-testid="weightRestriction">
+            {info.weightRestriction ? formatWeight(info.weightRestriction) : DEFAULT_EMPTY_VALUE}
+          </dd>
+        </div>
       </dl>
     </div>
   );
 };
-
 AllowancesList.propTypes = {
   info: PropTypes.shape({
     branch: PropTypes.string,

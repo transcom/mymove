@@ -16,12 +16,12 @@ type ShipmentRateAreaFinder struct {
 	mock.Mock
 }
 
-// GetPrimeMoveShipmentOconusRateArea provides a mock function with given fields: appCtx, move
-func (_m *ShipmentRateAreaFinder) GetPrimeMoveShipmentOconusRateArea(appCtx appcontext.AppContext, move models.Move) (*[]services.ShipmentPostalCodeRateArea, error) {
+// GetPrimeMoveShipmentRateAreas provides a mock function with given fields: appCtx, move
+func (_m *ShipmentRateAreaFinder) GetPrimeMoveShipmentRateAreas(appCtx appcontext.AppContext, move models.Move) (*[]services.ShipmentPostalCodeRateArea, error) {
 	ret := _m.Called(appCtx, move)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetPrimeMoveShipmentOconusRateArea")
+		panic("no return value specified for GetPrimeMoveShipmentRateAreas")
 	}
 
 	var r0 *[]services.ShipmentPostalCodeRateArea

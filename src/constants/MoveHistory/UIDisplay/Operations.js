@@ -2,6 +2,7 @@ export default {
   acknowledgeExcessWeightRisk: 'acknowledgeExcessWeightRisk',
   acknowledgeExcessUnaccompaniedBaggageWeightRisk: 'acknowledgeExcessUnaccompaniedBaggageWeightRisk',
   approveShipment: 'approveShipment', // ghc.yaml
+  approveShipments: 'approveShipments', // ghc.yaml
   approveShipmentDiversion: 'approveShipmentDiversion',
   counselingUpdateAllowance: 'counselingUpdateAllowance', // ghc.yaml
   counselingUpdateOrder: 'counselingUpdateOrder', // ghc.yaml
@@ -35,6 +36,7 @@ export default {
   updateOrder: 'updateOrder', // ghc.yaml
   updateOrders: 'updateOrders', // internal.yaml
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
+  updatePaymentServiceItemStatus: 'updatePaymentServiceItemStatus',
   updateReweigh: 'updateReweigh',
   updateServiceItemStatus: 'updateMTOServiceItemStatus',
   updateServiceItemSitEntryDate: 'updateServiceItemSitEntryDate', // ghc.yaml

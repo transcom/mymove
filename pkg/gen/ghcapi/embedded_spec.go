@@ -5288,6 +5288,64 @@ func init() {
         }
       ]
     },
+    "/shipments/approve": {
+      "post": {
+        "description": "Approves multiple shipments in one request",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Approves multiple shipments at once",
+        "operationId": "approveShipments",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApproveShipments"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved the shipments",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MTOShipment"
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      }
+    },
     "/shipments/{shipmentID}": {
       "get": {
         "description": "fetches a shipment by ID",
@@ -6789,6 +6847,33 @@ func init() {
         }
       }
     },
+    "ApproveShipments": {
+      "type": "object",
+      "required": [
+        "approveShipments"
+      ],
+      "properties": {
+        "approveShipments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "shipmentID",
+              "eTag"
+            ],
+            "properties": {
+              "eTag": {
+                "type": "string"
+              },
+              "shipmentID": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        }
+      }
+    },
     "AssignOfficeUserBody": {
       "type": "object",
       "required": [
@@ -6852,7 +6937,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -7149,6 +7235,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -8356,6 +8448,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -11436,6 +11534,27 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "intlLinehaulPrice": {
+          "description": "The full price of international shipping and linehaul (ISLH)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlPackPrice": {
+          "description": "The full price of international packing (IHPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlUnpackPrice": {
+          "description": "The full price of international unpacking (IHUPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "miles": {
           "description": "The distance between the old address and the new address in miles.",
           "type": "integer",
@@ -14222,6 +14341,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -17500,7 +17625,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Changes move task order status to make it available to prime",
+        "description": "Changes move task order status",
         "consumes": [
           "application/json"
         ],
@@ -17510,7 +17635,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Change the status of a move task order to make it available to prime",
+        "summary": "Change the status of a move task order",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -22130,6 +22255,82 @@ func init() {
         }
       ]
     },
+    "/shipments/approve": {
+      "post": {
+        "description": "Approves multiple shipments in one request",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Approves multiple shipments at once",
+        "operationId": "approveShipments",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApproveShipments"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved the shipments",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MTOShipment"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      }
+    },
     "/shipments/{shipmentID}": {
       "get": {
         "description": "fetches a shipment by ID",
@@ -23932,6 +24133,36 @@ func init() {
         }
       }
     },
+    "ApproveShipments": {
+      "type": "object",
+      "required": [
+        "approveShipments"
+      ],
+      "properties": {
+        "approveShipments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ApproveShipmentsApproveShipmentsItems0"
+          }
+        }
+      }
+    },
+    "ApproveShipmentsApproveShipmentsItems0": {
+      "type": "object",
+      "required": [
+        "shipmentID",
+        "eTag"
+      ],
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "AssignOfficeUserBody": {
       "type": "object",
       "required": [
@@ -23995,7 +24226,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -24296,6 +24528,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -25503,6 +25741,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -28583,6 +28827,27 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "intlLinehaulPrice": {
+          "description": "The full price of international shipping and linehaul (ISLH)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlPackPrice": {
+          "description": "The full price of international packing (IHPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlUnpackPrice": {
+          "description": "The full price of international unpacking (IHUPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "miles": {
           "description": "The distance between the old address and the new address in miles.",
           "type": "integer",
@@ -31501,6 +31766,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
