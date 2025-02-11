@@ -9572,7 +9572,7 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 	return *newmove
 }
 
-// makeIntlHHGMoveAKToCONUSSubmitted creates an international HHG move
+// makeIntlHHGMoveCONUSToAKSubmitted creates an international HHG move
 // with the given affiliation and destination address
 // basic iHHG move that will require TOO approval
 func makeIntlHHGMoveCONUSToAKSubmitted(
@@ -9904,7 +9904,7 @@ func MakeIntlHHGMovePickupAKZone2USMC(appCtx appcontext.AppContext) models.Move 
 	return makeIntlHHGMoveAKToCONUSSubmitted(appCtx, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
-// makeIntlHHGMoveDestSITRequested creates an international HHG move
+// makeIntlHHGMoveWithSITRequested creates an international HHG move
 // with the given affiliation and destination address
 // parameters determine if ONLY origin or ONLY dest SIT service items are created
 // or BOTH origin & dest are created
@@ -10164,7 +10164,7 @@ func MakeIntlHHGMoveBothSITRequestedAKZone2USMC(appCtx appcontext.AppContext) mo
 	return makeIntlHHGMoveWithSITRequested(appCtx, false, true, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
-// makeIntlHHGMoveDestShuttleRequested creates an international HHG move
+// makeIntlHHGMoveShuttleRequested creates an international HHG move
 // with the given affiliation and destination address
 // contains either origin, destination, or BOTH origin/destination shuttle in SUBMITTED status
 func makeIntlHHGMoveShuttleRequested(
@@ -10503,9 +10503,9 @@ func MakeIntlHHGMoveBothShuttleRequestedAKZone2USMC(appCtx appcontext.AppContext
 	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
-// makeIntlHHGMoveDestShuttleRequested creates an international HHG move
+// makeIntlHHGMoveDestAddressRequested creates an international HHG move
 // with the given affiliation and destination address
-// contains international destination shuttle in SUBMITTED status
+// contains a pending destination address request
 func makeIntlHHGMoveDestAddressRequested(
 	appCtx appcontext.AppContext,
 	affiliation models.ServiceMemberAffiliation,
