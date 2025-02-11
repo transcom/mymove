@@ -9,7 +9,7 @@ variables:
   #Docker config
   DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
   #hard code sha as newer version of debian is needed for pre-test
-  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app
+  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app@sha256:ee774e9244afa2063bbbb7f9b973b17f1f5139366a1b7a676155df0b5268a7e1
   DOCKER_BASE_IMAGE: milmove01/transcom-docker:base
   DOCKERHUB_USERNAME: DOCKERHUB_USERNAME
   DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
