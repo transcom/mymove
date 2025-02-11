@@ -733,6 +733,11 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.UBAllowance != nil {
 		ubAllowance = models.Int64Pointer(int64(*entitlement.UBAllowance))
 	}
+	var weightRestriction *int64
+	if entitlement.WeightRestriction != nil {
+		weightRestriction = models.Int64Pointer(int64(*entitlement.WeightRestriction))
+	}
+
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -750,9 +755,11 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		AccompaniedTour:                accompaniedTour,
 		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		GunSafe: gunSafe,
-		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe:           gunSafe,
+		WeightRestriction: weightRestriction,
+		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
+
 }
 
 // DutyLocation payload
@@ -1300,13 +1307,16 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		Gcc:                   handlers.FmtCost(ppmCloseout.GCC),
 		Aoa:                   handlers.FmtCost(ppmCloseout.AOA),
 		RemainingIncentive:    handlers.FmtCost(ppmCloseout.RemainingIncentive),
-		HaulType:              (*string)(&ppmCloseout.HaulType),
+		HaulType:              (*string)(ppmCloseout.HaulType),
 		HaulPrice:             handlers.FmtCost(ppmCloseout.HaulPrice),
 		HaulFSC:               handlers.FmtCost(ppmCloseout.HaulFSC),
 		Dop:                   handlers.FmtCost(ppmCloseout.DOP),
 		Ddp:                   handlers.FmtCost(ppmCloseout.DDP),
 		PackPrice:             handlers.FmtCost(ppmCloseout.PackPrice),
 		UnpackPrice:           handlers.FmtCost(ppmCloseout.UnpackPrice),
+		IntlPackPrice:         handlers.FmtCost((ppmCloseout.IntlPackPrice)),
+		IntlUnpackPrice:       handlers.FmtCost((ppmCloseout.IntlUnpackPrice)),
+		IntlLinehaulPrice:     handlers.FmtCost((ppmCloseout.IntlLinehaulPrice)),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
 	}
 
@@ -2623,9 +2633,11 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 
 		// populates the destination postal code of the move
 		var destinationPostalCode string
-		destinationPostalCode, err = move.GetDestinationPostalCode(appCtx.DB())
+		destinationAddress, err := move.GetDestinationAddress(appCtx.DB())
 		if err != nil {
 			destinationPostalCode = ""
+		} else {
+			destinationPostalCode = destinationAddress.PostalCode
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{

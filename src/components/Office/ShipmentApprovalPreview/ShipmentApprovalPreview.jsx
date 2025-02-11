@@ -26,6 +26,7 @@ const ShipmentApprovalPreview = ({
   onSubmit,
   counselingFee,
   shipmentManagementFee,
+  isSubmitting,
 }) => {
   return (
     <div>
@@ -47,7 +48,7 @@ const ShipmentApprovalPreview = ({
             <h2>Preview and post move task order</h2>
             <p>Is all the information shown correct and ready to send to Global Relocation Services?</p>
             <div className="display-flex">
-              <Button type="submit" onClick={onSubmit}>
+              <Button type="submit" onClick={onSubmit} disabled={isSubmitting}>
                 Approve and send
               </Button>
               <Button type="reset" secondary onClick={() => setIsModalVisible(false)}>
