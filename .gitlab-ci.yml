@@ -1088,7 +1088,7 @@ integration_test_mtls:
   #   - compile_app_server
   before_script:
     - *setup_milmove_env
-    - *setup_env_intergration_mtls
+    # - *setup_env_intergration_mtls
   script:
     # - echo "TODO Add steps"
     # - echo "integration_test_mtls"
