@@ -1516,7 +1516,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Changes move task order status to make it available to prime",
+        "description": "Changes move task order status",
         "consumes": [
           "application/json"
         ],
@@ -1526,7 +1526,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Change the status of a move task order to make it available to prime",
+        "summary": "Change the status of a move task order",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
