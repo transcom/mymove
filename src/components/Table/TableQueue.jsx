@@ -333,7 +333,6 @@ const TableQueue = ({
     refetch().then(() => {
       setIsBulkAssignModalVisible(false);
     });
-    // setIsBulkAssignModalVisible(false);
   };
 
   const onSubmitBulk = (bulkAssignmentSavePayload) => {
