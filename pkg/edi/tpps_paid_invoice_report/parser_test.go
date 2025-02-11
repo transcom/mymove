@@ -27,7 +27,7 @@ func (suite *TPPSPaidInvoiceSuite) TestParse() {
 	suite.Run("successfully parse simple TPPS Paid Invoice file", func() {
 		testTPPSPaidInvoiceReportFilePath := "../../services/invoice/fixtures/tpps_paid_invoice_report_testfile.csv"
 		tppsPaidInvoice := TPPSData{}
-		tppsEntries, err := tppsPaidInvoice.Parse(suite.AppContextForTest(), testTPPSPaidInvoiceReportFilePath, "")
+		tppsEntries, err := tppsPaidInvoice.Parse(suite.AppContextForTest(), testTPPSPaidInvoiceReportFilePath)
 		suite.NoError(err, "Successful parse of TPPS Paid Invoice string")
 		suite.Equal(5, len(tppsEntries))
 
@@ -135,7 +135,7 @@ func (suite *TPPSPaidInvoiceSuite) TestParse() {
 	suite.Run("successfully parse large TPPS Paid Invoice .csv file", func() {
 		testTPPSPaidInvoiceReportFilePath := "../../services/invoice/fixtures/tpps_paid_invoice_report_testfile_large_encoded.csv"
 		tppsPaidInvoice := TPPSData{}
-		tppsEntries, err := tppsPaidInvoice.Parse(suite.AppContextForTest(), testTPPSPaidInvoiceReportFilePath, "")
+		tppsEntries, err := tppsPaidInvoice.Parse(suite.AppContextForTest(), testTPPSPaidInvoiceReportFilePath)
 		suite.NoError(err, "Successful parse of TPPS Paid Invoice string")
 		suite.Equal(842, len(tppsEntries))
 	})

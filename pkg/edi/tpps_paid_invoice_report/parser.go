@@ -116,7 +116,7 @@ func ParseTPPSReportEntryForOneRow(row []string, columnIndexes map[string]int, h
 }
 
 // Parse takes in a TPPS paid invoice report file and parses it into an array of TPPSData structs
-func (t *TPPSData) Parse(appCtx appcontext.AppContext, stringTPPSPaidInvoiceReportFilePath string, testTPPSInvoiceString string) ([]TPPSData, error) {
+func (t *TPPSData) Parse(appCtx appcontext.AppContext, stringTPPSPaidInvoiceReportFilePath string) ([]TPPSData, error) {
 	var tppsDataFile []TPPSData
 
 	if stringTPPSPaidInvoiceReportFilePath != "" {
