@@ -230,11 +230,15 @@ func (m Move) GetDestinationGBLOC(db *pop.Connection) (string, error) {
 			return "", errors.WithMessage(ErrInvalidOrderID, "Orders ID must have a value in order to get the destination GBLOC")
 		}
 
-		newGBLOCOconus, err := FetchAddressGbloc(db, *destinationAddress, m.Orders.ServiceMember)
-		if err != nil {
-			return "", err
+		if m.Orders.ServiceMember.Affiliation != nil {
+			newGBLOCOconus, err := FetchAddressGbloc(db, *destinationAddress, m.Orders.ServiceMember)
+			if err != nil {
+				return "", err
+			}
+			newGBLOC = *newGBLOCOconus
+		} else {
+			return "", errors.Errorf("ServiceMember.Affiliation cannot be NULL for GetDestinationGBLOC")
 		}
-		newGBLOC = *newGBLOCOconus
 	} else {
 		newGBLOCConus, err := FetchGBLOCForPostalCode(db, destinationAddress.PostalCode)
 		if err != nil {
