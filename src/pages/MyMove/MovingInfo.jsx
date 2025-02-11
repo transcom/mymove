@@ -84,8 +84,9 @@ export class MovingInfo extends Component {
             <SectionWrapper className={styles.Wrapper}>
               <IconSection
                 icon="weight-hanging"
-                headline={`You can move ${formatWeight(entitlementWeight)} in this move.`}
+                headline={`Your standard weight allowance is ${formatWeight(entitlementWeight)} for this move.`}
               >
+                <p>If you are moving to an administratively restricted HHG weight location this amount may be less.</p>
                 <p>
                   You will have to pay for any excess weight above this allowance, so work hard to make sure you stay
                   within your weight limit.

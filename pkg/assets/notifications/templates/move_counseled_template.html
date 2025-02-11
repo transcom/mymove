@@ -2,6 +2,10 @@
 
 <p>This is a confirmation that your counselor has approved move details for the assigned move code{{if .Locator}} {{.Locator}}{{end}}{{if .OriginDutyLocation}} from {{.OriginDutyLocation}}{{end}}{{if .DestinationLocation}} to {{.DestinationLocation}}{{end}} in the MilMove system.</p>
 
+{{if .WeightRestriction}}
+<p>Your move has been identified as going to an administratively restricted HHG weight location. Your weight restriction is {{.WeightRestriction}}lbs.</p>
+<p>Be advised, you may be required to pay excess cost if you choose to move more than your weight restriction. </p>
+{{end}}
 <p>What this means to you:</br>
 If you are doing a Personally Procured Move (PPM), you can start moving your personal property.</p>
 
