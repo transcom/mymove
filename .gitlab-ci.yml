@@ -712,6 +712,33 @@ compile_app_server:
 #####################################
 ## Test stages various conditions  ##
 #####################################
+prep_integration_docker_microservice:
+  stage: test
+  interruptible: true
+  tags:
+    - $DOCKER_RUNNER_TAGRUNNER_TAG
+  image: $DOCKER_APP_IMAGE
+  services:
+    - name: docker:dind
+      alias: docker
+    - name: $postgres
+    - name: $redis
+  variables:
+    DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
+    DOCKER_TLS_CERTDIR: ""
+  needs:
+    - pre_deps_yarn
+    - compile_app_server
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
+  script:
+    - docker build -t registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA} -f Dockerfile_gitlabtests_dp3 .
+    - docker push registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
+  allow_failure: true
+  after_script:
+    - *announce_failure
+  rules:
+   - *check_integration_mtls_ignore_branch
 
 pre_test:
   stage: test
@@ -1017,7 +1044,7 @@ integration_test_mtls:
   services:
     - name: $postgres
     - name: $redis
-    - name: registry.csde.caci.com/milmove/mymove:e2e-ca40daf2
+    - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
       alias: milmovemicroservice
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
@@ -1083,7 +1110,8 @@ integration_test_mtls:
     SERVE_API_PRIME: true
 
     DB_DEBUG: false
-  # needs:
+  needs:
+    - prep_integration_docker_microservice
   #   - pre_deps_yarn
   #   - compile_app_server
   before_script:
