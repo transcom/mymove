@@ -98,4 +98,5 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 	}
 
 	return entitlement
+
 }
