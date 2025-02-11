@@ -1,8 +1,6 @@
 package services
 
 import (
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -20,11 +18,4 @@ type RejectedOfficeUserListFetcher interface {
 //go:generate mockery --name RejectedOfficeUserFetcher
 type RejectedOfficeUserFetcher interface {
 	FetchRejectedOfficeUser(appCtx appcontext.AppContext, filters []QueryFilter) (models.OfficeUser, error)
-}
-
-// RejectedOfficeUserFetcherPop is the exported interface for fetching a single office user
-//
-//go:generate mockery --name RejectedOfficeUserFetcherPop
-type RejectedOfficeUserFetcherPop interface {
-	FetchRejectedOfficeUserByID(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error)
 }
