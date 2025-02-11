@@ -34,19 +34,10 @@ const peak = (params) => {
 };
 
 const getMarket = (params) => {
-  let marketText = '';
-
-  if (getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketOrigin, params)) {
-    marketText = ` ${
-      getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketOrigin, params)?.toLowerCase() === 'o' ? 'OCONUS' : 'CONUS'
-    }`;
-  } else {
-    marketText = ` ${
-      getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketDest, params)?.toLowerCase() === 'o' ? 'OCONUS' : 'CONUS'
-    }`;
-  }
-
-  return marketText;
+  const marketValue =
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketOrigin, params) ||
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketDest, params);
+  return ` ${marketValue?.toLowerCase() === 'o' ? 'OCONUS' : 'CONUS'}`;
 };
 
 const serviceAreaOrigin = (params) => {
