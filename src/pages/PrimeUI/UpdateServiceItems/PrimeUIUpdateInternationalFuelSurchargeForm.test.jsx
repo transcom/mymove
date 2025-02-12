@@ -12,7 +12,7 @@ const mtoServiceItemID = '38569958-2889-41e5-8101-82c56ec48430';
 const serviceItem = {
   id: mtoServiceItemID,
   reServiceCode: 'POEFSC',
-  reServiceName: 'International POE Fuel Surcharge',
+  reServiceName: 'International POE fuel surcharge',
   status: 'APPROVED',
   mtoShipmentID: '38569958-2889-41e5-8102-82c56ec48430',
 };
@@ -64,7 +64,7 @@ describe('PrimeUIUpdateInternationalFuelSurchargeForm', () => {
       screen.getByRole('heading', { name: 'Update International Fuel Surcharge Service Item', level: 2 }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: 'POEFSC - International POE Fuel Surcharge', level: 3 }),
+      screen.getByRole('heading', { name: 'POEFSC - International POE fuel surcharge', level: 3 }),
     ).toBeInTheDocument();
     expect(screen.getByText('Port:')).toBeInTheDocument();
     expect(screen.getByText('SEATTLE TACOMA INTL')).toBeInTheDocument();
