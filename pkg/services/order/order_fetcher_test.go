@@ -2563,13 +2563,36 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
 
+		move4, shipment4 := buildMoveKKFA()
+		// build the destination SIT service items and update their status to SUBMITTED
+		oneMonthLater := time.Now().AddDate(0, 1, 0)
+		factory.BuildDestSITServiceItems(suite.DB(), move4, shipment4, &oneMonthLater, nil)
+
+		// build the SIT extension update
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    move4,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment4,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITDurationUpdate{
+					Status:            models.SITExtensionStatusPending,
+					ContractorRemarks: models.StringPointer("gimme some more plz"),
+				},
+			},
+		}, nil)
+
 		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
 			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{},
 		)
 
 		suite.FatalNoError(err)
-		suite.Equal(3, moveCount)
-		suite.Len(moves, 3)
+		suite.Equal(4, moveCount)
+		suite.Len(moves, 4)
 	})
 
 	suite.Run("returns moves for MBFL GBLOC including USAF/SF in Alaska Zone II", func() {
