@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import DocumentViewer from './DocumentViewer';
@@ -10,7 +10,7 @@ import samplePNG from './sample2.png';
 import sampleGIF from './sample3.gif';
 
 import { bulkDownloadPaymentRequest } from 'services/ghcApi';
-import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS, UPLOAD_DOC_STATUS_DISPLAY_MESSAGE } from 'shared/constants';
+import { UPLOAD_SCAN_STATUS, UPLOAD_DOC_STATUS_DISPLAY_MESSAGE } from 'shared/constants';
 import { renderWithProviders } from 'testUtils';
 
 const toggleMenuClass = () => {
@@ -25,12 +25,6 @@ const mockMutateUploads = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual('@tanstack/react-query'),
   useMutation: () => ({ mutate: mockMutateUploads }),
-}));
-
-global.EventSource = jest.fn().mockImplementation(() => ({
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
-  close: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -245,110 +239,82 @@ describe('DocumentViewer component', () => {
   });
 });
 
-describe('Test documentViewer file upload statuses', () => {
-  const documentStatus = 'Document Status';
-  // Trigger status change helper function
-  const triggerStatusChange = (status, fileId, onStatusChange) => {
-    // Mocking EventSource
-    const mockEventSource = jest.fn();
+// Mock the EventSource
+class MockEventSource {
+  constructor(url) {
+    this.url = url;
+    this.onmessage = null;
+  }
 
-    global.EventSource = mockEventSource;
+  close() {
+    this.isClosed = true;
+  }
+}
+global.EventSource = MockEventSource;
+// Helper function for finding the file status text
+const findByTextContent = (text) => {
+  return screen.getByText((content, node) => {
+    const hasText = (element) => element.textContent.includes(text);
+    const nodeHasText = hasText(node);
+    const childrenDontHaveText = Array.from(node.children).every((child) => !hasText(child));
+    return nodeHasText && childrenDontHaveText;
+  });
+};
 
-    // Create a mock EventSource instance and trigger the onmessage event
-    const eventSourceMock = {
-      onmessage: () => {
-        const event = { data: status };
-        onStatusChange(event.data); // Pass status to the callback
-      },
-      close: jest.fn(),
-    };
-
-    mockEventSource.mockImplementationOnce(() => eventSourceMock);
-
-    // Trigger the status change (this would simulate the file status update event)
-    const sse = new EventSource(`/ghc/v1/uploads/${fileId}/status`, { withCredentials: true });
-    sse.onmessage({ data: status });
+describe('Test DocumentViewer File Upload Statuses', () => {
+  let eventSource;
+  const renderDocumentViewer = (props) => {
+    return renderWithProviders(<DocumentViewer {...props} />);
   };
 
-  it('displays UPLOADING status when file is uploading', async () => {
-    renderWithProviders(<DocumentViewer files={mockFiles} allowDownload paymentRequestId={1} isFileUploading />);
-    // Trigger UPLOADING status change
-    triggerStatusChange(UPLOAD_DOC_STATUS.UPLOADING, mockFiles[0].id, async () => {
-      // Wait for the component to update and check that the status is reflected
-      await waitFor(() => {
-        expect(screen.getByTestId('documentAlertHeading')).toHaveTextContent(documentStatus);
-        expect(screen.getByTestId('documentAlertMessage')).toHaveTextContent(
-          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.UPLOADING,
-        );
-      });
+  beforeEach(() => {
+    eventSource = new MockEventSource('');
+    jest.spyOn(global, 'EventSource').mockImplementation(() => eventSource);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('displays Uploading status', () => {
+    renderDocumentViewer({ files: mockFiles, isFileUploading: true });
+    expect(findByTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.UPLOADING)).toBeInTheDocument();
+  });
+
+  it('displays Scanning status', async () => {
+    renderDocumentViewer({ files: mockFiles });
+    await act(async () => {
+      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.PROCESSING });
+    });
+    await waitFor(() => {
+      expect(findByTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.SCANNING)).toBeInTheDocument();
     });
   });
 
-  it('displays SCANNING status when file is scanning', async () => {
-    renderWithProviders(
-      <DocumentViewer files={mockFiles} allowDownload paymentRequestId={1} isFileUploading={false} />,
-    );
-
-    // Trigger SCANNING status change
-    triggerStatusChange(UPLOAD_SCAN_STATUS.PROCESSING, mockFiles[0].id, async () => {
-      // Wait for the component to update and check that the status is reflected
-      await waitFor(() => {
-        expect(screen.getByTestId('documentAlertHeading')).toHaveTextContent(documentStatus);
-        expect(screen.getByTestId('documentAlertMessage')).toHaveTextContent(
-          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.SCANNING,
-        );
-      });
+  it('displays Establishing document for viewing  status', async () => {
+    renderDocumentViewer({ files: mockFiles });
+    await act(async () => {
+      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.CLEAN });
+    });
+    await waitFor(() => {
+      expect(
+        findByTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEWING),
+      ).toBeInTheDocument();
     });
   });
 
-  it('displays ESTABLISHING status when file is establishing', async () => {
-    renderWithProviders(
-      <DocumentViewer files={mockFiles} allowDownload paymentRequestId={1} isFileUploading={false} />,
-    );
-
-    // Trigger ESTABLISHING status change
-    triggerStatusChange(UPLOAD_SCAN_STATUS.CLEAN, mockFiles[0].id, async () => {
-      // Wait for the component to update and check that the status is reflected
-      await waitFor(() => {
-        expect(screen.getByTestId('documentAlertHeading')).toHaveTextContent(documentStatus);
-        expect(screen.getByTestId('documentAlertMessage')).toHaveTextContent(
-          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEWING,
-        );
-      });
+  it('displays infected file message', async () => {
+    renderDocumentViewer({ files: mockFiles });
+    await act(async () => {
+      eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.INFECTED });
+    });
+    await waitFor(() => {
+      expect(findByTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.INFECTED_FILE_MESSAGE)).toBeInTheDocument();
     });
   });
 
-  it('displays FILE_NOT_FOUND status when no file is found', async () => {
-    const emptyFileList = [];
-    renderWithProviders(
-      <DocumentViewer files={emptyFileList} allowDownload paymentRequestId={1} isFileUploading={false} />,
-    );
-
-    // Trigger FILE_NOT_FOUND status change (via props)
-    triggerStatusChange('FILE_NOT_FOUND', '', async () => {
-      // Wait for the component to update and check that the status is reflected
-      await waitFor(() => {
-        expect(screen.getByTestId('documentAlertHeading')).toHaveTextContent(documentStatus);
-        expect(screen.getByTestId('documentAlertMessage')).toHaveTextContent(
-          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.FILE_NOT_FOUND,
-        );
-      });
-    });
-  });
-
-  it('displays INFECTED status when file is infected', async () => {
-    renderWithProviders(
-      <DocumentViewer files={mockFiles} allowDownload paymentRequestId={1} isFileUploading={false} />,
-    );
-    // Trigger INFECTED status change
-    triggerStatusChange(UPLOAD_SCAN_STATUS.INFECTED, mockFiles[0].id, async () => {
-      // Wait for the component to update and check that the status is reflected
-      await waitFor(() => {
-        expect(screen.getByTestId('documentAlertHeading')).toHaveTextContent('Ask for a new file');
-        expect(screen.getByTestId('documentAlertMessage')).toHaveTextContent(
-          UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.INFECTED_FILE_MESSAGE,
-        );
-      });
-    });
+  it('displays File Not Found message when no file is selected', () => {
+    renderDocumentViewer({ files: [] });
+    expect(findByTextContent(UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.FILE_NOT_FOUND)).toBeInTheDocument();
   });
 });
