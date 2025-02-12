@@ -134,33 +134,38 @@ function testData(code) {
     };
   }
 
-  // FSC or not
+  // FSC
   if (code === 'DOSFSC') {
     result = {
       ...result,
       'Mileage into SIT': '29',
       'SIT mileage factor': '0.012',
-      'Total:': '$999.98',
     };
   } else if (code === 'DDSFSC') {
     result = {
       ...result,
       'Mileage out of SIT': '29',
       'SIT mileage factor': '0.012',
-      'Total:': '$999.98',
     };
   } else if (code.includes('FSC')) {
     result = {
       ...result,
       Mileage: '210',
       'Mileage factor': '0.088',
-      'Total:': '$999.98',
+    };
+  }
+
+  // Totals
+  if (code.includes('FSC')) {
+    result = {
+      ...result,
+      'Total: ': '$999.98',
     };
   } else {
     result = {
       ...result,
       'Price escalation factor': '1.033',
-      'Total:': '$999.99',
+      'Total: ': '$999.99',
     };
   }
 
@@ -445,7 +450,7 @@ describe('Unaccompanied Baggage', () => {
       'Billable weight (cwt)': '85 cwt',
       'International UB price': '1.71',
       'Price escalation factor': '1.033',
-      'Total:': '$999.99',
+      'Total: ': '$999.99',
     };
     testAB(result, expected);
   });
