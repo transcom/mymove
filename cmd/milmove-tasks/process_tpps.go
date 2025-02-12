@@ -28,7 +28,12 @@ import (
 // Call this from the command line with go run ./cmd/milmove-tasks process-tpps
 func checkProcessTPPSConfig(v *viper.Viper, logger *zap.Logger) error {
 
-	err := cli.CheckDatabase(v, logger)
+	err := cli.CheckTPPSFlags(v)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckDatabase(v, logger)
 	if err != nil {
 		return err
 	}
