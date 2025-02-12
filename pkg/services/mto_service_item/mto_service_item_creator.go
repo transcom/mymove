@@ -3,6 +3,7 @@ package mtoserviceitem
 import (
 	"database/sql"
 	"fmt"
+	"slices"
 	"strconv"
 	"time"
 
@@ -708,6 +709,10 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					return err
 				}
 			} else {
+				if isInternationalServiceItem(requestedServiceItem) {
+					err := fmt.Errorf("cannot create international service items for domestic shipment: %s", mtoShipment.ID)
+					return apperror.NewInvalidInputError(mtoShipment.ID, err, nil, err.Error())
+				}
 				verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
 				if verrs != nil || err != nil {
 					return fmt.Errorf("%#v %e", verrs, err)
@@ -985,4 +990,22 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 	}
 
 	return &extraServiceItems, nil
+}
+
+func isInternationalServiceItem(serviceItem *models.MTOServiceItem) bool {
+	var internationalAccessorialServiceItems = []models.ReServiceCode{
+		models.ReServiceCodeICRT,
+		models.ReServiceCodeIUCRT,
+		models.ReServiceCodeIOASIT,
+		models.ReServiceCodeIDASIT,
+		models.ReServiceCodeIOFSIT,
+		models.ReServiceCodeIDFSIT,
+		models.ReServiceCodeIOPSIT,
+		models.ReServiceCodeIDDSIT,
+		models.ReServiceCodeIDSHUT,
+		models.ReServiceCodeIOSHUT,
+		models.ReServiceCodeIOSFSC,
+		models.ReServiceCodeIDSFSC,
+	}
+	return slices.Contains(internationalAccessorialServiceItems, serviceItem.ReService.Code)
 }
