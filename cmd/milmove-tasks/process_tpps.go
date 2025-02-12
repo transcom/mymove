@@ -54,6 +54,7 @@ const (
 	AVStatusCLEAN string = "CLEAN"
 
 	// AVStatusUNKNOWN string UNKNOWN
+	// Placeholder for error when scanning, actual scan results from ClamAV are CLEAN or INFECTED
 	AVStatusUNKNOWN string = "UNKNOWN"
 
 	// Default value for parameter store environment variable
