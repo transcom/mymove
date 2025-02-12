@@ -308,119 +308,89 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Begin DDL migrations
-	ddlMigrationManifest := expandPath(v.GetString(cli.DDLMigrationManifestFlag))
-	ddlMigrationPath := expandPath(v.GetString(cli.DDLMigrationPathFlag))
-	ddlMigrationPathsExpanded := expandPaths(strings.Split(ddlMigrationPath, ";"))
+	ddlTypesManifest := expandPath(v.GetString(cli.DDLTypesMigrationManifestFlag))
+	ddlTypesManifestPath := expandPath(v.GetString(cli.DDLTypesMigrationPathFlag))
 
-	if ddlMigrationManifest != "" && len(ddlMigrationPathsExpanded) > 0 {
-		// Define ordered folders
-		orderedFolders := []string{
-			"ddl_tables",
-			"ddl_types",
-			"ddl_views",
-			"ddl_functions",
-			"ddl_procedures",
+	ddlTablesManifest := expandPath(v.GetString(cli.DDLTablesMigrationManifestFlag))
+	ddlTablesPath := expandPath(v.GetString(cli.DDLTablesMigrationPathFlag))
+
+	ddlViewsManifest := expandPath(v.GetString(cli.DDLViewsMigrationManifestFlag))
+	ddlViewsPath := expandPath(v.GetString(cli.DDLViewsMigrationPathFlag))
+
+	ddlFunctionsManifest := expandPath(v.GetString(cli.DDLFunctionsMigrationManifestFlag))
+	ddlFunctionsPath := expandPath(v.GetString(cli.DDLFunctionsMigrationPathFlag))
+
+	ddlProceduresManifest := expandPath(v.GetString(cli.DDLProceduresMigrationManifestFlag))
+	ddlProceduresPath := expandPath(v.GetString(cli.DDLProceduresMigrationPathFlag))
+
+	ddlTypes := []struct {
+		name     string
+		manifest string
+		path     string
+	}{
+		{"DDL Types", ddlTypesManifest, ddlTypesManifestPath},
+		{"DDL Tables", ddlTablesManifest, ddlTablesPath},
+		{"DDL Views", ddlViewsManifest, ddlViewsPath},
+		{"DDL Functions", ddlFunctionsManifest, ddlFunctionsPath},
+		{"DDL Procedures", ddlProceduresManifest, ddlProceduresPath},
+	}
+
+	for _, ddlType := range ddlTypes {
+		logger.Info(fmt.Sprintf("=== Processing %s ===", ddlType.name))
+
+		filenames, errListFiles := fileHelper.ListFiles(ddlType.path, s3Client)
+		if errListFiles != nil {
+			logger.Fatal(fmt.Sprintf("Error listing %s directory %s", ddlType.name, ddlType.path), zap.Error(errListFiles))
 		}
 
-		// Create tracking map
-		successfulMigrations := make(map[string][]string)
+		ddlMigrationFiles := map[string][]string{
+			ddlType.path: filenames,
+		}
 
-		// Process each folder in order
-		for _, folder := range orderedFolders {
-			logger.Info("Processing folder", zap.String("current_folder", folder))
+		manifest, err := os.Open(ddlType.manifest[len("file://"):])
+		if err != nil {
+			return errors.Wrap(err, fmt.Sprintf("error reading %s manifest", ddlType.name))
+		}
 
-			for _, path := range ddlMigrationPathsExpanded {
-				cleanPath := strings.TrimPrefix(path, "file://")
-				pathParts := strings.Split(cleanPath, "/")
-				currentFolder := pathParts[len(pathParts)-1]
-
-				if currentFolder != folder {
-					continue
-				}
-				filenames, errListFiles := fileHelper.ListFiles(path, s3Client)
-				if errListFiles != nil {
-					logger.Fatal(fmt.Sprintf("Error listing DDL migrations directory %s", path), zap.Error(errListFiles))
-				}
-
-				logger.Info(fmt.Sprintf("Found files in %s:", folder))
-				for _, file := range filenames {
-					logger.Info(fmt.Sprintf("  - %s", file))
-				}
-
-				ddlMigrationFiles := map[string][]string{
-					path: filenames,
-				}
-
-				logger.Info(fmt.Sprintf("=== Processing %s Files ===", folder))
-
-				ddlManifest, err := os.Open(ddlMigrationManifest[len("file://"):])
-				if err != nil {
-					return errors.Wrap(err, "error reading DDL manifest")
-				}
-
-				scanner := bufio.NewScanner(ddlManifest)
-				logger.Info(fmt.Sprintf("Reading manifest for folder %s", folder))
-				for scanner.Scan() {
-					target := scanner.Text()
-					logger.Info(fmt.Sprintf("Manifest entry: %s", target))
-
-					if strings.HasPrefix(target, "#") {
-						logger.Info("Skipping commented line")
-						continue
-					}
-
-					if !strings.Contains(target, folder) {
-						logger.Info(fmt.Sprintf("Skipping entry - not in current folder %s", folder))
-						continue
-					}
-
-					logger.Info(fmt.Sprintf("Processing manifest entry: %s", target))
-
-					uri := ""
-					for dir, files := range ddlMigrationFiles {
-						for _, filename := range files {
-							if target == filename {
-								uri = fmt.Sprintf("%s/%s", dir, filename)
-								break
-							}
-						}
-					}
-
-					if len(uri) == 0 {
-						return errors.Errorf("Error finding DDL migration for filename %q", target)
-					}
-
-					m, err := pop.ParseMigrationFilename(target)
-					if err != nil {
-						return errors.Wrapf(err, "error parsing DDL migration filename %q", uri)
-					}
-
-					b := &migrate.Builder{Match: m, Path: uri}
-					migration, errCompile := b.Compile(s3Client, wait, logger)
-					if errCompile != nil {
-						return errors.Wrap(errCompile, "Error compiling DDL migration")
-					}
-
-					if err := migration.Run(dbConnection); err != nil {
-						return errors.Wrap(err, "error executing DDL migration")
-					}
-
-					successfulMigrations[folder] = append(successfulMigrations[folder], target)
-					logger.Info(fmt.Sprintf("Successfully executed: %s", target))
-				}
-				ddlManifest.Close()
+		scanner := bufio.NewScanner(manifest)
+		for scanner.Scan() {
+			target := scanner.Text()
+			if strings.HasPrefix(target, "#") {
+				continue
 			}
-		}
 
-		logger.Info("=== DDL Migration Summary ===")
-		for _, folder := range orderedFolders {
-			logger.Info(fmt.Sprintf("Folder: %s", folder))
-			if migrations, ok := successfulMigrations[folder]; ok {
-				for _, migration := range migrations {
-					logger.Info(fmt.Sprintf("  ✓ %s", migration))
+			uri := ""
+			for dir, files := range ddlMigrationFiles {
+				for _, filename := range files {
+					if target == filename {
+						uri = fmt.Sprintf("%s/%s", dir, filename)
+						break
+					}
 				}
 			}
+
+			if len(uri) == 0 {
+				return errors.Errorf("Error finding %s migration for filename %q", ddlType.name, target)
+			}
+
+			m, err := pop.ParseMigrationFilename(target)
+			if err != nil {
+				return errors.Wrapf(err, "error parsing %s migration filename %q", ddlType.name, uri)
+			}
+
+			b := &migrate.Builder{Match: m, Path: uri}
+			migration, errCompile := b.Compile(s3Client, wait, logger)
+			if errCompile != nil {
+				return errors.Wrap(errCompile, fmt.Sprintf("Error compiling %s migration", ddlType.name))
+			}
+
+			if err := migration.Run(dbConnection); err != nil {
+				return errors.Wrap(err, fmt.Sprintf("error executing %s migration", ddlType.name))
+			}
+
+			logger.Info(fmt.Sprintf("Successfully executed %s: %s", ddlType.name, target))
 		}
+		manifest.Close()
 	}
 	return nil
 }
