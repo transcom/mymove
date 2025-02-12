@@ -59,8 +59,6 @@
 
     .col:last-of-type {
       @include u-margin-right(0);
-      @include u-text-align('right');
-
       hr {
         width: 100%;
       }
