@@ -54,7 +54,7 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 }
 
 func AssignedOfficeUser(officeUser *models.OfficeUser) *ghcmessages.AssignedOfficeUser {
-	if officeUser != nil {
+	if officeUser != nil && officeUser.FirstName != "" && officeUser.LastName != "" {
 		payload := ghcmessages.AssignedOfficeUser{
 			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
 			FirstName:    officeUser.FirstName,
@@ -1917,6 +1917,22 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		}
 	}
 
+	if s.ReService.Code == models.ReServiceCodeIOSHUT && s.MTOShipment.PickupAddress != nil {
+		if *s.MTOShipment.PickupAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
+	if s.ReService.Code == models.ReServiceCodeIDSHUT && s.MTOShipment.DestinationAddress != nil {
+		if *s.MTOShipment.DestinationAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
 	if s.ReService.Code == models.ReServiceCodeIUCRT && s.MTOShipment.DestinationAddress != nil {
 		if *s.MTOShipment.DestinationAddress.IsOconus {
 			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
@@ -2607,9 +2623,11 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 
 		// populates the destination postal code of the move
 		var destinationPostalCode string
-		destinationPostalCode, err = move.GetDestinationPostalCode(appCtx.DB())
+		destinationAddress, err := move.GetDestinationAddress(appCtx.DB())
 		if err != nil {
 			destinationPostalCode = ""
+		} else {
+			destinationPostalCode = destinationAddress.PostalCode
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{
