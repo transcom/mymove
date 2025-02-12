@@ -37,7 +37,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   return (
     <div>
       <Modal className={styles.BulkModal}>
-        <ModalClose handleClick={() => setShowCancelModal(true)} />
+        {!showCancelModal && <ModalClose handleClick={() => setShowCancelModal(true)} />}
         <ModalTitle>
           <h3>
             {title} ({numberOfMoves})
