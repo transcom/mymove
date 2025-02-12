@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql/driver"
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -249,4 +251,190 @@ func (m MTOServiceItem) GetMTOServiceItemTypeFromServiceItem() MTOServiceItemTyp
 		POELocationID:                     m.POELocationID,
 		PODLocationID:                     m.PODLocationID,
 	}
+}
+
+func (m MTOServiceItem) Value() (driver.Value, error) {
+	var id string
+	var moveTaskOrderID string
+	var mtoShipmentID string
+	var reason string
+	var pickupPostalCode string
+	var description string
+	var rejectionReason string
+	var approvedAt string
+	var rejectedAt string
+	var sitPostalCode string
+	var sitRequestedDelivery string
+	var requestedApprovalsRequestedStatus bool
+	var serviceLocation string
+	var sitEntryDate string
+	var sitDepartureDate string
+	var sitCustomerContacted string
+	var poeLocationID string
+	var podLocationID string
+	var sitDestinationFinalAddressID string
+	var sitOriginHHGOriginalAddressID string
+	var sitOriginHHGActualAddressID string
+	var sitDestinationOriginalAddressID string
+	var standaloneCrate bool
+	var lockedPriceCents int64
+	var sitDeliveryMiles int
+	var customerExpenseReason string
+	var estimatedWeight int64
+	var actualWeight int64
+	var pricingEstimate int64
+
+	if m.ID != uuid.Nil {
+		id = m.ID.String()
+	}
+
+	if m.MoveTaskOrderID != uuid.Nil {
+		moveTaskOrderID = m.MoveTaskOrderID.String()
+	}
+
+	if *m.MTOShipmentID != uuid.Nil {
+		mtoShipmentID = m.MTOShipmentID.String()
+	}
+
+	if m.Reason != nil {
+		reason = *m.Reason
+	}
+
+	if m.PickupPostalCode != nil {
+		pickupPostalCode = *m.PickupPostalCode
+	}
+
+	if m.Description != nil {
+		description = *m.Description
+	}
+
+	if m.RejectionReason != nil {
+		rejectionReason = *m.RejectionReason
+	}
+
+	if m.ApprovedAt != nil {
+		approvedAt = m.ApprovedAt.Format("2006-01-02 15:04:05")
+	}
+
+	if m.RejectedAt != nil {
+		rejectedAt = m.RejectedAt.Format("2006-01-02 15:04:05")
+	}
+
+	if m.SITPostalCode != nil {
+		sitPostalCode = *m.SITPostalCode
+	}
+
+	if m.SITRequestedDelivery != nil {
+		sitRequestedDelivery = m.SITRequestedDelivery.Format("2006-01-02 15:04:05")
+	}
+
+	if m.RequestedApprovalsRequestedStatus != nil {
+		requestedApprovalsRequestedStatus = *m.RequestedApprovalsRequestedStatus
+	}
+
+	if m.ServiceLocation != nil {
+		serviceLocation = string(*m.ServiceLocation)
+	}
+
+	if m.SITEntryDate != nil {
+		sitEntryDate = m.SITEntryDate.Format("2006-01-02 15:04:05")
+	}
+
+	if m.SITDepartureDate != nil {
+		sitDepartureDate = m.SITDepartureDate.Format("2006-01-02 15:04:05")
+	}
+
+	if m.SITCustomerContacted != nil {
+		sitCustomerContacted = m.SITCustomerContacted.Format("2006-01-02 15:04:05")
+	}
+
+	if m.POELocationID != nil {
+		poeLocationID = m.POELocationID.String()
+	}
+
+	if m.PODLocationID != nil {
+		podLocationID = m.PODLocationID.String()
+	}
+
+	if m.SITDestinationFinalAddressID != nil {
+		sitDestinationFinalAddressID = m.SITDestinationFinalAddressID.String()
+	}
+
+	if m.SITOriginHHGActualAddressID != nil {
+		sitOriginHHGActualAddressID = m.SITOriginHHGActualAddressID.String()
+	}
+
+	if m.SITDestinationOriginalAddressID != nil {
+		sitDestinationOriginalAddressID = m.SITDestinationOriginalAddressID.String()
+	}
+
+	if m.SITOriginHHGOriginalAddressID != nil {
+		sitOriginHHGOriginalAddressID = m.SITOriginHHGOriginalAddressID.String()
+	}
+
+	if m.StandaloneCrate != nil {
+		standaloneCrate = *m.StandaloneCrate
+	}
+
+	if m.LockedPriceCents != nil {
+		lockedPriceCents = m.LockedPriceCents.Int64()
+	}
+
+	if m.SITDeliveryMiles != nil {
+		sitDeliveryMiles = *m.SITDeliveryMiles
+	}
+
+	if m.CustomerExpenseReason != nil {
+		customerExpenseReason = *m.CustomerExpenseReason
+	}
+
+	if m.EstimatedWeight != nil {
+		estimatedWeight = m.EstimatedWeight.Int64()
+	}
+
+	if m.ActualWeight != nil {
+		actualWeight = m.ActualWeight.Int64()
+	}
+
+	if m.PricingEstimate != nil {
+		pricingEstimate = m.PricingEstimate.Int64()
+	}
+
+	s := fmt.Sprintf("(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%d,%s,%s,%s,%t,%t,%s,%d,%d,%t,%d,%s,%s,%s,%s)",
+		id,
+		moveTaskOrderID,
+		mtoShipmentID,
+		m.CreatedAt.Format("2006-01-02 15:04:05"),
+		m.UpdatedAt.Format("2006-01-02 15:04:05"),
+		reason,
+		pickupPostalCode,
+		description,
+		m.Status,
+		rejectionReason,
+		approvedAt,
+		rejectedAt,
+		sitPostalCode,
+		sitEntryDate,
+		sitDepartureDate,
+		sitDestinationFinalAddressID,
+		sitOriginHHGOriginalAddressID,
+		sitOriginHHGActualAddressID,
+		estimatedWeight,
+		actualWeight,
+		sitDestinationOriginalAddressID,
+		sitCustomerContacted,
+		sitRequestedDelivery,
+		requestedApprovalsRequestedStatus,
+		m.CustomerExpense,
+		customerExpenseReason,
+		sitDeliveryMiles,
+		pricingEstimate,
+		standaloneCrate,
+		lockedPriceCents,
+		serviceLocation,
+		poeLocationID,
+		podLocationID,
+		m.ReService.Code.String(),
+	)
+	return []byte(s), nil
 }

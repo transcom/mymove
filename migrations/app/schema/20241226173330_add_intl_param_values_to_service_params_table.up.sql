@@ -130,4 +130,6 @@ INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,u
 INSERT INTO service_params (id,service_id,service_item_param_key_id,created_at,updated_at,is_optional) VALUES
      ('ebe4a0c7-c8fa-4653-9d42-c0c383689540'::uuid,'fafad6c2-6037-4a95-af2f-d9861ba7db8e','a1d31d35-c87d-4a7d-b0b8-8b2646b96e43','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false), -- ContractCode
      ('9e2cecb9-b948-4090-bfd3-c5160f1bb7ea'::uuid,'fafad6c2-6037-4a95-af2f-d9861ba7db8e','597bb77e-0ce7-4ba2-9624-24300962625f','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false), -- PerUnitCents
-     ('fd9d312b-ab24-4b92-8c1c-5ed53548cbe0'::uuid,'fafad6c2-6037-4a95-af2f-d9861ba7db8e','95ee2e21-b232-4d74-9ec5-218564a8a8b9','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false); -- IsPeak
+     ('fd9d312b-ab24-4b92-8c1c-5ed53548cbe0'::uuid,'fafad6c2-6037-4a95-af2f-d9861ba7db8e','95ee2e21-b232-4d74-9ec5-218564a8a8b9','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false), -- IsPeak
+	 ('48e36c9c-d856-42c6-a27c-652ad105c6b9'::uuid,'fafad6c2-6037-4a95-af2f-d9861ba7db8e','5335e243-ab5b-4906-b84f-bd8c35ba64b3','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false), -- ReferenceDate
+	 ('696b8068-53cd-45c7-a3fb-da608c86daa6'::uuid,'fafad6c2-6037-4a95-af2f-d9861ba7db8e','b9739817-6408-4829-8719-1e26f8a9ceb3','2024-12-26 15:55:50.041957','2024-12-26 15:55:50.041957',false); -- WeightBilled

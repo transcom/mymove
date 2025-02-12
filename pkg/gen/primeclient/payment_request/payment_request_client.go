@@ -430,6 +430,33 @@ Just like domestic shipments & service items, if `WeightBilled` is not provided 
 ```
 
 ---
+
+International Basic Service Items & Accepted Payment Request Parameters:
+---
+**IOSHUT - International origin shuttle service**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**IDSHUT - International destination shuttle service**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+---
 */
 func (a *Client) CreatePaymentRequest(params *CreatePaymentRequestParams, opts ...ClientOption) (*CreatePaymentRequestCreated, error) {
 	// TODO: Validate the params before sending

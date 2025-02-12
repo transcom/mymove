@@ -65,6 +65,10 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 		return NewDomesticDestinationShuttlingPricer(), nil
 	case models.ReServiceCodeDOSHUT:
 		return NewDomesticOriginShuttlingPricer(), nil
+	case models.ReServiceCodeIDSHUT:
+		return NewInternationalDestinationShuttlingPricer(), nil
+	case models.ReServiceCodeIOSHUT:
+		return NewInternationalOriginShuttlingPricer(), nil
 	case models.ReServiceCodeDCRT:
 		return NewDomesticCratingPricer(), nil
 	case models.ReServiceCodeDUCRT:
@@ -103,6 +107,14 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 		return NewPortFuelSurchargePricer(), nil
 	case models.ReServiceCodePODFSC:
 		return NewPortFuelSurchargePricer(), nil
+	case models.ReServiceCodeIOFSIT:
+		return NewIntlOriginFirstDaySITPricer(), nil
+	case models.ReServiceCodeIOASIT:
+		return NewIntlOriginAdditionalDaySITPricer(), nil
+	case models.ReServiceCodeIDFSIT:
+		return NewIntlDestinationFirstDaySITPricer(), nil
+	case models.ReServiceCodeIDASIT:
+		return NewIntlDestinationAdditionalDaySITPricer(), nil
 	case models.ReServiceCodeIUBPK:
 		return NewIntlUBPackPricer(), nil
 	case models.ReServiceCodeIUBUPK:
