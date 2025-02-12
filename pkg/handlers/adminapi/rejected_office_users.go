@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/rejected_office_users"
@@ -108,5 +109,41 @@ func (h IndexRejectedOfficeUsersHandler) Handle(params rejected_office_users.Ind
 			}
 
 			return rejected_office_users.NewIndexRejectedOfficeUsersOK().WithContentRange(fmt.Sprintf("rejected office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload), nil
+		})
+}
+
+// GetRejectedOfficeUserHandler returns a list of office users via GET /rejected_office_users/{officeUserId}
+type GetRejectedOfficeUserHandler struct {
+	handlers.HandlerConfig
+	services.RejectedOfficeUserFetcher
+	services.RoleAssociater
+	services.NewQueryFilter
+}
+
+// Handle retrieves a single rejected office user
+func (h GetRejectedOfficeUserHandler) Handle(params rejected_office_users.GetRejectedOfficeUserParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			rejectedOfficeUserID := params.OfficeUserID
+
+			queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", rejectedOfficeUserID)}
+			rejectedOfficeUser, err := h.RejectedOfficeUserFetcher.FetchRejectedOfficeUser(appCtx, queryFilters)
+
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *rejectedOfficeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+				return rejected_office_users.NewGetRejectedOfficeUserBadRequest(), err
+			}
+
+			rejectedOfficeUser.User.Roles = roles
+
+			payload := payloadForRejectedOfficeUserModel(rejectedOfficeUser)
+
+			return rejected_office_users.NewGetRejectedOfficeUserOK().WithPayload(payload), nil
 		})
 }

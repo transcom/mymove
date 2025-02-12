@@ -1486,6 +1486,37 @@ paths:
           description: Office User not found
         '500':
           description: server error
+  /rejected-office-users/{officeUserId}:
+    get:
+      produces:
+        - application/json
+      summary: Get a Rejected Office User
+      description: >-
+        Retrieving a single office user in any status. This endpoint is used in
+        the Admin UI that will allow the admin user to view the user's relevant
+        data.
+      operationId: getRejectedOfficeUser
+      tags:
+        - Rejected office users
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '500':
+          description: server error
   /office-users:
     get:
       produces:
