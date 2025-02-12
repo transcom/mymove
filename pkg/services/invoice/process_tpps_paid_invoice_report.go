@@ -209,43 +209,43 @@ func (t *tppsPaidInvoiceReportProcessor) StoreTPPSPaidInvoiceReportInDatabase(ap
 	for _, tppsEntry := range tppsData {
 		timeOfTPPSCreatedDocumentDate, err := time.Parse(DateParamFormat, tppsEntry.TPPSCreatedDocumentDate)
 		if err != nil {
-			appCtx.Logger().Warn("Unable to parse TPPSCreatedDocumentDate", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
-			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			appCtx.Logger().Warn("unable to parse TPPSCreatedDocumentDate", zap.String("invoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("invoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
 			continue
 		}
 
 		timeOfSellerPaidDate, err := time.Parse(DateParamFormat, tppsEntry.SellerPaidDate)
 		if err != nil {
-			appCtx.Logger().Warn("Unable to parse SellerPaidDate", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
-			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			appCtx.Logger().Warn("unable to parse SellerPaidDate", zap.String("invoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("invoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
 			continue
 		}
 
 		invoiceTotalChargesInMillicents, err := priceToMillicents(tppsEntry.InvoiceTotalCharges)
 		if err != nil {
-			appCtx.Logger().Warn("Unable to parse InvoiceTotalCharges", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
-			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			appCtx.Logger().Warn("unable to parse InvoiceTotalCharges", zap.String("invoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("invoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
 			continue
 		}
 
 		intLineBillingUnits, err := strconv.Atoi(tppsEntry.LineBillingUnits)
 		if err != nil {
-			appCtx.Logger().Warn("Unable to parse LineBillingUnits", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
-			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			appCtx.Logger().Warn("unable to parse LineBillingUnits", zap.String("invoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("invoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
 			continue
 		}
 
 		lineUnitPriceInMillicents, err := priceToMillicents(tppsEntry.LineUnitPrice)
 		if err != nil {
-			appCtx.Logger().Warn("Unable to parse LineUnitPrice", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
-			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			appCtx.Logger().Warn("unable to parse LineUnitPrice", zap.String("invoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("invoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
 			continue
 		}
 
 		lineNetChargeInMillicents, err := priceToMillicents(tppsEntry.LineNetCharge)
 		if err != nil {
-			appCtx.Logger().Warn("Unable to parse LineNetCharge", zap.String("InvoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
-			failedEntries = append(failedEntries, fmt.Errorf("InvoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
+			appCtx.Logger().Warn("unable to parse LineNetCharge", zap.String("invoiceNumber", tppsEntry.InvoiceNumber), zap.Error(err))
+			failedEntries = append(failedEntries, fmt.Errorf("invoiceNumber %s: %v", tppsEntry.InvoiceNumber, err))
 			continue
 		}
 
@@ -279,31 +279,30 @@ func (t *tppsPaidInvoiceReportProcessor) StoreTPPSPaidInvoiceReportInDatabase(ap
 			verrs, err = txnAppCtx.DB().ValidateAndSave(&tppsEntryModel)
 			if err != nil {
 				if isForeignKeyConstraintViolation(err) {
-					appCtx.Logger().Warn(fmt.Sprintf("Skipping entry due to missing foreign key reference for invoice number %s", tppsEntry.InvoiceNumber))
-					failedEntries = append(failedEntries, fmt.Errorf("Invoice number %s: Foreign key constraint violation", tppsEntry.InvoiceNumber))
+					appCtx.Logger().Warn(fmt.Sprintf("skipping entry due to missing foreign key reference for invoice number %s", tppsEntry.InvoiceNumber))
+					failedEntries = append(failedEntries, fmt.Errorf("invoice number %s: foreign key constraint violation", tppsEntry.InvoiceNumber))
 					return fmt.Errorf("rolling back transaction to prevent blocking")
 				}
 
-				appCtx.Logger().Error(fmt.Sprintf("Failed to save entry for invoice number %s", tppsEntry.InvoiceNumber), zap.Error(err))
-				failedEntries = append(failedEntries, fmt.Errorf("Invoice number %s: %v", tppsEntry.InvoiceNumber, err))
+				appCtx.Logger().Error(fmt.Sprintf("failed to save entry for invoice number %s", tppsEntry.InvoiceNumber), zap.Error(err))
+				failedEntries = append(failedEntries, fmt.Errorf("invoice number %s: %v", tppsEntry.InvoiceNumber, err))
 				return fmt.Errorf("rolling back transaction to prevent blocking")
 			}
 
-			appCtx.Logger().Info(fmt.Sprintf("Successfully saved entry in DB for invoice number: %s", tppsEntry.InvoiceNumber))
+			appCtx.Logger().Info(fmt.Sprintf("successfully saved entry in DB for invoice number: %s", tppsEntry.InvoiceNumber))
 			processedRowCount += 1
 			return nil
 		})
 
 		if txnErr != nil {
-			// appCtx.Logger().Error(fmt.Sprintf("Transaction error for invoice number %s", tppsEntry.InvoiceNumber), zap.Error(txnErr))
+			appCtx.Logger().Error(fmt.Sprintf("transaction error for invoice number %s", tppsEntry.InvoiceNumber), zap.Error(txnErr))
 			errorProcessingRowCount += 1
 		}
 	}
 
-	// Log all failed entries at the end
 	if len(failedEntries) > 0 {
 		for _, err := range failedEntries {
-			appCtx.Logger().Error("Failed entry", zap.Error(err))
+			appCtx.Logger().Error("failed entry", zap.Error(err))
 		}
 	}
 
