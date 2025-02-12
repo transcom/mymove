@@ -665,7 +665,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 		suite.Equal(0, errorCount)
 
 		logOutput := logBuffer.String()
-		suite.Contains(logOutput, "Unable to parse TPPSCreatedDocumentDate")
+		suite.Contains(logOutput, "unable to parse TPPSCreatedDocumentDate")
 
 	})
 
@@ -694,7 +694,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 		suite.Equal(0, errorCount)
 
 		logOutput := logBuffer.String()
-		suite.Contains(logOutput, "Unable to parse SellerPaidDate")
+		suite.Contains(logOutput, "unable to parse SellerPaidDate")
 
 	})
 
@@ -724,7 +724,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 		suite.Equal(0, errorCount)
 
 		logOutput := logBuffer.String()
-		suite.Contains(logOutput, "Unable to parse InvoiceTotalCharges")
+		suite.Contains(logOutput, "unable to parse InvoiceTotalCharges")
 
 	})
 
@@ -755,7 +755,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 		suite.Equal(0, errorCount)
 
 		logOutput := logBuffer.String()
-		suite.Contains(logOutput, "Unable to parse LineBillingUnits")
+		suite.Contains(logOutput, "unable to parse LineBillingUnits")
 
 	})
 
@@ -787,7 +787,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 		suite.Equal(0, errorCount)
 
 		logOutput := logBuffer.String()
-		suite.Contains(logOutput, "Unable to parse LineUnitPrice")
+		suite.Contains(logOutput, "unable to parse LineUnitPrice")
 
 	})
 
@@ -820,7 +820,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 		suite.Equal(0, errorCount)
 
 		logOutput := logBuffer.String()
-		suite.Contains(logOutput, "Unable to parse LineNetCharge")
+		suite.Contains(logOutput, "unable to parse LineNetCharge")
 
 	})
 }
