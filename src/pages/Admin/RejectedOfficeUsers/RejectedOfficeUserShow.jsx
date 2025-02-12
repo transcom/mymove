@@ -22,7 +22,7 @@ const RejectedOfficeUserShowRoles = () => {
 
   return (
     <ArrayField source="roles">
-      <span>Rejected roles:</span>
+      <span>Roles Requested:</span>
       <Datagrid bulkActionButtons={false}>
         <TextField source="roleName" />
       </Datagrid>
