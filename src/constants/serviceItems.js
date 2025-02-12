@@ -102,6 +102,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Mileage factor',
   InternationalShippingAndLinehaul: 'ISLH price',
+  InternationalUbPrice: 'International UB price',
   Mileage: 'Mileage',
   MileageIntoSIT: 'Mileage into SIT',
   MileageOutOfSIT: 'Mileage out of SIT',
@@ -109,6 +110,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   NTSReleaseReferenceDate: 'Actual pickup',
   PackPrice: 'Pack price',
   PackPriceInternational: 'International Pack price',
+  PackPriceInternationalUb: 'International UB Pack price',
   PickupDate: 'Pickup date',
   PickupSITPrice: 'SIT pickup price',
   PriceEscalationFactor: 'Price escalation factor',
@@ -118,6 +120,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   FuelRateAdjustment: 'Fuel rate adjustment',
   UnpackPrice: 'Unpack price',
   UnpackPriceInternational: 'International Unpack price',
+  UnpackPriceInternationalUb: 'International UB Unpack price',
   UncratingDate: 'Uncrating date',
   UncratingPrice: 'Uncrating price (per cu ft)',
   SITFuelSurchargePrice: 'SIT mileage factor',
@@ -235,6 +238,9 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.ISLH,
   SERVICE_ITEM_CODES.POEFSC,
   SERVICE_ITEM_CODES.PODFSC,
+  SERVICE_ITEM_CODES.IUBPK,
+  SERVICE_ITEM_CODES.IUBUPK,
+  SERVICE_ITEM_CODES.UBP,
 ];
 
 export default SERVICE_ITEM_STATUSES;

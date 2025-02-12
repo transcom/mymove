@@ -87,6 +87,12 @@ function testData(code) {
       'ISLH price': '1.71',
     };
   }
+  if (code === 'UBP') {
+    result = {
+      ...result,
+      'International UB price': '1.71',
+    };
+  }
 
   // Packing and Unpacking
   if (code === 'IHPK') {
@@ -98,6 +104,16 @@ function testData(code) {
     result = {
       ...result,
       'International Unpack price': '1.71',
+    };
+  } else if (code === 'IUBPK') {
+    result = {
+      ...result,
+      'International UB Pack price': '1.71',
+    };
+  } else if (code === 'IUBUPK') {
+    result = {
+      ...result,
+      'International UB Unpack price': '1.71',
     };
   } else if (code.includes('UPK')) {
     result = {
@@ -412,6 +428,37 @@ describe('International', () => {
   it('returns correct data for PODFSC', () => {
     const result = makeCalculations('PODFSC', 99998, testParams.PortOfDebarkation);
     const expected = testData('PODFSC');
+    testAB(result, expected);
+  });
+});
+
+describe('Unaccompanied Baggage', () => {
+  it('UBP', () => {
+    const result = makeCalculations('UBP', 99999, testParams.InternationalUBPrice);
+    const expected = testData('UBP');
+    testAB(result, expected);
+  });
+
+  it('UBP explicit', () => {
+    const result = makeCalculations('UBP', 99999, testParams.InternationalUBPrice);
+    const expected = {
+      'Billable weight (cwt)': '85 cwt',
+      'International UB price': '1.71',
+      'Price escalation factor': '1.033',
+      'Total:': '$999.99',
+    };
+    testAB(result, expected);
+  });
+
+  it('IUBPK', () => {
+    const result = makeCalculations('IUBPK', 99999, testParams.InternationalUBPackPrice);
+    const expected = testData('IUBPK');
+    testAB(result, expected);
+  });
+
+  it('IUBUPK', () => {
+    const result = makeCalculations('IUBUPK', 99999, testParams.InternationalUBUnpackPrice);
+    const expected = testData('IUBUPK');
     testAB(result, expected);
   });
 });
