@@ -3,6 +3,15 @@
   max-width: 60vw;
   overflow-y: auto;
   max-height: 90vh;
+
+  .errorMessage {
+    margin: 0 auto;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    color: $error;
+    font-size: large;
+  }
 }
 
 .BulkAssignmentTable {

@@ -17,17 +17,37 @@ const initialValues = {
 };
 
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
-  // fetch bulk assignment data
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [numberOfMoves, setNumberOfMoves] = useState(0);
+
+  const errorMessage = 'Cannot assign more moves than are available.';
+
+  const initUserData = (availableOfficeUsers) => {
+    const officeUsers = [];
+    availableOfficeUsers.forEach((user) => {
+      const newUserAssignment = {
+        ID: user.officeUserId,
+        moveAssignments: 0,
+      };
+      officeUsers.push(newUserAssignment);
+    });
+    initialValues.userData = officeUsers;
+    setIsLoading(false);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         getBulkAssignmentData(queueType).then((data) => {
           setBulkAssignmentData(data);
+          initUserData(data?.availableOfficeUsers);
+
           if (data.bulkAssignmentMoveIDs === undefined) {
             setIsDisabled(true);
+            setNumberOfMoves(0);
           }
         });
       } catch (err) {
@@ -46,18 +66,26 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
     assignment: Yup.number().min(0).typeError('Assignment must be a number'),
   });
 
+  if (isLoading) return null;
+
   return (
     <Modal>
       <ModalClose handleClick={() => onClose()} />
       <ModalTitle>
         <h3>
-          {title} (
-          {bulkAssignmentData?.bulkAssignmentMoveIDs == null ? 0 : bulkAssignmentData?.bulkAssignmentMoveIDs?.length})
+          {title} ({numberOfMoves})
         </h3>
       </ModalTitle>
       <div className={styles.BulkAssignmentTable}>
         <Formik
           onSubmit={(values) => {
+            const totalAssignment = values?.userData?.reduce((sum, item) => sum + item.moveAssignments, 0);
+
+            if (totalAssignment > numberOfMoves) {
+              setIsError(true);
+              return;
+            }
+
             const bulkAssignmentSavePayload = values;
             onSubmit({ bulkAssignmentSavePayload });
             onClose();
@@ -145,6 +173,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     {closeText}
                   </button>
                 </ModalActions>
+                {isError && <div className={styles.errorMessage}>{errorMessage}</div>}
               </Form>
             );
           }}

@@ -740,7 +740,7 @@ func (h SaveBulkAssignmentDataHandler) Handle(
 				return queues.NewGetServicesCounselingQueueInternalServerError(), err
 			}
 
-			return queues.NewSaveBulkAssignmentDataOK().WithPayload(nil), nil
+			return queues.NewSaveBulkAssignmentDataOK(), nil
 		})
 }
 
