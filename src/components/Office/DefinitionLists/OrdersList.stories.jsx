@@ -22,6 +22,7 @@ export const Basic = () => (
         ordersNumber: text('ordersInfo.ordersNumber', '999999999'),
         ordersType: text('ordersInfo.ordersType', ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION),
         ordersTypeDetail: text('ordersInfo.ordersTypeDetail', 'HHG_PERMITTED'),
+        dependents: true,
         ordersDocuments: array('ordersInfo.ordersDocuments', [
           {
             'c0a22a98-a806-47a2-ab54-2dac938667b3': {
@@ -60,6 +61,7 @@ export const AsServiceCounselor = () => (
         ordersNumber: '',
         ordersType: '',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: array('ordersInfo.ordersDocuments', [
           {
             'c0a22a98-a806-47a2-ab54-2dac938667b3': {
@@ -98,6 +100,7 @@ export const AsServiceCounselorProcessingRetirement = () => (
         ordersNumber: '',
         ordersType: 'RETIREMENT',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: null,
         tacMDC: '',
         sacSDN: '',
@@ -122,6 +125,7 @@ export const AsServiceCounselorProcessingSeparation = () => (
         ordersNumber: '',
         ordersType: 'SEPARATION',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: null,
         tacMDC: '',
         sacSDN: '',
@@ -145,6 +149,7 @@ export const AsTOO = () => (
         ordersNumber: '',
         ordersType: '',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: array('ordersInfo.ordersDocuments', [
           {
             'c0a22a98-a806-47a2-ab54-2dac938667b3': {
@@ -182,6 +187,7 @@ export const AsTOOProcessingRetirement = () => (
         ordersNumber: '',
         ordersType: 'RETIREMENT',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: null,
         tacMDC: '',
         sacSDN: '',
@@ -205,6 +211,7 @@ export const AsTOOProcessingSeparation = () => (
         ordersNumber: '',
         ordersType: 'SEPARATION',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: null,
         tacMDC: '',
         sacSDN: '',

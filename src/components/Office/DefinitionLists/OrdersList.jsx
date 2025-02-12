@@ -96,6 +96,10 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
           <dt>Orders type detail</dt>
           <dd data-testid="ordersTypeDetail">{ordersTypeDetailReadable(ordersInfo.ordersTypeDetail, missingText)}</dd>
         </div>
+        <div className={descriptionListStyles.row}>
+          <dt>Dependents</dt>
+          <dd data-testid="dependents">{ordersInfo.dependents ? 'Authorized' : 'Unauthorized'}</dd>
+        </div>
         <div
           className={classnames(descriptionListStyles.row, {
             [styles.missingInfoError]: showMissingWarnings && !ordersInfo.ordersDocuments,
