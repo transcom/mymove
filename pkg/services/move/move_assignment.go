@@ -1,8 +1,6 @@
 package move
 
 import (
-	"slices"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -25,9 +23,6 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 	}
 
 	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		// track moves we've already assigned for payment requests
-		var paymentRequestMoveList []uuid.UUID
-
 		for _, move := range movesToAssign {
 			for _, officeUser := range officeUserData {
 				if officeUser != nil && officeUser.MoveAssignments > 0 {
@@ -41,12 +36,7 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 					case string(models.QueueTypeTaskOrder):
 						move.TOOAssignedID = &officeUserId
 					case string(models.QueueTypePaymentRequest):
-						if !slices.Contains(paymentRequestMoveList, move.ID) {
-							move.TIOAssignedID = &officeUserId
-
-							// add move id to list so we can ignore them for the rest of the loop
-							paymentRequestMoveList = append(paymentRequestMoveList, move.ID)
-						}
+						move.TIOAssignedID = &officeUserId
 					}
 
 					officeUser.MoveAssignments -= 1
