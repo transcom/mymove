@@ -668,6 +668,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	dependentsTwelveAndOver := 1
 	authorizedWeight := 8000
 	ubAllowance := 300
+	weightRestriction := 1000
 
 	entitlement := &models.Entitlement{
 		ID:                             entitlementID,
@@ -685,6 +686,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		DependentsTwelveAndOver:        &dependentsTwelveAndOver,
 		UpdatedAt:                      time.Now(),
 		UBAllowance:                    &ubAllowance,
+		WeightRestriction:              &weightRestriction,
 	}
 
 	returnedEntitlement := Entitlement(entitlement)
@@ -706,6 +708,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(models.BoolPointer(accompaniedTour), returnedEntitlement.AccompaniedTour)
 	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
 	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
+	suite.Equal(weightRestriction, int(*returnedEntitlement.WeightRestriction))
 }
 
 func (suite *PayloadsSuite) TestCreateCustomer() {
@@ -1680,6 +1683,83 @@ func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
 		suite.Equal("PORTLAND INTL", payload.PodLocation.PortName, "Expected POD Port Name to match")
 		suite.Nil(payload.PoeLocation, "Expected PODLocation to be nil when PODLocation is set")
 	})
+}
+
+func (suite *PayloadsSuite) TestPPMCloseout() {
+	plannedMoveDate := time.Now()
+	actualMoveDate := time.Now()
+	miles := 1200
+	estimatedWeight := unit.Pound(5000)
+	actualWeight := unit.Pound(5200)
+	proGearWeightCustomer := unit.Pound(300)
+	proGearWeightSpouse := unit.Pound(100)
+	grossIncentive := unit.Cents(100000)
+	gcc := unit.Cents(50000)
+	aoa := unit.Cents(20000)
+	remainingIncentive := unit.Cents(30000)
+	haulType := "Linehaul"
+	haulPrice := unit.Cents(40000)
+	haulFSC := unit.Cents(5000)
+	dop := unit.Cents(10000)
+	ddp := unit.Cents(8000)
+	packPrice := unit.Cents(7000)
+	unpackPrice := unit.Cents(6000)
+	intlPackPrice := unit.Cents(15000)
+	intlUnpackPrice := unit.Cents(14000)
+	intlLinehaulPrice := unit.Cents(13000)
+	sitReimbursement := unit.Cents(12000)
+
+	ppmCloseout := models.PPMCloseout{
+		ID:                    models.UUIDPointer(uuid.Must(uuid.NewV4())),
+		PlannedMoveDate:       &plannedMoveDate,
+		ActualMoveDate:        &actualMoveDate,
+		Miles:                 &miles,
+		EstimatedWeight:       &estimatedWeight,
+		ActualWeight:          &actualWeight,
+		ProGearWeightCustomer: &proGearWeightCustomer,
+		ProGearWeightSpouse:   &proGearWeightSpouse,
+		GrossIncentive:        &grossIncentive,
+		GCC:                   &gcc,
+		AOA:                   &aoa,
+		RemainingIncentive:    &remainingIncentive,
+		HaulType:              (*models.HaulType)(&haulType),
+		HaulPrice:             &haulPrice,
+		HaulFSC:               &haulFSC,
+		DOP:                   &dop,
+		DDP:                   &ddp,
+		PackPrice:             &packPrice,
+		UnpackPrice:           &unpackPrice,
+		IntlPackPrice:         &intlPackPrice,
+		IntlUnpackPrice:       &intlUnpackPrice,
+		IntlLinehaulPrice:     &intlLinehaulPrice,
+		SITReimbursement:      &sitReimbursement,
+	}
+
+	payload := PPMCloseout(&ppmCloseout)
+	suite.NotNil(payload)
+	suite.Equal(ppmCloseout.ID.String(), payload.ID.String())
+	suite.Equal(handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate), payload.PlannedMoveDate)
+	suite.Equal(handlers.FmtDatePtr(ppmCloseout.ActualMoveDate), payload.ActualMoveDate)
+	suite.Equal(handlers.FmtIntPtrToInt64(ppmCloseout.Miles), payload.Miles)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight), payload.EstimatedWeight)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ActualWeight), payload.ActualWeight)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer), payload.ProGearWeightCustomer)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ProGearWeightSpouse), payload.ProGearWeightSpouse)
+	suite.Equal(handlers.FmtCost(ppmCloseout.GrossIncentive), payload.GrossIncentive)
+	suite.Equal(handlers.FmtCost(ppmCloseout.GCC), payload.Gcc)
+	suite.Equal(handlers.FmtCost(ppmCloseout.AOA), payload.Aoa)
+	suite.Equal(handlers.FmtCost(ppmCloseout.RemainingIncentive), payload.RemainingIncentive)
+	suite.Equal((*string)(ppmCloseout.HaulType), payload.HaulType)
+	suite.Equal(handlers.FmtCost(ppmCloseout.HaulPrice), payload.HaulPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.HaulFSC), payload.HaulFSC)
+	suite.Equal(handlers.FmtCost(ppmCloseout.DOP), payload.Dop)
+	suite.Equal(handlers.FmtCost(ppmCloseout.DDP), payload.Ddp)
+	suite.Equal(handlers.FmtCost(ppmCloseout.PackPrice), payload.PackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.UnpackPrice), payload.UnpackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlPackPrice), payload.IntlPackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlUnpackPrice), payload.IntlUnpackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlLinehaulPrice), payload.IntlLinehaulPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.SITReimbursement), payload.SITReimbursement)
 }
 
 func (suite *PayloadsSuite) TestPaymentServiceItemPayload() {
