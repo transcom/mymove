@@ -70,31 +70,80 @@ function testData(code) {
       'Baseline shorthaul price': '1.71',
     };
   }
-  if (code === 'DOP' || code === 'DOFSIT') {
+  if (code === 'DOP' || code === 'DOFSIT' || code === 'DOSHUT') {
     result = {
       ...result,
       'Origin price': '1.71',
     };
-  } else if (code === 'DDP') {
+  } else if (code === 'DDP' || code === 'DDFSIT' || code === 'DDSHUT') {
     result = {
       ...result,
       'Destination price': '1.71',
     };
   }
-  if (!code.includes('FSC')) {
+  if (code === 'ISLH') {
     result = {
       ...result,
-      'Price escalation factor': '1.033',
+      'ISLH price': '1.71',
     };
   }
-  if (code.includes('FSC')) {
+
+  // Packing and Unpacking
+  if (code === 'IHPK') {
     result = {
       ...result,
+      'International Pack price': '1.71',
+    };
+  } else if (code === 'IHUPK') {
+    result = {
+      ...result,
+      'International Unpack price': '1.71',
+    };
+  } else if (code.includes('UPK')) {
+    result = {
+      ...result,
+      'Unpack price': '1.71',
+    };
+  } else if (code.includes('PK')) {
+    result = {
+      ...result,
+      'Pack price': '1.71',
+    };
+  }
+
+  if (code.includes('DNPK')) {
+    result = {
+      ...result,
+      'NTS packing factor': '1.35',
+    };
+  }
+
+  // FSC or not
+  if (code === 'DOSFSC') {
+    result = {
+      ...result,
+      'Mileage into SIT': '29',
+      'SIT mileage factor': '0.012',
+      'Total:': '$999.98',
+    };
+  } else if (code === 'DDSFSC') {
+    result = {
+      ...result,
+      'Mileage out of SIT': '29',
+      'SIT mileage factor': '0.012',
+      'Total:': '$999.98',
+    };
+  } else if (code.includes('FSC')) {
+    result = {
+      ...result,
+      Mileage: '210',
+      'Mileage factor': '0.088',
       'Total:': '$999.98',
     };
   } else {
     result = {
       ...result,
+      'Price escalation factor': '1.033',
       'Total:': '$999.99',
     };
   }
@@ -102,20 +151,17 @@ function testData(code) {
   return result;
 }
 
-function testAB(a, b) {
-  const keys = Object.keys(b);
-  for (let j = 0; j < keys.length; j += 1) {
-    for (let i = 0; i < a.length; i += 1) {
-      if (i < a.length - 1) {
-        if (a[i].label === keys[j]) {
-          expect(a[i].value).toEqual(b[keys[j]]);
-          break;
-        }
-      } else {
-        expect(a[i].value).toEqual(b[keys[j]]);
-        break;
-      }
+function testAB(result, expected) {
+  const expectedKeys = Object.keys(expected);
+  for (let i = 0; i < expectedKeys.length || i < result.length; i += 1) {
+    if (i >= expectedKeys.length) {
+      expect(result[i].label).toEqual('');
     }
+    if (i >= result.length) {
+      expect('').toEqual(expectedKeys[i]);
+    }
+    expect(result[i].label).toEqual(expectedKeys[i]);
+    expect(result[i].value).toEqual(expected[expectedKeys[i]]);
   }
 }
 
@@ -217,19 +263,20 @@ describe('makeCalculations', () => {
 
     testAB(result, expected);
   });
-});
-describe('returns correct data for DomesticDestinationAdditionalSIT', () => {
-  const result = makeCalculations('DDASIT', 99999, testParams.DomesticDestinationAdditionalSIT);
-  const expected = testData('DDASIT');
 
-  testAB(result, expected);
-});
+  it('returns correct data for DomesticDestinationAdditionalSIT', () => {
+    const result = makeCalculations('DDASIT', 99999, testParams.DomesticDestinationAdditionalSIT);
+    const expected = testData('DDASIT');
 
-it('returns correct data for DomesticOriginSITPickup', () => {
-  const result = makeCalculations('DOPSIT', 99999, testParams.DomesticOriginSITPickup);
-  const expected = testData('DOPSIT');
+    testAB(result, expected);
+  });
 
-  testAB(result, expected);
+  it('returns correct data for DomesticOriginSITPickup', () => {
+    const result = makeCalculations('DOPSIT', 99999, testParams.DomesticOriginSITPickup);
+    const expected = testData('DOPSIT');
+
+    testAB(result, expected);
+  });
 });
 
 describe('DomesticDestinationSITDelivery', () => {
@@ -253,7 +300,9 @@ describe('DomesticDestinationSITDelivery', () => {
 
     testAB(result, expected);
   });
+});
 
+describe('Domestic pack, crate, shuttle', () => {
   it('returns correct data for DomesticPacking', () => {
     const result = makeCalculations('DPK', 99999, testParams.DomesticPacking);
     const expected = testData('DPK');
@@ -333,7 +382,9 @@ describe('DomesticDestinationSITDelivery', () => {
 
     testAB(result, expected);
   });
+});
 
+describe('International', () => {
   it('returns correct data for ISLH', () => {
     const result = makeCalculations('ISLH', 99999, testParams.InternationalShippingAndLinehaul);
     const expected = testData('ISLH');
