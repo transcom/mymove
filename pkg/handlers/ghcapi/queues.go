@@ -680,6 +680,70 @@ func (h GetBulkAssignmentDataHandler) Handle(
 		})
 }
 
+// SaveBulkAssignmentDataHandler saves the bulk assignment data
+type SaveBulkAssignmentDataHandler struct {
+	handlers.HandlerConfig
+	services.OfficeUserFetcherPop
+	services.MoveFetcher
+	services.MoveAssigner
+}
+
+func (h SaveBulkAssignmentDataHandler) Handle(
+	params queues.SaveBulkAssignmentDataParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() {
+				err := apperror.NewForbiddenError("not an office user")
+				appCtx.Logger().Error("Must be an office user", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataUnauthorized(), err
+			}
+
+			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataNotFound(), err
+			}
+
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataNotFound(), err
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			if !isSupervisor {
+				appCtx.Logger().Error("Unauthorized", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataUnauthorized(), err
+			}
+
+			queueType := params.BulkAssignmentSavePayload.QueueType
+			moveData := params.BulkAssignmentSavePayload.MoveData
+			userData := params.BulkAssignmentSavePayload.UserData
+
+			// fetch the moves available to be assigned to their office users
+			movesForAssignment, err := h.MoveFetcher.FetchMovesByIdArray(appCtx, moveData)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving moves for assignment", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataInternalServerError(), err
+			}
+
+			_, err = h.MoveAssigner.BulkMoveAssignment(appCtx, queueType, userData, movesForAssignment)
+			if err != nil {
+				appCtx.Logger().Error("Error assigning moves", zap.Error(err))
+				return queues.NewGetBulkAssignmentDataInternalServerError(), err
+			}
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+			}
+
+			return queues.NewSaveBulkAssignmentDataOK().WithPayload(nil), nil
+		})
+}
+
 // GetServicesCounselingOriginListHandler returns the origin list for the Service Counselor user via GET /queues/counselor/origin-list
 type GetServicesCounselingOriginListHandler struct {
 	handlers.HandlerConfig

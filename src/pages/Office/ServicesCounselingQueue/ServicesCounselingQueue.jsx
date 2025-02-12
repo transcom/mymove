@@ -17,6 +17,7 @@ import {
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
   SERVICE_COUNSELING_PPM_STATUS_OPTIONS,
   SERVICE_COUNSELING_PPM_STATUS_LABELS,
+  QUEUE_TYPES,
 } from 'constants/queues';
 import { generalRoutes, servicesCounselingRoutes } from 'constants/routes';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
@@ -29,8 +30,8 @@ import {
 } from 'hooks/queries';
 import {
   getServicesCounselingOriginLocations,
-  getServicesCounselingQueue,
   getServicesCounselingPPMQueue,
+  getServicesCounselingQueue,
 } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
@@ -52,8 +53,15 @@ import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSe
 import handleQueueAssignment from 'utils/queues';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
+import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
-export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => {
+export const counselingColumns = (
+  moveLockFlag,
+  originLocationList,
+  supervisor,
+  isQueueManagementEnabled,
+  setRefetchQueue,
+) => {
   const cols = [
     createHeader(
       ' ',
@@ -204,13 +212,20 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
           ) : (
             <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
               <Dropdown
-                defaultValue={row.assignedTo?.officeUserId}
-                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
+                key={row.id}
+                onChange={(e) => {
+                  handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR);
+                  setRefetchQueue(true);
+                }}
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
                 {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
-                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                  <option
+                    value={officeUserId}
+                    key={officeUserId}
+                    selected={row.assignedTo?.officeUserId === officeUserId}
+                  >
                     {`${lastName}, ${firstName}`}
                   </option>
                 ))}
@@ -236,6 +251,7 @@ export const closeoutColumns = (
   ppmCloseoutOriginLocationList,
   supervisor,
   isQueueManagementEnabled,
+  setRefetchQueue,
 ) => {
   const cols = [
     createHeader(
@@ -401,13 +417,19 @@ export const closeoutColumns = (
           ) : (
             <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
               <Dropdown
-                defaultValue={row.assignedTo?.officeUserId}
-                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
+                onChange={(e) => {
+                  handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR);
+                  setRefetchQueue(true);
+                }}
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
                 {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
-                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                  <option
+                    value={officeUserId}
+                    key={officeUserId}
+                    selected={row.assignedTo?.officeUserId === officeUserId}
+                  >
                     {`${lastName}, ${firstName}`}
                   </option>
                 ))}
@@ -433,6 +455,7 @@ const ServicesCounselingQueue = ({
   isQueueManagementFFEnabled,
   officeUser,
   isBulkAssignmentFFEnabled,
+  setRefetchQueue,
 }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
@@ -658,6 +681,7 @@ const ServicesCounselingQueue = ({
             ppmCloseoutOriginLocationList,
             supervisor,
             isQueueManagementFFEnabled,
+            setRefetchQueue,
           )}
           title="Moves"
           handleClick={handleClick}
@@ -670,6 +694,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          queueType={QUEUE_TYPES.CLOSEOUT}
         />
       </div>
     );
@@ -687,7 +712,13 @@ const ServicesCounselingQueue = ({
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag, originLocationList, supervisor, isQueueManagementFFEnabled)}
+          columns={counselingColumns(
+            moveLockFlag,
+            originLocationList,
+            supervisor,
+            isQueueManagementFFEnabled,
+            setRefetchQueue,
+          )}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}
@@ -699,6 +730,7 @@ const ServicesCounselingQueue = ({
           key={queueType}
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          queueType={QUEUE_TYPES.COUNSELING}
         />
       </div>
     );
@@ -745,7 +777,10 @@ const mapStateToProps = (state) => {
 
   return {
     officeUser: user?.office_user || {},
+    setRefetchQueue: state.generalState.setRefetchQueue,
   };
 };
 
-export default connect(mapStateToProps)(ServicesCounselingQueue);
+const mapDispatchToProps = { setRefetchQueue: setRefetchQueueAction };
+
+export default connect(mapStateToProps, mapDispatchToProps)(ServicesCounselingQueue);
