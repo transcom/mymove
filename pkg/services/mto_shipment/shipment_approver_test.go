@@ -1132,7 +1132,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		}
 		expectedReServiceNames := []string{
 			"International UB price",
-			"International POE Fuel Surcharge",
+			"International POE fuel surcharge",
 			"International UB pack",
 			"International UB unpack",
 		}
@@ -1200,7 +1200,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		}
 		expectedReServiceNames := []string{
 			"International UB price",
-			"International POD Fuel Surcharge",
+			"International POD fuel surcharge",
 			"International UB pack",
 			"International UB unpack",
 		}

@@ -178,7 +178,7 @@ const moveTaskOrder = {
       id: 'serviceItemPOEFSC',
       moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
       mtoShipmentID: '6',
-      reServiceName: 'International POD Fuel Surcharge',
+      reServiceName: 'International POD fuel surcharge',
       status: 'APPROVED',
     },
     {
@@ -187,7 +187,7 @@ const moveTaskOrder = {
       id: 'serviceItemPOEFSC',
       moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
       mtoShipmentID: '5',
-      reServiceName: 'International POE Fuel Surcharge',
+      reServiceName: 'International POE fuel surcharge',
       status: 'APPROVED',
     },
   ],

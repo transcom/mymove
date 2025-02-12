@@ -904,7 +904,7 @@ func (suite *PayloadsSuite) TestReServiceItem() {
 		isAutoApproved := true
 		marketCodeInternational := models.MarketCodeInternational
 		reServiceCode := models.ReServiceCodePOEFSC
-		poefscServiceName := "International POE Fuel Surcharge"
+		poefscServiceName := "International POE fuel surcharge"
 		reService := models.ReService{
 			Code: reServiceCode,
 			Name: poefscServiceName,
@@ -936,8 +936,8 @@ func (suite *PayloadsSuite) TestReServiceItems() {
 		marketCodeDomestic := models.MarketCodeDomestic
 		poefscReServiceCode := models.ReServiceCodePOEFSC
 		podfscReServiceCode := models.ReServiceCodePODFSC
-		poefscServiceName := "International POE Fuel Surcharge"
-		podfscServiceName := "International POD Fuel Surcharge"
+		poefscServiceName := "International POE fuel surcharge"
+		podfscServiceName := "International POD fuel surcharge"
 		poefscService := models.ReService{
 			Code: poefscReServiceCode,
 			Name: poefscServiceName,
