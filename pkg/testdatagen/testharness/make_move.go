@@ -9613,3 +9613,379 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 
 	return *newmove
 }
+
+// MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO creates an iHHG move
+// that has been approved by TOO & prime has requested payment for intl crating and uncrating service items
+func MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	// Create Customer
+	userInfo := newUserInfo("customer")
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+	}, nil)
+
+	// address setup
+	addressAK := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 Cold St",
+				City:           "Anchorage",
+				State:          "AK",
+				PostalCode:     "99505",
+			},
+		},
+	}, nil)
+	destDutyLocationAK := factory.BuildDutyLocation(appCtx.DB(), []factory.Customization{
+		{
+			Model:    addressAK,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// orders setup using AK destination duty location
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+		{
+			Model: models.Order{
+				NewDutyLocationID: destDutyLocationAK.ID,
+			},
+		},
+	}, nil)
+
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
+
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
+				PostalCode: "85004",
+			},
+		},
+	}, nil)
+	alaskaDestAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 Cold St",
+				City:           "Anchorage",
+				State:          "AK",
+				PostalCode:     "99505",
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(2000)
+	actualWeight := unit.Pound(2000)
+	mtoShipmentHHG := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				MarketCode:           models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model:    alaskaDestAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create Releasing Agent
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	paymentRequestHHG := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// for soft deleted proof of service docs
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		},
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
+
+	currentTime := time.Now()
+
+	cratingPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameEscalationCompounded,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.FormatFloat(1.125, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1.71",
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetBilled,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   "4.00",
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetCrating,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   "1",
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameStandaloneCrate,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(true),
+		},
+		{
+			Key:     models.ServiceItemParamNameStandaloneCrateCap,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.FormatInt(100000, 10),
+		},
+		{
+			Key:     models.ServiceItemParamNameMarketOrigin,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "O",
+		},
+		{
+			Key:     models.ServiceItemParamNameExternalCrate,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(true),
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionHeight,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionLength,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionWidth,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1",
+		},
+	}
+	desc := "description test"
+	icrt := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:          models.MTOServiceItemStatusApproved,
+				Description:     &desc,
+				StandaloneCrate: models.BoolPointer(true),
+				ExternalCrate:   models.BoolPointer(true),
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeICRT,
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItemWithParams(appCtx.DB(), models.ReServiceCodeICRT,
+		cratingPaymentServiceItemParams, []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    icrt,
+				LinkOnly: true,
+			},
+		}, nil)
+
+	iucrt := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:      models.MTOServiceItemStatusApproved,
+				Description: &desc,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeIUCRT,
+			},
+		},
+	}, nil)
+
+	unCratingPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameEscalationCompounded,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.FormatFloat(1.125, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1.71",
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetBilled,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   "8",
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameMarketDest,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "O",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionHeight,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "2",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionLength,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "2",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionWidth,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "2",
+		},
+	}
+
+	factory.BuildPaymentServiceItemWithParams(appCtx.DB(), models.ReServiceCodeIUCRT,
+		unCratingPaymentServiceItemParams, []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    iucrt,
+				LinkOnly: true,
+			},
+		}, nil)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	// load payment requests so tests can confirm
+	err = appCtx.DB().Load(newmove, "PaymentRequests")
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
+	}
+
+	return *newmove
+}

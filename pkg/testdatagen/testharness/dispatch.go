@@ -275,6 +275,9 @@ var actionDispatcher = map[string]actionFunc{
 	"InternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx)
 	},
+	"IntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO(appCtx)
+	},
 }
 
 func Actions() []string {
