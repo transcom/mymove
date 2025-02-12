@@ -121,6 +121,7 @@ func TestProcessTPPSS3Failure(t *testing.T) {
 	args := []string{
 		"--tpps_s3_bucket=test-bucket",
 		"--tpps_s3_folder=test-folder",
+		"--process_tpps_custom_date_file=MILMOVE-en20250212.csv",
 	}
 
 	err := mockCmd.ParseFlags(args)
