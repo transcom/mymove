@@ -102,7 +102,7 @@ func FetchUserUpload(db *pop.Connection, session *auth.Session, id uuid.UUID) (U
 	// If there's a document, check permissions. Otherwise user must
 	// have been the uploader
 	if userUpload.DocumentID != nil {
-		_, docErr := FetchDocument(db, session, *userUpload.DocumentID, false)
+		_, docErr := FetchDocument(db, session, *userUpload.DocumentID)
 		if docErr != nil {
 			return UserUpload{}, docErr
 		}
@@ -129,7 +129,7 @@ func FetchUserUploadFromUploadID(db *pop.Connection, session *auth.Session, uplo
 	// If there's a document, check permissions. Otherwise user must
 	// have been the uploader
 	if userUpload.DocumentID != nil {
-		_, docErr := FetchDocument(db, session, *userUpload.DocumentID, false)
+		_, docErr := FetchDocument(db, session, *userUpload.DocumentID)
 		if docErr != nil {
 			return UserUpload{}, docErr
 		}
