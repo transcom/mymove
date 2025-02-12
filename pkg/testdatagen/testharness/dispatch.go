@@ -275,6 +275,9 @@ var actionDispatcher = map[string]actionFunc{
 	"InternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx)
 	},
+	"IntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO(appCtx)
+	},
 	// basic iHHG move with CONUS -> AK needing TOO approval
 	"IntlHHGMoveDestAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeIntlHHGMoveDestAKZone1Army(appCtx)
