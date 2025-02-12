@@ -640,7 +640,6 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 
 	return order, nil
 }
-
 func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext, doc *models.Document) (*models.Document, error) {
 	var docID uuid.UUID
 	if doc != nil {

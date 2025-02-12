@@ -759,6 +759,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		WeightRestriction: weightRestriction,
 		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
+
 }
 
 // DutyLocation payload
