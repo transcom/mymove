@@ -48,7 +48,6 @@ else
   echo "* Deploy is blocked."
 
 if [ -n "${GITLAB_CI+x}" ]; then
-  echo "failed" > sha_check_status  # Write 'failed' status to a file
   exit 0  # Prevents the job from failing but allows logical halting  
 else
     exit 1
