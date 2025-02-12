@@ -219,6 +219,10 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 	if entitlement.UBAllowance != nil {
 		ubAllowance = int64(*entitlement.UBAllowance)
 	}
+	var weightRestriction int64
+	if entitlement.WeightRestriction != nil {
+		weightRestriction = int64(*entitlement.WeightRestriction)
+	}
 	return &primev3messages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -230,10 +234,11 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
 		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		StorageInTransit: sit,
-		TotalDependents:  totalDependents,
-		TotalWeight:      totalWeight,
-		ETag:             etag.GenerateEtag(entitlement.UpdatedAt),
+		StorageInTransit:  sit,
+		TotalDependents:   totalDependents,
+		TotalWeight:       totalWeight,
+		WeightRestriction: &weightRestriction,
+		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -354,14 +359,12 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev3messages.MTOAgents {
 	if mtoAgents == nil {
 		return nil
 	}
-
 	agents := make(primev3messages.MTOAgents, len(*mtoAgents))
 
 	for i, m := range *mtoAgents {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		agents[i] = MTOAgent(&copyOfM)
 	}
-
 	return &agents
 }
 

@@ -24,7 +24,13 @@ import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMov
 import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
 import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
 import { useMoveDetailsQueries } from 'hooks/queries';
-import { updateMoveStatus, updateMTOShipmentStatus, cancelMove, updateFinancialFlag } from 'services/ghcApi';
+import {
+  updateMoveStatus,
+  updateMTOShipmentStatus,
+  cancelMove,
+  updateFinancialFlag,
+  updateMultipleShipmentStatus,
+} from 'services/ghcApi';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
@@ -133,12 +139,23 @@ const MoveDetails = ({
     },
   });
 
-  const { mutate: mutateMTOShipmentStatus } = useMutation(updateMTOShipmentStatus, {
+  const { mutateAsync: mutateMTOShipmentStatus } = useMutation(updateMTOShipmentStatus, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
       queryClient.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
+    },
+  });
+
+  const { mutateAsync: mutateMultipleShipmentStatuses } = useMutation(updateMultipleShipmentStatus, {
+    onSuccess: (updatedMTOShipments) => {
+      updatedMTOShipments.forEach((updatedMTOShipment) => {
+        mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+        queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+        queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+        queryClient.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
+      });
     },
   });
 
@@ -431,6 +448,7 @@ const MoveDetails = ({
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
+    weightRestriction: allowances.weightRestriction,
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,
@@ -585,6 +603,7 @@ const MoveDetails = ({
                 customerInfo={customerInfo}
                 approveMTO={mutateMoveStatus}
                 approveMTOShipment={mutateMTOShipmentStatus}
+                approveMultipleShipments={mutateMultipleShipmentStatuses}
                 moveTaskOrder={move}
                 missingRequiredOrdersInfo={hasMissingOrdersRequiredInfo}
                 handleAfterSuccess={navigate}
