@@ -82,7 +82,7 @@ func main() {
 		Short:        "process TPPS files asynchrounously",
 		Long:         "process TPPS files asynchrounously",
 		RunE:         processTPPS,
-		SilenceUsage: false,
+		SilenceUsage: true,
 	}
 	initProcessTPPSFlags(processTPPSCommand.Flags())
 	root.AddCommand(processTPPSCommand)
