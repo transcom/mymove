@@ -60,8 +60,8 @@ const RejectedOfficeUserList = () => (
       <TextField source="status" />
       <TextField source="rejectionReason" label="Reason for rejection" />
       <DateField showTime source="rejectedOn" label="Rejected on" />
-      <ReferenceField label="Rejected Roles" source="id" reference="rejected-office-users" link={false}>
-        <RejectedOfficeUserShowRoles source="roles" label="Rejected Roles" />
+      <ReferenceField label="Roles Requested" source="id" reference="rejected-office-users" link={false}>
+        <RejectedOfficeUserShowRoles source="roles" />
       </ReferenceField>
     </Datagrid>
   </List>

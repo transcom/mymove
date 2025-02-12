@@ -15,21 +15,21 @@ type rejectedOfficeUserListFetcher struct {
 	builder rejectedOfficeUsersListQueryBuilder
 }
 
-// FetchAdminUserList uses the passed query builder to fetch a list of office users
+// FetchRejectedUserList uses the passed query builder to fetch a list of office users
 func (o *rejectedOfficeUserListFetcher) FetchRejectedOfficeUsersList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.OfficeUsers, error) {
 	var rejectedUsers models.OfficeUsers
 	err := o.builder.FetchMany(appCtx, &rejectedUsers, filters, associations, pagination, ordering)
 	return rejectedUsers, err
 }
 
-// FetchAdminUserList uses the passed query builder to fetch a list of office users
+// FetchRejectedUserList uses the passed query builder to fetch a list of office users
 func (o *rejectedOfficeUserListFetcher) FetchRejectedOfficeUsersCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
 	var rejectedUsers models.OfficeUsers
 	count, err := o.builder.Count(appCtx, &rejectedUsers, filters)
 	return count, err
 }
 
-// NewAdminUserListFetcher returns an implementation of AdminUserListFetcher
+// NewRejectedUserListFetcher returns an implementation of RejectedUserListFetcher
 func NewRejectedOfficeUsersListFetcher(builder rejectedOfficeUsersListQueryBuilder) services.RejectedOfficeUserListFetcher {
 	return &rejectedOfficeUserListFetcher{builder}
 }
