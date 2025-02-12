@@ -133,9 +133,9 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   }, [selectedFile, isFileUploading, isJustUploadedFile]);
   useEffect(() => {
     if (fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
-      new Promise((resolve) => {
-        setTimeout(resolve, 2000);
-      }).then(() => setFileStatus(UPLOAD_DOC_STATUS.LOADED));
+      setTimeout(() => {
+        setFileStatus(UPLOAD_DOC_STATUS.LOADED);
+      }, 2000);
     }
   }, [fileStatus]);
   const fileType = useRef(selectedFile?.contentType);
@@ -159,9 +159,8 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   };
 
   const alertMessage = getStatusMessage(fileStatus, selectedFile);
-  const alertType = fileStatus && fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'error' : 'info';
-  const alertHeading =
-    fileStatus && fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'Ask for a new file' : 'Document Status';
+  const alertType = fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'error' : 'info';
+  const alertHeading = fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'Ask for a new file' : 'Document Status';
   if (alertMessage) {
     return (
       <Alert type={alertType} className="usa-width-one-whole" heading={alertHeading} data-testid="documentAlertHeading">
