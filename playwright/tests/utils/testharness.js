@@ -410,6 +410,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build ihhg move for TIO
+   * @returns {Promise<Move>}
+   */
+  async buildIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO() {
+    return this.buildDefault('IntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO');
+  }
+
+  /**
    * Use testharness to build hhg move for QAE
    * @returns {Promise<Move>}
    */
