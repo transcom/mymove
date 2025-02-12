@@ -57,12 +57,16 @@
 
   .confirmButtons {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 10px;
     padding: 10px;
+    max-height: 42px;
   }
 
   .cancelYesButton {
-    font-size: small;
+    font-size: 12px;
     max-width: 100px;
+    height: 42px;
+    align-items: center;
   }
 }
