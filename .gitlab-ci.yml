@@ -45,7 +45,6 @@ variables:
 
   RUNNER_TAG: &runner_tag milmove
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
-  DYNAMIC_RUNNER: &dynamic_runner $Gitlab_Runner_Tag
 
 
   postgres: &postgres postgres:16.4
@@ -324,7 +323,7 @@ stages:
 sast:
   stage: pre_checks
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   interruptible: true
 include:
 - template: Jobs/SAST.gitlab-ci.yml
@@ -334,7 +333,7 @@ include:
 anti_virus:
   stage: pre_checks
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: milmove/clamav-ci # Custom image with ClamAV pre-installed
   script:
     - pwd
@@ -366,7 +365,7 @@ prep_server_hosted_client_deps:
   stage: pre_checks
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_milmove_env
@@ -383,7 +382,7 @@ pre_deps_golang:
   stage: pre_checks
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_milmove_env
@@ -414,7 +413,7 @@ golang_lint:
   stage: pre_checks
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
   script:
     - golangci-lint run --print-issued-lines=false --timeout=25m --out-format code-climate:gl-code-quality-report.json,line-number
@@ -431,7 +430,7 @@ golang_lint:
 #   stage: pre_checks
 #   interruptible: true
 #   tags:
-#     - $DYNAMIC_RUNNER
+#     - $Gitlab_Runner_Tag
 #   image: $DOCKER_APP_IMAGE
 #   services:
 #     - name: docker:dind
@@ -498,7 +497,7 @@ pre_deps_yarn:
   stage: pre_checks
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_milmove_env
@@ -529,7 +528,7 @@ check_tls_certificate_dp3:
   stage: pre_checks
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE # Replace with your appropriate Docker image.
   before_script:
     - *setup_aws_vars_dp3
@@ -554,7 +553,7 @@ check_tls_certificate_stg:
   stage: pre_checks
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_aws_vars_stg
@@ -569,7 +568,7 @@ check_tls_certificate_prd:
   stage: pre_checks
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_tls_vars_prd
@@ -584,7 +583,7 @@ build_storybook:
   stage: build
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "4"
@@ -613,7 +612,7 @@ deploy_storybook_dp3:
   stage: deploy
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -637,7 +636,7 @@ compile_app_client:
   stage: build
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   cache:
     - <<: *yarn_cache
@@ -670,7 +669,7 @@ compile_app_server:
   stage: build
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   cache:
     - <<: *go_cache
@@ -718,7 +717,7 @@ prep_integration_docker_microservice:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -740,7 +739,7 @@ pre_test:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   cache:
     - <<: *go_cache
@@ -799,7 +798,7 @@ server_test:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
@@ -871,7 +870,7 @@ server_test_coverage:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
@@ -902,7 +901,7 @@ client_test:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "4"
@@ -940,7 +939,7 @@ client_test_coverage:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -964,7 +963,7 @@ integration_test_devseed:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   services:
     - name: $postgres
@@ -1010,7 +1009,7 @@ integration_tests:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -1035,7 +1034,7 @@ integration_test_mtls:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   services:
     - name: $postgres
@@ -1137,7 +1136,7 @@ integration_test_admin:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   services:
     - name: $postgres
@@ -1191,7 +1190,7 @@ integration_test_my:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   services:
     - name: $postgres
@@ -1246,7 +1245,7 @@ integration_test_office:
   stage: test
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   services:
     - name: $postgres
@@ -1303,7 +1302,7 @@ build_push_app_dp3:
   stage: push
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: $DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1327,7 +1326,7 @@ build_push_migrations_dp3:
   stage: push
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: $DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1351,7 +1350,7 @@ build_push_tasks_dp3:
   stage: push
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: $DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1375,7 +1374,7 @@ push_otel_collector_image_dp3:
   stage: push
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: $DP3_ENV
   before_script:
     - *setup_aws_vars_dp3
@@ -1411,7 +1410,7 @@ deploy_migrations_dp3:
   stage: deploy
   resource_group: $DP3_ENV_migration
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
@@ -1443,7 +1442,7 @@ deploy_tasks_dp3:
   stage: deploy
   resource_group: $DP3_ENV_task
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
@@ -1472,7 +1471,7 @@ deploy_app_client_tls_dp3:
   stage: deploy
   resource_group: $DP3_ENV_client
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
@@ -1514,7 +1513,7 @@ deploy_app_dp3:
   stage: deploy
   resource_group: $DP3_ENV_app
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
@@ -1569,7 +1568,7 @@ build_push_app_stg:
   stage: push
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1593,7 +1592,7 @@ build_push_migrations_stg:
   stage: push
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1617,7 +1616,7 @@ build_push_tasks_stg:
   stage: push
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1641,7 +1640,7 @@ push_otel_collector_image_stg:
   stage: push
   interruptible: true
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: stg
   image:
     name: $DOCKER_BASE_IMAGE
@@ -1677,7 +1676,7 @@ deploy_migrations_stg:
   stage: deploy
   resource_group: staging_migration
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1709,7 +1708,7 @@ deploy_tasks_stg:
   stage: deploy
   resource_group: staging_task
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1779,7 +1778,7 @@ deploy_app_stg:
   stage: deploy
   resource_group: staging_app
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1834,7 +1833,7 @@ prod_approval:
   stage: prod_approval
   resource_group: production
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: prd_approval
   needs:
       - compile_app_client
@@ -1875,7 +1874,7 @@ build_push_migrations_prd:
   stage: push_prd
   resource_group: production_migration
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: prd
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1901,7 +1900,7 @@ build_push_tasks_prd:
   resource_group: production_task
   environment: prd
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -1925,7 +1924,7 @@ push_otel_collector_image_prd:
   stage: push_prd
   resource_group: production_otel
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: prd
   image:
     name: $DOCKER_BASE_IMAGE
@@ -1963,7 +1962,7 @@ deploy_migrations_prd:
   resource_group: production_migration
   environment: prd
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -1995,7 +1994,7 @@ deploy_tasks_prd:
   resource_group: production_task
   environment: prd
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -2024,7 +2023,7 @@ deploy_app_client_tls_prd:
   resource_group: production_client
   environment: prd
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -2066,7 +2065,7 @@ deploy_app_prd:
   stage: deploy_prd
   resource_group: production_app
   tags:
-    - $DYNAMIC_RUNNER
+    - $Gitlab_Runner_Tag
   environment: prd
   image:
     name: $DOCKER_APP_IMAGE
