@@ -2331,7 +2331,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
 	})
 
-	suite.Run("PATCH failure - valid AK address FF is on", func() {
+	suite.Run("PATCH success - valid AK address FF is on", func() {
 		// Under Test: UpdateMTOShipmentHandler
 		// Setup:   Set an valid AK address but turn FF on
 		// Expected:   200 Response returned
