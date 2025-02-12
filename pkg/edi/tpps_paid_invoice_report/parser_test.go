@@ -139,4 +139,22 @@ func (suite *TPPSPaidInvoiceSuite) TestParse() {
 		suite.NoError(err, "Successful parse of TPPS Paid Invoice string")
 		suite.Equal(842, len(tppsEntries))
 	})
+
+	suite.Run("fails when TPPS data file path is empty", func() {
+		tppsPaidInvoice := TPPSData{}
+		tppsEntries, err := tppsPaidInvoice.Parse(suite.AppContextForTest(), "")
+
+		suite.Nil(tppsEntries)
+		suite.Error(err)
+		suite.Contains(err.Error(), "TPPS data file path is empty")
+	})
+
+	suite.Run("fails when file is not found", func() {
+		tppsPaidInvoice := TPPSData{}
+		tppsEntries, err := tppsPaidInvoice.Parse(suite.AppContextForTest(), "non_existent_file.csv")
+
+		suite.Nil(tppsEntries)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Unable to read TPPS paid invoice report from path non_existent_file.csv")
+	})
 }
