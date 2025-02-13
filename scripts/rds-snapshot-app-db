@@ -19,17 +19,35 @@ db_snapshot_identifier=$db_instance_identifier-$(date +%s)
 readonly db_snapshot_identifier
 readonly tags=("Key=Environment,Value=$environment" "Key=Tool,Value=$(basename "$0")")
 
+
 echo
 echo "Wait for concurrent database snapshots for ${db_instance_identifier} to complete before continuing ..."
-time aws rds wait db-snapshot-completed --cli-read-timeout 2100 --cli-connect-timeout 2100  --db-instance-identifier "$db_instance_identifier"
+time aws rds wait db-snapshot-completed  --db-instance-identifier "$db_instance_identifier"
+
 
 echo
 echo "Create database snapshot for ${db_instance_identifier} with identifier ${db_snapshot_identifier}"
-aws rds create-db-snapshot --cli-read-timeout 2100 --cli-connect-timeout 2100 --db-instance-identifier "$db_instance_identifier" --db-snapshot-identifier "$db_snapshot_identifier" --tags "${tags[@]}"
+
+
+aws rds create-db-snapshot --db-instance-identifier "$db_instance_identifier" --db-snapshot-identifier "$db_snapshot_identifier" --tags "${tags[@]}"
+
+#we want to loop whild status is not available and check after initiating the create
+while true; do
+  db_description=$(aws rds describe-db-snapshots --db-snapshot-identifier "$db_snapshot_identifier")
+  db_status=$(echo "${db_description}" | jq -r ".DBSnapshots[].Status")
+  echo "${db_snapshot_identifier} -- ${db_status}"
+  if [[ "${db_status}" == "available" ]]; then
+    break
+  fi
+  sleep 15
+done
+
+
+#unnecessary confirm but will leave in
 
 echo
 echo "Wait for current database snapshot ${db_snapshot_identifier} to complete before continuing ..."
-time aws rds wait db-snapshot-completed --cli-read-timeout 2100 --cli-connect-timeout 2100  --db-snapshot-identifier "$db_snapshot_identifier"
+time aws rds wait db-snapshot-completed  --db-snapshot-identifier "$db_snapshot_identifier"
 
 echo
 echo "Describe the database snapshot ${db_snapshot_identifier}"
