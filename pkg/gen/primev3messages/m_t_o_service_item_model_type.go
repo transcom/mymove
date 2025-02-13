@@ -19,6 +19,8 @@ import (
 // Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
 //   - DOFSIT, DOASIT - MTOServiceItemOriginSIT
 //   - DDFSIT, DDASIT - MTOServiceItemDestSIT
+//   - IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT
+//   - IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT
 //   - DOSHUT, DDSHUT - MTOServiceItemShuttle
 //   - IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle
 //   - DCRT, DUCRT - MTOServiceItemDomesticCrating
@@ -50,6 +52,12 @@ const (
 	// MTOServiceItemModelTypeMTOServiceItemDestSIT captures enum value "MTOServiceItemDestSIT"
 	MTOServiceItemModelTypeMTOServiceItemDestSIT MTOServiceItemModelType = "MTOServiceItemDestSIT"
 
+	// MTOServiceItemModelTypeMTOServiceItemInternationalOriginSIT captures enum value "MTOServiceItemInternationalOriginSIT"
+	MTOServiceItemModelTypeMTOServiceItemInternationalOriginSIT MTOServiceItemModelType = "MTOServiceItemInternationalOriginSIT"
+
+	// MTOServiceItemModelTypeMTOServiceItemInternationalDestSIT captures enum value "MTOServiceItemInternationalDestSIT"
+	MTOServiceItemModelTypeMTOServiceItemInternationalDestSIT MTOServiceItemModelType = "MTOServiceItemInternationalDestSIT"
+
 	// MTOServiceItemModelTypeMTOServiceItemShuttle captures enum value "MTOServiceItemShuttle"
 	MTOServiceItemModelTypeMTOServiceItemShuttle MTOServiceItemModelType = "MTOServiceItemShuttle"
 
@@ -71,7 +79,7 @@ var mTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []MTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemOriginSIT","MTOServiceItemDestSIT","MTOServiceItemShuttle","MTOServiceItemInternationalShuttle","MTOServiceItemDomesticCrating","MTOServiceItemInternationalCrating","MTOSerivceItemInternationalFuelSurcharge"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemOriginSIT","MTOServiceItemDestSIT","MTOServiceItemInternationalOriginSIT","MTOServiceItemInternationalDestSIT","MTOServiceItemShuttle","MTOServiceItemInternationalShuttle","MTOServiceItemDomesticCrating","MTOServiceItemInternationalCrating","MTOSerivceItemInternationalFuelSurcharge"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

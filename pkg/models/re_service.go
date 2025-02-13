@@ -86,6 +86,8 @@ const (
 	ReServiceCodeIDDSIT ReServiceCode = "IDDSIT"
 	// ReServiceCodeIDFSIT International destination 1st day SIT
 	ReServiceCodeIDFSIT ReServiceCode = "IDFSIT"
+	// ReServiceCodeIDSFSC International destination SIT FSC
+	ReServiceCodeIDSFSC ReServiceCode = "IDSFSC"
 	// ReServiceCodeIDSHUT International destination shuttle service
 	ReServiceCodeIDSHUT ReServiceCode = "IDSHUT"
 	// ReServiceCodeIHPK International HHG pack
@@ -108,6 +110,8 @@ const (
 	ReServiceCodeIOOUB ReServiceCode = "IOOUB"
 	// ReServiceCodeIOPSIT International origin SIT pickup
 	ReServiceCodeIOPSIT ReServiceCode = "IOPSIT"
+	// ReServiceCodeIOSFSC International origin SIT FSC
+	ReServiceCodeIOSFSC ReServiceCode = "IOSFSC"
 	// ReServiceCodeIOSHUT International origin shuttle service
 	ReServiceCodeIOSHUT ReServiceCode = "IOSHUT"
 	// ReServiceCodeIUBPK International UB pack
