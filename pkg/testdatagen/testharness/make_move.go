@@ -10247,69 +10247,69 @@ func MakeIntlHHGMoveOriginShuttleRequestedAKZone2USMC(appCtx appcontext.AppConte
 // these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
 // containing an international destination shuttle request in SUBMITTED status
 func MakeIntlHHGMoveDestShuttleRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, false, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
 func MakeIntlHHGMoveDestShuttleRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, false, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
 func MakeIntlHHGMoveDestShuttleRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, false, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
 func MakeIntlHHGMoveDestShuttleRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, false, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
 func MakeIntlHHGMoveDestShuttleRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, false, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
 func MakeIntlHHGMoveDestShuttleRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, false, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
 func MakeIntlHHGMoveDestShuttleRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, false, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
 func MakeIntlHHGMoveDestShuttleRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, false, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
 // these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
 // containing BOTH international origin & destination shuttle requests in SUBMITTED status
 func MakeIntlHHGMoveBothShuttleRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, true, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
 func MakeIntlHHGMoveBothShuttleRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, true, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
 func MakeIntlHHGMoveBothShuttleRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, true, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
 func MakeIntlHHGMoveBothShuttleRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, true, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
 func MakeIntlHHGMoveBothShuttleRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, true, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
 func MakeIntlHHGMoveBothShuttleRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, true, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
 func MakeIntlHHGMoveBothShuttleRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, true, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
 }
 
 func MakeIntlHHGMoveBothShuttleRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
-	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+	return makeIntlHHGMoveShuttleRequested(appCtx, false, true, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
 }
 
 // makeIntlHHGMoveDestAddressRequested creates an international HHG move
@@ -10359,7 +10359,23 @@ func makeIntlHHGMoveDestAddressRequested(
 		},
 	}, nil)
 
+	var departmentIndicator *string = nil
+	if affiliation == models.AffiliationAIRFORCE || affiliation == models.AffiliationSPACEFORCE {
+		departmentIndicator = models.StringPointer(models.DepartmentIndicatorAIRANDSPACEFORCE.String())
+	} else if affiliation == models.AffiliationNAVY || affiliation == models.AffiliationMARINES {
+		departmentIndicator = models.StringPointer(models.DepartmentIndicatorNAVYANDMARINES.String())
+	} else if affiliation == models.AffiliationARMY {
+		departmentIndicator = models.StringPointer(models.DepartmentIndicatorARMY.String())
+	} else if affiliation == models.AffiliationCOASTGUARD {
+		departmentIndicator = models.StringPointer(models.DepartmentIndicatorCOASTGUARD.String())
+	}
+
 	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				DepartmentIndicator: departmentIndicator,
+			},
+		},
 		{
 			Model:    customer,
 			LinkOnly: true,
@@ -10378,18 +10394,6 @@ func makeIntlHHGMoveDestAddressRequested(
 	}, nil)
 
 	now := time.Now()
-	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
-		{
-			Model:    orders,
-			LinkOnly: true,
-		},
-		{
-			Model: models.Move{
-				Status:             models.MoveStatusAPPROVALSREQUESTED,
-				AvailableToPrimeAt: &now,
-			},
-		},
-	}, nil)
 
 	estimatedWeight := unit.Pound(2000)
 	actualWeight := unit.Pound(2000)
@@ -10409,7 +10413,19 @@ func makeIntlHHGMoveDestAddressRequested(
 		},
 	}, nil)
 
-	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	newDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "Another Cold St.",
+				City:           "Juneau",
+				State:          "AK",
+				PostalCode:     "99811",
+			},
+		},
+	}, nil)
+
+	// build the shipment destination address update
+	shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight:  &estimatedWeight,
@@ -10424,15 +10440,48 @@ func makeIntlHHGMoveDestAddressRequested(
 			},
 		},
 		{
-			Model:    move,
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: &now,
+				Show:               models.BoolPointer(true),
+			},
+		},
+		{
+			Model: models.ShipmentAddressUpdate{
+				Status:            models.ShipmentAddressUpdateStatusRequested,
+				OriginalAddressID: address.ID,
+				NewAddressID:      newDeliveryAddress.ID,
+				ContractorRemarks: *models.StringPointer("let's move this to another really cold place"),
+			},
+		},
+		{
+			Model:    orders,
 			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				MTOShipmentID: &shipmentAddressUpdate.Shipment.ID,
+			},
+		},
+		{
+			Model:    shipmentAddressUpdate.Shipment.MoveTaskOrder,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeMS,
+			},
 		},
 	}, nil)
 
 	agentUserInfo := newUserInfo("agent")
 	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
 		{
-			Model:    shipment,
+			Model:    shipmentAddressUpdate.Shipment,
 			LinkOnly: true,
 		},
 		{
@@ -10445,38 +10494,7 @@ func makeIntlHHGMoveDestAddressRequested(
 		},
 	}, nil)
 
-	newDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.Address{
-				StreetAddress1: "Another Cold St.",
-				City:           "Juneau",
-				State:          "AK",
-				PostalCode:     "99811",
-			},
-		},
-	}, nil)
-
-	// build the shipment destination address update
-	factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
-		{
-			Model:    shipment,
-			LinkOnly: true,
-		},
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-		{
-			Model: models.ShipmentAddressUpdate{
-				Status:            models.ShipmentAddressUpdateStatusRequested,
-				OriginalAddressID: *shipment.DestinationAddressID,
-				NewAddressID:      newDeliveryAddress.ID,
-				ContractorRemarks: *models.StringPointer("let's move this to another really cold place"),
-			},
-		},
-	}, nil)
-
-	return move
+	return shipmentAddressUpdate.Shipment.MoveTaskOrder
 }
 
 // these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
@@ -10806,15 +10824,15 @@ func makeIntlHHGMoveCONUSToAKWithExcessWeight(
 	}, nil)
 
 	now := time.Now()
-	move := factory.BuildApprovalsRequestedMove(appCtx.DB(), []factory.Customization{
+	move := factory.BuildAvailableToPrimeMove(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
 			LinkOnly: true,
 		},
 		{
 			Model: models.Move{
+				Status:                  models.MoveStatusAPPROVALSREQUESTED,
 				ExcessWeightQualifiedAt: &now,
-				AvailableToPrimeAt:      &now,
 			},
 		},
 	}, nil)
@@ -10866,6 +10884,24 @@ func makeIntlHHGMoveCONUSToAKWithExcessWeight(
 				LastName:     &agentUserInfo.lastName,
 				Email:        &agentUserInfo.email,
 				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				MTOShipmentID: &shipment.ID,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeMS,
 			},
 		},
 	}, nil)
@@ -11009,6 +11045,24 @@ func makeIntlUBMoveCONUSToAKWithExcessWeight(
 				LastName:     &agentUserInfo.lastName,
 				Email:        &agentUserInfo.email,
 				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				MTOShipmentID: &shipment.ID,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeMS,
 			},
 		},
 	}, nil)
