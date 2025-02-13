@@ -115,6 +115,10 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 		return NewIntlDestinationFirstDaySITPricer(), nil
 	case models.ReServiceCodeIDASIT:
 		return NewIntlDestinationAdditionalDaySITPricer(), nil
+	case models.ReServiceCodeICRT:
+		return NewIntlCratingPricer(), nil
+	case models.ReServiceCodeIUCRT:
+		return NewIntlUncratingPricer(), nil
 	default:
 		// TODO: We may want a different error type here after all pricers have been implemented
 		return nil, apperror.NewNotImplementedError(fmt.Sprintf("pricer not found for code %s", serviceCode))

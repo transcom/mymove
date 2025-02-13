@@ -35,10 +35,10 @@ func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upl
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
-		uploadPayload.Status = "PROCESSING"
+	if err != nil {
+		uploadPayload.Status = string(models.AVStatusPROCESSING)
 	} else {
-		uploadPayload.Status = tags["av-status"]
+		uploadPayload.Status = string(models.GetAVStatusFromTags(tags))
 	}
 	return uploadPayload, nil
 }
@@ -454,7 +454,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.OriginDutyLocationGBLOC = originDutyLocationGBLOC
 
 				if payload.MoveID != "" {
-
 					moveID, err := uuid.FromString(payload.MoveID.String())
 					if err != nil {
 						return handlers.ResponseForError(appCtx.Logger(), err), err

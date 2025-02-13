@@ -13,6 +13,26 @@ import (
 	"github.com/transcom/mymove/pkg/db/utilities"
 )
 
+// Used tangentally in association with an Upload to provide status of anti-virus scan
+// AVStatusType represents the type of the anti-virus status, whether it is still processing, clean or infected
+type AVStatusType string
+
+const (
+	// AVStatusPROCESSING string PROCESSING
+	AVStatusPROCESSING AVStatusType = "PROCESSING"
+	// AVStatusCLEAN string CLEAN
+	AVStatusCLEAN AVStatusType = "CLEAN"
+	// AVStatusINFECTED string INFECTED
+	AVStatusINFECTED AVStatusType = "INFECTED"
+)
+
+func GetAVStatusFromTags(tags map[string]string) AVStatusType {
+	if status, exists := tags["av-status"]; exists {
+		return AVStatusType(status)
+	}
+	return AVStatusType(AVStatusPROCESSING)
+}
+
 // UploadType represents the type of upload this is, whether is it uploaded for a User or for the Prime
 type UploadType string
 

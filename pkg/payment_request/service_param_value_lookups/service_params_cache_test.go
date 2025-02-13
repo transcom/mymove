@@ -20,7 +20,7 @@ type paramsCacheSubtestData struct {
 	mtoServiceItemMS              models.MTOServiceItem
 	mtoServiceItemCrate1          models.MTOServiceItem
 	mtoServiceItemCrate2          models.MTOServiceItem
-	mtoServiceItemShuttle         models.MTOServiceItem
+	mtoServiceItemDomesticShuttle models.MTOServiceItem
 	paramKeyWeightEstimated       models.ServiceItemParamKey
 	paramKeyRequestedPickupDate   models.ServiceItemParamKey
 	paramKeyMTOAvailableToPrimeAt models.ServiceItemParamKey
@@ -224,7 +224,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 
 	subtestData.shuttleEstimatedWeight = unit.Pound(400)
 	subtestData.shuttleActualWeight = unit.Pound(450)
-	subtestData.mtoServiceItemShuttle = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+	subtestData.mtoServiceItemDomesticShuttle = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
 			Model:    subtestData.move,
 			LinkOnly: true,
@@ -248,7 +248,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	// DOSHUT estimated weight
 	factory.BuildServiceParam(suite.DB(), []factory.Customization{
 		{
-			Model:    subtestData.mtoServiceItemShuttle.ReService,
+			Model:    subtestData.mtoServiceItemDomesticShuttle.ReService,
 			LinkOnly: true,
 		},
 		{
@@ -462,7 +462,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		expected := strconv.Itoa(subtestData.estimatedWeight.Int())
 		suite.Equal(expected, estimatedWeightStr)
 
-		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemShuttle, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupService2, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemDomesticShuttle, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 
 		var shuttleEstimatedWeightStr string

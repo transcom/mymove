@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -22,7 +23,7 @@ func (h GetTransportationOfficesHandler) Handle(params transportationofficeop.Ge
 
 			// B-21022: forPpm param is set true. This is used by PPM closeout widget. Need to ensure certain offices are included/excluded
 			// if location has ppm closedout enabled.
-			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, params.Search, true)
+			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, params.Search, true, false)
 
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Transportation Offices: ", zap.Error(err))
@@ -43,7 +44,7 @@ func (h GetTransportationOfficesOpenHandler) Handle(params transportationofficeo
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, params.Search, false)
+			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, params.Search, false, false)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Transportation Offices: ", zap.Error(err))
 				return transportationofficeop.NewGetTransportationOfficesOpenInternalServerError(), err
@@ -71,5 +72,29 @@ func (h GetTransportationOfficesGBLOCsHandler) Handle(params transportationoffic
 
 			returnPayload := payloads.GBLOCs(*transportationOffices)
 			return transportationofficeop.NewGetTransportationOfficesGBLOCsOK().WithPayload(returnPayload), nil
+		})
+}
+
+// ShowCounselingOfficesHandler returns the counseling offices for a duty location ID
+type ShowCounselingOfficesHandler struct {
+	handlers.HandlerConfig
+	services.TransportationOfficesFetcher
+}
+
+// Handle retrieves the counseling offices in the system for a given duty location ID
+func (h ShowCounselingOfficesHandler) Handle(params transportationofficeop.ShowCounselingOfficesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			dutyLocationID := uuid.FromStringOrNil(params.DutyLocationID.String())
+			serviceMemberID := uuid.FromStringOrNil(params.ServiceMemberID.String())
+
+			counselingOffices, err := h.TransportationOfficesFetcher.GetCounselingOffices(appCtx, dutyLocationID, serviceMemberID)
+			if err != nil {
+				appCtx.Logger().Error("Error searching for Counseling Offices: ", zap.Error(err))
+				return transportationofficeop.NewShowCounselingOfficesInternalServerError(), err
+			}
+
+			returnPayload := payloads.CounselingOffices(*counselingOffices)
+			return transportationofficeop.NewShowCounselingOfficesOK().WithPayload(returnPayload), nil
 		})
 }

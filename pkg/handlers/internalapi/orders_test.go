@@ -717,6 +717,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Can update CONUS orders", func() {
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{

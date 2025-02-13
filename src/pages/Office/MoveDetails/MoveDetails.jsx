@@ -61,8 +61,8 @@ const MoveDetails = ({
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const [enableBoat, setEnableBoat] = useState(false);
@@ -678,7 +678,7 @@ const MoveDetails = ({
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
             >
-              <OrdersList ordersInfo={ordersInfo} />
+              <OrdersList ordersInfo={ordersInfo} moveInfo={move} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">

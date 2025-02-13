@@ -1,6 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within, cleanup } from '@testing-library/react';
+import * as reactQuery from '@tanstack/react-query';
+import userEvent from '@testing-library/user-event';
 
 import {
   unapprovedMTOQuery,
@@ -22,6 +24,7 @@ import {
   multiplePaymentRequests,
   moveHistoryTestData,
   actualPPMWeightQuery,
+  approvedMTOWithApprovedSitItemsQuery,
 } from './moveTaskOrderUnitTestData';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
@@ -540,6 +543,153 @@ describe('MoveTaskOrder', () => {
 
     it('updates the unapproved shipments tag state', () => {
       expect(setUnapprovedServiceItemCount).toHaveBeenCalledWith(0);
+    });
+  });
+
+  describe('SIT entry date update', () => {
+    const mockMutateServiceItemSitEntryDate = jest.fn();
+    jest.spyOn(reactQuery, 'useMutation').mockImplementation(() => ({
+      mutate: mockMutateServiceItemSitEntryDate,
+    }));
+    beforeEach(() => {
+      // Reset the mock before each test
+      mockMutateServiceItemSitEntryDate.mockReset();
+    });
+    afterEach(() => {
+      cleanup(); // This will unmount the component after each test
+    });
+
+    const renderComponent = () => {
+      useMoveTaskOrderQueries.mockReturnValue(approvedMTOWithApprovedSitItemsQuery);
+      useMovePaymentRequestsQueries.mockReturnValue({ paymentRequests: [] });
+      useGHCGetMoveHistory.mockReturnValue(moveHistoryTestData);
+      const isMoveLocked = false;
+      render(
+        <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            isMoveLocked={isMoveLocked}
+          />
+        </MockProviders>,
+      );
+    };
+    it('shows error message when SIT entry date is invalid', async () => {
+      renderComponent();
+      // Set up the mock to simulate an error
+      mockMutateServiceItemSitEntryDate.mockImplementation((data, options) => {
+        options.onError({
+          response: {
+            status: 422,
+            data: JSON.stringify({
+              detail:
+                'UpdateSitEntryDate failed for service item: the SIT Entry Date (2025-03-05) must be before the SIT Departure Date (2025-02-27)',
+            }),
+          },
+        });
+      });
+      const approvedServiceItems = await screen.findByTestId('ApprovedServiceItemsTable');
+      expect(approvedServiceItems).toBeInTheDocument();
+      const spanElement = within(approvedServiceItems).getByText(/Domestic origin 1st day SIT/i);
+      expect(spanElement).toBeInTheDocument();
+      // Search for the edit button within the approvedServiceItems div
+      const editButton = within(approvedServiceItems).getByRole('button', { name: /edit/i });
+      expect(editButton).toBeInTheDocument();
+      await userEvent.click(editButton);
+      const modal = await screen.findByTestId('modal');
+      expect(modal).toBeInTheDocument();
+      const heading = within(modal).getByRole('heading', { name: /Edit SIT Entry Date/i, level: 2 });
+      expect(heading).toBeInTheDocument();
+      const formGroups = screen.getAllByTestId('formGroup');
+      const sitEntryDateFormGroup = Array.from(formGroups).find(
+        (group) =>
+          within(group).queryByPlaceholderText('DD MMM YYYY') &&
+          within(group).queryByPlaceholderText('DD MMM YYYY').getAttribute('name') === 'sitEntryDate',
+      );
+      const dateInput = within(sitEntryDateFormGroup).getByPlaceholderText('DD MMM YYYY');
+      expect(dateInput).toBeInTheDocument();
+      const remarksTextarea = within(modal).getByTestId('officeRemarks');
+      expect(remarksTextarea).toBeInTheDocument();
+      const saveButton = within(modal).getByRole('button', { name: /Save/ });
+
+      await userEvent.clear(dateInput);
+      await userEvent.type(dateInput, '05 Mar 2025');
+      await userEvent.type(remarksTextarea, 'Need to update the sit entry date.');
+      expect(saveButton).toBeEnabled();
+      await userEvent.click(saveButton);
+
+      // Verify that the mutation was called
+      expect(mockMutateServiceItemSitEntryDate).toHaveBeenCalled();
+
+      // The modal should close
+      expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+
+      // Verify that the error message is displayed
+      const alert = screen.getByTestId('alert');
+      expect(alert).toBeInTheDocument();
+      expect(alert).toHaveClass('usa-alert--error');
+      expect(alert).toHaveTextContent(
+        'UpdateSitEntryDate failed for service item: the SIT Entry Date (2025-03-05) must be before the SIT Departure Date (2025-02-27)',
+      );
+    });
+
+    it('shows success message when SIT entry date is valid', async () => {
+      renderComponent();
+      // Set up the mock to simulate an error
+      mockMutateServiceItemSitEntryDate.mockImplementation((data, options) => {
+        options.onSuccess({
+          response: {
+            status: 200,
+            data: JSON.stringify({
+              detail: 'SIT entry date updated',
+            }),
+          },
+        });
+      });
+      const approvedServiceItems = await screen.findByTestId('ApprovedServiceItemsTable');
+      expect(approvedServiceItems).toBeInTheDocument();
+      const spanElement = within(approvedServiceItems).getByText(/Domestic origin 1st day SIT/i);
+      expect(spanElement).toBeInTheDocument();
+      // Search for the edit button within the approvedServiceItems div
+      const editButton = within(approvedServiceItems).getByRole('button', { name: /edit/i });
+      expect(editButton).toBeInTheDocument();
+      await userEvent.click(editButton);
+      const modal = await screen.findByTestId('modal');
+      expect(modal).toBeInTheDocument();
+      const heading = within(modal).getByRole('heading', { name: /Edit SIT Entry Date/i, level: 2 });
+      expect(heading).toBeInTheDocument();
+      const formGroups = screen.getAllByTestId('formGroup');
+      const sitEntryDateFormGroup = Array.from(formGroups).find(
+        (group) =>
+          within(group).queryByPlaceholderText('DD MMM YYYY') &&
+          within(group).queryByPlaceholderText('DD MMM YYYY').getAttribute('name') === 'sitEntryDate',
+      );
+      const dateInput = within(sitEntryDateFormGroup).getByPlaceholderText('DD MMM YYYY');
+      expect(dateInput).toBeInTheDocument();
+      const remarksTextarea = within(modal).getByTestId('officeRemarks');
+      expect(remarksTextarea).toBeInTheDocument();
+      const saveButton = within(modal).getByRole('button', { name: /Save/ });
+
+      await userEvent.clear(dateInput);
+      await userEvent.type(dateInput, '03 Mar 2024');
+      await userEvent.type(remarksTextarea, 'Need to update the sit entry date.');
+      expect(saveButton).toBeEnabled();
+      await userEvent.click(saveButton);
+
+      // Verify that the mutation was called
+      expect(mockMutateServiceItemSitEntryDate).toHaveBeenCalled();
+
+      // The modal should close
+      expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+
+      // Verify that the error message is displayed
+      const alert = screen.getByTestId('alert');
+      expect(alert).toBeInTheDocument();
+      expect(alert).toHaveClass('usa-alert--success');
+      expect(alert).toHaveTextContent('SIT entry date updated');
     });
   });
 

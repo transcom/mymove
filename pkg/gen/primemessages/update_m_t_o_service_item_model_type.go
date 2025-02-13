@@ -23,12 +23,22 @@ import (
 //   - DOFSIT - UpdateMTOServiceItemSIT
 //   - DOSFSC - UpdateMTOServiceItemSIT
 //   - DDSFSC - UpdateMTOServiceItemSIT
+//   - IDDSIT - UpdateMTOServiceItemSIT
+//   - IDFSIT - UpdateMTOServiceItemSIT
+//   - IDASIT - UpdateMTOServiceItemSIT
+//   - IOPSIT - UpdateMTOServiceItemSIT
+//   - IOASIT - UpdateMTOServiceItemSIT
+//   - IOFSIT - UpdateMTOServiceItemSIT
+//   - IOSFSC - UpdateMTOServiceItemSIT
+//   - IDSFSC - UpdateMTOServiceItemSIT
 //   - DDSHUT - UpdateMTOServiceItemShuttle
 //   - DOSHUT - UpdateMTOServiceItemShuttle
 //   - PODFSC - UpdateMTOServiceItemInternationalPortFSC
 //   - POEFSC - UpdateMTOServiceItemInternationalPortFSC
 //   - IDSHUT - UpdateMTOServiceItemInternationalShuttle
 //   - IOSHUT - UpdateMTOServiceItemInternationalShuttle
+//   - ICRT - UpdateMTOServiceItemCrating
+//   - IUCRT - UpdateMTOServiceItemCrating
 //
 // The documentation will then update with the supported fields.
 //
@@ -57,6 +67,9 @@ const (
 
 	// UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle captures enum value "UpdateMTOServiceItemInternationalShuttle"
 	UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle UpdateMTOServiceItemModelType = "UpdateMTOServiceItemInternationalShuttle"
+
+	// UpdateMTOServiceItemModelTypeUpdateMTOServiceItemCrating captures enum value "UpdateMTOServiceItemCrating"
+	UpdateMTOServiceItemModelTypeUpdateMTOServiceItemCrating UpdateMTOServiceItemModelType = "UpdateMTOServiceItemCrating"
 )
 
 // for schema
@@ -64,7 +77,7 @@ var updateMTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []UpdateMTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["UpdateMTOServiceItemSIT","UpdateMTOServiceItemShuttle","UpdateMTOServiceItemInternationalPortFSC","UpdateMTOServiceItemInternationalShuttle"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["UpdateMTOServiceItemSIT","UpdateMTOServiceItemShuttle","UpdateMTOServiceItemInternationalPortFSC","UpdateMTOServiceItemInternationalShuttle","UpdateMTOServiceItemCrating"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

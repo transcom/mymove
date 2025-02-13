@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv3/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
@@ -169,6 +170,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentUpdater
+	planner route.Planner
 }
 
 // Handle handler that updates a mto shipment
@@ -223,7 +225,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				default:
 					return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
-						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 			}
 			mtoShipmentPayload := payloads.MTOShipment(mtoShipment)

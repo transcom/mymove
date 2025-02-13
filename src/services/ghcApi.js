@@ -643,6 +643,22 @@ export async function getMovesQueue(
   );
 }
 
+export async function getDestinationRequestsQueue(
+  key,
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
+) {
+  const operationPath = 'queues.getDestinationRequestsQueue';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(
+    operationPath,
+    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, ...paramFilters },
+    { schemaKey: 'queueMovesResult', normalize: false },
+  );
+}
+
 export async function getServicesCounselingQueue(
   key,
   {
@@ -802,6 +818,10 @@ export async function getGBLOCs() {
   return makeGHCRequest(operationPath, {}, { normalize: false });
 }
 
+export async function showCounselingOffices(dutyLocationId, serviceMemberId) {
+  return makeGHCRequestRaw('transportationOffice.showCounselingOffices', { dutyLocationId, serviceMemberId });
+}
+
 export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, body }) => {
   const operationPath = 'shipment.reviewShipmentAddressUpdate';
   const schemaKey = 'ShipmentAddressUpdate';
@@ -943,7 +963,7 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, ro
 }
 
 export async function checkForLockedMovesAndUnlock(key, officeUserID) {
-  return makeGHCRequest('move.checkForLockedMovesAndUnlock', {
+  return makeGHCRequestRaw('move.checkForLockedMovesAndUnlock', {
     officeUserID,
   });
 }

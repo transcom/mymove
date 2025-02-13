@@ -69,6 +69,22 @@ export const UPLOAD_SCAN_STATUS = {
   PROCESSING: 'PROCESSING',
 };
 
+export const UPLOAD_DOC_STATUS = {
+  UPLOADING: 'UPLOADING',
+  SCANNING: 'SCANNING',
+  ESTABLISHING: 'ESTABLISHING',
+  LOADED: 'LOADED',
+};
+
+export const UPLOAD_DOC_STATUS_DISPLAY_MESSAGE = {
+  FILE_NOT_FOUND: 'File Not Found',
+  UPLOADING: 'Uploading',
+  SCANNING: 'Scanning',
+  ESTABLISHING_DOCUMENT_FOR_VIEWING: 'Establishing document for viewing',
+  INFECTED_FILE_MESSAGE:
+    'Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a photo of the original document instead.',
+};
+
 export const CONUS_STATUS = {
   CONUS: 'CONUS',
   OCONUS: 'OCONUS',

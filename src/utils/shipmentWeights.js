@@ -4,6 +4,7 @@
 import returnLowestValue from './returnLowestValue';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import PPMDocumentsStatus from 'constants/ppms';
 
 // eslint-disable-next-line import/prefer-default-export
 export function shipmentIsOverweight(estimatedWeight, weightCap) {
@@ -34,7 +35,11 @@ export const getDisplayWeight = (shipment, weightAdjustment = 1.0) => {
 };
 
 export const calculateNetWeightForProGearWeightTicket = (weightTicket) => {
-  if (weightTicket.weight == null || Number.isNaN(Number(weightTicket.weight))) {
+  if (
+    weightTicket.weight == null ||
+    Number.isNaN(Number(weightTicket.weight)) ||
+    weightTicket.status === PPMDocumentsStatus.REJECTED
+  ) {
     return 0;
   }
 
@@ -61,7 +66,7 @@ export const calculateWeightTicketWeightDifference = (weightTicket) => {
 };
 
 export const getWeightTicketNetWeight = (weightTicket) => {
-  if (weightTicket.status !== 'REJECTED')
+  if (weightTicket.status !== PPMDocumentsStatus.REJECTED)
     return weightTicket.adjustedNetWeight ?? calculateWeightTicketWeightDifference(weightTicket);
   return 0;
 };

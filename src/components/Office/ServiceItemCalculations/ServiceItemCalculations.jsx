@@ -83,7 +83,7 @@ const ServiceItemCalculations = ({
                     {calc.label}
                   </small>
                   <small data-testid="value" className={styles.value}>
-                    {appendSign(index, calculations.length)}
+                    {calc.value === null || calc.value === '' ? null : appendSign(index, calculations.length)}
                     {calc.value}
                   </small>
                 </div>

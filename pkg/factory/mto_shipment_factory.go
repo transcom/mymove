@@ -115,7 +115,11 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 
 		if shipmentHasPickupDetails {
 			newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
-			newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+			if cMtoShipment.ScheduledPickupDate == nil {
+				newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+			} else {
+				newMTOShipment.ScheduledPickupDate = cMtoShipment.ScheduledPickupDate
+			}
 			newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
 		}
 
@@ -212,8 +216,12 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		}
 
 		if cMtoShipment.ScheduledPickupDate != nil {
-			requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
-			newMTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
+			if cMtoShipment.RequiredDeliveryDate != nil {
+				newMTOShipment.RequiredDeliveryDate = cMtoShipment.RequiredDeliveryDate
+			} else {
+				requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
+				newMTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
+			}
 		}
 	}
 
@@ -234,7 +242,7 @@ func BuildBaseMTOShipment(db *pop.Connection, customs []Customization, traits []
 // BuildMTOShipment creates a single MTOShipment and associated set relationships
 // It will make a move record, if one is not provided.
 // It will make pickup addresses if the shipment type is not one of (HHGOutOfNTS, PPM)
-// It will make delivery addresses if the shipment type is not one of (HHGIntoNTSDom, PPM)
+// It will make delivery addresses if the shipment type is not one of (HHGIntoNTS, PPM)
 // It will make a storage facility if the shipment type is HHGOutOfNTS
 func BuildMTOShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
 	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentBuild)
