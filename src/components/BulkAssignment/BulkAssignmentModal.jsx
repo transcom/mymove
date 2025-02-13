@@ -48,6 +48,8 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           if (data.bulkAssignmentMoveIDs === undefined) {
             setIsDisabled(true);
             setNumberOfMoves(0);
+          } else {
+            setNumberOfMoves(data.bulkAssignmentMoveIDs.length);
           }
         });
       } catch (err) {
@@ -96,6 +98,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           {({ handleChange, setValues, values }) => {
             const handleAssignmentChange = (event, i) => {
               handleChange(event);
+              setIsError(false);
 
               let newUserAssignment;
               if (event.target.value !== '') {
