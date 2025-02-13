@@ -311,10 +311,7 @@ stages:
      sed 's,^,export ,' config/env/review.app.env > server_env
      source server_env
      make db_dev_create
-     bin/milmove migrate
-     bin/milmove serve &
-     echo "Waiting for server to start"
-     dockerize -wait http://milmovelocal:4000 -timeout 5m
+
      echo "Installing Playwright dependencies"
      yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
      ./node_modules/.bin/playwright install
