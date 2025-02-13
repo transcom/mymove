@@ -24,6 +24,25 @@
     th {
       max-width: 10px;
       text-align: center;
+      input[type="checkbox"] {
+        &:focus {
+          outline: none;
+          box-shadow: none;
+        }
+      }
+
+      &:first-child {
+        width: 20px;
+      }
+    }
+
+    td {
+      input[type="checkbox"] {
+        &:focus {
+          outline: none;
+          box-shadow: none;
+        }
+      }
     }
     .BulkAssignmentDataCenter {
       text-align: center;
@@ -46,4 +65,11 @@ button.backbutton {
   border-radius: 0.25rem;
   font-weight: 700;
   padding: 0.75rem 1.25rem;
+}
+
+.BulkAssignmentButtonsContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
