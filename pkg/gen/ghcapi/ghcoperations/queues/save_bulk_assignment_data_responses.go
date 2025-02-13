@@ -13,49 +13,29 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
-// SaveBulkAssignmentDataOKCode is the HTTP code returned for type SaveBulkAssignmentDataOK
-const SaveBulkAssignmentDataOKCode int = 200
+// SaveBulkAssignmentDataNoContentCode is the HTTP code returned for type SaveBulkAssignmentDataNoContent
+const SaveBulkAssignmentDataNoContentCode int = 204
 
 /*
-SaveBulkAssignmentDataOK Successfully returned bulk assignment data
+SaveBulkAssignmentDataNoContent assigned
 
-swagger:response saveBulkAssignmentDataOK
+swagger:response saveBulkAssignmentDataNoContent
 */
-type SaveBulkAssignmentDataOK struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *ghcmessages.BulkAssignmentData `json:"body,omitempty"`
+type SaveBulkAssignmentDataNoContent struct {
 }
 
-// NewSaveBulkAssignmentDataOK creates SaveBulkAssignmentDataOK with default headers values
-func NewSaveBulkAssignmentDataOK() *SaveBulkAssignmentDataOK {
+// NewSaveBulkAssignmentDataNoContent creates SaveBulkAssignmentDataNoContent with default headers values
+func NewSaveBulkAssignmentDataNoContent() *SaveBulkAssignmentDataNoContent {
 
-	return &SaveBulkAssignmentDataOK{}
-}
-
-// WithPayload adds the payload to the save bulk assignment data o k response
-func (o *SaveBulkAssignmentDataOK) WithPayload(payload *ghcmessages.BulkAssignmentData) *SaveBulkAssignmentDataOK {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the save bulk assignment data o k response
-func (o *SaveBulkAssignmentDataOK) SetPayload(payload *ghcmessages.BulkAssignmentData) {
-	o.Payload = payload
+	return &SaveBulkAssignmentDataNoContent{}
 }
 
 // WriteResponse to the client
-func (o *SaveBulkAssignmentDataOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *SaveBulkAssignmentDataNoContent) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(200)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(204)
 }
 
 // SaveBulkAssignmentDataUnauthorizedCode is the HTTP code returned for type SaveBulkAssignmentDataUnauthorized

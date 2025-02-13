@@ -4441,11 +4441,8 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully returned bulk assignment data",
-            "schema": {
-              "$ref": "#/definitions/BulkAssignmentData"
-            }
+          "204": {
+            "description": "assigned"
           },
           "401": {
             "$ref": "#/responses/PermissionDenied"
@@ -21616,11 +21613,8 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully returned bulk assignment data",
-            "schema": {
-              "$ref": "#/definitions/BulkAssignmentData"
-            }
+          "204": {
+            "description": "assigned"
           },
           "401": {
             "description": "The request was denied",

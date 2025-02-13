@@ -876,7 +876,7 @@ func (h SaveBulkAssignmentDataHandler) Handle(
 				return queues.NewGetServicesCounselingQueueInternalServerError(), err
 			}
 
-			return queues.NewSaveBulkAssignmentDataOK(), nil
+			return queues.NewSaveBulkAssignmentDataNoContent(), nil
 		})
 }
 
