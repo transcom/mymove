@@ -9614,3 +9614,2024 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 
 	return *newmove
 }
+
+// MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO creates an iHHG move
+// that has been approved by TOO & prime has requested payment for intl crating and uncrating service items
+func MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	// Create Customer
+	userInfo := newUserInfo("customer")
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+	}, nil)
+
+	// address setup
+	addressAK := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 Cold St",
+				City:           "Anchorage",
+				State:          "AK",
+				PostalCode:     "99505",
+			},
+		},
+	}, nil)
+	destDutyLocationAK := factory.BuildDutyLocation(appCtx.DB(), []factory.Customization{
+		{
+			Model:    addressAK,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// orders setup using AK destination duty location
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+		{
+			Model: models.Order{
+				NewDutyLocationID: destDutyLocationAK.ID,
+			},
+		},
+	}, nil)
+
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
+
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
+				PostalCode: "85004",
+			},
+		},
+	}, nil)
+	alaskaDestAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 Cold St",
+				City:           "Anchorage",
+				State:          "AK",
+				PostalCode:     "99505",
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(2000)
+	actualWeight := unit.Pound(2000)
+	mtoShipmentHHG := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				MarketCode:           models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model:    alaskaDestAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create Releasing Agent
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	paymentRequestHHG := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// for soft deleted proof of service docs
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		},
+	}, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
+
+	currentTime := time.Now()
+
+	cratingPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameEscalationCompounded,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.FormatFloat(1.125, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1.71",
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetBilled,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   "4.00",
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetCrating,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   "1",
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameStandaloneCrate,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(true),
+		},
+		{
+			Key:     models.ServiceItemParamNameStandaloneCrateCap,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.FormatInt(100000, 10),
+		},
+		{
+			Key:     models.ServiceItemParamNameMarketOrigin,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "O",
+		},
+		{
+			Key:     models.ServiceItemParamNameExternalCrate,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(true),
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionHeight,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionLength,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionWidth,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1",
+		},
+	}
+	desc := "description test"
+	icrt := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:          models.MTOServiceItemStatusApproved,
+				Description:     &desc,
+				StandaloneCrate: models.BoolPointer(true),
+				ExternalCrate:   models.BoolPointer(true),
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeICRT,
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItemWithParams(appCtx.DB(), models.ReServiceCodeICRT,
+		cratingPaymentServiceItemParams, []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    icrt,
+				LinkOnly: true,
+			},
+		}, nil)
+
+	iucrt := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:      models.MTOServiceItemStatusApproved,
+				Description: &desc,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeIUCRT,
+			},
+		},
+	}, nil)
+
+	unCratingPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameEscalationCompounded,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.FormatFloat(1.125, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1.71",
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetBilled,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   "8",
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameMarketDest,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "O",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionHeight,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "2",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionLength,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "2",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionWidth,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "2",
+		},
+	}
+
+	factory.BuildPaymentServiceItemWithParams(appCtx.DB(), models.ReServiceCodeIUCRT,
+		unCratingPaymentServiceItemParams, []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    iucrt,
+				LinkOnly: true,
+			},
+		}, nil)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	// load payment requests so tests can confirm
+	err = appCtx.DB().Load(newmove, "PaymentRequests")
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
+	}
+
+	return *newmove
+}
+
+// makeIntlHHGMoveCONUSToAKSubmitted creates an international HHG move
+// with the given affiliation and destination address
+// basic iHHG move that will require TOO approval
+func makeIntlHHGMoveCONUSToAKSubmitted(
+	appCtx appcontext.AppContext,
+	affiliation models.ServiceMemberAffiliation,
+	streetAddress, city, state, postalCode string,
+) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+				Affiliation:   &affiliation,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	dependentsAuthorized := true
+	sitDaysAllowance := 90
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	now := time.Now()
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusServiceCounselingCompleted,
+				AvailableToPrimeAt: &now,
+			},
+		},
+	}, nil)
+
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	// build the destination address using the passed-in parameters.
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: streetAddress,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+				DestinationAddressID:  &address.ID,
+				MarketCode:            models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	return move
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// contains an HHG shipment in SUBMITTED status that requires TOO approval
+func MakeIntlHHGMoveDestAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveCONUSToAKSubmitted(appCtx, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveCONUSToAKSubmitted(appCtx, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveCONUSToAKSubmitted(appCtx, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveCONUSToAKSubmitted(appCtx, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveCONUSToAKSubmitted(appCtx, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveCONUSToAKSubmitted(appCtx, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveCONUSToAKSubmitted(appCtx, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveCONUSToAKSubmitted(appCtx, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// makeIntlHHGMoveAKToCONUSSubmitted creates an international HHG move
+// with the given affiliation and pickup address
+// basic iHHG move that will require TOO approval
+func makeIntlHHGMoveAKToCONUSSubmitted(
+	appCtx appcontext.AppContext,
+	affiliation models.ServiceMemberAffiliation,
+	streetAddress, city, state, postalCode string,
+) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+				Affiliation:   &affiliation,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	dependentsAuthorized := true
+	sitDaysAllowance := 90
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	now := time.Now()
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusServiceCounselingCompleted,
+				AvailableToPrimeAt: &now,
+			},
+		},
+	}, nil)
+
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	// build the pickup address using the passed-in parameters.
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: streetAddress,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+				PickupAddressID:       &address.ID,
+				MarketCode:            models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	return move
+}
+
+// these create an iHHG move with selected affiliation, pickup of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// contains an HHG shipment in SUBMITTED status that requires TOO approval
+func MakeIntlHHGMovePickupAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveAKToCONUSSubmitted(appCtx, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMovePickupAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveAKToCONUSSubmitted(appCtx, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMovePickupAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveAKToCONUSSubmitted(appCtx, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMovePickupAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveAKToCONUSSubmitted(appCtx, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMovePickupAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveAKToCONUSSubmitted(appCtx, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMovePickupAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveAKToCONUSSubmitted(appCtx, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMovePickupAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveAKToCONUSSubmitted(appCtx, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMovePickupAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveAKToCONUSSubmitted(appCtx, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// makeIntlHHGMoveWithSITRequested creates an international HHG move
+// with the given affiliation and destination address
+// parameters determine if ONLY origin or ONLY dest SIT service items are created
+// or BOTH origin & dest are created
+func makeIntlHHGMoveWithSITRequested(
+	appCtx appcontext.AppContext,
+	isOrigin bool,
+	isBoth bool,
+	affiliation models.ServiceMemberAffiliation,
+	streetAddress, city, state, postalCode string,
+) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+				Affiliation:   &affiliation,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	dependentsAuthorized := true
+	sitDaysAllowance := 90
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	now := time.Now()
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: &now,
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(2000)
+	actualWeight := unit.Pound(2000)
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	// build the destination address using the passed-in parameters.
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: streetAddress,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+				DestinationAddressID:  &address.ID,
+				MarketCode:            models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	// build the origin/destination SIT service items and update their status to SUBMITTED
+	oneMonthLater := now.AddDate(0, 1, 0)
+	var sitItems models.MTOServiceItems
+	if isBoth {
+		sitItems = factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &oneMonthLater, nil)
+		destSitItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthLater, nil)
+		sitItems = append(sitItems, destSitItems...)
+	} else if isOrigin {
+		sitItems = factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &oneMonthLater, nil)
+	} else {
+		sitItems = factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthLater, nil)
+	}
+	for i := range sitItems {
+		sitItems[i].Status = models.MTOServiceItemStatusSubmitted
+		if err := appCtx.DB().Update(&sitItems[i]); err != nil {
+			log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+		}
+	}
+
+	return move
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing all 4 international origin SIT service items in SUBMITTED status
+func MakeIntlHHGMoveOriginSITRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginSITRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveOriginSITRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginSITRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveOriginSITRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginSITRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveOriginSITRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginSITRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing all 4 international destination SIT service items in SUBMITTED status
+func MakeIntlHHGMoveDestSITRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, false, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, false, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestSITRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, false, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, false, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestSITRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, false, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, false, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestSITRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, false, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, false, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing all 4 international destination SIT service items AND all 4 origin SIT service items in SUBMITTED status
+func MakeIntlHHGMoveBothSITRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, true, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveBothSITRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, true, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveBothSITRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, true, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveBothSITRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, true, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveBothSITRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, true, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveBothSITRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, true, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveBothSITRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, true, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveBothSITRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveWithSITRequested(appCtx, false, true, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// makeIntlHHGMoveShuttleRequested creates an international HHG move
+// with the given affiliation and destination address
+// contains either origin, destination, or BOTH origin/destination shuttle in SUBMITTED status
+func makeIntlHHGMoveShuttleRequested(
+	appCtx appcontext.AppContext,
+	isOrigin bool,
+	isBoth bool,
+	affiliation models.ServiceMemberAffiliation,
+	streetAddress, city, state, postalCode string,
+) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+				Affiliation:   &affiliation,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	dependentsAuthorized := true
+	sitDaysAllowance := 90
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	now := time.Now()
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: &now,
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(2000)
+	actualWeight := unit.Pound(2000)
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	// build the destination address using the passed-in parameters.
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: streetAddress,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+				DestinationAddressID:  &address.ID,
+				MarketCode:            models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	// build the destination shuttle service item in SUBMITTED status
+	if isBoth {
+		factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIOSHUT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Reason:          models.StringPointer("internatioanl destination shuttle"),
+					EstimatedWeight: models.PoundPointer(1000),
+					ActualWeight:    models.PoundPointer(1000),
+					Status:          models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIDSHUT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Reason:          models.StringPointer("internatioanl destination shuttle"),
+					EstimatedWeight: models.PoundPointer(1000),
+					ActualWeight:    models.PoundPointer(1000),
+					Status:          models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+	} else if isOrigin {
+		factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIOSHUT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Reason:          models.StringPointer("internatioanl destination shuttle"),
+					EstimatedWeight: models.PoundPointer(1000),
+					ActualWeight:    models.PoundPointer(1000),
+					Status:          models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+	} else {
+		factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIDSHUT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Reason:          models.StringPointer("internatioanl destination shuttle"),
+					EstimatedWeight: models.PoundPointer(1000),
+					ActualWeight:    models.PoundPointer(1000),
+					Status:          models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+
+	return move
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing an international origin shuttle request in SUBMITTED status
+func MakeIntlHHGMoveOriginShuttleRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginShuttleRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveOriginShuttleRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginShuttleRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveOriginShuttleRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginShuttleRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveOriginShuttleRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginShuttleRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing an international destination shuttle request in SUBMITTED status
+func MakeIntlHHGMoveDestShuttleRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestShuttleRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestShuttleRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestShuttleRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestShuttleRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestShuttleRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestShuttleRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestShuttleRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing BOTH international origin & destination shuttle requests in SUBMITTED status
+func MakeIntlHHGMoveBothShuttleRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveBothShuttleRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveBothShuttleRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveBothShuttleRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveBothShuttleRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveBothShuttleRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveBothShuttleRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveBothShuttleRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveShuttleRequested(appCtx, true, false, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// makeIntlHHGMoveDestAddressRequested creates an international HHG move
+// with the given affiliation and destination address
+// contains a pending destination address request
+func makeIntlHHGMoveDestAddressRequested(
+	appCtx appcontext.AppContext,
+	affiliation models.ServiceMemberAffiliation,
+	streetAddress, city, state, postalCode string,
+) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+				Affiliation:   &affiliation,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	dependentsAuthorized := true
+	sitDaysAllowance := 90
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	now := time.Now()
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: &now,
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(2000)
+	actualWeight := unit.Pound(2000)
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	// build the destination address using the passed-in parameters.
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: streetAddress,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+				DestinationAddressID:  &address.ID,
+				MarketCode:            models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	newDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "Another Cold St.",
+				City:           "Juneau",
+				State:          "AK",
+				PostalCode:     "99811",
+			},
+		},
+	}, nil)
+
+	// build the shipment destination address update
+	factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ShipmentAddressUpdate{
+				Status:            models.ShipmentAddressUpdateStatusRequested,
+				OriginalAddressID: *shipment.DestinationAddressID,
+				NewAddressID:      newDeliveryAddress.ID,
+				ContractorRemarks: *models.StringPointer("let's move this to another really cold place"),
+			},
+		},
+	}, nil)
+
+	return move
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing a destination address request that the TOO will be required to review
+func MakeIntlHHGMoveDestAddressRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveDestAddressRequested(appCtx, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestAddressRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveDestAddressRequested(appCtx, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestAddressRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveDestAddressRequested(appCtx, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestAddressRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveDestAddressRequested(appCtx, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestAddressRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveDestAddressRequested(appCtx, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestAddressRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveDestAddressRequested(appCtx, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestAddressRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveDestAddressRequested(appCtx, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestAddressRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveDestAddressRequested(appCtx, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// makeIntlHHGMoveSITExtensionRequested creates an international HHG move
+// with the given affiliation and destination address
+// contains a SIT extension request requiring TOO action
+func makeIntlHHGMoveSITExtensionRequested(
+	appCtx appcontext.AppContext,
+	isOrigin bool,
+	affiliation models.ServiceMemberAffiliation,
+	streetAddress, city, state, postalCode string,
+) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+				Affiliation:   &affiliation,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	dependentsAuthorized := true
+	sitDaysAllowance := 90
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	now := time.Now()
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: &now,
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(2000)
+	actualWeight := unit.Pound(2000)
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	// build the destination address using the passed-in parameters.
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: streetAddress,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+				DestinationAddressID:  &address.ID,
+				MarketCode:            models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	// build the origin/destination SIT service items
+	oneMonthLater := now.AddDate(0, 1, 0)
+	if isOrigin {
+		factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &oneMonthLater, nil)
+	} else {
+		factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthLater, nil)
+	}
+
+	// build the SIT extension update in PENDING status
+	factory.BuildSITDurationUpdate(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.SITDurationUpdate{
+				Status:            models.SITExtensionStatusPending,
+				ContractorRemarks: models.StringPointer("gimme some more plz"),
+			},
+		},
+	}, nil)
+
+	return move
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing a SIT extension request for a shipment containing origin SIT only
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, true, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing a SIT extension request for a shipment containing destination SIT only
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone1AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationAIRFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone2AirForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationAIRFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone1SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationSPACEFORCE, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone2SpaceForce(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationSPACEFORCE, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone1USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationMARINES, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveDestSITExtensionRequestedAKZone2USMC(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveSITExtensionRequested(appCtx, false, models.AffiliationMARINES, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// makeIntlHHGMoveCONUSToAKWithExcessWeight creates an international HHG move
+// with the given affiliation and destination address
+// contains one approved shipment and an pending at-risk excess weight
+func makeIntlHHGMoveCONUSToAKWithExcessWeight(
+	appCtx appcontext.AppContext,
+	affiliation models.ServiceMemberAffiliation,
+	streetAddress, city, state, postalCode string,
+) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+				Affiliation:   &affiliation,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	dependentsAuthorized := true
+	sitDaysAllowance := 90
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	now := time.Now()
+	move := factory.BuildApprovalsRequestedMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				ExcessWeightQualifiedAt: &now,
+				AvailableToPrimeAt:      &now,
+			},
+		},
+	}, nil)
+
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	// build the destination address using the passed-in parameters.
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: streetAddress,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  models.PoundPointer(8000),
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+				DestinationAddressID:  &address.ID,
+				MarketCode:            models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	return move
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing an excess weight alert that requires action from TOO
+func MakeIntlHHGMoveExcessWeightAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveCONUSToAKWithExcessWeight(appCtx, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlHHGMoveExcessWeightAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlHHGMoveCONUSToAKWithExcessWeight(appCtx, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
+
+// makeIntlUBMoveCONUSToAKWithExcessWeight creates an international UB move
+// with the given affiliation and destination address
+// contains one approved shipment and an pending at-risk excess weight
+func makeIntlUBMoveCONUSToAKWithExcessWeight(
+	appCtx appcontext.AppContext,
+	affiliation models.ServiceMemberAffiliation,
+	streetAddress, city, state, postalCode string,
+) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+				Affiliation:   &affiliation,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	dependentsAuthorized := true
+	sitDaysAllowance := 90
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	now := time.Now()
+	move := factory.BuildApprovalsRequestedMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				ExcessUnaccompaniedBaggageWeightQualifiedAt: &now,
+				AvailableToPrimeAt:                          &now,
+			},
+		},
+	}, nil)
+
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	// build the destination address using the passed-in parameters.
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: streetAddress,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+				IsOconus:       models.BoolPointer(true),
+			},
+		},
+	}, nil)
+
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  models.PoundPointer(2000),
+				ShipmentType:          models.MTOShipmentTypeUnaccompaniedBaggage,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+				DestinationAddressID:  &address.ID,
+				MarketCode:            models.MarketCodeInternational,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	return move
+}
+
+// these create an iHHG move with selected affiliation, destination of either Anchorage, AK (Zone I) or Fairbanks, AK (Zone II)
+// containing an excess weight alert that requires action from TOO
+func MakeIntlUBMoveExcessWeightAKZone1Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlUBMoveCONUSToAKWithExcessWeight(appCtx, models.AffiliationARMY, "Alaska Zone I Ave.", "Anchorage", "AK", "99505")
+}
+
+func MakeIntlUBMoveExcessWeightAKZone2Army(appCtx appcontext.AppContext) models.Move {
+	return makeIntlUBMoveCONUSToAKWithExcessWeight(appCtx, models.AffiliationARMY, "Alaska Zone II St.", "North Pole", "AK", "99705")
+}
