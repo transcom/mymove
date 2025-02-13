@@ -13,17 +13,21 @@ const (
 
 // CubicFeetBilledLookup does lookup for CubicFeetBilled
 type CubicFeetBilledLookup struct {
-	Dimensions models.MTOServiceItemDimensions
+	Dimensions  models.MTOServiceItemDimensions
+	ServiceItem models.MTOServiceItem
 }
 
 func (c CubicFeetBilledLookup) lookup(_ appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+	isIntlCrateUncrate := c.ServiceItem.ReService.Code == models.ReServiceCodeICRT || c.ServiceItem.ReService.Code == models.ReServiceCodeIUCRT
+	isExternalCrate := c.ServiceItem.ExternalCrate != nil && *c.ServiceItem.ExternalCrate
+
 	// Each service item has an array of dimensions. There is a DB constraint preventing
 	// more than one dimension of each type for a given service item, so we just have to
 	// look for the first crating dimension.
 	for _, dimension := range c.Dimensions {
 		if dimension.Type == models.DimensionTypeCrate {
 			volume := dimension.Volume().ToCubicFeet()
-			if volume < minCubicFeetBilled {
+			if (!isIntlCrateUncrate || isExternalCrate) && volume < minCubicFeetBilled {
 				volume = minCubicFeetBilled
 			}
 			return volume.String(), nil
