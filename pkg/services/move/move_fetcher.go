@@ -299,7 +299,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentPaymentRequest(app
 	sqlQuery := `
 		SELECT
 			moves.id,
-			COALESCE(MIN(payment_requests.requested_at), '0001-01-01') AS earliest_date
+			MIN(payment_requests.requested_at) AS earliest_date
 		FROM moves
 		INNER JOIN orders ON orders.id = moves.orders_id
 		INNER JOIN service_members ON orders.service_member_id = service_members.id

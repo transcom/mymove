@@ -2136,6 +2136,6 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-		suite.IsType(&queues.SaveBulkAssignmentDataOK{}, response)
+		suite.IsType(&queues.SaveBulkAssignmentDataNoContent{}, response)
 	})
 }
