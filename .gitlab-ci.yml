@@ -228,6 +228,15 @@ stages:
       - /builds/milmove/mymove/bin
     policy: pull-push
 
+.node_cache: &node_cache
+  # most npm libraries will only have 1 entry for the base project deps
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - node_modules/
+  policy: pull-push
+
 .setup_generic_app_env_variables: &setup_generic_app_env_variables
   - |
       export APPLICATION=app
@@ -1027,9 +1036,15 @@ integration_tests:
   rules:
    - *check_integration_ignore_branch
 
+
+
+
 integration_test_mtls:
   stage: pre_checks
   interruptible: true
+  cache:
+    - <<: *yarn_cache
+    - <<: *node_cache
   tags:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
@@ -1037,10 +1052,39 @@ integration_test_mtls:
     - name: $postgres
     - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
-      alias: milmovemicroservice
+      alias:
+         milmovemicroservice
+         milmovelocal
+         officelocal
+         adminlocal
+         primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
   variables:
+    PLAYWRIGHT_MY_URL: http://milmovelocal:4000
+    PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
+    PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
+    # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
+    FEATURE_FLAG_MULTI_MOVE: 'true'
+    FEATURE_FLAG_PPM: 'true'
+    FEATURE_FLAG_NTS: 'true'
+    FEATURE_FLAG_NTSR: 'true'
+    FEATURE_FLAG_BOAT: 'true'
+    FEATURE_FLAG_MOBILE_HOME: 'true'
+    FEATURE_FLAG_CAC_VALIDATED_LOGIN: 'false'
+    FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
+    FEATURE_FLAG_MOVE_LOCK: 'false'
+    FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
+    FEATURE_FLAG_HEADQUARTERS_ROLE: 'true'
+    FEATURE_FLAG_GSR_ROLE: 'false'
+    FEATURE_FLAG_SAFETY_MOVE: 'false'
+    FEATURE_FLAG_MANAGE_SUPPORTING_DOCS: 'false'
+    FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE: 'false'
+    FEATURE_FLAG_QUEUE_MANAGEMENT: 'false'
+    FEATURE_FLAG_UNACCOMPANIED_BAGGAGE: 'false'
+    FEATURE_FLAG_ENABLE_ALASKA: 'false'
+    FEATURE_FLAG_BULK_ASSIGNMENT: 'false'
+
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
@@ -1132,6 +1176,9 @@ integration_test_mtls:
 integration_test_admin:
   stage: pre_checks
   interruptible: true
+  cache:
+    - <<: *yarn_cache
+    - <<: *node_cache
   tags:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
@@ -1139,7 +1186,12 @@ integration_test_admin:
     - name: $postgres
     - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
-      alias: milmovemicroservice
+      alias:
+         milmovemicroservice
+         milmovelocal
+         officelocal
+         adminlocal
+         primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
   variables:
@@ -1190,6 +1242,9 @@ integration_test_admin:
 integration_test_my:
   stage: pre_checks
   interruptible: true
+  cache:
+    - <<: *yarn_cache
+    - <<: *node_cache
   tags:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
@@ -1197,7 +1252,12 @@ integration_test_my:
     - name: $postgres
     - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
-      alias: milmovemicroservice
+      alias:
+         milmovemicroservice
+         milmovelocal
+         officelocal
+         adminlocal
+         primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
   variables:
@@ -1249,6 +1309,9 @@ integration_test_my:
 integration_test_office:
   stage: pre_checks
   interruptible: true
+  cache:
+    - <<: *yarn_cache
+    - <<: *node_cache
   tags:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
@@ -1256,7 +1319,12 @@ integration_test_office:
     - name: $postgres
     - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
-      alias: milmovemicroservice
+      alias:
+         milmovemicroservice
+         milmovelocal
+         officelocal
+         adminlocal
+         primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
   variables:
@@ -1284,6 +1352,78 @@ integration_test_office:
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
+  script:
+    - echo "TODO Add steps"
+    - echo "integration_test_office"
+    - ./node_modules/.bin/playwright test playwright/tests/office \
+        --reporter=html,junit \
+        --trace=on \
+        --workers=1
+  artifacts:
+    paths:
+      - playwright-report/
+      - complete-playwright-report.zip
+      - playwright-results.xml
+    when: always
+  allow_failure: true
+  after_script:
+    - *announce_failure
+  rules:
+   - *check_integration_ignore_branch
+
+integration_test_e2e_generic:
+  stage: pre_checks
+  interruptible: true
+  cache:
+    - <<: *yarn_cache
+    - <<: *node_cache
+  tags:
+    - $Gitlab_Runner_Tag
+  image: mcr.microsoft.com/playwright:v1.40.0-focal
+  services:
+    - name: $postgres
+    - name: $redis
+    - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
+      alias:
+         milmovemicroservice
+         milmovelocal
+         officelocal
+         adminlocal
+         primelocal
+      entrypoint: ["/bin/milmove"]
+      command: ["serve","--port","4000","--verbose"]
+  variables:
+    APPLICATION: app
+    DB_PASSWORD: mysecretpassword
+    DB_USER_LOW_PRIV: crud
+    DB_PASSWORD_LOW_PRIV: mysecretpassword
+    DB_USER: postgres
+    DB_HOST: localhost
+    DB_PORT: 5432
+    DB_NAME: dev_db
+    DB_NAME_DEV: dev_db
+    MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+    ENVIRONMENT: development
+    DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+    POSTGRES_PASSWORD: mysecretpassword
+    POSTGRES_DB: test_db
+  # needs:
+  #   - pre_deps_yarn
+  #   - pre_deps_golang
+  #   - compile_app_client
+  #   - compile_app_server
+  before_script:
+      - *setup_milmove_env
+      - *e2e_tests_playwright
+      - apt-get update -y
+      #- apt-get install -y golang-go
+      #- go install your/go/app # Replace with your actual Go app path
+      #- go mod download
+      #- go build -o myapp . # Build your Go application
+      #- ./myapp migrate up # Run database migrations
+      - npm install
   script:
     - echo "TODO Add steps"
     - echo "integration_test_office"
