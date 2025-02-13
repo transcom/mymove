@@ -1206,3 +1206,31 @@ func GetCustomerContact(customerContacts models.MTOServiceItemCustomerContacts, 
 
 	return models.MTOServiceItemCustomerContact{}
 }
+
+// VLocation payload
+func VLocation(vLocation *models.VLocation) *primemessages.VLocation {
+	if vLocation == nil {
+		return nil
+	}
+	if *vLocation == (models.VLocation{}) {
+		return nil
+	}
+
+	return &primemessages.VLocation{
+		City:                 vLocation.CityName,
+		State:                vLocation.StateName,
+		PostalCode:           vLocation.UsprZipID,
+		County:               &vLocation.UsprcCountyNm,
+		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UsPostRegionCitiesID),
+	}
+}
+
+// VLocations payload
+func VLocations(vLocations models.VLocations) primemessages.VLocations {
+	payload := make(primemessages.VLocations, len(vLocations))
+	for i, vLocation := range vLocations {
+		copyOfVLocation := vLocation
+		payload[i] = VLocation(&copyOfVLocation)
+	}
+	return payload
+}
