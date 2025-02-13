@@ -784,8 +784,8 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 }
 
 // We want to filter out any moves that have ONLY destination type requests to them, such as destination SIT, shuttle, out of the
-// task order queue. If the moves have origin SIT, excess weight risks, or sit extensions, they should still appear in the task order
-// queue, which is what this query looks for
+// task order queue. If the moves have origin SIT, excess weight risks, or sit extensions with origin SIT service items, they
+// should still appear in the task order queue, which is what this query looks for
 func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
 	return func(query *pop.Query) {
 		if role == roles.RoleTypeTOO {
