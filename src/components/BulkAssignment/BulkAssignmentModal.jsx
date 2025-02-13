@@ -18,7 +18,6 @@ const initialValues = {
 };
 
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
   const [isDisabled, setIsDisabled] = useState(false);
@@ -36,7 +35,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
       officeUsers.push(newUserAssignment);
     });
     initialValues.userData = officeUsers;
-    setIsLoading(false);
   };
 
   const fetchData = useCallback(async () => {
@@ -65,8 +63,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   const validationSchema = Yup.object().shape({
     assignment: Yup.number().min(0).typeError('Assignment must be a number'),
   });
-
-  if (isLoading) return null;
 
   return (
     <div>
