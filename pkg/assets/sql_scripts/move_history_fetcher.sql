@@ -216,7 +216,8 @@ WITH move AS (
 				'shipment_id', move_shipments.id::TEXT,
 				'shipment_id_abbr', move_shipments.shipment_id_abbr,
 				'shipment_type', move_shipments.shipment_type,
-				'shipment_locator', move_shipments.shipment_locator
+				'shipment_locator', move_shipments.shipment_locator,
+				'rejection_reason', payment_service_items.rejection_reason
 				)
 			)::TEXT AS context,
 			payment_requests.id AS id,
@@ -242,6 +243,42 @@ WITH move AS (
 			audit_history
 			JOIN move_payment_requests ON move_payment_requests.id = audit_history.object_id
 		WHERE audit_history.table_name = 'payment_requests'
+	),
+	move_payment_service_items AS (
+		SELECT
+			jsonb_agg(jsonb_build_object(
+				'name', re_services.name,
+				'price', payment_service_items.price_cents::TEXT,
+				'status', payment_service_items.status,
+				'rejection_reason', payment_service_items.rejection_reason,
+				'paid_at', payment_service_items.paid_at,
+				'shipment_id', move_shipments.id::TEXT,
+				'shipment_id_abbr', move_shipments.shipment_id_abbr,
+				'shipment_type', move_shipments.shipment_type,
+				'shipment_locator', move_shipments.shipment_locator
+				)
+			)::TEXT AS context,
+			payment_service_items.id AS id
+		FROM
+			payment_requests
+			JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
+			JOIN move_service_items ON move_service_items.id = payment_service_items.mto_service_item_id
+			LEFT JOIN move_shipments ON move_shipments.id = move_service_items.mto_shipment_id
+			JOIN re_services ON move_service_items.re_service_id = re_services.id
+		WHERE
+			payment_requests.move_id = (SELECT move.id FROM move)
+		GROUP BY
+			payment_service_items.id
+	),
+	payment_service_items_logs AS (
+		SELECT DISTINCT
+			audit_history.*,
+			context AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+			JOIN move_payment_service_items ON move_payment_service_items.id = audit_history.object_id
+		WHERE audit_history.table_name = 'payment_service_items'
 	),
 	move_proof_of_service_docs AS (
 		SELECT
@@ -720,6 +757,11 @@ WITH move AS (
 			*
 		FROM
 			payment_requests_logs
+		UNION
+		SELECT
+			*
+		FROM
+			payment_service_items_logs
 		UNION
 		SELECT
 			*
