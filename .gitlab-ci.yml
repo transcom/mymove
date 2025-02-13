@@ -1031,7 +1031,7 @@ integration_tests:
    - *check_integration_ignore_branch
 
 integration_test_mtls:
-  stage: test
+  stage: pre_checks
   interruptible: true
   tags:
     - $Gitlab_Runner_Tag
@@ -1039,7 +1039,7 @@ integration_test_mtls:
   services:
     - name: $postgres
     - name: $redis
-    - name: registry.csde.caci.com/milmove/mymove:e2e-${CI_COMMIT_SHORT_SHA}
+    - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
       alias: milmovemicroservice
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
@@ -1106,7 +1106,7 @@ integration_test_mtls:
 
     DB_DEBUG: false
   needs:
-    - prep_integration_docker_microservice
+  #  - prep_integration_docker_microservice
   #   - pre_deps_yarn
   #   - compile_app_server
   before_script:
@@ -1133,7 +1133,7 @@ integration_test_mtls:
    - *check_integration_mtls_ignore_branch
 
 integration_test_admin:
-  stage: test
+  stage: pre_checks
   interruptible: true
   tags:
     - $Gitlab_Runner_Tag
@@ -1141,6 +1141,10 @@ integration_test_admin:
   services:
     - name: $postgres
     - name: $redis
+    - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
+      alias: milmovemicroservice
+      entrypoint: ["/bin/milmove"]
+      command: ["serve","--port","4000","--verbose"]
   variables:
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
@@ -1158,11 +1162,11 @@ integration_test_admin:
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_DB: test_db
-  needs:
-    - pre_deps_yarn
-    - pre_deps_golang
-    - compile_app_client
-    - compile_app_server
+  # needs:
+  #   - pre_deps_yarn
+  #   - pre_deps_golang
+  #   - compile_app_client
+  #   - compile_app_server
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
@@ -1187,7 +1191,7 @@ integration_test_admin:
    - *check_integration_ignore_branch
 
 integration_test_my:
-  stage: test
+  stage: pre_checks
   interruptible: true
   tags:
     - $Gitlab_Runner_Tag
@@ -1195,6 +1199,10 @@ integration_test_my:
   services:
     - name: $postgres
     - name: $redis
+    - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
+      alias: milmovemicroservice
+      entrypoint: ["/bin/milmove"]
+      command: ["serve","--port","4000","--verbose"]
   variables:
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
@@ -1212,11 +1220,11 @@ integration_test_my:
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_DB: test_db
-  needs:
-    - pre_deps_yarn
-    - pre_deps_golang
-    - compile_app_client
-    - compile_app_server
+  # needs:
+  #   - pre_deps_yarn
+  #   - pre_deps_golang
+  #   - compile_app_client
+  #   - compile_app_server
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
@@ -1242,7 +1250,7 @@ integration_test_my:
    - *check_integration_ignore_branch
 
 integration_test_office:
-  stage: test
+  stage: pre_checks
   interruptible: true
   tags:
     - $Gitlab_Runner_Tag
@@ -1250,6 +1258,10 @@ integration_test_office:
   services:
     - name: $postgres
     - name: $redis
+    - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
+      alias: milmovemicroservice
+      entrypoint: ["/bin/milmove"]
+      command: ["serve","--port","4000","--verbose"]
   variables:
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
@@ -1267,11 +1279,11 @@ integration_test_office:
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
     POSTGRES_PASSWORD: mysecretpassword
     POSTGRES_DB: test_db
-  needs:
-    - pre_deps_yarn
-    - pre_deps_golang
-    - compile_app_client
-    - compile_app_server
+  # needs:
+  #   - pre_deps_yarn
+  #   - pre_deps_golang
+  #   - compile_app_client
+  #   - compile_app_server
   before_script:
       - *setup_milmove_env
       - *e2e_tests_playwright
