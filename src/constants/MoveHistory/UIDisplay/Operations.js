@@ -36,6 +36,7 @@ export default {
   updateOrder: 'updateOrder', // ghc.yaml
   updateOrders: 'updateOrders', // internal.yaml
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
+  updatePaymentServiceItemStatus: 'updatePaymentServiceItemStatus',
   updateReweigh: 'updateReweigh',
   updateServiceItemStatus: 'updateMTOServiceItemStatus',
   updateServiceItemSitEntryDate: 'updateServiceItemSitEntryDate', // ghc.yaml
