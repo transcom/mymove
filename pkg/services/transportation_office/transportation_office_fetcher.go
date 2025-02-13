@@ -133,8 +133,8 @@ func ListDistinctGBLOCs(appCtx appcontext.AppContext) (models.GBLOCs, error) {
 	return gblocList, err
 }
 
-func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffices, error) {
-	officeList, err := findCounselingOffice(appCtx, dutyLocationID)
+func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffices, error) {
+	officeList, err := findCounselingOffice(appCtx, dutyLocationID, serviceMemberID)
 
 	if err != nil {
 		switch err {
@@ -149,7 +149,8 @@ func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.App
 }
 
 // return all the transportation offices in the GBLOC of the given duty location where provides_services_counseling = true
-func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (models.TransportationOffices, error) {
+// serviceMemberID is only provided when this function is called by the office handler
+func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (models.TransportationOffices, error) {
 	var officeList []models.TransportationOffice
 
 	duty_location, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
@@ -163,7 +164,7 @@ func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID
 	// Find for oconus duty location
 	// ********************************
 	if *duty_location.Address.IsOconus {
-		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location)
+		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location, serviceMemberID)
 		if err != nil {
 			return officeList, err
 		}
@@ -244,8 +245,8 @@ func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID
 	return officeList, nil
 }
 
-func findOconusGblocDepartmentIndicator(appCtx appcontext.AppContext, dutyLocation models.DutyLocation) (*oconusGblocDepartmentIndicator, error) {
-	serviceMember, err := models.FetchServiceMember(appCtx.DB(), appCtx.Session().ServiceMemberID)
+func findOconusGblocDepartmentIndicator(appCtx appcontext.AppContext, dutyLocation models.DutyLocation, serviceMemberID uuid.UUID) (*oconusGblocDepartmentIndicator, error) {
+	serviceMember, err := models.FetchServiceMember(appCtx.DB(), serviceMemberID)
 	if err != nil {
 		return nil, err
 	}
