@@ -14,6 +14,8 @@ update orders set new_duty_location_id = '3ed6ac5d-fda7-4b0f-b002-c49f44f908fc' 
 
 delete from duty_locations where id = '601e304e-d019-482a-9127-0a62dd23b751';
 
+update re_us_post_regions set is_po_box = true where uspr_zip_id = '36577';
+
 --add duty loc McChord AFB, WA 98439
 INSERT INTO public.addresses
 (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, street_address_3, county, is_oconus, country_id, us_post_region_cities_id)
@@ -127,6 +129,13 @@ INSERT INTO public.duty_locations
 SELECT 'cae54e5f-d14d-4181-af55-4de9457ef9d6'::uuid, 'Oklahoma City, OK 73175', null, '1349100a-ad9a-4a69-b40c-35b6b6f7df74'::uuid, now(), now(), null, true
 WHERE NOT EXISTS (select * from duty_locations where id = 'cae54e5f-d14d-4181-af55-4de9457ef9d6');
 
+--remove duty loc Madison, WI 53708
+update orders set origin_duty_location_id = 'ef377e03-c4e0-48bd-bbe2-3aac0abbe7bb' where origin_duty_location_id = '1ac03922-05c8-4336-8c25-7c2d8cbce8ae';
+update orders set new_duty_location_id = 'ef377e03-c4e0-48bd-bbe2-3aac0abbe7bb' where new_duty_location_id = '1ac03922-05c8-4336-8c25-7c2d8cbce8ae';
+
+delete from duty_locations where id = '1ac03922-05c8-4336-8c25-7c2d8cbce8ae';
+
+update re_us_post_regions set is_po_box = true where uspr_zip_id = '53708';
 
 --set po_box_only to false for zips that have valid duty locations
 update re_us_post_regions 
