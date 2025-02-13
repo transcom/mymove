@@ -1408,6 +1408,9 @@ definitions:
       providesServicesCounseling:
         type: boolean
         x-omitempty: false
+      weightRestriction:
+        type: integer
+        x-nullable: true
     required:
       - id
       - service_member_id
@@ -1455,6 +1458,11 @@ definitions:
         example: 3
         x-nullable: true
         description: The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.
+      weight_restriction:
+        type: integer
+        example: 1500
+        x-nullable: true
+        description: Indicates the weight restricted to a specific location.
   CreateUpdateOrders:
     type: object
     properties:

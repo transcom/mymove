@@ -219,21 +219,46 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
-			destinationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
-			if err != nil {
-				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
-				appCtx.Logger().Error(err.Error())
-				return orderop.NewCreateOrderUnprocessableEntity(), err
+			var newDutyLocationGBLOC *string
+			if *newDutyLocation.Address.IsOconus {
+				newDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), newDutyLocation.Address, serviceMember)
+				if err != nil {
+					return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for New Duty Location Oconus GBLOC")
+				}
+				newDutyLocationGBLOC = newDutyLocationGBLOCOconus
+			} else {
+				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
+				if err != nil {
+					switch err {
+					case sql.ErrNoRows:
+						return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for New Duty Location PostalCodeToGBLOC")
+					default:
+						err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+						appCtx.Logger().Error(err.Error())
+						return orderop.NewCreateOrderUnprocessableEntity(), err
+					}
+				}
+				newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
 			}
 
-			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
-			if err != nil {
-				switch err {
-				case sql.ErrNoRows:
-					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
-				default:
-					return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+			var originDutyLocationGBLOC *string
+			if *originDutyLocation.Address.IsOconus {
+				originDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), originDutyLocation.Address, serviceMember)
+				if err != nil {
+					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Origin Duty Location Oconus GBLOC")
 				}
+				originDutyLocationGBLOC = originDutyLocationGBLOCOconus
+			} else {
+				originDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+				if err != nil {
+					switch err {
+					case sql.ErrNoRows:
+						return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Origin Duty Location PostalCodeToGBLOC")
+					default:
+						return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+					}
+				}
+				originDutyLocationGBLOC = &originDutyLocationGBLOCConus.GBLOC
 			}
 
 			grade := (internalmessages.OrderPayGrade)(*payload.Grade)
@@ -265,6 +290,8 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 			}
 
+			var weightRestriction *int
+
 			entitlement := models.Entitlement{
 				DependentsAuthorized:    payload.HasDependents,
 				DBAuthorizedWeight:      models.IntPointer(weight),
@@ -275,6 +302,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				DependentsUnderTwelve:   dependentsUnderTwelve,
 				DependentsTwelveAndOver: dependentsTwelveAndOver,
 				UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
+				WeightRestriction:       weightRestriction,
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
@@ -317,9 +345,9 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				&originDutyLocation,
 				&grade,
 				&entitlement,
-				&originDutyLocationGBLOC.GBLOC,
+				originDutyLocationGBLOC,
 				packingAndShippingInstructions,
-				&destinationGBLOC.GBLOC,
+				newDutyLocationGBLOC,
 			)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

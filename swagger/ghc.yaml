@@ -3675,6 +3675,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this payment request.
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3930,6 +3934,10 @@ paths:
           name: counselingOffice
           type: string
           description: filters using a counselingOffice name of the move
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4046,6 +4054,10 @@ paths:
             current user. Requires the HQ role or a secondary transportation
             office assignment. The parameter is ignored if the requesting user
             does not have the necessary role or assignment.
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -5322,6 +5334,11 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      weightRestriction:
+        type: integer
+        example: 1500
+        x-formatting: weight
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -6267,6 +6284,13 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the weight restriction for the move to a particular
+          location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6370,6 +6394,11 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: Indicates the weight restriction for a move to a particular location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
