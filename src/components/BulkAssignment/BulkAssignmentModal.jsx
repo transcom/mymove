@@ -195,6 +195,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                       >
                         {closeText}
                       </Button>
+                      {isError && <div className={styles.errorMessage}>{errorMessage}</div>}
                     </ModalActions>
                   )}
                 </Form>
