@@ -32,6 +32,8 @@ type ServiceItem struct {
 	// This should be populated for the following service items:
 	//   * DOASIT(Domestic origin Additional day SIT)
 	//   * DDASIT(Domestic destination Additional day SIT)
+	//   * IOASIT(International origin Additional day SIT)
+	//   * IDASIT(International destination Additional day SIT)
 	//
 	// Both take in the following param keys:
 	//   * `SITPaymentRequestStart`

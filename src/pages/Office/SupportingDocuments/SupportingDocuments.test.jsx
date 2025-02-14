@@ -12,6 +12,11 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+global.EventSource = jest.fn().mockImplementation(() => ({
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  close: jest.fn(),
+}));
 // prevents react-fileviewer from throwing errors without mocking relevant DOM elements
 jest.mock('components/DocumentViewer/Content/Content', () => {
   const MockContent = () => <div>Content</div>;

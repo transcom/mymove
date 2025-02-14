@@ -71,7 +71,7 @@ type Move struct {
 	PPMType                                        *string               `db:"ppm_type"`
 	MTOServiceItems                                MTOServiceItems       `has_many:"mto_service_items" fk_id:"move_id"`
 	PaymentRequests                                PaymentRequests       `has_many:"payment_requests" fk_id:"move_id"`
-	MTOShipments                                   MTOShipments          `has_many:"mto_shipments" fk_id:"move_id"`
+	MTOShipments                                   MTOShipments          `json:"mto_shipments" has_many:"mto_shipments" fk_id:"move_id"`
 	ReferenceID                                    *string               `db:"reference_id"`
 	ServiceCounselingCompletedAt                   *time.Time            `db:"service_counseling_completed_at"`
 	PrimeCounselingCompletedAt                     *time.Time            `db:"prime_counseling_completed_at"`
@@ -98,11 +98,11 @@ type Move struct {
 	SCAssignedID                                   *uuid.UUID            `json:"sc_assigned_id" db:"sc_assigned_id"`
 	SCAssignedUser                                 *OfficeUser           `belongs_to:"office_users" fk_id:"sc_assigned_id"`
 	TOOAssignedID                                  *uuid.UUID            `json:"too_assigned_id" db:"too_assigned_id"`
-	TOOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"too_assigned_id"`
+	TOOAssignedUser                                *OfficeUser           `json:"too_assigned" belongs_to:"office_users" fk_id:"too_assigned_id"`
 	TIOAssignedID                                  *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
 	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
 	CounselingOfficeID                             *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
-	CounselingOffice                               *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
+	CounselingOffice                               *TransportationOffice `json:"counseling_transportation_office" belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
 }
 
 type MoveWithEarliestDate struct {
@@ -217,18 +217,28 @@ func (m Move) GetDestinationGBLOC(db *pop.Connection) (string, error) {
 
 	var newGBLOC string
 	if *destinationAddress.IsOconus {
-		err := db.Load(&m.Orders, "ServiceMember")
-		if err != nil {
-			if err.Error() == RecordNotFoundErrorString {
-				return "", errors.WithMessage(err, "No Service Member found in the DB associated with moveID "+m.ID.String())
+		if m.OrdersID != uuid.Nil {
+			err := db.Q().EagerPreload("ServiceMember").
+				Find(&m.Orders, m.OrdersID)
+			if err != nil {
+				if errors.Cause(err).Error() == RecordNotFoundErrorString {
+					return "", ErrFetchNotFound
+				}
+				return "", err
 			}
-			return "", err
+		} else {
+			return "", errors.WithMessage(ErrInvalidOrderID, "Orders ID must have a value in order to get the destination GBLOC")
 		}
-		newGBLOCOconus, err := FetchAddressGbloc(db, *destinationAddress, m.Orders.ServiceMember)
-		if err != nil {
-			return "", err
+
+		if m.Orders.ServiceMember.Affiliation != nil {
+			newGBLOCOconus, err := FetchAddressGbloc(db, *destinationAddress, m.Orders.ServiceMember)
+			if err != nil {
+				return "", err
+			}
+			newGBLOC = *newGBLOCOconus
+		} else {
+			return "", errors.Errorf("ServiceMember.Affiliation cannot be NULL for GetDestinationGBLOC")
 		}
-		newGBLOC = *newGBLOCOconus
 	} else {
 		newGBLOCConus, err := FetchGBLOCForPostalCode(db, destinationAddress.PostalCode)
 		if err != nil {
@@ -694,7 +704,6 @@ func GetTotalNetWeightForMove(m Move) unit.Pound {
 		}
 	}
 	return totalNetWeight
-
 }
 
 // gets total weight from all ppm and hhg shipments within a move

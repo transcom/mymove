@@ -798,6 +798,16 @@ export const MoveTaskOrder = (props) => {
           setAlertMessage('SIT entry date updated');
           setAlertType('success');
         },
+        onError: (error) => {
+          let errorMessage = 'There was a problem updating the SIT entry date';
+          if (error.response.status === 422) {
+            const responseData = JSON.parse(error?.response?.data);
+            errorMessage = responseData?.detail;
+            setAlertMessage(errorMessage);
+            setAlertType('error');
+          }
+          setIsEditSitEntryDateModalVisible(false);
+        },
       },
     );
   };
