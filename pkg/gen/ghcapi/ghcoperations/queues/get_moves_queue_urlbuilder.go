@@ -16,6 +16,7 @@ import (
 
 // GetMovesQueueURL generates an URL for the get moves queue operation
 type GetMovesQueueURL struct {
+	ActiveRole              *string
 	AppearedInTooAt         *strfmt.DateTime
 	AssignedTo              *string
 	Branch                  *string
@@ -68,6 +69,14 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var activeRoleQ string
+	if o.ActiveRole != nil {
+		activeRoleQ = *o.ActiveRole
+	}
+	if activeRoleQ != "" {
+		qs.Set("activeRole", activeRoleQ)
+	}
 
 	var appearedInTooAtQ string
 	if o.AppearedInTooAt != nil {

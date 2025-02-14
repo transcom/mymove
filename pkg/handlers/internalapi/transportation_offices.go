@@ -74,7 +74,7 @@ func (h ShowCounselingOfficesHandler) Handle(params transportationofficeop.ShowC
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			dutyLocationID := uuid.FromStringOrNil(params.DutyLocationID.String())
 
-			counselingOffices, err := h.TransportationOfficesFetcher.GetCounselingOffices(appCtx, dutyLocationID)
+			counselingOffices, err := h.TransportationOfficesFetcher.GetCounselingOffices(appCtx, dutyLocationID, appCtx.Session().ServiceMemberID)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Counseling Offices: ", zap.Error(err))
 				return transportationofficeop.NewShowCounselingOfficesInternalServerError(), err

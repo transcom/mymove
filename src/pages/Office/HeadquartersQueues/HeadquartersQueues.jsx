@@ -38,7 +38,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
-const HeadquartersQueue = ({ isQueueManagementFFEnabled }) => {
+const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
@@ -247,6 +247,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled }) => {
           csvExportQueueFetcher={getMovesQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
+          activeRole={activeRole}
         />
       </div>
     );
@@ -273,6 +274,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled }) => {
           csvExportQueueFetcher={getPaymentRequestsQueue}
           csvExportQueueFetcherKey="queuePaymentRequests"
           sessionStorageKey={queueType}
+          activeRole={activeRole}
         />
       </div>
     );
@@ -299,6 +301,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled }) => {
           csvExportQueueFetcher={getServicesCounselingPPMQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
+          activeRole={activeRole}
         />
       </div>
     );
@@ -326,6 +329,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled }) => {
           csvExportQueueFetcher={getServicesCounselingQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
+          activeRole={activeRole}
         />
       </div>
     );

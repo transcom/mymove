@@ -125,6 +125,7 @@ const TableQueue = ({
     currentPage,
     currentPageSize,
     viewAsGBLOC: selectedGbloc,
+    activeRole,
   });
 
   // react-table setup below

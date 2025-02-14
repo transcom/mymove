@@ -221,7 +221,8 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	var officeUsers models.OfficeUsers
 	var officeUsersSafety models.OfficeUsers
 	officeUsers = append(officeUsers, officeUser)
-	var paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+	activeRole := string(roles.RoleTypeTIO)
+	var paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 
 	suite.Run("Test Payment request is assignable due to not being assigend", func() {
 		paymentRequestCopy := *paymentRequestsQueue
@@ -240,7 +241,7 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUserTIO
 	paymentRequests[0].MoveTaskOrder.CounselingOffice = &transportationOffice
 
-	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 
 	suite.Run("Test PaymentRequest has both Counseling Office and TIO AssignedUser ", func() {
 		PaymentRequestsCopy := *paymentRequestsQueue
@@ -254,14 +255,14 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	})
 
 	suite.Run("Test PaymentRequest is assignable due to user Supervisor role", func() {
-		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 		paymentRequestCopy := *paymentRequests
 		suite.Equal(paymentRequestCopy[0].Assignable, true)
 	})
 
-	officeUserHQ := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
+	activeRole = string(roles.RoleTypeHQ)
 	suite.Run("Test PaymentRequest is not assignable due to user HQ role", func() {
-		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUserHQ, officeUsersSafety)
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 		paymentRequestCopy := *paymentRequests
 		suite.Equal(paymentRequestCopy[0].Assignable, false)
 	})
@@ -1914,5 +1915,36 @@ func (suite *PayloadsSuite) TestPaymentServiceItemsPayload() {
 		suite.Equal(reServiceName2, psItem2.MtoServiceItemName)
 		suite.Equal(ghcmessages.MTOShipmentType(shipmentType), psItem2.MtoShipmentType)
 		suite.Nil(psItem2.TppsInvoiceAmountPaidPerServiceItemMillicents)
+	})
+}
+
+func (suite *PayloadsSuite) TestCounselingOffices() {
+	suite.Run("correctly maps transportaion offices to counseling offices payload", func() {
+		office1 := factory.BuildTransportationOffice(nil, []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Liberty",
+				},
+			},
+		}, nil)
+
+		office2 := factory.BuildTransportationOffice(nil, []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Walker",
+				},
+			},
+		}, nil)
+
+		offices := models.TransportationOffices{office1, office2}
+
+		payload := CounselingOffices(offices)
+
+		suite.IsType(payload, ghcmessages.CounselingOffices{})
+		suite.Equal(2, len(payload))
+		suite.Equal(office1.ID.String(), payload[0].ID.String())
+		suite.Equal(office2.ID.String(), payload[1].ID.String())
 	})
 }

@@ -232,6 +232,96 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		suite.Nil(updatedOfficeUser.RejectionReason)
 	})
 
+	suite.Run("Updates previously rejected office user instead of create different email same ID", func() {
+		rejectedStatus := models.OfficeUserStatusREJECTED
+		requestedStatus := models.OfficeUserStatusREQUESTED
+
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			}}, nil)
+
+		user := factory.BuildUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.User{
+					ID:        uuid.Must(uuid.NewV4()),
+					OktaEmail: "billy+existing@leo.org",
+				},
+			},
+		}, nil)
+		edipi := "1225202401"
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					ID:        uuid.Must(uuid.NewV4()),
+					FirstName: "Billy",
+					LastName:  "Bob",
+					Status:    &rejectedStatus,
+					Email:     "billy+was+rejected@leo.org",
+					EDIPI:     &edipi,
+				},
+			},
+			{
+				Model:    user,
+				LinkOnly: true,
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		queryBuilder := query.NewQueryBuilder()
+
+		officeUserInfo := models.OfficeUser{
+			LastName:               "Spaceman",
+			FirstName:              "Billy",
+			Email:                  "billy+was+sucessful@leo.org",
+			TransportationOfficeID: transportationOffice.ID,
+			Telephone:              "312-111-1111",
+			TransportationOffice:   transportationOffice,
+			EDIPI:                  &edipi,
+		}
+
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
+			switch model.(type) {
+			case *models.TransportationOffice:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
+			case *models.User:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(officeUser.User.ID))
+				reflect.ValueOf(model).Elem().FieldByName("OktaID").Set(reflect.ValueOf(officeUser.User.OktaID))
+				reflect.ValueOf(model).Elem().FieldByName("OktaEmail").Set(reflect.ValueOf(officeUser.User.OktaEmail))
+			case *models.OfficeUser:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(officeUser.ID))
+				reflect.ValueOf(model).Elem().FieldByName("Email").Set(reflect.ValueOf(officeUser.Email))
+				reflect.ValueOf(model).Elem().FieldByName("FirstName").Set(reflect.ValueOf(officeUser.FirstName))
+				reflect.ValueOf(model).Elem().FieldByName("LastName").Set(reflect.ValueOf(officeUser.LastName))
+				reflect.ValueOf(model).Elem().FieldByName("TransportationOfficeID").Set(reflect.ValueOf(officeUser.TransportationOfficeID))
+				reflect.ValueOf(model).Elem().FieldByName("Telephone").Set(reflect.ValueOf(officeUser.Telephone))
+				reflect.ValueOf(model).Elem().FieldByName("Status").Set(reflect.ValueOf(officeUser.Status))
+			}
+			return nil
+		}
+
+		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", transportationOffice.ID)}
+
+		builder := &testOfficeUserQueryBuilder{
+			fakeFetchOne:  fakeFetchOne,
+			fakeCreateOne: queryBuilder.CreateOne,
+		}
+		mockSender := setUpMockNotificationSender()
+
+		creator := NewOfficeUserCreator(builder, mockSender)
+		updatedOfficeUser, verrs, err := creator.CreateOfficeUser(appCtx, &officeUserInfo, filter)
+		suite.NoError(err)
+		suite.Nil(verrs)
+		suite.NotNil(updatedOfficeUser)
+		suite.Equal(updatedOfficeUser.ID, officeUser.ID)
+		suite.Equal(updatedOfficeUser.Status, &requestedStatus)
+		suite.Equal(updatedOfficeUser.Email, "billy+was+sucessful@leo.org")
+		suite.Equal(updatedOfficeUser.EDIPI, &edipi)
+		suite.Nil(updatedOfficeUser.RejectionReason)
+	})
+
 	// Bad transportation office ID
 	suite.Run("If we are provided a transportation office that doesn't exist, the create should fail", func() {
 		_, userInfo := setupTestData()

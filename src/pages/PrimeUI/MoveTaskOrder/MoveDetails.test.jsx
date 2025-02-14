@@ -8,6 +8,7 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/primeApi';
 import { primeSimulatorRoutes } from 'constants/routes';
+import { formatWeight } from 'utils/formatters';
 
 const mockRequestedMoveCode = 'LN4T89';
 
@@ -194,6 +195,7 @@ const moveTaskOrder = {
   order: {
     entitlement: {
       gunSafe: true,
+      weightRestriction: 500,
     },
   },
 };
@@ -224,6 +226,25 @@ const renderWithProviders = (component) => {
 };
 describe('PrimeUI MoveDetails page', () => {
   describe('check move details page load', () => {
+    it('renders move and entitlement detais on load', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+
+      renderWithProviders(<MoveDetails />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Move Code/)).toBeInTheDocument();
+        expect(screen.getByText(/Move Id/)).toBeInTheDocument();
+        const gunSafe = screen.getByText('Gun Safe:');
+        expect(gunSafe).toBeInTheDocument();
+        expect(gunSafe.nextElementSibling.textContent).toBe('yes');
+        const adminRestrictedWeight = screen.getByText('Admin Restricted Weight:');
+        expect(adminRestrictedWeight).toBeInTheDocument();
+        expect(adminRestrictedWeight.nextElementSibling.textContent).toBe(
+          formatWeight(moveTaskOrder.order.entitlement.weightRestriction),
+        );
+      });
+    });
+
     it('displays payment requests information', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       renderWithProviders(<MoveDetails />);
