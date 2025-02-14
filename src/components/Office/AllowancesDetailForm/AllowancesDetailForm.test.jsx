@@ -189,10 +189,12 @@ describe('AllowancesDetailForm additional tests', () => {
   });
 
   it('does not render the admin weight location section when the weightRestriction entitlement is null', async () => {
-    entitlements.weightRestriction = null;
     render(
       <Formik initialValues={initialValues}>
-        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
+        <AllowancesDetailForm
+          entitlements={{ ...entitlements, weightRestriction: null }}
+          branchOptions={branchOptions}
+        />
       </Formik>,
     );
 
