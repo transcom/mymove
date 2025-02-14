@@ -1,4 +1,4 @@
--- This migration removes unused payment request type of INTERNATIONAL_HHG
+-- This migration removes unused payment request status type of RECEIVED_BY_GEX
 -- all previous payment requests using type were updated to TPPS_RECEIVED in
 -- migrations/app/schema/20240725190050_update_payment_request_status_tpps_received.up.sql
 
@@ -26,10 +26,8 @@ alter  table payment_requests alter column  status drop not null;
 -- alter the payment_requests status column to use the new enum
 ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::text::payment_request_status;
 
-
 -- get rid of the temp type
 DROP TYPE payment_request_status_temp;
-
 
 ALTER TABLE payment_requests
 ALTER COLUMN status SET DEFAULT 'PENDING',
