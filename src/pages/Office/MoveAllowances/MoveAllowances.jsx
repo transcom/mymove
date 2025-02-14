@@ -103,11 +103,13 @@ const MoveAllowances = () => {
       organizationalClothingAndIndividualEquipment,
       storageInTransit,
       gunSafe,
+      adminRestrictedWeightLocation,
       weightRestriction,
       accompaniedTour,
       dependentsTwelveAndOver,
       dependentsUnderTwelve,
     } = values;
+
     const body = {
       issueDate: order.date_issued,
       newDutyLocationId: order.destinationDutyLocation.id,
@@ -124,11 +126,12 @@ const MoveAllowances = () => {
       organizationalClothingAndIndividualEquipment,
       storageInTransit: Number(storageInTransit),
       gunSafe,
-      weightRestriction: Number(weightRestriction),
+      weightRestriction: adminRestrictedWeightLocation && weightRestriction ? Number(weightRestriction) : null,
       accompaniedTour,
       dependentsTwelveAndOver: Number(dependentsTwelveAndOver),
       dependentsUnderTwelve: Number(dependentsUnderTwelve),
     };
+
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
@@ -156,7 +159,8 @@ const MoveAllowances = () => {
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
     organizationalClothingAndIndividualEquipment,
     gunSafe,
-    weightRestriction: `${weightRestriction}`,
+    adminRestrictedWeightLocation: weightRestriction > 0,
+    weightRestriction: weightRestriction ? `${weightRestriction}` : '0',
     storageInTransit: `${storageInTransit}`,
     accompaniedTour,
     dependentsUnderTwelve: `${dependentsUnderTwelve}`,
