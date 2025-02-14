@@ -673,10 +673,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 		var orderInDB models.Order
 		err = suite.DB().Find(&orderInDB, order.ID)
-
-		fetchedSM := models.ServiceMember{}
-		_ = suite.DB().Find(&fetchedSM, order.ServiceMember.ID)
-
 		suite.NoError(err)
 		suite.Nil(updatedOrder.Entitlement.WeightRestriction)
 	})
@@ -862,10 +858,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 
 		var orderInDB models.Order
 		err = suite.DB().Find(&orderInDB, order.ID)
-
-		fetchedSM := models.ServiceMember{}
-		_ = suite.DB().Find(&fetchedSM, order.ServiceMember.ID)
-
 		suite.NoError(err)
 		suite.Nil(updatedOrder.Entitlement.WeightRestriction)
 	})
