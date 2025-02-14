@@ -1276,15 +1276,9 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			}
 		}
 
-		if shipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
-			if intlTransTime.HhgTransitTime != nil {
-				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.HhgTransitTime)
-			}
-		} else {
-			if intlTransTime.UbTransitTime != nil {
-				dayAfterPickupDate := pickupDate.AddDate(0, 0, 1)
-				requiredDeliveryDate = dayAfterPickupDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
-			}
+		if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage && intlTransTime.UbTransitTime != nil {
+			dayAfterPickupDate := pickupDate.AddDate(0, 0, 1)
+			requiredDeliveryDate = dayAfterPickupDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
 		}
 	}
 
