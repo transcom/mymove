@@ -125,8 +125,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
+	tooDestinationRequestsQuery := tooQueueOriginRequestsFilter(role)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
+	options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -892,6 +893,98 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 			}
 		} else {
 			query.Order("moves.status desc")
+		}
+	}
+}
+
+// We want to filter out any moves that have ONLY destination type requests to them, such as destination SIT, shuttle, out of the
+// task order queue. If the moves have origin SIT, excess weight risks, or sit extensions with origin SIT service items, they
+// should still appear in the task order queue, which is what this query looks for
+func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
+	return func(query *pop.Query) {
+		if role == roles.RoleTypeTOO {
+			baseQuery := `
+			-- check for moves with destination requests and NOT origin requests, then return the inverse for the TOO queue with the NOT wrapped around the query
+			NOT (
+					-- check for moves with destination requests
+					(
+						-- moves with submitted destination SIT or shuttle submitted service items
+						EXISTS (
+							SELECT 1
+							FROM mto_service_items msi
+							JOIN re_services rs ON msi.re_service_id = rs.id
+							WHERE msi.mto_shipment_id = mto_shipments.id
+							AND msi.status = 'SUBMITTED'
+							AND rs.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC',
+											'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT', 'IDSFSC')
+						)
+						-- requested shipment address update
+						OR EXISTS (
+							SELECT 1
+							FROM shipment_address_updates sau
+							WHERE sau.shipment_id = mto_shipments.id
+							AND sau.status = 'REQUESTED'
+						)
+						-- Moves with SIT extensions and ONLY destination SIT service items we filter out of TOO queue
+						OR (
+							EXISTS (
+								SELECT 1
+								FROM sit_extensions se
+								JOIN mto_service_items msi ON se.mto_shipment_id = msi.mto_shipment_id
+								JOIN re_services rs ON msi.re_service_id = rs.id
+								WHERE se.mto_shipment_id = mto_shipments.id
+								AND se.status = 'PENDING'
+								AND rs.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC',
+												'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT', 'IDSFSC')
+							)
+							-- make sure there are NO origin SIT service items (otherwise, it should be in both queues)
+							AND NOT EXISTS (
+								SELECT 1
+								FROM mto_service_items msi
+								JOIN re_services rs ON msi.re_service_id = rs.id
+								WHERE msi.mto_shipment_id = mto_shipments.id
+								AND msi.status = 'SUBMITTED'
+								AND rs.code IN ('ICRT', 'IUBPK', 'IOFSIT', 'IOASIT', 'IOPSIT', 'IOSHUT',
+												'IHUPK', 'IUCRT', 'DCRT', 'MS', 'CS', 'DOFSIT', 'DOASIT',
+												'DOPSIT', 'DOSFSC', 'IOSFSC', 'DUPK', 'DUCRT', 'DOSHUT',
+												'FSC', 'DMHF', 'DBTF', 'DBHF', 'IBTF', 'IBHF', 'DCRTSA',
+												'DLH', 'DOP', 'DPK', 'DSH', 'DNPK', 'INPK', 'UBP',
+												'ISLH', 'POEFSC', 'PODFSC', 'IHPK')
+							)
+						)
+					)
+					-- check for moves with origin requests or conditions where move should appear in TOO queue
+					AND NOT (
+						-- keep moves in the TOO queue with origin submitted service items
+						EXISTS (
+							SELECT 1
+							FROM mto_service_items msi
+							JOIN re_services rs ON msi.re_service_id = rs.id
+							WHERE msi.mto_shipment_id = mto_shipments.id
+							AND msi.status = 'SUBMITTED'
+							AND rs.code IN ('ICRT', 'IUBPK', 'IOFSIT', 'IOASIT', 'IOPSIT', 'IOSHUT',
+											'IHUPK', 'IUCRT', 'DCRT', 'MS', 'CS', 'DOFSIT', 'DOASIT',
+											'DOPSIT', 'DOSFSC', 'IOSFSC', 'DUPK', 'DUCRT', 'DOSHUT',
+											'FSC', 'DMHF', 'DBTF', 'DBHF', 'IBTF', 'IBHF', 'DCRTSA',
+											'DLH', 'DOP', 'DPK', 'DSH', 'DNPK', 'INPK', 'UBP',
+											'ISLH', 'POEFSC', 'PODFSC', 'IHPK')
+						)
+						-- keep moves in the TOO queue if they have an unacknowledged excess weight risk
+						OR (
+							(
+								moves.excess_weight_qualified_at IS NOT NULL
+								AND moves.excess_weight_acknowledged_at IS NULL
+							)
+							OR (
+								moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
+								AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
+							)
+						)
+					)
+				)
+
+            `
+			query.Where(baseQuery)
 		}
 	}
 }
