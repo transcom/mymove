@@ -44,10 +44,18 @@ const validationSchema = Yup.object({
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
   weightRestriction: Yup.number()
-    .min(1, 'Weight restriction must be greater than 0')
-    .max(18000, 'Weight restriction cannot exceed 18,000 lbs')
     .transform((value) => (Number.isNaN(value) ? 0 : value))
-    .notRequired(),
+    .when('adminRestrictedWeightLocation', {
+      is: true, // Apply rules only if adminRestrictedWeightLocation is true
+      then: (schema) =>
+        schema
+          .min(1, 'Weight restriction must be greater than 0')
+          .max(18000, 'Weight restriction cannot exceed 18,000 lbs')
+          .required('Weight restriction is required when Admin Restricted Weight Location is enabled'),
+      otherwise: (schema) => schema.notRequired().nullable(), // No validation when false
+    }),
+
+  adminRestrictedWeightLocation: Yup.boolean().notRequired(),
 });
 
 const MoveAllowances = () => {
@@ -103,11 +111,13 @@ const MoveAllowances = () => {
       organizationalClothingAndIndividualEquipment,
       storageInTransit,
       gunSafe,
+      adminRestrictedWeightLocation,
       weightRestriction,
       accompaniedTour,
       dependentsTwelveAndOver,
       dependentsUnderTwelve,
     } = values;
+
     const body = {
       issueDate: order.date_issued,
       newDutyLocationId: order.destinationDutyLocation.id,
@@ -124,11 +134,12 @@ const MoveAllowances = () => {
       organizationalClothingAndIndividualEquipment,
       storageInTransit: Number(storageInTransit),
       gunSafe,
-      weightRestriction: Number(weightRestriction),
+      weightRestriction: adminRestrictedWeightLocation && weightRestriction ? Number(weightRestriction) : null,
       accompaniedTour,
       dependentsTwelveAndOver: Number(dependentsTwelveAndOver),
       dependentsUnderTwelve: Number(dependentsUnderTwelve),
     };
+
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
@@ -156,7 +167,8 @@ const MoveAllowances = () => {
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
     organizationalClothingAndIndividualEquipment,
     gunSafe,
-    weightRestriction: `${weightRestriction}`,
+    adminRestrictedWeightLocation: weightRestriction > 0,
+    weightRestriction: weightRestriction ? `${weightRestriction}` : '0',
     storageInTransit: `${storageInTransit}`,
     accompaniedTour,
     dependentsUnderTwelve: `${dependentsUnderTwelve}`,
