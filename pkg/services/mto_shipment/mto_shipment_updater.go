@@ -1250,9 +1250,6 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			}
 		}
 
-		if shipmentType == models.MTOShipmentTypeHHG && intlTransTime.HhgTransitTime != nil {
-			requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.HhgTransitTime)
-		}
 		if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage && intlTransTime.UbTransitTime != nil {
 			dayAfterPickupDate := pickupDate.AddDate(0, 0, 1)
 			requiredDeliveryDate = dayAfterPickupDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
