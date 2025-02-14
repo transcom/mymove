@@ -381,6 +381,7 @@ class MtoShipmentForm extends Component {
                                       value="true"
                                       title="Yes, I have a second pickup address"
                                       checked={hasSecondaryPickup === 'true'}
+                                      disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
                                     />
                                     <Field
                                       as={Radio}
@@ -391,6 +392,7 @@ class MtoShipmentForm extends Component {
                                       value="false"
                                       title="No, I do not have a second pickup address"
                                       checked={hasSecondaryPickup !== 'true'}
+                                      disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
                                     />
                                   </div>
                                 </FormGroup>
