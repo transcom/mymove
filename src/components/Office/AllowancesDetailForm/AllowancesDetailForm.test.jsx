@@ -181,8 +181,11 @@ describe('AllowancesDetailForm additional tests', () => {
 
     const adminWeightCheckbox = await screen.findByTestId('adminWeightLocation');
     expect(adminWeightCheckbox).toBeInTheDocument();
-    expect(screen.getByTestId('weightRestrictionInput')).toBeInTheDocument();
-    expect(screen.getByTestId('weightRestrictionInput')).toHaveValue('500');
+    expect(screen.getByLabelText('Admin restricted weight location')).toBeChecked();
+
+    const weightRestrictionInput = screen.getByTestId('weightRestrictionInput');
+    expect(weightRestrictionInput).toBeInTheDocument();
+    expect(weightRestrictionInput).toHaveValue('500');
   });
 
   it('does not render the admin weight location section when the weightRestriction entitlement is null', async () => {
