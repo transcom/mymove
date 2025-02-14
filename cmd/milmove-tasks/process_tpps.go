@@ -44,6 +44,9 @@ func checkProcessTPPSConfig(v *viper.Viper, logger *zap.Logger) error {
 // initProcessTPPSFlags initializes TPPS processing flags
 func initProcessTPPSFlags(flag *pflag.FlagSet) {
 
+	// TPPS Config
+	cli.InitTPPSFlags(flag)
+
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
