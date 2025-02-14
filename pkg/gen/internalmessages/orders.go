@@ -127,6 +127,9 @@ type Orders struct {
 	// uploaded orders
 	// Required: true
 	UploadedOrders *Document `json:"uploaded_orders"`
+
+	// weight restriction
+	WeightRestriction *int64 `json:"weightRestriction,omitempty"`
 }
 
 // Validate validates this orders
