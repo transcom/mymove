@@ -8,10 +8,10 @@ import {
   ReferenceField,
   TextField,
   TextInput,
+  TopToolbar,
   useRecordContext,
   downloadCSV,
   useDataProvider,
-  TopToolbar,
   ExportButton,
   useListController,
 } from 'react-admin';
@@ -19,9 +19,11 @@ import jsonExport from 'jsonexport/dist';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
-const RequestedOfficeUserListFilter = () => (
-  <Filter>
-    <TextInput source="search" alwaysOn />
+const RequestedOfficeUserListFilter = (props) => (
+  <Filter {...props}>
+    <TextInput label="Search by Name/Email" source="search" alwaysOn resettable />
+    <TextInput label="Transportation Office" source="offices" alwaysOn resettable />
+    <TextInput label="Roles" source="rolesSearch" alwaysOn resettable />
   </Filter>
 );
 
