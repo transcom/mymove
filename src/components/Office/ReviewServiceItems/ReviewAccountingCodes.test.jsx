@@ -50,6 +50,42 @@ describe('components/Office/ReviewServiceItems/ReviewAccountingCodes', () => {
 
       expect(screen.queryByText('HHG')).not.toBeInTheDocument();
     });
+
+    it('should not display move management fee if move management service item is not requested', () => {
+      render(
+        <ReviewAccountingCodes
+          cards={[
+            {
+              amount: 20.65,
+              status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+              mtoServiceItemName: 'Counseling',
+            },
+          ]}
+        />,
+      );
+
+      expect(screen.queryByText('Move management fee')).not.toBeInTheDocument();
+      expect(screen.getByText('Counseling fee')).toBeInTheDocument();
+      expect(screen.getByText('$20.65')).toBeInTheDocument();
+    });
+
+    it('should not display counseling fee if counseling service item is not requested', () => {
+      render(
+        <ReviewAccountingCodes
+          cards={[
+            {
+              amount: 44.33,
+              status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+              mtoServiceItemName: 'Move management',
+            },
+          ]}
+        />,
+      );
+
+      expect(screen.queryByText('Counseling fee')).not.toBeInTheDocument();
+      expect(screen.getByText('Move management fee')).toBeInTheDocument();
+      expect(screen.getByText('$44.33')).toBeInTheDocument();
+    });
   });
 
   describe('can display codes', () => {
