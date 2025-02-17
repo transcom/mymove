@@ -107,6 +107,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
 		})
 	}
+	if api.ShipmentApproveShipmentsHandler == nil {
+		api.ShipmentApproveShipmentsHandler = shipment.ApproveShipmentsHandlerFunc(func(params shipment.ApproveShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveShipments has not yet been implemented")
+		})
+	}
 	if api.ReportViolationsAssociateReportViolationsHandler == nil {
 		api.ReportViolationsAssociateReportViolationsHandler = report_violations.AssociateReportViolationsHandlerFunc(func(params report_violations.AssociateReportViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.AssociateReportViolations has not yet been implemented")
@@ -470,6 +475,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.PpmShowAOAPacketHandler == nil {
 		api.PpmShowAOAPacketHandler = ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
+		})
+	}
+	if api.TransportationOfficeShowCounselingOfficesHandler == nil {
+		api.TransportationOfficeShowCounselingOfficesHandler = transportation_office.ShowCounselingOfficesHandlerFunc(func(params transportation_office.ShowCounselingOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_office.ShowCounselingOffices has not yet been implemented")
 		})
 	}
 	if api.PpmShowPaymentPacketHandler == nil {
