@@ -21,7 +21,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     entitlements?.dependentsTwelveAndOver ||
     entitlements?.dependentsUnderTwelve
   );
-  const { setFieldValue } = useFormikContext();
+  const { values, setFieldValue } = useFormikContext();
   const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(entitlements?.weightRestriction > 0);
   useEffect(() => {
     // Functional component version of "componentDidMount"
@@ -37,20 +37,20 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
 
   useEffect(() => {
     if (!isAdminWeightLocationChecked) {
-      // Find the weight restriction input and reset its value to 0
-      const weightRestrictionInput = document.getElementById('weightRestrictionId');
-      if (weightRestrictionInput) {
-        weightRestrictionInput.value = '';
-      }
+      setFieldValue('weightRestriction', `${values.weightRestriction}`);
     }
-  }, [isAdminWeightLocationChecked]);
+  }, [setFieldValue, values.weightRestriction, isAdminWeightLocationChecked]);
 
   const handleAdminWeightLocationChange = (e) => {
     const isChecked = e.target.checked;
     setIsAdminWeightLocationChecked(isChecked);
 
     if (!isChecked) {
-      setFieldValue('weightRestriction', '');
+      setFieldValue('weightRestriction', `${values.weightRestriction}`);
+    } else if (isChecked && values.weightRestriction) {
+      setFieldValue('weightRestriction', `${values.weightRestriction}`);
+    } else {
+      setFieldValue('weightRestriction', null);
     }
   };
 
@@ -205,26 +205,16 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
         <MaskedTextField
           data-testid="weightRestrictionInput"
           id="weightRestrictionId"
-          defaultValue="0"
           name="weightRestriction"
           label="Weight Restriction (lbs)"
           mask={Number}
-          scale={0} // digits after point, 0 for integers
-          signed={false} // disallow negative
+          scale={0}
+          signed={false}
           thousandsSeparator=","
-          lazy={false} // immediate masking evaluation
+          lazy={false}
           isDisabled={formIsDisabled}
         />
       )}
-      <div className={styles.wrappedCheckbox}>
-        <CheckboxField
-          id="dependentsAuthorizedInput"
-          data-testid="dependentsAuthorizedInput"
-          name="dependentsAuthorized"
-          label="Dependents authorized"
-          isDisabled={formIsDisabled}
-        />
-      </div>
     </div>
   );
 };

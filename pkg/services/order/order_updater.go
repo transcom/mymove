@@ -268,6 +268,10 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 		order.AmendedOrdersAcknowledgedAt = &acknowledgedAt
 	}
 
+	if payload.DependentsAuthorized != nil {
+		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
+	}
+
 	if payload.Grade != nil {
 		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
 		// Calculate new DBWeightAuthorized based on the new grade
@@ -405,6 +409,10 @@ func orderFromCounselingPayload(appCtx appcontext.AppContext, existingOrder mode
 		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
 	}
 
+	if payload.DependentsAuthorized != nil {
+		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
+	}
+
 	if payload.Grade != nil {
 		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
 		// Calculate new DBWeightAuthorized based on the new grade
@@ -462,7 +470,7 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 	}
 	weight := weightAllotment.TotalWeightSelf
 	// Payload does not have this information, retrieve dependents from the existing order
-	if existingOrder.HasDependents && *payload.DependentsAuthorized {
+	if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
 		// Only utilize dependent weight authorized if dependents are both present and authorized
 		weight = weightAllotment.TotalWeightSelfPlusDependents
 	}
@@ -470,10 +478,6 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 
 	if payload.OrganizationalClothingAndIndividualEquipment != nil {
 		order.Entitlement.OrganizationalClothingAndIndividualEquipment = *payload.OrganizationalClothingAndIndividualEquipment
-	}
-
-	if payload.DependentsAuthorized != nil {
-		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
 	}
 
 	if payload.StorageInTransit != nil {
@@ -488,6 +492,8 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 	if payload.WeightRestriction != nil {
 		weightRestriction := int(*payload.WeightRestriction)
 		order.Entitlement.WeightRestriction = &weightRestriction
+	} else {
+		order.Entitlement.WeightRestriction = nil
 	}
 
 	if payload.AccompaniedTour != nil {
@@ -570,7 +576,7 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	}
 	weight := weightAllotment.TotalWeightSelf
 	// Payload does not have this information, retrieve dependents from the existing order
-	if existingOrder.HasDependents && *payload.DependentsAuthorized {
+	if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
 		// Only utilize dependent weight authorized if dependents are both present and authorized
 		weight = weightAllotment.TotalWeightSelfPlusDependents
 	}
@@ -578,10 +584,6 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 
 	if payload.OrganizationalClothingAndIndividualEquipment != nil {
 		order.Entitlement.OrganizationalClothingAndIndividualEquipment = *payload.OrganizationalClothingAndIndividualEquipment
-	}
-
-	if payload.DependentsAuthorized != nil {
-		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
 	}
 
 	if payload.StorageInTransit != nil {
@@ -596,6 +598,8 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	if payload.WeightRestriction != nil {
 		weightRestriction := int(*payload.WeightRestriction)
 		order.Entitlement.WeightRestriction = &weightRestriction
+	} else {
+		order.Entitlement.WeightRestriction = nil
 	}
 
 	if payload.AccompaniedTour != nil {
@@ -631,7 +635,7 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 
 	// Recalculate UB allowance of order entitlement
 	if order.Entitlement != nil {
-		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, payload.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, order.Entitlement.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
 		if err != nil {
 			return models.Order{}, err
 		}
