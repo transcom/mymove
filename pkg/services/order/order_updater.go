@@ -542,6 +542,7 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 
 	return order, nil
 }
+
 func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) (models.Order, error) {
 	order := existingOrder
 	waf := entitlements.NewWeightAllotmentFetcher()
