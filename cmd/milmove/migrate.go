@@ -320,9 +320,6 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	ddlFunctionsManifest := expandPath(v.GetString(cli.DDLFunctionsMigrationManifestFlag))
 	ddlFunctionsPath := expandPath(v.GetString(cli.DDLFunctionsMigrationPathFlag))
 
-	ddlProceduresManifest := expandPath(v.GetString(cli.DDLProceduresMigrationManifestFlag))
-	ddlProceduresPath := expandPath(v.GetString(cli.DDLProceduresMigrationPathFlag))
-
 	ddlTypes := []struct {
 		name     string
 		manifest string
@@ -332,7 +329,6 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		{"DDL Tables", ddlTablesManifest, ddlTablesPath},
 		{"DDL Views", ddlViewsManifest, ddlViewsPath},
 		{"DDL Functions", ddlFunctionsManifest, ddlFunctionsPath},
-		{"DDL Procedures", ddlProceduresManifest, ddlProceduresPath},
 	}
 
 	for _, ddlType := range ddlTypes {
