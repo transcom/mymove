@@ -930,7 +930,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		// Minimal MTO Shipment has no associated addresses created by default.
 		// Part of this test ensures that if an address doesn't exist on a shipment,
 		// the updater can successfully create it.
-		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
 
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 
@@ -3422,6 +3428,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 	suite.Run("Skips calling check auto reweigh if actual weight was not provided in request", func() {
 		moveWeights := &mockservices.MoveWeights{}
+		moveWeights.On("CheckAutoReweigh",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*models.MTOShipment"),
+		).Return(models.MTOShipments{}, nil, nil)
+
 		mockSender := setUpMockNotificationSender()
 		addressUpdater := address.NewAddressUpdater()
 
@@ -3449,8 +3461,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		estimatedWeight := unit.Pound(7200)
 		primeShipment.PrimeEstimatedWeight = &estimatedWeight
 
-		moveWeights.On("CheckExcessWeight", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("models.MTOShipment")).Return(&primeShipment.MoveTaskOrder, nil, nil)
-
 		session := auth.Session{}
 		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
 		suite.NoError(err)
@@ -3470,14 +3480,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		actualWeight := unit.Pound(7200)
-		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		weight := unit.Pound(7200)
+		oldPrimeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					Status:              models.MTOShipmentStatusApproved,
 					ApprovedDate:        &now,
 					ScheduledPickupDate: &pickupDate,
-					PrimeActualWeight:   &actualWeight,
+					PrimeActualWeight:   &weight,
 				},
 			},
 			{
@@ -3487,12 +3497,22 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 				},
 			},
 		}, nil)
-		// there is a validator check about updating the status
-		primeShipment.Status = ""
-		primeShipment.PrimeActualWeight = &actualWeight
+
+		moveWeights.On("CheckExcessWeight",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.MTOShipment"),
+		).Return(&models.Move{}, nil, nil)
+
+		newPrimeShipment := models.MTOShipment{
+			ID:                oldPrimeShipment.ID,
+			PrimeActualWeight: &weight,
+		}
+
+		eTag := etag.GenerateEtag(oldPrimeShipment.UpdatedAt)
 
 		session := auth.Session{}
-		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
+		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &newPrimeShipment, eTag, "test")
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(suite.T(), "CheckAutoReweigh")
@@ -3515,6 +3535,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 
 	suite.Run("tacType and sacType are set to null when empty string is passed in", func() {
 		moveWeights := &mockservices.MoveWeights{}
+		moveWeights.On("CheckAutoReweigh",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*models.MTOShipment"),
+		).Return(models.MTOShipments{}, nil, nil)
+
 		mockSender := setUpMockNotificationSender()
 		addressUpdater := address.NewAddressUpdater()
 		addressCreator := address.NewAddressCreator()
@@ -3553,6 +3579,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 
 	suite.Run("tacType and sacType are updated when passed in", func() {
 		moveWeights := &mockservices.MoveWeights{}
+		moveWeights.On("CheckAutoReweigh",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*models.MTOShipment"),
+		).Return(models.MTOShipments{}, nil, nil)
 		mockSender := setUpMockNotificationSender()
 
 		addressUpdater := address.NewAddressUpdater()
