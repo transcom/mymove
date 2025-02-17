@@ -2071,6 +2071,122 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.NotEmpty(invalidInputError.ValidationErrors)
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "reServiceCode")
 	})
+
+	suite.Run("Failure - cannot create domestic service item international domestic shipment", func() {
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		dimension := models.MTOServiceItemDimension{
+			Type:      models.DimensionTypeItem,
+			Length:    12000,
+			Height:    12000,
+			Width:     12000,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+
+		// setup domestic shipment
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+		}, nil)
+		destAddress := factory.BuildDefaultAddress(suite.DB())
+
+		// setup international service item. must fail validation for a domestic shipment
+		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		internationalServiceItem := models.MTOServiceItem{
+			MoveTaskOrderID:              move.ID,
+			MoveTaskOrder:                move,
+			ReService:                    reServiceDDFSIT,
+			MTOShipmentID:                &shipment.ID,
+			MTOShipment:                  shipment,
+			Dimensions:                   models.MTOServiceItemDimensions{dimension},
+			Status:                       models.MTOServiceItemStatusSubmitted,
+			SITDestinationFinalAddressID: &destAddress.ID,
+			SITDestinationFinalAddress:   &destAddress,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			false,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &internationalServiceItem)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+
+		suite.Contains(err.Error(), "cannot create domestic service items for international shipment")
+	})
+
+	suite.Run("Failure - cannot create international service item for domestic shipment", func() {
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		dimension := models.MTOServiceItemDimension{
+			Type:      models.DimensionTypeItem,
+			Length:    12000,
+			Height:    12000,
+			Width:     12000,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+
+		// setup domestic shipment
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeDomestic,
+				},
+			},
+		}, nil)
+		destAddress := factory.BuildDefaultAddress(suite.DB())
+
+		// setup international service item. must fail validation for a domestic shipment
+		reServiceIDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIDFSIT)
+		internationalServiceItem := models.MTOServiceItem{
+			MoveTaskOrderID:              move.ID,
+			MoveTaskOrder:                move,
+			ReService:                    reServiceIDFSIT,
+			MTOShipmentID:                &shipment.ID,
+			MTOShipment:                  shipment,
+			Dimensions:                   models.MTOServiceItemDimensions{dimension},
+			Status:                       models.MTOServiceItemStatusSubmitted,
+			SITDestinationFinalAddressID: &destAddress.ID,
+			SITDestinationFinalAddress:   &destAddress,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			false,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &internationalServiceItem)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+
+		suite.Contains(err.Error(), "cannot create international service items for domestic shipment")
+	})
 }
 
 func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {

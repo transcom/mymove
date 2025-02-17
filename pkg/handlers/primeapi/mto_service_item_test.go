@@ -258,7 +258,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 				Model:    mto,
 				LinkOnly: true,
 			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
 		}, nil)
+
 		mtoShipment.PrimeEstimatedWeight = nil
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		reason := "lorem ipsum"
