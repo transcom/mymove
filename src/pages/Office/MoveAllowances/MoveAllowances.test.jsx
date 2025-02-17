@@ -1,10 +1,12 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import MoveAllowances from './MoveAllowances';
 
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import { permissionTypes } from 'constants/permissions';
 
 const mockOriginDutyLocation = {
   address: {
@@ -55,7 +57,6 @@ const useOrdersDocumentQueriesReturnValue = {
       eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
       entitlement: {
         authorizedWeight: 5000,
-        dependentsAuthorized: true,
         eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC42ODAwOVo=',
         id: '0dbc9029-dfc5-4368-bc6b-dfc95f5fe317',
         nonTemporaryStorage: true,
@@ -67,6 +68,7 @@ const useOrdersDocumentQueriesReturnValue = {
         storageInTransit: 2,
         totalDependents: 1,
         totalWeight: 5000,
+        weightRestriction: 500,
       },
       first_name: 'Leo',
       grade: 'E_1',
@@ -139,9 +141,9 @@ describe('MoveAllowances page', () => {
       expect(await screen.findByTestId('view-orders')).toHaveTextContent('View Orders');
     });
 
-    it('renders displays the allowances in the sidebar form', async () => {
+    it('renders displays the allowances in the sidebar form and allows editing with correct permissions', async () => {
       render(
-        <MockProviders>
+        <MockProviders permissions={[permissionTypes.updateAllowances]}>
           <MoveAllowances />
         </MockProviders>,
       );
@@ -153,9 +155,29 @@ describe('MoveAllowances page', () => {
       expect(screen.getByTestId('sitInput')).toHaveDisplayValue('2');
 
       expect(screen.getByLabelText('OCIE authorized (Army only)')).toBeChecked();
-      expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
 
       expect(screen.getByTestId('weightAllowance')).toHaveTextContent('5,000 lbs');
+      const adminWeightCheckbox = await screen.findByTestId('adminWeightLocation');
+      expect(adminWeightCheckbox).toBeChecked();
+      const weightRestrictionInput = screen.getByTestId('weightRestrictionInput');
+      expect(weightRestrictionInput).toHaveValue('500');
+
+      await userEvent.click(weightRestrictionInput);
+      await userEvent.clear(weightRestrictionInput);
+      await userEvent.type(weightRestrictionInput, '0');
+      fireEvent.blur(weightRestrictionInput);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Weight restriction must be greater than 0/i)).toBeInTheDocument();
+      });
+
+      await userEvent.clear(weightRestrictionInput);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Weight restriction is required when Admin Restricted Weight Location is enabled/i),
+        ).toBeInTheDocument();
+      });
     });
   });
 });
