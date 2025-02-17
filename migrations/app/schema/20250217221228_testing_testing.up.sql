@@ -1,0 +1,1 @@
+update office_users set status = 'APPROVED' where active = true;

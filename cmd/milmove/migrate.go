@@ -388,5 +388,55 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		}
 		manifest.Close()
 	}
+
+	// After DDL migrations, process DML migrations
+	dmlManifest := expandPath(v.GetString(cli.DMLMigrationManifestFlag))
+	logger.Info(fmt.Sprintf("using DML migration manifest %q", dmlManifest))
+
+	// Create a new migrator for DML migrations
+	dmlMigrator := pop.NewMigrator(dbConnection)
+
+	manifest, err = os.Open(dmlManifest[len("file://"):])
+	if err != nil {
+		return errors.Wrap(err, "error reading DML manifest")
+	}
+
+	scanner = bufio.NewScanner(manifest)
+	for scanner.Scan() {
+		target := scanner.Text()
+		if strings.HasPrefix(target, "#") {
+			continue
+		}
+		uri := ""
+		for dir, filenames := range migrationFiles {
+			for _, filename := range filenames {
+				if target == filename {
+					uri = fmt.Sprintf("%s/%s", dir, filename)
+					break
+				}
+			}
+		}
+		if len(uri) == 0 {
+			return errors.Errorf("Error finding DML migration for filename %q", target)
+		}
+		m, err := pop.ParseMigrationFilename(target)
+		if err != nil {
+			return errors.Wrapf(err, "error parsing DML migration filename %q", uri)
+		}
+		b := &migrate.Builder{Match: m, Path: uri}
+		migration, errCompile := b.Compile(s3Client, wait, logger)
+		if errCompile != nil {
+			return errors.Wrap(errCompile, "Error compiling DML migration")
+		}
+
+		dmlMigrator.UpMigrations.Migrations = append(dmlMigrator.UpMigrations.Migrations, *migration)
+	}
+
+	// Run DML migrations and track versions
+	errUp = dmlMigrator.Up()
+	if errUp != nil {
+		return errors.Wrap(errUp, "error running DML migrations")
+	}
+
 	return nil
 }
