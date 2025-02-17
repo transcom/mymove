@@ -21,6 +21,7 @@ import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/valid
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import RequiredTag from 'components/form/RequiredTag';
+import { isSecondaryAddressCompletePPM } from 'shared/utils';
 
 let meta = '';
 
@@ -228,6 +229,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryPickupAddress"
                             value="true"
                             checked={values.hasSecondaryPickupAddress === 'true'}
+                            disabled={!isSecondaryAddressCompletePPM('true', values.pickupAddress.address)}
                           />
                           <Field
                             as={Radio}
@@ -237,6 +239,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryPickupAddress"
                             value="false"
                             checked={values.hasSecondaryPickupAddress === 'false'}
+                            disabled={!isSecondaryAddressCompletePPM('true', values.pickupAddress.address)}
                           />
                         </Fieldset>
                       </FormGroup>
@@ -276,6 +279,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 value="true"
                                 title="Yes, I have a third delivery address"
                                 checked={values.hasTertiaryPickupAddress === 'true'}
+                                disabled={
+                                  !isSecondaryAddressCompletePPM(
+                                    values.hasSecondaryPickupAddress,
+                                    values.secondaryPickupAddress.address,
+                                  )
+                                }
                               />
                               <Field
                                 as={Radio}
@@ -286,6 +295,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 value="false"
                                 title="No, I do not have a third delivery address"
                                 checked={values.hasTertiaryPickupAddress === 'false'}
+                                disabled={
+                                  !isSecondaryAddressCompletePPM(
+                                    values.hasSecondaryPickupAddress,
+                                    values.secondaryPickupAddress.address,
+                                  )
+                                }
                               />
                             </Fieldset>
                           </FormGroup>
@@ -341,6 +356,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryDestinationAddress"
                             value="true"
                             checked={values.hasSecondaryDestinationAddress === 'true'}
+                            disabled={!isSecondaryAddressCompletePPM('true', values.destinationAddress.address)}
                           />
                           <Field
                             as={Radio}
@@ -350,6 +366,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryDestinationAddress"
                             value="false"
                             checked={values.hasSecondaryDestinationAddress === 'false'}
+                            disabled={!isSecondaryAddressCompletePPM('true', values.destinationAddress.address)}
                           />
                         </Fieldset>
                       </FormGroup>
@@ -390,6 +407,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 value="true"
                                 title="Yes, I have a third delivery address"
                                 checked={values.hasTertiaryDestinationAddress === 'true'}
+                                disabled={
+                                  !isSecondaryAddressCompletePPM(
+                                    values.hasSecondaryDestinationAddress,
+                                    values.secondaryDestinationAddress.address,
+                                  )
+                                }
                               />
                               <Field
                                 as={Radio}
@@ -400,6 +423,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 value="false"
                                 title="No, I do not have a third delivery address"
                                 checked={values.hasTertiaryDestinationAddress === 'false'}
+                                disabled={
+                                  !isSecondaryAddressCompletePPM(
+                                    values.hasSecondaryDestinationAddress,
+                                    values.secondaryDestinationAddress.address,
+                                  )
+                                }
                               />
                             </Fieldset>
                           </FormGroup>
