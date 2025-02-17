@@ -1,0 +1,23 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/colors';
+
+.Shuttle {
+
+  .shuttleHeader {
+    text-align: center;
+  }
+
+  .shuttleDestAddressHeader {
+    text-align: center;
+    @include u-margin-bottom(-2);
+  }
+
+  .shuttleDatePickerRow {
+    @include u-margin-top(-4);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  @include u-margin-bottom(4);
+
+}
