@@ -1088,3 +1088,5 @@
 20250120144247_update_pricing_proc_to_use_110_percent_weight.up.sql
 20250120214107_add_international_ntsr_service_items.up.sql
 20250121153007_update_pricing_proc_to_handle_international_shuttle.up.sql
+20250121184450_upd_duty_loc_B-22242.up.sql
+20250206173204_add_hawaii_data.up.sql
