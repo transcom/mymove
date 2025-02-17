@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { GridContainer, Button } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
+import { useMutation } from '@tanstack/react-query';
 
 import styles from './TableQueue.module.scss';
 import TableCSVExportButton from './TableCSVExportButton';
@@ -27,6 +28,8 @@ import {
   getSelectionOptionLabel,
 } from 'components/Table/utils';
 import { roleTypes } from 'constants/userRoles';
+import { saveBulkAssignmentData } from 'services/ghcApi';
+import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -57,6 +60,8 @@ const TableQueue = ({
   officeUser,
   activeRole,
   queueType,
+  refetchQueue,
+  setRefetchQueue,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -107,9 +112,6 @@ const TableQueue = ({
     setIsBulkAssignModalVisible(true);
   };
 
-  const handleCloseBulkAssignModal = () => {
-    setIsBulkAssignModalVisible(false);
-  };
   const {
     queueResult: {
       totalCount = 0,
@@ -119,6 +121,7 @@ const TableQueue = ({
     },
     isInitialLoading: isLoading,
     isError,
+    refetch,
   } = useQueries({
     sort: id,
     order: desc ? 'desc' : 'asc',
@@ -128,6 +131,7 @@ const TableQueue = ({
     viewAsGBLOC: selectedGbloc,
     activeRole,
   });
+  const tableData = useMemo(() => data, [data]);
 
   // react-table setup below
   const defaultColumn = useMemo(
@@ -137,7 +141,15 @@ const TableQueue = ({
     }),
     [],
   );
-  const tableData = useMemo(() => data, [data]);
+
+  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {});
+
+  useEffect(() => {
+    if (refetchQueue)
+      refetch().then(() => {
+        setRefetchQueue(false);
+      });
+  }, [refetch, setRefetchQueue, refetchQueue]);
 
   const tableColumns = useMemo(() => columns, [columns]);
   const {
@@ -317,12 +329,23 @@ const TableQueue = ({
     return '';
   };
 
+  const handleCloseBulkAssignModal = () => {
+    refetch();
+
+    setIsBulkAssignModalVisible(false);
+  };
+
+  const onSubmitBulk = (bulkAssignmentSavePayload) => {
+    mutateBulkAssignment({ queueType, ...bulkAssignmentSavePayload });
+  };
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
         {isBulkAssignModalVisible && (
           <BulkAssignmentModal
             isOpen={isBulkAssignModalVisible}
+            onSubmit={onSubmitBulk}
             onClose={handleCloseBulkAssignModal}
             queueType={queueType}
           />
@@ -446,7 +469,10 @@ const mapStateToProps = (state) => {
   return {
     officeUser: user?.office_user || {},
     activeRole: state.auth.activeRole,
+    refetchQueue: state?.generalState?.refetchQueue || false,
   };
 };
 
-export default connect(mapStateToProps)(TableQueue);
+const mapDispatchToProps = { setRefetchQueue: setRefetchQueueAction };
+
+export default connect(mapStateToProps, mapDispatchToProps)(TableQueue);
