@@ -54,7 +54,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {

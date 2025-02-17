@@ -3,14 +3,17 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -22,7 +25,7 @@ const (
 	// NTSRaw is the raw string value of the NTS Shipment Type
 	NTSRaw = "HHG_INTO_NTS"
 	// NTSrRaw is the raw string value of the NTSr Shipment Type
-	NTSrRaw = "HHG_OUTOF_NTS_DOMESTIC"
+	NTSrRaw = "HHG_OUTOF_NTS"
 )
 
 // Market code indicator of international or domestic
@@ -33,13 +36,27 @@ const (
 	MarketCodeInternational MarketCode = "i" // international
 )
 
+// Add to this list as international service items are implemented
+var internationalAccessorialServiceItems = []ReServiceCode{
+	ReServiceCodeICRT,
+	ReServiceCodeIUCRT,
+	ReServiceCodeIOASIT,
+	ReServiceCodeIDASIT,
+	ReServiceCodeIOFSIT,
+	ReServiceCodeIDFSIT,
+	ReServiceCodeIOPSIT,
+	ReServiceCodeIDDSIT,
+	ReServiceCodeIDSHUT,
+	ReServiceCodeIOSHUT,
+}
+
 const (
 	// MTOShipmentTypeHHG is an HHG Shipment Type default
 	MTOShipmentTypeHHG MTOShipmentType = "HHG"
 	// MTOShipmentTypeHHGIntoNTS is an HHG Shipment Type for going into NTS
 	MTOShipmentTypeHHGIntoNTS MTOShipmentType = NTSRaw
-	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
-	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = NTSrRaw
+	// MTOShipmentTypeHHGOutOfNTS is an HHG Shipment Type for going out of NTS
+	MTOShipmentTypeHHGOutOfNTS MTOShipmentType = NTSrRaw
 	// MTOShipmentTypeMobileHome is a Shipment Type for MobileHome
 	MTOShipmentTypeMobileHome MTOShipmentType = "MOBILE_HOME"
 	// MTOShipmentTypeBoatHaulAway is a Shipment Type for Boat Haul Away
@@ -277,33 +294,6 @@ func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*Service
 	return &serviceMember, nil
 }
 
-func (m *MTOShipment) UpdateOrdersDestinationGBLOC(db *pop.Connection) error {
-	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
-	if uuid.UUID.IsNil(m.ID) {
-		return fmt.Errorf("error updating orders destination GBLOC for shipment due to no shipment ID provided")
-	}
-
-	var err error
-	var order Order
-
-	err = db.Load(&m, "MoveTaskOrder.OrdersID")
-	if err != nil {
-		return fmt.Errorf("error loading orders for shipment ID: %s with error %w", m.ID, err)
-	}
-
-	order, err = FetchOrder(db, m.MoveTaskOrder.OrdersID)
-	if err != nil {
-		return fmt.Errorf("error fetching order for shipment ID: %s with error %w", m.ID, err)
-	}
-
-	err = order.UpdateDestinationGBLOC(db)
-	if err != nil {
-		return fmt.Errorf("error fetching GBLOC for postal code with error %w", err)
-	}
-
-	return nil
-}
-
 // Helper function to check that an MTO Shipment contains a PPM Shipment
 func (m MTOShipment) ContainsAPPMShipment() bool {
 	return m.PPMShipment != nil
@@ -342,7 +332,7 @@ func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
 				shipment.MarketCode = MarketCodeInternational
 			}
 		}
-	case MTOShipmentTypeHHGOutOfNTSDom:
+	case MTOShipmentTypeHHGOutOfNTS:
 		if shipment.StorageFacility != nil && shipment.DestinationAddress != nil &&
 			shipment.StorageFacility.Address.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
 			if isDomestic(&shipment.StorageFacility.Address, shipment.DestinationAddress) {
@@ -457,6 +447,28 @@ func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShip
 	}
 
 	return nil
+}
+
+func CreateInternationalAccessorialServiceItemsForShipment(db *pop.Connection, shipmentId uuid.UUID, mtoServiceItems MTOServiceItems) ([]string, error) {
+	if len(mtoServiceItems) == 0 {
+		err := fmt.Errorf("must request service items to create: %s", shipmentId)
+		return nil, apperror.NewInvalidInputError(shipmentId, err, nil, err.Error())
+	}
+
+	for _, serviceItem := range mtoServiceItems {
+		if !slices.Contains(internationalAccessorialServiceItems, serviceItem.ReService.Code) {
+			err := fmt.Errorf("cannot create domestic service items for international shipment: %s", shipmentId)
+			return nil, apperror.NewInvalidInputError(shipmentId, err, nil, err.Error())
+		}
+	}
+
+	createdServiceItemIDs := []string{}
+	err := db.RawQuery("CALL create_accessorial_service_items_for_shipment($1, $2, $3)", shipmentId, pq.Array(mtoServiceItems), pq.StringArray(createdServiceItemIDs)).All(&createdServiceItemIDs)
+	if err != nil {
+		return nil, apperror.NewInvalidInputError(shipmentId, err, nil, err.Error())
+	}
+
+	return createdServiceItemIDs, nil
 }
 
 // a db stored proc that will handle updating the pricing_estimate columns of basic service items for shipment types:

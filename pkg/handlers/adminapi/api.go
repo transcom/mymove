@@ -53,15 +53,18 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 
 	adminAPI.ServeError = handlers.ServeCustomError
 
+	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
+	userRolesCreator := usersroles.NewUsersRolesCreator()
+	newRolesFetcher := roles.NewRolesFetcher()
+
 	adminAPI.RequestedOfficeUsersIndexRequestedOfficeUsersHandler = IndexRequestedOfficeUsersHandler{
 		handlerConfig,
 		requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+		transportationOfficeFetcher,
+		newRolesFetcher,
 	}
-
-	userRolesCreator := usersroles.NewUsersRolesCreator()
-	newRolesFetcher := roles.NewRolesFetcher()
 
 	adminAPI.RequestedOfficeUsersGetRequestedOfficeUserHandler = GetRequestedOfficeUserHandler{
 		handlerConfig,
@@ -112,6 +115,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		transportaionOfficeAssignmentUpdater,
 	}
 
+	adminAPI.OfficeUsersDeleteOfficeUserHandler = DeleteOfficeUserHandler{
+		handlerConfig,
+		officeuser.NewOfficeUserDeleter(queryBuilder),
+	}
+
 	adminAPI.TransportationOfficesIndexOfficesHandler = IndexOfficesHandler{
 		handlerConfig,
 		office.NewOfficeListFetcher(queryBuilder),
@@ -119,7 +127,6 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
-	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
 	adminAPI.TransportationOfficesGetOfficeByIDHandler = GetOfficeByIdHandler{
 		handlerConfig,
 		transportationOfficeFetcher,

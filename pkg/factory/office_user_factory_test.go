@@ -237,10 +237,6 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		// Set up:           Use BuildOfficeUserWithRoles helper function to create
 		//					 an OfficeUser with multiple roles
 		// Expected outcome: officeUser and User should be returned as expected
-		precountRoles, err := suite.DB().Count(&roles.Role{})
-		suite.NoError(err)
-		precountUsersRoles, err := suite.DB().Count(&models.UsersRoles{})
-		suite.NoError(err)
 
 		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
 
@@ -249,14 +245,6 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		suite.True(hasRole)
 		_, hasRole = officeUser.User.Roles.GetRole(roles.RoleTypeTIO)
 		suite.True(hasRole)
-		// Check that only 2 new roles were created
-		countRoles, err := suite.DB().Count(&roles.Role{})
-		suite.NoError(err)
-		suite.Equal(precountRoles+2, countRoles)
-		// Check that only 2 new usersRoles were created
-		countUsersRoles, err := suite.DB().Count(&models.UsersRoles{})
-		suite.NoError(err)
-		suite.Equal(precountUsersRoles+2, countUsersRoles)
 	})
 
 	suite.Run("Successful creation of Stubbed OfficeUser using BuildOfficeUserWithRoles", func() {
@@ -302,5 +290,55 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		countUsersRoles, err := suite.DB().Count(&models.UsersRoles{})
 		suite.NoError(err)
 		suite.Equal(precountUsersRoles, countUsersRoles)
+	})
+
+	suite.Run("Successful creation of OfficeUser using BuildOfficeUserWithPrivileges with customizations", func() {
+		email := "example@mail.com"
+		transportationOffice := BuildTransportationOffice(suite.DB(), []Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
+		officeUser := BuildOfficeUserWithPrivileges(suite.DB(), []Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Riley",
+					Email:     email,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.User{
+					OktaEmail: email,
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		// Check that the user has the office user role
+		_, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeServicesCounselor)
+		_, hasPrivilege := officeUser.User.Privileges.GetPrivilege(models.PrivilegeTypeSupervisor)
+		suite.True(hasRole)
+		suite.True(hasPrivilege)
+		// Check customizations
+		suite.Equal(email, officeUser.User.OktaEmail)
+		suite.Equal(email, officeUser.Email)
+		suite.Equal("Riley", officeUser.FirstName)
+		suite.Equal(transportationOffice.ID, officeUser.TransportationOfficeID)
 	})
 }

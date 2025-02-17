@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -32,6 +33,7 @@ import (
 func (suite *HandlerSuite) TestListMTOsHandler() {
 	// unavailable MTO
 	factory.BuildMove(suite.DB(), nil, nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	moveTaskOrder := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -56,7 +58,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 
 	handler := ListMTOsHandler{
 		HandlerConfig:        handlerConfig,
-		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
+		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	response := handler.Handle(params)
@@ -175,7 +177,6 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -228,10 +229,11 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		HTTPRequest:     request,
 		MoveTaskOrderID: move.ID.String(),
 	}
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	handlerConfig := suite.HandlerConfig()
 	handler := GetMoveTaskOrderHandlerFunc{handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
@@ -391,7 +393,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(400, nil)
 

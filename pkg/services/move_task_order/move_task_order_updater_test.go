@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -30,6 +31,26 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	queryBuilder := query.NewQueryBuilder()
 	planner := &routemocks.Planner{}
 	ppmEstimator := &mocks.PPMEstimator{}
+	setupTestData := func() models.OfficeUser {
+
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		return officeUser
+	}
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
@@ -61,7 +82,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 	mtoUpdater := mt.NewMoveTaskOrderUpdater(
 		queryBuilder,
@@ -69,6 +89,32 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 	)
 
+	suite.Run("Completes counseling and removes assigned SC office user", func() {
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		officeUser := setupTestData()
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &factory.OfficeUsers.SCAssignedUser,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+
+		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(session, move.ID, eTag)
+		suite.NoError(err)
+		suite.Nil(actualMTO.SCAssignedID)
+	})
 	suite.Run("Move status is updated successfully (with HHG shipment)", func() {
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -260,7 +306,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 				},
 			},
 			{
@@ -350,7 +396,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -405,7 +450,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					UsesExternalVendor: true,
 				},
 			},
@@ -518,7 +563,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		false,
 	).Return(400, nil)
 
@@ -654,8 +698,29 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	})
 }
 
-func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableToPrime() {
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndCreateServiceItems() {
 	ppmEstimator := &mocks.PPMEstimator{}
+
+	setupTestData := func() models.OfficeUser {
+
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeTIO})
+
+		return officeUser
+	}
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
@@ -727,13 +792,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, true)
+		_, err := mtoUpdater.ApproveMoveAndCreateServiceItems(suite.AppContextForTest(), move.ID, eTag, true, true)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.Error(err)
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
-		suite.Nil(fetchedMove.AvailableToPrimeAt)
 		suite.Nil(fetchedMove.ApprovedAt)
 	})
 
@@ -746,14 +810,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		move := factory.BuildSubmittedMove(suite.DB(), nil, nil)
 
 		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, true)
+		_, err := mtoUpdater.ApproveMoveAndCreateServiceItems(suite.AppContextForTest(), move.ID, eTag, true, true)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.Run("Makes move available to Prime and creates Move management and Service counseling service items when both are specified", func() {
+	suite.Run("Approves a move and creates Move management and Service counseling service items when both are specified", func() {
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
@@ -761,7 +825,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(400, nil)
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
@@ -772,13 +835,11 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		fetchedMove := models.Move{}
 		var serviceItems models.MTOServiceItems
 
-		suite.Nil(move.AvailableToPrimeAt)
 		suite.Nil(move.ApprovedAt)
 
-		updatedMove, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, true)
+		updatedMove, err := mtoUpdater.ApproveMoveAndCreateServiceItems(suite.AppContextForTest(), move.ID, eTag, true, true)
 
 		suite.NoError(err)
-		suite.NotNil(updatedMove.AvailableToPrimeAt)
 		suite.NotNil(updatedMove.ApprovedAt)
 		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
 		err = suite.DB().Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
@@ -788,12 +849,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		suite.True(suite.containsServiceCode(serviceItems, models.ReServiceCodeCS), fmt.Sprintf("Expected to find reServiceCode, %s, in array.", models.ReServiceCodeCS))
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
-		suite.NotNil(fetchedMove.AvailableToPrimeAt)
 		suite.NotNil(fetchedMove.ApprovedAt)
 		suite.Equal(models.MoveStatusAPPROVED, fetchedMove.Status)
 	})
-
-	suite.Run("Makes move available to Prime and only creates Move management when it's the only one specified", func() {
+	suite.Run("Approves a move and removes assigned TOO office user", func() {
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
@@ -801,7 +860,33 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
+		).Return(400, nil)
+		officeUser := setupTestData()
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &factory.OfficeUsers.TOOAssignedUser,
+			},
+		}, nil)
+
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+		updatedMove, err := mtoUpdater.ApproveMoveAndCreateServiceItems(suite.AppContextForTest(), move.ID, eTag, false, false)
+
+		suite.NoError(err)
+		suite.Nil(updatedMove.TOOAssignedID)
+	})
+
+	suite.Run("Approves a move and only creates Move management when it's the only one specified", func() {
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
 			false,
 		).Return(400, nil)
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
@@ -812,15 +897,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		fetchedMove := models.Move{}
 		var serviceItems models.MTOServiceItems
 
-		suite.Nil(move.AvailableToPrimeAt)
 		suite.Nil(move.ApprovedAt)
 
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, false)
+		_, err := mtoUpdater.ApproveMoveAndCreateServiceItems(suite.AppContextForTest(), move.ID, eTag, true, false)
 
 		suite.NoError(err)
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
-		suite.NotNil(fetchedMove.AvailableToPrimeAt)
 		suite.NotNil(fetchedMove.ApprovedAt)
 		err = suite.DB().Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
 		suite.NoError(err)
@@ -829,7 +912,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		suite.False(suite.containsServiceCode(serviceItems, models.ReServiceCodeCS), fmt.Sprintf("Expected to find reServiceCode, %s, in array.", models.ReServiceCodeCS))
 	})
 
-	suite.Run("Makes move available to Prime and only creates CS service item when it's the only one specified", func() {
+	suite.Run("Approves a move and only creates CS service item when it's the only one specified", func() {
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
@@ -841,15 +924,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		fetchedMove := models.Move{}
 		var serviceItems models.MTOServiceItems
 
-		suite.Nil(move.AvailableToPrimeAt)
 		suite.Nil(move.ApprovedAt)
 
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, false, true)
+		_, err := mtoUpdater.ApproveMoveAndCreateServiceItems(suite.AppContextForTest(), move.ID, eTag, false, true)
 
 		suite.NoError(err)
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
-		suite.NotNil(fetchedMove.AvailableToPrimeAt)
 		suite.NotNil(fetchedMove.ApprovedAt)
 		err = suite.DB().Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
 		suite.NoError(err)
@@ -868,20 +949,18 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 
-		suite.Nil(move.AvailableToPrimeAt)
 		suite.Nil(move.ApprovedAt)
 
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, false, false)
+		_, err := mtoUpdater.ApproveMoveAndCreateServiceItems(suite.AppContextForTest(), move.ID, eTag, false, false)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.NoError(err)
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
-		suite.NotNil(fetchedMove.AvailableToPrimeAt)
 		suite.NotNil(fetchedMove.ApprovedAt)
 	})
 
-	suite.Run("Does not make move available to prime if Order is missing required fields", func() {
+	suite.Run("Does not approve a move if Order is missing required fields", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
@@ -897,15 +976,131 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 
-		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, true)
+		_, err := mtoUpdater.ApproveMoveAndCreateServiceItems(suite.AppContextForTest(), move.ID, eTag, true, true)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
-		suite.Nil(fetchedMove.AvailableToPrimeAt)
 		suite.Nil(fetchedMove.ApprovedAt)
+	})
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableToPrime() {
+	ppmEstimator := &mocks.PPMEstimator{}
+
+	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+		mockCreator := &mocks.SignedCertificationCreator{}
+
+		mockCreator.On(
+			"CreateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockCreator
+	}
+
+	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+		mockUpdater := &mocks.SignedCertificationUpdater{}
+
+		mockUpdater.On(
+			"UpdateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+			mock.AnythingOfType("string"),
+		).Return(returnValue...)
+
+		return mockUpdater
+	}
+
+	setupPricerData := func() {
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            startDate,
+				EndDate:              endDate,
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		service := factory.FetchReServiceByCode(suite.DB(), "MS")
+		msTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      service.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&msTaskOrderFee)
+
+		service = factory.FetchReServiceByCode(suite.DB(), "CS")
+		csTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      service.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&csTaskOrderFee)
+	}
+
+	suite.PreloadData(setupPricerData)
+
+	suite.Run("Successfully makes move available to Prime", func() {
+		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		result, wasUpdated, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID)
+
+		suite.NoError(err)
+		suite.NotNil(result)
+		suite.True(wasUpdated)
+		suite.NotNil(result.AvailableToPrimeAt)
+	})
+
+	suite.Run("Does not update move that is already available to Prime", func() {
+		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
+
+		now := time.Now()
+
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+				},
+			},
+		}, nil)
+
+		result, wasUpdated, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID)
+
+		suite.NoError(err)
+		suite.NotNil(result)
+		suite.False(wasUpdated)
+		suite.WithinDuration(now.UTC(), result.AvailableToPrimeAt.UTC(), time.Second)
+	})
+
+	suite.Run("Returns error if move is not found", func() {
+		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
+		moveID := uuid.Must(uuid.NewV4())
+
+		_, wasUpdated, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), moveID)
+
+		suite.Error(err)
+		suite.False(wasUpdated)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }
 
@@ -1052,7 +1247,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePPMType()
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		false,
 	).Return(400, nil)
 

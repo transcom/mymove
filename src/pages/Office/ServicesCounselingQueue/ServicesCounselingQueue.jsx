@@ -221,6 +221,9 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
         {
           id: 'assignedTo',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
+          },
         },
       ),
     );
@@ -415,6 +418,9 @@ export const closeoutColumns = (
         {
           id: 'assignedTo',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
+          },
         },
       ),
     );
@@ -422,7 +428,13 @@ export const closeoutColumns = (
   return cols;
 };
 
-const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, officeUser }) => {
+const ServicesCounselingQueue = ({
+  userPrivileges,
+  isQueueManagementFFEnabled,
+  officeUser,
+  isBulkAssignmentFFEnabled,
+  activeRole,
+}) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -657,6 +669,9 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, o
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          activeRole={activeRole}
         />
       </div>
     );
@@ -684,6 +699,9 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, o
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          activeRole={activeRole}
         />
       </div>
     );
