@@ -16,6 +16,36 @@ type TransportationOfficesFetcher struct {
 	mock.Mock
 }
 
+// FindCounselingOfficeForPrimeCounseled provides a mock function with given fields: appCtx, dutyLocationID
+func (_m *TransportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffice, error) {
+	ret := _m.Called(appCtx, dutyLocationID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindCounselingOfficeForPrimeCounseled")
+	}
+
+	var r0 *models.TransportationOffice
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.TransportationOffice, error)); ok {
+		return rf(appCtx, dutyLocationID)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.TransportationOffice); ok {
+		r0 = rf(appCtx, dutyLocationID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.TransportationOffice)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, dutyLocationID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetAllGBLOCs provides a mock function with given fields: appCtx
 func (_m *TransportationOfficesFetcher) GetAllGBLOCs(appCtx appcontext.AppContext) (*models.GBLOCs, error) {
 	ret := _m.Called(appCtx)

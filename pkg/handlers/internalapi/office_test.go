@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -31,7 +32,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	}, nil)
 	// Given: an office User
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	// Move is submitted and saved
 	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
@@ -73,7 +74,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	// Given: an office User
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	// Move is submitted and saved
 	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
@@ -116,7 +117,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	// Given: an non-office User
 	user := factory.BuildServiceMember(suite.DB(), nil, nil)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
@@ -141,7 +142,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.Run("Successfully cancels move", func() {
 		// Given: a set of orders, a move, and office user
 		// Orders has service member with transportation office and phone nums
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 		// Given: a set of orders, a move, user and servicemember
 		move := factory.BuildMove(suite.DB(), nil, nil)
@@ -171,7 +172,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.Run("Fails to cancel someone elses move", func() {
 		// Given: a set of orders, a move, and office user
 		// Orders has service member with transportation office and phone nums
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 		// Given: a set of orders, a move, user and servicemember
 		move := factory.BuildMove(suite.DB(), nil, nil)
@@ -198,7 +199,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.Run("Fails to cancel submitted move", func() {
 		// Given: a set of orders, a move, and office user
 		// Orders has service member with transportation office and phone nums
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 		// Given: a set of orders, a move, user and servicemember
 		move := factory.BuildMove(suite.DB(), []factory.Customization{

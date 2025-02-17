@@ -17,11 +17,14 @@ import (
 )
 
 type moveRouter struct {
+	transportationOfficesFetcher services.TransportationOfficesFetcher
 }
 
 // NewMoveRouter creates a new moveRouter service
-func NewMoveRouter() services.MoveRouter {
-	return &moveRouter{}
+func NewMoveRouter(transportationOfficeFetcher services.TransportationOfficesFetcher) services.MoveRouter {
+	return &moveRouter{
+		transportationOfficesFetcher: transportationOfficeFetcher,
+	}
 }
 
 // Submit is called when the customer submits amended orders or submits their move. It determines whether
@@ -173,6 +176,7 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 // sendToServiceCounselor makes the move available for a Service Counselor to review
 func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, move *models.Move) error {
 	var orders models.Order
+	var originDutyLocation models.DutyLocation
 	err := appCtx.DB().Q().
 		Where("orders.id = ?", move.OrdersID).
 		First(&orders)
@@ -210,7 +214,16 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 	move.Status = models.MoveStatusNeedsServiceCounseling
 	now := time.Now()
 	move.SubmittedAt = &now
+	if orders.OriginDutyLocationID == nil || *orders.OriginDutyLocationID == uuid.Nil {
+		return apperror.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyLocation")
+	}
 
+	originDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), *orders.OriginDutyLocationID)
+	if err != nil {
+		appCtx.Logger().Error("failure finding the origin duty location", zap.Error(err))
+		return apperror.NewInvalidInputError(*orders.OriginDutyLocationID, err, nil, "unable to find origin duty location")
+	}
+	orders.OriginDutyLocation = &originDutyLocation
 	for i := range move.MTOShipments {
 		// if it's a PPMShipment update both the mto and ppm shipment level statuses
 		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
@@ -218,6 +231,15 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 			move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusSubmitted
 			// actual expense reimbursement is always true for civilian moves
 			move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(isCivilian)
+			if move.IsPPMOnly() && !orders.OriginDutyLocation.ProvidesServicesCounseling {
+				closestCounselingOffice, err := router.transportationOfficesFetcher.FindCounselingOfficeForPrimeCounseled(appCtx, *move.Orders.OriginDutyLocationID)
+				if err != nil {
+					msg := "Failure setting PPM counseling office to closest service counseling office"
+					appCtx.Logger().Error(msg, zap.Error(err))
+					return apperror.NewQueryError("Closest Counseling Office", err, "Failed to find counseling office that provides counseling")
+				}
+				move.CounselingOfficeID = &closestCounselingOffice.ID
+			}
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
 				msg := "failure saving shipment when routing move submission"
