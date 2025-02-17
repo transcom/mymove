@@ -63,3 +63,6 @@ var ErrMissingDestinationAddress = errors.New("DESTINATION_ADDRESS_MISSING")
 
 // ErrUnsupportedShipmentType is used if the shipment type is not supported by a method
 var ErrUnsupportedShipmentType = errors.New("UNSUPPORTED_SHIPMENT_TYPE")
+
+// ErrInvalidFilterFormat is used if the param filter is not in the expected format
+var ErrInvalidFilterFormat = errors.New("invalid filter format")
