@@ -1516,7 +1516,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Changes move task order status to make it available to prime",
+        "description": "Changes move task order status",
         "consumes": [
           "application/json"
         ],
@@ -1526,7 +1526,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Change the status of a move task order to make it available to prime",
+        "summary": "Change the status of a move task order",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -4617,6 +4617,12 @@ func init() {
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4820,6 +4826,12 @@ func init() {
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4973,6 +4985,12 @@ func init() {
             "type": "string",
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
             "in": "query"
           }
         ],
@@ -5244,6 +5262,64 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/shipments/approve": {
+      "post": {
+        "description": "Approves multiple shipments in one request",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Approves multiple shipments at once",
+        "operationId": "approveShipments",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApproveShipments"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved the shipments",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MTOShipment"
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      }
     },
     "/shipments/{shipmentID}": {
       "get": {
@@ -6252,7 +6328,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved transportation offices",
+            "description": "Successfully retrieved GBLOCs",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }
@@ -6271,6 +6347,57 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member, some counseling offices are branch specific",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved counseling offices",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -6746,6 +6873,33 @@ func init() {
         }
       }
     },
+    "ApproveShipments": {
+      "type": "object",
+      "required": [
+        "approveShipments"
+      ],
+      "properties": {
+        "approveShipments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "shipmentID",
+              "eTag"
+            ],
+            "properties": {
+              "eTag": {
+                "type": "string"
+              },
+              "shipmentID": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        }
+      }
+    },
     "AssignOfficeUserBody": {
       "type": "object",
       "required": [
@@ -6992,6 +7146,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -7063,6 +7241,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -7597,6 +7781,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "counselingOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
@@ -8270,6 +8460,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -10118,6 +10314,15 @@ func init() {
           "$ref": "#/definitions/Contractor"
         },
         "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOfficeId": {
+          "description": "The transportation office that will handle services counseling for this move",
           "type": "string",
           "format": "uuid",
           "x-nullable": true
@@ -14157,6 +14362,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -17435,7 +17646,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Changes move task order status to make it available to prime",
+        "description": "Changes move task order status",
         "consumes": [
           "application/json"
         ],
@@ -17445,7 +17656,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Change the status of a move task order to make it available to prime",
+        "summary": "Change the status of a move task order",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -21292,6 +21503,12 @@ func init() {
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -21507,6 +21724,12 @@ func init() {
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -21666,6 +21889,12 @@ func init() {
             "type": "string",
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
             "in": "query"
           }
         ],
@@ -22012,6 +22241,82 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/shipments/approve": {
+      "post": {
+        "description": "Approves multiple shipments in one request",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Approves multiple shipments at once",
+        "operationId": "approveShipments",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApproveShipments"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved the shipments",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MTOShipment"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      }
     },
     "/shipments/{shipmentID}": {
       "get": {
@@ -23290,7 +23595,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved transportation offices",
+            "description": "Successfully retrieved GBLOCs",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }
@@ -23324,6 +23629,66 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          }
+        }
+      }
+    },
+    "/transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member, some counseling offices are branch specific",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved counseling offices",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -23815,6 +24180,36 @@ func init() {
         }
       }
     },
+    "ApproveShipments": {
+      "type": "object",
+      "required": [
+        "approveShipments"
+      ],
+      "properties": {
+        "approveShipments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ApproveShipmentsApproveShipmentsItems0"
+          }
+        }
+      }
+    },
+    "ApproveShipmentsApproveShipmentsItems0": {
+      "type": "object",
+      "required": [
+        "shipmentID",
+        "eTag"
+      ],
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "AssignOfficeUserBody": {
       "type": "object",
       "required": [
@@ -24061,6 +24456,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -24136,6 +24555,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -24670,6 +25095,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "counselingOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
@@ -25343,6 +25774,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -27191,6 +27628,15 @@ func init() {
           "$ref": "#/definitions/Contractor"
         },
         "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOfficeId": {
+          "description": "The transportation office that will handle services counseling for this move",
           "type": "string",
           "format": "uuid",
           "x-nullable": true
@@ -31362,6 +31808,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
