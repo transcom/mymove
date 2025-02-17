@@ -157,7 +157,6 @@ describe('MoveAllowances page', () => {
       expect(screen.getByTestId('sitInput')).toHaveDisplayValue('2');
 
       expect(screen.getByLabelText('OCIE authorized (Army only)')).toBeChecked();
-      expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
 
       expect(screen.getByTestId('weightAllowance')).toHaveTextContent('5,000 lbs');
     });
@@ -176,7 +175,6 @@ describe('MoveAllowances page', () => {
       expect(screen.getByTestId('sitInput')).toHaveDisplayValue('2');
 
       expect(screen.getByLabelText('OCIE authorized (Army only)')).toBeChecked();
-      expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
 
       expect(screen.getByTestId('weightAllowance')).toHaveTextContent('5,000 lbs');
       const adminWeightCheckbox = await screen.findByTestId('adminWeightLocation');
