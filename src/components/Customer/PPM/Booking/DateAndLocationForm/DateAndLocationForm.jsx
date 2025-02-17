@@ -229,6 +229,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryPickupAddress"
                             value="true"
                             checked={values.hasSecondaryPickupAddress === 'true'}
+                            disabled={!isSecondaryAddressCompletePPM('true', values.pickupAddress.address)}
                           />
                           <Field
                             as={Radio}
@@ -238,6 +239,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryPickupAddress"
                             value="false"
                             checked={values.hasSecondaryPickupAddress === 'false'}
+                            disabled={!isSecondaryAddressCompletePPM('true', values.pickupAddress.address)}
                           />
                         </Fieldset>
                       </FormGroup>
@@ -354,6 +356,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryDestinationAddress"
                             value="true"
                             checked={values.hasSecondaryDestinationAddress === 'true'}
+                            disabled={!isSecondaryAddressCompletePPM('true', values.destinationAddress.address)}
                           />
                           <Field
                             as={Radio}
@@ -363,6 +366,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryDestinationAddress"
                             value="false"
                             checked={values.hasSecondaryDestinationAddress === 'false'}
+                            disabled={!isSecondaryAddressCompletePPM('true', values.destinationAddress.address)}
                           />
                         </Fieldset>
                       </FormGroup>
