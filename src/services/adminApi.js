@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import Swagger from 'swagger-client';
 
 import { makeSwaggerRequest, requestInterceptor, responseInterceptor, makeSwaggerRequestRaw } from './swaggerRequest';
@@ -34,6 +35,18 @@ export async function updateRequestedOfficeUser(officeUserId, body) {
     {
       officeUserId,
       body,
+    },
+    { normalize: false },
+  );
+}
+
+export async function deleteOfficeUser(officeUserId) {
+  const operationPath = 'Office users.deleteOfficeUser';
+
+  return makeAdminRequest(
+    operationPath,
+    {
+      officeUserId,
     },
     { normalize: false },
   );

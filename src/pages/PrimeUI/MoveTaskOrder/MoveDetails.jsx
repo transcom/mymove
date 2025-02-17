@@ -24,6 +24,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { SERVICE_ITEMS_ALLOWED_UPDATE } from 'constants/serviceItems';
 import { MoveOrderDocumentType } from 'shared/constants';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { formatWeight } from 'utils/formatters';
 
 const MoveDetails = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
@@ -206,6 +207,14 @@ const MoveDetails = ({ setFlashMessage }) => {
                   <div className={descriptionListStyles.row}>
                     <dt>Gun Safe:</dt>
                     <dd>{moveTaskOrder.order.entitlement.gunSafe ? 'yes' : 'no'}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <dt>Admin Restricted Weight:</dt>
+                    <dd>
+                      {moveTaskOrder.order.entitlement.weightRestriction > 0
+                        ? formatWeight(moveTaskOrder.order.entitlement.weightRestriction)
+                        : 'no'}
+                    </dd>
                   </div>
                   <div className={descriptionListStyles.row}>
                     <Button onClick={handleDownloadOrders}>Download Move Orders</Button>

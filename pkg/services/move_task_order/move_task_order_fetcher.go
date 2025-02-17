@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/featureflag"
@@ -158,7 +159,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.SecondaryPickupAddress.Country",
 		"MTOShipments.TertiaryDeliveryAddress.Country",
 		"MTOShipments.TertiaryPickupAddress.Country",
-		"MTOShipments.MTOAgents",
 		"MTOShipments.SITDurationUpdates",
 		"MTOShipments.StorageFacility",
 		"MTOShipments.StorageFacility.Address",
@@ -197,6 +197,20 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		default:
 			return &models.Move{}, apperror.NewQueryError("Move", err, "")
 		}
+	}
+
+	for i := range mto.MTOShipments {
+		var nonDeletedAgents models.MTOAgents
+		loadErr := appCtx.DB().
+			Scope(utilities.ExcludeDeletedScope()).
+			Where("mto_shipment_id = ?", mto.MTOShipments[i].ID).
+			All(&nonDeletedAgents)
+
+		if loadErr != nil {
+			return &models.Move{}, apperror.NewQueryError("MTOAgents", loadErr, "")
+		}
+
+		mto.MTOShipments[i].MTOAgents = nonDeletedAgents
 	}
 
 	// Now that we have the move and order, construct the allotment (hhg allowance)
@@ -350,13 +364,23 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	mto.MTOServiceItems = loadedServiceItems
 
 	if mto.Orders.DestinationGBLOC == nil {
-		newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), mto.Orders.NewDutyLocation.Address.PostalCode)
-		if err != nil {
-			err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
-			appCtx.Logger().Error(err.Error())
-			return &models.Move{}, apperror.NewQueryError("DestinationGBLOC", err, "")
+		var newDutyLocationGBLOC *string
+		if *mto.Orders.NewDutyLocation.Address.IsOconus {
+			newDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), mto.Orders.NewDutyLocation.Address, mto.Orders.ServiceMember)
+			if err != nil {
+				return nil, apperror.NewNotFoundError(mto.Orders.NewDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
+			}
+			newDutyLocationGBLOC = newDutyLocationGBLOCOconus
+		} else {
+			newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), mto.Orders.NewDutyLocation.Address.PostalCode)
+			if err != nil {
+				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return &models.Move{}, apperror.NewQueryError("DestinationGBLOC", err, "")
+			}
+			newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
 		}
-		mto.Orders.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
+		mto.Orders.DestinationGBLOC = newDutyLocationGBLOC
 	}
 
 	return mto, nil
