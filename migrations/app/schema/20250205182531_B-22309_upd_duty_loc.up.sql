@@ -137,6 +137,17 @@ delete from duty_locations where id = '1ac03922-05c8-4336-8c25-7c2d8cbce8ae';
 
 update re_us_post_regions set is_po_box = true where uspr_zip_id = '53708';
 
+--add duty loc for Fort McNair, DC 20319
+INSERT INTO public.addresses
+(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, street_address_3, county, is_oconus, country_id, us_post_region_cities_id)
+SELECT '1b4bd9f3-59e0-48da-bc46-2ac6147b37e6'::uuid, 'n/a', null, 'FORT MCNAIR', 'DC', '20319', now(), now(), null, 'DISTRICT OF COLUMBIA', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '3662f55e-9f46-4caa-a4f4-5b8635a8ba9f'::uuid
+WHERE NOT EXISTS (select * from addresses where id = '1b4bd9f3-59e0-48da-bc46-2ac6147b37e6');
+
+INSERT INTO public.duty_locations
+(id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
+SELECT '73f801c8-d02c-4cfb-a17c-edab9c75339f'::uuid, 'Fort McNair, DC 20319', null, '1b4bd9f3-59e0-48da-bc46-2ac6147b37e6'::uuid, now(), now(), null, true
+WHERE NOT EXISTS (select * from duty_locations where id = '73f801c8-d02c-4cfb-a17c-edab9c75339f');
+
 --set po_box_only to false for zips that have valid duty locations
 update re_us_post_regions 
    set is_po_box = false 
