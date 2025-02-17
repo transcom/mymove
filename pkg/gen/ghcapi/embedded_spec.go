@@ -7182,10 +7182,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -7263,6 +7259,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -14303,10 +14303,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -14652,6 +14648,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -24492,10 +24492,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -24577,6 +24573,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -31745,10 +31745,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -32098,6 +32094,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"

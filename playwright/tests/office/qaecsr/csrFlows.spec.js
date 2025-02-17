@@ -137,6 +137,7 @@ test.describe('Customer Support User Flows', () => {
       await expect(page.locator('input[name="tac"]')).toBeDisabled();
       await expect(page.locator('input[name="sac"]')).toBeDisabled();
       await expect(page.locator('select[name="payGrade"]')).toBeDisabled();
+      await expect(page.locator('input[name="dependentsAuthorized"]')).toBeDisabled();
       // no save button should exist
       await expect(page.getByRole('button', { name: 'Save' })).toHaveCount(0);
     });
@@ -160,8 +161,6 @@ test.describe('Customer Support User Flows', () => {
 
       // read only authorized weight
       await expect(page.locator('select[name=agency]')).toBeDisabled();
-      await expect(page.locator('select[name=agency]')).toBeDisabled();
-      await expect(page.locator('input[name="dependentsAuthorized"]')).toBeDisabled();
 
       // no save button should exist
       await expect(page.getByRole('button', { name: 'Save' })).toHaveCount(0);

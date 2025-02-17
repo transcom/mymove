@@ -216,15 +216,6 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           isDisabled={formIsDisabled}
         />
       )}
-      <div className={styles.wrappedCheckbox}>
-        <CheckboxField
-          id="dependentsAuthorizedInput"
-          data-testid="dependentsAuthorizedInput"
-          name="dependentsAuthorized"
-          label="Dependents authorized"
-          isDisabled={formIsDisabled}
-        />
-      </div>
     </div>
   );
 };

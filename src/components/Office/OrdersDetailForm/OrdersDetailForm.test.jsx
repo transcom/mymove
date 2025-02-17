@@ -37,6 +37,7 @@ const initialValues = {
   tac: 'Tac',
   sac: 'Sac',
   ordersAcknowledgement: true,
+  dependentsAuthorized: true,
 };
 
 const deptOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
@@ -217,5 +218,10 @@ describe('OrdersDetailForm', () => {
 
     // correct labels are visible
     expect(await screen.findByLabelText('Orders type')).toBeDisabled();
+  });
+
+  it('renders dependents authorized checkbox field', async () => {
+    renderOrdersDetailForm();
+    expect(await screen.findByTestId('dependentsAuthorizedInput')).toBeInTheDocument();
   });
 });

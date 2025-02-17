@@ -758,6 +758,7 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 		Sac:                  nullable.NewString("987654321"),
 		NtsTac:               nullable.NewString("E19A"),
 		NtsSac:               nullable.NewString("987654321"),
+		DependentsAuthorized: models.BoolPointer(true),
 	}
 
 	return subtestData
@@ -816,6 +817,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.Equal(body.Sac.Value, ordersPayload.Sac)
 		suite.Equal(body.NtsTac.Value, ordersPayload.NtsTac)
 		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
+		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
 	})
 
 	// We need to confirm whether a user who only has the TIO role should indeed
@@ -1051,6 +1053,7 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 		Sac:                  nullable.NewString("987654321"),
 		NtsTac:               nullable.NewString("E19A"),
 		NtsSac:               nullable.NewString("987654321"),
+		DependentsAuthorized: models.BoolPointer(true),
 	}
 
 	return subtestData
@@ -1104,6 +1107,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.Equal(body.Sac.Value, ordersPayload.Sac)
 		suite.Equal(body.NtsTac.Value, ordersPayload.NtsTac)
 		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
+		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
@@ -1250,9 +1254,8 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 	rmeWeight := models.Int64Pointer(10000)
 
 	subtestData.body = &ghcmessages.UpdateAllowancePayload{
-		Agency:               &affiliation,
-		DependentsAuthorized: models.BoolPointer(true),
-		Grade:                &grade,
+		Agency: &affiliation,
+		Grade:  &grade,
 		OrganizationalClothingAndIndividualEquipment: &ocie,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
@@ -1345,7 +1348,6 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.Grade, ordersPayload.Grade)
 		suite.Equal(body.Agency, ordersPayload.Agency)
-		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
 		suite.Equal(*body.OrganizationalClothingAndIndividualEquipment, ordersPayload.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(*body.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
@@ -1524,9 +1526,8 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	rmeWeight := models.Int64Pointer(10000)
 
 	body := &ghcmessages.CounselingUpdateAllowancePayload{
-		Agency:               &affiliation,
-		DependentsAuthorized: models.BoolPointer(true),
-		Grade:                &grade,
+		Agency: &affiliation,
+		Grade:  &grade,
 		OrganizationalClothingAndIndividualEquipment: &ocie,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
@@ -1574,7 +1575,6 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.Grade, ordersPayload.Grade)
 		suite.Equal(body.Agency, ordersPayload.Agency)
-		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
 		suite.Equal(*body.OrganizationalClothingAndIndividualEquipment, ordersPayload.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(*body.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
