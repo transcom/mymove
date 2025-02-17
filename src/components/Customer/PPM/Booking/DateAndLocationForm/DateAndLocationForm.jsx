@@ -46,6 +46,12 @@ let validationShape = {
   secondaryDestinationAddress: Yup.object().shape({
     address: OptionalAddressSchema,
   }),
+  tertiaryPickupAddress: Yup.object().shape({
+    address: OptionalAddressSchema,
+  }),
+  tertiaryDestinationAddress: Yup.object().shape({
+    address: OptionalAddressSchema,
+  }),
 };
 
 const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
@@ -53,6 +59,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     useCurrentResidence: false,
     pickupAddress: {},
     secondaryPickupAddress: {},
+    tertiaryPickupAddress: {},
     hasSecondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress ? 'true' : 'false',
     hasTertiaryPickupAddress: mtoShipment?.ppmShipment?.tertiaryPickupAddress ? 'true' : 'false',
     useCurrentDestinationAddress: false,
@@ -63,7 +70,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
     closeoutOffice: move?.closeoutOffice || {},
-    tertiaryPickupAddress: {},
     tertiaryDestinationAddress: {},
   };
 
