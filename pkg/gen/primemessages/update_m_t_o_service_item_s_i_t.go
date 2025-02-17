@@ -39,7 +39,7 @@ type UpdateMTOServiceItemSIT struct {
 	FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 	// Service code allowed for this model type.
-	// Enum: [DDDSIT DDASIT DDFSIT DDSFSC DOPSIT DOASIT DOFSIT DOSFSC]
+	// Enum: [DDDSIT DDASIT DDFSIT DDSFSC DOPSIT DOASIT DOFSIT DOSFSC IDDSIT IDASIT IDFSIT IDSFSC IOPSIT IOASIT IOFSIT IOSFSC]
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
 	// Indicates if "Approvals Requested" status is being requested.
@@ -123,7 +123,7 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 		// Service code allowed for this model type.
-		// Enum: [DDDSIT DDASIT DDFSIT DDSFSC DOPSIT DOASIT DOFSIT DOSFSC]
+		// Enum: [DDDSIT DDASIT DDFSIT DDSFSC DOPSIT DOASIT DOFSIT DOSFSC IDDSIT IDASIT IDFSIT IDSFSC IOPSIT IOASIT IOFSIT IOSFSC]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
 		// Indicates if "Approvals Requested" status is being requested.
@@ -242,7 +242,7 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 		// Service code allowed for this model type.
-		// Enum: [DDDSIT DDASIT DDFSIT DDSFSC DOPSIT DOASIT DOFSIT DOSFSC]
+		// Enum: [DDDSIT DDASIT DDFSIT DDSFSC DOPSIT DOASIT DOFSIT DOSFSC IDDSIT IDASIT IDFSIT IDSFSC IOPSIT IOASIT IOFSIT IOSFSC]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
 		// Indicates if "Approvals Requested" status is being requested.
@@ -471,7 +471,7 @@ var updateMTOServiceItemSITTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DDDSIT","DDASIT","DDFSIT","DDSFSC","DOPSIT","DOASIT","DOFSIT","DOSFSC"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DDDSIT","DDASIT","DDFSIT","DDSFSC","DOPSIT","DOASIT","DOFSIT","DOSFSC","IDDSIT","IDASIT","IDFSIT","IDSFSC","IOPSIT","IOASIT","IOFSIT","IOSFSC"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

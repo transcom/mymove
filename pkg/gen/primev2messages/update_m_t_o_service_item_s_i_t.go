@@ -39,7 +39,7 @@ type UpdateMTOServiceItemSIT struct {
 	FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 	// Service code allowed for this model type.
-	// Enum: [DDDSIT DOPSIT DOASIT DOFSIT]
+	// Enum: [DDDSIT DOPSIT DOASIT DOFSIT IDDSIT IOPSIT IOASIT IOFSIT]
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
 	// Indicates if "Approvals Requested" status is being requested.
@@ -123,7 +123,7 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 		// Service code allowed for this model type.
-		// Enum: [DDDSIT DOPSIT DOASIT DOFSIT]
+		// Enum: [DDDSIT DOPSIT DOASIT DOFSIT IDDSIT IOPSIT IOASIT IOFSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
 		// Indicates if "Approvals Requested" status is being requested.
@@ -242,7 +242,7 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 		// Service code allowed for this model type.
-		// Enum: [DDDSIT DOPSIT DOASIT DOFSIT]
+		// Enum: [DDDSIT DOPSIT DOASIT DOFSIT IDDSIT IOPSIT IOASIT IOFSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
 		// Indicates if "Approvals Requested" status is being requested.
@@ -471,7 +471,7 @@ var updateMTOServiceItemSITTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DDDSIT","DOPSIT","DOASIT","DOFSIT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DDDSIT","DOPSIT","DOASIT","DOFSIT","IDDSIT","IOPSIT","IOASIT","IOFSIT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
