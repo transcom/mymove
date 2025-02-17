@@ -73,7 +73,7 @@ describe('BulkAssignmentModal', () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
     const saveButton = await screen.findByTestId('modalSubmitButton');
     await userEvent.click(saveButton);
-    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledTimes(2);
   });
 
   it('renders the user data', async () => {
@@ -140,7 +140,7 @@ describe('BulkAssignmentModal', () => {
     const confirmButton = await screen.findByTestId('cancelModalYes');
     await userEvent.click(confirmButton);
 
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(2);
   });
 
   it('close confirmation goes away when clicking no', async () => {

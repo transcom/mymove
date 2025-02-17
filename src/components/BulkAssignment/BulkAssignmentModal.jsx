@@ -18,7 +18,6 @@ const initialValues = {
 };
 
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
-  const [isError, setIsError] = useState(false);
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
   const [isDisabled, setIsDisabled] = useState(false);
   const [numberOfMoves, setNumberOfMoves] = useState(0);
@@ -77,12 +76,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
         <div className={styles.BulkAssignmentTable}>
           <Formik
             onSubmit={(values) => {
-              const totalAssignment = values?.userData?.reduce((sum, item) => sum + item.moveAssignments, 0);
-
-              if (totalAssignment > numberOfMoves) {
-                setIsError(true);
-                return;
-              }
               const bulkAssignmentSavePayload = values;
               onSubmit({ bulkAssignmentSavePayload });
               onClose();
@@ -93,7 +86,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
             {({ handleChange, setValues, values }) => {
               const handleAssignmentChange = (event, i) => {
                 handleChange(event);
-                setIsError(false);
 
                 let newUserAssignment;
                 if (event.target.value !== '') {
@@ -195,7 +187,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                       >
                         {closeText}
                       </Button>
-                      {isError && <div className={styles.errorMessage}>{errorMessage}</div>}
                     </ModalActions>
                   )}
                 </Form>
