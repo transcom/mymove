@@ -207,6 +207,34 @@ const mileageZip = (params) => {
   return calculation(value, label, formatDetail(detail));
 };
 
+const mileageZipPOEFSC = (params) => {
+  const value = `${formatMileage(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params), 10))}`;
+  const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
+    params,
+  )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.PortZip]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.PortZip,
+    params,
+  )}`;
+
+  return calculation(value, label, formatDetail(detail));
+};
+
+const mileageZipPODFSC = (params) => {
+  const value = `${formatMileage(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params), 10))}`;
+  const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.PortZip]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.PortZip,
+    params,
+  )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
+    params,
+  )}`;
+
+  return calculation(value, label, formatDetail(detail));
+};
+
 const mileageZipSIT = (params, itemCode) => {
   let label;
   let distanceZip;
@@ -252,6 +280,12 @@ const mileageZipSIT = (params, itemCode) => {
   const value = formatMileage(getParamValue(distanceZip, params));
 
   return calculation(value, label, formatDetail(detail));
+};
+
+const internationalShippingAndLineHaulPrice = (params, shipmentType) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.InternationalShippingAndLinehaul;
+  return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
 };
 
 const baselineLinehaulPrice = (params, shipmentType) => {
@@ -457,6 +491,12 @@ const packPrice = (params, shipmentType) => {
   );
 };
 
+const internationalPackPrice = (params, shipmentType) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.PackPriceInternational;
+  return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
+};
+
 const ntsPackingFactor = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.NTSPackingFactor, params) || '';
   const label = SERVICE_ITEM_CALCULATION_LABELS.NTSPackingFactor;
@@ -478,6 +518,12 @@ const unpackPrice = (params, shipmentType) => {
     formatDetail(referenceDate(params, shipmentType)),
     formatDetail(peak(params)),
   );
+};
+
+const internationalUnpackPrice = (params, shipmentType) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.UnpackPriceInternational;
+  return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
 };
 
 const additionalDayOriginSITPrice = (params, shipmentType) => {
@@ -641,7 +687,7 @@ const uncappedRequestTotal = (params) => {
 
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
-  const label = `${SERVICE_ITEM_CALCULATION_LABELS.Total}:`;
+  const label = `${SERVICE_ITEM_CALCULATION_LABELS.Total}: `;
   const detail = '';
 
   return calculation(value, label, formatDetail(detail));
@@ -857,6 +903,50 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         cratingSize(params, mtoParams),
         unCratingPrice(params),
         priceEscalationFactorWithoutContractYear(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    case SERVICE_ITEM_CODES.ISLH:
+      result = [
+        billableWeight(params),
+        internationalShippingAndLineHaulPrice(params, shipmentType),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // International packing
+    case SERVICE_ITEM_CODES.IHPK:
+      result = [
+        billableWeight(params),
+        internationalPackPrice(params, shipmentType),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // International unpacking
+    case SERVICE_ITEM_CODES.IHUPK:
+      result = [
+        billableWeight(params),
+        internationalUnpackPrice(params, shipmentType),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Port of Debarkation Fuel surcharge
+    case SERVICE_ITEM_CODES.PODFSC:
+      result = [
+        billableWeight(params),
+        mileageZipPODFSC(params),
+        mileageFactor(params, itemCode),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Port of Embarkation Fuel surcharge
+    case SERVICE_ITEM_CODES.POEFSC:
+      result = [
+        billableWeight(params),
+        mileageZipPOEFSC(params),
+        mileageFactor(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;

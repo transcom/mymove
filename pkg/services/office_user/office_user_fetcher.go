@@ -19,6 +19,8 @@ type officeUserQueryBuilder interface {
 	QueryForAssociations(appCtx appcontext.AppContext, model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error
 	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
 	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
+	DeleteOne(appCtx appcontext.AppContext, model interface{}) error
+	DeleteMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
 }
 
 type officeUserFetcher struct {
@@ -80,8 +82,6 @@ func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext
 		"User",
 		"User.Roles",
 		"User.Privileges",
-		"TransportationOffice",
-		"TransportationOffice.Gbloc",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
@@ -107,8 +107,6 @@ func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx 
 		"User",
 		"User.Roles",
 		"User.Privileges",
-		"TransportationOffice",
-		"TransportationOffice.Gbloc",
 	).
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").

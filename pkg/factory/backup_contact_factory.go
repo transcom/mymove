@@ -35,7 +35,7 @@ func BuildBackupContact(db *pop.Connection, customs []Customization, traits []Tr
 		Permission:      models.BackupContactPermissionEDIT,
 		Name:            "name",
 		Email:           "email@example.com",
-		Phone:           models.StringPointer("555-555-5555"),
+		Phone:           "555-555-5555",
 	}
 
 	// Overwrite values with those from customizations

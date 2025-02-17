@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
 // GetMoveTaskOrderHandler fetches a Move Task Order
@@ -74,13 +73,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 				serviceItemCodes = *params.ServiceItemCodes
 			}
 
-			checker := movetaskorder.NewMoveTaskOrderChecker()
-			availableBefore, err := checker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
-			if err != nil {
-				return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
-			}
-
-			mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(appCtx, moveTaskOrderID, eTag,
+			mto, err := h.moveTaskOrderStatusUpdater.ApproveMoveAndCreateServiceItems(appCtx, moveTaskOrderID, eTag,
 				serviceItemCodes.ServiceCodeMS, serviceItemCodes.ServiceCodeCS)
 
 			if err != nil {
@@ -106,32 +99,8 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 				}
 			}
 
-			if !availableBefore {
-				availableAfter, checkErr := checker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
-				if checkErr != nil {
-					return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
-				}
-
-				/* Do not send TOO approving and submitting service items email if BLUEBARK/SAFETY */
-				if availableAfter && mto.Orders.CanSendEmailWithOrdersType() {
-					emailErr := h.NotificationSender().SendNotification(appCtx,
-						notifications.NewMoveIssuedToPrime(moveTaskOrderID),
-					)
-					if emailErr != nil {
-						return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
-					}
-				}
-			}
-
 			moveTaskOrderPayload, err := payloads.Move(mto, h.FileStorer())
 			if err != nil {
-				return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
-			}
-
-			// Audit attempt to make MTO available to prime
-			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
-			if err != nil {
-				appCtx.Logger().Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
 				return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
 			}
 
