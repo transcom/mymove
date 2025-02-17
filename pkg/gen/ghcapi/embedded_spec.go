@@ -6478,7 +6478,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved GBLOCs",
+            "description": "Successfully retrieved transportation offices",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }
@@ -23953,7 +23953,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved GBLOCs",
+            "description": "Successfully retrieved transportation offices",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }

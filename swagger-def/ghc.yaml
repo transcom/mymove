@@ -4323,7 +4323,7 @@ paths:
       produces:
         - application/json
       responses:
-        "200":
+        '200':
           description: Successfully retrieved counseling offices
           schema:
             $ref: '#/definitions/CounselingOffices'
