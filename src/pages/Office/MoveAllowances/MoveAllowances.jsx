@@ -46,15 +46,14 @@ const validationSchema = Yup.object({
   weightRestriction: Yup.number()
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .when('adminRestrictedWeightLocation', {
-      is: true, // Apply rules only if adminRestrictedWeightLocation is true
+      is: true,
       then: (schema) =>
         schema
           .min(1, 'Weight restriction must be greater than 0')
           .max(18000, 'Weight restriction cannot exceed 18,000 lbs')
           .required('Weight restriction is required when Admin Restricted Weight Location is enabled'),
-      otherwise: (schema) => schema.notRequired().nullable(), // No validation when false
+      otherwise: (schema) => schema.notRequired().nullable(),
     }),
-
   adminRestrictedWeightLocation: Yup.boolean().notRequired(),
 });
 
@@ -218,7 +217,7 @@ const MoveAllowances = () => {
               <Restricted to={permissionTypes.updateAllowances}>
                 <div className={styles.bottom}>
                   <div className={styles.buttonGroup}>
-                    <Button disabled={formik.isSubmitting} type="submit">
+                    <Button disabled={formik.isSubmitting || !formik.isValid} type="submit">
                       Save
                     </Button>
                     <Button type="button" secondary onClick={handleClose}>
