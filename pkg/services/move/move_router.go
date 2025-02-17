@@ -232,7 +232,7 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 			// actual expense reimbursement is always true for civilian moves
 			move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(isCivilian)
 			if move.IsPPMOnly() && !orders.OriginDutyLocation.ProvidesServicesCounseling {
-				closestCounselingOffice, err := router.transportationOfficesFetcher.FindCounselingOfficeForPrimeCounseled(appCtx, *move.Orders.OriginDutyLocationID, move.Orders.ServiceMemberID)
+				closestCounselingOffice, err := router.transportationOfficesFetcher.FindCounselingOfficeForPrimeCounseled(appCtx, *move.Orders.OriginDutyLocationID)
 				if err != nil {
 					msg := "Failure setting PPM counseling office to closest service counseling office"
 					appCtx.Logger().Error(msg, zap.Error(err))

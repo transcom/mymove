@@ -315,7 +315,7 @@ func findOconusGblocDepartmentIndicator(appCtx appcontext.AppContext, dutyLocati
 }
 
 // Return the closest transportation office in the GBLOC of the given duty location for oconus/conus duty locations for a prime counseled
-func (o transportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffice, error) {
+func (o transportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffice, error) {
 	var closestOffice models.TransportationOffice
 	duty_location, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
 	if err != nil {
@@ -326,7 +326,7 @@ func (o transportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appC
 
 	// Find for oconus duty location
 	if *duty_location.Address.IsOconus {
-		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location, serviceMemberID)
+		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location, appCtx.Session().ServiceMemberID)
 		if err != nil {
 			appCtx.Logger().Error("Failed to find OCONUS GBLOC department indicator", zap.Error(err))
 			return &closestOffice, err

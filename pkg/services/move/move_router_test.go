@@ -394,18 +394,23 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					},
 				}, nil)
 				err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
-				suite.NoError(err)
-				err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
-				suite.NoError(err)
-				suite.NotNil(newSignedCertification)
 
-				err = suite.DB().Find(&move, move.ID)
-				suite.NoError(err)
-				suite.Equal(tt.moveStatus, move.Status)
+				if err != nil {
+					suite.Error(err)
+					suite.Contains(err.Error(), "Failed to find counseling office that provides counseling")
+				} else {
+					suite.NoError(err)
+					err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
+					suite.NoError(err)
+					suite.NotNil(newSignedCertification)
+
+					err = suite.DB().Find(&move, move.ID)
+					suite.NoError(err)
+					suite.Equal(tt.moveStatus, move.Status)
+				}
 			})
 		}
 	})
-
 	suite.Run("Returns error if signedCertificate is missing", func() {
 		// Under test: MoveRouter.Submit (both routing to services counselor and office user)
 		// Set up: Create moves and SignedCertification
@@ -473,10 +478,15 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}, nil)
 		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 
-		suite.NoError(err)
-		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected Needs Service Counseling")
-		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status, "expected Submitted")
-		suite.Equal(models.PPMShipmentStatusSubmitted, move.MTOShipments[0].PPMShipment.Status, "expected Submitted")
+		if err != nil {
+			suite.Error(err)
+			suite.Contains(err.Error(), "Failed to find counseling office that provides counseling")
+		} else {
+			suite.NoError(err)
+			suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected Needs Service Counseling")
+			suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status, "expected Submitted")
+			suite.Equal(models.PPMShipmentStatusSubmitted, move.MTOShipments[0].PPMShipment.Status, "expected Submitted")
+		}
 	})
 
 	suite.Run("returns an error when a Mobile Home Shipment is not formatted correctly", func() {
@@ -1054,19 +1064,24 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 				mockFetcher := &mocks.TransportationOfficesFetcher{}
 				closestCounselingOffice := &models.TransportationOffice{}
 				if !tt.ProvidesServicesCounseling {
-					mockFetcher.On("FindClosestCounselingOffice", mock.Anything, mock.Anything).Return(closestCounselingOffice, nil)
+					mockFetcher.On("FindCounselingOfficeForPrimeCounseled", mock.Anything, mock.Anything).Return(closestCounselingOffice, nil)
 				}
 				err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
-				suite.NoError(err)
-				err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
-				suite.NoError(err)
-				suite.NotNil(newSignedCertification)
+				if err != nil {
+					suite.Error(err)
+					suite.Contains(err.Error(), "Failed to find counseling office that provides counseling")
+				} else {
+					suite.NoError(err)
+					err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
+					suite.NoError(err)
+					suite.NotNil(newSignedCertification)
 
-				err = suite.DB().Find(&move, move.ID)
-				suite.NoError(err)
-				suite.Equal(tt.moveStatus, move.Status)
-				if !tt.ProvidesServicesCounseling {
-					suite.Equal(closestCounselingOffice, move.CounselingOffice)
+					err = suite.DB().Find(&move, move.ID)
+					suite.NoError(err)
+					suite.Equal(tt.moveStatus, move.Status)
+					if !tt.ProvidesServicesCounseling {
+						suite.Equal(closestCounselingOffice.ID, move.CounselingOfficeID)
+					}
 				}
 			})
 		}

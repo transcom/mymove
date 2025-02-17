@@ -507,15 +507,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 			},
 		},
 	}, nil)
-	armyAffliation := models.AffiliationARMY
-	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
-		{
-			Model: models.ServiceMember{
-				Affiliation: &armyAffliation,
-			},
-		},
-	}, nil)
-	offices, err := suite.toFetcher.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), origDutyLocation.ID, serviceMember.ID)
+	offices, err := suite.toFetcher.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), origDutyLocation.ID)
 	suite.NoError(err)
 	suite.Equal(offices.Name, "PPPO Jacksonville - USN")
 }
@@ -727,7 +719,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 				ServiceMemberID: serviceMember.ID,
 			})
-			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
+			departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, serviceMember.ID)
 			suite.NotNil(departmentIndictor)
 			suite.Nil(err)
 			suite.NotNil(departmentIndictor.DepartmentIndicator)
@@ -860,7 +852,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 					ServiceMemberID: serviceMember.ID,
 				})
-				offices, err := suite.toFetcher.FindCounselingOfficeForPrimeCounseled(appCtx, dutylocation.ID, serviceMember.ID)
+				offices, err := suite.toFetcher.FindCounselingOfficeForPrimeCounseled(appCtx, dutylocation.ID)
 				suite.NotNil(offices)
 				suite.Nil(err)
 				suite.Equal(testTransportationName, offices.Name)
@@ -868,7 +860,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 					ServiceMemberID: serviceMember.ID,
 				})
-				offices, err := suite.toFetcher.FindCounselingOfficeForPrimeCounseled(appCtx, dutylocation.ID, serviceMember.ID)
+				offices, err := suite.toFetcher.FindCounselingOfficeForPrimeCounseled(appCtx, dutylocation.ID)
 				suite.NotNil(offices)
 				suite.Nil(err)
 				suite.Equal(testTransportationName2, offices.Name)

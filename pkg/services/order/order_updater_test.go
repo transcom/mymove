@@ -653,7 +653,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 	})
 
 	suite.Run("Updates the allowance when weightRestriction is null", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
 			{
@@ -832,7 +832,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.Run("Updates the allowance when weightRestriction is null", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
 			{
