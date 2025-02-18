@@ -291,7 +291,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
           defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC, null, null, isQueueManagementFFEnabled)}
+          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC, null, null, isQueueManagementFFEnabled, null)}
           title="Moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useServicesCounselingQueuePPMQueries}
@@ -319,7 +319,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag, null, null, isQueueManagementFFEnabled)}
+          columns={counselingColumns(moveLockFlag, null, null, isQueueManagementFFEnabled, null)}
           title="Moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useServicesCounselingQueueQueries}
