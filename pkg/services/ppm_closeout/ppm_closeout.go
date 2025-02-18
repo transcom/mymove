@@ -230,13 +230,11 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 	}
 	// We do not need to consider deleted moving expenses
 	if len(ppmShipment.MovingExpenses) > 0 {
-		nonDeletedMovingExpenses := ppmShipment.MovingExpenses.FilterDeleted()
-		ppmShipment.MovingExpenses = nonDeletedMovingExpenses
+		ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
 	}
 	// We do not need to consider deleted progear weight tickets
 	if len(ppmShipment.ProgearWeightTickets) > 0 {
-		nonDeletedProgearTickets := ppmShipment.ProgearWeightTickets.FilterDeleted()
-		ppmShipment.ProgearWeightTickets = nonDeletedProgearTickets
+		ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
 	}
 
 	var weightTicket models.WeightTicket
