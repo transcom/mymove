@@ -9,7 +9,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { Form } from 'components/form/Form';
 import { ShipmentShape } from 'types/shipment';
 import { DropdownInput } from 'components/form/fields';
-import { shuttleServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
+import { domesticShuttleServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
 
 const shuttleSITValidationSchema = Yup.object().shape({
   reServiceCode: Yup.string().required('Required'),
@@ -20,7 +20,7 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
-    modelType: createServiceItemModelTypes.MTOServiceItemShuttle,
+    modelType: createServiceItemModelTypes.MTOServiceItemDomesticShuttle,
     reason: '',
     estimatedWeight: null,
     actualWeight: null,
@@ -44,7 +44,7 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
           name="reServiceCode"
           id="reServiceCode"
           required
-          options={shuttleServiceItemCodeOptions}
+          options={domesticShuttleServiceItemCodeOptions}
         />
         <TextField name="reason" id="reason" label="Reason" />
         <MaskedTextField
