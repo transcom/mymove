@@ -331,21 +331,21 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		{"DDL Functions", ddlFunctionsManifest, ddlFunctionsPath},
 	}
 
-	for _, ddlType := range ddlObjects {
-		logger.Info(fmt.Sprintf("=== Processing %s ===", ddlType.name))
+	for _, ddlObj := range ddlObjects {
+		logger.Info(fmt.Sprintf("=== Processing %s ===", ddlObj.name))
 
-		filenames, errListFiles := fileHelper.ListFiles(ddlType.path, s3Client)
+		filenames, errListFiles := fileHelper.ListFiles(ddlObj.path, s3Client)
 		if errListFiles != nil {
-			logger.Fatal(fmt.Sprintf("Error listing %s directory %s", ddlType.name, ddlType.path), zap.Error(errListFiles))
+			logger.Fatal(fmt.Sprintf("Error listing %s directory %s", ddlObj.name, ddlObj.path), zap.Error(errListFiles))
 		}
 
 		ddlMigrationFiles := map[string][]string{
-			ddlType.path: filenames,
+			ddlObj.path: filenames,
 		}
 
-		manifest, err := os.Open(ddlType.manifest[len("file://"):])
+		manifest, err := os.Open(ddlObj.manifest[len("file://"):])
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("error reading %s manifest", ddlType.name))
+			return errors.Wrap(err, fmt.Sprintf("error reading %s manifest", ddlObj.name))
 		}
 
 		scanner := bufio.NewScanner(manifest)
@@ -366,25 +366,25 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 			}
 
 			if len(uri) == 0 {
-				return errors.Errorf("Error finding %s migration for filename %q", ddlType.name, target)
+				return errors.Errorf("Error finding %s migration for filename %q", ddlObj.name, target)
 			}
 
 			m, err := pop.ParseMigrationFilename(target)
 			if err != nil {
-				return errors.Wrapf(err, "error parsing %s migration filename %q", ddlType.name, uri)
+				return errors.Wrapf(err, "error parsing %s migration filename %q", ddlObj.name, uri)
 			}
 
 			b := &migrate.Builder{Match: m, Path: uri}
 			migration, errCompile := b.Compile(s3Client, wait, logger)
 			if errCompile != nil {
-				return errors.Wrap(errCompile, fmt.Sprintf("Error compiling %s migration", ddlType.name))
+				return errors.Wrap(errCompile, fmt.Sprintf("Error compiling %s migration", ddlObj.name))
 			}
 
 			if err := migration.Run(dbConnection); err != nil {
-				return errors.Wrap(err, fmt.Sprintf("error executing %s migration", ddlType.name))
+				return errors.Wrap(err, fmt.Sprintf("error executing %s migration", ddlObj.name))
 			}
 
-			logger.Info(fmt.Sprintf("Successfully executed %s: %s", ddlType.name, target))
+			logger.Info(fmt.Sprintf("Successfully executed %s: %s", ddlObj.name, target))
 		}
 		manifest.Close()
 	}
