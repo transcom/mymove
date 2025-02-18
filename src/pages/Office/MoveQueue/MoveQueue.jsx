@@ -351,7 +351,7 @@ const MoveQueue = ({
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter, setRefetchQueue)}
+          columns={columns(moveLockFlag, isQueueManagementFFEnabled, setRefetchQueue, showBranchFilter)}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}
