@@ -437,6 +437,7 @@ const ServicesCounselingQueue = ({
   isQueueManagementFFEnabled,
   officeUser,
   isBulkAssignmentFFEnabled,
+  activeRole,
 }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
@@ -675,6 +676,7 @@ const ServicesCounselingQueue = ({
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType="CLOSEOUT"
+          activeRole={activeRole}
         />
       </div>
     );
@@ -705,6 +707,7 @@ const ServicesCounselingQueue = ({
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType="COUNSELING"
+          activeRole={activeRole}
         />
       </div>
     );

@@ -33,3 +33,14 @@ func FetchOconusRateArea(db *pop.Connection, zip string) (*OconusRateArea, error
 	}
 	return &reOconusRateArea, nil
 }
+
+func FetchOconusRateAreaByCityId(db *pop.Connection, usprc string) (*OconusRateArea, error) {
+	var reOconusRateArea OconusRateArea
+	err := db.Q().
+		Where("re_oconus_rate_areas.us_post_region_cities_id = ?", usprc).
+		First(&reOconusRateArea)
+	if err != nil {
+		return nil, err
+	}
+	return &reOconusRateArea, nil
+}
