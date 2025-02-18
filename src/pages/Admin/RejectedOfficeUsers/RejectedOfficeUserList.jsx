@@ -25,6 +25,7 @@ const RejectedOfficeUserShowRoles = () => {
     }
   }
 
+  uniqueRoleNamesList.sort();
   return <span>{uniqueRoleNamesList.join(', ')}</span>;
 };
 
