@@ -524,8 +524,11 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
     case 'ISLH':
     case 'IHPK':
     case 'IHUPK':
+    case 'IUBPK':
+    case 'IUBUPK':
     case 'POEFSC':
-    case 'PODFSC': {
+    case 'PODFSC':
+    case 'UBP': {
       detailSection = (
         <div>
           <dl>
