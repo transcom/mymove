@@ -210,9 +210,9 @@ export function checkAddressTogglesToClearAddresses(body) {
   return values;
 }
 
-export function isPreceedingAddressComplete(hasDeliveryAddress, addressValues) {
+export function isPreceedingAddressComplete(hasAddress, addressValues) {
   if (
-    hasDeliveryAddress === 'true' &&
+    hasAddress === 'true' &&
     addressValues.streetAddress1 !== '' &&
     addressValues.state !== '' &&
     addressValues.city !== '' &&
