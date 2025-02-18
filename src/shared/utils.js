@@ -223,7 +223,7 @@ export function isPreceedingAddressComplete(hasDeliveryAddress, addressValues) {
   return false;
 }
 
-export function isSecondaryAddressCompletePPM(hasSecondaryDelivery, addressValues) {
+export function isPreceedingPPMAddressComplete(hasSecondaryDelivery, addressValues) {
   if (addressValues === undefined || addressValues.postalCode === undefined) {
     return false;
   }
