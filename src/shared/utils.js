@@ -223,13 +223,13 @@ export function isPreceedingAddressComplete(hasDeliveryAddress, addressValues) {
   return false;
 }
 
-export function isPreceedingPPMAddressComplete(hasSecondaryDelivery, addressValues) {
+export function isPreceedingPPMAddressComplete(hasAddress, addressValues) {
   if (addressValues === undefined || addressValues.postalCode === undefined) {
     return false;
   }
 
   if (
-    hasSecondaryDelivery === 'true' &&
+    hasAddress === 'true' &&
     addressValues.streetAddress1 !== '' &&
     addressValues.state !== '' &&
     addressValues.city !== '' &&
