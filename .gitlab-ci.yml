@@ -9,7 +9,7 @@ variables:
   #Docker config
   DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
   #hard code sha as newer version of debian is needed for pre-test
-  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app@sha256:ee774e9244afa2063bbbb7f9b973b17f1f5139366a1b7a676155df0b5268a7e1
+  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app
   DOCKER_BASE_IMAGE: milmove01/transcom-docker:base
   DOCKERHUB_USERNAME: DOCKERHUB_USERNAME
   DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
@@ -152,7 +152,7 @@ stages:
   #build off prd variables
   - export ECR_REPOSITORY_URI=${PRD_ACCOUNT_ID}.dkr.ecr.${PRD_REGION}.amazonaws.com
   - export APP_DOCKER_FILE=Dockerfile
-  - export TASK_DOCKER_FILE=Dockerfile
+  - export TASK_DOCKER_FILE=Dockerfile.tasks
   #TODO: update exp to prod
   - export APP_ENVIRONMENT=prd
 
@@ -724,36 +724,36 @@ pre_test:
       [ -d ~/transcom/mymove/spectral ] && cp -r ~/transcom/mymove/spectral /tmp/spectral_baseline || echo "Skipping saving baseline"
     - rm -rf ~/transcom/mymove/spectral
     - *install_yarn
+    # this is so we can avoid go mod downloading and resulting in an error on a false positive
+    - ./scripts/pre-commit-go-mod || exit 0
     - echo "Run pre-commit tests without golangci-lint, eslint, or prettier"
-    - SKIP=golangci-lint,eslint,prettier,ato-go-linter,gomod,appcontext-linter pre-commit run --all-files
-    - |
-        echo "Run pre-commit tests with ato-go-linter only"
-        pre-commit run -v --all-files ato-go-linter
-    - |
-        echo "Run pre-commit tests with gomod only"
-        pre-commit run -v --all-files gomod,appcontext-linter
-    - |
-        echo "Run pre-commit tests with appcontext-linter only"
-        pre-commit run -v --all-files appcontext-linter
+    - SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
     - echo "Run pre-commit tests with golangci-lint only"
     - |
-        echo 'export GOLANGCI_LINT_CONCURRENCY=4' >> $BASH_ENV
-        echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
-        source $BASH_ENV
+        export GOLANGCI_LINT_CONCURRENCY=4
+        export GOLANGCI_LINT_VERBOSE=-v
         mkdir -p tmp/test-results/pretest
-        pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
-    -  echo "Run prettier, eslint, danger checks"
+    # can this be removed in favor of golang_lint?
+    - pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+    - echo "Run prettier, eslint, danger checks"
     - yarn prettier-ci
     - yarn lint
     - yarn danger ci --failOnErrors
-    -  echo "Run spectral linter on all files"
+    - echo "Run spectral linter on all files"
     - ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
-    - ./scripts/pre-commit-go-mod || exit 0
   allow_failure: true
   after_script:
     - *announce_failure
-  rules:
-   - *check_server_ignore_branch
+  artifacts:
+      reports:
+        codequality: tmp/test-results/pretest/golangci-lint.out
+      paths:
+        - tmp/test-results/pretest/golangci-lint.out #remove if golang_lint works
+        - tmp/spectral_baseline/*.json #what do we need to store for review?
+        - spectral/*.json #what do we need to store for review?
+      when: always
+  # rules:
+  #  - *check_server_ignore_branch
 
 server_test:
   stage: test
