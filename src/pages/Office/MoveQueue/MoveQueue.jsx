@@ -171,7 +171,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, setRefetchQueue,
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
-                {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => (
+                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
                   <option
                     value={officeUserId}
                     key={officeUserId}
@@ -331,7 +331,7 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter, setRefetchQueue)}
+          columns={columns(moveLockFlag, isQueueManagementFFEnabled, setRefetchQueue, showBranchFilter)}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}

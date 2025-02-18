@@ -734,12 +734,6 @@ func (h SaveBulkAssignmentDataHandler) Handle(
 				return queues.NewGetBulkAssignmentDataInternalServerError(), err
 			}
 
-			if err != nil {
-				appCtx.Logger().
-					Error("error fetching list of moves for office user", zap.Error(err))
-				return queues.NewGetServicesCounselingQueueInternalServerError(), err
-			}
-
 			return queues.NewSaveBulkAssignmentDataNoContent(), nil
 		})
 }

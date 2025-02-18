@@ -5,6 +5,16 @@
   max-width: 60vw;
   overflow-y: auto;
   max-height: 90vh;
+  overflow-x: hidden;
+
+  button,
+  :global(.usa-button) {
+    margin: 0;
+    flex-grow: 0;
+    flex-basis: auto;
+    text-decoration: none;
+    font-size: 1rem;
+  }
 
   .errorMessage {
     margin: 0 auto;

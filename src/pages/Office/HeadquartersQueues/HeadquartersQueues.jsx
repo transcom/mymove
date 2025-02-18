@@ -237,7 +237,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled }) => {
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={tooQueueColumns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
+          columns={tooQueueColumns(moveLockFlag, isQueueManagementFFEnabled, null, showBranchFilter)}
           title="All moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useMovesQueueQueries}
@@ -263,7 +263,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled }) => {
           defaultSortedColumns={[{ id: 'age', desc: true }]}
           disableMultiSort
           disableSortBy={false}
-          columns={tioQueueColumns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
+          columns={tioQueueColumns(moveLockFlag, isQueueManagementFFEnabled, null, showBranchFilter)}
           title="Payment requests"
           handleClick={handleClickNavigateToPaymentRequests}
           useQueries={usePaymentRequestQueueQueries}
@@ -289,7 +289,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled }) => {
           defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC, null, null, isQueueManagementFFEnabled)}
+          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC, null, null, isQueueManagementFFEnabled, null)}
           title="Moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useServicesCounselingQueuePPMQueries}
@@ -316,7 +316,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled }) => {
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag, null, null, isQueueManagementFFEnabled)}
+          columns={counselingColumns(moveLockFlag, null, null, isQueueManagementFFEnabled, null)}
           title="Moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useServicesCounselingQueueQueries}
