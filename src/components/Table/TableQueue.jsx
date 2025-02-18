@@ -235,8 +235,6 @@ const TableQueue = ({
     }
     setAllFilters(filters);
   };
-  // const bulkAssignmentRows = bulkAssignmentData.map((item) => Object.values(item));
-  // console.log('bulkAssignmentData: ', bulkAssignmentData);
 
   const renderFilterPillButton = (index, value, buttonTitle, label, dataTestId) => {
     return (
