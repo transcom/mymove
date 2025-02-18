@@ -36,6 +36,7 @@ export default {
   updateOrder: 'updateOrder', // ghc.yaml
   updateOrders: 'updateOrders', // internal.yaml
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
+  updatePaymentServiceItemStatus: 'updatePaymentServiceItemStatus',
   updateReweigh: 'updateReweigh',
   updateServiceItemStatus: 'updateMTOServiceItemStatus',
   updateServiceItemSitEntryDate: 'updateServiceItemSitEntryDate', // ghc.yaml
@@ -67,5 +68,7 @@ export default {
   addAppealToViolation: 'addAppealToViolation', // ghc.yaml
   addAppealToSeriousIncident: 'addAppealToSeriousIncident', // ghc.yaml
   cancelMove: 'cancelMove', // internal.yaml
+  updateAssignedOfficeUser: 'updateAssignedOfficeUser', // ghc.yaml
+  deleteAssignedOfficeUser: 'deleteAssignedOfficeUser', // ghc.yaml
   reviewShipmentAddressUpdate: 'reviewShipmentAddressUpdate', // ghc.yaml
 };

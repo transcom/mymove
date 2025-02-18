@@ -94,3 +94,25 @@ func FetchRolesForUser(db *pop.Connection, userID uuid.UUID) (Roles, error) {
 		All(&roles)
 	return roles, err
 }
+
+// Fetch like roles based on the search parameter
+func FindRoles(db *pop.Connection, search string) (Roles, error) {
+	var rolesList Roles
+
+	// The % operator filters out strings that are below this similarity threshold
+	err := db.Q().RawQuery("SET pg_trgm.similarity_threshold = 0.03").Exec()
+	if err != nil {
+		return rolesList, err
+	}
+
+	sqlQuery := `select * from roles where role_name % $1`
+
+	query := db.Q().RawQuery(sqlQuery, search)
+	if err := query.All(&rolesList); err != nil {
+		if err != nil {
+			return rolesList, err
+		}
+	}
+
+	return rolesList, nil
+}

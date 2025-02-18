@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import styles from './ExpandableServiceItemRow.module.scss';
 
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
-import { allowedServiceItemCalculations } from 'constants/serviceItems';
+import { allowedServiceItemCalculations, SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { PaymentServiceItemShape } from 'types';
 import { MTOServiceItemShape } from 'types/order';
 import { toDollarString, formatCents, formatDollarFromMillicents } from 'utils/formatters';
@@ -25,7 +25,8 @@ const ExpandableServiceItemRow = ({
     return canShowExpandableContent && (paymentIsDeprecated || item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED);
   };
   const canShowExpandableContent =
-    !disableExpansion && allowedServiceItemCalculations.includes(serviceItem.mtoServiceItemCode);
+    !disableExpansion &&
+    (allowedServiceItemCalculations.includes(serviceItem.mtoServiceItemCode) || serviceItem.rejectionReason);
 
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
@@ -42,6 +43,11 @@ const ExpandableServiceItemRow = ({
   const tableDetailClasses = classnames(styles.ExpandableServiceItemRow, {
     [styles.expandedDetail]: isExpanded,
   });
+
+  const colSpan =
+    serviceItem.mtoServiceItemCode === SERVICE_ITEM_CODES.MS || serviceItem.mtoServiceItemCode === SERVICE_ITEM_CODES.CS
+      ? 4
+      : 2;
 
   return (
     <>
@@ -94,15 +100,27 @@ const ExpandableServiceItemRow = ({
       </tr>
       {isExpanded && (
         <tr data-testid="serviceItemCaclulations" data-groupdid={index} className={tableDetailClasses}>
-          <td colSpan={3}>
-            <ServiceItemCalculations
-              itemCode={serviceItem.mtoServiceItemCode}
-              totalAmountRequested={serviceItem.priceCents}
-              serviceItemParams={serviceItem.paymentServiceItemParams}
-              additionalServiceItemData={additionalServiceItemData}
-              shipmentType={serviceItem.mtoShipmentType}
-            />
-          </td>
+          {Object.keys(additionalServiceItemData).length > 0 && (
+            <td colSpan={1}>
+              <ServiceItemCalculations
+                itemCode={serviceItem.mtoServiceItemCode}
+                totalAmountRequested={serviceItem.priceCents}
+                serviceItemParams={serviceItem.paymentServiceItemParams}
+                additionalServiceItemData={additionalServiceItemData}
+                shipmentType={serviceItem.mtoShipmentType}
+              />
+            </td>
+          )}
+          {serviceItem.rejectionReason && (
+            <td colSpan={colSpan} className={styles.rejectionReasonTd}>
+              <div className={styles.rejectionReasonContainer}>
+                <FontAwesomeIcon icon="times" />
+                <h4 className={styles.title}>Rejection Reason</h4>
+                <div className={styles.break} />
+                <small className={styles.reasonText}>{serviceItem.rejectionReason}</small>
+              </div>
+            </td>
+          )}
         </tr>
       )}
     </>

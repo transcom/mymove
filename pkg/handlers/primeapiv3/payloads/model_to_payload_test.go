@@ -274,7 +274,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		})
 
 		// no ShipmentPostalCodeRateArea passed in
-		returnedModel := MoveTaskOrderWithShipmentOconusRateArea(suite.AppContextForTest(), newMove, nil)
+		returnedModel := MoveTaskOrderWithShipmentRateAreas(suite.AppContextForTest(), newMove, nil)
 
 		suite.IsType(&primev3messages.MoveTaskOrder{}, returnedModel)
 		suite.Equal(strfmt.UUID(newMove.ID.String()), returnedModel.ID)
@@ -337,7 +337,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			},
 		}
 
-		returnedModel = MoveTaskOrderWithShipmentOconusRateArea(suite.AppContextForTest(), newMove, &shipmentPostalCodeRateArea)
+		returnedModel = MoveTaskOrderWithShipmentRateAreas(suite.AppContextForTest(), newMove, &shipmentPostalCodeRateArea)
 
 		var shipmentPostalCodeRateAreaLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
 		for _, i := range shipmentPostalCodeRateArea {
@@ -545,6 +545,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			ProGearWeightSpouse: 0,
 			CreatedAt:           time.Now(),
 			UpdatedAt:           time.Now(),
+			WeightRestriction:   models.IntPointer(1000),
 		}
 
 		payload := Entitlement(&entitlement)
@@ -567,6 +568,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(int64(0), payload.TotalDependents)
 		suite.Equal(int64(0), payload.TotalWeight)
 		suite.Equal(int64(0), *payload.UnaccompaniedBaggageAllowance)
+		suite.Equal(int64(1000), *payload.WeightRestriction)
 	})
 
 	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {
@@ -1145,7 +1147,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 
 	suite.NotNil(resultDDSHUT)
 
-	_, ok := resultDDSHUT.(*primev3messages.MTOServiceItemShuttle)
+	_, ok := resultDDSHUT.(*primev3messages.MTOServiceItemDomesticShuttle)
 
 	suite.True(ok)
 }

@@ -35,9 +35,11 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 	if err != nil {
 		destGbloc = ""
 	}
-	destZip, err = moveTaskOrder.GetDestinationPostalCode(db)
+	destinationAddress, err := moveTaskOrder.GetDestinationAddress(appCtx.DB())
 	if err != nil {
 		destZip = ""
+	} else {
+		destZip = destinationAddress.PostalCode
 	}
 
 	payload := &primev3messages.MoveTaskOrder{
@@ -78,7 +80,7 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 	return payload
 }
 
-func MoveTaskOrderWithShipmentOconusRateArea(appCtx appcontext.AppContext, moveTaskOrder *models.Move, shipmentRateArea *[]services.ShipmentPostalCodeRateArea) *primev3messages.MoveTaskOrder {
+func MoveTaskOrderWithShipmentRateAreas(appCtx appcontext.AppContext, moveTaskOrder *models.Move, shipmentRateArea *[]services.ShipmentPostalCodeRateArea) *primev3messages.MoveTaskOrder {
 	// create default payload
 	var payload = MoveTaskOrder(appCtx, moveTaskOrder)
 
@@ -217,6 +219,10 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 	if entitlement.UBAllowance != nil {
 		ubAllowance = int64(*entitlement.UBAllowance)
 	}
+	var weightRestriction int64
+	if entitlement.WeightRestriction != nil {
+		weightRestriction = int64(*entitlement.WeightRestriction)
+	}
 	return &primev3messages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -228,10 +234,11 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
 		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		StorageInTransit: sit,
-		TotalDependents:  totalDependents,
-		TotalWeight:      totalWeight,
-		ETag:             etag.GenerateEtag(entitlement.UpdatedAt),
+		StorageInTransit:  sit,
+		TotalDependents:   totalDependents,
+		TotalWeight:       totalWeight,
+		WeightRestriction: &weightRestriction,
+		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -352,14 +359,12 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev3messages.MTOAgents {
 	if mtoAgents == nil {
 		return nil
 	}
-
 	agents := make(primev3messages.MTOAgents, len(*mtoAgents))
 
 	for i, m := range *mtoAgents {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		agents[i] = MTOAgent(&copyOfM)
 	}
-
 	return &agents
 }
 
@@ -863,7 +868,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 		payload = &cratingSI
 
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
-		payload = &primev3messages.MTOServiceItemShuttle{
+		payload = &primev3messages.MTOServiceItemDomesticShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:          mtoServiceItem.Reason,
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
