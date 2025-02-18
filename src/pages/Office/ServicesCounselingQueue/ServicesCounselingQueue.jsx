@@ -708,7 +708,7 @@ const ServicesCounselingQueue = ({
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.COUNSELING}
-          activeRole={activeRole
+          activeRole={activeRole}
         />
       </div>
     );
