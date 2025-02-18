@@ -320,7 +320,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	ddlFunctionsManifest := expandPath(v.GetString(cli.DDLFunctionsMigrationManifestFlag))
 	ddlFunctionsPath := expandPath(v.GetString(cli.DDLFunctionsMigrationPathFlag))
 
-	ddlTypes := []struct {
+	ddlObjects := []struct {
 		name     string
 		manifest string
 		path     string
@@ -331,7 +331,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		{"DDL Functions", ddlFunctionsManifest, ddlFunctionsPath},
 	}
 
-	for _, ddlType := range ddlTypes {
+	for _, ddlType := range ddlObjects {
 		logger.Info(fmt.Sprintf("=== Processing %s ===", ddlType.name))
 
 		filenames, errListFiles := fileHelper.ListFiles(ddlType.path, s3Client)
