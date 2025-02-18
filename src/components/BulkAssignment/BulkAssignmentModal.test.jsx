@@ -73,7 +73,7 @@ describe('BulkAssignmentModal', () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
     const saveButton = await screen.findByTestId('modalSubmitButton');
     await userEvent.click(saveButton);
-    expect(onSubmit).toHaveBeenCalledTimes(2);
+    expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 
   it('renders the user data', async () => {

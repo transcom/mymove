@@ -18,10 +18,13 @@ const initialValues = {
 };
 
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
+  const [isError, setIsError] = useState(false);
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
   const [isDisabled, setIsDisabled] = useState(false);
   const [numberOfMoves, setNumberOfMoves] = useState(0);
   const [showCancelModal, setShowCancelModal] = useState(false);
+
+  const errorMessage = 'Cannot assign more moves than are available.';
 
   const initUserData = (availableOfficeUsers) => {
     const officeUsers = [];
@@ -74,6 +77,13 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
         <div className={styles.BulkAssignmentTable}>
           <Formik
             onSubmit={(values) => {
+              const totalAssignment = values?.userData?.reduce((sum, item) => sum + item.moveAssignments, 0);
+
+              if (totalAssignment > numberOfMoves) {
+                setIsError(true);
+                return;
+              }
+
               const bulkAssignmentSavePayload = values;
               onSubmit({ bulkAssignmentSavePayload });
               onClose();
@@ -84,6 +94,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
             {({ handleChange, setValues, values }) => {
               const handleAssignmentChange = (event, i) => {
                 handleChange(event);
+                setIsError(false);
 
                 let newUserAssignment;
                 if (event.target.value !== '') {
@@ -167,13 +178,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     </div>
                   ) : (
                     <ModalActions autofocus="true">
-                      <Button
-                        disabled={isDisabled}
-                        data-focus="true"
-                        type="submit"
-                        data-testid="modalSubmitButton"
-                        onClick={() => onSubmit()}
-                      >
+                      <Button disabled={isDisabled} data-focus="true" type="submit" data-testid="modalSubmitButton">
                         {submitText}
                       </Button>
                       <Button
@@ -185,6 +190,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                       >
                         {closeText}
                       </Button>
+                      {isError && <div className={styles.errorMessage}>{errorMessage}</div>}
                     </ModalActions>
                   )}
                 </Form>
