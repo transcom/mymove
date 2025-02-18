@@ -3426,6 +3426,11 @@ definitions:
       totalDependents:
         example: 2
         type: integer
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-formatting: weight
+        x-nullable: true
       eTag:
         type: string
         readOnly: true
