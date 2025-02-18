@@ -237,7 +237,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={tooQueueColumns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
+          columns={tooQueueColumns(moveLockFlag, isQueueManagementFFEnabled, null, showBranchFilter)}
           title="All moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useMovesQueueQueries}
@@ -264,7 +264,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
           defaultSortedColumns={[{ id: 'age', desc: true }]}
           disableMultiSort
           disableSortBy={false}
-          columns={tioQueueColumns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
+          columns={tioQueueColumns(moveLockFlag, isQueueManagementFFEnabled, null, showBranchFilter)}
           title="Payment requests"
           handleClick={handleClickNavigateToPaymentRequests}
           useQueries={usePaymentRequestQueueQueries}
