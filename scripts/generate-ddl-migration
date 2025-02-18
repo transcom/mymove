@@ -1,0 +1,22 @@
+#!/bin/bash
+
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+version=$(date +"%Y%m%d%H%M%S")
+filename=$1
+type=$2
+
+if [ "$type" == "function" ]; then
+  echo "${version}_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_functions_manifest.txt"
+  touch "${dir}/../migrations/app/ddl_migrations/ddl_functions/${version}_${filename}.up.sql"
+elif [ "$type" == "tables" ]; then
+  echo "${version}_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_tables_manifest.txt"
+  touch "${dir}/../migrations/app/ddl_migrations/ddl_tables/${version}_${filename}.up.sql"
+elif [ "$type" == "types" ]; then
+  echo "${version}_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_types_manifest.txt"
+  touch "${dir}/../migrations/app/ddl_migrations/ddl_types/${version}_${filename}.up.sql"
+ elif [ "$type" == "views" ]; then
+  echo "${version}_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_views_manifest.txt"
+  touch "${dir}/../migrations/app/ddl_migrations/ddl_views/${version}_${filename}.up.sql"
+else
+  touch "${dir}/../migrations/app/ddl_migrations/${version}_${filename}.up.sql"
+fi
