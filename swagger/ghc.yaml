@@ -4478,7 +4478,7 @@ paths:
         - transportationOffice
       responses:
         '200':
-          description: Successfully retrieved transportation offices
+          description: Successfully retrieved GBLOCs
           schema:
             $ref: '#/definitions/GBLOCs'
         '400':
@@ -6309,6 +6309,9 @@ definitions:
         type: boolean
         title: Are dependents included in your orders?
         x-nullable: true
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -6379,6 +6382,9 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -6390,9 +6396,6 @@ definitions:
     properties:
       grade:
         $ref: '#/definitions/Grade'
-      dependentsAuthorized:
-        type: boolean
-        x-nullable: true
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:
@@ -6500,9 +6503,6 @@ definitions:
     properties:
       grade:
         $ref: '#/definitions/Grade'
-      dependentsAuthorized:
-        type: boolean
-        x-nullable: true
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:

@@ -23,8 +23,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   const [numberOfMoves, setNumberOfMoves] = useState(0);
   const [showCancelModal, setShowCancelModal] = useState(false);
 
-  const errorMessage = 'Cannot assign more moves than are available.';
-
   const initUserData = (availableOfficeUsers) => {
     const officeUsers = [];
     availableOfficeUsers.forEach((user) => {
