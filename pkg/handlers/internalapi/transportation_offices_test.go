@@ -153,7 +153,6 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 			},
 		},
 	}, nil)
-	suite.MustSave(&origDutyLocation)
 
 	path := fmt.Sprintf("/transportation_offices/%v/counseling_offices", origDutyLocation.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -174,4 +173,13 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 	// Validate outgoing payload
 	suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
 
+	// Validate outgoing payload
+	suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+	var i int
+	for index, office := range responsePayload.Payload {
+		if *office.Name == "New PPPO Travis AFB - USAF" {
+			i = index
+		}
+	}
+	suite.NotNil(i)
 }
