@@ -184,6 +184,8 @@ describe('DateAndLocationForm component', () => {
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
+
+      await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       const postalCodes = screen.getAllByTestId(/ZIP/);
       const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
@@ -196,8 +198,8 @@ describe('DateAndLocationForm component', () => {
       expect(postalCodes[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.postalCode);
 
       const hasSecondaryDestinationAddress = await screen.getAllByLabelText('Yes')[1];
-
       await userEvent.click(hasSecondaryDestinationAddress);
+
       const secondaryPostalCodes = screen.getAllByTestId(/ZIP/);
       const secondaryAddress1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const secondaryAddress2 = screen.getAllByLabelText('Address 2', { exact: false });
