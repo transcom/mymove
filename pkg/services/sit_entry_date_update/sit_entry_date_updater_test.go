@@ -1,6 +1,7 @@
 package sitentrydateupdate
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -164,4 +165,167 @@ func (suite *UpdateSitEntryDateServiceSuite) TestUpdateSitEntryDate() {
 		suite.Equal(idaServiceItem.SITEntryDate.Local(), newSitEntryDateNextDay.Local())
 	})
 
+	suite.Run("Fails to update when DOFSIT entry date is after DOFSIT departure date", func() {
+		today := models.TimePointer(time.Now())
+		tomorrow := models.TimePointer(time.Now())
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		dofsitServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     today,
+					SITDepartureDate: tomorrow,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+		updatedServiceItem := models.SITEntryDateUpdate{
+			ID:           dofsitServiceItem.ID,
+			SITEntryDate: models.TimePointer(tomorrow.AddDate(0, 0, 1)),
+		}
+		_, err := updater.UpdateSitEntryDate(suite.AppContextForTest(), &updatedServiceItem)
+		suite.Error(err)
+		expectedError := fmt.Sprintf(
+			"the SIT Entry Date (%s) must be before the SIT Departure Date (%s)",
+			updatedServiceItem.SITEntryDate.Format("2006-01-02"),
+			dofsitServiceItem.SITDepartureDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
+	suite.Run("Fails to update when DOFSIT entry date is the same as DOFSIT departure date", func() {
+		today := models.TimePointer(time.Now())
+		tomorrow := models.TimePointer(time.Now())
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		dofsitServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     today,
+					SITDepartureDate: tomorrow,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+		updatedServiceItem := models.SITEntryDateUpdate{
+			ID:           dofsitServiceItem.ID,
+			SITEntryDate: tomorrow,
+		}
+		_, err := updater.UpdateSitEntryDate(suite.AppContextForTest(), &updatedServiceItem)
+		suite.Error(err)
+		expectedError := fmt.Sprintf(
+			"the SIT Entry Date (%s) must be before the SIT Departure Date (%s)",
+			updatedServiceItem.SITEntryDate.Format("2006-01-02"),
+			dofsitServiceItem.SITDepartureDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
+	suite.Run("Fails to update when DDFSIT entry date is after DDFSIT departure date", func() {
+		today := models.TimePointer(time.Now())
+		tomorrow := models.TimePointer(time.Now())
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		ddfsitServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     today,
+					SITDepartureDate: tomorrow,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+		}, nil)
+		updatedServiceItem := models.SITEntryDateUpdate{
+			ID:           ddfsitServiceItem.ID,
+			SITEntryDate: models.TimePointer(tomorrow.AddDate(0, 0, 1)),
+		}
+		_, err := updater.UpdateSitEntryDate(suite.AppContextForTest(), &updatedServiceItem)
+		suite.Error(err)
+		expectedError := fmt.Sprintf(
+			"the SIT Entry Date (%s) must be before the SIT Departure Date (%s)",
+			updatedServiceItem.SITEntryDate.Format("2006-01-02"),
+			ddfsitServiceItem.SITDepartureDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
+	suite.Run("Fails to update when DDFSIT entry date is the same as DDFSIT departure date", func() {
+		today := models.TimePointer(time.Now())
+		tomorrow := models.TimePointer(time.Now())
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		ddfsitServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     today,
+					SITDepartureDate: tomorrow,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+		}, nil)
+		updatedServiceItem := models.SITEntryDateUpdate{
+			ID:           ddfsitServiceItem.ID,
+			SITEntryDate: tomorrow,
+		}
+		_, err := updater.UpdateSitEntryDate(suite.AppContextForTest(), &updatedServiceItem)
+		suite.Error(err)
+		expectedError := fmt.Sprintf(
+			"the SIT Entry Date (%s) must be before the SIT Departure Date (%s)",
+			updatedServiceItem.SITEntryDate.Format("2006-01-02"),
+			ddfsitServiceItem.SITDepartureDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
 }

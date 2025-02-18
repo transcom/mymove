@@ -478,6 +478,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 				Status: models.MTOServiceItemStatusSubmitted,
 			},
 		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+		},
 	}, nil)
 
 	// Service Counseling Completed Move
@@ -2246,6 +2251,138 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 		suite.Equal(2, len(payload.QueuePaymentRequests[0].AvailableOfficeUsers))
 		suite.Equal(subtestData.officeUsers[0].ID.String(), payload.QueuePaymentRequests[0].AvailableOfficeUsers[0].OfficeUserID.String())
 		suite.Equal(subtestData.officeUsers[1].ID.String(), payload.QueuePaymentRequests[0].AvailableOfficeUsers[1].OfficeUserID.String())
+	})
+}
+
+func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
+	suite.Run("returns an unauthorized error when an attempt is made by a non supervisor", func() {
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email: "officeuser1@example.com",
+				},
+			},
+			{
+				Model: models.User{
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		userData := []*ghcmessages.BulkAssignmentForUser{
+			{ID: strfmt.UUID(officeUser.ID.String()), MoveAssignments: 1},
+		}
+		moveData := []ghcmessages.BulkAssignmentMoveData{ghcmessages.BulkAssignmentMoveData(move.ID.String())}
+
+		request := httptest.NewRequest("POST", "/queues/bulk-assignment/assign", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.SaveBulkAssignmentDataParams{
+			HTTPRequest: request,
+			BulkAssignmentSavePayload: &ghcmessages.BulkAssignmentSavePayload{
+				QueueType: "COUNSELING",
+				MoveData:  moveData,
+				UserData:  userData,
+			},
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := SaveBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcher(),
+			movefetcher.NewMoveAssignerBulkAssignment(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.SaveBulkAssignmentDataUnauthorized{}, response)
+	})
+
+	suite.Run("successfully assigns bulk assignments", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		userData := []*ghcmessages.BulkAssignmentForUser{
+			{ID: strfmt.UUID(officeUser.ID.String()), MoveAssignments: 1},
+		}
+		moveData := []ghcmessages.BulkAssignmentMoveData{ghcmessages.BulkAssignmentMoveData(move.ID.String())}
+
+		request := httptest.NewRequest("POST", "/queues/bulk-assignment/assign", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.SaveBulkAssignmentDataParams{
+			HTTPRequest: request,
+			BulkAssignmentSavePayload: &ghcmessages.BulkAssignmentSavePayload{
+				QueueType: "COUNSELING",
+				MoveData:  moveData,
+				UserData:  userData,
+			},
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := SaveBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcher(),
+			movefetcher.NewMoveAssignerBulkAssignment(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.SaveBulkAssignmentDataNoContent{}, response)
 	})
 }
 

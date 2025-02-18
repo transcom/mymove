@@ -8,8 +8,8 @@
 variables:
   #Docker config
   DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
-  #hard code sha as newer version of debian is needed for pre-test
-  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app@sha256:ee774e9244afa2063bbbb7f9b973b17f1f5139366a1b7a676155df0b5268a7e1
+
+  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app
   DOCKER_BASE_IMAGE: milmove01/transcom-docker:base
   DOCKERHUB_USERNAME: DOCKERHUB_USERNAME
   DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
@@ -152,7 +152,7 @@ stages:
   #build off prd variables
   - export ECR_REPOSITORY_URI=${PRD_ACCOUNT_ID}.dkr.ecr.${PRD_REGION}.amazonaws.com
   - export APP_DOCKER_FILE=Dockerfile
-  - export TASK_DOCKER_FILE=Dockerfile
+  - export TASK_DOCKER_FILE=Dockerfile.tasks
   #TODO: update exp to prod
   - export APP_ENVIRONMENT=prd
 
@@ -1394,6 +1394,8 @@ deploy_tasks_dp3:
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
     - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying process TPPS task service"
+    - ./scripts/ecs-deploy-task-container process-tpps "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:
