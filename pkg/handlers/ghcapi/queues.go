@@ -64,6 +64,11 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				CounselingOffice:        params.CounselingOffice,
 			}
 
+			var activeRole string
+			if params.ActiveRole != nil {
+				activeRole = *params.ActiveRole
+			}
+
 			// When no status filter applied, TOO should only see moves with status of New Move, Service Counseling Completed, or Approvals Requested
 			if params.Status == nil {
 				ListOrderParams.Status = []string{string(models.MoveStatusServiceCounselingCompleted), string(models.MoveStatusAPPROVALSREQUESTED), string(models.MoveStatusSUBMITTED)}
@@ -165,7 +170,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -391,6 +396,11 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				CounselingOffice:        params.CounselingOffice,
 			}
 
+			var activeRole string
+			if params.ActiveRole != nil {
+				activeRole = *params.ActiveRole
+			}
+
 			listPaymentRequestParams.Status = []string{string(models.QueuePaymentRequestPaymentRequested)}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
@@ -488,7 +498,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				}
 			}
 
-			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests, officeUsers, officeUser, officeUsersSafety)
+			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 
 			result := &ghcmessages.QueuePaymentRequestsResult{
 				TotalCount:           int64(count),
@@ -547,6 +557,11 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				PPMStatus:               params.PpmStatus,
 				CounselingOffice:        params.CounselingOffice,
 				SCAssignedUser:          params.AssignedTo,
+			}
+
+			var activeRole string
+			if params.ActiveRole != nil {
+				activeRole = *params.ActiveRole
 			}
 
 			var requestedPpmStatus models.PPMShipmentStatus
@@ -658,7 +673,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -766,6 +781,27 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				}
 				// fetch the moves available to be assigned to their office users
 				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentTaskOrder(
+					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
+					return queues.NewGetBulkAssignmentDataInternalServerError(), err
+				}
+
+				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
+			case string(models.QueueTypePaymentRequest):
+				// fetch the TIOs who work at their office
+				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTIO,
+					officeUser.TransportationOfficeID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
+					return queues.NewGetBulkAssignmentDataInternalServerError(), err
+				}
+				// fetch the moves available to be assigned to their office users
+				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentPaymentRequest(
 					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
 				)
 				if err != nil {

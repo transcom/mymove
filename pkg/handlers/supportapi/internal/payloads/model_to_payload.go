@@ -148,6 +148,7 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 	if entitlement.UBAllowance != nil {
 		ubAllowance = int64(*entitlement.UBAllowance)
 	}
+
 	return &supportmessages.Entitlement{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -350,7 +351,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 			StandaloneCrate: mtoServiceItem.StandaloneCrate,
 		}
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
-		payload = &supportmessages.MTOServiceItemShuttle{
+		payload = &supportmessages.MTOServiceItemDomesticShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:          mtoServiceItem.Reason,
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),

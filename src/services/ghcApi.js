@@ -485,6 +485,17 @@ export function updateMTOShipmentStatus({
   );
 }
 
+export function updateMultipleShipmentStatus({ payload, normalize = true }) {
+  const operationPath = 'shipment.approveShipments';
+  return makeGHCRequest(
+    operationPath,
+    {
+      body: { approveShipments: payload },
+    },
+    { normalize },
+  );
+}
+
 export function updateMTOShipmentRequestReweigh({
   shipmentID,
   ifMatchETag,
@@ -618,7 +629,7 @@ export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shi
 
 export async function getMovesQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
 ) {
   const operationPath = 'queues.getMovesQueue';
   const paramFilters = {};
@@ -627,7 +638,7 @@ export async function getMovesQueue(
   });
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, activeRole, ...paramFilters },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
@@ -650,7 +661,16 @@ export async function getDestinationRequestsQueue(
 
 export async function getServicesCounselingQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = false, viewAsGBLOC },
+  {
+    sort,
+    order,
+    filters = [],
+    currentPage = 1,
+    currentPageSize = 20,
+    needsPPMCloseout = false,
+    viewAsGBLOC,
+    activeRole,
+  },
 ) {
   const operationPath = 'queues.getServicesCounselingQueue';
   const paramFilters = {};
@@ -667,6 +687,7 @@ export async function getServicesCounselingQueue(
       perPage: currentPageSize,
       needsPPMCloseout,
       viewAsGBLOC,
+      activeRole,
       ...paramFilters,
     },
 
@@ -690,7 +711,16 @@ export async function getServicesCounselingOriginLocations(needsPPMCloseout, vie
 
 export async function getServicesCounselingPPMQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = true, viewAsGBLOC },
+  {
+    sort,
+    order,
+    filters = [],
+    currentPage = 1,
+    currentPageSize = 20,
+    needsPPMCloseout = true,
+    viewAsGBLOC,
+    activeRole,
+  },
 ) {
   const operationPath = 'queues.getServicesCounselingQueue';
   const paramFilters = {};
@@ -700,14 +730,23 @@ export async function getServicesCounselingPPMQueue(
 
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, needsPPMCloseout, viewAsGBLOC, ...paramFilters },
+    {
+      sort,
+      order,
+      page: currentPage,
+      perPage: currentPageSize,
+      needsPPMCloseout,
+      viewAsGBLOC,
+      ...paramFilters,
+      activeRole,
+    },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
 
 export async function getPaymentRequestsQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
 ) {
   const operationPath = 'queues.getPaymentRequestsQueue';
   const paramFilters = {};
@@ -716,7 +755,7 @@ export async function getPaymentRequestsQueue(
   });
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, activeRole, ...paramFilters },
     { schemaKey: 'queuePaymentRequestsResult', normalize: false },
   );
 }
@@ -777,6 +816,10 @@ export async function searchTransportationOfficesOpen(search) {
 export async function getGBLOCs() {
   const operationPath = 'transportationOffice.getTransportationOfficesGBLOCs';
   return makeGHCRequest(operationPath, {}, { normalize: false });
+}
+
+export async function showCounselingOffices(dutyLocationId, serviceMemberId) {
+  return makeGHCRequestRaw('transportationOffice.showCounselingOffices', { dutyLocationId, serviceMemberId });
 }
 
 export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, body }) => {
