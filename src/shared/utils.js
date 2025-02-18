@@ -211,19 +211,6 @@ export function checkAddressTogglesToClearAddresses(body) {
 }
 
 export function isPreceedingAddressComplete(hasAddress, addressValues) {
-  if (
-    hasAddress === 'true' &&
-    addressValues.streetAddress1 !== '' &&
-    addressValues.state !== '' &&
-    addressValues.city !== '' &&
-    addressValues.postalCode !== ''
-  ) {
-    return true;
-  }
-  return false;
-}
-
-export function isPreceedingPPMAddressComplete(hasAddress, addressValues) {
   if (addressValues === undefined || addressValues.postalCode === undefined) {
     return false;
   }
