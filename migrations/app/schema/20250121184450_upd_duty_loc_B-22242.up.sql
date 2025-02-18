@@ -89,34 +89,20 @@ BEGIN
 END $$;
 
 --add Joint Base Lewis McChord, WA 98438 duty location
-DO $$
-BEGIN
+INSERT INTO public.addresses
+	(id, street_address_1, city, state, postal_code, created_at, updated_at, county, is_oconus, country_id, us_post_region_cities_id)
+SELECT '23d3140b-1ba2-400f-9d57-317034673c06'::uuid, 'n/a', 'JOINT BASE LEWIS MCCHORD', 'WA', '98438', now(),now(), 'PIERCE', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '81182dd4-1693-4b8d-9b6f-042bc4254019'::uuid
+WHERE NOT EXISTS (SELECT * FROM addresses WHERE id = '23d3140b-1ba2-400f-9d57-317034673c06');
 
-	IF NOT EXISTS (SELECT 1 FROM addresses WHERE id = '23d3140b-1ba2-400f-9d57-317034673c06') THEN
+INSERT INTO public.duty_locations
+(id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
+SELECT '38fc6718-b80f-4761-a077-cfa62e414e27', 'Joint Base Lewis McChord, WA 98438', 'AIR_FORCE', '23d3140b-1ba2-400f-9d57-317034673c06'::uuid, now(), now(), '95abaeaa-452f-4fe0-9264-960cd2a15ccd', true
+WHERE NOT EXISTS (SELECT * FROM duty_locations WHERE id = '38fc6718-b80f-4761-a077-cfa62e414e27');
 
-		INSERT INTO public.addresses
-			(id, street_address_1, city, state, postal_code, created_at, updated_at, county, is_oconus, country_id, us_post_region_cities_id)
-		VALUES('23d3140b-1ba2-400f-9d57-317034673c06'::uuid, 'n/a', 'JOINT BASE LEWIS MCCHORD', 'WA', '98438', now(),now(), 'PIERCE', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '81182dd4-1693-4b8d-9b6f-042bc4254019'::uuid);
-
-	END IF;
-
-	IF NOT EXISTS (SELECT 1 FROM duty_locations WHERE id = '109ac405-47fb-4e1e-9efb-58290453ac09') THEN
-
-		INSERT INTO public.duty_locations
-		(id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
-		VALUES('38fc6718-b80f-4761-a077-cfa62e414e27', 'Joint Base Lewis McChord, WA 98438', 'AIR_FORCE', '23d3140b-1ba2-400f-9d57-317034673c06'::uuid, now(), now(), '95abaeaa-452f-4fe0-9264-960cd2a15ccd', true);
-
-	END IF;
-
-	IF NOT EXISTS (SELECT 1 FROM duty_locations WHERE id = '693781f4-d011-4925-a492-aa1185f3f1fe') THEN
-
-		INSERT INTO public.duty_locations
-		(id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
-		VALUES('693781f4-d011-4925-a492-aa1185f3f1fe'::uuid, 'McChord AFB, WA 98438', 'AIR_FORCE', 'cc7894e3-148e-4e21-98df-37e45f0b2c9f'::uuid, now(), now(), '95abaeaa-452f-4fe0-9264-960cd2a15ccd', true);
-
-	END IF;
-
-END $$;
+INSERT INTO public.duty_locations
+(id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
+SELECT '693781f4-d011-4925-a492-aa1185f3f1fe'::uuid, 'McChord AFB, WA 98438', 'AIR_FORCE', 'cc7894e3-148e-4e21-98df-37e45f0b2c9f'::uuid, now(), now(), '95abaeaa-452f-4fe0-9264-960cd2a15ccd', true
+WHERE NOT EXISTS (SELECT * FROM duty_locations WHERE id = '693781f4-d011-4925-a492-aa1185f3f1fe');
 
 --associate duty loc Yuma, AZ 85365 to transportation office PPPO DMO MCAS Yuma - USMC
 update duty_locations set transportation_office_id = '6ac7e595-1e0c-44cb-a9a4-cd7205868ed4' where id = '9e94208a-881d-47bc-82c0-4f375471751e';
