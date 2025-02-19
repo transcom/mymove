@@ -64,6 +64,7 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 func (suite *MoveServiceSuite) TestMoveSubmission() {
 	moveRouter := NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	toRouter := transportationoffice.NewTransportationOfficesFetcher()
+	postalCode := "32228"
 
 	suite.Run("returns error when needsServicesCounseling cannot find move", func() {
 		// Under test: MoveRouter.Submit
@@ -349,8 +350,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 				address := factory.BuildAddress(suite.DB(), []factory.Customization{
 					{
 						Model: models.Address{
-							PostalCode: "32228",
-							IsOconus:   models.BoolPointer(false),
+							PostalCode: postalCode,
 						},
 					},
 				}, nil)
@@ -458,7 +458,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "32228",
+					PostalCode: postalCode,
 				},
 			},
 		}, nil)
@@ -1034,7 +1034,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "32228",
+					PostalCode: postalCode,
 				},
 			},
 		}, nil)
