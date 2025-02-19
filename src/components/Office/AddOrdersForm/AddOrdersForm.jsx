@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-uswds';
@@ -20,6 +21,7 @@ import Callout from 'components/Callout';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { showCounselingOffices } from 'services/ghcApi';
 
 let originMeta;
 let newDutyMeta = '';
@@ -32,6 +34,7 @@ const AddOrdersForm = ({
   isBluebarkMoveSelected,
 }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+  const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
   const [showAccompaniedTourField, setShowAccompaniedTourField] = useState(false);
@@ -42,6 +45,7 @@ const AddOrdersForm = ({
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
+  const { customerId: serviceMemberId } = useParams();
 
   const validationSchema = Yup.object().shape({
     ordersType: Yup.mixed()
@@ -55,6 +59,9 @@ const AddOrdersForm = ({
       .required('Required'),
     hasDependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     originDutyLocation: Yup.object().nullable().required('Required'),
+    counselingOfficeId: currentDutyLocation.provides_services_counseling
+      ? Yup.string().required('Required')
+      : Yup.string().notRequired(),
     newDutyLocation: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     accompaniedTour: showAccompaniedTourField
@@ -79,6 +86,17 @@ const AddOrdersForm = ({
   }, []);
 
   useEffect(() => {
+    if (currentDutyLocation?.id && serviceMemberId) {
+      showCounselingOffices(currentDutyLocation.id, serviceMemberId).then((fetchedData) => {
+        if (fetchedData.body) {
+          const counselingOffices = fetchedData.body.map((item) => ({
+            key: item.id,
+            value: item.name,
+          }));
+          setCounselingOfficeOptions(counselingOffices);
+        }
+      });
+    }
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
       setIsOconusMove(true);
@@ -96,7 +114,7 @@ const AddOrdersForm = ({
         setShowDependentAgeFields(false);
       }
     }
-  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
+  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, serviceMemberId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -115,10 +133,18 @@ const AddOrdersForm = ({
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ values, isValid, isSubmitting, handleSubmit, handleChange, touched, setFieldValue }) => {
+      {({ values, isValid, isSubmitting, handleSubmit, handleChange, touched, setFieldValue, setValues }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.ordersType);
         if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
         else originMeta = null;
+
+        const handleCounselingOfficeChange = () => {
+          setValues({
+            ...values,
+            counselingOfficeId: null,
+          });
+          setCounselingOfficeOptions(null);
+        };
 
         if (!values.newDutyLocation && touched.newDutyLocation) newDutyMeta = 'Required';
         else newDutyMeta = null;
@@ -172,9 +198,10 @@ const AddOrdersForm = ({
                   handleOrderTypeChange(e);
                 }}
                 isDisabled={isSafetyMoveSelected || isBluebarkMoveSelected}
+                hint="Required"
               />
-              <DatePickerInput name="issueDate" label="Orders date" required />
-              <DatePickerInput name="reportByDate" label="Report by date" required />
+              <DatePickerInput name="issueDate" label="Orders date" required hint="Required" />
+              <DatePickerInput name="reportByDate" label="Report by date" required hint="Required" />
 
               <DutyLocationInput
                 label="Current duty location"
@@ -182,10 +209,30 @@ const AddOrdersForm = ({
                 id="originDutyLocation"
                 onDutyLocationChange={(e) => {
                   setCurrentDutyLocation(e);
+                  handleCounselingOfficeChange();
                 }}
                 metaOverride={originMeta}
                 required
+                hint="Required"
               />
+              {currentDutyLocation.provides_services_counseling && (
+                <div>
+                  <Label>
+                    Select an origin duty location that most closely represents the customers current physical location,
+                    not where their shipment will originate, if different. This will allow a nearby transportation
+                    office to assist them.
+                  </Label>
+                  <DropdownInput
+                    label="Counseling office"
+                    name="counselingOfficeId"
+                    id="counselingOfficeId"
+                    data-testid="counselingOfficeSelect"
+                    hint="Required"
+                    required
+                    options={counselingOfficeOptions}
+                  />
+                </div>
+              )}
 
               {isRetirementOrSeparation ? (
                 <>
@@ -216,6 +263,7 @@ const AddOrdersForm = ({
                     displayAddress={false}
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
+                    hint="Required"
                     onDutyLocationChange={(e) => {
                       setNewDutyLocation(e);
                     }}
@@ -226,6 +274,7 @@ const AddOrdersForm = ({
                   name="newDutyLocation"
                   label="New duty location"
                   required
+                  hint="Required"
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
                     setNewDutyLocation(e);
@@ -234,7 +283,7 @@ const AddOrdersForm = ({
               )}
 
               <FormGroup>
-                <Label>Are dependents included in the orders?</Label>
+                <Label hint="Required">Are dependents included in the orders?</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -269,7 +318,7 @@ const AddOrdersForm = ({
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label>Is this an accompanied tour?</Label>
+                  <Label hint="Required">Is this an accompanied tour?</Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -343,7 +392,14 @@ const AddOrdersForm = ({
                 </FormGroup>
               )}
 
-              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
+              <DropdownInput
+                label="Pay grade"
+                name="grade"
+                id="grade"
+                required
+                options={payGradeOptions}
+                hint="Required"
+              />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
