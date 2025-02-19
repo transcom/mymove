@@ -1,4 +1,4 @@
-FROM harbor.csde.caci.com/docker.io/debian:stable AS build-env
+FROM harbor.csde.caci.com/docker.io/library/debian:stable AS build-env
 
 COPY config/tls/dod-wcf-root-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-root-ca-1.pem.crt
 COPY config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-intermediate-ca-1.pem.crt
@@ -8,7 +8,7 @@ RUN apt-get install -y ca-certificates --no-install-recommends
 RUN update-ca-certificates
 
 # hadolint ignore=DL3007
-FROM gcr.io/distroless/base-debian12@sha256:ad04bf079b9ed668d38fe2138cfe575847795985097b38a400f4ef1ff69a561a
+FROM gcr.io/distroless/base-debian12@sha256:74ddbf52d93fafbdd21b399271b0b4aac1babf8fa98cab59e5692e01169a1348
 COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem

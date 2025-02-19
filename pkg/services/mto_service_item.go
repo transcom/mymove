@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MTOServiceItemFetcher is the exported interface for fetching a mto service item
@@ -23,6 +24,7 @@ type MTOServiceItemFetcher interface {
 //go:generate mockery --name MTOServiceItemCreator
 type MTOServiceItemCreator interface {
 	CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error)
+	FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error)
 }
 
 // MTOServiceItemUpdater is the exported interface for updating an mto service item

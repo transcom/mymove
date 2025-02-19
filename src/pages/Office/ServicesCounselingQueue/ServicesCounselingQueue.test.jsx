@@ -19,6 +19,31 @@ jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
   useServicesCounselingQueueQueries: jest.fn(),
   useServicesCounselingQueuePPMQueries: jest.fn(),
+  useBulkAssignmentQueries: () => {
+    return {
+      availableOfficeUsers: [
+        {
+          firstName: 'John',
+          lastName: 'Snow',
+          officeUserId: '123',
+          workload: 0,
+        },
+        {
+          firstName: 'Jane',
+          lastName: 'Doe',
+          officeUserId: '456',
+          workload: 1,
+        },
+        {
+          firstName: 'Jimmy',
+          lastName: 'Page',
+          officeUserId: '789',
+          workload: 2,
+        },
+      ],
+      bulkAssignmentMoveIDs: ['1', '2', '3'],
+    };
+  },
 }));
 
 jest.mock('utils/featureFlags', () => ({
