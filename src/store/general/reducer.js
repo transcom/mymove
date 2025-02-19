@@ -1,10 +1,11 @@
 // Reducer created to store needed information in state
-import { SET_CAN_ADD_ORDERS, SET_MOVE_ID } from './actions';
+import { SET_CAN_ADD_ORDERS, SET_MOVE_ID, SET_REFETCH_QUEUE } from './actions';
 
 export const initialState = {
   // Select the moveId that is set from clicking on Go To Move on the MultiMoveLandingPage
   moveId: '',
   canAddOrders: false,
+  refetchQueue: false,
 };
 
 const generalStateReducer = (state = initialState, action = {}) => {
@@ -20,6 +21,12 @@ const generalStateReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         canAddOrders: action.payload,
+      };
+    }
+    case SET_REFETCH_QUEUE: {
+      return {
+        ...state,
+        refetchQueue: action.payload,
       };
     }
     default:
