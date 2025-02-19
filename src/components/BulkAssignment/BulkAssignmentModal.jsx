@@ -107,7 +107,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           initialValues={initialValues}
         >
           {({ handleChange, setValues, values }) => {
-            const handleAssignClick = () => {
+            const handleEqualAssignClick = () => {
               const totalMoves = bulkAssignmentData?.bulkAssignmentMoveIDs?.length;
               const numUsers = Object.keys(selectedUsers).filter((id) => selectedUsers[id]).length;
               const baseAssignments = Math.floor(totalMoves / numUsers);
@@ -132,6 +132,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
             };
             const handleAssignmentChange = (event, user, i) => {
               handleChange(event);
+              setIsError(false);
 
               const newUserAssignment = {
                 ID: user.officeUserId,
@@ -212,7 +213,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     </div>
                     <div>
                       <Button
-                        onClick={handleAssignClick}
+                        onClick={handleEqualAssignClick}
                         type="button"
                         disabled={!Object.values(selectedUsers).some(Boolean)}
                       >
