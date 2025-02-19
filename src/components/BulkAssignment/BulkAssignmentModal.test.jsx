@@ -52,7 +52,7 @@ describe('BulkAssignmentModal', () => {
   it('shows cancel confirmation modal when close icon is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    const closeButton = await screen.findByTestId('modalCloseButton');
+    const closeButton = await screen.findByTestId('modalCancelButton');
 
     await userEvent.click(closeButton);
 
@@ -64,6 +64,7 @@ describe('BulkAssignmentModal', () => {
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
+    const cancelButton = await screen.findByTestId('modalCancelButton');
     await userEvent.click(cancelButton);
 
     expect(screen.getByTestId('cancelModalYes')).toBeInTheDocument();
@@ -113,5 +114,18 @@ describe('BulkAssignmentModal', () => {
 
     const confirmButton = await screen.queryByTestId('cancelModalYes');
     expect(confirmButton).not.toBeInTheDocument();
+  });
+
+  it('renders the user data', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    const userTable = await screen.findByRole('table');
+    expect(userTable).toBeInTheDocument();
+    expect(screen.getByText('User')).toBeInTheDocument();
+    expect(screen.getByText('Workload')).toBeInTheDocument();
+    expect(screen.getByText('Assignment')).toBeInTheDocument();
+    await act(async () => {
+      expect(await screen.getByText('user, sc')).toBeInTheDocument();
+    });
+    expect(screen.getAllByTestId('bulkAssignmentUserWorkload')[0]).toHaveTextContent('1');
   });
 });
