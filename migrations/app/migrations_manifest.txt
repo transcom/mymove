@@ -1092,5 +1092,7 @@
 20250121154046_upd_contract.up.sql
 20250121154059_upd_contract_loadtest.up.sql
 20250121154108_upd_contract_stg.up.sql
+20250121184450_upd_duty_loc_B-22242.up.sql
 20250205182531_B-22309_upd_duty_loc.up.sql
+20250206173204_add_hawaii_data.up.sql
 20250207202516_B-22309_upd_counseling_office.up.sql
