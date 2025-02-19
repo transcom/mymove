@@ -48,6 +48,8 @@ var allSITServiceItemsToCheck = []models.ReServiceCode{
 var allAccessorialServiceItemsToCheck = []models.ReServiceCode{
 	models.ReServiceCodeIDSHUT,
 	models.ReServiceCodeIOSHUT,
+	models.ReServiceCodeICRT,
+	models.ReServiceCodeIUCRT,
 }
 
 var destSITServiceItems = []models.ReServiceCode{
