@@ -277,7 +277,7 @@ type IntlHHGUnpackPricer interface {
 //
 //go:generate mockery --name IntlPortFuelSurchargePricer
 type IntlPortFuelSurchargePricer interface {
-	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, shipmentType models.MTOShipmentType) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
