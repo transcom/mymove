@@ -104,6 +104,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithIntlCratingServiceItemsTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithIntlCratingServiceItemsTOO(appCtx)
 	},
+	"HHGMoveWithIntlShuttleServiceItemsTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithIntlShuttleServiceItemsTOO(appCtx)
+	},
 	"HHGMoveForTOOAfterActualPickupDate": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveForTOOAfterActualPickupDate(appCtx)
 	},
