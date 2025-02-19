@@ -122,7 +122,7 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 		return false, nil
 	}
 
-	// this only runs for domestic shipments so we will put in false for the isInternationalShipment here
+	// this only runs for domestic shipments so putting false for the isInternationalShipment value here
 	previousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode, false)
 	if err != nil {
 		return false, err

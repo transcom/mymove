@@ -411,7 +411,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 					serviceItem.ReService.Code == models.ReServiceCodeIDDSIT ||
 					serviceItem.ReService.Code == models.ReServiceCodeIDSFSC {
 					// Destination SIT: distance between shipment destination address & service item ORIGINAL destination address
-					// DDDSIT & DDSFSC are domestic service items so putting false as isInternationalShipment
+					// DDDSIT & DDSFSC are domestic service items so putting false for isInternationalShipment
 					milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false)
 					if err != nil {
 						return nil, err

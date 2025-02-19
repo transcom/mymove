@@ -67,7 +67,7 @@ func (p *hhgPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source str
 	} else {
 		// Get reZip3s for origin and destination to compare base point cities.
 		// Dont throw/return errors from this. If we dont find them, we'll just use randMcNallyZip3Distance
-		// this only applies to domestic shipments since international address don't have base point cities
+		// this only applies to domestic shipments since international addresses do not have base point cities
 		if !isInternationalShipment {
 			sourceReZip3, sErr := models.FetchReZip3Item(appCtx.DB(), sourceZip3)
 			if sErr != nil {
