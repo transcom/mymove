@@ -1,34 +1,49 @@
-FROM harbor.csde.caci.com/docker.io/debian:stable AS build-env
+# FROM harbor.csde.caci.com/docker.io/debian:stable AS build-env
 
+# # # hadolint ignore=DL3007
+# # FROM gcr.io/distroless/base-debian11@sha256:ac69aa622ea5dcbca0803ca877d47d069f51bd4282d5c96977e0390d7d256455
+
+# #AWS GovCloud RDS cert
+# COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
+
+# COPY bin/milmove /bin/milmove
+
+# # Demo Environment certs
+# COPY config/tls/api.demo.dp3.us.chain.der.p7b /config/tls/api.demo.dp3.us.chain.der.p7b
+# COPY config/tls/api.demo.dp3.us.crt /config/tls/api.demo.dp3.us.crt
+
+# # Loadtesting Environment Certs
+# COPY config/tls/api.loadtest.dp3.us.chain.der.p7b /config/tls/api.loadtest.dp3.us.chain.der.p7b
+# COPY config/tls/api.loadtest.dp3.us.crt /config/tls/api.loadtest.dp3.us.crt
+
+# # Exp Environment Certs
+# COPY config/tls/api.exp.dp3.us.chain.der.p7b /config/tls/api.exp.dp3.us.chain.der.p7b
+# COPY config/tls/api.exp.dp3.us.crt /config/tls/api.exp.dp3.us.crt
+
+# COPY swagger/* /swagger/
+# COPY public/static/react-file-viewer /public/static/react-file-viewer
+
+# # Mount mutable tmp for app packages like pdfcpu
 # # hadolint ignore=DL3007
-# FROM gcr.io/distroless/base-debian11@sha256:ac69aa622ea5dcbca0803ca877d47d069f51bd4282d5c96977e0390d7d256455
+# VOLUME ["/tmp"]
 
-#AWS GovCloud RDS cert
-COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
+# ENTRYPOINT ["/bin/milmove"]
 
-COPY bin/milmove /bin/milmove
+# CMD ["serve", "--logging-level=debug"]
 
-# Demo Environment certs
-COPY config/tls/api.demo.dp3.us.chain.der.p7b /config/tls/api.demo.dp3.us.chain.der.p7b
-COPY config/tls/api.demo.dp3.us.crt /config/tls/api.demo.dp3.us.crt
+# EXPOSE 4000
 
-# Loadtesting Environment Certs
-COPY config/tls/api.loadtest.dp3.us.chain.der.p7b /config/tls/api.loadtest.dp3.us.chain.der.p7b
-COPY config/tls/api.loadtest.dp3.us.crt /config/tls/api.loadtest.dp3.us.crt
+# Use an official base image, in this case, Node.js
+FROM node@sha256:a182b9b37154a3e11e5c1d15145470ceb22069646d0b7390de226da2548aa2a7
 
-# Exp Environment Certs
-COPY config/tls/api.exp.dp3.us.chain.der.p7b /config/tls/api.exp.dp3.us.chain.der.p7b
-COPY config/tls/api.exp.dp3.us.crt /config/tls/api.exp.dp3.us.crt
+# Set the working directory inside the container
+WORKDIR /app
 
-COPY swagger/* /swagger/
-COPY public/static/react-file-viewer /public/static/react-file-viewer
+# Copy application files
+COPY . /app
 
-# Mount mutable tmp for app packages like pdfcpu
-# hadolint ignore=DL3007
-VOLUME ["/tmp"]
-
-ENTRYPOINT ["/bin/milmove"]
-
-CMD ["serve", "--logging-level=debug"]
-
+# Expose port 4000 to the outside world
 EXPOSE 4000
+
+# Command to run the application
+CMD ["node", "server.js"]
