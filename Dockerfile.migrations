@@ -31,4 +31,4 @@ COPY migrations/app/ddl_tables_migrations_manifest.txt /migrate/ddl_tables_migra
 COPY migrations/app/ddl_views_migrations_manifest.txt /migrate/ddl_views_migrations_manifest.txt
 COPY migrations/app/ddl_functions_migrations_manifest.txt /migrate/ddl_functions_migrations_manifest.txt
 # hadolint ignore=DL3025
-ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt", '-d', 'file:///migrate/dml_migrations_manifest.txt', '-t', 'file:///migrate/ddl_types_migrations_manifest.txt', '-T', 'file:///migrate/ddl_tables_migrations_manifest.txt', '-V', 'file:///migrate/ddl_views_migrations_manifest.txt', '-F', 'file:///migrate/ddl_functions_migrations_manifest.txt']
+ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt", '-d', 'file:///migrate/dml_migrations_manifest.txt', '-t', 'file:///migrate/ddl_types_manifest.txt', '-T', 'file:///migrate/ddl_tables_manifest.txt', '-V', 'file:///migrate/ddl_views_manifest.txt', '-F', 'file:///migrate/ddl_functions_manifest.txt']
