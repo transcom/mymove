@@ -333,7 +333,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	for _, ddlObj := range ddlObjects {
 		logger.Info(fmt.Sprintf("=== Processing %s ===", ddlObj.name))
-
+		logger.Info(fmt.Sprintf("Using manifest %q", ddlObj.manifest))
 		filenames, errListFiles := fileHelper.ListFiles(ddlObj.path, s3Client)
 		if errListFiles != nil {
 			logger.Fatal(fmt.Sprintf("Error listing %s directory %s", ddlObj.name, ddlObj.path), zap.Error(errListFiles))
