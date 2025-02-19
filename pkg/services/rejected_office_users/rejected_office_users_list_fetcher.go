@@ -49,12 +49,27 @@ func (o *rejectedOfficeUserListFetcher) FetchRejectedOfficeUsersList(appCtx appc
 		orderTerm = *ordering.Column()
 	}
 
-	query.Order(fmt.Sprintf("%s %s", orderTerm, order))
+	if orderTerm == "role" {
+		if order == "asc" {
+			query = query.Order("MIN(roles.role_name) ASC")
+		} else {
+			query = query.Order("MIN(roles.role_name) DESC")
+		}
+	} else {
+		query = query.Order(fmt.Sprintf("%s %s", orderTerm, order))
+	}
+
 	query.Select("office_users.*")
 
 	err := query.Paginate(pagination.Page(), pagination.PerPage()).All(&rejectedUsers)
 	if err != nil {
 		return nil, 0, err
+	}
+
+	for i := range rejectedUsers {
+		sort.Slice(rejectedUsers[i].User.Roles, func(a, b int) bool {
+			return rejectedUsers[i].User.Roles[a].RoleName < rejectedUsers[i].User.Roles[b].RoleName
+		})
 	}
 
 	if orderTerm == "transportation_office_id" {

@@ -25,7 +25,6 @@ const RejectedOfficeUserShowRoles = () => {
     }
   }
 
-  uniqueRoleNamesList.sort();
   return <span>{uniqueRoleNamesList.join(', ')}</span>;
 };
 
@@ -61,7 +60,7 @@ const RejectedOfficeUserList = () => (
       <TextField source="status" />
       <TextField source="rejectionReason" label="Reason for rejection" />
       <DateField showTime source="rejectedOn" label="Rejected on" />
-      <ReferenceField label="Roles Requested" source="id" reference="rejected-office-users" link={false}>
+      <ReferenceField label="Roles Requested" source="id" sortBy="role" reference="rejected-office-users" link={false}>
         <RejectedOfficeUserShowRoles source="roles" />
       </ReferenceField>
     </Datagrid>
