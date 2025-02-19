@@ -2,6 +2,7 @@ package sitentrydateupdate
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -86,11 +87,17 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 	// updating sister service item to have the next day for SIT entry date
 	if s.SITEntryDate == nil {
 		return nil, apperror.NewUnprocessableEntityError("You must provide the SIT entry date in the request")
-	} else if s.SITEntryDate != nil {
-		serviceItem.SITEntryDate = s.SITEntryDate
-		dayAfter := s.SITEntryDate.Add(24 * time.Hour)
-		serviceItemAdditionalDays.SITEntryDate = &dayAfter
 	}
+
+	// The new SIT entry date must be before SIT departure date
+	if serviceItem.SITDepartureDate != nil && !s.SITEntryDate.Before(*serviceItem.SITDepartureDate) {
+		return nil, apperror.NewUnprocessableEntityError(fmt.Sprintf("the SIT Entry Date (%s) must be before the SIT Departure Date (%s)",
+			s.SITEntryDate.Format("2006-01-02"), serviceItem.SITDepartureDate.Format("2006-01-02")))
+	}
+
+	serviceItem.SITEntryDate = s.SITEntryDate
+	dayAfter := s.SITEntryDate.Add(24 * time.Hour)
+	serviceItemAdditionalDays.SITEntryDate = &dayAfter
 
 	// Make the update to both service items and create a InvalidInputError if there were validation issues
 	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {

@@ -441,7 +441,7 @@ const shuttleDestinationPriceInternational = (params) => {
     'DD MMM YYYY',
   )}`;
 
-  const market = getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketDest, params) === 'O' ? 'Oconus' : 'Conus';
+  const market = getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketDest, params) === 'O' ? 'OCONUS' : 'CONUS';
 
   return calculation(value, label, formatDetail(deliveryDate), formatDetail(market));
 };
