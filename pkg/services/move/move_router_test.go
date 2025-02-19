@@ -5,12 +5,10 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/mocks"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -65,6 +63,7 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 
 func (suite *MoveServiceSuite) TestMoveSubmission() {
 	moveRouter := NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	toRouter := transportationoffice.NewTransportationOfficesFetcher()
 
 	suite.Run("returns error when needsServicesCounseling cannot find move", func() {
 		// Under test: MoveRouter.Submit
@@ -319,7 +318,6 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			})
 		}
 	})
-
 	suite.Run("PPM moves are routed correctly and SignedCertification is created", func() {
 		// Under test: MoveRouter.Submit (Full PPM should always route to service counselor, never to office user)
 		// Set up: Create moves and SignedCertification
@@ -345,6 +343,23 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					{
 						Model: models.Move{
 							Status: models.MoveStatusDRAFT,
+						},
+					},
+				}, nil)
+				address := factory.BuildAddress(suite.DB(), []factory.Customization{
+					{
+						Model: models.Address{
+							PostalCode: "32228",
+							IsOconus:   models.BoolPointer(false),
+						},
+					},
+				}, nil)
+
+				factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+					{Model: address, LinkOnly: true, Type: &factory.Addresses.DutyLocationAddress},
+					{
+						Model: models.DutyLocation{
+							ProvidesServicesCounseling: true,
 						},
 					},
 				}, nil)
@@ -394,20 +409,14 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					},
 				}, nil)
 				err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+				suite.NoError(err)
+				err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
+				suite.NoError(err)
+				suite.NotNil(newSignedCertification)
 
-				if err != nil {
-					suite.Error(err)
-					suite.Contains(err.Error(), "Failed to find counseling office that provides counseling")
-				} else {
-					suite.NoError(err)
-					err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
-					suite.NoError(err)
-					suite.NotNil(newSignedCertification)
-
-					err = suite.DB().Find(&move, move.ID)
-					suite.NoError(err)
-					suite.Equal(tt.moveStatus, move.Status)
-				}
+				err = suite.DB().Find(&move, move.ID)
+				suite.NoError(err)
+				suite.Equal(tt.moveStatus, move.Status)
 			})
 		}
 	})
@@ -446,7 +455,21 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 
 	suite.Run("PPM status changes to Submitted", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
-
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "32228",
+				},
+			},
+		}, nil)
+		factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{Model: address, LinkOnly: true, Type: &factory.Addresses.DutyLocationAddress},
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+			},
+		}, nil)
 		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -1008,83 +1031,128 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		// Set up: Create moves and SignedCertification
 		// Expected outcome: signed cert is created
 		// Expected outcome: Move status is set to needs service counseling
-		tests := []struct {
-			desc                       string
-			ProvidesServicesCounseling bool
-			moveStatus                 models.MoveStatus
-		}{
-			{"Routes to Service Counseling", false, models.MoveStatusNeedsServiceCounseling},
-		}
-		for _, tt := range tests {
-			suite.Run(tt.desc, func() {
-				move := factory.BuildMove(suite.DB(), []factory.Customization{
-					{
-						Model: models.DutyLocation{
-							ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
-						},
-						Type: &factory.DutyLocations.OriginDutyLocation,
-					},
-					{
-						Model: models.Move{
-							Status: models.MoveStatusDRAFT,
-						},
-					},
-				}, nil)
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "32228",
+				},
+			},
+		}, nil)
 
-				shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-					{
-						Model: models.MTOShipment{
-							Status:       models.MTOShipmentStatusDraft,
-							ShipmentType: models.MTOShipmentTypePPM,
-						},
-					},
-					{
-						Model:    move,
-						LinkOnly: true,
-					},
-				}, nil)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: false,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusDRAFT,
+				},
+			},
+		}, nil)
+		ppmDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{Model: address, LinkOnly: true, Type: &factory.Addresses.DutyLocationAddress},
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusDraft,
+				},
+			},
+		}, nil)
 
-				ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-					{
-						Model: models.PPMShipment{
-							Status: models.PPMShipmentStatusDraft,
-						},
-					},
-				}, nil)
+		move.MTOShipments = models.MTOShipments{shipment}
+		move.MTOShipments[0].PPMShipment = &ppmShipment
 
-				move.MTOShipments = models.MTOShipments{shipment}
-				move.MTOShipments[0].PPMShipment = &ppmShipment
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
-				newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-					{
-						Model:    move,
-						LinkOnly: true,
-					},
-				}, nil)
-				mockFetcher := &mocks.TransportationOfficesFetcher{}
-				closestCounselingOffice := &models.TransportationOffice{}
-				if !tt.ProvidesServicesCounseling {
-					mockFetcher.On("FindCounselingOfficeForPrimeCounseled", mock.Anything, mock.Anything).Return(closestCounselingOffice, nil)
-				}
-				err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
-				if err != nil {
-					suite.Error(err)
-					suite.Contains(err.Error(), "Failed to find counseling office that provides counseling")
-				} else {
-					suite.NoError(err)
-					err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
-					suite.NoError(err)
-					suite.NotNil(newSignedCertification)
+		closestOffices, err := toRouter.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), ppmDutyLocation.ID)
+		suite.NoError(err)
+		suite.NotNil(closestOffices)
 
-					err = suite.DB().Find(&move, move.ID)
-					suite.NoError(err)
-					suite.Equal(tt.moveStatus, move.Status)
-					if !tt.ProvidesServicesCounseling {
-						suite.Equal(closestCounselingOffice.ID, move.CounselingOfficeID)
-					}
-				}
-			})
-		}
+		err = moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+		suite.NoError(err)
+		err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
+		suite.NoError(err)
+		suite.NotNil(newSignedCertification)
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status)
+		suite.Equal(closestOffices.ID, *move.CounselingOfficeID)
+	})
+
+	suite.Run("PPM moves returns an error if no closest service counseling office found", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: false,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusDRAFT,
+				},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusDraft,
+				},
+			},
+		}, nil)
+
+		move.MTOShipments = models.MTOShipments{shipment}
+		move.MTOShipments[0].PPMShipment = &ppmShipment
+
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Failed to find counseling office that provides counseling")
 	})
 }
 
