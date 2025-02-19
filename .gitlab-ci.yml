@@ -336,33 +336,6 @@ include:
 - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 - template: Jobs/Secret-Detection.gitlab-ci.yml
 
-
-test_commit_sha:
-  stage: pre_checks
-  interruptible: true
-  tags:
-    - $RUNNER_TAG
-  environment: $DP3_ENV
-  image:
-    name: gcr.io/kaniko-project/executor:v1.14.0-debug
-    entrypoint: [""]
-  before_script:
-    - *setup_aws_vars_dp3
-    - *setup_release_dp3
-  script:
-    - |
-      echo "Current directory: $(pwd)"
-      echo "Listing all files in repo root:"
-      ls -la
-      echo "Listing all files in scripts/:"
-      ls -la scripts || echo "scripts/ directory not found"
-    -  chmod +x scripts/compare-deployed-commit
-    -  ${CI_PROJECT_DIR}/scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
-  after_script:
-    - *announce_failure
-  rules:
-    - *check_dp3
-
 anti_virus:
   stage: pre_checks
   tags:
