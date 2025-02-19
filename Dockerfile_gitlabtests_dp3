@@ -40,7 +40,7 @@ FROM node@sha256:a182b9b37154a3e11e5c1d15145470ceb22069646d0b7390de226da2548aa2a
 WORKDIR /app
 
 # Copy application files
-COPY . /app
+COPY server.js /app
 
 # Expose port 4000 to the outside world
 EXPOSE 4000

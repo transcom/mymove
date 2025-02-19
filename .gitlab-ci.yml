@@ -1051,7 +1051,7 @@ integration_test_mtls:
   services:
     - name: $postgres
     - name: $redis
-    - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
+    - name: registry.csde.caci.com/milmove/mymove:e2e-c1f16f40
       alias: milmovemicroservice,milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
