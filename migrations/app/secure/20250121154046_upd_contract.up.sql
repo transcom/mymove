@@ -25,5 +25,3 @@ update re_zip3s set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where c
 update re_zip5_rate_areas set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
 update re_contract_years set contract_id = '070f7c82-fad0-4ae8-9a83-5de87a56472e' where contract_id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
 
---delete old contract id
-delete from re_contracts where id = '51393fa4-b31c-40fe-bedf-b692703c46eb';
