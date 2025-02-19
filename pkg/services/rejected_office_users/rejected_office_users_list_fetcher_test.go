@@ -106,7 +106,6 @@ func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() 
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		
 
 		builder := &testRejectedOfficeUsersListQueryBuilder{}
 

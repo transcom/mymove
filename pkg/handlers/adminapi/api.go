@@ -94,7 +94,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		newRolesFetcher,
 		query.NewQueryFilter,
 	}
-	
+
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),
