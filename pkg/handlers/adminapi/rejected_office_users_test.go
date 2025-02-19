@@ -1,6 +1,8 @@
 package adminapi
 
 import (
+	"slices"
+
 	"github.com/transcom/mymove/pkg/factory"
 	rejectedofficeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/rejected_office_users"
 	"github.com/transcom/mymove/pkg/models"
@@ -35,7 +37,12 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		// should get an ok response
 		suite.IsType(&rejectedofficeuserop.IndexRejectedOfficeUsersOK{}, response)
 		okResponse := response.(*rejectedofficeuserop.IndexRejectedOfficeUsersOK)
-		suite.Len(okResponse.Payload, 2)
-		suite.Equal(rejectedOfficeUsers[0].ID.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(len(okResponse.Payload), len(rejectedOfficeUsers))
+
+		actualID := []string{okResponse.Payload[0].ID.String(), okResponse.Payload[1].ID.String()}
+		expected := []string{rejectedOfficeUsers[0].ID.String(), rejectedOfficeUsers[1].ID.String()}
+		for _, expectedID := range expected {
+			suite.True(slices.Contains(actualID, expectedID))
+		}
 	})
 }
