@@ -112,7 +112,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 						destZip = shipment.DestinationAddress.PostalCode
 					}
 					// we need to get the mileage first, the db proc will consume that
-					// only international shipments will have port data, so putting true in isInternationalShipment
+					// only international shipments will have port data, so setting isInternationalShipment to true here
 					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
 					if err != nil {
 						return err
