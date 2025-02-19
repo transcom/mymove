@@ -116,6 +116,7 @@ export { default as deleteAssignedOfficeUser } from './UpdateAssignedOfficeUser/
 export { default as UpdatePaymentRequestStatusMoves } from './UpdatePaymentRequestStatus/UpdatePaymentRequestStatusMoves';
 export { default as reviewShipmentAddressUpdate } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdate';
 export { default as FinishDocumentReviewMoves } from './FinishDocumentReview/FinishDocumentReviewMoves';
+export { default as saveBulkAssignmentData } from './SaveBulkAssignmentData/SaveBulkAssignmentData';
 export { default as approveShipments } from './ApproveShipments/approveShipments';
 export { default as approveShipmentsUpdateAllowances } from './ApproveShipments/approveShipmentsUpdateAllowances';
 export { default as approveShipmentsApproveMove } from './ApproveShipments/approveShipmentsApproveMove';

@@ -4416,6 +4416,46 @@ func init() {
         }
       }
     },
+    "/queues/bulk-assignment/assign": {
+      "post": {
+        "description": "Supervisor office users are able to assign moves. This endpoint saves office user assignments to multiple moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Assigns one or more moves to one or more office users",
+        "operationId": "saveBulkAssignmentData",
+        "parameters": [
+          {
+            "name": "bulkAssignmentSavePayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentSavePayload"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "assigned"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -7098,6 +7138,23 @@ func init() {
         }
       }
     },
+    "BulkAssignmentForUser": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "moveAssignments": {
+          "type": "integer",
+          "x-omitempty": false
+        }
+      }
+    },
+    "BulkAssignmentMoveData": {
+      "type": "string",
+      "format": "uuid"
+    },
     "BulkAssignmentMoveID": {
       "type": "string",
       "format": "uuid",
@@ -7107,6 +7164,33 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
+    },
+    "BulkAssignmentSavePayload": {
+      "type": "object",
+      "properties": {
+        "moveData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentMoveData"
+          }
+        },
+        "queueType": {
+          "description": "A string corresponding to the queue type",
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CLOSEOUT",
+            "TASK_ORDER",
+            "PAYMENT_REQUEST"
+          ]
+        },
+        "userData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentForUser"
+          }
+        }
       }
     },
     "ClientError": {
@@ -21302,6 +21386,55 @@ func init() {
         }
       }
     },
+    "/queues/bulk-assignment/assign": {
+      "post": {
+        "description": "Supervisor office users are able to assign moves. This endpoint saves office user assignments to multiple moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Assigns one or more moves to one or more office users",
+        "operationId": "saveBulkAssignmentData",
+        "parameters": [
+          {
+            "name": "bulkAssignmentSavePayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentSavePayload"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "assigned"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -24408,6 +24541,23 @@ func init() {
         }
       }
     },
+    "BulkAssignmentForUser": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "moveAssignments": {
+          "type": "integer",
+          "x-omitempty": false
+        }
+      }
+    },
+    "BulkAssignmentMoveData": {
+      "type": "string",
+      "format": "uuid"
+    },
     "BulkAssignmentMoveID": {
       "type": "string",
       "format": "uuid",
@@ -24417,6 +24567,33 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
+    },
+    "BulkAssignmentSavePayload": {
+      "type": "object",
+      "properties": {
+        "moveData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentMoveData"
+          }
+        },
+        "queueType": {
+          "description": "A string corresponding to the queue type",
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CLOSEOUT",
+            "TASK_ORDER",
+            "PAYMENT_REQUEST"
+          ]
+        },
+        "userData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentForUser"
+          }
+        }
       }
     },
     "ClientError": {
