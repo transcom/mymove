@@ -20,6 +20,15 @@ COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/milmove /bin/milmove
 
 COPY migrations/app/schema /migrate/schema
+COPY migrations/app/ddl_migrations/ddl_types /migrate/ddl_migrations/ddl_types
+COPY migrations/app/ddl_migrations/ddl_tables /migrate/ddl_migrations/ddl_tables
+COPY migrations/app/ddl_migrations/ddl_views /migrate/ddl_migrations/ddl_views
+COPY migrations/app/ddl_migrations/ddl_functions /migrate/ddl_migrations/ddl_functions
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
+COPY migrations/app/dml_migrations_manifest.txt /migrate/dml_migrations_manifest.txt
+COPY migrations/app/ddl_types_migrations_manifest.txt /migrate/ddl_types_migrations_manifest.txt
+COPY migrations/app/ddl_tables_migrations_manifest.txt /migrate/ddl_tables_migrations_manifest.txt
+COPY migrations/app/ddl_views_migrations_manifest.txt /migrate/ddl_views_migrations_manifest.txt
+COPY migrations/app/ddl_functions_migrations_manifest.txt /migrate/ddl_functions_migrations_manifest.txt
 
 ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]
