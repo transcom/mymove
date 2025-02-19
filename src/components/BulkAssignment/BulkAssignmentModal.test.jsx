@@ -52,7 +52,7 @@ describe('BulkAssignmentModal', () => {
   it('shows cancel confirmation modal when close icon is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    const closeButton = await screen.findByTestId('modalCancelButton');
+    const closeButton = await screen.findByTestId('modalCloseButton');
 
     await userEvent.click(closeButton);
 
