@@ -1231,24 +1231,24 @@ integration_test_office:
 ## DP3 Env push and deploy stages all off of setting dp3 env ##
 ###############################################################
 
-# check_against_dp3_sha:
-#   stage: pre_checks  # Run before deployment stages
-#   tags:
-#     - $RUNNER_TAG  # Ensure the job runs on the correct GitLab Runner
-#   environment: $DP3_ENV
-#   image: $DOCKER_APP_IMAGE  # Use the correct image for your pipeline
-#   before_script:
-#     - *setup_milmove_env  # Set up environment variables if required.
-#   script:
-#     - echo "Checking if deployed commit is an ancestor..."
-#     - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
-#   artifacts:
-#     paths:
-#       - sha_check_status  # Store the status for downstream jobs
-#     expire_in: 1h
-#   allow_failure: true  # Ensure the job does not fail the pipeline even if the script detects a SHA mismatch
-#   rules:
-#     - *check_dp3  # Ensure this matches your ruleset for conditional execution
+check_against_dp3_sha:
+  stage: pre_checks  # Run before deployment stages
+  tags:
+    - $RUNNER_TAG  # Ensure the job runs on the correct GitLab Runner
+  environment: $DP3_ENV
+  image: $DOCKER_APP_IMAGE  # Use the correct image for your pipeline
+  before_script:
+    - *setup_milmove_env  # Set up environment variables if required.
+  script:
+    - echo "Checking if deployed commit is an ancestor..."
+    - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
+  artifacts:
+    paths:
+      - sha_check_status  # Store the status for downstream jobs
+    expire_in: 1h
+  allow_failure: true  # Ensure the job does not fail the pipeline even if the script detects a SHA mismatch
+  rules:
+    - *check_dp3  # Ensure this matches your ruleset for conditional execution
 
 build_push_app_dp3:
   stage: push
@@ -1260,6 +1260,7 @@ build_push_app_dp3:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   needs:
+     - check_against_dp3_sha
      - compile_app_client
      - compile_app_server
   before_script:
@@ -1267,8 +1268,9 @@ build_push_app_dp3:
     - *setup_release_dp3
     - *kaniko_before_setup
   script:
-    - echo "Checking if deployed commit is an ancestor..."
-    - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
+    - if [ -f sha_check_status ] && grep -q "failed" sha_check_status; then
+        echo "Deploy halted due to SHA check failure.";
+        exit 0;
     - echo "Building and Pushing app Docker image..."
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:git-$CI_COMMIT_SHORT_SHA"
   after_script:
@@ -1286,6 +1288,7 @@ build_push_migrations_dp3:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   needs:
+    - check_against_dp3_sha
     - compile_app_server
     - compile_app_client
   before_script:
@@ -1293,8 +1296,9 @@ build_push_migrations_dp3:
     - *setup_release_dp3
     - *kaniko_before_setup
   script:
-    - echo "Checking if deployed commit is an ancestor..."
-    - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
+    - if [ -f sha_check_status ] && grep -q "failed" sha_check_status; then
+        echo "Deploy halted due to SHA check failure.";
+        exit 0;
     - echo "Building and Pushing migrations Docker image..."
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:git-$CI_COMMIT_SHORT_SHA"
   after_script:
@@ -1312,6 +1316,7 @@ build_push_tasks_dp3:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   needs:
+    - check_against_dp3_sha
     - compile_app_server
     - compile_app_client
   before_script:
@@ -1319,8 +1324,9 @@ build_push_tasks_dp3:
     - *setup_release_dp3
     - *kaniko_before_setup
   script:
-    - echo "Checking if deployed commit is an ancestor..."
-    - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
+    - if [ -f sha_check_status ] && grep -q "failed" sha_check_status; then
+        echo "Deploy halted due to SHA check failure.";
+        exit 0;
     - echo "Building tasks Docker image..."
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:git-$CI_COMMIT_SHORT_SHA"
   after_script:
@@ -1341,11 +1347,13 @@ push_otel_collector_image_dp3:
     name: $DOCKER_BASE_IMAGE
     entrypoint: [""]
   needs:
+    - check_against_dp3_sha
     - compile_app_server
     - compile_app_client
   script:
-    - echo "Checking if deployed commit is an ancestor..."
-    - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
+    - if [ -f sha_check_status ] && grep -q "failed" sha_check_status; then
+        echo "Deploy halted due to SHA check failure.";
+        exit 0;
     - echo "Logging in to DockerHub with Crane..."
     - echo "${DOCKERHUB_PASSWORD}" | crane auth login docker.io -u "${DOCKERHUB_USERNAME}" --password-stdin
 
@@ -1376,6 +1384,7 @@ deploy_migrations_dp3:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
+    - check_against_dp3_sha
     - push_otel_collector_image_dp3
     - build_push_migrations_dp3
     - compile_app_server
@@ -1384,8 +1393,9 @@ deploy_migrations_dp3:
     - *setup_aws_vars_dp3
     - *setup_release_dp3
   script:
-    - echo "Checking if deployed commit is an ancestor..."
-    - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
+    - if [ -f sha_check_status ] && grep -q "failed" sha_check_status; then
+        echo "Deploy halted due to SHA check failure.";
+        exit 0;
     - echo "Deploying DP3 migrations..."
     # Step 1: Get the Digest
     - echo "Getting Digest from AWS"
@@ -1411,6 +1421,7 @@ deploy_tasks_dp3:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
+    - check_against_dp3_sha
     - deploy_migrations_dp3
     - build_push_tasks_dp3
     - compile_app_server
@@ -1419,8 +1430,9 @@ deploy_tasks_dp3:
     - *setup_aws_vars_dp3
     - *setup_release_dp3
   script:
-    - echo "Checking if deployed commit is an ancestor..."
-    - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
+    - if [ -f sha_check_status ] && grep -q "failed" sha_check_status; then
+        echo "Deploy halted due to SHA check failure.";
+        exit 0;
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=git-$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Deploying GHC fuel price data task service"
@@ -1442,6 +1454,7 @@ deploy_app_client_tls_dp3:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
+    - check_against_dp3_sha
     - deploy_migrations_dp3
     - push_otel_collector_image_dp3
     - compile_app_server
@@ -1454,8 +1467,9 @@ deploy_app_client_tls_dp3:
     - *setup_tls_vars_dp3
     - *setup_release_dp3
   script:
-    - echo "Checking if deployed commit is an ancestor..."
-    - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
+    - if [ -f sha_check_status ] && grep -q "failed" sha_check_status; then
+        echo "Deploy halted due to SHA check failure.";
+        exit 0;
     # - echo "Comparing against deployed commit"
     # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
     - echo "Getting Digest from AWS"
@@ -1486,6 +1500,7 @@ deploy_app_dp3:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
+    - check_against_dp3_sha
     - build_push_app_dp3
     - deploy_migrations_dp3
     - compile_app_server
@@ -1498,8 +1513,9 @@ deploy_app_dp3:
     - *setup_aws_vars_dp3
     - *setup_release_dp3
   script:
-    - echo "Checking if deployed commit is an ancestor..."
-    - scripts/compare-deployed-commit my.demo.dp3.us $CI_COMMIT_SHA
+    - if [ -f sha_check_status ] && grep -q "failed" sha_check_status; then
+        echo "Deploy halted due to SHA check failure.";
+        exit 0;
     - echo "Comparing against deployed commit"
     # - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
     - echo "Creating .go-version file if not already present"

@@ -47,6 +47,9 @@ else
   echo "* The deployed commit is either ahead of the local commit or the commits have different histories."
   echo "* Deploy is blocked."
 
+  echo "failed" > sha_check_status
+  touch deploy_halt_flag  # This flag stops later jobs from running
+
 if [ -n "${GITLAB_CI+x}" ]; then
   exit 0  # Prevents the job from failing but allows logical halting  
 else
