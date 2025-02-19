@@ -64,7 +64,7 @@ describe('BulkAssignmentModal', () => {
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
-    const cancelButton = await screen.findByTestId('modalCancelButton');
+    const cancelButton = await screen.findByTestId('modalCloseButton');
     await userEvent.click(cancelButton);
 
     expect(screen.getByTestId('cancelModalYes')).toBeInTheDocument();
