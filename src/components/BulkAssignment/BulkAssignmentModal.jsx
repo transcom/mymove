@@ -87,172 +87,174 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   if (isLoading) return null;
 
   return (
-    <Modal>
-      <ModalClose handleClick={() => onClose()} />
-      <ModalTitle>
-        <h3>
-          {title} ({numberOfMoves})
-        </h3>
-      </ModalTitle>
-      <div className={styles.BulkAssignmentTable}>
-        <Formik
-          onSubmit={(values) => {
-            const totalAssignment = values?.userData?.reduce((sum, item) => sum + item.moveAssignments, 0);
+    <div>
+      <Modal>
+        <ModalClose handleClick={() => onClose()} />
+        <ModalTitle>
+          <h3>
+            {title} ({numberOfMoves})
+          </h3>
+        </ModalTitle>
+        <div className={styles.BulkAssignmentTable}>
+          <Formik
+            onSubmit={(values) => {
+              const totalAssignment = values?.userData?.reduce((sum, item) => sum + item.moveAssignments, 0);
 
-            if (totalAssignment > numberOfMoves) {
-              setIsError(true);
-              return;
-            }
+              if (totalAssignment > numberOfMoves) {
+                setIsError(true);
+                return;
+              }
 
-            const bulkAssignmentSavePayload = values;
-            onSubmit({ bulkAssignmentSavePayload });
-            onClose();
-          }}
-          validationSchema={validationSchema}
-          initialValues={initialValues}
-        >
-          {({ handleChange, setValues, values }) => {
-            const handleEqualAssignClick = () => {
-              const totalMoves = bulkAssignmentData?.bulkAssignmentMoveIDs?.length;
-              const numUsers = Object.keys(selectedUsers).filter((id) => selectedUsers[id]).length;
-              const baseAssignments = Math.floor(totalMoves / numUsers);
-              let remainingMoves = totalMoves % numUsers;
+              const bulkAssignmentSavePayload = values;
+              onSubmit({ bulkAssignmentSavePayload });
+              onClose();
+            }}
+            validationSchema={validationSchema}
+            initialValues={initialValues}
+          >
+            {({ handleChange, setValues, values }) => {
+              const handleEqualAssignClick = () => {
+                const totalMoves = bulkAssignmentData?.bulkAssignmentMoveIDs?.length;
+                const numUsers = Object.keys(selectedUsers).filter((id) => selectedUsers[id]).length;
+                const baseAssignments = Math.floor(totalMoves / numUsers);
+                let remainingMoves = totalMoves % numUsers;
 
-              const newValues = { ...values };
+                const newValues = { ...values };
 
-              values.userData.forEach((officeUser) => {
-                if (selectedUsers[officeUser.ID]) {
-                  const moveAssignments = baseAssignments + (remainingMoves > 0 ? 1 : 0);
-                  remainingMoves = Math.max(remainingMoves - 1, 0);
-                  newValues.userData.find((u) => u.ID === officeUser.ID).moveAssignments = moveAssignments;
-                } else {
-                  newValues.userData.find((u) => u.ID === officeUser.ID).moveAssignments = 0;
-                }
-              });
+                values.userData.forEach((officeUser) => {
+                  if (selectedUsers[officeUser.ID]) {
+                    const moveAssignments = baseAssignments + (remainingMoves > 0 ? 1 : 0);
+                    remainingMoves = Math.max(remainingMoves - 1, 0);
+                    newValues.userData.find((u) => u.ID === officeUser.ID).moveAssignments = moveAssignments;
+                  } else {
+                    newValues.userData.find((u) => u.ID === officeUser.ID).moveAssignments = 0;
+                  }
+                });
 
-              setValues({
-                ...values,
-                ...newValues,
-              });
-            };
-            const handleAssignmentChange = (event, user, i) => {
-              handleChange(event);
-              setIsError(false);
+                setValues({
+                  ...values,
+                  ...newValues,
+                });
+              };
+              const handleAssignmentChange = (event, user, i) => {
+                handleChange(event);
+                setIsError(false);
 
-              const newUserAssignment = {
-                ID: user.officeUserId,
-                moveAssignments: event.target.value ? +event.target.value : 0,
+                const newUserAssignment = {
+                  ID: user.officeUserId,
+                  moveAssignments: event.target.value ? +event.target.value : 0,
+                };
+
+                const newUserData = [...values.userData];
+                newUserData[i] = newUserAssignment;
+
+                setValues({
+                  ...values,
+                  userData: newUserData,
+                });
               };
 
-              const newUserData = [...values.userData];
-              newUserData[i] = newUserAssignment;
+              return (
+                <Form>
+                  <table>
+                    <tr>
+                      <th>
+                        <input
+                          data-testId="selectDeselectAllButton"
+                          type="checkbox"
+                          checked={isAllSelected()}
+                          onChange={() => {
+                            const allSelected = Object.keys(selectedUsers).every((id) => selectedUsers[id]);
+                            const newSelectedUsers = {};
 
-              setValues({
-                ...values,
-                userData: newUserData,
-              });
-            };
+                            bulkAssignmentData.availableOfficeUsers.forEach((user) => {
+                              newSelectedUsers[user.officeUserId] = !allSelected;
+                            });
 
-            return (
-              <Form>
-                <table>
-                  <tr>
-                    <th>
-                      <input
-                        data-testId="selectDeselectAllButton"
-                        type="checkbox"
-                        checked={isAllSelected()}
-                        onChange={() => {
-                          const allSelected = Object.keys(selectedUsers).every((id) => selectedUsers[id]);
-                          const newSelectedUsers = {};
-
-                          bulkAssignmentData.availableOfficeUsers.forEach((user) => {
-                            newSelectedUsers[user.officeUserId] = !allSelected;
-                          });
-
-                          setSelectedUsers(newSelectedUsers);
-                        }}
-                      />
-                    </th>
-                    <th>User</th>
-                    <th>Workload</th>
-                    <th>Assignment</th>
-                  </tr>
-                  {bulkAssignmentData?.availableOfficeUsers?.map((user, i) => {
-                    return (
-                      <tr key={user.officeUserId}>
-                        <td>
-                          <input
-                            data-testid="bulkAssignmentUserCheckbox"
-                            type="checkbox"
-                            checked={!!selectedUsers[user.officeUserId]}
-                            onChange={() => handleCheckboxChange(user.officeUserId)}
-                          />
-                        </td>
-                        <td>
-                          <p data-testid="bulkAssignmentUser" className={styles.officeUserFormattedName}>
-                            {user.lastName}, {user.firstName}
-                          </p>
-                        </td>
-                        <td className={styles.BulkAssignmentDataCenter}>
-                          <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
-                        </td>
-                        <td className={styles.BulkAssignmentDataCenter}>
-                          <input
-                            className={styles.BulkAssignmentAssignment}
-                            type="number"
-                            name={`userData.${i}.moveAssignments`}
-                            id={user.officeUserId}
-                            data-testid="assignment"
-                            min={0}
-                            value={values.userData[i]?.moveAssignments || 0}
-                            onChange={(event) => handleAssignmentChange(event, user, i)}
-                          />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </table>
-                <ModalActions autofocus="true">
-                  <div className={styles.BulkAssignmentButtonsContainer}>
-                    <div>
-                      <Button
-                        data-focus="true"
-                        className="usa-button--submit"
-                        type="submit"
-                        data-testid="modalSubmitButton"
-                        disabled={isSaveDisabled}
-                      >
-                        {submitText}
-                      </Button>
-                      <button
-                        className={styles.backbutton}
-                        type="button"
-                        onClick={() => onClose()}
-                        data-testid="modalBackButton"
-                      >
-                        {closeText}
-                      </button>
+                            setSelectedUsers(newSelectedUsers);
+                          }}
+                        />
+                      </th>
+                      <th>User</th>
+                      <th>Workload</th>
+                      <th>Assignment</th>
+                    </tr>
+                    {bulkAssignmentData?.availableOfficeUsers?.map((user, i) => {
+                      return (
+                        <tr key={user.officeUserId}>
+                          <td>
+                            <input
+                              data-testid="bulkAssignmentUserCheckbox"
+                              type="checkbox"
+                              checked={!!selectedUsers[user.officeUserId]}
+                              onChange={() => handleCheckboxChange(user.officeUserId)}
+                            />
+                          </td>
+                          <td>
+                            <p data-testid="bulkAssignmentUser" className={styles.officeUserFormattedName}>
+                              {user.lastName}, {user.firstName}
+                            </p>
+                          </td>
+                          <td className={styles.BulkAssignmentDataCenter}>
+                            <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
+                          </td>
+                          <td className={styles.BulkAssignmentDataCenter}>
+                            <input
+                              className={styles.BulkAssignmentAssignment}
+                              type="number"
+                              name={`userData.${i}.moveAssignments`}
+                              id={user.officeUserId}
+                              data-testid="assignment"
+                              min={0}
+                              value={values.userData[i]?.moveAssignments || 0}
+                              onChange={(event) => handleAssignmentChange(event, user, i)}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </table>
+                  <ModalActions autofocus="true">
+                    <div className={styles.BulkAssignmentButtonsContainer}>
+                      <div>
+                        <Button
+                          data-focus="true"
+                          className="usa-button--submit"
+                          type="submit"
+                          data-testid="modalSubmitButton"
+                          disabled={isSaveDisabled}
+                        >
+                          {submitText}
+                        </Button>
+                        <button
+                          className={styles.backbutton}
+                          type="button"
+                          onClick={() => onClose()}
+                          data-testid="modalBackButton"
+                        >
+                          {closeText}
+                        </button>
+                      </div>
+                      <div>
+                        <Button
+                          onClick={handleEqualAssignClick}
+                          type="button"
+                          data-testid="modalEqualAssignButton"
+                          disabled={!Object.values(selectedUsers).some(Boolean)}
+                        >
+                          Equal Assign
+                        </Button>
+                      </div>
                     </div>
-                    <div>
-                      <Button
-                        onClick={handleEqualAssignClick}
-                        type="button"
-                        data-testid="modalEqualAssignButton"
-                        disabled={!Object.values(selectedUsers).some(Boolean)}
-                      >
-                        Equal Assign
-                      </Button>
-                    </div>
-                  </div>
-                </ModalActions>
-                {isError && <div className={styles.errorMessage}>{errorMessage}</div>}
-              </Form>
-            );
-          }}
-        </Formik>
-      </div>
-    </Modal>
+                  </ModalActions>
+                  {isError && <div className={styles.errorMessage}>{errorMessage}</div>}
+                </Form>
+              );
+            }}
+          </Formik>
+        </div>
+      </Modal>
+    </div>
   );
 };
 
