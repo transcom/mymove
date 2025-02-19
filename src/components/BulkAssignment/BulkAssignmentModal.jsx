@@ -33,6 +33,11 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
     }));
   };
 
+  const isAllSelected = () => {
+    const selectedIds = Object.keys(selectedUsers);
+    return selectedIds.length > 0 && selectedIds.every((id) => selectedUsers[id]);
+  };
+
   const initUserData = (availableOfficeUsers) => {
     const officeUsers = [];
     const selectedOfficeUsers = {};
@@ -152,6 +157,23 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
               <Form>
                 <table>
                   <tr>
+                    <th>
+                      <input
+                        data-testId="selectDeselectAllButton"
+                        type="checkbox"
+                        checked={isAllSelected()}
+                        onChange={() => {
+                          const allSelected = Object.keys(selectedUsers).every((id) => selectedUsers[id]);
+                          const newSelectedUsers = {};
+
+                          bulkAssignmentData.availableOfficeUsers.forEach((user) => {
+                            newSelectedUsers[user.officeUserId] = !allSelected;
+                          });
+
+                          setSelectedUsers(newSelectedUsers);
+                        }}
+                      />
+                    </th>
                     <th>User</th>
                     <th>Workload</th>
                     <th>Assignment</th>
@@ -161,6 +183,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                       <tr key={user.officeUserId}>
                         <td>
                           <input
+                            data-testid="bulkAssignmentUserCheckbox"
                             type="checkbox"
                             checked={!!selectedUsers[user.officeUserId]}
                             onChange={() => handleCheckboxChange(user.officeUserId)}
@@ -215,6 +238,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                       <Button
                         onClick={handleEqualAssignClick}
                         type="button"
+                        data-testid="modalEqualAssignButton"
                         disabled={!Object.values(selectedUsers).some(Boolean)}
                       >
                         Equal Assign

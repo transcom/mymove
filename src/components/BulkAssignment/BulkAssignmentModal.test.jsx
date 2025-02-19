@@ -96,6 +96,39 @@ describe('BulkAssignmentModal', () => {
     expect(screen.getAllByTestId('bulkAssignmentUserWorkload')[0]).toHaveTextContent('1');
   });
 
+  it('equal assign button splits assignment as equally as possible', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    await screen.findByRole('table');
+    const equalAssignButton = await screen.getByTestId('modalEqualAssignButton');
+    await userEvent.click(equalAssignButton);
+    const row1 = await screen.getAllByTestId('assignment')[0];
+    const row2 = await screen.getAllByTestId('assignment')[1];
+    expect(row1.value).toEqual('2');
+    expect(row2.value).toEqual('1');
+  });
+
+  it('select/deselect all checkbox works', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    await screen.findByRole('table');
+    const selectDeselectAllButton = await screen.getByTestId('selectDeselectAllButton');
+    const row1 = await screen.getAllByTestId('bulkAssignmentUserCheckbox')[0];
+    const row2 = await screen.getAllByTestId('bulkAssignmentUserCheckbox')[1];
+
+    expect(row1.checked).toEqual(true);
+    expect(row2.checked).toEqual(true);
+    expect(selectDeselectAllButton).toBeChecked();
+
+    await userEvent.click(selectDeselectAllButton);
+    expect(selectDeselectAllButton).not.toBeChecked();
+    expect(row1.checked).toEqual(false);
+    expect(row2.checked).toEqual(false);
+
+    await userEvent.click(selectDeselectAllButton);
+    expect(selectDeselectAllButton).toBeChecked();
+    expect(row1.checked).toEqual(true);
+    expect(row2.checked).toEqual(true);
+  });
+
   it('submits the bulk assignment data', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
     const userTable = await screen.findByRole('table');
