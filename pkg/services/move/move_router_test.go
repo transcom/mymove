@@ -363,11 +363,6 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 							ProvidesServicesCounseling: true,
 						},
 					},
-					{
-						Model: models.TransportationOffice{
-							Name: "PPPO Jacksonville - USN",
-						},
-					},
 				}, nil)
 
 				shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
@@ -474,11 +469,6 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			{
 				Model: models.DutyLocation{
 					ProvidesServicesCounseling: true,
-				},
-			},
-			{
-				Model: models.TransportationOffice{
-					Name: "PPPO Jacksonville - USN",
 				},
 			},
 		}, nil)
@@ -1042,7 +1032,6 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			{
 				Model: models.Address{
 					PostalCode: "32228",
-					IsOconus:   models.BoolPointer(false),
 				},
 			},
 		}, nil)
@@ -1065,11 +1054,6 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			{
 				Model: models.DutyLocation{
 					ProvidesServicesCounseling: true,
-				},
-			},
-			{
-				Model: models.TransportationOffice{
-					Name: "PPPO Jacksonville - USN",
 				},
 			},
 		}, nil)
