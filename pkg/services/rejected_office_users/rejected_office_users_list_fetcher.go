@@ -95,7 +95,7 @@ func (o *rejectedOfficeUserListFetcher) FetchRejectedOfficeUsersCount(appCtx app
 	return count, err
 }
 
-// NewAdminUserListFetcher returns an implementation of AdminUserListFetcher
+// NewRejectedUserListFetcher returns an implementation of RejectedUserListFetcher
 func NewRejectedOfficeUsersListFetcher(builder rejectedOfficeUsersListQueryBuilder) services.RejectedOfficeUserListFetcher {
 	return &rejectedOfficeUserListFetcher{builder}
 }
