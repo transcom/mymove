@@ -643,7 +643,6 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   }
   return newValues;
 };
-
 /**
  * @description Converts a string to title case (capitalizes the first letter of each word)
  * @param {string} str - The input string to format.
