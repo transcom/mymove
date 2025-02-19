@@ -5,7 +5,7 @@ version=$(date +"%Y%m%d%H%M%S")
 filename=$1
 type=$2
 
-if [ "$type" == "function" ]; then
+if [ "$type" == "functions" ]; then
   echo "${version}_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_functions_manifest.txt"
   touch "${dir}/../migrations/app/ddl_migrations/ddl_functions/${version}_${filename}.up.sql"
 elif [ "$type" == "tables" ]; then
