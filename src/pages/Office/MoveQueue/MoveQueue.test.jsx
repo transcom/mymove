@@ -166,6 +166,31 @@ jest.mock('hooks/queries', () => ({
       },
     };
   },
+  useBulkAssignmentQueries: () => {
+    return {
+      availableOfficeUsers: [
+        {
+          firstName: 'John',
+          lastName: 'Snow',
+          officeUserId: '123',
+          workload: 0,
+        },
+        {
+          firstName: 'Jane',
+          lastName: 'Doe',
+          officeUserId: '456',
+          workload: 1,
+        },
+        {
+          firstName: 'Jimmy',
+          lastName: 'Page',
+          officeUserId: '789',
+          workload: 2,
+        },
+      ],
+      bulkAssignmentMoveIDs: ['1', '2', '3'],
+    };
+  },
 }));
 
 const GetMountedComponent = (queueTypeToMount) => {
@@ -328,7 +353,7 @@ describe('MoveQueue', () => {
     wrapper.update();
     expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('New move');
   });
-  it('renders Search and Move Queue tabs', () => {
+  it('renders Search, Destination Queue and Move Queue tabs', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <MockProviders>
@@ -338,6 +363,7 @@ describe('MoveQueue', () => {
     expect(screen.getByTestId('closeout-tab-link')).toBeInTheDocument();
     expect(screen.getByTestId('search-tab-link')).toBeInTheDocument();
     expect(screen.getByText('Task Order Queue', { selector: 'span' })).toBeInTheDocument();
+    expect(screen.getByText('Destination Requests Queue', { selector: 'span' })).toBeInTheDocument();
     expect(screen.getByText('Search', { selector: 'span' })).toBeInTheDocument();
   });
   it('renders TableQueue when Search tab is selected', () => {
