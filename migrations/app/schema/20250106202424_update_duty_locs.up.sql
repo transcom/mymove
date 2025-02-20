@@ -8,6 +8,7 @@ delete from duty_locations where id = 'e55be32c-bf89-4927-8893-4454a26bfd55';
 update orders set new_duty_location_id = 'fc4d669f-594a-4784-9831-bf2eb9f8948b' where new_duty_location_id = '4c960096-1fbc-4b9d-b7d9-5979a3ba7344';
 
 --remove 55460 duty location
+<<<<<<< HEAD
 delete from duty_locations where id = '4c960096-1fbc-4b9d-b7d9-5979a3ba7344';
 
 --add 92135 duty location
@@ -49,3 +50,6 @@ END $$;
 
 --associate New London, CT duty location to New London transportation office
 update duty_locations set transportation_office_id = '5eb485ae-fb9c-4c90-80e4-6231158797df' where id = '3a2a84cd-0991-4f40-9a19-f977608d08f0';
+=======
+delete from duty_locations where id = '4c960096-1fbc-4b9d-b7d9-5979a3ba7344';
+>>>>>>> 4c5214c68f (Remove duty loc 55460, rename migration file)
