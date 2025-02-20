@@ -338,8 +338,6 @@ const TableQueue = ({
   };
 
   const handleCloseBulkAssignModal = () => {
-    refetch();
-
     setIsBulkAssignModalVisible(false);
   };
 
