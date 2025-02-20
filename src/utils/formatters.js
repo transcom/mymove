@@ -601,6 +601,22 @@ export const constructSCOrderOconusFields = (values) => {
   };
 };
 
+export const userName = (user) => {
+  let formattedUser = '';
+  if (user.firstName && user.lastName) {
+    formattedUser += `${user.lastName}, `;
+    formattedUser += ` ${user.firstName}`;
+  } else {
+    if (user.firstName) {
+      formattedUser += ` ${user.firstName}`;
+    }
+    if (user.lastName) {
+      formattedUser += ` ${user.lastName}`;
+    }
+  }
+  return formattedUser;
+};
+
 export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   const { changedValues, context, oldValues } = historyRecord;
   const newValues = {};
@@ -627,23 +643,6 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   }
   return newValues;
 };
-
-export const userName = (user) => {
-  let formattedUser = '';
-  if (user.firstName && user.lastName) {
-    formattedUser += `${user.lastName}, `;
-    formattedUser += ` ${user.firstName}`;
-  } else {
-    if (user.firstName) {
-      formattedUser += ` ${user.firstName}`;
-    }
-    if (user.lastName) {
-      formattedUser += ` ${user.lastName}`;
-    }
-  }
-  return formattedUser;
-};
-
 /**
  * @description Converts a string to title case (capitalizes the first letter of each word)
  * @param {string} str - The input string to format.
