@@ -191,7 +191,69 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 
 	suite.Run("If-Unmodified-Since is equal to the updated_at date", func() {
-		setupTestData()
+		oldMTOShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
+					ScheduledPickupDate:        &scheduledPickupDate,
+					ApprovedDate:               &firstAvailableDeliveryDate,
+					Status:                     models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
+
+		requestedPickupDate := *oldMTOShipment.RequestedPickupDate
+		secondaryDeliveryAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+		secondaryPickupAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		tertiaryPickupAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		tertiaryDeliveryAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+		newDestinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "987 Other Avenue",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Des Moines",
+					State:          "IA",
+					PostalCode:     "50309",
+					County:         models.StringPointer("POLK"),
+				},
+			},
+		}, nil)
+
+		newPickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "987 Over There Avenue",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Houston",
+					State:          "TX",
+					PostalCode:     "77083",
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress4})
+
+		mtoShipment = models.MTOShipment{
+			ID:                         oldMTOShipment.ID,
+			MoveTaskOrderID:            oldMTOShipment.MoveTaskOrderID,
+			MoveTaskOrder:              oldMTOShipment.MoveTaskOrder,
+			DestinationAddress:         oldMTOShipment.DestinationAddress,
+			DestinationAddressID:       oldMTOShipment.DestinationAddressID,
+			PickupAddress:              oldMTOShipment.PickupAddress,
+			PickupAddressID:            oldMTOShipment.PickupAddressID,
+			RequestedPickupDate:        &requestedPickupDate,
+			ScheduledPickupDate:        &scheduledPickupDate,
+			ShipmentType:               models.MTOShipmentTypeHHG,
+			PrimeActualWeight:          &primeActualWeight,
+			PrimeEstimatedWeight:       &primeEstimatedWeight,
+			FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
+			ActualPickupDate:           &actualPickupDate,
+			ApprovedDate:               &firstAvailableDeliveryDate,
+			MarketCode:                 oldMTOShipment.MarketCode,
+		}
+
+		primeEstimatedWeight = unit.Pound(9000)
 
 		eTag := etag.GenerateEtag(oldMTOShipment.UpdatedAt)
 		var testScheduledPickupDate time.Time
@@ -203,7 +265,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Require().NoError(err)
 		suite.Equal(updatedMTOShipment.ID, oldMTOShipment.ID)
 		suite.Equal(updatedMTOShipment.MoveTaskOrder.ID, oldMTOShipment.MoveTaskOrder.ID)
-		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeUnaccompaniedBaggage)
+		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeHHG)
 
 		suite.Equal(updatedMTOShipment.PickupAddressID, oldMTOShipment.PickupAddressID)
 
@@ -872,7 +934,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		// Minimal MTO Shipment has no associated addresses created by default.
 		// Part of this test ensures that if an address doesn't exist on a shipment,
 		// the updater can successfully create it.
-		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
 
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 
@@ -2643,8 +2711,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			suite.Equal(rdd60DaysDate.Format(time.RFC3339), fetchedShipment.RequiredDeliveryDate.Format(time.RFC3339))
 		}
 
-		// adding 42 days; ghcDomesticTransitTime0LbsUpper.MaxDaysTransitTime is 12, plus 30 for Zone 5 UB
-		rdd60DaysDateUB := testdatagen.DateInsidePeakRateCycle.AddDate(0, 0, 42)
 		for _, testCase := range testCases60Days {
 			shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 				{
@@ -2670,6 +2736,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 					LinkOnly: true,
 				},
 			}, nil)
+			// adding 42 days; ghcDomesticTransitTime0LbsUpper.MaxDaysTransitTime is 12, plus 30 for Zone 5 UB
+			pickUpDate := shipment.ScheduledPickupDate
+			rdd60DaysDateUB := pickUpDate.AddDate(0, 0, 31)
 			shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 			_, err = updater.UpdateMTOShipmentStatus(appCtx, shipment.ID, status, nil, nil, shipmentEtag)
 			suite.NoError(err)
@@ -3393,6 +3462,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 	suite.Run("Skips calling check auto reweigh if actual weight was not provided in request", func() {
 		moveWeights := &mockservices.MoveWeights{}
+		moveWeights.On("CheckAutoReweigh",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*models.MTOShipment"),
+		).Return(models.MTOShipments{}, nil, nil)
+
 		mockSender := setUpMockNotificationSender()
 		addressUpdater := address.NewAddressUpdater()
 
@@ -3418,8 +3493,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		// there is a validator check about updating the status
 		primeShipment.Status = ""
 
-		moveWeights.On("CheckExcessWeight", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("models.MTOShipment")).Return(&primeShipment.MoveTaskOrder, nil, nil)
-
 		session := auth.Session{}
 		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
 		suite.NoError(err)
@@ -3440,7 +3513,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
 		weight := unit.Pound(7200)
-		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		oldPrimeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					Status:               models.MTOShipmentStatusApproved,
@@ -3457,13 +3530,22 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 				},
 			},
 		}, nil)
-		// there is a validator check about updating the status
-		primeShipment.Status = ""
-		primeShipment.PrimeActualWeight = &weight
-		primeShipment.PrimeEstimatedWeight = &weight
+
+		moveWeights.On("CheckExcessWeight",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.MTOShipment"),
+		).Return(&models.Move{}, nil, nil)
+
+		newPrimeShipment := models.MTOShipment{
+			ID:                oldPrimeShipment.ID,
+			PrimeActualWeight: &weight,
+		}
+
+		eTag := etag.GenerateEtag(oldPrimeShipment.UpdatedAt)
 
 		session := auth.Session{}
-		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
+		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &newPrimeShipment, eTag, "test")
 		suite.NoError(err)
 
 		moveWeights.AssertNotCalled(suite.T(), "CheckAutoReweigh")
@@ -3486,6 +3568,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 
 	suite.Run("tacType and sacType are set to null when empty string is passed in", func() {
 		moveWeights := &mockservices.MoveWeights{}
+		moveWeights.On("CheckAutoReweigh",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*models.MTOShipment"),
+		).Return(models.MTOShipments{}, nil, nil)
+
 		mockSender := setUpMockNotificationSender()
 		addressUpdater := address.NewAddressUpdater()
 		addressCreator := address.NewAddressCreator()
@@ -3524,6 +3612,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 
 	suite.Run("tacType and sacType are updated when passed in", func() {
 		moveWeights := &mockservices.MoveWeights{}
+		moveWeights.On("CheckAutoReweigh",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*models.MTOShipment"),
+		).Return(models.MTOShipments{}, nil, nil)
 		mockSender := setUpMockNotificationSender()
 
 		addressUpdater := address.NewAddressUpdater()
@@ -3888,7 +3981,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 					ShipmentType:         models.MTOShipmentTypeUnaccompaniedBaggage,
 					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 					PrimeEstimatedWeight: &estimatedWeight,
-					Status:               models.MTOShipmentStatusSubmitted,
+					Status:               models.MTOShipmentStatusApproved,
+					PrimeActualWeight:    &estimatedWeight,
 				},
 			},
 			{
@@ -3905,7 +3999,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 
 		suite.Nil(oldUbShipment.RequiredDeliveryDate)
 
-		pickUpDate := time.Now().AddDate(0, 0, 12)
+		pickUpDate := time.Now()
+		expectedRequiredDeiliveryDate := pickUpDate.AddDate(0, 0, 24)
 		newUbShipment := models.MTOShipment{
 			ID:                  oldUbShipment.ID,
 			ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
@@ -3919,5 +4014,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		suite.NotNil(updatedMTOShipment)
 		suite.NotNil(updatedMTOShipment.RequiredDeliveryDate)
 		suite.False(updatedMTOShipment.RequiredDeliveryDate.IsZero())
+		suite.Equal(expectedRequiredDeiliveryDate.Day(), updatedMTOShipment.RequiredDeliveryDate.Day())
+		suite.Equal(expectedRequiredDeiliveryDate.Month(), updatedMTOShipment.RequiredDeliveryDate.Month())
+		suite.Equal(expectedRequiredDeiliveryDate.Year(), updatedMTOShipment.RequiredDeliveryDate.Year())
 	})
 }
