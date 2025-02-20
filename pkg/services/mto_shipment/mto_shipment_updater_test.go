@@ -273,11 +273,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.Run("Updater can handle optional queries set as nil", func() {
 		setupTestData()
+		var testScheduledPickupDate time.Time
 
 		oldMTOShipment2 := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		mtoShipment2 := models.MTOShipment{
-			ID:           oldMTOShipment2.ID,
-			ShipmentType: "UNACCOMPANIED_BAGGAGE",
+			ID:                  oldMTOShipment2.ID,
+			ShipmentType:        "UNACCOMPANIED_BAGGAGE",
+			ScheduledPickupDate: &testScheduledPickupDate,
 		}
 
 		eTag := etag.GenerateEtag(oldMTOShipment2.UpdatedAt)
