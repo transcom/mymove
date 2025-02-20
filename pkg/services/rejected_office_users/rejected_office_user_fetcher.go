@@ -24,7 +24,7 @@ func (o *rejectedOfficeUserFetcher) FetchRejectedOfficeUser(appCtx appcontext.Ap
 	return rejectedOfficeUser, err
 }
 
-// NewAdminUserFetcher return an implementation of the AdminUserFetcher interface
+// NewRejectedUserFetcher return an implementation of the AdminUserFetcher interface
 func NewRejectedOfficeUserFetcher(builder rejectedOfficeUserQueryBuilder) services.RejectedOfficeUserFetcher {
 	return &rejectedOfficeUserFetcher{builder}
 }
