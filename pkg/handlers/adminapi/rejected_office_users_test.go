@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 	suite.Run("integration test ok response", func() {
 		rejectedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRejectedOfficeUser(), []roles.RoleType{roles.RoleTypeQae})
 		params := rejectedofficeuserop.GetRejectedOfficeUserParams{
-			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/requested_office_users/%s", rejectedOfficeUser.ID)),
+			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/rejected_office_users/%s", rejectedOfficeUser.ID)),
 			OfficeUserID: strfmt.UUID(rejectedOfficeUser.ID.String()),
 		}
 
@@ -97,7 +97,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 	suite.Run("successful response", func() {
 		rejectedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRejectedOfficeUser(), []roles.RoleType{roles.RoleTypeQae})
 		params := rejectedofficeuserop.GetRejectedOfficeUserParams{
-			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/requested_office_users/%s", rejectedOfficeUser.ID)),
+			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/rejected_office_users/%s", rejectedOfficeUser.ID)),
 			OfficeUserID: strfmt.UUID(rejectedOfficeUser.ID.String()),
 		}
 
@@ -140,7 +140,7 @@ func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 	suite.Run("unsuccessful response when fetch fails", func() {
 		rejectedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRejectedOfficeUser(), []roles.RoleType{roles.RoleTypeQae})
 		params := rejectedofficeuserop.GetRejectedOfficeUserParams{
-			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/requested_office_users/%s", rejectedOfficeUser.ID)),
+			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/rejected_office_users/%s", rejectedOfficeUser.ID)),
 			OfficeUserID: strfmt.UUID(rejectedOfficeUser.ID.String()),
 		}
 
