@@ -1,6 +1,3 @@
 # This is the migrations manifest.
 # If a migration is not recorded here, then it will error.
-20250217221228_testing_testing.up.sql
-20250217221926_test_secure.up.sql
-20250218143934_test_secure_1234.up.sql
-20250218150110_test_secure_12345252.up.sql
+# Naming convention: 202502201325_B-123456_update_some_table.up.sql  running <milmove gen migration -n B-123456_update_some_table> will create this file.

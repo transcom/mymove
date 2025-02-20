@@ -1,1 +1,3 @@
-01_create_tesT_type.up.sql
+# This is the types migrations manifest.
+# If a migration is not recorded here, then it will error.
+# Naming convention: ty_some_type.up.sql  running <generate-ddl-migration some_type types> will create this file.
