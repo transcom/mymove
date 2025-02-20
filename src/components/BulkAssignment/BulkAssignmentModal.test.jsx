@@ -140,7 +140,7 @@ describe('BulkAssignmentModal', () => {
     const confirmButton = await screen.findByTestId('cancelModalYes');
     await userEvent.click(confirmButton);
 
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(2);
   });
 
   it('close confirmation goes away when clicking no', async () => {

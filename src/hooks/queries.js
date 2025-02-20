@@ -600,12 +600,9 @@ export const useDestinationRequestsQueueQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
 }) => {
-  const {
-    refetch,
-    data = {},
-    ...movesQueueQuery
-  } = useQuery([MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }], ({ queryKey }) =>
-    getDestinationRequestsQueue(...queryKey),
+  const { data = {}, ...movesQueueQuery } = useQuery(
+    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
+    ({ queryKey }) => getDestinationRequestsQueue(...queryKey),
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
   const { queueMoves, ...dataProps } = data;
@@ -614,7 +611,6 @@ export const useDestinationRequestsQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
-    refetch,
   };
 };
 
