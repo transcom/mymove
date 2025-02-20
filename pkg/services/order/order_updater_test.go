@@ -651,6 +651,32 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		suite.Equal(*payload.DependentsUnderTwelve, int64(*updatedOrder.Entitlement.DependentsUnderTwelve))
 	})
 
+	suite.Run("Updates the allowance when weightRestriction is null", func() {
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Entitlement{
+					WeightRestriction: models.IntPointer(1000),
+				},
+			},
+		}, nil).Orders
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateAllowancePayload{
+			WeightRestriction: nil,
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+		suite.NoError(err)
+		suite.Nil(updatedOrder.Entitlement.WeightRestriction)
+	})
+
 	suite.Run("Updates the allowance when all fields are valid with dependents", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
@@ -808,6 +834,32 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
 		suite.Equal(*payload.WeightRestriction, int64(*updatedOrder.Entitlement.WeightRestriction))
+	})
+
+	suite.Run("Updates the allowance when weightRestriction is null", func() {
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Entitlement{
+					WeightRestriction: models.IntPointer(1000),
+				},
+			},
+		}, nil).Orders
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.CounselingUpdateAllowancePayload{
+			WeightRestriction: nil,
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+		suite.NoError(err)
+		suite.Nil(updatedOrder.Entitlement.WeightRestriction)
 	})
 
 	suite.Run("Updates the allowance when all fields are valid with dependents present and authorized", func() {

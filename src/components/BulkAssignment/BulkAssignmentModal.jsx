@@ -10,6 +10,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import { userName } from 'utils/formatters';
 
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
   const [isDisabled, setIsDisabled] = useState(false);
   const [numberOfMoves, setNumberOfMoves] = useState(0);
@@ -36,7 +37,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   return (
     <div>
       <Modal className={styles.BulkModal}>
-        <ModalClose handleClick={onClose} />
+        {!showCancelModal && <ModalClose handleClick={() => setShowCancelModal(true)} />}
         <ModalTitle>
           <h3>
             {title} ({numberOfMoves})
@@ -66,24 +67,49 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
             })}
           </table>
         </div>
-        <ModalActions autofocus="true">
-          <Button
-            disabled={isDisabled}
-            data-focus="true"
-            type="submit"
-            data-testid="modalSubmitButton"
-            onClick={() => onSubmit()}
-          >
-            {submitText}
-          </Button>
-          <Button type="button" className={styles.button} unstyled onClick={onClose} data-testid="modalCancelButton">
-            {closeText}
-          </Button>
-        </ModalActions>
+        {showCancelModal ? (
+          <div className={styles.areYouSureSection}>
+            <small className={styles.hint}>Any unsaved work will be lost. Are you sure you want to cancel?</small>
+            <div className={styles.confirmButtons}>
+              <Button
+                className={styles.cancelNoButton}
+                data-testid="cancelModalNo"
+                onClick={() => setShowCancelModal(false)}
+              >
+                No
+              </Button>
+              <Button className={styles.cancelYesButton} data-testid="cancelModalYes" secondary onClick={onClose}>
+                Discard Changes
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <ModalActions autofocus="true">
+            <Button
+              disabled={isDisabled}
+              data-focus="true"
+              type="submit"
+              data-testid="modalSubmitButton"
+              onClick={() => onSubmit()}
+            >
+              {submitText}
+            </Button>
+            <Button
+              type="button"
+              className={styles.button}
+              unstyled
+              onClick={() => setShowCancelModal(true)}
+              data-testid="modalCancelButton"
+            >
+              {closeText}
+            </Button>
+          </ModalActions>
+        )}
       </Modal>
     </div>
   );
 };
+
 BulkAssignmentModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
