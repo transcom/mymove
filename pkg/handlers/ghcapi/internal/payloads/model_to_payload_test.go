@@ -853,6 +853,7 @@ func (suite *PayloadsSuite) TestListMoves() {
 }
 func (suite *PayloadsSuite) TestSearchMoves() {
 	appCtx := suite.AppContextForTest()
+
 	marines := models.AffiliationMARINES
 	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
