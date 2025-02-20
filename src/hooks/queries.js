@@ -589,6 +589,7 @@ export const useMovesQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
