@@ -206,7 +206,11 @@ export const LocationSearchBoxComponent = ({
   };
 
   const handleFocus = () => {
-    onChange(null);
+    if (handleLocationOnChange) {
+      setInputValue(inputValue);
+    } else {
+      onChange(null);
+    }
   };
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');

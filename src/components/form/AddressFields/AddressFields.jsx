@@ -3,13 +3,10 @@ import { PropTypes, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
-import { statesList } from '../../../constants/states';
-
 import Hint from 'components/Hint/index';
 import styles from 'components/form/AddressFields/AddressFields.module.scss';
 import { technicalHelpDeskURL } from 'shared/constants';
 import TextField from 'components/form/fields/TextField/TextField';
-import { DropdownInput } from 'components/form/fields/DropdownInput';
 import LocationInput from 'components/form/fields/LocationInput';
 
 /**
@@ -38,6 +35,7 @@ export const AddressFields = ({
   const addressFieldsUUID = useRef(uuidv4());
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
+  const location = `${name}.city`;
 
   const getAddress1LabelHintText = (labelHint, address1Label) => {
     if (address1Label === null) {
@@ -53,9 +51,6 @@ export const AddressFields = ({
   };
 
   const handleOnLocationChange = (value) => {
-    setFieldValue(`${name}`, value).then(() => {
-      setFieldTouched(`${name}`, true);
-    });
     setFieldValue(`${name}.city`, value.city).then(() => {
       setFieldTouched(`${name}.city`, false);
     });
@@ -103,8 +98,9 @@ export const AddressFields = ({
           />
           <LocationInput
             name={`${name}-location`}
-            placeholder="Start typing a Zip or City, State Zip"
+            placeholder={location}
             label="Location Lookup"
+            value={location}
             handleLocationChange={handleOnLocationChange}
           />
           <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">

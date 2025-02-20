@@ -11,7 +11,7 @@ import { selectLoggedInUser } from 'store/entities/selectors';
 import { OfficeUserInfoShape } from 'types/index';
 
 export const LocationInput = (props) => {
-  const { label, name, displayAddress, hint, placeholder, isDisabled, handleLocationChange, officeUser } = props;
+  const { label, name, displayAddress, placeholder, isDisabled, handleLocationChange, officeUser } = props;
   const [field, meta, helpers] = useField(props);
   const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
 
@@ -27,7 +27,6 @@ export const LocationInput = (props) => {
       }}
       errorMsg={errorString}
       displayAddress={displayAddress}
-      hint={hint}
       placeholder={placeholder}
       isDisabled={isDisabled}
       searchLocations={officeUser?.id ? ghcSearchLocationByZipCityState : searchLocationByZipCityState}
@@ -40,7 +39,6 @@ LocationInput.propTypes = {
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   displayAddress: PropTypes.bool,
-  hint: PropTypes.node,
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
   handleLocationChange: PropTypes.func.isRequired,
@@ -49,7 +47,6 @@ LocationInput.propTypes = {
 
 LocationInput.defaultProps = {
   displayAddress: false,
-  hint: '',
   placeholder: '',
   isDisabled: false,
   officeUser: {},
