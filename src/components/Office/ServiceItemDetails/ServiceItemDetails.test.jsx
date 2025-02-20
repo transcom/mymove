@@ -475,6 +475,33 @@ describe('ServiceItemDetails Domestic Shuttling', () => {
   });
 });
 
+describe('ServiceItemDetails International Shuttling', () => {
+  const shuttleDetails = {
+    ...details,
+    market: 'OCONUS',
+  };
+
+  it.each([['IOSHUT'], ['IDSHUT']])('renders formatted estimated weight and reason', (code) => {
+    render(<ServiceItemDetails id="1" code={code} details={shuttleDetails} serviceRequestDocs={serviceRequestDocs} />);
+
+    expect(screen.getByText('2,500 lbs')).toBeInTheDocument();
+    expect(screen.getByText('estimated weight')).toBeInTheDocument();
+    expect(screen.getByText('Reason:')).toBeInTheDocument();
+    expect(screen.getByText('Market:')).toBeInTheDocument();
+    expect(screen.getByText('some reason')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
+  });
+
+  it.each([['DOSHUT'], ['DDSHUT']])('renders estimated weight nil values with an em dash', (code) => {
+    render(<ServiceItemDetails id="1" code={code} details={nilDetails} />);
+
+    expect(screen.getByText('— lbs')).toBeInTheDocument();
+    expect(screen.getByText('estimated weight')).toBeInTheDocument();
+  });
+});
+
 describe('ServiceItemDetails Crating Rejected', () => {
   it('renders the rejection reason field when it is populated with information', () => {
     render(
@@ -523,44 +550,70 @@ describe('ServiceItemDetails Crating Rejected', () => {
   });
 });
 
-describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, DUPK', () => {
-  it.each([['DLH'], ['DSH'], ['FSC'], ['DOP'], ['DDP'], ['DPK'], ['DUPK']])(
-    'renders the formatted estimated price field for the service items',
-    (code) => {
-      render(
-        <ServiceItemDetails
-          id="1"
-          code={code}
-          details={details}
-          shipment={shipment}
-          serviceRequestDocs={serviceRequestDocs}
-        />,
-      );
+describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, DUPK, ISLH, IHPK, IHUPK, IUBPK, IUBUPK, POEFSC, PODFSC, UBP', () => {
+  it.each([
+    ['DLH'],
+    ['DSH'],
+    ['FSC'],
+    ['DOP'],
+    ['DDP'],
+    ['DPK'],
+    ['DUPK'],
+    ['ISLH'],
+    ['IHPK'],
+    ['IHUPK'],
+    ['IUBPK'],
+    ['IUBUPK'],
+    ['POEFSC'],
+    ['PODFSC'],
+    ['UBP'],
+  ])('renders the formatted estimated price field for the service item: %s', (code) => {
+    render(
+      <ServiceItemDetails
+        id="1"
+        code={code}
+        details={details}
+        shipment={shipment}
+        serviceRequestDocs={serviceRequestDocs}
+      />,
+    );
 
-      expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
-      expect(screen.getByText('$28.00')).toBeInTheDocument();
-    },
-  );
+    expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
+    expect(screen.getByText('$28.00')).toBeInTheDocument();
+  });
 
   const noEstimatePriceDetails = {};
 
-  it.each([['DLH'], ['DSH'], ['FSC'], ['DOP'], ['DDP'], ['DPK'], ['DUPK']])(
-    'renders - for estimated price when price is not in details',
-    (code) => {
-      render(
-        <ServiceItemDetails
-          id="1"
-          code={code}
-          details={noEstimatePriceDetails}
-          shipment={shipment}
-          serviceRequestDocs={serviceRequestDocs}
-        />,
-      );
+  it.each([
+    ['DLH'],
+    ['DSH'],
+    ['FSC'],
+    ['DOP'],
+    ['DDP'],
+    ['DPK'],
+    ['DUPK'],
+    ['ISLH'],
+    ['IHPK'],
+    ['IHUPK'],
+    ['IUBPK'],
+    ['IUBUPK'],
+    ['POEFSC'],
+    ['PODFSC'],
+    ['UBP'],
+  ])('renders - for estimated price when price is not in details for the service item: %s', (code) => {
+    render(
+      <ServiceItemDetails
+        id="1"
+        code={code}
+        details={noEstimatePriceDetails}
+        shipment={shipment}
+        serviceRequestDocs={serviceRequestDocs}
+      />,
+    );
 
-      expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
-      expect(screen.getByText('-')).toBeInTheDocument();
-    },
-  );
+    expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
+    expect(screen.getByText('-')).toBeInTheDocument();
+  });
 });
 
 describe('ServiceItemDetails Price for MS, CS', () => {
