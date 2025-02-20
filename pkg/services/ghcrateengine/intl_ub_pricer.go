@@ -13,8 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-const isUBPricerMinimumWeight = unit.Pound(300)
-
 type intlUBPricer struct {
 }
 
@@ -29,8 +27,8 @@ func (p intlUBPricer) Price(appCtx appcontext.AppContext, contractCode string, r
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("referenceDate is required")
 	}
-	if weight < isUBPricerMinimumWeight {
-		return 0, nil, fmt.Errorf("Weight must be at least %d pounds", isUBPricerMinimumWeight)
+	if weight < minIntlWeightUB {
+		return 0, nil, fmt.Errorf("weight must be at least %d pounds", minIntlWeightUB)
 	}
 	if perUnitCents == 0 {
 		return 0, nil, errors.New("PerUnitCents is required")
