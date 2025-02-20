@@ -54,7 +54,7 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 }
 
 func AssignedOfficeUser(officeUser *models.OfficeUser) *ghcmessages.AssignedOfficeUser {
-	if officeUser != nil {
+	if officeUser != nil && officeUser.FirstName != "" && officeUser.LastName != "" {
 		payload := ghcmessages.AssignedOfficeUser{
 			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
 			FirstName:    officeUser.FirstName,
@@ -122,6 +122,8 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		SCAssignedUser:                                 AssignedOfficeUser(move.SCAssignedUser),
 		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
+		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
+		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
 	}
 
 	return payload, nil
