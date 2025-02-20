@@ -20,6 +20,7 @@ import (
 type OrderFetcher interface {
 	FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error)
 	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *ListOrderParams) ([]models.Move, int, error)
+	ListDestinationRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *ListOrderParams) ([]models.Move, int, error)
 	ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, error)
 }
 
