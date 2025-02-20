@@ -35,7 +35,7 @@ var (
 // InitMigrationFlags initializes the Migration command line flags
 func InitMigrationFlags(flag *pflag.FlagSet) {
 	flag.StringP(MigrationManifestFlag, "m", "migrations/app/migrations_manifest.txt", "Path to the manifest")
-	flag.StringP(DMLMigrationManifestFlag, "d", "migrations/app/migrations_manifest.txt", "Path to the manifest")
+	flag.StringP(DMLMigrationManifestFlag, "d", "migrations/app/dml_migrations_manifest.txt", "Path to the manifest")
 	flag.DurationP(MigrationWaitFlag, "w", time.Millisecond*10, "duration to wait when polling for new data from migration file")
 	flag.String(DDLTablesMigrationPathFlag, "", "Path to DDL tables migrations directory")
 	flag.String(DDLTablesMigrationManifestFlag, "", "Path to DDL tables migrations manifest")
