@@ -210,26 +210,13 @@ export function checkAddressTogglesToClearAddresses(body) {
   return values;
 }
 
-export function isPreceedingAddressComplete(hasDeliveryAddress, addressValues) {
-  if (
-    hasDeliveryAddress === 'true' &&
-    addressValues.streetAddress1 !== '' &&
-    addressValues.state !== '' &&
-    addressValues.city !== '' &&
-    addressValues.postalCode !== ''
-  ) {
-    return true;
-  }
-  return false;
-}
-
-export function isSecondaryAddressCompletePPM(hasSecondaryDelivery, addressValues) {
+export function isPreceedingAddressComplete(hasAddress, addressValues) {
   if (addressValues === undefined || addressValues.postalCode === undefined) {
     return false;
   }
 
   if (
-    hasSecondaryDelivery === 'true' &&
+    hasAddress === 'true' &&
     addressValues.streetAddress1 !== '' &&
     addressValues.state !== '' &&
     addressValues.city !== '' &&
