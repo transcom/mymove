@@ -12,6 +12,7 @@ const initialValues = {
   proGearWeightSpouse: '500',
   requiredMedicalEquipmentWeight: '1000',
   organizationalClothingAndIndividualEquipment: true,
+  weightRestriction: '500',
 };
 
 const initialValuesOconusAdditions = {
@@ -81,6 +82,7 @@ const entitlements = {
   storageInTransit: 90,
   totalWeight: 11000,
   totalDependents: 2,
+  weightRestriction: 500,
 };
 
 const entitlementOconusAdditions = {
@@ -179,11 +181,26 @@ describe('AllowancesDetailForm additional tests', () => {
 
     const adminWeightCheckbox = await screen.findByTestId('adminWeightLocation');
     expect(adminWeightCheckbox).toBeInTheDocument();
+    expect(screen.getByLabelText('Admin restricted weight location')).toBeChecked();
+
+    const weightRestrictionInput = screen.getByTestId('weightRestrictionInput');
+    expect(weightRestrictionInput).toBeInTheDocument();
+    expect(weightRestrictionInput).toHaveValue('500');
+  });
+
+  it('does not render the admin weight location section when the weightRestriction entitlement is null', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm
+          entitlements={{ ...entitlements, weightRestriction: null }}
+          branchOptions={branchOptions}
+        />
+      </Formik>,
+    );
+
+    const adminWeightCheckbox = await screen.findByTestId('adminWeightLocation');
+    expect(adminWeightCheckbox).toBeInTheDocument();
     expect(screen.queryByTestId('weightRestrictionInput')).not.toBeInTheDocument();
-    await act(async () => {
-      adminWeightCheckbox.click();
-    });
-    expect(screen.getByTestId('weightRestrictionInput')).toBeInTheDocument();
   });
 
   it('displays the total weight allowance correctly', async () => {
