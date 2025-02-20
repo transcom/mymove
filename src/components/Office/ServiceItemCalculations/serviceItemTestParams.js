@@ -493,6 +493,33 @@ const PortZip = {
   type: 'STRING',
   value: '99505',
 };
+const ExternalCrate = {
+  eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
+  id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
+  key: 'ExternalCrate',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'BOOLEAN',
+  value: 'FALSE',
+};
+const MarketOrigin = {
+  eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
+  id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
+  key: 'MarketOrigin',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'STRING',
+  value: 'O',
+};
+const MarketDest = {
+  eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
+  id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
+  key: 'MarketDest',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'STRING',
+  value: 'C',
+};
 const testParams = {
   DomesticLongHaul: [
     ContractCode,
@@ -915,6 +942,33 @@ const testParams = {
     WeightEstimated,
     ZipPickupAddress,
     PortZip,
+  ],
+  InternationalCrating: [
+    ContractYearName,
+    EscalationCompounded,
+    PriceRateOrFactor,
+    ReferenceDate,
+    CubicFeetBilled,
+    MarketOrigin,
+    ServiceAreaOrigin,
+    ZipPickupAddress,
+    DimensionWidth,
+    DimensionHeight,
+    DimensionLength,
+    StandaloneCrate,
+    ExternalCrate,
+  ],
+  InternationalUncrating: [
+    ReferenceDate,
+    EscalationCompounded,
+    CubicFeetBilled,
+    PriceRateOrFactor,
+    MarketDest,
+    ServiceAreaDest,
+    ZipDestAddress,
+    DimensionWidth,
+    DimensionHeight,
+    DimensionLength,
   ],
   additionalCratingDataDCRT: {
     reServiceCode: 'DCRT',
