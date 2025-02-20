@@ -38,7 +38,7 @@ func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServ
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReServiceCode, schedule int, isPeakPeriod bool, priceCents unit.Cents, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Name:                 contractYearName,
@@ -48,19 +48,23 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReSe
 
 	service := factory.FetchReServiceByCode(suite.DB(), code)
 
-	otherPrice := models.ReDomesticOtherPrice{
-		ContractID:   contractYear.Contract.ID,
-		ServiceID:    service.ID,
-		IsPeakPeriod: isPeakPeriod,
-		Schedule:     schedule,
-		PriceCents:   priceCents,
-	}
+	otherPrice := factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReDomesticOtherPrice{
+				ContractID:   contractYear.Contract.ID,
+				ServiceID:    service.ID,
+				IsPeakPeriod: isPeakPeriod,
+				Schedule:     schedule,
+				PriceCents:   priceCents,
+			},
+		},
+	}, nil)
 
 	suite.MustSave(&otherPrice)
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code models.ReServiceCode, schedule int, perUnitCents unit.Cents, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Name:                 contractYearName,
@@ -80,7 +84,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code model
 	suite.MustSave(&accessorialPrice)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code models.ReServiceCode, serviceAreaCode string, isPeakPeriod bool, priceCents unit.Cents, contractYearName string, escalationCompounded float64) {
+func (suite *GHCRateEngineServiceSuite) setupInternationalAccessorialPrice(code models.ReServiceCode, market models.Market, perUnitCents unit.Cents, contractYearName string, escalationCompounded float64) {
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
@@ -91,27 +95,18 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 
 	service := factory.FetchReServiceByCode(suite.DB(), code)
 
-	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
-		testdatagen.Assertions{
-			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				Contract:    contractYear.Contract,
-				ServiceArea: serviceAreaCode,
-			},
-		})
-
-	serviceAreaPrice := models.ReDomesticServiceAreaPrice{
-		ContractID:            contractYear.Contract.ID,
-		ServiceID:             service.ID,
-		IsPeakPeriod:          isPeakPeriod,
-		DomesticServiceAreaID: serviceArea.ID,
-		PriceCents:            priceCents,
+	accessorialPrice := models.ReIntlAccessorialPrice{
+		ContractID:   contractYear.Contract.ID,
+		ServiceID:    service.ID,
+		PerUnitCents: perUnitCents,
+		Market:       market,
 	}
 
-	suite.MustSave(&serviceAreaPrice)
+	suite.MustSave(&accessorialPrice)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCode string, isPeakPeriod bool, weightLower unit.Pound, weightUpper unit.Pound, milesLower int, milesUpper int, priceMillicents unit.Millicents, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code models.ReServiceCode, serviceAreaCode string, isPeakPeriod bool, priceCents unit.Cents, contractYearName string, escalationCompounded float64) {
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Name:                 contractYearName,
@@ -119,30 +114,51 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 			},
 		})
 
-	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+	service := factory.FetchReServiceByCode(suite.DB(), code)
+
+	serviceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(),
 		testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ContractID:  contractYear.Contract.ID,
 				Contract:    contractYear.Contract,
 				ServiceArea: serviceAreaCode,
 			},
 		})
 
-	baseLinehaulPrice := models.ReDomesticLinehaulPrice{
-		ContractID:            contractYear.Contract.ID,
-		WeightLower:           weightLower,
-		WeightUpper:           weightUpper,
-		MilesLower:            milesLower,
-		MilesUpper:            milesUpper,
-		IsPeakPeriod:          isPeakPeriod,
-		DomesticServiceAreaID: serviceArea.ID,
-		PriceMillicents:       priceMillicents,
-	}
+	factory.FetchOrMakeDomesticServiceAreaPrice(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReDomesticServiceAreaPrice{
+				ContractID:            contractYear.Contract.ID,
+				ServiceID:             service.ID,
+				IsPeakPeriod:          isPeakPeriod,
+				DomesticServiceAreaID: serviceArea.ID,
+				PriceCents:            priceCents,
+			},
+		},
+	}, nil)
+}
 
-	suite.MustSave(&baseLinehaulPrice)
+func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCode string, isPeakPeriod bool, weightLower unit.Pound, weightUpper unit.Pound, milesLower int, milesUpper int, priceMillicents unit.Millicents, contractYearName string, escalationCompounded float64) {
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Name:                 contractYearName,
+				EscalationCompounded: escalationCompounded,
+			},
+		})
+
+	testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(),
+		testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ContractID:  contractYear.Contract.ID,
+				Contract:    contractYear.Contract,
+				ServiceArea: serviceAreaCode,
+			},
+		})
 }
 
 func (suite *GHCRateEngineServiceSuite) setupShipmentTypePrice(code models.ReServiceCode, market models.Market, factor float64, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Name:                 contractYearName,

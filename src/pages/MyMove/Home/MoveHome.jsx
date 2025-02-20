@@ -417,7 +417,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     if (!hasSubmittedMove()) return <HelperNeedsSubmitMove />;
     if (hasSubmittedPPMCloseout()) return <HelperPPMCloseoutSubmitted />;
     if (hasUnapprovedAmendedOrders()) return <HelperAmendedOrders />;
-    if (isMoveApproved()) return <HelperApprovedMove />;
+    if (isMoveApproved()) return <HelperApprovedMove orderId={orders.id} />;
     return <HelperSubmittedMove />;
   };
 
@@ -434,9 +434,15 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
         <dl className={styles.subheaderContainer}>
           <div className={styles.subheaderSubsection}>
-            <dt>Weight allowance</dt>
+            <dt>Standard weight allowance</dt>
             <dd>{formatWeight(orders.authorizedWeight)}</dd>
           </div>
+          {orders?.entitlement?.weight_restriction > 0 && (
+            <div className={styles.subheaderSubsection}>
+              <dt>Weight restriction</dt>
+              <dd>{formatWeight(orders?.entitlement?.weight_restriction)}</dd>
+            </div>
+          )}
           {orders?.entitlement?.ub_allowance > 0 && (
             <div className={styles.subheaderSubsection}>
               <dt>UB allowance</dt>

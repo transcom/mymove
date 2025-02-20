@@ -7,17 +7,129 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func TestOrder(_ *testing.T) {
 	order := &models.Order{}
 	Order(order)
+}
+
+func (suite *PayloadsSuite) TestOrderWithMove() {
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	moves := models.Moves{}
+	moves = append(moves, move)
+	order := factory.BuildOrder(nil, []factory.Customization{
+		{
+			Model: models.Order{
+				ID:            uuid.Must(uuid.NewV4()),
+				HasDependents: *models.BoolPointer(true),
+				Moves:         moves,
+			},
+		},
+	}, nil)
+	Order(&order)
+}
+
+func (suite *PayloadsSuite) TestBoatShipment() {
+	suite.Run("Test Boat Shipment", func() {
+		boat := factory.BuildBoatShipment(suite.DB(), nil, nil)
+		boatShipment := BoatShipment(nil, &boat)
+		suite.NotNil(boatShipment)
+	})
+
+	suite.Run("Test Boat Shipment", func() {
+		boatShipment := BoatShipment(nil, nil)
+		suite.Nil(boatShipment)
+	})
+}
+
+func (suite *PayloadsSuite) TestMobileHomeShipment() {
+	suite.Run("Test Mobile Home Shipment", func() {
+		mobileHome := factory.BuildMobileHomeShipment(suite.DB(), nil, nil)
+		mobileHomeShipment := MobileHomeShipment(nil, &mobileHome)
+		suite.NotNil(mobileHomeShipment)
+	})
+
+	suite.Run("Test Mobile Home Shipment With Nil", func() {
+		mobileHomeShipment := MobileHomeShipment(nil, nil)
+		suite.Nil(mobileHomeShipment)
+	})
+}
+
+func (suite *PayloadsSuite) TestMovingExpense() {
+	contractExpense := models.MovingExpenseReceiptTypeContractedExpense
+	weightStored := 2000
+	sitLocation := models.SITLocationTypeDestination
+	sitReimburseableAmount := 500
+
+	movingExpense := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	movingExpenseValues := MovingExpense(nil, &movingExpense)
+	suite.NotNil(movingExpenseValues)
+}
+
+func (suite *PayloadsSuite) TestMovingExpenses() {
+	contractExpense := models.MovingExpenseReceiptTypeContractedExpense
+	weightStored := 2000
+	sitLocation := models.SITLocationTypeDestination
+	sitReimburseableAmount := 500
+	movingExpenses := models.MovingExpenses{}
+
+	movingExpense := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	movingExpenseTwo := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	movingExpenses = append(movingExpenses, movingExpense, movingExpenseTwo)
+	movingExpensesValue := MovingExpenses(nil, movingExpenses)
+	suite.NotNil(movingExpensesValue)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemDimension() {
+	dimension := models.MTOServiceItemDimension{
+		Type:   models.DimensionTypeItem,
+		Length: 1000,
+		Height: 1000,
+		Width:  1000,
+	}
+
+	ghcDimension := MTOServiceItemDimension(&dimension)
+	suite.NotNil(ghcDimension)
 }
 
 // TestMove makes sure zero values/optional fields are handled
@@ -26,6 +138,27 @@ func TestMove(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
+}
+
+func (suite *PayloadsSuite) TestExcessWeightInMovePayload() {
+	now := time.Now()
+
+	suite.Run("successfully converts excess weight in model to payload", func() {
+		move := models.Move{
+
+			ExcessWeightQualifiedAt:                        &now,
+			ExcessUnaccompaniedBaggageWeightQualifiedAt:    &now,
+			ExcessUnaccompaniedBaggageWeightAcknowledgedAt: &now,
+			ExcessWeightAcknowledgedAt:                     &now,
+		}
+
+		payload, err := Move(&move, &test.FakeS3Storage{})
+		suite.NoError(err)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt), payload.ExcessWeightQualifiedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightQualifiedAt), payload.ExcessUnaccompaniedBaggageWeightQualifiedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt), payload.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt), payload.ExcessWeightAcknowledgedAt)
+	})
 }
 
 func (suite *PayloadsSuite) TestPaymentRequestQueue() {
@@ -88,7 +221,8 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	var officeUsers models.OfficeUsers
 	var officeUsersSafety models.OfficeUsers
 	officeUsers = append(officeUsers, officeUser)
-	var paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+	activeRole := string(roles.RoleTypeTIO)
+	var paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 
 	suite.Run("Test Payment request is assignable due to not being assigend", func() {
 		paymentRequestCopy := *paymentRequestsQueue
@@ -107,7 +241,7 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUserTIO
 	paymentRequests[0].MoveTaskOrder.CounselingOffice = &transportationOffice
 
-	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 
 	suite.Run("Test PaymentRequest has both Counseling Office and TIO AssignedUser ", func() {
 		PaymentRequestsCopy := *paymentRequestsQueue
@@ -121,14 +255,14 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	})
 
 	suite.Run("Test PaymentRequest is assignable due to user Supervisor role", func() {
-		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 		paymentRequestCopy := *paymentRequests
 		suite.Equal(paymentRequestCopy[0].Assignable, true)
 	})
 
-	officeUserHQ := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
+	activeRole = string(roles.RoleTypeHQ)
 	suite.Run("Test PaymentRequest is not assignable due to user HQ role", func() {
-		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUserHQ, officeUsersSafety)
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety, activeRole)
 		paymentRequestCopy := *paymentRequests
 		suite.Equal(paymentRequestCopy[0].Assignable, false)
 	})
@@ -315,6 +449,93 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 	})
 }
 
+func (suite *PayloadsSuite) TestMoveWithGBLOC() {
+	defaultOrdersNumber := "ORDER3"
+	defaultTACNumber := "F8E1"
+	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
+	defaultGrade := "E_1"
+	defaultHasDependents := false
+	defaultSpouseHasProGear := false
+	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	defaultOrdersTypeDetail := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
+	defaultStatus := models.OrderStatusDRAFT
+	testYear := 2018
+	defaultIssueDate := time.Date(testYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
+	defaultGBLOC := "KKFA"
+
+	originDutyLocation := models.DutyLocation{
+		Name: "Custom Origin",
+	}
+	originDutyLocationTOName := "origin duty location transportation office"
+	firstName := "customFirst"
+	lastName := "customLast"
+	serviceMember := models.ServiceMember{
+		FirstName: &firstName,
+		LastName:  &lastName,
+	}
+	uploadedOrders := models.Document{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+	dependents := 7
+	entitlement := models.Entitlement{
+		TotalDependents: &dependents,
+	}
+	amendedOrders := models.Document{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+	// Create order
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model: originDutyLocation,
+			Type:  &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.TransportationOffice{
+				Name: originDutyLocationTOName,
+			},
+			Type: &factory.TransportationOffices.OriginDutyLocation,
+		},
+		{
+			Model: serviceMember,
+		},
+		{
+			Model: uploadedOrders,
+			Type:  &factory.Documents.UploadedOrders,
+		},
+		{
+			Model: entitlement,
+		},
+		{
+			Model: amendedOrders,
+			Type:  &factory.Documents.UploadedAmendedOrders,
+		},
+	}, nil)
+
+	suite.Equal(defaultOrdersNumber, *order.OrdersNumber)
+	suite.Equal(defaultTACNumber, *order.TAC)
+	suite.Equal(defaultDepartmentIndicator, *order.DepartmentIndicator)
+	suite.Equal(defaultGrade, string(*order.Grade))
+	suite.Equal(defaultHasDependents, order.HasDependents)
+	suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
+	suite.Equal(defaultOrdersType, order.OrdersType)
+	suite.Equal(defaultOrdersTypeDetail, *order.OrdersTypeDetail)
+	suite.Equal(defaultStatus, order.Status)
+	suite.Equal(defaultIssueDate, order.IssueDate)
+	suite.Equal(defaultReportByDate, order.ReportByDate)
+	suite.Equal(defaultGBLOC, *order.OriginDutyLocationGBLOC)
+
+	suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
+	suite.Equal(originDutyLocationTOName, order.OriginDutyLocation.TransportationOffice.Name)
+	suite.Equal(*serviceMember.FirstName, *order.ServiceMember.FirstName)
+	suite.Equal(*serviceMember.LastName, *order.ServiceMember.LastName)
+	suite.Equal(uploadedOrders.ID, order.UploadedOrdersID)
+	suite.Equal(uploadedOrders.ID, order.UploadedOrders.ID)
+	suite.Equal(*entitlement.TotalDependents, *order.Entitlement.TotalDependents)
+	suite.Equal(amendedOrders.ID, *order.UploadedAmendedOrdersID)
+	suite.Equal(amendedOrders.ID, order.UploadedAmendedOrders.ID)
+}
+
 func (suite *PayloadsSuite) TestWeightTicketUpload() {
 	uploadID, _ := uuid.NewV4()
 	testURL := "https://testurl.com"
@@ -447,6 +668,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	dependentsTwelveAndOver := 1
 	authorizedWeight := 8000
 	ubAllowance := 300
+	weightRestriction := 1000
 
 	entitlement := &models.Entitlement{
 		ID:                             entitlementID,
@@ -464,6 +686,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		DependentsTwelveAndOver:        &dependentsTwelveAndOver,
 		UpdatedAt:                      time.Now(),
 		UBAllowance:                    &ubAllowance,
+		WeightRestriction:              &weightRestriction,
 	}
 
 	returnedEntitlement := Entitlement(entitlement)
@@ -485,6 +708,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(models.BoolPointer(accompaniedTour), returnedEntitlement.AccompaniedTour)
 	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
 	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
+	suite.Equal(weightRestriction, int(*returnedEntitlement.WeightRestriction))
 }
 
 func (suite *PayloadsSuite) TestCreateCustomer() {
@@ -522,17 +746,17 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		County:         models.StringPointer("WASHOE"),
 	}
 
-	phone := "444-555-6677"
 	backupContact := models.BackupContact{
 		Name:  "Billy Bob",
 		Email: "billBob@mail.mil",
-		Phone: &phone,
+		Phone: "444-555-6677",
 	}
 
 	firstName := "First"
 	lastName := "Last"
 	affiliation := models.AffiliationARMY
 	email := "dontEmailMe@gmail.com"
+	phone := "444-555-6677"
 	sm := models.ServiceMember{
 		ID:                   id,
 		UserID:               id2,
@@ -552,6 +776,81 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 	})
 }
 
+func (suite *PayloadsSuite) TestMoveTaskOrder() {
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	moveTaskOrder := MoveTaskOrder(&move)
+	suite.NotNil(moveTaskOrder)
+}
+
+func (suite *PayloadsSuite) TestTransportationOffice() {
+	office := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	transportationOffice := TransportationOffice(&office)
+	suite.NotNil(transportationOffice)
+}
+func (suite *PayloadsSuite) TestTransportationOffices() {
+	office := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	officeTwo := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	transportationOfficeList := models.TransportationOffices{}
+	transportationOfficeList = append(transportationOfficeList, office, officeTwo)
+	value := TransportationOffices(transportationOfficeList)
+	suite.NotNil(value)
+}
+func (suite *PayloadsSuite) TestListMove() {
+
+	marines := models.AffiliationMARINES
+	listMove := ListMove(nil)
+
+	suite.Nil(listMove)
+	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
+			},
+		},
+	}, nil)
+
+	listMove = ListMove(&moveUSMC)
+	suite.NotNil(listMove)
+}
+
+func (suite *PayloadsSuite) TestListMoves() {
+	list := models.Moves{}
+
+	marines := models.AffiliationMARINES
+	spaceForce := models.AffiliationSPACEFORCE
+	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
+			},
+		},
+	}, nil)
+	moveSF := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &spaceForce,
+			},
+		},
+	}, nil)
+	list = append(list, moveUSMC, moveSF)
+	value := ListMoves(&list)
+	suite.NotNil(value)
+}
 func (suite *PayloadsSuite) TestSearchMoves() {
 	appCtx := suite.AppContextForTest()
 
@@ -565,7 +864,7 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 	}, nil)
 
 	moves := models.Moves{moveUSMC}
-	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
+	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Marine move with no shipments", func() {
 		payload := SearchMoves(appCtx, moves)
 
 		suite.IsType(payload, &ghcmessages.SearchMoves{})
@@ -606,7 +905,7 @@ func (suite *PayloadsSuite) TestReServiceItem() {
 		isAutoApproved := true
 		marketCodeInternational := models.MarketCodeInternational
 		reServiceCode := models.ReServiceCodePOEFSC
-		poefscServiceName := "International POE Fuel Surcharge"
+		poefscServiceName := "International POE fuel surcharge"
 		reService := models.ReService{
 			Code: reServiceCode,
 			Name: poefscServiceName,
@@ -637,16 +936,16 @@ func (suite *PayloadsSuite) TestReServiceItems() {
 		marketCodeInternational := models.MarketCodeInternational
 		marketCodeDomestic := models.MarketCodeDomestic
 		poefscReServiceCode := models.ReServiceCodePOEFSC
-		poedscReServiceCode := models.ReServiceCodePODFSC
-		poefscServiceName := "International POE Fuel Surcharge"
-		poedscServiceName := "International POD Fuel Surcharge"
+		podfscReServiceCode := models.ReServiceCodePODFSC
+		poefscServiceName := "International POE fuel surcharge"
+		podfscServiceName := "International POD fuel surcharge"
 		poefscService := models.ReService{
 			Code: poefscReServiceCode,
 			Name: poefscServiceName,
 		}
 		podfscService := models.ReService{
-			Code: poedscReServiceCode,
-			Name: poedscServiceName,
+			Code: podfscReServiceCode,
+			Name: podfscServiceName,
 		}
 		hhgShipmentType := models.MTOShipmentTypeHHG
 		ubShipmentType := models.MTOShipmentTypeUnaccompaniedBaggage
@@ -948,5 +1247,704 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
 		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
 		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
+	})
+
+	suite.Run("sets Sort from correct serviceItem", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		reServiceItems := make(models.ReServiceItems, 3)
+		mockReService := models.ReService{
+			ID:             reServiceID,
+			Code:           models.ReServiceCodeUBP,
+			Name:           "Test ReService",
+			ReServiceItems: &reServiceItems,
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeInternational,
+		}
+
+		reServiceItems[0] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeHHG,
+			MarketCode:   models.MarketCodeInternational,
+			Sort:         models.StringPointer("0"),
+		}
+		reServiceItems[1] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeInternational,
+			Sort:         models.StringPointer("1"),
+		}
+		reServiceItems[2] = models.ReServiceItem{
+			ReService:    mockReService,
+			ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+			MarketCode:   models.MarketCodeDomestic,
+			Sort:         models.StringPointer("2"),
+		}
+
+		mockMtoServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockMtoServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal("1", *result.Sort, "Expected to get the Sort value by matching the correct ReServiceItem using ShipmentType and MarketCode.")
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipment() {
+	suite.Run("transforms standard MTOShipment without SIT overrides", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		mtoShipment.PrimeEstimatedWeight = models.PoundPointer(1000)
+		mtoShipment.PrimeActualWeight = models.PoundPointer(1100)
+		miles := unit.Miles(1234)
+		mtoShipment.Distance = &miles
+
+		payload := MTOShipment(suite.storer, &mtoShipment, nil)
+
+		suite.NotNil(payload)
+		suite.Equal(strfmt.UUID(mtoShipment.ID.String()), payload.ID)
+		suite.Equal(handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight), payload.PrimeEstimatedWeight)
+		suite.Equal(handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight), payload.PrimeActualWeight)
+		suite.Equal(handlers.FmtInt64(1234), payload.Distance)
+		suite.Nil(payload.SitStatus)
+	})
+
+	suite.Run("SIT overrides total SIT days with SITStatus payload", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		mtoShipment.SITDaysAllowance = models.IntPointer(90)
+
+		sitStatusPayload := &ghcmessages.SITStatus{
+			TotalSITDaysUsed:   handlers.FmtInt64(int64(10)),
+			TotalDaysRemaining: handlers.FmtInt64(int64(40)),
+		}
+
+		payload := MTOShipment(suite.storer, &mtoShipment, sitStatusPayload)
+
+		suite.NotNil(payload)
+		suite.NotNil(payload.SitDaysAllowance)
+		suite.Equal(int64(50), *payload.SitDaysAllowance)
+		suite.Equal(sitStatusPayload, payload.SitStatus)
+	})
+
+	suite.Run("handles nil Distance", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		mtoShipment.Distance = nil
+
+		payload := MTOShipment(suite.storer, &mtoShipment, nil)
+		suite.Nil(payload.Distance)
+	})
+
+	suite.Run("checks scheduled dates and actual dates set", func() {
+		now := time.Now()
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ScheduledPickupDate:   &now,
+					ScheduledDeliveryDate: &now,
+					ActualPickupDate:      models.TimePointer(now.AddDate(0, 0, 1)),
+					ActualDeliveryDate:    models.TimePointer(now.AddDate(0, 0, 2)),
+				},
+			},
+		}, nil)
+		payload := MTOShipment(suite.storer, &mtoShipment, nil)
+		suite.NotNil(payload.ScheduledPickupDate)
+		suite.NotNil(payload.ScheduledDeliveryDate)
+		suite.NotNil(payload.ActualPickupDate)
+		suite.NotNil(payload.ActualDeliveryDate)
+	})
+}
+
+func (suite *PayloadsSuite) TestPort() {
+
+	suite.Run("returns nil when PortLocation is nil", func() {
+		var mtoServiceItems models.MTOServiceItems = nil
+		result := Port(mtoServiceItems, "POE")
+		suite.Nil(result, "Expected result to be nil when Port Location is nil")
+	})
+
+	suite.Run("Success - Maps PortLocation to Port payload", func() {
+		// Use the factory to create a port location
+		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		mtoServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		// Actual
+		mtoServiceItems := models.MTOServiceItems{mtoServiceItem}
+		result := Port(mtoServiceItems, "POE")
+
+		// Assert
+		suite.IsType(&ghcmessages.Port{}, result)
+		suite.Equal(strfmt.UUID(portLocation.ID.String()), result.ID)
+		suite.Equal(portLocation.Port.PortType.String(), result.PortType)
+		suite.Equal(portLocation.Port.PortCode, result.PortCode)
+		suite.Equal(portLocation.Port.PortName, result.PortName)
+		suite.Equal(portLocation.City.CityName, result.City)
+		suite.Equal(portLocation.UsPostRegionCity.UsprcCountyNm, result.County)
+		suite.Equal(portLocation.UsPostRegionCity.UsPostRegion.State.StateName, result.State)
+		suite.Equal(portLocation.UsPostRegionCity.UsprZipID, result.Zip)
+		suite.Equal(portLocation.Country.CountryName, result.Country)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipments() {
+	suite.Run("multiple shipments with partial SIT status map", func() {
+		shipment1 := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		shipment2 := factory.BuildMTOShipment(suite.DB(), nil, nil)
+
+		shipments := models.MTOShipments{shipment1, shipment2}
+
+		// SIT status map that only has SIT info for shipment2
+		sitStatusMap := map[string]*ghcmessages.SITStatus{
+			shipment2.ID.String(): {
+				TotalDaysRemaining: handlers.FmtInt64(30),
+				TotalSITDaysUsed:   handlers.FmtInt64(10),
+			},
+		}
+
+		payload := MTOShipments(suite.storer, &shipments, sitStatusMap)
+		suite.NotNil(payload)
+		suite.Len(*payload, 2)
+
+		// Shipment1 has no SIT override
+		suite.Nil((*payload)[0].SitStatus)
+
+		// Shipment2 has SIT override
+		suite.NotNil((*payload)[1].SitStatus)
+		suite.Equal(int64(40), *(*payload)[1].SitDaysAllowance)
+	})
+
+	suite.Run("nil slice returns empty payload (or nil) gracefully", func() {
+		var emptyShipments models.MTOShipments
+		payload := MTOShipments(suite.storer, &emptyShipments, nil)
+		suite.NotNil(payload)
+		suite.Len(*payload, 0)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOAgent() {
+	suite.Run("transforms a single MTOAgent", func() {
+		agent := factory.BuildMTOAgent(suite.DB(), nil, nil)
+		payload := MTOAgent(&agent)
+		suite.NotNil(payload)
+		suite.Equal(strfmt.UUID(agent.ID.String()), payload.ID)
+		suite.Equal(string(agent.MTOAgentType), payload.AgentType)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOAgents() {
+	suite.Run("transforms multiple MTOAgents", func() {
+		agent1 := factory.BuildMTOAgent(suite.DB(), nil, nil)
+		agent2 := factory.BuildMTOAgent(suite.DB(), nil, nil)
+		agents := models.MTOAgents{agent1, agent2}
+
+		payload := MTOAgents(&agents)
+		suite.Len(*payload, 2)
+		suite.Equal(strfmt.UUID(agent1.ID.String()), (*payload)[0].ID)
+		suite.Equal(strfmt.UUID(agent2.ID.String()), (*payload)[1].ID)
+	})
+
+	suite.Run("empty slice yields empty payload", func() {
+		agents := models.MTOAgents{}
+		payload := MTOAgents(&agents)
+		suite.NotNil(payload)
+		suite.Len(*payload, 0)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentRequests() {
+	suite.Run("transforms multiple PaymentRequests", func() {
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		prs := models.PaymentRequests{pr}
+
+		payload, err := PaymentRequests(suite.AppContextForTest(), &prs, suite.storer)
+		suite.NoError(err)
+		suite.Len(*payload, 1)
+		suite.Equal(strfmt.UUID(pr.ID.String()), (*payload)[0].ID)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentRequest() {
+	suite.Run("single PaymentRequest with EDI error info, GEX timestamps, TPPS data", func() {
+		pr := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		pr.SentToGexAt = models.TimePointer(time.Now().Add(-1 * time.Hour))
+		pr.ReceivedByGexAt = models.TimePointer(time.Now())
+
+		tppsReport := models.TPPSPaidInvoiceReportEntry{
+			LineNetCharge:                   2500,
+			SellerPaidDate:                  time.Now(),
+			InvoiceTotalChargesInMillicents: 500000,
+		}
+		pr.TPPSPaidInvoiceReports = models.TPPSPaidInvoiceReportEntrys{tppsReport}
+
+		result, err := PaymentRequest(suite.AppContextForTest(), &pr, suite.storer)
+		suite.NoError(err)
+		suite.NotNil(result)
+		suite.NotNil(result.EdiErrorType)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItem() {
+	suite.Run("transforms PaymentServiceItem including MTOServiceItem code and name", func() {
+		psi := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
+		psi.MTOServiceItem.ReService.Code = models.ReServiceCodeDLH
+		psi.MTOServiceItem.ReService.Name = "Domestic Linehaul"
+
+		payload := PaymentServiceItem(&psi)
+		suite.NotNil(payload)
+		suite.Equal(string(models.ReServiceCodeDLH), payload.MtoServiceItemCode)
+		suite.Equal("Domestic Linehaul", payload.MtoServiceItemName)
+		suite.Equal(ghcmessages.PaymentServiceItemStatus(psi.Status), payload.Status)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItems() {
+	suite.Run("transforms multiple PaymentServiceItems with TPPS data", func() {
+		psi1 := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
+		psi2 := factory.BuildPaymentServiceItem(suite.DB(), nil, nil)
+		items := models.PaymentServiceItems{psi1, psi2}
+
+		tppsReports := models.TPPSPaidInvoiceReportEntrys{
+			{
+				ProductDescription: string(psi1.MTOServiceItem.ReService.Code),
+				LineNetCharge:      1500,
+			},
+		}
+
+		payload := PaymentServiceItems(&items, &tppsReports)
+		suite.NotNil(payload)
+		suite.Len(*payload, 2)
+		suite.Equal(int64(1500), *(*payload)[0].TppsInvoiceAmountPaidPerServiceItemMillicents)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemParam() {
+	suite.Run("transforms PaymentServiceItemParam", func() {
+		paramKey := factory.BuildServiceItemParamKey(suite.DB(), nil, nil)
+		param := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{Model: paramKey},
+		}, nil)
+
+		payload := PaymentServiceItemParam(param)
+		suite.NotNil(payload)
+	})
+
+	suite.Run("handles minimal PaymentServiceItemParam", func() {
+		param := models.PaymentServiceItemParam{}
+		payload := PaymentServiceItemParam(param)
+		suite.NotNil(payload)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemParams() {
+	suite.Run("transforms slice of PaymentServiceItemParams", func() {
+		param1 := factory.BuildPaymentServiceItemParam(suite.DB(), nil, nil)
+		param2 := factory.BuildPaymentServiceItemParam(suite.DB(), nil, nil)
+		params := models.PaymentServiceItemParams{param1, param2}
+
+		payload := PaymentServiceItemParams(&params)
+		suite.NotNil(payload)
+		suite.Len(*payload, 2)
+	})
+}
+
+func (suite *PayloadsSuite) TestServiceRequestDoc() {
+	suite.Run("transforms ServiceRequestDocument with multiple uploads", func() {
+		serviceRequest := factory.BuildServiceRequestDocument(suite.DB(), nil, nil)
+		payload, err := ServiceRequestDoc(serviceRequest, suite.storer)
+		suite.NoError(err)
+		suite.NotNil(payload)
+	})
+
+	suite.Run("handles empty list of uploads", func() {
+		serviceRequest := models.ServiceRequestDocument{}
+		payload, err := ServiceRequestDoc(serviceRequest, suite.storer)
+		suite.NoError(err)
+		suite.NotNil(payload)
+		suite.Empty(payload.Uploads)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemSingleModel() {
+	suite.Run("transforms basic MTOServiceItem with SIT data", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{Model: mtoShipment, LinkOnly: true},
+		}, nil)
+		serviceItem.SITEntryDate = models.TimePointer(time.Now().AddDate(0, 0, -2))
+
+		payload := MTOServiceItemSingleModel(&serviceItem)
+		suite.NotNil(payload)
+		suite.Equal(handlers.FmtDateTimePtr(serviceItem.SITEntryDate), payload.SitEntryDate)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipment_POE_POD_Locations() {
+	suite.Run("Only POE Location is set", func() {
+		// Create mock data for MTOServiceItems with POE and POD
+		poePortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		poefscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code:     models.ReServiceCodePOEFSC,
+					Priority: 1,
+				},
+			},
+			{
+				Model:    poePortLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MTOServiceItems: models.MTOServiceItems{poefscServiceItem},
+				},
+			},
+		}, nil)
+
+		payload := MTOShipment(nil, &mtoShipment, nil)
+
+		// Assertions
+		suite.NotNil(payload, "Expected payload to not be nil")
+		suite.NotNil(payload.PoeLocation, "Expected POELocation to not be nil")
+		suite.Equal("PDX", payload.PoeLocation.PortCode, "Expected POE Port Code to match")
+		suite.Equal("PORTLAND INTL", payload.PoeLocation.PortName, "Expected POE Port Name to match")
+		suite.Nil(payload.PodLocation, "Expected PODLocation to be nil when POELocation is set")
+	})
+
+	suite.Run("Only POD Location is set", func() {
+		// Create mock data for MTOServiceItems with POE and POD
+		podPortLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+
+		podfscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code:     models.ReServiceCodePODFSC,
+					Priority: 1,
+				},
+			},
+			{
+				Model:    podPortLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfDebarkation,
+			},
+		}, nil)
+
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MTOServiceItems: models.MTOServiceItems{podfscServiceItem},
+				},
+			},
+		}, nil)
+
+		payload := MTOShipment(nil, &mtoShipment, nil)
+
+		// Assertions
+		suite.NotNil(payload, "Expected payload to not be nil")
+		suite.NotNil(payload.PodLocation, "Expected PODLocation to not be nil")
+		suite.Equal("PDX", payload.PodLocation.PortCode, "Expected POD Port Code to match")
+		suite.Equal("PORTLAND INTL", payload.PodLocation.PortName, "Expected POD Port Name to match")
+		suite.Nil(payload.PoeLocation, "Expected PODLocation to be nil when PODLocation is set")
+	})
+}
+
+func (suite *PayloadsSuite) TestPPMCloseout() {
+	plannedMoveDate := time.Now()
+	actualMoveDate := time.Now()
+	miles := 1200
+	estimatedWeight := unit.Pound(5000)
+	actualWeight := unit.Pound(5200)
+	proGearWeightCustomer := unit.Pound(300)
+	proGearWeightSpouse := unit.Pound(100)
+	grossIncentive := unit.Cents(100000)
+	gcc := unit.Cents(50000)
+	aoa := unit.Cents(20000)
+	remainingIncentive := unit.Cents(30000)
+	haulType := "Linehaul"
+	haulPrice := unit.Cents(40000)
+	haulFSC := unit.Cents(5000)
+	dop := unit.Cents(10000)
+	ddp := unit.Cents(8000)
+	packPrice := unit.Cents(7000)
+	unpackPrice := unit.Cents(6000)
+	intlPackPrice := unit.Cents(15000)
+	intlUnpackPrice := unit.Cents(14000)
+	intlLinehaulPrice := unit.Cents(13000)
+	sitReimbursement := unit.Cents(12000)
+
+	ppmCloseout := models.PPMCloseout{
+		ID:                    models.UUIDPointer(uuid.Must(uuid.NewV4())),
+		PlannedMoveDate:       &plannedMoveDate,
+		ActualMoveDate:        &actualMoveDate,
+		Miles:                 &miles,
+		EstimatedWeight:       &estimatedWeight,
+		ActualWeight:          &actualWeight,
+		ProGearWeightCustomer: &proGearWeightCustomer,
+		ProGearWeightSpouse:   &proGearWeightSpouse,
+		GrossIncentive:        &grossIncentive,
+		GCC:                   &gcc,
+		AOA:                   &aoa,
+		RemainingIncentive:    &remainingIncentive,
+		HaulType:              (*models.HaulType)(&haulType),
+		HaulPrice:             &haulPrice,
+		HaulFSC:               &haulFSC,
+		DOP:                   &dop,
+		DDP:                   &ddp,
+		PackPrice:             &packPrice,
+		UnpackPrice:           &unpackPrice,
+		IntlPackPrice:         &intlPackPrice,
+		IntlUnpackPrice:       &intlUnpackPrice,
+		IntlLinehaulPrice:     &intlLinehaulPrice,
+		SITReimbursement:      &sitReimbursement,
+	}
+
+	payload := PPMCloseout(&ppmCloseout)
+	suite.NotNil(payload)
+	suite.Equal(ppmCloseout.ID.String(), payload.ID.String())
+	suite.Equal(handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate), payload.PlannedMoveDate)
+	suite.Equal(handlers.FmtDatePtr(ppmCloseout.ActualMoveDate), payload.ActualMoveDate)
+	suite.Equal(handlers.FmtIntPtrToInt64(ppmCloseout.Miles), payload.Miles)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight), payload.EstimatedWeight)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ActualWeight), payload.ActualWeight)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer), payload.ProGearWeightCustomer)
+	suite.Equal(handlers.FmtPoundPtr(ppmCloseout.ProGearWeightSpouse), payload.ProGearWeightSpouse)
+	suite.Equal(handlers.FmtCost(ppmCloseout.GrossIncentive), payload.GrossIncentive)
+	suite.Equal(handlers.FmtCost(ppmCloseout.GCC), payload.Gcc)
+	suite.Equal(handlers.FmtCost(ppmCloseout.AOA), payload.Aoa)
+	suite.Equal(handlers.FmtCost(ppmCloseout.RemainingIncentive), payload.RemainingIncentive)
+	suite.Equal((*string)(ppmCloseout.HaulType), payload.HaulType)
+	suite.Equal(handlers.FmtCost(ppmCloseout.HaulPrice), payload.HaulPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.HaulFSC), payload.HaulFSC)
+	suite.Equal(handlers.FmtCost(ppmCloseout.DOP), payload.Dop)
+	suite.Equal(handlers.FmtCost(ppmCloseout.DDP), payload.Ddp)
+	suite.Equal(handlers.FmtCost(ppmCloseout.PackPrice), payload.PackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.UnpackPrice), payload.UnpackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlPackPrice), payload.IntlPackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlUnpackPrice), payload.IntlUnpackPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.IntlLinehaulPrice), payload.IntlLinehaulPrice)
+	suite.Equal(handlers.FmtCost(ppmCloseout.SITReimbursement), payload.SITReimbursement)
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemPayload() {
+	mtoServiceItemID := uuid.Must(uuid.NewV4())
+	mtoShipmentID := uuid.Must(uuid.NewV4())
+	psID := uuid.Must(uuid.NewV4())
+	reServiceCode := models.ReServiceCodeDLH
+	reServiceName := "Domestic Linehaul"
+	shipmentType := models.MTOShipmentTypeHHG
+	priceCents := unit.Cents(12345)
+	rejectionReason := models.StringPointer("Some reason")
+	status := models.PaymentServiceItemStatusDenied
+	referenceID := "REF123"
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	paymentServiceItemParams := []models.PaymentServiceItemParam{
+		{
+			ID:                   uuid.Must(uuid.NewV4()),
+			PaymentServiceItemID: psID,
+			Value:                "1000",
+		},
+	}
+
+	paymentServiceItem := models.PaymentServiceItem{
+		ID:               psID,
+		MTOServiceItemID: mtoServiceItemID,
+		MTOServiceItem: models.MTOServiceItem{
+			ID: mtoServiceItemID,
+			MTOShipment: models.MTOShipment{
+				ID:           mtoShipmentID,
+				ShipmentType: shipmentType,
+			},
+			ReService: models.ReService{
+				Code: reServiceCode,
+				Name: reServiceName,
+			},
+		},
+		PriceCents:               &priceCents,
+		RejectionReason:          rejectionReason,
+		Status:                   status,
+		ReferenceID:              referenceID,
+		PaymentServiceItemParams: paymentServiceItemParams,
+		CreatedAt:                createdAt,
+		UpdatedAt:                updatedAt,
+	}
+
+	suite.Run("Success - Returns a ghcmessages PaymentServiceItem payload", func() {
+		returnedPaymentServiceItem := PaymentServiceItem(&paymentServiceItem)
+
+		suite.NotNil(returnedPaymentServiceItem)
+		suite.IsType(&ghcmessages.PaymentServiceItem{}, returnedPaymentServiceItem)
+		suite.Equal(handlers.FmtUUID(paymentServiceItem.ID), &returnedPaymentServiceItem.ID)
+		suite.Equal(handlers.FmtUUID(paymentServiceItem.MTOServiceItemID), &returnedPaymentServiceItem.MtoServiceItemID)
+		suite.Equal(string(paymentServiceItem.MTOServiceItem.ReService.Code), returnedPaymentServiceItem.MtoServiceItemCode)
+		suite.Equal(paymentServiceItem.MTOServiceItem.ReService.Name, returnedPaymentServiceItem.MtoServiceItemName)
+		suite.Equal(ghcmessages.MTOShipmentType(paymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType), returnedPaymentServiceItem.MtoShipmentType)
+		suite.Equal(handlers.FmtUUIDPtr(paymentServiceItem.MTOServiceItem.MTOShipmentID), returnedPaymentServiceItem.MtoShipmentID)
+		suite.Equal(handlers.FmtCost(paymentServiceItem.PriceCents), returnedPaymentServiceItem.PriceCents)
+		suite.Equal(paymentServiceItem.RejectionReason, returnedPaymentServiceItem.RejectionReason)
+		suite.Equal(ghcmessages.PaymentServiceItemStatus(paymentServiceItem.Status), returnedPaymentServiceItem.Status)
+		suite.Equal(paymentServiceItem.ReferenceID, returnedPaymentServiceItem.ReferenceID)
+		suite.Equal(etag.GenerateEtag(paymentServiceItem.UpdatedAt), returnedPaymentServiceItem.ETag)
+
+		suite.Equal(len(paymentServiceItem.PaymentServiceItemParams), len(returnedPaymentServiceItem.PaymentServiceItemParams))
+		for i, param := range paymentServiceItem.PaymentServiceItemParams {
+			suite.Equal(param.Value, returnedPaymentServiceItem.PaymentServiceItemParams[i].Value)
+		}
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemsPayload() {
+	mtoServiceItemID1 := uuid.Must(uuid.NewV4())
+	mtoServiceItemID2 := uuid.Must(uuid.NewV4())
+	psID1 := uuid.Must(uuid.NewV4())
+	psID2 := uuid.Must(uuid.NewV4())
+	priceCents1 := unit.Cents(12345)
+	priceCents2 := unit.Cents(54321)
+	reServiceCode1 := models.ReServiceCodeDLH
+	reServiceCode2 := models.ReServiceCodeDOP
+	reServiceName1 := "Domestic Linehaul"
+	reServiceName2 := "Domestic Origin Pack"
+	shipmentType := models.MTOShipmentTypeHHG
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	paymentServiceItems := models.PaymentServiceItems{
+		{
+			ID:               psID1,
+			MTOServiceItemID: mtoServiceItemID1,
+			MTOServiceItem: models.MTOServiceItem{
+				ID: mtoServiceItemID1,
+				MTOShipment: models.MTOShipment{
+					ID:           uuid.Must(uuid.NewV4()),
+					ShipmentType: shipmentType,
+				},
+				ReService: models.ReService{
+					Code: reServiceCode1,
+					Name: reServiceName1,
+				},
+			},
+			PriceCents: &priceCents1,
+			CreatedAt:  createdAt,
+			UpdatedAt:  updatedAt,
+		},
+		{
+			ID:               psID2,
+			MTOServiceItemID: mtoServiceItemID2,
+			MTOServiceItem: models.MTOServiceItem{
+				ID: mtoServiceItemID2,
+				MTOShipment: models.MTOShipment{
+					ID:           uuid.Must(uuid.NewV4()),
+					ShipmentType: shipmentType,
+				},
+				ReService: models.ReService{
+					Code: reServiceCode2,
+					Name: reServiceName2,
+				},
+			},
+			PriceCents: &priceCents2,
+			CreatedAt:  createdAt,
+			UpdatedAt:  updatedAt,
+		},
+	}
+
+	// TPPSPaidInvoiceReportData
+	lineNetCharge1 := int64(200000)
+	tppsPaidReportData := models.TPPSPaidInvoiceReportEntrys{
+		{
+			ProductDescription: string(reServiceCode1),
+			LineNetCharge:      unit.Millicents(lineNetCharge1),
+		},
+	}
+
+	suite.Run("Success - Returns ghcmessages.PaymentServiceItems payload", func() {
+		returnedPaymentServiceItems := PaymentServiceItems(&paymentServiceItems, &tppsPaidReportData)
+
+		suite.NotNil(returnedPaymentServiceItems)
+		suite.Len(*returnedPaymentServiceItems, 2)
+
+		psItem1 := (*returnedPaymentServiceItems)[0]
+		suite.Equal(handlers.FmtUUID(psID1), &psItem1.ID)
+		suite.Equal(handlers.FmtCost(&priceCents1), psItem1.PriceCents)
+		suite.Equal(string(reServiceCode1), psItem1.MtoServiceItemCode)
+		suite.Equal(reServiceName1, psItem1.MtoServiceItemName)
+		suite.Equal(ghcmessages.MTOShipmentType(shipmentType), psItem1.MtoShipmentType)
+		suite.NotNil(psItem1.TppsInvoiceAmountPaidPerServiceItemMillicents)
+
+		psItem2 := (*returnedPaymentServiceItems)[1]
+		suite.Equal(handlers.FmtUUID(psID2), &psItem2.ID)
+		suite.Equal(handlers.FmtCost(&priceCents2), psItem2.PriceCents)
+		suite.Equal(string(reServiceCode2), psItem2.MtoServiceItemCode)
+		suite.Equal(reServiceName2, psItem2.MtoServiceItemName)
+		suite.Equal(ghcmessages.MTOShipmentType(shipmentType), psItem2.MtoShipmentType)
+		suite.Nil(psItem2.TppsInvoiceAmountPaidPerServiceItemMillicents)
+	})
+}
+
+func (suite *PayloadsSuite) TestCounselingOffices() {
+	suite.Run("correctly maps transportaion offices to counseling offices payload", func() {
+		office1 := factory.BuildTransportationOffice(nil, []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Liberty",
+				},
+			},
+		}, nil)
+
+		office2 := factory.BuildTransportationOffice(nil, []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Walker",
+				},
+			},
+		}, nil)
+
+		offices := models.TransportationOffices{office1, office2}
+
+		payload := CounselingOffices(offices)
+
+		suite.IsType(payload, ghcmessages.CounselingOffices{})
+		suite.Equal(2, len(payload))
+		suite.Equal(office1.ID.String(), payload[0].ID.String())
+		suite.Equal(office2.ID.String(), payload[1].ID.String())
 	})
 }

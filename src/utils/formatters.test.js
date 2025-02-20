@@ -4,6 +4,7 @@ import * as formatters from './formatters';
 import { formatQAReportID } from './formatters';
 
 import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
+import { MOVE_STATUSES } from 'shared/constants';
 
 describe('formatters', () => {
   describe('format date for customer app', () => {
@@ -323,6 +324,8 @@ describe('formatters', () => {
         streetAddress1: '54321 Any Street',
         streetAddress2: '',
         streetAddress3: '',
+        county: 'Los Angeles',
+        usPostRegionCitiesID: '7e37ec98-ffae-4c4a-9208-ac80002ac299',
       };
 
       const addressWithLine2And3 = {
@@ -333,6 +336,8 @@ describe('formatters', () => {
         streetAddress1: '12345 Any Street',
         streetAddress2: 'Apt 12B',
         streetAddress3: 'c/o Leo Spaceman',
+        county: 'Los Angeles',
+        usPostRegionCitiesID: '7e37ec98-ffae-4c4a-9208-ac80002ac299',
       };
 
       expect(formatters.formatCustomerContactFullAddress(addressWithoutLine2And3)).toEqual(
@@ -341,6 +346,149 @@ describe('formatters', () => {
       expect(formatters.formatCustomerContactFullAddress(addressWithLine2And3)).toEqual(
         '12345 Any Street, Apt 12B, c/o Leo Spaceman, Beverly Hills, CA 90210',
       );
+    });
+  });
+});
+
+describe('formatAssignedOfficeUserFromContext', () => {
+  it(`properly formats a Services Counselor's name for assignment`, () => {
+    const values = {
+      changedValues: {
+        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        sc_assigned_id: null,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      },
+      context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_sc: 'Daniels, Jayden',
+    });
+  });
+  it(`properly formats a Services Counselor's name for reassignment`, () => {
+    const values = {
+      changedValues: {
+        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        sc_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      },
+      context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_sc: 'Daniels, Jayden',
+    });
+  });
+  it(`properly formats a Closeout Counselor's name for assignment`, () => {
+    const values = {
+      changedValues: {
+        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        sc_assigned_id: null,
+        status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+      },
+      context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_sc_ppm: 'Daniels, Jayden',
+    });
+  });
+  it(`properly formats a Closeout Counselor's name for reassignment`, () => {
+    const values = {
+      changedValues: {
+        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        sc_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+        status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+      },
+      context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_sc_ppm: 'Daniels, Jayden',
+    });
+  });
+  it('properly formats a TOOs name for assignment', () => {
+    const values = {
+      changedValues: {
+        too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_assigned_id: null,
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_too: 'McLaurin, Terry',
+    });
+  });
+  it('properly formats a TOOs name for reassignment', () => {
+    const values = {
+      changedValues: {
+        too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_too: 'McLaurin, Terry',
+    });
+  });
+  it('properly formats a TIOs name for assignment', () => {
+    const values = {
+      changedValues: {
+        tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        tio_assigned_id: null,
+      },
+      context: [{ assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_tio: 'Robinson, Brian',
+    });
+  });
+  it('properly formats a TIOs name for reassignment', () => {
+    const values = {
+      changedValues: {
+        tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        tio_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+      },
+      context: [{ assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_tio: 'Robinson, Brian',
     });
   });
 });
@@ -431,5 +579,56 @@ describe('constructSCOrderOconusFields', () => {
       dependentsUnderTwelve: null,
       dependentsTwelveAndOver: null,
     });
+  });
+});
+
+describe('formatPortInfo', () => {
+  it('formats port information correctly when all fields are provided', () => {
+    const values = {
+      portCode: 'PDX',
+      portName: 'PORTLAND INTL',
+      city: 'PORTLAND',
+      state: 'OREGON',
+      zip: '97220',
+    };
+    const result = formatters.formatPortInfo(values);
+    expect(result).toEqual('PDX - PORTLAND INTL\nPortland, Oregon 97220');
+  });
+
+  it('returns a dash when no port is provided', () => {
+    const result = formatters.formatPortInfo(null);
+    expect(result).toEqual('-');
+  });
+});
+
+describe('toTitleCase', () => {
+  it('correctly formats a lowercase string', () => {
+    const values = 'portland oregon';
+    const result = formatters.toTitleCase(values);
+    expect(result).toEqual('Portland Oregon');
+  });
+
+  it('correctly formats an uppercase string', () => {
+    const values = 'PORTLAND OREGON';
+    const result = formatters.toTitleCase(values);
+    expect(result).toEqual('Portland Oregon');
+  });
+
+  it('return an empty string when given an empty string', () => {
+    const values = '';
+    const result = formatters.toTitleCase(values);
+    expect(result).toEqual('');
+  });
+
+  it('return an empty string when given when input is null', () => {
+    const values = null;
+    const result = formatters.toTitleCase(values);
+    expect(result).toEqual('');
+  });
+
+  it('does not alter strings that are already in title case', () => {
+    const values = 'Portland Oregon';
+    const result = formatters.toTitleCase(values);
+    expect(result).toEqual('Portland Oregon');
   });
 });

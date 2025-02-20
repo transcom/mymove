@@ -26,9 +26,20 @@
     justify-content: space-between;
     align-items: flex-end;
   }
+  .queueButtonWrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: flex-end;
+  }
 
   .csvDownloadLink {
     padding: 10px;
+    cursor: pointer;
+  }
+
+  .bulkModal {
+    padding: 10.787px;
     cursor: pointer;
   }
 

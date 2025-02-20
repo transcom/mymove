@@ -241,12 +241,14 @@ export class Home extends Component {
   };
 
   renderHelper = () => {
+    const { orders } = this.props;
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
     if (this.hasSubmittedPPMCloseout) return <HelperPPMCloseoutSubmitted />;
     if (this.hasUnapprovedAmendedOrders) return <HelperAmendedOrders />;
-    if (this.isMoveApproved) return <HelperApprovedMove />;
+    if (this.isMoveApproved) return <HelperApprovedMove orderId={orders.id} />;
+
     return <HelperSubmittedMove />;
   };
 
@@ -263,9 +265,15 @@ export class Home extends Component {
 
         <dl className={styles.subheaderContainer}>
           <div className={styles.subheaderSubsection}>
-            <dt>Weight allowance</dt>
+            <dt>Standard weight allowance</dt>
             <dd>{formatWeight(orders.authorizedWeight)}.</dd>
           </div>
+          {orders?.entitlement?.weight_restriction > 0 && (
+            <div className={styles.subheaderSubsection}>
+              <dt>Weight restriction</dt>
+              <dd>{formatWeight(orders?.entitlement?.weight_restriction)}</dd>
+            </div>
+          )}
           {move.locator && (
             <div className={styles.subheaderSubsection}>
               <dt>Move code</dt>

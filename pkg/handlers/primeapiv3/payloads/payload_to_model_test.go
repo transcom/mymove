@@ -29,7 +29,13 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	// DCRT Service Item
 	itemMeasurement := int32(1100)
 	crateMeasurement := int32(1200)
+	estimatedWeight := int64(1000)
+	actualWeight := int64(1000)
 	dcrtCode := models.ReServiceCodeDCRT.String()
+	ddshutCode := models.ReServiceCodeDDSHUT.String()
+	doshutCode := models.ReServiceCodeDOSHUT.String()
+	idshutCode := models.ReServiceCodeIDSHUT.String()
+	ioshutCode := models.ReServiceCodeIOSHUT.String()
 	reason := "Reason"
 	description := "Description"
 	standaloneCrate := false
@@ -58,6 +64,42 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
+	DDSHUTServiceItem := &primev3messages.MTOServiceItemDomesticShuttle{
+		ReServiceCode:   &ddshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	DDSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	DDSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	DOSHUTServiceItem := &primev3messages.MTOServiceItemDomesticShuttle{
+		ReServiceCode:   &doshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	DOSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	DOSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	IDSHUTServiceItem := &primev3messages.MTOServiceItemInternationalShuttle{
+		ReServiceCode:   &idshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	IDSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	IDSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	IOSHUTServiceItem := &primev3messages.MTOServiceItemInternationalShuttle{
+		ReServiceCode:   &ioshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	IOSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	IOSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
 	destReason := "service member will pick up from storage at destination"
 	destServiceCode := models.ReServiceCodeDDFSIT.String()
 	destDate := strfmt.Date(time.Now())
@@ -65,10 +107,12 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	destCity := "Beverly Hills"
 	destPostalCode := "90210"
 	destStreet := "123 Rodeo Dr."
+	destUSPRCID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	sitFinalDestAddress := primev3messages.Address{
-		City:           &destCity,
-		PostalCode:     &destPostalCode,
-		StreetAddress1: &destStreet,
+		City:                 &destCity,
+		PostalCode:           &destPostalCode,
+		StreetAddress1:       &destStreet,
+		UsPostRegionCitiesID: destUSPRCID,
 	}
 
 	destServiceItem := &primev3messages.MTOServiceItemDestSIT{
@@ -142,6 +186,46 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeDCRT))
 		suite.Nil(returnedModel, "returned a model when erroring")
 
+	})
+
+	suite.Run("Success - Returns a DDSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(DDSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDSHUT, returnedModel.ReService.Code)
+		suite.Equal(DDSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a DOSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(DOSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDOSHUT, returnedModel.ReService.Code)
+		suite.Equal(DOSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a IOSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(IOSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeIOSHUT, returnedModel.ReService.Code)
+		suite.Equal(IOSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a IDSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(IDSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeIDSHUT, returnedModel.ReService.Code)
+		suite.Equal(IDSHUTServiceItem.Reason, returnedModel.Reason)
 	})
 
 	suite.Run("Success - Returns a ICRT/IUCRT service item model", func() {
@@ -291,6 +375,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
 		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
 		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
 	})
 
 	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
@@ -310,6 +395,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
 		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
 		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
 		suite.Equal(destReason, *returnedModel.Reason)
 	})
 }
@@ -496,31 +582,35 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate() {
 	})
 
 	pickupAddress := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "CA",
-		PostalCode:     "90210",
+		StreetAddress1:     "some address",
+		City:               "city",
+		State:              "CA",
+		PostalCode:         "90210",
+		UsPostRegionCityID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
 	}
 
 	pickupAddressMessage := primev3messages.Address{
-		StreetAddress1: &pickupAddress.StreetAddress1,
-		City:           &pickupAddress.City,
-		State:          &pickupAddress.State,
-		PostalCode:     &pickupAddress.PostalCode,
+		StreetAddress1:       &pickupAddress.StreetAddress1,
+		City:                 &pickupAddress.City,
+		State:                &pickupAddress.State,
+		PostalCode:           &pickupAddress.PostalCode,
+		UsPostRegionCitiesID: strfmt.UUID(pickupAddress.UsPostRegionCityID.String()),
 	}
 
 	destinationAddress := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "IL",
-		PostalCode:     "62225",
+		StreetAddress1:     "some address",
+		City:               "city",
+		State:              "IL",
+		PostalCode:         "62225",
+		UsPostRegionCityID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
 	}
 
 	destinationAddressMessage := primev3messages.Address{
-		StreetAddress1: &destinationAddress.StreetAddress1,
-		City:           &destinationAddress.City,
-		State:          &destinationAddress.State,
-		PostalCode:     &destinationAddress.PostalCode,
+		StreetAddress1:       &destinationAddress.StreetAddress1,
+		City:                 &destinationAddress.City,
+		State:                &destinationAddress.State,
+		PostalCode:           &destinationAddress.PostalCode,
+		UsPostRegionCitiesID: strfmt.UUID(destinationAddress.UsPostRegionCityID.String()),
 	}
 
 	agentEmail := "test@test.gov"
@@ -563,7 +653,9 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate() {
 		suite.Nil(err)
 
 		suite.NotNil(model.PickupAddress)
+		suite.NotNil(model.PickupAddress.UsPostRegionCityID)
 		suite.NotNil(model.DestinationAddress)
+		suite.NotNil(model.DestinationAddress.UsPostRegionCityID)
 		suite.NotNil(model.ShipmentType)
 		suite.NotNil(model.PrimeEstimatedWeight)
 	})
@@ -670,22 +762,25 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	spouseProGearWeight := int64(50)
 
 	address := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "12345",
+		StreetAddress1:     "some address",
+		City:               "city",
+		State:              "state",
+		PostalCode:         "12345",
+		UsPostRegionCityID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
 	}
 	address2 := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "11111",
+		StreetAddress1:     "some address",
+		City:               "city",
+		State:              "state",
+		PostalCode:         "11111",
+		UsPostRegionCityID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
 	}
 	address3 := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "54321",
+		StreetAddress1:     "some address",
+		City:               "city",
+		State:              "state",
+		PostalCode:         "54321",
+		UsPostRegionCityID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
 	}
 
 	var pickupAddress primev3messages.Address
@@ -696,52 +791,58 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	var tertiaryDestinationAddress primev3messages.Address
 
 	pickupAddress = primev3messages.Address{
-		City:           &address.City,
-		PostalCode:     &address.PostalCode,
-		State:          &address.State,
-		StreetAddress1: &address.StreetAddress1,
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
+		City:                 &address.City,
+		PostalCode:           &address.PostalCode,
+		State:                &address.State,
+		StreetAddress1:       &address.StreetAddress1,
+		StreetAddress2:       address.StreetAddress2,
+		StreetAddress3:       address.StreetAddress3,
+		UsPostRegionCitiesID: strfmt.UUID(address.UsPostRegionCityID.String()),
 	}
 	destinationAddress = primev3messages.PPMDestinationAddress{
-		City:           &address.City,
-		PostalCode:     &address.PostalCode,
-		State:          &address.State,
-		StreetAddress1: &address.StreetAddress1,
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
+		City:                 &address.City,
+		PostalCode:           &address.PostalCode,
+		State:                &address.State,
+		StreetAddress1:       &address.StreetAddress1,
+		StreetAddress2:       address.StreetAddress2,
+		StreetAddress3:       address.StreetAddress3,
+		UsPostRegionCitiesID: strfmt.UUID(address.UsPostRegionCityID.String()),
 	}
 	secondaryPickupAddress = primev3messages.Address{
-		City:           &address2.City,
-		PostalCode:     &address2.PostalCode,
-		State:          &address2.State,
-		StreetAddress1: &address2.StreetAddress1,
-		StreetAddress2: address2.StreetAddress2,
-		StreetAddress3: address2.StreetAddress3,
+		City:                 &address2.City,
+		PostalCode:           &address2.PostalCode,
+		State:                &address2.State,
+		StreetAddress1:       &address2.StreetAddress1,
+		StreetAddress2:       address2.StreetAddress2,
+		StreetAddress3:       address2.StreetAddress3,
+		UsPostRegionCitiesID: strfmt.UUID(address2.UsPostRegionCityID.String()),
 	}
 	secondaryDestinationAddress = primev3messages.Address{
-		City:           &address2.City,
-		PostalCode:     &address2.PostalCode,
-		State:          &address2.State,
-		StreetAddress1: &address2.StreetAddress1,
-		StreetAddress2: address2.StreetAddress2,
-		StreetAddress3: address2.StreetAddress3,
+		City:                 &address2.City,
+		PostalCode:           &address2.PostalCode,
+		State:                &address2.State,
+		StreetAddress1:       &address2.StreetAddress1,
+		StreetAddress2:       address2.StreetAddress2,
+		StreetAddress3:       address2.StreetAddress3,
+		UsPostRegionCitiesID: strfmt.UUID(address2.UsPostRegionCityID.String()),
 	}
 	tertiaryPickupAddress = primev3messages.Address{
-		City:           &address3.City,
-		PostalCode:     &address3.PostalCode,
-		State:          &address3.State,
-		StreetAddress1: &address3.StreetAddress1,
-		StreetAddress2: address3.StreetAddress2,
-		StreetAddress3: address3.StreetAddress3,
+		City:                 &address3.City,
+		PostalCode:           &address3.PostalCode,
+		State:                &address3.State,
+		StreetAddress1:       &address3.StreetAddress1,
+		StreetAddress2:       address3.StreetAddress2,
+		StreetAddress3:       address3.StreetAddress3,
+		UsPostRegionCitiesID: strfmt.UUID(address3.UsPostRegionCityID.String()),
 	}
 	tertiaryDestinationAddress = primev3messages.Address{
-		City:           &address3.City,
-		PostalCode:     &address3.PostalCode,
-		State:          &address3.State,
-		StreetAddress1: &address3.StreetAddress1,
-		StreetAddress2: address3.StreetAddress2,
-		StreetAddress3: address3.StreetAddress3,
+		City:                 &address3.City,
+		PostalCode:           &address3.PostalCode,
+		State:                &address3.State,
+		StreetAddress1:       &address3.StreetAddress1,
+		StreetAddress2:       address3.StreetAddress2,
+		StreetAddress3:       address3.StreetAddress3,
+		UsPostRegionCitiesID: strfmt.UUID(address3.UsPostRegionCityID.String()),
 	}
 
 	ppmShipment := primev3messages.CreatePPMShipment{
@@ -771,6 +872,12 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.True(*model.HasProGear)
 	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
 	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
+	suite.NotNil(model.PickupAddress.UsPostRegionCityID)
+	suite.NotNil(model.SecondaryPickupAddress.UsPostRegionCityID)
+	suite.NotNil(model.TertiaryPickupAddress.UsPostRegionCityID)
+	suite.NotNil(model.DestinationAddress.UsPostRegionCityID)
+	suite.NotNil(model.SecondaryDestinationAddress.UsPostRegionCityID)
+	suite.NotNil(model.TertiaryDestinationAddress.UsPostRegionCityID)
 	suite.True(*model.HasSecondaryPickupAddress)
 	suite.True(*model.HasSecondaryDestinationAddress)
 	suite.True(*model.HasTertiaryPickupAddress)

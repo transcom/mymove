@@ -61,12 +61,27 @@ type Move struct {
 	// Format: uuid
 	ContractorID *strfmt.UUID `json:"contractorId,omitempty"`
 
+	// counseling office
+	CounselingOffice *TransportationOffice `json:"counselingOffice,omitempty"`
+
+	// The transportation office that will handle services counseling for this move
+	// Format: uuid
+	CounselingOfficeID *strfmt.UUID `json:"counselingOfficeId,omitempty"`
+
 	// created at
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
+
+	// Timestamp of when the TOO acknowledged the excess unaccompanied baggage weight risk by either dismissing the alert or updating the max billable weight
+	// Format: date-time
+	ExcessUnaccompaniedBaggageWeightAcknowledgedAt *strfmt.DateTime `json:"excessUnaccompaniedBaggageWeightAcknowledgedAt,omitempty"`
+
+	// Timestamp of when the sum of estimated or actual unaccompanied baggage shipment weights of the move reached 90% of the weight allowance
+	// Format: date-time
+	ExcessUnaccompaniedBaggageWeightQualifiedAt *strfmt.DateTime `json:"excessUnaccompaniedBaggageWeightQualifiedAt,omitempty"`
 
 	// Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight
 	// Format: date-time
@@ -193,7 +208,23 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCounselingOffice(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCounselingOfficeID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessUnaccompaniedBaggageWeightAcknowledgedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessUnaccompaniedBaggageWeightQualifiedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -441,12 +472,67 @@ func (m *Move) validateContractorID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Move) validateCounselingOffice(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOffice) { // not required
+		return nil
+	}
+
+	if m.CounselingOffice != nil {
+		if err := m.CounselingOffice.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("counselingOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("counselingOffice")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) validateCounselingOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("counselingOfficeId", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Move) validateCreatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateExcessUnaccompaniedBaggageWeightAcknowledgedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessUnaccompaniedBaggageWeightAcknowledgedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excessUnaccompaniedBaggageWeightAcknowledgedAt", "body", "date-time", m.ExcessUnaccompaniedBaggageWeightAcknowledgedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateExcessUnaccompaniedBaggageWeightQualifiedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessUnaccompaniedBaggageWeightQualifiedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excessUnaccompaniedBaggageWeightQualifiedAt", "body", "date-time", m.ExcessUnaccompaniedBaggageWeightQualifiedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -661,6 +747,10 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateCounselingOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateFinancialReviewFlag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -809,6 +899,27 @@ func (m *Move) contextValidateContractor(ctx context.Context, formats strfmt.Reg
 				return ve.ValidateName("contractor")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("contractor")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateCounselingOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CounselingOffice != nil {
+
+		if swag.IsZero(m.CounselingOffice) { // not required
+			return nil
+		}
+
+		if err := m.CounselingOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("counselingOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("counselingOffice")
 			}
 			return err
 		}

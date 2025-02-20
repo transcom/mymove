@@ -6,12 +6,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './MoveQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
-import { useMovesQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
-import { getMovesQueue } from 'services/ghcApi';
+import {
+  useMovesQueueQueries,
+  useUserQueries,
+  useMoveSearchQueries,
+  useDestinationRequestsQueueQueries,
+} from 'hooks/queries';
+import { getDestinationRequestsQueue, getMovesQueue } from 'services/ghcApi';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS, BRANCH_OPTIONS } from 'constants/queues';
+import { MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS, BRANCH_OPTIONS, QUEUE_TYPES } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -27,6 +32,7 @@ import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import handleQueueAssignment from 'utils/queues';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter = true) => {
   const cols = [
@@ -160,13 +166,17 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
           ) : (
             <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol} key={row.id}>
               <Dropdown
-                defaultValue={row.assignedTo?.officeUserId}
+                key={row.id}
                 onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.TOO)}
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
                 {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => (
-                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                  <option
+                    value={officeUserId}
+                    key={officeUserId}
+                    selected={row.assignedTo?.officeUserId === officeUserId}
+                  >
                     {`${lastName}, ${firstName}`}
                   </option>
                 ))}
@@ -177,6 +187,9 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         {
           id: 'assignedTo',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
+          },
         },
       ),
     );
@@ -184,13 +197,15 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
   return cols;
 };
 
-const MoveQueue = ({ isQueueManagementFFEnabled }) => {
+const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmentFFEnabled, activeRole }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
-
+  const supervisor = userPrivileges
+    ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
+    : false;
   useEffect(() => {
     const fetchData = async () => {
       const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
@@ -267,6 +282,15 @@ const MoveQueue = ({ isQueueManagementFFEnabled }) => {
           <NavLink
             end
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={tooRoutes.BASE_DESTINATION_REQUESTS_QUEUE}
+          >
+            <span className="tab-title" title="Destination Requests Queue">
+              Destination Requests Queue
+            </span>
+          </NavLink>,
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
             to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
           >
             <span data-testid="search-tab-link" className="tab-title" title="Search">
@@ -324,6 +348,36 @@ const MoveQueue = ({ isQueueManagementFFEnabled }) => {
           csvExportFileNamePrefix="Task-Order-Queue"
           csvExportQueueFetcher={getMovesQueue}
           csvExportQueueFetcherKey="queueMoves"
+          sessionStorageKey={queueType}
+          key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          queueType={QUEUE_TYPES.TASK_ORDER}
+          activeRole={activeRole}
+        />
+      </div>
+    );
+  }
+  if (queueType === tooRoutes.DESTINATION_REQUESTS_QUEUE) {
+    return (
+      <div className={styles.MoveQueue} data-testid="destination-requests-queue">
+        {renderNavBar()}
+        <TableQueue
+          showFilters
+          showPagination
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'status', desc: false }]}
+          disableMultiSort
+          disableSortBy={false}
+          columns={columns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
+          title="Destination requests"
+          handleClick={handleClick}
+          useQueries={useDestinationRequestsQueueQueries}
+          showCSVExport
+          csvExportFileNamePrefix="Destination-Requests-Queue"
+          csvExportQueueFetcher={getDestinationRequestsQueue}
+          csvExportQueueFetcherKey="destinationQueueMoves"
           sessionStorageKey={queueType}
           key={queueType}
         />

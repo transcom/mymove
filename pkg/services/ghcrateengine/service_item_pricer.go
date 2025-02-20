@@ -36,7 +36,6 @@ func (p serviceItemPricer) PriceServiceItem(appCtx appcontext.AppContext, item m
 	// createPricerGeneratedParams will throw an error if pricingParams is an empty slice
 	// currently our pricers are returning empty slices for pricingParams
 	// once all pricers have been updated to return pricingParams
-	// TODO: this conditional logic should be removed
 	var displayParams models.PaymentServiceItemParams
 	if len(pricingParams) > 0 {
 		displayParams, err = createPricerGeneratedParams(appCtx, item.ID, pricingParams)
@@ -66,6 +65,10 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 		return NewDomesticDestinationShuttlingPricer(), nil
 	case models.ReServiceCodeDOSHUT:
 		return NewDomesticOriginShuttlingPricer(), nil
+	case models.ReServiceCodeIDSHUT:
+		return NewInternationalDestinationShuttlingPricer(), nil
+	case models.ReServiceCodeIOSHUT:
+		return NewInternationalOriginShuttlingPricer(), nil
 	case models.ReServiceCodeDCRT:
 		return NewDomesticCratingPricer(), nil
 	case models.ReServiceCodeDUCRT:
@@ -94,6 +97,28 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 		return NewDomesticOriginSITPickupPricer(), nil
 	case models.ReServiceCodeDDDSIT:
 		return NewDomesticDestinationSITDeliveryPricer(), nil
+	case models.ReServiceCodeISLH:
+		return NewIntlShippingAndLinehaulPricer(), nil
+	case models.ReServiceCodeIHPK:
+		return NewIntlHHGPackPricer(), nil
+	case models.ReServiceCodeIHUPK:
+		return NewIntlHHGUnpackPricer(), nil
+	case models.ReServiceCodePOEFSC:
+		return NewPortFuelSurchargePricer(), nil
+	case models.ReServiceCodePODFSC:
+		return NewPortFuelSurchargePricer(), nil
+	case models.ReServiceCodeIOFSIT:
+		return NewIntlOriginFirstDaySITPricer(), nil
+	case models.ReServiceCodeIOASIT:
+		return NewIntlOriginAdditionalDaySITPricer(), nil
+	case models.ReServiceCodeIDFSIT:
+		return NewIntlDestinationFirstDaySITPricer(), nil
+	case models.ReServiceCodeIDASIT:
+		return NewIntlDestinationAdditionalDaySITPricer(), nil
+	case models.ReServiceCodeICRT:
+		return NewIntlCratingPricer(), nil
+	case models.ReServiceCodeIUCRT:
+		return NewIntlUncratingPricer(), nil
 	default:
 		// TODO: We may want a different error type here after all pricers have been implemented
 		return nil, apperror.NewNotImplementedError(fmt.Sprintf("pricer not found for code %s", serviceCode))

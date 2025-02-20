@@ -15,7 +15,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/ghcmocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *GHCTestSuite) TestHHGTransitDistance() {
@@ -77,21 +76,11 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 			mock.Anything,
 		).Return(soapResponseForDistance("150.33"), nil)
 
-		sourceZip3 := "303"
-		destinationZip3 := "309"
-		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
-			Zip3Distance: models.Zip3Distance{
-				FromZip3:      sourceZip3,
-				ToZip3:        destinationZip3,
-				DistanceMiles: 150,
-			},
-		})
-
 		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewHHGPlanner(plannerMileage)
-		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30301")
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30301", false)
 		suite.NoError(err)
-		suite.Equal(150, distance)
+		suite.Equal(149, distance)
 	})
 
 	suite.Run("ZipTransitDistance returns a distance of 1 if origin and dest zips are the same", func() {
@@ -99,7 +88,7 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 
 		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewHHGPlanner(plannerMileage)
-		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "11201", "11201")
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "11201", "11201", false)
 		suite.NoError(err)
 		suite.Equal(1, distance)
 	})
@@ -112,30 +101,11 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 			mock.Anything,
 		).Return(soapResponseForDistance("166"), nil)
 
-		// Create two zip3s in the same base point city (Miami)
-		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
-			ReZip3: models.ReZip3{
-				Zip3:          "330",
-				BasePointCity: "Miami",
-				State:         "FL",
-			},
-		})
-		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
-			ReZip3: models.ReZip3{
-				Zip3:          "331",
-				BasePointCity: "Miami",
-				State:         "FL",
-			},
-			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				ServiceArea: "005",
-			},
-		})
-
 		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewHHGPlanner(plannerMileage)
 
 		// Get distance between two zips in the same base point city
-		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "33169", "33040")
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "33169", "33040", false)
 		suite.NoError(err)
 
 		// Ensure DTOD was used for distance
@@ -151,7 +121,7 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 
 		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewHHGPlanner(plannerMileage)
-		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30901")
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30901", false)
 		suite.Error(err)
 		suite.Equal(0, distance)
 	})

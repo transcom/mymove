@@ -44,6 +44,7 @@ import withRouter from 'utils/routing';
 import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
 import SelectedGblocProvider from 'components/Office/GblocSwitcher/SelectedGblocProvider';
 import MaintenancePage from 'pages/Maintenance/MaintenancePage';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -82,9 +83,7 @@ const PrimeSimulatorUploadServiceRequestDocuments = lazy(() =>
   import('pages/PrimeUI/UploadServiceRequestDocuments/UploadServiceRequestDocuments'),
 );
 const PrimeSimulatorCreateServiceItem = lazy(() => import('pages/PrimeUI/CreateServiceItem/CreateServiceItem'));
-const PrimeSimulatorUpdateSitServiceItem = lazy(() =>
-  import('pages/PrimeUI/UpdateServiceItems/PrimeUIUpdateSitServiceItem'),
-);
+const PrimeSimulatorUpdateServiceItem = lazy(() => import('pages/PrimeUI/UpdateServiceItems/PrimeUIUpdateServiceItem'));
 const PrimeUIShipmentUpdateAddress = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateAddress'));
 const PrimeUIShipmentUpdateReweigh = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateReweigh'));
 const PrimeSimulatorCreateSITExtensionRequest = lazy(() =>
@@ -114,6 +113,7 @@ export class OfficeApp extends Component {
       hqRoleFlag: !!props.hqRoleFlag,
       gsrRoleFlag: undefined,
       queueManagementFlag: undefined,
+      bulkAssignmentFlag: undefined,
     };
   }
 
@@ -158,6 +158,10 @@ export class OfficeApp extends Component {
         this.setState({
           queueManagementFlag: isQueueManagementFlagValue,
         });
+        const isBulkAssignmentFlagValue = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BULK_ASSIGNMENT);
+        this.setState({
+          bulkAssignmentFlag: isBulkAssignmentFlagValue,
+        });
       } catch (error) {
         retryPageLoading(error);
       }
@@ -177,8 +181,17 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag, gsrRoleFlag, queueManagementFlag } =
-      this.state;
+    const {
+      hasError,
+      error,
+      info,
+      oktaLoggedOut,
+      oktaNeedsLoggedOut,
+      hqRoleFlag,
+      gsrRoleFlag,
+      queueManagementFlag,
+      bulkAssignmentFlag,
+    } = this.state;
     const {
       activeRole,
       officeUserId,
@@ -279,7 +292,7 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                            <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} />
+                            <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} activeRole={activeRole} />
                           </PrivateRoute>
                         }
                       />
@@ -288,7 +301,10 @@ export class OfficeApp extends Component {
                         path="/invoicing/queue"
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TIO]}>
-                            <PaymentRequestQueue isQueueManagementFFEnabled={queueManagementFlag} />
+                            <PaymentRequestQueue
+                              isQueueManagementFFEnabled={queueManagementFlag}
+                              activeRole={activeRole}
+                            />
                           </PrivateRoute>
                         }
                       />
@@ -298,7 +314,10 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                            <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
+                            <HeadquartersQueues
+                              isQueueManagementFFEnabled={queueManagementFlag}
+                              activeRole={activeRole}
+                            />
                           </PrivateRoute>
                         }
                       />
@@ -322,6 +341,8 @@ export class OfficeApp extends Component {
                               <ServicesCounselingQueue
                                 userPrivileges={userPrivileges}
                                 isQueueManagementFFEnabled={queueManagementFlag}
+                                isBulkAssignmentFFEnabled={bulkAssignmentFlag}
+                                activeRole={activeRole}
                               />
                             </PrivateRoute>
                           }
@@ -349,7 +370,12 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.TIO]}>
-                              <PaymentRequestQueue isQueueManagementFFEnabled={queueManagementFlag} />
+                              <PaymentRequestQueue
+                                isQueueManagementFFEnabled={queueManagementFlag}
+                                userPrivileges={userPrivileges}
+                                isBulkAssignmentFFEnabled={bulkAssignmentFlag}
+                                activeRole={activeRole}
+                              />
                             </PrivateRoute>
                           }
                         />
@@ -360,7 +386,12 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                              <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} />
+                              <MoveQueue
+                                isQueueManagementFFEnabled={queueManagementFlag}
+                                userPrivileges={userPrivileges}
+                                isBulkAssignmentFFEnabled={bulkAssignmentFlag}
+                                activeRole={activeRole}
+                              />
                             </PrivateRoute>
                           }
                         />
@@ -372,7 +403,10 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                              <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
+                              <HeadquartersQueues
+                                isQueueManagementFFEnabled={queueManagementFlag}
+                                activeRole={activeRole}
+                              />
                             </PrivateRoute>
                           }
                         />
@@ -510,11 +544,11 @@ export class OfficeApp extends Component {
                         }
                       />
                       <Route
-                        key="primeSimulatorUpdateSitServiceItems"
+                        key="primeSimulatorUpdateServiceItems"
                         path={primeSimulatorRoutes.UPDATE_SIT_SERVICE_ITEM_PATH}
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                            <PrimeSimulatorUpdateSitServiceItem />
+                            <PrimeSimulatorUpdateServiceItem />
                           </PrivateRoute>
                         }
                       />

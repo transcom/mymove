@@ -19,7 +19,7 @@ const shipmentTypes = {
     serviceItemCodes.DPK,
     serviceItemCodes.DUPK,
   ],
-  HHG_INTO_NTS_DOMESTIC: [
+  HHG_INTO_NTS: [
     serviceItemCodes.DLH,
     serviceItemCodes.DSH,
     serviceItemCodes.FSC,
@@ -27,7 +27,7 @@ const shipmentTypes = {
     serviceItemCodes.DDP,
     serviceItemCodes.DNPK,
   ],
-  HHG_OUTOF_NTS_DOMESTIC: [
+  HHG_OUTOF_NTS: [
     serviceItemCodes.DLH,
     serviceItemCodes.DSH,
     serviceItemCodes.FSC,
@@ -59,12 +59,12 @@ function filterPortFuelSurcharge(shipment, autoApprovedItems) {
   const { destinationAddress, pickupAddress } = shipment;
   let filteredPortFuelSurchargeList = autoApprovedItems;
   if (pickupAddress.isOconus) {
-    filteredPortFuelSurchargeList = autoApprovedItems.filter((serviceItem) => {
+    filteredPortFuelSurchargeList = filteredPortFuelSurchargeList.filter((serviceItem) => {
       return serviceItem.serviceCode !== SERVICE_ITEM_CODES.POEFSC;
     });
   }
   if (destinationAddress.isOconus) {
-    filteredPortFuelSurchargeList = autoApprovedItems.filter((serviceItem) => {
+    filteredPortFuelSurchargeList = filteredPortFuelSurchargeList.filter((serviceItem) => {
       return serviceItem.serviceCode !== SERVICE_ITEM_CODES.PODFSC;
     });
   }

@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -69,7 +70,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		{
 			Model: models.MTOShipment{
 				Status:           models.MTOShipmentStatusApproved,
-				ShipmentType:     models.MTOShipmentTypeHHGIntoNTSDom,
+				ShipmentType:     models.MTOShipmentTypeHHGIntoNTS,
 				CounselorRemarks: handlers.FmtString("counselor remark"),
 				SITDaysAllowance: &sitAllowance,
 			},
@@ -579,8 +580,64 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 }
 
 func (suite *HandlerSuite) TestApproveShipmentHandler() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
+	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+		mockCreator := &mocks.SignedCertificationCreator{}
+
+		mockCreator.On(
+			"CreateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockCreator
+	}
+
+	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+		mockUpdater := &mocks.SignedCertificationUpdater{}
+
+		mockUpdater.On(
+			"UpdateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+			mock.AnythingOfType("string"),
+		).Return(returnValue...)
+
+		return mockUpdater
+	}
+
+	builder := query.NewQueryBuilder()
+	moveRouter := moveservices.NewMoveRouter()
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+		false,
+		false,
+	).Return(400, nil)
+	ppmEstimator := mocks.PPMEstimator{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+		false,
+	).Return(400, nil)
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+		builder,
+		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
+	)
+
 	suite.Run("Returns 200 when all validations pass", func() {
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -595,20 +652,20 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		builder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter()
-		planner := &routemocks.Planner{}
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		approver := mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			&routemocks.Planner{},
 			moveWeights,
+			moveTaskOrderUpdater,
+			moveRouter,
 		)
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
@@ -624,6 +681,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 
 		approveParams := shipmentops.ApproveShipmentParams{
@@ -642,6 +700,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.HasWebhookNotification(shipment.ID, traceID)
+		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -659,6 +718,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -698,6 +758,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -737,6 +798,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -776,6 +838,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -815,6 +878,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -854,6 +918,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -869,6 +934,462 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		// Validate outgoing payload: nil payload
 		suite.Nil(payload)
+	})
+}
+
+// ApproveShipment(s)Handler
+func (suite *HandlerSuite) TestApproveShipmentsHandler() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
+	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+		mockCreator := &mocks.SignedCertificationCreator{}
+
+		mockCreator.On(
+			"CreateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockCreator
+	}
+
+	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+		mockUpdater := &mocks.SignedCertificationUpdater{}
+
+		mockUpdater.On(
+			"UpdateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+			mock.AnythingOfType("string"),
+		).Return(returnValue...)
+
+		return mockUpdater
+	}
+
+	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+	builder := query.NewQueryBuilder()
+	moveRouter := moveservices.NewMoveRouter()
+	planner := &routemocks.Planner{}
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+		false,
+		false,
+	).Return(400, nil)
+
+	ppmEstimator := mocks.PPMEstimator{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+		false,
+	).Return(400, nil)
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+		builder,
+		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
+	)
+
+	suite.Run("Returns 200 when all validations pass", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag1 := etag.GenerateEtag(shipment1.UpdatedAt)
+		eTag2 := etag.GenerateEtag(shipment2.UpdatedAt)
+
+		approver := mtoshipment.NewShipmentApprover(
+			mtoshipment.NewShipmentRouter(),
+			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			&routemocks.Planner{},
+			moveWeights,
+			moveTaskOrderUpdater,
+			moveRouter,
+		)
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment1.ID),
+						ETag:       &eTag1,
+					},
+					{
+						ShipmentID: handlers.FmtUUID(shipment2.ID),
+						ETag:       &eTag2,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsOK{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload[0].Validate(strfmt.Default))
+		suite.NoError(payload[1].Validate(strfmt.Default))
+
+		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
+		suite.HasWebhookNotification(shipment1.ID, traceID)
+		suite.HasWebhookNotification(shipment2.ID, traceID)
+	})
+
+	suite.Run("Returns a 403 when the office user is not a TOO", func() {
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.AssertNumberOfCalls(suite.T(), "ApproveShipments", 0)
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsForbidden{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsForbidden).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
+	})
+
+	suite.Run("Returns 404 when approver returns NotFoundError", func() {
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, apperror.NotFoundError{})
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsNotFound{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsNotFound).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 409 when approver returns Conflict Error", func() {
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, apperror.ConflictError{})
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsConflict{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsConflict).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 412 when eTag does not match", func() {
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(time.Now())
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, apperror.PreconditionFailedError{})
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsPreconditionFailed{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsPreconditionFailed).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 422 when approver returns validation errors", func() {
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 422 when ApproveShipments body is empty", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsUnprocessableEntity{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 500 when approver returns unexpected error", func() {
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]services.ShipmentIdWithEtag")).Return(nil, errors.New("UnexpectedError"))
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+		}
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment.ID),
+						ETag:       &eTag,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsInternalServerError{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsInternalServerError).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
 
@@ -2091,6 +2612,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -2123,9 +2645,10 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2181,9 +2704,10 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2236,9 +2760,10 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2292,9 +2817,10 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2349,9 +2875,10 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2405,9 +2932,10 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter()
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2675,6 +3203,8 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 }
 
 func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Returns 200 and updates SIT days allowance when validations pass", func() {
 		sitDaysAllowance := 20
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
@@ -2743,8 +3273,9 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2762,7 +3293,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 
-		sitExtensionShipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		sitExtensionShipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 
 		handler := ApproveSITExtensionHandler{
 			handlerConfig,
@@ -2866,6 +3397,8 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 }
 
 func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Returns 200, creates new SIT extension, and updates SIT days allowance on shipment without an allowance when validations pass", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 
@@ -2883,8 +3416,9 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2903,7 +3437,7 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 
-		sitExtensionShipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		sitExtensionShipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 
 		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
@@ -2966,8 +3500,9 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2988,7 +3523,7 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 
 		mobilehomeshipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 
-		sitExtensionShipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobilehomeshipmentUpdater)
+		sitExtensionShipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobilehomeshipmentUpdater, nil)
 
 		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
@@ -3139,6 +3674,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3223,6 +3759,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3279,6 +3816,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3331,6 +3869,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3378,6 +3917,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3462,6 +4002,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
@@ -3673,6 +4214,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3823,6 +4365,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -4022,15 +4565,17 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
 	).Return(400, nil)
 	moveRouter := moveservices.NewMoveRouter()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -4048,7 +4593,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
@@ -4116,7 +4661,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
@@ -4285,9 +4830,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(handlers.FmtPoundPtr(&sitEstimatedWeight), updatedShipment.PpmShipment.SitEstimatedWeight)
 		suite.Equal(handlers.FmtDate(sitEstimatedEntryDate), updatedShipment.PpmShipment.SitEstimatedEntryDate)
 		suite.Equal(handlers.FmtDate(sitEstimatedDepartureDate), updatedShipment.PpmShipment.SitEstimatedDepartureDate)
-		suite.Equal(int64(sitEstimatedCost), *updatedShipment.PpmShipment.SitEstimatedCost)
 		suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), updatedShipment.PpmShipment.EstimatedWeight)
-		suite.Equal(int64(estimatedIncentive), *updatedShipment.PpmShipment.EstimatedIncentive)
 		suite.Equal(handlers.FmtBool(hasProGear), updatedShipment.PpmShipment.HasProGear)
 		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), updatedShipment.PpmShipment.ProGearWeight)
 		suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), updatedShipment.PpmShipment.SpouseProGearWeight)
@@ -4304,7 +4847,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
@@ -4384,7 +4927,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
@@ -4464,7 +5007,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
@@ -4502,7 +5045,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
@@ -4542,7 +5085,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
@@ -4583,7 +5126,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
@@ -4698,6 +5241,7 @@ func (suite *HandlerSuite) TestUpdateSITServiceItemCustomerExpenseHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-service-item/convert-to-customer-expense", approvedShipment.ID.String()), nil)
@@ -4774,6 +5318,7 @@ func (suite *HandlerSuite) TestUpdateSITServiceItemCustomerExpenseHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-service-item/convert-to-customer-expense", approvedShipment.ID.String()), nil)

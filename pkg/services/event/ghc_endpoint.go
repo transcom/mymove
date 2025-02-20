@@ -43,6 +43,9 @@ const GhcDeleteShipmentEndpointKey = "Ghc.DeleteShipment"
 // GhcApproveShipmentEndpointKey is the key for the approveShipment endpoint in ghc
 const GhcApproveShipmentEndpointKey = "Ghc.ApproveShipment"
 
+// GhcApproveShipmentEndpointKey is the key for the approveShipment endpoint in ghc
+const GhcApproveShipmentsEndpointKey = "Ghc.ApproveShipments"
+
 // GhcRequestShipmentDiversionEndpointKey is the key for the requestShipmentDiversion endpoint in ghc
 const GhcRequestShipmentDiversionEndpointKey = "Ghc.RequestShipmentDiversion"
 
@@ -127,6 +130,9 @@ const GhcUpdateMaxBillableWeightAsTIOEndpointKey = "Ghc.UpdateMaxBillableWeightA
 // GhcAcknowledgeExcessWeightRiskEndpointKey is the key for the AcknowledgeExcessWeightRisk endpoint in ghc
 const GhcAcknowledgeExcessWeightRiskEndpointKey = "Ghc.AcknowledgeExcessWeightRisk"
 
+// GhcAcknowledgeExcessUnaccompaniedBaggageWeightRiskEndpointKey is the key for the AcknowledgeExcessUnaccompaniedBaggageWeightRisk endpoint in ghc
+const GhcAcknowledgeExcessUnaccompaniedBaggageWeightRiskEndpointKey = "Ghc.GhcAcknowledgeExcessUnaccompaniedBaggageWeightRiskEndpointKey"
+
 // -------------------- ENDPOINT MAP ENTRIES --------------------
 var ghcEndpoints = EndpointMapType{
 	GhcGetCustomerEndpointKey: {
@@ -176,6 +182,10 @@ var ghcEndpoints = EndpointMapType{
 	GhcApproveShipmentEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "approveShipment",
+	},
+	GhcApproveShipmentsEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "approveShipments",
 	},
 	GhcRequestShipmentDiversionEndpointKey: {
 		APIName:     GhcAPIName,
@@ -284,5 +294,9 @@ var ghcEndpoints = EndpointMapType{
 	GhcAcknowledgeExcessWeightRiskEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "AcknowledgeExcessWeightRisk",
+	},
+	GhcAcknowledgeExcessUnaccompaniedBaggageWeightRiskEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "AcknowledgeExcessUnaccompaniedBaggageWeightRisk",
 	},
 }

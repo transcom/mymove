@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -48,7 +49,10 @@ func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uu
 		return &models.Order{}, uuid.Nil, apperror.NewInvalidInputError(orderID, nil, nil, "SAC cannot be more than 80 characters")
 	}
 
-	orderToUpdate := orderFromTOOPayload(appCtx, *order, payload)
+	orderToUpdate, err := orderFromTOOPayload(appCtx, *order, payload)
+	if err != nil {
+		return nil, uuid.Nil, err
+	}
 
 	return f.updateOrderAsTOO(appCtx, orderToUpdate, CheckRequiredFields())
 }
@@ -70,7 +74,10 @@ func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orde
 		return &models.Order{}, uuid.Nil, apperror.NewInvalidInputError(orderID, nil, nil, "SAC cannot be more than 80 characters")
 	}
 
-	orderToUpdate := orderFromCounselingPayload(*order, payload)
+	orderToUpdate, err := orderFromCounselingPayload(appCtx, *order, payload)
+	if err != nil {
+		return &models.Order{}, uuid.Nil, nil
+	}
 
 	return f.updateOrder(appCtx, orderToUpdate, CheckRequiredFields())
 }
@@ -87,7 +94,10 @@ func (f *orderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderI
 		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	orderToUpdate := allowanceFromTOOPayload(appCtx, *order, payload)
+	orderToUpdate, err := allowanceFromTOOPayload(appCtx, *order, payload)
+	if err != nil {
+		return &models.Order{}, uuid.Nil, err
+	}
 
 	return f.updateOrder(appCtx, orderToUpdate)
 }
@@ -104,7 +114,10 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, 
 		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	orderToUpdate := allowanceFromCounselingPayload(appCtx, *order, payload)
+	orderToUpdate, err := allowanceFromCounselingPayload(appCtx, *order, payload)
+	if err != nil {
+		return &models.Order{}, uuid.Nil, err
+	}
 
 	return f.updateOrder(appCtx, orderToUpdate)
 }
@@ -177,8 +190,9 @@ func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, 
 	return &order, nil
 }
 
-func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
+func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) (models.Order, error) {
 	order := existingOrder
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	// update order origin duty location
 	if payload.OriginDutyLocationID != nil {
@@ -257,7 +271,10 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 	if payload.Grade != nil {
 		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
 		// Calculate new DBWeightAuthorized based on the new grade
-		weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
+		weightAllotment, err := waf.GetWeightAllotment(appCtx, string(*order.Grade), order.OrdersType)
+		if err != nil {
+			return models.Order{}, err
+		}
 		weight := weightAllotment.TotalWeightSelf
 		// Payload does not have this information, retrieve dependents from the existing order
 		if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
@@ -267,7 +284,7 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 		order.Entitlement.DBAuthorizedWeight = &weight
 	}
 
-	return order
+	return order, nil
 }
 
 func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer, uploadType models.UploadType) (models.UserUpload, string, *validate.Errors, error) {
@@ -317,8 +334,9 @@ func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UU
 	return *userUpload, url, nil, nil
 }
 
-func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) models.Order {
+func orderFromCounselingPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) (models.Order, error) {
 	order := existingOrder
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	// update order origin duty location
 	if payload.OriginDutyLocationID != nil {
@@ -390,7 +408,10 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	if payload.Grade != nil {
 		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
 		// Calculate new DBWeightAuthorized based on the new grade
-		weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
+		weightAllotment, err := waf.GetWeightAllotment(appCtx, string(*order.Grade), order.OrdersType)
+		if err != nil {
+			return models.Order{}, err
+		}
 		weight := weightAllotment.TotalWeightSelf
 		// Payload does not have this information, retrieve dependents from the existing order
 		if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
@@ -400,11 +421,16 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.Entitlement.DBAuthorizedWeight = &weight
 	}
 
-	return order
+	if payload.HasDependents != nil {
+		order.HasDependents = *payload.HasDependents
+	}
+
+	return order, nil
 }
 
-func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateAllowancePayload) models.Order {
+func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateAllowancePayload) (models.Order, error) {
 	order := existingOrder
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	if payload.ProGearWeight != nil {
 		order.Entitlement.ProGearWeight = int(*payload.ProGearWeight)
@@ -430,7 +456,10 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 	}
 
 	// Calculate new DBWeightAuthorized based on the new grade
-	weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
+	weightAllotment, err := waf.GetWeightAllotment(appCtx, string(*order.Grade), order.OrdersType)
+	if err != nil {
+		return models.Order{}, err
+	}
 	weight := weightAllotment.TotalWeightSelf
 	// Payload does not have this information, retrieve dependents from the existing order
 	if existingOrder.HasDependents && *payload.DependentsAuthorized {
@@ -454,6 +483,13 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 
 	if payload.GunSafe != nil {
 		order.Entitlement.GunSafe = *payload.GunSafe
+	}
+
+	if payload.WeightRestriction != nil {
+		weightRestriction := int(*payload.WeightRestriction)
+		order.Entitlement.WeightRestriction = &weightRestriction
+	} else {
+		order.Entitlement.WeightRestriction = nil
 	}
 
 	if payload.AccompaniedTour != nil {
@@ -496,15 +532,15 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 	if order.Entitlement != nil {
 		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, &hasDepedents, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
 		if err == nil {
-			weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+			order.Entitlement.UBAllowance = &unaccompaniedBaggageAllowance
 		}
 	}
 
-	return order
+	return order, nil
 }
-
-func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) models.Order {
+func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) (models.Order, error) {
 	order := existingOrder
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	if payload.ProGearWeight != nil {
 		order.Entitlement.ProGearWeight = int(*payload.ProGearWeight)
@@ -530,7 +566,10 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	}
 
 	// Calculate new DBWeightAuthorized based on the new grade
-	weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
+	weightAllotment, err := waf.GetWeightAllotment(appCtx, string(*order.Grade), order.OrdersType)
+	if err != nil {
+		return models.Order{}, err
+	}
 	weight := weightAllotment.TotalWeightSelf
 	// Payload does not have this information, retrieve dependents from the existing order
 	if existingOrder.HasDependents && *payload.DependentsAuthorized {
@@ -554,6 +593,13 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 
 	if payload.GunSafe != nil {
 		order.Entitlement.GunSafe = *payload.GunSafe
+	}
+
+	if payload.WeightRestriction != nil {
+		weightRestriction := int(*payload.WeightRestriction)
+		order.Entitlement.WeightRestriction = &weightRestriction
+	} else {
+		order.Entitlement.WeightRestriction = nil
 	}
 
 	if payload.AccompaniedTour != nil {
@@ -580,23 +626,24 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	if order.NewDutyLocationID != uuid.Nil {
 		var newDutyLocation models.DutyLocation
 		newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), order.NewDutyLocationID)
-		if err == nil {
-			order.NewDutyLocationID = newDutyLocation.ID
-			order.NewDutyLocation = newDutyLocation
+		if err != nil {
+			return models.Order{}, err
 		}
+		order.NewDutyLocationID = newDutyLocation.ID
+		order.NewDutyLocation = newDutyLocation
 	}
 
 	// Recalculate UB allowance of order entitlement
 	if order.Entitlement != nil {
 		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, payload.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
-		if err == nil {
-			weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+		if err != nil {
+			return models.Order{}, err
 		}
+		order.Entitlement.UBAllowance = &unaccompaniedBaggageAllowance
 	}
 
-	return order
+	return order, nil
 }
-
 func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext, doc *models.Document) (*models.Document, error) {
 	var docID uuid.UUID
 	if doc != nil {
@@ -695,16 +742,27 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		order.OriginDutyLocationID = &originDutyLocation.ID
 		order.OriginDutyLocation = &originDutyLocation
 
-		dutyLocationGBLOC, err2 := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
-		if err2 != nil {
-			switch err2 {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
-			default:
-				return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+		var originDutyLocationGBLOC *string
+		if *originDutyLocation.Address.IsOconus {
+			originDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), originDutyLocation.Address, order.ServiceMember)
+			if err != nil {
+				return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
 			}
+			originDutyLocationGBLOC = originDutyLocationGBLOCOconus
+		} else {
+			originDutyLocationGBLOCConus, err2 := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+			if err2 != nil {
+				switch err2 {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
+				default:
+					return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+				}
+			}
+			originDutyLocationGBLOC = &originDutyLocationGBLOCConus.GBLOC
 		}
-		order.OriginDutyLocationGBLOC = &dutyLocationGBLOC.GBLOC
+
+		order.OriginDutyLocationGBLOC = originDutyLocationGBLOC
 	}
 
 	if order.Grade != nil || order.OriginDutyLocationID != nil {
@@ -727,19 +785,29 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 			}
 		}
 
-		newDestinationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(order.NewDutyLocationID, "while looking for DestinationGBLOC")
-			default:
-				return nil, apperror.NewQueryError("DestinationGBLOC", err, "")
+		var newDestinationGBLOC *string
+		if *newDutyLocation.Address.IsOconus {
+			newDestinationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), newDutyLocation.Address, order.ServiceMember)
+			if err != nil {
+				return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for DestinationGBLOC Oconus")
 			}
+			newDestinationGBLOC = newDestinationGBLOCOconus
+		} else {
+			newDestinationGBLOCConus, err2 := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
+			if err2 != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(order.NewDutyLocationID, "while looking for DestinationGBLOC")
+				default:
+					return nil, apperror.NewQueryError("DestinationGBLOC", err, "")
+				}
+			}
+			newDestinationGBLOC = &newDestinationGBLOCConus.GBLOC
 		}
 
 		order.NewDutyLocationID = newDutyLocation.ID
 		order.NewDutyLocation = newDutyLocation
-		order.DestinationGBLOC = &newDestinationGBLOC.GBLOC
+		order.DestinationGBLOC = newDestinationGBLOC
 	}
 
 	// Recalculate UB allowance of order entitlement

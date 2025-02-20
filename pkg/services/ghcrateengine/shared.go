@@ -9,6 +9,15 @@ import (
 // minDomesticWeight is the minimum weight used in domestic calculations (weights below this are upgraded to the min)
 const minDomesticWeight = unit.Pound(500)
 
+// minIntlWeightHHG is the minimum weight used in intl calculations (weights below this are upgraded to the min)
+const minIntlWeightHHG = unit.Pound(500)
+
+// minInternationalWeight is the minimum weight used in international calculations (weights below this are upgraded to the min)
+const minInternationalWeight = unit.Pound(500)
+
+// minIntlExternalCrateBilledCubicFeet is the minimum billed cubic feet used in international external crate
+const minIntlExternalCrateBilledCubicFeet = 4.00
+
 // dateInYear represents a specific date in a year (without caring what year it is)
 type dateInYear struct {
 	month time.Month

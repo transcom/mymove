@@ -25,6 +25,7 @@ type OfficeUserFetcherPop interface {
 	FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error)
 	FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error)
 	FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error)
+	FetchOfficeUsersWithWorkloadByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUserWithWorkload, error)
 }
 
 // OfficeUserGblocFetcher is the exported interface for fetching the GBLOC of the
@@ -47,4 +48,11 @@ type OfficeUserCreator interface {
 //go:generate mockery --name OfficeUserUpdater
 type OfficeUserUpdater interface {
 	UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate, primaryTransportationOfficeId uuid.UUID) (*models.OfficeUser, *validate.Errors, error)
+}
+
+// OfficeUserDeleter is the exported interface for hard deleting an office user and its associations (roles, privileges)
+//
+//go:generate mockery --name OfficeUserDeleter
+type OfficeUserDeleter interface {
+	DeleteOfficeUser(appCtx appcontext.AppContext, id uuid.UUID) error
 }

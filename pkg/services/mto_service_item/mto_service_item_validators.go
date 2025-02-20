@@ -45,6 +45,13 @@ var allSITServiceItemsToCheck = []models.ReServiceCode{
 	models.ReServiceCodeDOSFSC,
 }
 
+var allAccessorialServiceItemsToCheck = []models.ReServiceCode{
+	models.ReServiceCodeIDSHUT,
+	models.ReServiceCodeIOSHUT,
+	models.ReServiceCodeICRT,
+	models.ReServiceCodeIUCRT,
+}
+
 var destSITServiceItems = []models.ReServiceCode{
 	models.ReServiceCodeDDDSIT,
 	models.ReServiceCodeDDASIT,
@@ -130,7 +137,7 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 	}
 
 	// Checks that the SITDepartureDate
-	// - is not later than the authorized end date
+	// - is not earlier than the SIT entry date
 	err = serviceItemData.checkSITDepartureDate(appCtx)
 	if err != nil {
 		return err
@@ -338,6 +345,40 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 		}
 	}
 
+	if slices.Contains(allAccessorialServiceItemsToCheck, serviceItemData.oldServiceItem.ReService.Code) {
+		invalidFieldChange := false
+		if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusRejected {
+			return nil
+		} else if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusSubmitted || serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusApproved {
+			if serviceItemData.updatedServiceItem.ReService.Code.String() != "" && serviceItemData.updatedServiceItem.ReService.Code.String() != serviceItemData.oldServiceItem.ReService.Code.String() {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.Reason != nil {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.EstimatedWeight != nil {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.RequestedApprovalsRequestedStatus != nil {
+				invalidFieldChange = true
+			}
+
+			if invalidFieldChange {
+				return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+					"- one or more fields is not allowed to be updated when the shuttle service item has an approved status.")
+			} else {
+				return nil
+			}
+
+		} else {
+			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+				"- this shuttle service item cannot be updated because the status is not in an editable state.")
+		}
+	}
+
 	return nil
 }
 
@@ -382,7 +423,7 @@ func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppC
 // checkNonPrimeFields checks that no fields were modified that are not allowed to be updated by the Prime
 func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) error {
 
-	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status && (!slices.Contains(allSITServiceItemsToCheck, v.oldServiceItem.ReService.Code)) {
+	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status && (!slices.Contains(allAccessorialServiceItemsToCheck, v.oldServiceItem.ReService.Code)) && (!slices.Contains(allSITServiceItemsToCheck, v.oldServiceItem.ReService.Code)) {
 		v.verrs.Add("status", "cannot be updated")
 	}
 
@@ -465,10 +506,10 @@ func (v *updateMTOServiceItemData) checkSITEntryDateAndFADD(_ appcontext.AppCont
 }
 
 // checkSITDepartureDate checks that the SITDepartureDate:
-// - is not later than the authorized end date
+// - is not earlier than the SIT entry date
 func (v *updateMTOServiceItemData) checkSITDepartureDate(_ appcontext.AppContext) error {
-	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
-		return nil // the SITDepartureDate isn't being updated, so we're fine here
+	if (v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate) && (v.updatedServiceItem.SITEntryDate == nil || v.updatedServiceItem.SITEntryDate == v.oldServiceItem.SITEntryDate) {
+		return nil // the SITDepartureDate or SITEntryDate isn't being updated, so we're fine here
 	}
 
 	if v.updatedServiceItem.SITDepartureDate != nil {
@@ -485,9 +526,9 @@ func (v *updateMTOServiceItemData) checkSITDepartureDate(_ appcontext.AppContext
 		if v.updatedServiceItem.SITEntryDate != nil {
 			SITEntryDate = v.updatedServiceItem.SITEntryDate
 		}
-		// Check that departure date is not before the current entry date
-		if v.updatedServiceItem.SITDepartureDate.Before(*SITEntryDate) {
-			v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set before the SIT entry date.")
+		// Check that departure date is not before or equal to the current entry date
+		if !v.updatedServiceItem.SITDepartureDate.After(*SITEntryDate) {
+			v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set before or equal to the SIT entry date.")
 		}
 	}
 	return nil

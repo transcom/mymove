@@ -61,6 +61,10 @@ const (
 	ServiceItemParamNameNTSPackingFactor ServiceItemParamName = "NTSPackingFactor"
 	// ServiceItemParamNameNumberDaysSIT is the param key name NumberDaysSIT
 	ServiceItemParamNameNumberDaysSIT ServiceItemParamName = "NumberDaysSIT"
+	// ServiceItemParamNamePerUnitCents is the param key name PerUnitCents
+	ServiceItemParamNamePerUnitCents ServiceItemParamName = "PerUnitCents"
+	// ServiceItemParamNamePortZip is the param key name PortZip
+	ServiceItemParamNamePortZip ServiceItemParamName = "PortZip"
 	// ServiceItemParamNamePriceAreaDest is the param key name PriceAreaDest
 	ServiceItemParamNamePriceAreaDest ServiceItemParamName = "PriceAreaDest"
 	// ServiceItemParamNamePriceAreaIntlDest is the param key name PriceAreaIntlDest
@@ -157,6 +161,8 @@ const (
 	ServiceItemParamNameUncappedRequestTotal ServiceItemParamName = "UncappedRequestTotal"
 	// ServiceItemParamNameLockedPriceCents is the param key name LockedPriceCents
 	ServiceItemParamNameLockedPriceCents ServiceItemParamName = "LockedPriceCents"
+	// ServiceItemParamNameExternalCrate is the param key name ExternalCrate
+	ServiceItemParamNameExternalCrate ServiceItemParamName = "ExternalCrate"
 )
 
 // ServiceItemParamType is a type of service item parameter
@@ -275,6 +281,9 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameStandaloneCrateCap,
 	ServiceItemParamNameUncappedRequestTotal,
 	ServiceItemParamNameLockedPriceCents,
+	ServiceItemParamNamePerUnitCents,
+	ServiceItemParamNamePortZip,
+	ServiceItemParamNameExternalCrate,
 }
 
 // ValidServiceItemParamNameStrings lists all valid service item param key names
@@ -349,6 +358,9 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameStandaloneCrateCap),
 	string(ServiceItemParamNameUncappedRequestTotal),
 	string(ServiceItemParamNameLockedPriceCents),
+	string(ServiceItemParamNamePerUnitCents),
+	string(ServiceItemParamNamePortZip),
+	string(ServiceItemParamNameExternalCrate),
 }
 
 // ValidServiceItemParamTypes lists all valid service item param types

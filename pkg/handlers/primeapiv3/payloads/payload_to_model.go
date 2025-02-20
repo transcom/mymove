@@ -41,6 +41,7 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
+		County:         address.County,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
@@ -56,6 +57,10 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 	}
 	if address.Country != nil {
 		modelAddress.Country = CountryModel(address.Country)
+	}
+	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+	if usPostRegionCitiesID != uuid.Nil {
+		modelAddress.UsPostRegionCityID = &usPostRegionCitiesID
 	}
 	return modelAddress
 }
@@ -93,6 +98,10 @@ func PPMDestinationAddressModel(address *primev3messages.PPMDestinationAddress) 
 	}
 	if address.Country != nil {
 		modelAddress.Country = CountryModel(address.Country)
+	}
+	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+	if usPostRegionCitiesID != uuid.Nil {
+		modelAddress.UsPostRegionCityID = &usPostRegionCitiesID
 	}
 	return modelAddress
 }
@@ -203,6 +212,8 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		CounselorRemarks:            mtoShipment.CounselorRemarks,
 		HasSecondaryPickupAddress:   handlers.FmtBool(false),
 		HasSecondaryDeliveryAddress: handlers.FmtBool(false),
+		HasTertiaryPickupAddress:    handlers.FmtBool(false),
+		HasTertiaryDeliveryAddress:  handlers.FmtBool(false),
 	}
 
 	if mtoShipment.ShipmentType != nil {
@@ -775,9 +786,24 @@ func MTOServiceItemModel(mtoServiceItem primev3messages.MTOServiceItem) (*models
 		if model.SITDestinationFinalAddress != nil {
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
-
 	case primev3messages.MTOServiceItemModelTypeMTOServiceItemShuttle:
 		shuttleService := mtoServiceItem.(*primev3messages.MTOServiceItemShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
+	case primev3messages.MTOServiceItemModelTypeMTOServiceItemDomesticShuttle:
+		shuttleService := mtoServiceItem.(*primev3messages.MTOServiceItemDomesticShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
+	case primev3messages.MTOServiceItemModelTypeMTOServiceItemInternationalShuttle:
+		shuttleService := mtoServiceItem.(*primev3messages.MTOServiceItemInternationalShuttle)
 		// values to get from payload
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
@@ -968,6 +994,20 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		shuttle := mtoServiceItem.(*primev3messages.UpdateMTOServiceItemShuttle)
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
 		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
+
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+	case primev3messages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle:
+		shuttle := mtoServiceItem.(*primev3messages.UpdateMTOServiceItemInternationalShuttle)
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
+
+		if shuttle.RequestApprovalsRequestedStatus != nil {
+			pointerValue := *shuttle.RequestApprovalsRequestedStatus
+			model.RequestedApprovalsRequestedStatus = &pointerValue
+			model.Status = models.MTOServiceItemStatusSubmitted
+		}
 
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs

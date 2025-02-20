@@ -5,10 +5,12 @@ import { Provider } from 'react-redux';
 
 import AddOrdersForm from './AddOrdersForm';
 
+import { MockProviders } from 'testUtils';
 import { dropdownInputOptions } from 'utils/formatters';
-import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 jest.setTimeout(60000);
 
@@ -75,7 +77,41 @@ jest.mock('components/LocationSearchBox/api', () => ({
         name: 'Luke AFB',
         updated_at: '2021-02-11T16:48:04.117Z',
       },
+      {
+        address: {
+          city: '',
+          id: '25be4d12-fe93-47f1-bbec-1db386dfa67e',
+          postalCode: '',
+          state: '',
+          streetAddress1: '',
+        },
+        address_id: '4334640b-c35e-4293-a2f1-36c7b629f904',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: '22f0755f-6f35-478b-9a75-35a69211da1d',
+        name: 'Scott AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+        provides_services_counseling: true,
+      },
     ]),
+  ),
+}));
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
   ),
 }));
 
@@ -96,6 +132,7 @@ const initialValues = {
   accompaniedTour: '',
   dependentsUnderTwelve: '',
   dependentsTwelveAndOver: '',
+  counselingOfficeId: '',
 };
 const testProps = {
   initialValues,
@@ -103,6 +140,8 @@ const testProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
 };
+const mockParams = { customerId: 'ea51dab0-4553-4732-b843-1f33407f77bd' };
+const mockPath = servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH;
 
 describe('CreateMoveCustomerInfo Component', () => {
   it('renders the form inputs', async () => {
@@ -114,16 +153,50 @@ describe('CreateMoveCustomerInfo Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Tell us about the orders')).toBeInTheDocument();
-      expect(screen.getByLabelText('Orders type')).toBeInTheDocument();
-      expect(screen.getByLabelText('Orders date')).toBeInTheDocument();
-      expect(screen.getByLabelText('Report by date')).toBeInTheDocument();
-      expect(screen.getByText('Are dependents included in the orders?')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Orders date/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Report by date/)).toBeInTheDocument();
+      expect(screen.getByText(/Are dependents included in the orders?/)).toBeInTheDocument();
       expect(screen.getByTestId('hasDependentsYes')).toBeInTheDocument();
       expect(screen.getByTestId('hasDependentsNo')).toBeInTheDocument();
-      expect(screen.getByLabelText('Current duty location')).toBeInTheDocument();
-      expect(screen.getByLabelText('New duty location')).toBeInTheDocument();
-      expect(screen.getByLabelText('Pay grade')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
     });
+  });
+
+  it('renders each option for orders type', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    const { getByLabelText } = render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    const ordersTypeDropdown = getByLabelText(/Orders type/);
+    expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.LOCAL_MOVE);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.RETIREMENT);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.RETIREMENT);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.SEPARATION);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.SEPARATION);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.TEMPORARY_DUTY);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.TEMPORARY_DUTY);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
@@ -132,12 +205,12 @@ describe('CreateMoveCustomerInfo Component', () => {
         <AddOrdersForm {...testProps} />
       </Provider>,
     );
-    await userEvent.click(getByLabelText('Orders type'));
-    await userEvent.click(getByLabelText('Orders date'));
-    await userEvent.click(getByLabelText('Report by date'));
-    await userEvent.click(getByLabelText('Current duty location'));
-    await userEvent.click(getByLabelText('New duty location'));
-    await userEvent.click(getByLabelText('Pay grade'));
+    await userEvent.click(getByLabelText(/Orders type/));
+    await userEvent.click(getByLabelText(/Orders date/));
+    await userEvent.click(getByLabelText(/Report by date/));
+    await userEvent.click(getByLabelText(/Current duty location/));
+    await userEvent.click(getByLabelText(/New duty location/));
+    await userEvent.click(getByLabelText(/Pay grade/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
@@ -157,7 +230,7 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
   it('submits the form with OCONUS values and accompanied tour selection', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     render(
-      <Provider store={mockStore.store}>
+      <Provider params={mockParams} store={mockStore.store}>
         <AddOrdersForm {...testProps} />
       </Provider>,
     );
@@ -172,6 +245,9 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Elmendorf/);
     await userEvent.click(selectedOptionCurrent);
+
+    const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
+    expect(counselingOfficeLabel).toBeFalsy();
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
@@ -192,5 +268,230 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalled();
     });
+  });
+});
+
+describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () => {
+  it('has dependents is yes and disabled when order type is student travel', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
+
+    const hasDependentsYes = screen.getByLabelText('Yes');
+    const hasDependentsNo = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents is yes and disabled when order type is early return', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+    const hasDependentsYes = screen.getByLabelText('Yes');
+    const hasDependentsNo = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents becomes disabled and then re-enabled for order type student travel', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+
+    const hasDependentsYesPermChg = screen.getByLabelText('Yes');
+    const hasDependentsNoPermChg = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsYesPermChg).toBeEnabled();
+      expect(hasDependentsNoPermChg).not.toBeChecked();
+      expect(hasDependentsNoPermChg).toBeEnabled();
+    });
+
+    // set order type to value that disables and defaults "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
+
+    const hasDependentsYesStudent = screen.getByLabelText('Yes');
+    const hasDependentsNoStudent = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesStudent).toBeChecked();
+      expect(hasDependentsYesStudent).toBeDisabled();
+      expect(hasDependentsNoStudent).toBeDisabled();
+    });
+
+    // set order type to value the re-enables "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.LOCAL_MOVE);
+
+    const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
+    const hasDependentsNoLocalMove = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesLocalMove).not.toBeChecked();
+      expect(hasDependentsYesLocalMove).toBeEnabled();
+      expect(hasDependentsNoLocalMove).not.toBeChecked();
+      expect(hasDependentsNoLocalMove).toBeEnabled();
+    });
+  });
+
+  it('has dependents becomes disabled and then re-enabled for order type early return', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+
+    const hasDependentsYesPermChg = screen.getByLabelText('Yes');
+    const hasDependentsNoPermChg = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsYesPermChg).toBeEnabled();
+      expect(hasDependentsNoPermChg).not.toBeChecked();
+      expect(hasDependentsNoPermChg).toBeEnabled();
+    });
+
+    // set order type to value that disables and defaults "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    const hasDependentsYesEarly = screen.getByLabelText('Yes');
+    const hasDependentsNoEarly = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesEarly).toBeChecked();
+      expect(hasDependentsYesEarly).toBeDisabled();
+      expect(hasDependentsNoEarly).toBeDisabled();
+    });
+
+    // set order type to value the re-enables "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.LOCAL_MOVE);
+
+    const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
+    const hasDependentsNoLocalMove = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesLocalMove).not.toBeChecked();
+      expect(hasDependentsYesLocalMove).toBeEnabled();
+      expect(hasDependentsNoLocalMove).not.toBeChecked();
+      expect(hasDependentsNoLocalMove).toBeEnabled();
+    });
+  });
+});
+
+describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
+  it('disables orders type when safety move is selected', async () => {
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} isSafetyMoveSelected />
+      </Provider>,
+    );
+
+    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
+  });
+
+  it('disables orders type when bluebark move is selected', async () => {
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} isBluebarkMoveSelected />
+      </Provider>,
+    );
+    expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
+  });
+});
+
+describe('AddOrdersForm - With Counseling Office', () => {
+  it('displays the counseling office dropdown', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    render(
+      <MockProviders params={mockParams} path={mockPath} store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </MockProviders>,
+    );
+
+    await userEvent.selectOptions(await screen.findByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.paste(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await userEvent.paste(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+    await userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+
+    // Test Current Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Scott/);
+    await userEvent.click(selectedOptionCurrent);
+
+    // Test New Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
+
+    const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
+    expect(counselingOfficeLabel).toBeTruthy();
+
+    await userEvent.selectOptions(screen.getByLabelText(/Counseling office/), ['Albuquerque AFB']);
+
+    const nextBtn = screen.getByRole('button', { name: 'Next' });
+    expect(nextBtn.getAttribute('disabled')).toBeFalsy();
+  });
+
+  it('disabled submit if counseling office is required and blank', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    render(
+      <MockProviders params={mockParams} path={mockPath} store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </MockProviders>,
+    );
+
+    await userEvent.selectOptions(await screen.findByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2024');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2024');
+
+    // Test Current Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Scott/);
+    await userEvent.click(selectedOptionCurrent);
+
+    // Test New Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
+
+    const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
+    expect(counselingOfficeLabel).toBeTruthy(); // If the field is visible then it it required
+
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.click(screen.getByLabelText('No'));
+
+    const nextBtn = await screen.getByRole('button', { name: 'Next' }, { delay: 100 });
+    expect(nextBtn).toBeDisabled();
   });
 });

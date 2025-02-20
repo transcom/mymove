@@ -1431,6 +1431,9 @@ definitions:
       providesServicesCounseling:
         type: boolean
         x-omitempty: false
+      weightRestriction:
+        type: integer
+        x-nullable: true
     required:
       - id
       - service_member_id
@@ -1489,6 +1492,11 @@ definitions:
         description: >-
           The amount of weight in pounds that the move is entitled for shipment
           types of Unaccompanied Baggage.
+      weight_restriction:
+        type: integer
+        example: 1500
+        x-nullable: true
+        description: Indicates the weight restricted to a specific location.
   CreateUpdateOrders:
     type: object
     properties:
@@ -1849,8 +1857,8 @@ definitions:
     example: HHG
     enum:
       - HHG
-      - HHG_INTO_NTS_DOMESTIC
-      - HHG_OUTOF_NTS_DOMESTIC
+      - HHG_INTO_NTS
+      - HHG_OUTOF_NTS
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
@@ -1858,8 +1866,8 @@ definitions:
       - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
-      HHG_INTO_NTS_DOMESTIC: NTS
-      HHG_OUTOF_NTS_DOMESTIC: NTS Release
+      HHG_INTO_NTS: NTS
+      HHG_OUTOF_NTS: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
@@ -2758,6 +2766,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      destinationGbloc:
+        type: string
+        pattern: ^[A-Z]{4}$
+        x-nullable: true
     required:
       - streetAddress1
       - city
@@ -5741,6 +5753,8 @@ paths:
           description: List of weights allotted entitlement
           schema:
             $ref: '#/definitions/IndexEntitlements'
+        '500':
+          description: internal server error
   /calendar/available_move_dates:
     get:
       summary: Returns available dates for the move calendar

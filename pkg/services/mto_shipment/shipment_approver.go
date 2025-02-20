@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"math"
+	"slices"
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -16,19 +17,23 @@ import (
 )
 
 type shipmentApprover struct {
-	router      services.ShipmentRouter
-	siCreator   services.MTOServiceItemCreator
-	planner     route.Planner
-	moveWeights services.MoveWeights
+	router               services.ShipmentRouter
+	siCreator            services.MTOServiceItemCreator
+	planner              route.Planner
+	moveWeights          services.MoveWeights
+	moveTaskOrderUpdater services.MoveTaskOrderUpdater
+	moveRouter           services.MoveRouter
 }
 
 // NewShipmentApprover creates a new struct with the service dependencies
-func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner, moveWeights services.MoveWeights) services.ShipmentApprover {
+func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner, moveWeights services.MoveWeights, moveTaskOrderUpdater services.MoveTaskOrderUpdater, moveRouter services.MoveRouter) services.ShipmentApprover {
 	return &shipmentApprover{
 		router,
 		siCreator,
 		planner,
 		moveWeights,
+		moveTaskOrderUpdater,
+		moveRouter,
 	}
 }
 
@@ -77,14 +82,62 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		}
 	}
 
-	// create international shipment service items
-	if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.MarketCode == models.MarketCodeInternational {
-		err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
-		if err != nil {
-			return shipment, err
-		}
-	}
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		// create international shipment service items before approving
+		// we use a database proc to create the basic auto-approved service items
+		internationalShipmentTypes := []models.MTOShipmentType{models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGIntoNTS, models.MTOShipmentTypeHHGOutOfNTS, models.MTOShipmentTypeUnaccompaniedBaggage}
+		if slices.Contains(internationalShipmentTypes, shipment.ShipmentType) && shipment.MarketCode == models.MarketCodeInternational {
+			err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
+			if err != nil {
+				return err
+			}
+
+			// Update the service item pricing if we have the estimated weight
+			if shipment.PrimeEstimatedWeight != nil {
+				portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), shipment.ID)
+				if err != nil {
+					return err
+				}
+				// if we don't have the port data, then we won't worry about pricing
+				if portZip != nil && portType != nil {
+					var pickupZip string
+					var destZip string
+					// if the port type is POEFSC this means the shipment is CONUS -> OCONUS (pickup -> port)
+					// if the port type is PODFSC this means the shipment is OCONUS -> CONUS (port -> destination)
+					if *portType == models.ReServiceCodePOEFSC.String() {
+						pickupZip = shipment.PickupAddress.PostalCode
+						destZip = *portZip
+					} else if *portType == models.ReServiceCodePODFSC.String() {
+						pickupZip = *portZip
+						destZip = shipment.DestinationAddress.PostalCode
+					}
+					// we need to get the mileage from DTOD first, the db proc will consume that
+					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
+					if err != nil {
+						return err
+					}
+
+					// update the service item pricing if relevant fields have changed
+					err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), shipment, &mileage)
+					if err != nil {
+						return err
+					}
+				} else {
+					// if we don't have the port data, that's okay - we can update the other service items except for PODFSC/POEFSC
+					err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), shipment, nil)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		} else {
+			// after approving shipment, shipment level service items must be created (this is for domestic shipments only)
+			err = f.createShipmentServiceItems(txnAppCtx, shipment)
+			if err != nil {
+				return err
+			}
+		}
+
 		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
@@ -95,11 +148,13 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 			return err
 		}
 
-		// after approving shipment, shipment level service items must be created
-		err = f.createShipmentServiceItems(txnAppCtx, shipment)
-		if err != nil {
+		var move models.Move
+		move.ID = shipment.MoveTaskOrderID
+		// re-evaluate move status
+		if _, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
 			return err
 		}
+
 		return nil
 	})
 
@@ -108,6 +163,29 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 	}
 
 	return shipment, nil
+}
+
+// ApproveShipments Approves one or more shipments in one transaction
+func (f *shipmentApprover) ApproveShipments(appCtx appcontext.AppContext, shipments []services.ShipmentIdWithEtag) (*[]models.MTOShipment, error) {
+	var approvedShipments []models.MTOShipment
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		for _, shipment := range shipments {
+			shipmentID := shipment.ShipmentID
+			eTag := shipment.ETag
+
+			approvedShipment, err := f.ApproveShipment(txnAppCtx, shipmentID, eTag)
+			if err != nil {
+				return err
+			}
+
+			approvedShipments = append(approvedShipments, *approvedShipment)
+		}
+
+		return nil
+	})
+
+	return &approvedShipments, transactionError
 }
 
 func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
@@ -142,7 +220,7 @@ func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID
 func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
-		(shipment.PrimeEstimatedWeight != nil || (shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom &&
+		(shipment.PrimeEstimatedWeight != nil || (shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS &&
 			shipment.NTSRecordedWeight != nil)) {
 
 		var pickupLocation *models.Address
@@ -150,16 +228,16 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 		var weight int
 
 		switch shipment.ShipmentType {
-		case models.MTOShipmentTypeHHGIntoNTSDom:
+		case models.MTOShipmentTypeHHGIntoNTS:
 			if shipment.StorageFacility == nil {
-				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTSDom)
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTS)
 			}
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = &shipment.StorageFacility.Address
 			weight = shipment.PrimeEstimatedWeight.Int()
-		case models.MTOShipmentTypeHHGOutOfNTSDom:
+		case models.MTOShipmentTypeHHGOutOfNTS:
 			if shipment.StorageFacility == nil {
-				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGOutOfNTSDom)
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGOutOfNTS)
 			}
 			pickupLocation = &shipment.StorageFacility.Address
 			deliveryLocation = shipment.DestinationAddress
@@ -169,7 +247,7 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 			deliveryLocation = shipment.DestinationAddress
 			weight = shipment.PrimeEstimatedWeight.Int()
 		}
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight)
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight, shipment.MarketCode)
 		if calcErr != nil {
 			return calcErr
 		}
@@ -214,7 +292,7 @@ func (f *shipmentApprover) updateAuthorizedWeight(appCtx appcontext.AppContext, 
 	}
 
 	var dBAuthorizedWeight int
-	if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+	if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
 		dBAuthorizedWeight = int(*shipment.PrimeEstimatedWeight)
 	} else {
 		dBAuthorizedWeight = int(*shipment.NTSRecordedWeight)
@@ -222,7 +300,7 @@ func (f *shipmentApprover) updateAuthorizedWeight(appCtx appcontext.AppContext, 
 	if len(move.MTOShipments) != 0 {
 		for _, mtoShipment := range move.MTOShipments {
 			if mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
-				if mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+				if mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
 					//uses PrimeEstimatedWeight for HHG and NTS shipments
 					if mtoShipment.PrimeEstimatedWeight != nil {
 						dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)

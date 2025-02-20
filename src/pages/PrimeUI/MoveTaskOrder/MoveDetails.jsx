@@ -21,9 +21,10 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/primeApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
-import { SIT_SERVICE_ITEMS_ALLOWED_UPDATE } from 'constants/serviceItems';
+import { SERVICE_ITEMS_ALLOWED_UPDATE } from 'constants/serviceItems';
 import { MoveOrderDocumentType } from 'shared/constants';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { formatWeight } from 'utils/formatters';
 
 const MoveDetails = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
@@ -208,6 +209,14 @@ const MoveDetails = ({ setFlashMessage }) => {
                     <dd>{moveTaskOrder.order.entitlement.gunSafe ? 'yes' : 'no'}</dd>
                   </div>
                   <div className={descriptionListStyles.row}>
+                    <dt>Admin Restricted Weight:</dt>
+                    <dd>
+                      {moveTaskOrder.order.entitlement.weightRestriction > 0
+                        ? formatWeight(moveTaskOrder.order.entitlement.weightRestriction)
+                        : 'no'}
+                    </dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
                     <Button onClick={handleDownloadOrders}>Download Move Orders</Button>
                     <select
                       onChange={handleDocumentTypeChange}
@@ -256,8 +265,18 @@ const MoveDetails = ({ setFlashMessage }) => {
                                 <h3 className={styles.serviceItemHeading}>
                                   {serviceItem.reServiceCode} - {serviceItem.reServiceName}
                                 </h3>
+                                <div className={descriptionListStyles.row}>
+                                  <dt>Status:</dt>
+                                  <dd>{serviceItem.status}</dd>
+                                </div>
+                                {serviceItem.market && (
+                                  <div className={descriptionListStyles.row}>
+                                    <dt>Market</dt>
+                                    <dd>{serviceItem.market}</dd>
+                                  </div>
+                                )}
                                 <div className={styles.uploadBtn}>
-                                  {SIT_SERVICE_ITEMS_ALLOWED_UPDATE.includes(serviceItem.reServiceCode) ? (
+                                  {SERVICE_ITEMS_ALLOWED_UPDATE.includes(serviceItem.reServiceCode) ? (
                                     <Link
                                       className={classnames(styles.editButton, 'usa-button usa-button--outline')}
                                       to={`../mto-service-items/${serviceItem.id}/update`}

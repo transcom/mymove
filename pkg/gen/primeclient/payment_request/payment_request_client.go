@@ -52,7 +52,17 @@ marked with the status `DEPRECATED`.
 **NOTE**: In order to create a payment request for most service items, the shipment *must*
 be updated with the `PrimeActualWeight` value via [updateMTOShipment](#operation/updateMTOShipment).
 
-**FSC - Fuel Surcharge** service items require `ActualPickupDate` to be updated on the shipment.
+If `WeightBilled` is not provided then the full shipment weight (`PrimeActualWeight`) will be considered in the calculation.
+
+**NOTE**: Diversions have a unique calcuation for payment requests without a `WeightBilled` parameter.
+
+If you created a payment request for a diversion and `WeightBilled` is not provided, then the following will be used in the calculation:
+- The lowest shipment weight (`PrimeActualWeight`) found in the diverted shipment chain.
+- The lowest reweigh weight found in the diverted shipment chain.
+
+The diverted shipment chain is created by referencing the `diversion` boolean, `divertedFromShipmentId` UUID, and matching destination to pickup addresses.
+If the chain cannot be established it will fall back to the `PrimeActualWeight` of the current shipment. This is utilized because diverted shipments are all one single shipment, but going to different locations.
+The lowest weight found is the true shipment weight, and thus we search the chain of shipments for the lowest weight found.
 
 A service item can be on several payment requests in the case of partial payment requests and payments.
 
@@ -81,19 +91,120 @@ In the request, if no params are necessary, then just the `serviceItem` `id` is 
 
 ```
 
-SIT Service Items & Accepted Payment Request Parameters:
+Domestic Basic Service Items & Accepted Payment Request Parameters:
 ---
-If `WeightBilled` is not provided then the full shipment weight (`PrimeActualWeight`) will be considered in the calculation.
 
-**NOTE**: Diversions have a unique calcuation for payment requests without a `WeightBilled` parameter.
+**DLH - Domestic Linehaul**
+```json
 
-If you created a payment request for a diversion and `WeightBilled` is not provided, then the following will be used in the calculation:
-- The lowest shipment weight (`PrimeActualWeight`) found in the diverted shipment chain.
-- The lowest reweigh weight found in the diverted shipment chain.
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
 
-The diverted shipment chain is created by referencing the `diversion` boolean, `divertedFromShipmentId` UUID, and matching destination to pickup addresses.
-If the chain cannot be established it will fall back to the `PrimeActualWeight` of the current shipment. This is utilized because diverted shipments are all one single shipment, but going to different locations.
-The lowest weight found is the true shipment weight, and thus we search the chain of shipments for the lowest weight found.
+```
+
+**DSH - Domestic Shorthaul**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**FSC - Fuel Surcharge**
+**NOTE**: FSC requires `ActualPickupDate` to be updated on the shipment.
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**DUPK - Domestic Unpacking**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**DPK - Domestic Packing**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**DNPK - Domestic NTS Packing**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**DPK - Domestic Packing**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**DOP - Domestic Origin Price**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**DDP - Domestic Destination Price**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+Domestic SIT Service Items & Accepted Payment Request Parameters:
+---
 
 **DOFSIT - Domestic origin 1st day SIT**
 ```json
@@ -199,6 +310,103 @@ The lowest weight found is the true shipment weight, and thus we search the chai
 ```
 
 **DDSHUT - Domestic destination shuttle service**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+---
+
+International Basic Service Items & Accepted Payment Request Parameters:
+---
+Just like domestic shipments & service items, if `WeightBilled` is not provided then the full shipment weight (`PrimeActualWeight`) will be considered in the calculation.
+**NOTE**: `POEFSC` & `PODFSC` service items must have a port associated on the service item in order to successfully add it to a payment request. To update the port of a service item, you must use the (#operation/updateMTOServiceItem) endpoint.
+
+**ISLH - International Shipping & Linehaul**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**IHPK - International HHG Pack**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**IHUPK - International HHG Unpack**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**POEFSC - International Port of Embarkation Fuel Surcharge**
+
+	**NOTE**: POEFSC requires `ActualPickupDate` to be updated on the shipment & `POELocation` on the service item.
+
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**PODFSC - International Port of Debarkation Fuel Surcharge**
+**NOTE**: PODFSC requires `ActualPickupDate` to be updated on the shipment & `PODLocation` on the service item.
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+---
+
+International Basic Service Items & Accepted Payment Request Parameters:
+---
+**IOSHUT - International origin shuttle service**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**IDSHUT - International destination shuttle service**
 ```json
 
 	"params": [

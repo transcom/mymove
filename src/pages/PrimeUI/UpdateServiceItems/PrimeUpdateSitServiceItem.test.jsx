@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import PrimeUIUpdateSitServiceItem from './PrimeUIUpdateSitServiceItem';
+import PrimeUIUpdateSitServiceItem from './PrimeUIUpdateServiceItem';
 
 import { MockProviders, ReactQueryWrapper } from 'testUtils';
 import { primeSimulatorRoutes } from 'constants/routes';
@@ -69,6 +69,7 @@ describe('PrimeUIUpdateSitServiceItems page', () => {
     renderComponent();
 
     expect(screen.getByRole('heading', { name: 'Update Destination SIT Service Item', level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'SIT Entry Date' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Departure Date' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Requested Delivery' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Customer Contacted' })).toBeInTheDocument();
@@ -131,6 +132,7 @@ describe('PrimeUIUpdateSitServiceItems page', () => {
     renderComponent();
 
     expect(screen.getByRole('heading', { name: 'Update Origin SIT Service Item', level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'SIT Entry Date' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Departure Date' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Requested Delivery' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Customer Contacted' })).toBeInTheDocument();

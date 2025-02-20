@@ -12,7 +12,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
@@ -66,31 +65,6 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 }
 
 func (suite *AuthSuite) TestCreateUserHandlerOffice() {
-	// These roles are created during migrations but our test suite truncates all tables
-	factory.BuildRole(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitTOORole,
-	})
-	factory.BuildRole(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitTIORole,
-	})
-	factory.BuildRole(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitServicesCounselorRole,
-	})
-	factory.BuildRole(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitQaeRole,
-	})
-	factory.BuildRole(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitCustomerServiceRepresentativeRole,
-	})
-	factory.BuildRole(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitHQRole,
-	})
-	factory.BuildRole(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitGSRRole,
-	})
-	factory.BuildRole(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitPrimeSimulatorRole,
-	})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -291,9 +265,6 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	t := suite.T()
-	factory.BuildRole(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitTOORole,
-	})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -459,9 +430,6 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	t := suite.T()
-	factory.BuildRole(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitTOORole,
-	})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()

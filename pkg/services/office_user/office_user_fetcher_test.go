@@ -39,6 +39,14 @@ func (t *testOfficeUserQueryBuilder) QueryForAssociations(_ appcontext.AppContex
 	return nil
 }
 
+func (t *testOfficeUserQueryBuilder) DeleteOne(_ appcontext.AppContext, _ interface{}) error {
+	return nil
+}
+
+func (t *testOfficeUserQueryBuilder) DeleteMany(_ appcontext.AppContext, _ interface{}, _ []services.QueryFilter) error {
+	return nil
+}
+
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 	suite.Run("if the user is fetched, it should be re turned", func() {
 		id, err := uuid.NewV4()
@@ -83,18 +91,50 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 	})
 }
 
-func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
-	suite.Run("returns office user on success", func() {
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		fetcher := NewOfficeUserFetcherPop()
+func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOffice() {
+	fetcher := NewOfficeUserFetcherPop()
+	suite.Run("FetchOfficeUsersWithWorkloadByRoleAndOffice returns an active office user's name, id, and workload when given a role and office", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
-		fetchedUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), officeUser.ID)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.OfficeUser{
+					Active: true,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &factory.OfficeUsers.SCAssignedUser,
+			},
+		}, nil)
+
+		fetchedUsers, err := fetcher.FetchOfficeUsersWithWorkloadByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeServicesCounselor, officeUser.TransportationOfficeID)
 		suite.NoError(err)
-		suite.Equal(officeUser.ID, fetchedUser.ID)
+		fetchedOfficeUser := fetchedUsers[0]
+		suite.Equal(officeUser.ID, fetchedOfficeUser.ID)
+		suite.Equal(1, fetchedOfficeUser.Workload)
 	})
 
-	suite.Run("returns a set of office users when given a and role", func() {
+	suite.Run("FetchOfficeUsersByRoleAndOffice returns a set of office users when given an office and role", func() {
 		// build 1 TOO
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
 		// build 2 SCs and 3 TIOs
@@ -103,7 +143,6 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
 		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
 		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
-		fetcher := NewOfficeUserFetcherPop()
 
 		fetchedUsers, err := fetcher.FetchOfficeUsersByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeTOO, officeUser.TransportationOfficeID)
 
@@ -114,7 +153,6 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 	})
 
 	suite.Run("returns zero value office user on error", func() {
-		fetcher := NewOfficeUserFetcherPop()
 		officeUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), uuid.Nil)
 
 		suite.Error(err)
