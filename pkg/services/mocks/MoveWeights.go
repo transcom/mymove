@@ -87,34 +87,6 @@ func (_m *MoveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uu
 	return r0, r1, r2
 }
 
-// MoveShouldAutoReweigh provides a mock function with given fields: appCtx, moveID
-func (_m *MoveWeights) MoveShouldAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID) (bool, error) {
-	ret := _m.Called(appCtx, moveID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for MoveShouldAutoReweigh")
-	}
-
-	var r0 bool
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (bool, error)); ok {
-		return rf(appCtx, moveID)
-	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) bool); ok {
-		r0 = rf(appCtx, moveID)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
-		r1 = rf(appCtx, moveID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // NewMoveWeights creates a new instance of MoveWeights. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMoveWeights(t interface {
