@@ -380,6 +380,20 @@ const shuttleOriginPriceDomestic = (params) => {
   );
 };
 
+const shuttleOriginPriceInternational = (params) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
+
+  const pickupDate = `${SERVICE_ITEM_CALCULATION_LABELS.PickupDate}: ${formatDateWithUTC(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params),
+    'DD MMM YYYY',
+  )}`;
+
+  const market = getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketDest, params) === 'O' ? 'Oconus' : 'Conus';
+
+  return calculation(value, label, formatDetail(pickupDate), formatDetail(market));
+};
+
 // There is no param representing the destination price as available in the re_domestic_service_area_prices table
 // A param to return the service schedule is also not being created
 const destinationPrice = (params, shipmentType) => {
@@ -416,6 +430,20 @@ const shuttleDestinationPriceDomestic = (params) => {
     formatDetail(deliveryDate),
     formatDetail(SERVICE_ITEM_CALCULATION_LABELS.Domestic),
   );
+};
+
+const shuttleDestinationPriceInternational = (params) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
+
+  const deliveryDate = `${SERVICE_ITEM_CALCULATION_LABELS.DeliveryDate}: ${formatDateWithUTC(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params),
+    'DD MMM YYYY',
+  )}`;
+
+  const market = getParamValue(SERVICE_ITEM_PARAM_KEYS.MarketDest, params) === 'O' ? 'OCONUS' : 'CONUS';
+
+  return calculation(value, label, formatDetail(deliveryDate), formatDetail(market));
 };
 
 const priceEscalationFactor = (params) => {
@@ -922,6 +950,15 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
+    // International origin shuttle service
+    case SERVICE_ITEM_CODES.IOSHUT:
+      result = [
+        shuttleBillableWeight(params),
+        shuttleOriginPriceInternational(params),
+        priceEscalationFactorWithoutContractYear(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
     // Domestic Destination Additional Days SIT
     case SERVICE_ITEM_CODES.DDASIT:
       result = [
@@ -946,6 +983,15 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       result = [
         shuttleBillableWeight(params),
         shuttleDestinationPriceDomestic(params),
+        priceEscalationFactorWithoutContractYear(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // International destination shuttle service
+    case SERVICE_ITEM_CODES.IDSHUT:
+      result = [
+        shuttleBillableWeight(params),
+        shuttleDestinationPriceInternational(params),
         priceEscalationFactorWithoutContractYear(params),
         totalAmountRequested(totalAmount),
       ];
