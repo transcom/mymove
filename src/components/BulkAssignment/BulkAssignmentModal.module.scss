@@ -86,3 +86,25 @@
     align-items: center;
   }
 }
+
+.areYouSureSection {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding-top: 20px;
+
+  .confirmButtons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    max-height: 42px;
+  }
+
+  .cancelYesButton {
+    font-size: 12px;
+    max-width: 100px;
+    height: 42px;
+    align-items: center;
+  }
+}
