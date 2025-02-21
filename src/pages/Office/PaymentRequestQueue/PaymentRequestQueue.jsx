@@ -202,8 +202,8 @@ const PaymentRequestQueue = ({
   isQueueManagementFFEnabled,
   userPrivileges,
   isBulkAssignmentFFEnabled,
-  setRefetchQueue,
   activeRole,
+  setRefetchQueue,
 }) => {
   const { queueType } = useParams();
   const navigate = useNavigate();
