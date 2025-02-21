@@ -484,7 +484,7 @@ func (suite *MTOShipmentServiceSuite) TestFetchRateAreaByPostalCode() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestFetchRateAreaByPostalCodeNotFound() {
-	_, err := fetchOconusRateAreaByPostalCode(suite.AppContextForTest(), uuid.FromStringOrNil("51393fa4-b31c-40fe-bedf-b692703c46eb"), "90210")
+	_, err := fetchOconusRateAreaByPostalCode(suite.AppContextForTest(), uuid.FromStringOrNil("070f7c82-fad0-4ae8-9a83-5de87a56472e"), "90210")
 	suite.NotNil(err)
 }
 

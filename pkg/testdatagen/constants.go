@@ -7,10 +7,10 @@ import (
 )
 
 // TestYear is the default year for testing.
-var TestYear = 2018
+var TestYear = 2024
 
 // GHCTestYear is the default for GHC rate engine testing
-var GHCTestYear = 2020
+var GHCTestYear = 2024
 
 // DefaultZip3 is the default zip3 for testing
 var DefaultZip3 = "902"
@@ -96,10 +96,10 @@ var cal = dates.NewUSCalendar()
 var NextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
 
 // DefaultContractCode is the default contract code for testing
-const DefaultContractCode = "TRUSS_TEST"
+const DefaultContractCode = "HTC711-22-D-R002"
 
 // DefaultContractName name used for contractor in testing
-const DefaultContractName = "Default contractor name for test"
+const DefaultContractName = "Global HHG Relocation Services"
 
 // DefaultContractType default prime type is Prime for testing
 const DefaultContractType = "Prime"
