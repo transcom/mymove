@@ -365,6 +365,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			if err != nil {
 				return nil, err
 			}
+			isInternationalShipment := mtoShipment.MarketCode == models.MarketCodeInternational
 
 			// Check to see if there is already a SIT Destination Original Address
 			// by checking for the ID before trying to set one on the service item.
@@ -405,8 +406,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 				if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 					serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
 					// Destination SIT: distance between shipment destination address & service item ORIGINAL destination address
-					// DDDSIT & DDSFSC are domestic service items so putting false for isInternationalShipment
-					milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false)
+					milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, isInternationalShipment)
 					if err != nil {
 						return nil, err
 					}
@@ -418,8 +418,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
 				serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
 				// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
-				// DOPSIT & DOSFSC are domestic service items so putting false as isInternationalShipment
-				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode, false)
+				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode, isInternationalShipment)
 				if err != nil {
 					return nil, err
 				}
@@ -795,6 +794,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 		// this only applies to international shipments
 		if oldServiceItem.POELocationID != mtoServiceItem.POELocationID || oldServiceItem.PODLocationID != mtoServiceItem.PODLocationID {
 			shipment := oldServiceItem.MTOShipment
+			isInternationalShipment := shipment.MarketCode == models.MarketCodeInternational
 			if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
 				(mtoServiceItem.POELocation != nil && mtoServiceItem.POELocation.UsPostRegionCity.UsprZipID != "" ||
 					mtoServiceItem.PODLocation != nil && mtoServiceItem.PODLocation.UsPostRegionCity.UsprZipID != "") {
@@ -811,7 +811,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 				}
 				// we need to get the mileage first, the db proc will consume that
 				// only international shipments will have POE/PODFSC service items
-				mileage, err := p.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
+				mileage, err := p.planner.ZipTransitDistance(appCtx, pickupZip, destZip, isInternationalShipment)
 				if err != nil {
 					return err
 				}
