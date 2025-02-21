@@ -1,5 +1,5 @@
 import generalStateReducer, { initialState } from './reducer';
-import { setCanAddOrders, setMoveId, setRefetchQueue } from './actions';
+import { setCanAddOrders, setMoveId, setRefetchQueue, setShowLoadingSpinner } from './actions';
 
 describe('generalStateReducer', () => {
   it('returns the initial state by default', () => {
@@ -24,6 +24,14 @@ describe('generalStateReducer', () => {
     expect(generalStateReducer(initialState, setRefetchQueue(true))).toEqual({
       ...initialState,
       refetchQueue: true,
+    });
+  });
+
+  it('handles the setShowLoadingSpinner action', () => {
+    expect(generalStateReducer(initialState, setShowLoadingSpinner(true, 'test message'))).toEqual({
+      ...initialState,
+      showLoadingSpinner: true,
+      loadingSpinnerMessage: 'test message',
     });
   });
 });

@@ -5,6 +5,8 @@ import {
   setCanAddOrders,
   SET_REFETCH_QUEUE,
   setRefetchQueue,
+  SET_SHOW_LOADING_SPINNER,
+  setShowLoadingSpinner,
 } from './actions';
 
 describe('GeneralState actions', () => {
@@ -33,5 +35,15 @@ describe('GeneralState actions', () => {
     };
 
     expect(setRefetchQueue(true)).toEqual(expectedAction);
+  });
+
+  it('setShowLoadingSpinner returns the expected action', () => {
+    const expectedAction = {
+      type: SET_SHOW_LOADING_SPINNER,
+      showSpinner: true,
+      loadingSpinnerMessage: 'test message',
+    };
+
+    expect(setShowLoadingSpinner(true, 'test message')).toEqual(expectedAction);
   });
 });
