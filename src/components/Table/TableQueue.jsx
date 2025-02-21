@@ -335,10 +335,7 @@ const TableQueue = ({
     setIsBulkAssignModalVisible(false);
   };
 
-  const onSubmitBulk = (bulkAssignmentSaveData) => {
-    const bulkAssignmentSavePayload = { ...bulkAssignmentSaveData };
-    bulkAssignmentSavePayload.bulkAssignmentSavePayload.userData =
-      bulkAssignmentSaveData.bulkAssignmentSavePayload.userData.filter((user) => user.moveAssignments > 0);
+  const onSubmitBulk = (bulkAssignmentSavePayload) => {
     mutateBulkAssignment({ queueType, ...bulkAssignmentSavePayload });
   };
 

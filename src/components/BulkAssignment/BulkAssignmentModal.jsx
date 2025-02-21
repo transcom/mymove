@@ -36,8 +36,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   };
 
   const isAllSelected = () => {
-    const selectedIds = Object.keys(selectedUsers);
-    return selectedIds.length > 0 && selectedIds.every((id) => selectedUsers[id]);
+    return Object.keys(selectedUsers).every((id) => selectedUsers[id]);
   };
 
   const initUserData = (availableOfficeUsers) => {
@@ -104,7 +103,10 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                 return;
               }
 
-              const bulkAssignmentSavePayload = values;
+              const bulkAssignmentSavePayload = {
+                moveData: values.moveData,
+                userData: values.userData.filter((user) => user.moveAssignments > 0),
+              };
               onSubmit({ bulkAssignmentSavePayload });
               onClose();
             }}
@@ -174,7 +176,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                           }}
                         />
                       </th>
-                      <th>User</th>
+                      <th className={styles.UserNameHeader}>Users</th>
                       <th>Workload</th>
                       <th>Assignment</th>
                     </tr>
