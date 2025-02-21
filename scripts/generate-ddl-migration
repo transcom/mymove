@@ -1,22 +1,22 @@
 #!/bin/bash
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-#version=$(date +"%Y%m%d%H%M%S")
+version=$(date +"%Y%m%d%H%M%S")
 filename=$1
 type=$2
 
 if [ "$type" == "functions" ]; then
-  echo "fn_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_functions_manifest.txt"
-  touch "${dir}/../migrations/app/ddl_migrations/ddl_functions/fn_${filename}.up.sql"
+  echo "${version}_fn_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_functions_manifest.txt"
+  touch "${dir}/../migrations/app/ddl_migrations/ddl_functions/${version}_fn_${filename}.up.sql"
 elif [ "$type" == "tables" ]; then
-  echo "tbl_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_tables_manifest.txt"
-  touch "${dir}/../migrations/app/ddl_migrations/ddl_tables/tbl_${filename}.up.sql"
+  echo "${version}_tbl_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_tables_manifest.txt"
+  touch "${dir}/../migrations/app/ddl_migrations/ddl_tables/${version}_tbl_${filename}.up.sql"
 elif [ "$type" == "types" ]; then
-  echo "ty_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_types_manifest.txt"
-  touch "${dir}/../migrations/app/ddl_migrations/ddl_types/ty_${filename}.up.sql"
+  echo "${version}_ty_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_types_manifest.txt"
+  touch "${dir}/../migrations/app/ddl_migrations/ddl_types/${version}_ty_${filename}.up.sql"
  elif [ "$type" == "views" ]; then
-  echo "vw_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_views_manifest.txt"
-  touch "${dir}/../migrations/app/ddl_migrations/ddl_views/vw_${filename}.up.sql"
+  echo "${version}_vw_${filename}.up.sql" >> "${dir}/../migrations/app/ddl_views_manifest.txt"
+  touch "${dir}/../migrations/app/ddl_migrations/ddl_views/${version}_vw_${filename}.up.sql"
 else
   echo "Invalid type"
 fi
