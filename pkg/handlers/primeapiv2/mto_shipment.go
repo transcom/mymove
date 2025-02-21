@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv2/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
@@ -243,6 +244,7 @@ type UpdateMTOShipmentHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentUpdater
 	services.VLocation
+	planner route.Planner
 }
 
 // Handle handler that updates a mto shipment

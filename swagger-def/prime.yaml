@@ -852,6 +852,29 @@ paths:
         }
         ```
 
+        The following crating/uncrating service items can be resubmitted following a rejection:
+        - ICRT
+        - IUCRT
+
+        At a MINIMUM, the payload for resubmitting a rejected crating/uncrating service item must look like this:
+        ```json
+        {
+          "item": {
+            "length": 10000,
+            "width": 10000,
+            "height": 10000
+          },
+          "crate": {
+            "length": 20000,
+            "width": 20000,
+            "height": 20000
+          },
+          "updateReason": "A reason that differs from the previous reason",
+          "modelType": "UpdateMTOServiceItemCrating",
+          "requestApprovalsRequestedStatus": true
+        }
+        ```
+
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -1743,6 +1766,8 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
+  MTOServiceItemDomesticShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemDomesticShuttle.yaml'
   MTOServiceItemInternationalFuelSurcharge: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemInternationalFuelSurcharge.yaml'
   MTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
@@ -1833,6 +1858,8 @@ definitions:
         * POEFSC - UpdateMTOServiceItemInternationalPortFSC
         * IDSHUT - UpdateMTOServiceItemInternationalShuttle
         * IOSHUT - UpdateMTOServiceItemInternationalShuttle
+        * ICRT - UpdateMTOServiceItemCrating
+        * IUCRT - UpdateMTOServiceItemCrating
 
       The documentation will then update with the supported fields.
     type: string
@@ -1841,6 +1868,7 @@ definitions:
       - UpdateMTOServiceItemShuttle
       - UpdateMTOServiceItemInternationalPortFSC
       - UpdateMTOServiceItemInternationalShuttle
+      - UpdateMTOServiceItemCrating
   UpdateMTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
       Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
@@ -2000,6 +2028,46 @@ definitions:
             enum:
               - PODFSC # International Port of Debarkation Fuel Surcharge
               - POEFSC # International Port of Embarkation Fuel Surcharge
+  UpdateMTOServiceItemCrating: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: |
+      Subtype used to provide the size and types for crating. This is not creating a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          item:
+            description: The dimensions of the item being crated.
+            allOf:
+              - $ref: 'definitions/prime/MTOServiceItemDimension.yaml'
+          crate:
+            description: The dimensions for the crate the item will be shipped in.
+            allOf:
+              - $ref: 'definitions/prime/MTOServiceItemDimension.yaml'
+          description:
+            type: string
+            example: Decorated horse head to be crated.
+            description: A description of the item being crated.
+            x-nullable: true
+          updateReason:
+            type: string
+            description: Reason for updating service item.
+            x-nullable: true
+          standaloneCrate:
+            type: boolean
+            x-nullable: true
+          externalCrate:
+            type: boolean
+            x-nullable: true
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - ICRT # International Crating
+              - IUCRT # International Uncrating
   UpdateMTOShipment:
     properties:
       actualProGearWeight:
