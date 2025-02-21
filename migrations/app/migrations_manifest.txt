@@ -1094,4 +1094,4 @@
 20250204162411_updating_create_accessorial_service_item_proc_for_crating.up.sql
 20250206173204_add_hawaii_data.up.sql
 20250210175754_B22451_update_dest_queue_to_consider_sit_extensions.up.sql
-20250220011234_add_too_destination_assignment.up.sql
+# nothing should be added below this line this file is archived and only needed for rebuilding db Locally to be run prior to new migrations process to keep the current state
