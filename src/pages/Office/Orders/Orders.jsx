@@ -190,6 +190,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
+    dependentsAuthorized,
   } = entitlement;
 
   useEffect(() => {
@@ -310,6 +311,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
     ntsSac: order?.ntsSac,
     ordersAcknowledgement: !!amendedOrdersAcknowledgedAt,
     payGrade: order?.grade,
+    dependentsAuthorized,
   };
 
   return (

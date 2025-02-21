@@ -21,7 +21,6 @@ const info = {
   progear: 2000,
   spouseProgear: 500,
   storageInTransit: 90,
-  dependents: true,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
   ubAllowance: 400,
