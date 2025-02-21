@@ -34,19 +34,25 @@ fi
 if [[ "${deployed_commit}" == "${local_commit}" ]]; then
   echo "* Deployed commit ($deployed_commit) is the local commit ($local_commit)."
   echo "* Deploy can continue."
+  echo "success" > sha_check_status
   exit 0
 # See pattern at https://git-scm.com/docs/git-merge-base
 elif git merge-base --is-ancestor "$deployed_commit" "$local_commit"; then
   echo "* Deployed commit ($deployed_commit) is an ancestor of the local commit ($local_commit)."
   echo "* Deploy can continue."
+  echo "success" > sha_check_status
   exit 0
 else
-  echo "* Deployed commit ($deployed_commit) is not an ancestor of the local commit ($local_commit)."
+  echo "* Deployed commit ($deployed_commit) is NOT ancestor of the local commit ($local_commit)."
   echo "* The deployed commit is either ahead of the local commit or the commits have different histories."
   echo "* Deploy is blocked."
-  if [ -n "${CIRCLECI+x}" ]; then
-    circleci-agent step halt
-  else
-    exit 1
+
+  # Ensure a status file is always written
+  echo "failed" > sha_check_status
+
+if [ -n "${GITLAB_CI+x}" ]; then
+  exit 0  # Prevents the job from failing but stops deployment
+else
+  exit 1  # Fails locally if not running in GitLab
   fi
 fi
