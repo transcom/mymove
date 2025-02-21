@@ -125,4 +125,23 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 		suite.Error(err)
 		suite.Equal(0, distance)
 	})
+
+	suite.Run("ZipTransitDistance returns Rand McNally distance when isInternationalShipment is true", func() {
+		testSoapClient := &ghcmocks.SoapCaller{}
+
+		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
+		planner := NewHHGPlanner(plannerMileage)
+		fromZip := "74133"
+		toZip := "99702"
+
+		// get the result from the test db
+		var zip3Distance models.Zip3Distance
+		err := suite.DB().Where("from_zip3 = $1 AND to_zip3 = $2", fromZip[0:3], toZip[0:3]).First(&zip3Distance)
+		suite.NoError(err)
+
+		// confirm we get the same
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "74133", "99702", true)
+		suite.NoError(err)
+		suite.Equal(zip3Distance.DistanceMiles, distance)
+	})
 }
