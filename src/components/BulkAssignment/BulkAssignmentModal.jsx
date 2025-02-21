@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Checkbox } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
+import { Switch, FormGroup, FormControlLabel, FormLabel, FormControl } from '@material-ui/core';
 import * as Yup from 'yup';
 
 import styles from './BulkAssignmentModal.module.scss';
@@ -17,12 +18,17 @@ const initialValues = {
 };
 
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
+  const bulkAssignmentSwitchLabels = ['Bulk Assignment', 'Bulk Re-assignment'];
+  const bulkAssignmentColLabels = ['Assignment', 'Re-assignment'];
+  const equalAssignButtonLabels = ['Equal Assign', 'Equal Re-assign'];
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [isBulkReAssignmentMode, setIsBulkReAssignmentMode] = useState(false);
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
   const [isSaveDisabled, setIsSaveDisabled] = useState(false);
   const [numberOfMoves, setNumberOfMoves] = useState(0);
   const [selectedUsers, setSelectedUsers] = useState({});
+  const [radioSelectedUsers, setRadioSelectedUsers] = useState({});
 
   const errorMessage = 'Cannot assign more moves than are available.';
 
@@ -33,7 +39,15 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
     }));
   };
 
+  const handleAssignmentModeChange = (event) => {
+    setIsBulkReAssignmentMode(event.target.checked);
+  };
   const isAllSelected = () => {
+    const selectedIds = Object.keys(selectedUsers);
+    return selectedIds.length > 0 && selectedIds.every((id) => selectedUsers[id]);
+  };
+
+  const disableSelectionForUser = (userID) => {
     const selectedIds = Object.keys(selectedUsers);
     return selectedIds.length > 0 && selectedIds.every((id) => selectedUsers[id]);
   };
@@ -91,14 +105,14 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
       <ModalClose handleClick={() => onClose()} />
       <ModalTitle>
         <h3>
-          {title} ({numberOfMoves})
+          {isBulkReAssignmentMode ? bulkAssignmentSwitchLabels[1] : bulkAssignmentSwitchLabels[0]} ({numberOfMoves})
         </h3>
       </ModalTitle>
+      <Switch name="BulkAssignmentModeSwitch" onChange={handleAssignmentModeChange} />
       <div className={styles.BulkAssignmentTable}>
         <Formik
           onSubmit={(values) => {
             const totalAssignment = values?.userData?.reduce((sum, item) => sum + item.moveAssignments, 0);
-
             if (totalAssignment > numberOfMoves) {
               setIsError(true);
               return;
@@ -138,7 +152,24 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
             //   });
             // };
 
+            const handleRadioDeselect = (id) => {
+              setRadioSelectedUsers((prev) => ({
+                ...prev,
+                [id]: false, // Deselect the radio button
+              }));
+
+              selectedUsers((prev) => ({
+                ...prev,
+                [id]: false, // Re-enable the checkbox but keep it unchecked
+              }));
+            };
+
             const handleAssignClick = () => {
+              if (isBulkReAssignmentMode) {
+                // check box and disable it
+                Object.values(selectedUsers).filter();
+              }
+
               const totalMoves = bulkAssignmentData?.bulkAssignmentMoveIDs?.length;
               const numUsers = Object.keys(selectedUsers).filter((id) => selectedUsers[id]).length;
               const baseAssignments = Math.floor(totalMoves / numUsers);
@@ -184,7 +215,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     </th>
                     <th>User</th>
                     <th>Workload</th>
-                    <th>Assignment</th>
+                    <th>{isBulkReAssignmentMode ? bulkAssignmentColLabels[1] : bulkAssignmentColLabels[0]}</th>
                   </tr>
                   {bulkAssignmentData?.availableOfficeUsers?.map((user, i) => {
                     return (
@@ -194,6 +225,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                             data-testid="bulkAssignmentUserCheckbox"
                             type="checkbox"
                             checked={!!selectedUsers[user.officeUserId]}
+                            disabled={!!radioSelectedUsers[user.officeUserId]}
                             onChange={() => handleCheckboxChange(user.officeUserId)}
                           />
                         </td>
@@ -206,31 +238,58 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                           <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
                         </td>
                         <td className={styles.BulkAssignmentDataCenter}>
-                          <input
-                            className={styles.BulkAssignmentAssignment}
-                            type="number"
-                            name={`userData.${i}.moveAssignments`}
-                            id={user.officeUserId}
-                            data-testid="assignment"
-                            min={0}
-                            value={values.userData[i]?.moveAssignments || 0}
-                            onChange={(event) => {
-                              handleChange(event);
+                          {isBulkReAssignmentMode ? (
+                            <input
+                              type="radio"
+                              name="chooseReAssignment"
+                              value={user.officeUserId}
+                              checked={!!radioSelectedUsers[user.officeUserId]}
+                              onChange={(event) => {
+                                handleChange(event);
+                                if (radioSelectedUsers[user.officeUserId]) {
+                                  setRadioSelectedUsers((prev) => ({
+                                    ...prev,
+                                    [user.officeUserId]: false, // Re-enable the checkbox but keep it unchecked
+                                  }));
+                                } else {
+                                  setSelectedUsers((prev) => ({
+                                    ...prev,
+                                    [user.officeUserId]: true, // Re-enable the checkbox but keep it unchecked
+                                  }));
+                                  setRadioSelectedUsers((prev) => ({
+                                    ...prev,
+                                    [user.officeUserId]: true, // Re-enable the checkbox but keep it unchecked
+                                  }));
+                                }
+                              }}
+                            />
+                          ) : (
+                            <input
+                              className={styles.BulkAssignmentAssignment}
+                              type="number"
+                              name={`userData.${i}.moveAssignments`}
+                              id={user.officeUserId}
+                              data-testid="assignment"
+                              min={0}
+                              value={values.userData[i]?.moveAssignments || 0}
+                              onChange={(event) => {
+                                handleChange(event);
 
-                              const newUserAssignment = {
-                                ID: user.officeUserId,
-                                moveAssignments: event.target.value ? +event.target.value : 0,
-                              };
+                                const newUserAssignment = {
+                                  ID: user.officeUserId,
+                                  moveAssignments: event.target.value ? +event.target.value : 0,
+                                };
 
-                              const newUserData = [...values.userData];
-                              newUserData[i] = newUserAssignment;
+                                const newUserData = [...values.userData];
+                                newUserData[i] = newUserAssignment;
 
-                              setValues({
-                                ...values,
-                                userData: newUserData,
-                              });
-                            }}
-                          />
+                                setValues({
+                                  ...values,
+                                  userData: newUserData,
+                                });
+                              }}
+                            />
+                          )}
                         </td>
                       </tr>
                     );
@@ -264,7 +323,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                         data-testid="modalEqualAssignButton"
                         disabled={!Object.values(selectedUsers).some(Boolean)}
                       >
-                        Equal Assign
+                        {isBulkReAssignmentMode ? equalAssignButtonLabels[1] : equalAssignButtonLabels[0]}
                       </Button>
                     </div>
                   </div>
