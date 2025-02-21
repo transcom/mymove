@@ -3,6 +3,7 @@ import { v4 } from 'uuid';
 
 import createUpload from 'utils/test/factories/upload';
 import { createDocumentWithoutUploads } from 'utils/test/factories/document';
+import PPMDocumentsStatus from 'constants/ppms';
 
 const createBaseProGearWeightTicket = ({ serviceMemberId, creationDate = new Date() } = {}, fieldOverrides = {}) => {
   const createdAt = creationDate.toISOString();
@@ -81,8 +82,22 @@ const createCompleteProGearWeightTicketWithConstructedWeight = (
   return weightTicket;
 };
 
+const createRejectedProGearWeightTicket = ({ serviceMemberId, creationDate } = {}, fieldOverrides = {}) => {
+  const fullFieldOverrides = {
+    belongsToSelf: true,
+    description: 'Laptop',
+    hasWeightTickets: true,
+    weight: 150,
+    ...fieldOverrides,
+  };
+  const weightTicket = createBaseProGearWeightTicket({ serviceMemberId, creationDate }, fullFieldOverrides);
+  weightTicket.status = PPMDocumentsStatus.REJECTED;
+  return weightTicket;
+};
+
 export {
   createBaseProGearWeightTicket,
   createCompleteProGearWeightTicket,
   createCompleteProGearWeightTicketWithConstructedWeight,
+  createRejectedProGearWeightTicket,
 };
