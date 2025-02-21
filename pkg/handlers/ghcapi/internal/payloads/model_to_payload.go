@@ -2631,7 +2631,10 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		numShipments := 0
 
 		for _, shipment := range move.MTOShipments {
-			if shipment.Status != models.MTOShipmentStatusDraft {
+			if (shipment.Status != models.MTOShipmentStatusDraft) &&
+				(shipment.Status != models.MTOShipmentStatusRejected) &&
+				(shipment.Status != models.MTOShipmentStatusCancellationRequested) &&
+				(shipment.Status != models.MTOShipmentStatusCanceled) {
 				numShipments++
 			}
 		}
