@@ -122,6 +122,7 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 		return false, nil
 	}
 
+	// this only runs for domestic shipments so putting false for the isInternationalShipment value here
 	previousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode, false)
 	if err != nil {
 		return false, err
@@ -354,14 +355,14 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		if addressUpdate.NewSitDistanceBetween != nil {
 			distanceBetweenOld = *addressUpdate.NewSitDistanceBetween
 		} else {
-			distanceBetweenOld, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode, false)
+			distanceBetweenOld, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode, isInternationalShipment)
 		}
 		if err != nil {
 			return nil, err
 		}
 
 		// calculating distance between the new address update & the SIT
-		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, false)
+		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, isInternationalShipment)
 		if err != nil {
 			return nil, err
 		}
@@ -698,8 +699,8 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 					pickupZip = *portZip
 					destZip = shipment.DestinationAddress.PostalCode
 				}
-				// we need to get the mileage from DTOD first, the db proc will consume that
-				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
+				// we need to get the mileage first, the db proc will consume that
+				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, isInternationalShipment)
 				if err != nil {
 					return err
 				}
