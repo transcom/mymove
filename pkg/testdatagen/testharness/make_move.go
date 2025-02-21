@@ -9107,6 +9107,7 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 	ihpkCost := unit.Cents(298800)
 	ihupkCost := unit.Cents(33280)
 	poefscCost := unit.Cents(25000)
+	idshutCost := unit.Cents(623)
 
 	// Create Customer
 	userInfo := newUserInfo("customer")
@@ -9437,6 +9438,47 @@ func MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCt
 				LinkOnly: true,
 			}, {
 				Model:    ihupk,
+				LinkOnly: true,
+			},
+		}, nil)
+
+	// Shuttling service item
+	approvedAtTime := time.Now()
+	idshut := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &approvedAtTime,
+				EstimatedWeight: &estimatedWeight,
+				ActualWeight:    &actualWeight,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("22fc07ed-be15-4f50-b941-cbd38153b378"), // IDSHUT - International Destination Shuttle
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItemWithParams(appCtx.DB(), models.ReServiceCodeIDSHUT,
+		basicPaymentServiceItemParams, []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &idshutCost,
+				},
+			}, {
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			}, {
+				Model:    idshut,
 				LinkOnly: true,
 			},
 		}, nil)
