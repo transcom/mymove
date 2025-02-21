@@ -46,7 +46,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	setupDefaultTestHandler := func() GetMoveTaskOrderHandler {
 		mockShipmentRateAreaFinder := &mocks.ShipmentRateAreaFinder{}
-		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentOconusRateArea",
+		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.Move"),
 		).Return(nil, nil)
@@ -1459,7 +1459,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 		}
 
-		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentOconusRateArea",
+		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.Move"),
 		).Return(&shipmentPostalCodeRateArea, nil)
@@ -1538,7 +1538,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		defaultAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentOconusRateArea",
+		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.Move"),
 		).Return(nil, apperror.InternalServerError{})

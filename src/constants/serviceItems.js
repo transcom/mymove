@@ -17,6 +17,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   DistanceZipSITDest: 'DistanceZipSITDest',
   DistanceZipSITOrigin: 'DistanceZipSITOrigin',
   EIAFuelPrice: 'EIAFuelPrice',
+  ExternalCrate: 'ExternalCrate',
   FSCPriceDifferenceInCents: 'FSCPriceDifferenceInCents',
   EscalationCompounded: 'EscalationCompounded',
   FSCWeightBasedDistanceMultiplier: 'FSCWeightBasedDistanceMultiplier',
@@ -61,8 +62,10 @@ const SERVICE_ITEM_PARAM_KEYS = {
 const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]: 'Pickup date',
   [SERVICE_ITEM_PARAM_KEYS.ContractYearName]: 'Base year',
+  [SERVICE_ITEM_PARAM_KEYS.CubicFeetCrating]: 'Actual size',
   [SERVICE_ITEM_PARAM_KEYS.DestinationPrice]: 'Destination price',
   [SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]: 'EIA diesel',
+  [SERVICE_ITEM_PARAM_KEYS.ExternalCrate]: 'External crate',
   [SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]: 'Baseline rate difference',
   [SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]: 'Weight-based distance multiplier',
   // Domestic non-peak or Domestic peak
@@ -104,7 +107,9 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Mileage factor',
   InternationalShippingAndLinehaul: 'ISLH price',
+  Market: 'Market',
   Mileage: 'Mileage',
+  MinSizeCrateApplied: 'Minimum crating size applied',
   MileageIntoSIT: 'Mileage into SIT',
   MileageOutOfSIT: 'Mileage out of SIT',
   NTSPackingFactor: 'NTS packing factor',
@@ -123,8 +128,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   UncratingDate: 'Uncrating date',
   UncratingPrice: 'Uncrating price (per cu ft)',
   SITFuelSurchargePrice: 'SIT mileage factor',
-  StandaloneCrate: 'Standalone Crate Cap',
-  UncappedRequestTotal: 'Uncapped Request Total',
+  StandaloneCrate: 'Standalone crate cap',
+  UncappedRequestTotal: 'Uncapped request total',
   Total: 'Total',
 };
 
@@ -240,7 +245,11 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.ISLH,
   SERVICE_ITEM_CODES.POEFSC,
   SERVICE_ITEM_CODES.PODFSC,
+  SERVICE_ITEM_CODES.ICRT,
+  SERVICE_ITEM_CODES.IUCRT,
 ];
+
+const EXTERNAL_CRATE_MIN_CUBIC_FT = '4.00';
 
 export default SERVICE_ITEM_STATUSES;
 
@@ -253,4 +262,5 @@ export {
   SERVICE_ITEM_STATUSES,
   SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM,
   SERVICE_ITEMS_ALLOWED_UPDATE,
+  EXTERNAL_CRATE_MIN_CUBIC_FT,
 };

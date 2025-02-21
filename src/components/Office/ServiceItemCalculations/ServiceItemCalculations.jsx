@@ -14,7 +14,6 @@ import {
 } from 'constants/serviceItems';
 
 const times = <FontAwesomeIcon className={styles.icon} icon="times" />;
-const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
 
 const ServiceItemCalculations = ({
   itemCode,
@@ -35,10 +34,6 @@ const ServiceItemCalculations = ({
 
     if (index > 0 && index !== length - 1) {
       return times;
-    }
-
-    if (index === length - 1) {
-      return equals;
     }
 
     return null;
@@ -88,7 +83,7 @@ const ServiceItemCalculations = ({
                     {calc.label}
                   </small>
                   <small data-testid="value" className={styles.value}>
-                    {appendSign(index, calculations.length)}
+                    {calc.value === null || calc.value === '' ? null : appendSign(index, calculations.length)}
                     {calc.value}
                   </small>
                 </div>

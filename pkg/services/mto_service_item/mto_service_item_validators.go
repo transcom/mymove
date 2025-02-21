@@ -48,6 +48,8 @@ var allSITServiceItemsToCheck = []models.ReServiceCode{
 var allAccessorialServiceItemsToCheck = []models.ReServiceCode{
 	models.ReServiceCodeIDSHUT,
 	models.ReServiceCodeIOSHUT,
+	models.ReServiceCodeICRT,
+	models.ReServiceCodeIUCRT,
 }
 
 var destSITServiceItems = []models.ReServiceCode{
@@ -135,7 +137,7 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 	}
 
 	// Checks that the SITDepartureDate
-	// - is not later than the authorized end date
+	// - is not earlier than the SIT entry date
 	err = serviceItemData.checkSITDepartureDate(appCtx)
 	if err != nil {
 		return err
@@ -504,10 +506,10 @@ func (v *updateMTOServiceItemData) checkSITEntryDateAndFADD(_ appcontext.AppCont
 }
 
 // checkSITDepartureDate checks that the SITDepartureDate:
-// - is not later than the authorized end date
+// - is not earlier than the SIT entry date
 func (v *updateMTOServiceItemData) checkSITDepartureDate(_ appcontext.AppContext) error {
-	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
-		return nil // the SITDepartureDate isn't being updated, so we're fine here
+	if (v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate) && (v.updatedServiceItem.SITEntryDate == nil || v.updatedServiceItem.SITEntryDate == v.oldServiceItem.SITEntryDate) {
+		return nil // the SITDepartureDate or SITEntryDate isn't being updated, so we're fine here
 	}
 
 	if v.updatedServiceItem.SITDepartureDate != nil {
@@ -524,9 +526,9 @@ func (v *updateMTOServiceItemData) checkSITDepartureDate(_ appcontext.AppContext
 		if v.updatedServiceItem.SITEntryDate != nil {
 			SITEntryDate = v.updatedServiceItem.SITEntryDate
 		}
-		// Check that departure date is not before the current entry date
-		if v.updatedServiceItem.SITDepartureDate.Before(*SITEntryDate) {
-			v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set before the SIT entry date.")
+		// Check that departure date is not before or equal to the current entry date
+		if !v.updatedServiceItem.SITDepartureDate.After(*SITEntryDate) {
+			v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set before or equal to the SIT entry date.")
 		}
 	}
 	return nil
@@ -686,6 +688,9 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 
 	newMTOServiceItem.ActualWeight = services.SetOptionalPoundField(
 		v.updatedServiceItem.ActualWeight, newMTOServiceItem.ActualWeight)
+
+	newMTOServiceItem.PricingEstimate = services.SetNoNilOptionalCentField(
+		v.updatedServiceItem.PricingEstimate, newMTOServiceItem.PricingEstimate)
 
 	// Set POD Location
 	if v.updatedServiceItem.PODLocationID != nil {

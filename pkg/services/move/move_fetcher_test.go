@@ -3,6 +3,8 @@ package move
 import (
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -105,7 +107,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	})
 }
 
-func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
+func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 	setupTestData := func() (services.MoveFetcherBulkAssignment, models.Move, models.TransportationOffice, models.OfficeUser) {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
@@ -149,7 +151,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		return moveFetcher, move, transportationOffice, officeUser
 	}
 
-	suite.Run("Returns moves that fulfill the query's criteria", func() {
+	suite.Run("SC - Returns moves that fulfill the query's criteria", func() {
 		moveFetcher, _, _, officeUser := setupTestData()
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentCounseling(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
@@ -518,9 +520,96 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		suite.NotEqual(marinePPM.ID, moves[0].ID)
 	})
 
-	suite.Run("TOO: Returns moves that fulfill the query criteria", func() {
+	suite.Run("Closeout returns non Navy/USCG/USMC ppms in needs closeout status", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		submittedAt := time.Now()
+
+		// create non USMC/USCG/NAVY ppm in need closeout status
+		factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.PPMShipment{
+					Status:      models.PPMShipmentStatusNeedsCloseout,
+					SubmittedAt: &submittedAt,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		// create non closeout needed ppm
+		factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.PPMShipment{
+					Status:      models.PPMShipmentStatusWaitingOnCustomer,
+					SubmittedAt: &submittedAt,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		marine := models.AffiliationMARINES
+		marinePPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+			{
+				Model: models.PPMShipment{
+					Status:      models.PPMShipmentStatusNeedsCloseout,
+					SubmittedAt: &submittedAt,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					Affiliation: &marine,
+				},
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentCloseout(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.NotEqual(marinePPM.ID, moves[0].ID)
+	})
+}
+
+func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
+	setupTestData := func() (services.MoveFetcherBulkAssignment, models.TransportationOffice, models.OfficeUser) {
+		moveFetcher := NewMoveFetcherBulkAssignment()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model:    transportationOffice,
@@ -552,6 +641,128 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
+
+		return moveFetcher, transportationOffice, officeUser
+	}
+
+	suite.Run("TOO: Returns moves that fulfill the query's criteria", func() {
+		moveFetcher, _, officeUser := setupTestData()
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+	})
+
+	suite.Run("TOO: Does not return moves with safety, bluebark, or wounded warrior order types", func() {
+		moveFetcher, transportationOffice, officeUser := setupTestData()
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeSAFETY,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeBLUEBARK,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeWOUNDEDWARRIOR,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+	})
+
+	suite.Run("TOO: Does not return moves that are already assigned", func() {
+		moveFetcher := NewMoveFetcherBulkAssignment()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+
+		assignedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &factory.OfficeUsers.TOOAssignedUser,
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+
+		// confirm that the assigned move isn't returned
+		for _, move := range moves {
+			suite.NotEqual(move.ID, assignedMove.ID)
+		}
+
+		// confirm that the rest of the details are correct
+		// move is SERVICE COUNSELING COMPLETED
+		suite.Equal(assignedMove.Status, models.MoveStatusServiceCounselingCompleted)
+		// GBLOC is the same
+		suite.Equal(*assignedMove.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
+		// Show is true
+		suite.Equal(assignedMove.Show, models.BoolPointer(true))
+		// Orders type isn't WW, BB, or Safety
+		suite.Equal(assignedMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+	})
+
+	suite.Run("TOO: Does not return payment requests with Marines if GBLOC not USMC", func() {
+		moveFetcher, transportationOffice, officeUser := setupTestData()
+
 		marine := models.AffiliationMARINES
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
@@ -573,5 +784,361 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
 		suite.Equal(2, len(moves))
+	})
+
+	suite.Run("TOO: Only return payment requests with Marines if GBLOC is USMC", func() {
+		moveFetcher, transportationOffice, officeUser := setupTestData()
+
+		marine := models.AffiliationMARINES
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.ServiceMember{
+					Affiliation: &marine,
+				},
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "USMC", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+	})
+
+}
+
+func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTIO() {
+	setupTestData := func() (services.MoveFetcherBulkAssignment, models.TransportationOffice, models.OfficeUser) {
+		moveFetcher := NewMoveFetcherBulkAssignment()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		// this move has a transportation office associated with it that matches
+		// the TIO's transportation office and should be found
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					ID:              uuid.Must(uuid.NewV4()),
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		move2 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					ID:              uuid.Must(uuid.NewV4()),
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeTIO})
+
+		return moveFetcher, transportationOffice, officeUser
+	}
+
+	suite.Run("TIO: Returns moves that fulfill the query criteria", func() {
+		moveFetcher, _, officeUser := setupTestData()
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentPaymentRequest(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+	})
+
+	suite.Run("Does not return moves that are already assigned", func() {
+		moveFetcher := NewMoveFetcherBulkAssignment()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeTIO})
+
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &factory.OfficeUsers.TIOAssignedUser,
+			},
+		}, nil)
+		assignedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					ID:              uuid.Must(uuid.NewV4()),
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentPaymentRequest(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+
+		// confirm that the assigned move isn't returned
+		for _, move := range moves {
+			suite.NotEqual(move.ID, assignedPaymentRequest.ID)
+		}
+
+		// confirm that the rest of the details are correct
+		// move is APPROVALS REQUESTED STATUS
+		suite.Equal(assignedPaymentRequest.Status, models.PaymentRequestStatusPending)
+		// GBLOC is the same
+		suite.Equal(*move.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
+		// Show is true
+		suite.Equal(move.Show, models.BoolPointer(true))
+		// Orders type isn't WW, BB, or Safety
+		suite.Equal(move.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+	})
+
+	suite.Run("TIO: Does not return moves with safety, bluebark, or wounded warrior order types", func() {
+		moveFetcher, transportationOffice, officeUser := setupTestData()
+		moveSafety := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeSAFETY,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					ID:              uuid.Must(uuid.NewV4()),
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+			{
+				Model:    moveSafety,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		moveBB := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeBLUEBARK,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					ID:              uuid.Must(uuid.NewV4()),
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+			{
+				Model:    moveBB,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		moveWW := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeWOUNDEDWARRIOR,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					ID:              uuid.Must(uuid.NewV4()),
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+			{
+				Model:    moveWW,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentPaymentRequest(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+	})
+
+	suite.Run("TIO: Does not return payment requests with Marines if GBLOC not USMC", func() {
+		moveFetcher, transportationOffice, officeUser := setupTestData()
+
+		marine := models.AffiliationMARINES
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.ServiceMember{
+					Affiliation: &marine,
+				},
+			},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					ID:              uuid.Must(uuid.NewV4()),
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentPaymentRequest(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+	})
+
+	suite.Run("TIO: Only return payment requests with Marines if GBLOC is USMC", func() {
+		moveFetcher, transportationOffice, officeUser := setupTestData()
+
+		marine := models.AffiliationMARINES
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.ServiceMember{
+					Affiliation: &marine,
+				},
+			},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					ID:              uuid.Must(uuid.NewV4()),
+					IsFinal:         false,
+					Status:          models.PaymentRequestStatusPending,
+					RejectionReason: nil,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentPaymentRequest(suite.AppContextForTest(), "USMC", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
 	})
 }
