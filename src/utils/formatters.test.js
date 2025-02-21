@@ -237,7 +237,7 @@ describe('formatters', () => {
 
   describe('paymentRequestStatusReadable', () => {
     it('returns expected string for PENDING', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual('Payment requested');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual('Payment Requested');
     });
 
     it('returns expected string for REVIEWED', () => {
@@ -249,15 +249,15 @@ describe('formatters', () => {
     });
 
     it('returns expected string for TPPS_RECEIVED', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.TPPS_RECEIVED)).toEqual('Received');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.TPPS_RECEIVED)).toEqual('TPPS Received');
     });
 
     it('returns expected string for PAID', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('Paid');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('TPPS Paid');
     });
 
     it('returns expected string for EDI_ERROR', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.EDI_ERROR)).toEqual('EDI error');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.EDI_ERROR)).toEqual('EDI Error');
     });
 
     it('returns expected string for DEPRECATED', () => {
