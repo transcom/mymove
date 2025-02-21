@@ -15,7 +15,43 @@ import (
 	"github.com/transcom/mymove/pkg/services/address"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
+
+func (suite *ShipmentAddressUpdateServiceSuite) setupServiceItemData() {
+	startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
+	endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+
+	testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			StartDate: startDate,
+			EndDate:   endDate,
+		},
+	})
+
+	originalDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.AppContextForTest().DB(), testdatagen.Assertions{
+		ReDomesticServiceArea: models.ReDomesticServiceArea{
+			ServiceArea:      "004",
+			ServicesSchedule: 2,
+		},
+		ReContract: testdatagen.FetchOrMakeReContract(suite.AppContextForTest().DB(), testdatagen.Assertions{}),
+	})
+
+	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+			Contract:              originalDomesticServiceArea.Contract,
+			ContractID:            originalDomesticServiceArea.ContractID,
+			DomesticServiceArea:   originalDomesticServiceArea,
+			DomesticServiceAreaID: originalDomesticServiceArea.ID,
+			WeightLower:           unit.Pound(500),
+			WeightUpper:           unit.Pound(9999),
+			MilesLower:            500,
+			MilesUpper:            9999,
+			PriceMillicents:       unit.Millicents(606800),
+			IsPeakPeriod:          false,
+		},
+	})
+}
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddressUpdate() {
 	setupTestData := func() models.Move {
@@ -760,6 +796,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 	suite.Run("TOO approves address change", func() {
 
+		suite.setupServiceItemData()
+
 		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
 		})
@@ -1460,6 +1498,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
+
+		suite.setupServiceItemData()
+
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -1528,6 +1569,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
+
+		suite.setupServiceItemData()
+
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -1583,6 +1627,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 	suite.Run("Service items are not rejected when pricing type does not change post TOO approval", func() {
 		move := setupTestData()
+
+		suite.setupServiceItemData()
+
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		//Generate service items to test their statuses upon approval
@@ -1636,6 +1683,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
+
+		suite.setupServiceItemData()
+
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -1705,6 +1755,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			PostalCode:     "90210",
 		}
 		move := setupTestData()
+
+		suite.setupServiceItemData()
+
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{

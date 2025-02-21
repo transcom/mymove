@@ -91,6 +91,7 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNamePortZip,
 	models.ServiceItemParamNameMarketDest,
 	models.ServiceItemParamNameMarketOrigin,
+	models.ServiceItemParamNameExternalCrate,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
@@ -342,7 +343,8 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 	lookups[models.ServiceItemParamNameContractCode] = ContractCodeLookup{}
 
 	lookups[models.ServiceItemParamNameCubicFeetBilled] = CubicFeetBilledLookup{
-		Dimensions: serviceItem.Dimensions,
+		Dimensions:  serviceItem.Dimensions,
+		ServiceItem: serviceItem,
 	}
 
 	lookups[models.ServiceItemParamNamePSILinehaulDom] = PSILinehaulDomLookup{
@@ -453,6 +455,10 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 
 	lookups[models.ServiceItemParamNameMarketDest] = MarketDestinationLookup{
 		Address: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameExternalCrate] = ExternalCrateLookup{
+		ServiceItem: serviceItem,
 	}
 
 	return lookups
