@@ -115,6 +115,7 @@ export const LocationSearchBoxComponent = ({
 }) => {
   const { value, onChange, locationState, name: inputName } = input;
 
+  let selectedLocation = '';
   const [inputValue, setInputValue] = useState('');
   let disabledStyles = {};
   if (isDisabled) {
@@ -178,8 +179,11 @@ export const LocationSearchBoxComponent = ({
     onChange(selectedValue);
 
     if (handleLocationOnChange !== null) {
-      handleLocationOnChange(selectedValue);
+      selectedLocation = selectedValue;
+      setInputValue(selectedLocation);
+      handleLocationOnChange(selectedLocation);
     }
+
     return selectedValue;
   };
 
@@ -206,11 +210,7 @@ export const LocationSearchBoxComponent = ({
   };
 
   const handleFocus = () => {
-    if (handleLocationOnChange) {
-      setInputValue(inputValue);
-    } else {
-      onChange(null);
-    }
+    onChange(null);
   };
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
@@ -232,6 +232,7 @@ export const LocationSearchBoxComponent = ({
           cacheOptions
           formatOptionLabel={handleLocationOnChange ? formatLocation : formatOptionLabel}
           getOptionValue={getOptionName}
+          getOptionLabel={(option) => option.name}
           loadOptions={loadOptions}
           onChange={selectOption}
           onKeyDown={handleKeyDown}
