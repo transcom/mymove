@@ -71,9 +71,5 @@ export default {
   reviewShipmentAddressUpdate: 'reviewShipmentAddressUpdate', // ghc.yaml
   updateAssignedOfficeUser: 'updateAssignedOfficeUser', // ghc.yaml
   deleteAssignedOfficeUser: 'deleteAssignedOfficeUser', // ghc.yaml
-<<<<<<< HEAD
-=======
-  reviewShipmentAddressUpdate: 'reviewShipmentAddressUpdate', // ghc.yaml
->>>>>>> origin/B-21348-Bulk-Assignment-Save
   saveBulkAssignmentData: 'saveBulkAssignmentData', // ghc.yaml
 };

@@ -34,11 +34,7 @@ describe('When given a move that has been assigned', () => {
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));
-<<<<<<< HEAD
       expect(screen.getByText('Closeout counselor assigned')).toBeInTheDocument();
-=======
-      expect(screen.getByText('Counselor assigned')).toBeInTheDocument();
->>>>>>> origin/B-21348-Bulk-Assignment-Save
       expect(screen.getByText(': Daniels, Jayden')).toBeInTheDocument();
     });
     it('task ordering officer', () => {
