@@ -783,7 +783,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev2messages.MTOSe
 		payload = &cratingSI
 
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
-		payload = &primev2messages.MTOServiceItemShuttle{
+		payload = &primev2messages.MTOServiceItemDomesticShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:          mtoServiceItem.Reason,
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),

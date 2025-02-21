@@ -90,7 +90,7 @@ describe('CreateShipmentServiceItemForm component', () => {
     ['destinationSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemDestSIT],
     ['internationalOriginSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemInternationalOriginSIT],
     ['internationalDestinationSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemInternationalDestSIT],
-    ['shuttleSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemShuttle],
+    ['shuttleSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemDomesticShuttle],
     ['DomesticCratingForm', createServiceItemModelTypes.MTOServiceItemDomesticCrating],
     ['InternationalCratingForm', createServiceItemModelTypes.MTOServiceItemInternationalCrating],
     ['InternationalShuttleServiceItemForm', createServiceItemModelTypes.MTOServiceItemInternationalShuttle],

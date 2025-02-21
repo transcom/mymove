@@ -1230,6 +1230,38 @@ paths:
         }
 
         ```
+
+
+        The following crating/uncrating service items can be resubmitted
+        following a rejection:
+
+        - ICRT
+
+        - IUCRT
+
+
+        At a MINIMUM, the payload for resubmitting a rejected crating/uncrating
+        service item must look like this:
+
+        ```json
+
+        {
+          "item": {
+            "length": 10000,
+            "width": 10000,
+            "height": 10000
+          },
+          "crate": {
+            "length": 20000,
+            "width": 20000,
+            "height": 20000
+          },
+          "updateReason": "A reason that differs from the previous reason",
+          "modelType": "UpdateMTOServiceItemCrating",
+          "requestApprovalsRequestedStatus": true
+        }
+
+        ```
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -2789,6 +2821,47 @@ definitions:
         required:
           - reason
           - reServiceCode
+  MTOServiceItemDomesticShuttle:
+    description: Describes a domestic shuttle service item.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >
+              A unique code for the service item. Indicates if shuttling is
+              requested for the shipment origin (`DOSHUT`) or destination
+              (`DDSHUT`).
+            enum:
+              - DOSHUT
+              - DDSHUT
+          reason:
+            type: string
+            example: Storage items need to be picked up.
+            description: >
+              The contractor's explanation for why a shuttle service is
+              requested. Used by the TOO while deciding to approve or reject the
+              service item.
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: >-
+              An estimate of how much weight from a shipment will be included in
+              the shuttling service.
+            x-nullable: true
+            x-omitempty: false
+          actualWeight:
+            type: integer
+            example: 4000
+            description: >-
+              A record of the actual weight that was shuttled. Provided by the
+              movers, based on weight tickets.
+            x-nullable: true
+            x-omitempty: false
+        required:
+          - reason
+          - reServiceCode
   MTOServiceItemInternationalFuelSurcharge:
     description: >-
       Describes a international Port of Embarkation/Debarkation fuel surcharge
@@ -2968,6 +3041,8 @@ definitions:
         * POEFSC - UpdateMTOServiceItemInternationalPortFSC
         * IDSHUT - UpdateMTOServiceItemInternationalShuttle
         * IOSHUT - UpdateMTOServiceItemInternationalShuttle
+        * ICRT - UpdateMTOServiceItemCrating
+        * IUCRT - UpdateMTOServiceItemCrating
 
       The documentation will then update with the supported fields.
     type: string
@@ -2976,6 +3051,7 @@ definitions:
       - UpdateMTOServiceItemShuttle
       - UpdateMTOServiceItemInternationalPortFSC
       - UpdateMTOServiceItemInternationalShuttle
+      - UpdateMTOServiceItemCrating
   UpdateMTOServiceItemShuttle:
     description: >
       Subtype used to provide the estimated weight and actual weight for
@@ -3172,6 +3248,47 @@ definitions:
             enum:
               - PODFSC
               - POEFSC
+  UpdateMTOServiceItemCrating:
+    description: >
+      Subtype used to provide the size and types for crating. This is not
+      creating a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          item:
+            description: The dimensions of the item being crated.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            description: The dimensions for the crate the item will be shipped in.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: Decorated horse head to be crated.
+            description: A description of the item being crated.
+            x-nullable: true
+          updateReason:
+            type: string
+            description: Reason for updating service item.
+            x-nullable: true
+          standaloneCrate:
+            type: boolean
+            x-nullable: true
+          externalCrate:
+            type: boolean
+            x-nullable: true
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - ICRT
+              - IUCRT
   UpdateMTOShipment:
     properties:
       actualProGearWeight:
@@ -4106,6 +4223,7 @@ definitions:
         * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT
         * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
+        * DOSHUT, DDSHUT - MTOServiceItemDomesticShuttle
         * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
         * ICRT, IUCRT - MTOServiceItemInternationalCrating
@@ -4120,6 +4238,7 @@ definitions:
       - MTOServiceItemInternationalOriginSIT
       - MTOServiceItemInternationalDestSIT
       - MTOServiceItemShuttle
+      - MTOServiceItemDomesticShuttle
       - MTOServiceItemInternationalShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
