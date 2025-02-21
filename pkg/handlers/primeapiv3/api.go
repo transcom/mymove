@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 // NewPrimeAPI returns the Prime API
@@ -31,7 +32,8 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	vLocation := address.NewVLocation()
 	waf := entitlements.NewWeightAllotmentFetcher()
 
 	primeSpec, err := loads.Analyzed(primev3api.SwaggerJSON, "")
@@ -73,6 +75,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 		handlerConfig,
 		shipmentCreator,
 		movetaskorder.NewMoveTaskOrderChecker(),
+		vLocation,
 	}
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
@@ -115,6 +118,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 		handlerConfig,
 		shipmentUpdater,
 		handlerConfig.DTODPlanner(),
+		vLocation,
 	}
 
 	return primeAPIV3

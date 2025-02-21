@@ -61,8 +61,8 @@ const MoveDetails = ({
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const [enableBoat, setEnableBoat] = useState(false);
@@ -428,6 +428,7 @@ const MoveDetails = ({
     ordersNumber: order.order_number,
     ordersType: order.order_type,
     ordersTypeDetail: order.order_type_detail,
+    dependents: allowances.dependentsAuthorized,
     ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
@@ -444,7 +445,6 @@ const MoveDetails = ({
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
-    dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,

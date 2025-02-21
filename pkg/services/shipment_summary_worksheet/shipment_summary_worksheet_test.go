@@ -801,7 +801,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntit
 			MovingExpenseType:      &storageExpense,
 			Amount:                 &amount,
 			PaidWithGTCC:           models.BoolPointer(true),
-			SITReimburseableAmount: models.CentPointer(unit.Cents(200)),
+			SITReimburseableAmount: models.CentPointer(unit.Cents(20000)),
 		},
 	}
 
@@ -809,8 +809,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntit
 	id := uuid.Must(uuid.NewV4())
 	PPMShipments := []models.PPMShipment{
 		{
-			FinalIncentive:        models.CentPointer(unit.Cents(600)),
-			AdvanceAmountReceived: models.CentPointer(unit.Cents(100)),
+			FinalIncentive:        models.CentPointer(unit.Cents(60000)),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(10000)),
 			ID:                    id,
 			Shipment: models.MTOShipment{
 				ShipmentLocator: &locator,
@@ -840,8 +840,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntit
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
 	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
 	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true, expensesMap)
-	suite.Equal("$5.00", sswPage2.PPMRemainingEntitlement)
-	suite.Equal(expectedDisbursementString(500, 500), sswPage2.Disbursement)
+	suite.Equal("$500.00", sswPage2.PPMRemainingEntitlement)
+	suite.Equal(expectedDisbursementString(10000, 40000), sswPage2.Disbursement)
 }
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	paidWithGTCC := false

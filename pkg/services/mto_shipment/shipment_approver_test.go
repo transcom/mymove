@@ -25,6 +25,7 @@ import (
 	mt "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -115,7 +116,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 
 	builder := query.NewQueryBuilder()
 	waf := entitlements.NewWeightAllotmentFetcher()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -253,7 +254,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		return mockUpdater
 	}
 
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	ppmEstimator := &servicesMocks.PPMEstimator{}
 	queryBuilder := query.NewQueryBuilder()
 	planner := &mocks.Planner{}
@@ -1305,6 +1306,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.Run("If the OCONUS to CONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		var scheduledPickupDate time.Time
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1323,9 +1325,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   models.MarketCodeInternational,
-					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+					MarketCode:          models.MarketCodeInternational,
+					Status:              models.MTOShipmentStatusSubmitted,
+					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+					ScheduledPickupDate: &scheduledPickupDate,
 				},
 			},
 			{
@@ -1373,6 +1376,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.Run("If the OCONUS to OCONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		var scheduledPickupDate time.Time
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1391,9 +1395,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   models.MarketCodeInternational,
-					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+					MarketCode:          models.MarketCodeInternational,
+					Status:              models.MTOShipmentStatusSubmitted,
+					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+					ScheduledPickupDate: &scheduledPickupDate,
 				},
 			},
 			{

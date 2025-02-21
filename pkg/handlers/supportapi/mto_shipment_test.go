@@ -23,6 +23,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
@@ -91,7 +92,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	// Used for all tests except 500 error:
 	queryBuilder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(queryBuilder)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),

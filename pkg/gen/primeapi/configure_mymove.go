@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
@@ -98,6 +99,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderDownloadMoveOrderHandler == nil {
 		api.MoveTaskOrderDownloadMoveOrderHandler = move_task_order.DownloadMoveOrderHandlerFunc(func(params move_task_order.DownloadMoveOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.DownloadMoveOrder has not yet been implemented")
+		})
+	}
+	if api.AddressesGetLocationByZipCityStateHandler == nil {
+		api.AddressesGetLocationByZipCityStateHandler = addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {

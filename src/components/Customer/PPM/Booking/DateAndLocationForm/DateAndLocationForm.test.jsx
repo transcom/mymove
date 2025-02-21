@@ -184,23 +184,36 @@ describe('DateAndLocationForm component', () => {
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
-      const hasSecondaryDestinationAddress = await screen.getAllByLabelText('Yes')[1];
 
-      await userEvent.click(hasSecondaryDestinationAddress);
+      await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       const postalCodes = screen.getAllByTestId(/ZIP/);
       const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
-      const address3 = screen.getAllByLabelText('Address 3', { exact: false });
       const state = screen.getAllByTestId(/State/);
       const city = screen.getAllByTestId(/City/);
+      expect(address1[1]).toHaveValue(defaultProps.destinationDutyLocation.address.streetAddress1);
+      expect(address2[1]).toHaveValue('');
+      expect(city[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.city);
+      expect(state[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.state);
+      expect(postalCodes[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.postalCode);
+
+      const hasSecondaryDestinationAddress = await screen.getAllByLabelText('Yes')[1];
+      await userEvent.click(hasSecondaryDestinationAddress);
+
+      const secondaryPostalCodes = screen.getAllByTestId(/ZIP/);
+      const secondaryAddress1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+      const secondaryAddress2 = screen.getAllByLabelText('Address 2', { exact: false });
+      const secondaryAddress3 = screen.getAllByLabelText('Address 3', { exact: false });
+      const secondaryState = screen.getAllByTestId(/State/);
+      const secondaryCity = screen.getAllByTestId(/City/);
 
       await waitFor(() => {
-        expect(address1[2]).toBeInstanceOf(HTMLInputElement);
-        expect(address2[2]).toBeInstanceOf(HTMLInputElement);
-        expect(address3[2]).toBeInstanceOf(HTMLInputElement);
-        expect(state[2]).toBeInstanceOf(HTMLLabelElement);
-        expect(city[2]).toBeInstanceOf(HTMLLabelElement);
-        expect(postalCodes[2]).toBeInstanceOf(HTMLLabelElement);
+        expect(secondaryAddress1[2]).toBeInstanceOf(HTMLInputElement);
+        expect(secondaryAddress2[2]).toBeInstanceOf(HTMLInputElement);
+        expect(secondaryAddress3[2]).toBeInstanceOf(HTMLInputElement);
+        expect(secondaryState[2]).toBeInstanceOf(HTMLLabelElement);
+        expect(secondaryCity[2]).toBeInstanceOf(HTMLLabelElement);
+        expect(secondaryPostalCodes[2]).toBeInstanceOf(HTMLLabelElement);
       });
     });
   });

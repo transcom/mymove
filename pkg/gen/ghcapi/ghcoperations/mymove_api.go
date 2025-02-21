@@ -7,6 +7,7 @@ package ghcoperations
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -70,6 +71,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
+		TextEventStreamProducer: runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
+			return errors.NotImplemented("textEventStream producer has not yet been implemented")
+		}),
 
 		OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler: order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandlerFunc(func(params order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessUnaccompaniedBaggageWeightRisk has not yet been implemented")
@@ -269,6 +273,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UploadsGetUploadHandler: uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
 		}),
+		UploadsGetUploadStatusHandler: uploads.GetUploadStatusHandlerFunc(func(params uploads.GetUploadStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUploadStatus has not yet been implemented")
+		}),
 		CalendarIsDateWeekendHolidayHandler: calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
 			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
 		}),
@@ -301,6 +308,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ShipmentReviewShipmentAddressUpdateHandler: shipment.ReviewShipmentAddressUpdateHandlerFunc(func(params shipment.ReviewShipmentAddressUpdateParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ReviewShipmentAddressUpdate has not yet been implemented")
+		}),
+		QueuesSaveBulkAssignmentDataHandler: queues.SaveBulkAssignmentDataHandlerFunc(func(params queues.SaveBulkAssignmentDataParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.SaveBulkAssignmentData has not yet been implemented")
 		}),
 		EvaluationReportsSaveEvaluationReportHandler: evaluation_reports.SaveEvaluationReportHandlerFunc(func(params evaluation_reports.SaveEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")
@@ -449,6 +459,9 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
+	// TextEventStreamProducer registers a producer for the following mime types:
+	//   - text/event-stream
+	TextEventStreamProducer runtime.Producer
 
 	// OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler sets the operation handler for the acknowledge excess unaccompanied baggage weight risk operation
 	OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler
@@ -582,6 +595,8 @@ type MymoveAPI struct {
 	TransportationOfficeGetTransportationOfficesOpenHandler transportation_office.GetTransportationOfficesOpenHandler
 	// UploadsGetUploadHandler sets the operation handler for the get upload operation
 	UploadsGetUploadHandler uploads.GetUploadHandler
+	// UploadsGetUploadStatusHandler sets the operation handler for the get upload status operation
+	UploadsGetUploadStatusHandler uploads.GetUploadStatusHandler
 	// CalendarIsDateWeekendHolidayHandler sets the operation handler for the is date weekend holiday operation
 	CalendarIsDateWeekendHolidayHandler calendar.IsDateWeekendHolidayHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
@@ -604,6 +619,8 @@ type MymoveAPI struct {
 	ShipmentRequestShipmentReweighHandler shipment.RequestShipmentReweighHandler
 	// ShipmentReviewShipmentAddressUpdateHandler sets the operation handler for the review shipment address update operation
 	ShipmentReviewShipmentAddressUpdateHandler shipment.ReviewShipmentAddressUpdateHandler
+	// QueuesSaveBulkAssignmentDataHandler sets the operation handler for the save bulk assignment data operation
+	QueuesSaveBulkAssignmentDataHandler queues.SaveBulkAssignmentDataHandler
 	// EvaluationReportsSaveEvaluationReportHandler sets the operation handler for the save evaluation report operation
 	EvaluationReportsSaveEvaluationReportHandler evaluation_reports.SaveEvaluationReportHandler
 	// CustomerSearchCustomersHandler sets the operation handler for the search customers operation
@@ -753,6 +770,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
+	}
+	if o.TextEventStreamProducer == nil {
+		unregistered = append(unregistered, "TextEventStreamProducer")
 	}
 
 	if o.OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler == nil {
@@ -953,6 +973,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.UploadsGetUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.GetUploadHandler")
 	}
+	if o.UploadsGetUploadStatusHandler == nil {
+		unregistered = append(unregistered, "uploads.GetUploadStatusHandler")
+	}
 	if o.CalendarIsDateWeekendHolidayHandler == nil {
 		unregistered = append(unregistered, "calendar.IsDateWeekendHolidayHandler")
 	}
@@ -985,6 +1008,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentReviewShipmentAddressUpdateHandler == nil {
 		unregistered = append(unregistered, "shipment.ReviewShipmentAddressUpdateHandler")
+	}
+	if o.QueuesSaveBulkAssignmentDataHandler == nil {
+		unregistered = append(unregistered, "queues.SaveBulkAssignmentDataHandler")
 	}
 	if o.EvaluationReportsSaveEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.SaveEvaluationReportHandler")
@@ -1140,6 +1166,8 @@ func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produce
 			result["application/pdf"] = o.BinProducer
 		case "application/json":
 			result["application/json"] = o.JSONProducer
+		case "text/event-stream":
+			result["text/event-stream"] = o.TextEventStreamProducer
 		}
 
 		if p, ok := o.customProducers[mt]; ok {
@@ -1447,6 +1475,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/uploads/{uploadID}/status"] = uploads.NewGetUploadStatus(o.context, o.UploadsGetUploadStatusHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/calendar/{countryCode}/is-weekend-holiday/{date}"] = calendar.NewIsDateWeekendHoliday(o.context, o.CalendarIsDateWeekendHolidayHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1488,6 +1520,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/shipments/{shipmentID}/review-shipment-address-update"] = shipment.NewReviewShipmentAddressUpdate(o.context, o.ShipmentReviewShipmentAddressUpdateHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/queues/bulk-assignment/assign"] = queues.NewSaveBulkAssignmentData(o.context, o.QueuesSaveBulkAssignmentDataHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

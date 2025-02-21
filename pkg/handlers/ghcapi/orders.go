@@ -291,7 +291,6 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 
 			var weightRestriction *int
-
 			entitlement := models.Entitlement{
 				DependentsAuthorized:    payload.HasDependents,
 				DBAuthorizedWeight:      models.IntPointer(weight),
@@ -959,10 +958,10 @@ func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upl
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
-		uploadPayload.Status = "PROCESSING"
+	if err != nil {
+		uploadPayload.Status = string(models.AVStatusPROCESSING)
 	} else {
-		uploadPayload.Status = tags["av-status"]
+		uploadPayload.Status = string(models.GetAVStatusFromTags(tags))
 	}
 	return uploadPayload, nil
 }

@@ -4416,6 +4416,46 @@ func init() {
         }
       }
     },
+    "/queues/bulk-assignment/assign": {
+      "post": {
+        "description": "Supervisor office users are able to assign moves. This endpoint saves office user assignments to multiple moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Assigns one or more moves to one or more office users",
+        "operationId": "saveBulkAssignmentData",
+        "parameters": [
+          {
+            "name": "bulkAssignmentSavePayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentSavePayload"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "assigned"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -6690,6 +6730,58 @@ func init() {
         }
       }
     },
+    "/uploads/{uploadID}/status": {
+      "get": {
+        "description": "Returns status of an upload based on antivirus run",
+        "produces": [
+          "text/event-stream"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Returns status of an upload",
+        "operationId": "getUploadStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to return status of",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested upload status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INFECTED",
+                "CLEAN",
+                "PROCESSING"
+              ],
+              "readOnly": true
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}/update": {
       "patch": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
@@ -7248,6 +7340,23 @@ func init() {
         }
       }
     },
+    "BulkAssignmentForUser": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "moveAssignments": {
+          "type": "integer",
+          "x-omitempty": false
+        }
+      }
+    },
+    "BulkAssignmentMoveData": {
+      "type": "string",
+      "format": "uuid"
+    },
     "BulkAssignmentMoveID": {
       "type": "string",
       "format": "uuid",
@@ -7257,6 +7366,33 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
+    },
+    "BulkAssignmentSavePayload": {
+      "type": "object",
+      "properties": {
+        "moveData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentMoveData"
+          }
+        },
+        "queueType": {
+          "description": "A string corresponding to the queue type",
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CLOSEOUT",
+            "TASK_ORDER",
+            "PAYMENT_REQUEST"
+          ]
+        },
+        "userData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentForUser"
+          }
+        }
       }
     },
     "ClientError": {
@@ -7331,10 +7467,6 @@ func init() {
         },
         "agency": {
           "$ref": "#/definitions/Affiliation"
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
@@ -7413,6 +7545,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -14453,10 +14589,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -14802,6 +14934,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -21452,6 +21588,55 @@ func init() {
         }
       }
     },
+    "/queues/bulk-assignment/assign": {
+      "post": {
+        "description": "Supervisor office users are able to assign moves. This endpoint saves office user assignments to multiple moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Assigns one or more moves to one or more office users",
+        "operationId": "saveBulkAssignmentData",
+        "parameters": [
+          {
+            "name": "bulkAssignmentSavePayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentSavePayload"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "assigned"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -24152,6 +24337,58 @@ func init() {
         }
       }
     },
+    "/uploads/{uploadID}/status": {
+      "get": {
+        "description": "Returns status of an upload based on antivirus run",
+        "produces": [
+          "text/event-stream"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Returns status of an upload",
+        "operationId": "getUploadStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to return status of",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested upload status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INFECTED",
+                "CLEAN",
+                "PROCESSING"
+              ],
+              "readOnly": true
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}/update": {
       "patch": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
@@ -24714,6 +24951,23 @@ func init() {
         }
       }
     },
+    "BulkAssignmentForUser": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "moveAssignments": {
+          "type": "integer",
+          "x-omitempty": false
+        }
+      }
+    },
+    "BulkAssignmentMoveData": {
+      "type": "string",
+      "format": "uuid"
+    },
     "BulkAssignmentMoveID": {
       "type": "string",
       "format": "uuid",
@@ -24723,6 +24977,33 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
+    },
+    "BulkAssignmentSavePayload": {
+      "type": "object",
+      "properties": {
+        "moveData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentMoveData"
+          }
+        },
+        "queueType": {
+          "description": "A string corresponding to the queue type",
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CLOSEOUT",
+            "TASK_ORDER",
+            "PAYMENT_REQUEST"
+          ]
+        },
+        "userData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentForUser"
+          }
+        }
       }
     },
     "ClientError": {
@@ -24797,10 +25078,6 @@ func init() {
         },
         "agency": {
           "$ref": "#/definitions/Affiliation"
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
@@ -24883,6 +25160,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -32051,10 +32332,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -32404,6 +32681,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"

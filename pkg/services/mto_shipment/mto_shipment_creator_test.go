@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -29,7 +30,7 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(customs []factory.Custom
 	subtestData.move = factory.BuildMove(suite.DB(), customs, nil)
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	fetcher := fetch.NewFetcher(builder)
 	addressCreator := address.NewAddressCreator()
 
@@ -45,7 +46,7 @@ func (suite *MTOShipmentServiceSuite) createSubtestDataV2(customs []factory.Cust
 	subtestData.move = factory.BuildMove(suite.DB(), customs, nil)
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	fetcher := fetch.NewFetcher(builder)
 	addressCreator := address.NewAddressCreator()
 
@@ -214,6 +215,41 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.True(*createdShipment.PickupAddress.IsOconus)
 		suite.True(*createdShipment.DestinationAddress.IsOconus)
 		suite.Equal(createdShipment.MarketCode, models.MarketCodeInternational)
+	})
+
+	suite.Run("If the shipment has an international address it should be returned", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		internationalAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Country{
+					Country:     "GB",
+					CountryName: "UNITED KINGDOM",
+				},
+			},
+		}, nil)
+		// stubbed countries need an ID
+		internationalAddress.ID = uuid.Must(uuid.NewV4())
+
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+			{
+				Model:    internationalAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
+
+		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+
+		suite.Error(err)
+		suite.Equal("failed to create pickup address - the country GB is not supported at this time - only US is allowed", err.Error())
 	})
 
 	suite.Run("If the shipment has an international address it should be returned", func() {
