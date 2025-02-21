@@ -571,8 +571,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			vLocationServices,
 			planner,
+			vLocationServices,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -854,8 +854,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			vLocationServices,
 			planner,
+			vLocationServices,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -1575,8 +1575,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			vLocationServices,
 			planner,
+			vLocationServices,
 		}
 
 		now := time.Now()
@@ -1652,8 +1652,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			vLocationServices,
 			planner,
+			vLocationServices,
 		}
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{}, nil)
@@ -1702,8 +1702,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			vLocationServices,
 			planner,
+			vLocationServices,
 		}
 
 		now := time.Now()
@@ -1795,8 +1795,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			vLocationServices,
 			planner,
+			vLocationServices,
 		}
 
 		now := time.Now()
@@ -1946,8 +1946,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			vLocationServices,
 			planner,
+			vLocationServices,
 		}
 
 		now := time.Now()
@@ -2071,8 +2071,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			vLocationServices,
 			planner,
+			vLocationServices,
 		}
 
 		now := time.Now()
@@ -2196,8 +2196,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			vLocationServices,
 			planner,
+			vLocationServices,
 		}
 
 		now := time.Now()
@@ -2330,8 +2330,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			vLocationServices,
 			planner,
+			vLocationServices,
 		}
 
 		now := time.Now()

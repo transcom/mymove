@@ -287,8 +287,8 @@ func checkValidAddress(vLocation services.VLocation, appCtx appcontext.AppContex
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentUpdater
-	services.VLocation
 	planner route.Planner
+	services.VLocation
 }
 
 // Handle handler that updates a mto shipment
