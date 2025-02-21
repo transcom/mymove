@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { BulkAssignmentModal } from 'components/BulkAssignment/BulkAssignmentModal';
@@ -89,6 +89,47 @@ describe('BulkAssignmentModal', () => {
     expect(screen.getAllByTestId('bulkAssignmentUserWorkload')[0]).toHaveTextContent('1');
   });
 
+  it('submits the bulk assignment data', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    const userTable = await screen.findByRole('table');
+    expect(userTable).toBeInTheDocument();
+    expect(screen.getByText('User')).toBeInTheDocument();
+    expect(screen.getByText('Workload')).toBeInTheDocument();
+    expect(screen.getByText('Assignment')).toBeInTheDocument();
+    await act(async () => {
+      expect(await screen.getByText('user, sc')).toBeInTheDocument();
+      const assignment = await screen.getAllByTestId('assignment')[0];
+      await userEvent.type(assignment, '1');
+    });
+    expect(screen.getAllByTestId('bulkAssignmentUserWorkload')[0]).toHaveTextContent('1');
+
+    const saveButton = await screen.getByTestId('modalSubmitButton');
+    await userEvent.click(saveButton);
+    await waitFor(() => {
+      const payload = {
+        bulkAssignmentSavePayload: {
+          moveData: [
+            'b3baf6ce-f43b-437c-85be-e1145c0ddb96',
+            '962ce8d2-03a2-435c-94ca-6b9ef6c226c1',
+            'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed3',
+          ],
+          userData: [
+            {
+              ID: '045c3048-df9a-4d44-88ed-8cd6e2100e08',
+              moveAssignments: 1,
+            },
+            {
+              ID: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42a',
+              moveAssignments: 0,
+            },
+          ],
+        },
+      };
+
+      expect(onSubmit).toHaveBeenCalledWith(payload);
+    });
+  });
+
   it('closes the modal when the close is confirmed', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
@@ -99,7 +140,7 @@ describe('BulkAssignmentModal', () => {
     const confirmButton = await screen.findByTestId('cancelModalYes');
     await userEvent.click(confirmButton);
 
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(2);
   });
 
   it('close confirmation goes away when clicking no', async () => {
