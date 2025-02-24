@@ -146,7 +146,7 @@ const TableQueue = ({
 
   const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
     onSuccess: async () => {
-      refetch();
+      await refetch();
 
       setSuccessMessageEnabled(true);
     },
@@ -350,7 +350,7 @@ const TableQueue = ({
       {successMessageEnabled && (
         <Grid col={12} className={styles.alertContainer}>
           <Alert headingLevel="h4" slim type="success">
-            Moves assigned successfully!
+            Moves assigned successfully
           </Alert>
         </Grid>
       )}
