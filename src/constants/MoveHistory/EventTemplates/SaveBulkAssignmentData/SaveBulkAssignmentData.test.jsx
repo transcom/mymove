@@ -2,6 +2,7 @@ import { screen, render } from '@testing-library/react';
 
 import e from 'constants/MoveHistory/EventTemplates/SaveBulkAssignmentData/SaveBulkAssignmentData';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
+import { MOVE_STATUSES } from 'shared/constants';
 
 describe('When given a move that has been assigned', () => {
   const historyRecord = {
@@ -32,6 +33,21 @@ describe('When given a move that has been assigned', () => {
   describe('displays the proper details for', () => {
     it('services counselor', () => {
       const template = getTemplate(historyRecord);
+      historyRecord.oldValues = {
+        sc_assigned_id: null,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
+
+      render(template.getDetails(historyRecord));
+      expect(screen.getByText('Closeout counselor assigned')).toBeInTheDocument();
+      expect(screen.getByText(': Daniels, Jayden')).toBeInTheDocument();
+    });
+    it('closeout counselor', () => {
+      const template = getTemplate(historyRecord);
+      historyRecord.oldValues = {
+        sc_assigned_id: null,
+        status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+      };
 
       render(template.getDetails(historyRecord));
       expect(screen.getByText('Closeout counselor assigned')).toBeInTheDocument();

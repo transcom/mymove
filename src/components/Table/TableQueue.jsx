@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { connect } from 'react-redux';
-import { GridContainer, Button } from '@trussworks/react-uswds';
+import { GridContainer, Button, Grid, Alert } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
 import { useMutation } from '@tanstack/react-query';
@@ -142,7 +142,15 @@ const TableQueue = ({
     [],
   );
 
-  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {});
+  const [successMessageEnabled, setSuccessMessageEnabled] = useState(false);
+
+  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
+    onSuccess: async () => {
+      refetch();
+
+      setSuccessMessageEnabled(true);
+    },
+  });
 
   useEffect(() => {
     if (refetchQueue)
@@ -330,20 +338,23 @@ const TableQueue = ({
   };
 
   const handleCloseBulkAssignModal = () => {
-    refetch();
-
     setIsBulkAssignModalVisible(false);
   };
 
-  const onSubmitBulk = (bulkAssignmentSaveData) => {
-    const bulkAssignmentSavePayload = { ...bulkAssignmentSaveData };
-    bulkAssignmentSavePayload.bulkAssignmentSavePayload.userData =
-      bulkAssignmentSaveData.bulkAssignmentSavePayload.userData.filter((user) => user.moveAssignments > 0);
+  const onSubmitBulk = (bulkAssignmentSavePayload) => {
     mutateBulkAssignment({ queueType, ...bulkAssignmentSavePayload });
   };
 
   return (
     <div className={styles.tabContent}>
+      {successMessageEnabled && (
+        <Grid col={12} className={styles.alertContainer}>
+          <Alert headingLevel="h4" slim type="success">
+            Successfully bulk assigned moves.
+          </Alert>
+        </Grid>
+      )}
+
       <div className={styles.container}>
         {isBulkAssignModalVisible && (
           <BulkAssignmentModal
