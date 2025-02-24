@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
@@ -8,6 +9,7 @@ import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
 import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { configureStore } from 'shared/store';
 
 jest.setTimeout(60000);
 
@@ -195,9 +197,15 @@ const testProps = {
   ],
 };
 
+const mockStore = configureStore({});
+
 describe('OrdersInfoForm component', () => {
   it('renders the form inputs', async () => {
-    const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
+    const { getByLabelText } = render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testProps} />
+      </Provider>,
+    );
 
     await waitFor(() => {
       expect(getByLabelText(/Orders type/)).toBeInstanceOf(HTMLSelectElement);
@@ -218,7 +226,11 @@ describe('OrdersInfoForm component', () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     showCounselingOffices.mockImplementation(() => Promise.resolve({}));
-    const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
+    const { getByLabelText } = render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testProps} />
+      </Provider>,
+    );
 
     const ordersTypeDropdown = getByLabelText(/Orders type/);
     expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
@@ -246,7 +258,11 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('allows new and current duty location to be the same', async () => {
-    render(<OrdersInfoForm {...testProps} />);
+    render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testProps} />
+      </Provider>,
+    );
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
@@ -275,7 +291,11 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, getAllByTestId } = render(<OrdersInfoForm {...testProps} />);
+    const { getByRole, getAllByTestId } = render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testProps} />
+      </Provider>,
+    );
 
     // Touch required fields to show validation errors
     await userEvent.click(screen.getByLabelText(/Orders type/));
@@ -317,7 +337,11 @@ describe('OrdersInfoForm component', () => {
       ],
     };
 
-    render(<OrdersInfoForm {...testPropsWithCounselingOffice} />);
+    render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testPropsWithCounselingOffice} />
+      </Provider>,
+    );
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
@@ -361,8 +385,11 @@ describe('OrdersInfoForm component', () => {
       ],
     };
 
-    render(<OrdersInfoForm {...testPropsWithCounselingOffice} />);
-
+    render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testPropsWithCounselingOffice} />
+      </Provider>,
+    );
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
@@ -381,7 +408,11 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('submits the form when its valid', async () => {
-    render(<OrdersInfoForm {...testProps} />);
+    render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testProps} />
+      </Provider>,
+    );
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
@@ -455,8 +486,11 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('submits the form when temporary duty orders type is selected', async () => {
-    render(<OrdersInfoForm {...testProps} />);
-
+    render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testProps} />
+      </Provider>,
+    );
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.TEMPORARY_DUTY);
     await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
@@ -522,7 +556,11 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('implements the onBack handler when the Back button is clicked', async () => {
-    const { getByRole } = render(<OrdersInfoForm {...testProps} />);
+    const { getByRole } = render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testProps} />
+      </Provider>,
+    );
     const backBtn = getByRole('button', { name: 'Back' });
 
     await userEvent.click(backBtn);
@@ -576,7 +614,9 @@ describe('OrdersInfoForm component', () => {
 
     it('pre-fills the inputs', async () => {
       const { getByRole, queryByText, getByLabelText } = render(
-        <OrdersInfoForm {...testProps} initialValues={testInitialValues} />,
+        <Provider store={mockStore.store}>
+          <OrdersInfoForm {...testProps} initialValues={testInitialValues} />
+        </Provider>,
       );
 
       await waitFor(() => {
@@ -598,7 +638,11 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('has dependents is yes and disabled when order type is student travel', async () => {
-    render(<OrdersInfoForm {...testProps} />);
+    render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testProps} />
+      </Provider>,
+    );
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
 
@@ -613,7 +657,11 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('has dependents is yes and disabled when order type is early return', async () => {
-    render(<OrdersInfoForm {...testProps} />);
+    render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testProps} />
+      </Provider>,
+    );
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
@@ -628,8 +676,11 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('has dependents becomes disabled and then re-enabled for order type student travel', async () => {
-    render(<OrdersInfoForm {...testProps} />);
-
+    render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testProps} />
+      </Provider>,
+    );
     // set order type to perm change and verify the "has dependents" state
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
 
@@ -661,8 +712,11 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('has dependents becomes disabled and then re-enabled for order type early return', async () => {
-    render(<OrdersInfoForm {...testProps} />);
-
+    render(
+      <Provider store={mockStore.store}>
+        <OrdersInfoForm {...testProps} />
+      </Provider>,
+    );
     // set order type to perm change and verify the "has dependents" state
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
 

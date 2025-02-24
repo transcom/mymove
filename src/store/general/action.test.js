@@ -1,4 +1,11 @@
-import { setMoveId, SET_MOVE_ID, SET_CAN_ADD_ORDERS, setCanAddOrders } from './actions';
+import {
+  setMoveId,
+  SET_MOVE_ID,
+  SET_CAN_ADD_ORDERS,
+  setCanAddOrders,
+  SET_SHOW_LOADING_SPINNER,
+  setShowLoadingSpinner,
+} from './actions';
 
 describe('GeneralState actions', () => {
   it('setMoveId returns the expected action', () => {
@@ -17,5 +24,15 @@ describe('GeneralState actions', () => {
     };
 
     expect(setCanAddOrders(true)).toEqual(expectedAction);
+  });
+
+  it('setShowLoadingSpinner returns the expected action', () => {
+    const expectedAction = {
+      type: SET_SHOW_LOADING_SPINNER,
+      showSpinner: true,
+      loadingSpinnerMessage: 'test message',
+    };
+
+    expect(setShowLoadingSpinner(true, 'test message')).toEqual(expectedAction);
   });
 });
