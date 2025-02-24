@@ -176,7 +176,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                           }}
                         />
                       </th>
-                      <th className={styles.UserNameHeader}>Users</th>
+                      <th className={styles.UserNameHeader}>User</th>
                       <th>Workload</th>
                       <th>Assignment</th>
                     </tr>
