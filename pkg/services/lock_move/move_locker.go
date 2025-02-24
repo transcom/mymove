@@ -59,6 +59,8 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 	now := time.Now()
 	expirationTime := now.Add(30 * time.Minute)
 	move.LockExpiresAt = &expirationTime
+
+	// Store move before update
 	moveBeforeUpdate := move
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -72,6 +74,8 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 			return err
 		}
 
+		// Pop automatically updates updated_at. Even when passing in updated_at to the excluded columns for ValidateAndSave.
+		// Storing the move before update then setting the updated_at value back to what it was before go buffalo implementation.
 		if err := appCtx.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?", moveBeforeUpdate.UpdatedAt, move.ID).Exec(); err != nil {
 			return err
 		}
