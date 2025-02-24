@@ -616,7 +616,7 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Po_Box_Zip() {
 		return found_duty_location
 	}
 
-	const poBoxPostalCode = "92137"
+	const poBoxPostalCode = "88545"
 	const nonPoBoxPostalCode = "23690"
 	const nonPoBoxPostalCode2 = "88101"
 	testDutyLocationName := "test case"
