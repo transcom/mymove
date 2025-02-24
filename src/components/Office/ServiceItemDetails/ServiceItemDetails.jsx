@@ -481,6 +481,39 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
+    case 'IOSHUT':
+    case 'IDSHUT': {
+      const estimatedWeight = details.estimatedWeight != null ? formatWeight(details.estimatedWeight) : `— lbs`;
+      detailSection = (
+        <div>
+          <dl>
+            <div key={`${id}-estimatedWeight`} className={styles.detailLine}>
+              <dd className={styles.detailType}>{estimatedWeight}</dd> <dt>estimated weight</dt>
+            </div>
+            {generateDetailText({
+              'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
+            {generateDetailText({ Reason: details.reason })}
+            {generateDetailText({ Market: details.market })}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </dl>
+        </div>
+      );
+      break;
+    }
     case 'DLH':
     case 'DSH':
     case 'FSC':
@@ -491,8 +524,11 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
     case 'ISLH':
     case 'IHPK':
     case 'IHUPK':
+    case 'IUBPK':
+    case 'IUBUPK':
     case 'POEFSC':
-    case 'PODFSC': {
+    case 'PODFSC':
+    case 'UBP': {
       detailSection = (
         <div>
           <dl>
