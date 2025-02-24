@@ -122,6 +122,7 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 		return false, nil
 	}
 
+	// this only runs for domestic shipments so putting false for the isInternationalShipment value here
 	previousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode, false)
 	if err != nil {
 		return false, err
@@ -178,7 +179,14 @@ func (f *shipmentAddressUpdateRequester) doesShipmentContainApprovedDestinationS
 		for _, serviceItem := range serviceItems {
 			serviceCode := serviceItem.ReService.Code
 			status := serviceItem.Status
-			if (serviceCode == models.ReServiceCodeDDASIT || serviceCode == models.ReServiceCodeDDDSIT || serviceCode == models.ReServiceCodeDDFSIT || serviceCode == models.ReServiceCodeDDSFSC) &&
+			if (serviceCode == models.ReServiceCodeDDASIT ||
+				serviceCode == models.ReServiceCodeDDDSIT ||
+				serviceCode == models.ReServiceCodeDDFSIT ||
+				serviceCode == models.ReServiceCodeDDSFSC ||
+				serviceCode == models.ReServiceCodeIDASIT ||
+				serviceCode == models.ReServiceCodeIDDSIT ||
+				serviceCode == models.ReServiceCodeIDFSIT ||
+				serviceCode == models.ReServiceCodeIDSFSC) &&
 				status == models.MTOServiceItemStatusApproved {
 				return true
 			}
@@ -281,6 +289,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
 	}
+
 	isInternationalShipment := shipment.MarketCode == models.MarketCodeInternational
 
 	shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipment)
@@ -316,7 +325,14 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		serviceItems := shipment.MTOServiceItems
 		for _, serviceItem := range serviceItems {
 			serviceCode := serviceItem.ReService.Code
-			if serviceCode == models.ReServiceCodeDDASIT || serviceCode == models.ReServiceCodeDDDSIT || serviceCode == models.ReServiceCodeDDFSIT || serviceCode == models.ReServiceCodeDDSFSC {
+			if serviceCode == models.ReServiceCodeDDASIT ||
+				serviceCode == models.ReServiceCodeDDDSIT ||
+				serviceCode == models.ReServiceCodeDDFSIT ||
+				serviceCode == models.ReServiceCodeDDSFSC ||
+				serviceCode == models.ReServiceCodeIDASIT ||
+				serviceCode == models.ReServiceCodeIDDSIT ||
+				serviceCode == models.ReServiceCodeIDFSIT ||
+				serviceCode == models.ReServiceCodeIDSFSC {
 				if serviceItem.SITDestinationOriginalAddressID != nil {
 					addressUpdate.SitOriginalAddressID = serviceItem.SITDestinationOriginalAddressID
 				}
@@ -339,14 +355,14 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		if addressUpdate.NewSitDistanceBetween != nil {
 			distanceBetweenOld = *addressUpdate.NewSitDistanceBetween
 		} else {
-			distanceBetweenOld, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode, false)
+			distanceBetweenOld, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode, isInternationalShipment)
 		}
 		if err != nil {
 			return nil, err
 		}
 
 		// calculating distance between the new address update & the SIT
-		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, false)
+		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, isInternationalShipment)
 		if err != nil {
 			return nil, err
 		}
@@ -683,8 +699,8 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 					pickupZip = *portZip
 					destZip = shipment.DestinationAddress.PostalCode
 				}
-				// we need to get the mileage from DTOD first, the db proc will consume that
-				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
+				// we need to get the mileage first, the db proc will consume that
+				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, isInternationalShipment)
 				if err != nil {
 					return err
 				}

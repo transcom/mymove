@@ -37,7 +37,7 @@ const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_O
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
-const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
+const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { moveCode } = useParams();
@@ -306,6 +306,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
     payGrade: order?.grade,
+    dependentsAuthorized: order?.entitlement?.dependentsAuthorized,
   };
 
   const tacWarningMsg =
@@ -371,6 +372,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     documentId={orderDocumentId}
                     files={ordersDocuments}
                     documentType={MOVE_DOCUMENT_TYPE.ORDERS}
+                    onAddFile={onAddFile}
                   />
                   <DocumentViewerFileManager
                     orderId={orderId}
@@ -378,6 +380,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     files={amendedDocuments}
                     documentType={MOVE_DOCUMENT_TYPE.AMENDMENTS}
                     updateAmendedDocument={updateAmendedDocument}
+                    onAddFile={onAddFile}
                   />
                 </div>
                 <div className={styles.body}>

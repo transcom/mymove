@@ -121,6 +121,81 @@ When a DDFSIT is requested, the API will auto-create the following group of serv
 
 **Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
 Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.
+
+---
+
+**`MTOServiceItemInternationalOriginSIT`**
+
+MTOServiceItemInternationalOriginSIT is a subtype of MTOServiceItem.
+
+This model type describes a international origin SIT service item. Items can be created using this
+model type with the following codes:
+
+**IOFSIT**
+
+**1st day origin SIT service item**. When a IOFSIT is requested, the API will auto-create the following group of service items:
+  - IOFSIT - International origin 1st day SIT
+  - IOASIT - International origin Additional day SIT
+  - IOPSIT - International origin SIT pickup
+  - IOSFSC - International origin SIT fuel surcharge
+
+**IOASIT**
+
+**Addt'l days origin SIT service item**. This represents an additional day of storage for the same item.
+Additional IOASIT service items can be created and added to an existing shipment that **includes a IOFSIT service item**.
+
+---
+
+**`MTOServiceItemInternationalDestSIT`**
+
+MTOServiceItemInternationalDestSIT is a subtype of MTOServiceItem.
+
+This model type describes a international destination SIT service item. Items can be created using this
+model type with the following codes:
+
+**IDFSIT**
+
+**1st day destination SIT service item**.
+
+These additional fields are optional for creating a IDFSIT:
+  - `firstAvailableDeliveryDate1`
+  - string <date>
+  - First available date that Prime can deliver SIT service item.
+  - firstAvailableDeliveryDate1, dateOfContact1, and timeMilitary1 are required together
+  - `dateOfContact1`
+  - string <date>
+  - Date of attempted contact by the prime corresponding to `timeMilitary1`
+  - dateOfContact1, timeMilitary1, and firstAvailableDeliveryDate1 are required together
+  - `timeMilitary1`
+  - string\d{4}Z
+  - Time of attempted contact corresponding to `dateOfContact1`, in military format.
+  - timeMilitary1, dateOfContact1, and firstAvailableDeliveryDate1 are required together
+  - `firstAvailableDeliveryDate2`
+  - string <date>
+  - Second available date that Prime can deliver SIT service item.
+  - firstAvailableDeliveryDate2, dateOfContact2, and timeMilitary2 are required together
+  - `dateOfContact2`
+  - string <date>
+  - Date of attempted contact delivery by the prime corresponding to `timeMilitary2`
+  - dateOfContact2, timeMilitary2, and firstAvailableDeliveryDate2 are required together
+  - `timeMilitary2`
+  - string\d{4}Z
+  - Time of attempted contact corresponding to `dateOfContact2`, in military format.
+  - timeMilitary2, dateOfContact2, and firstAvailableDeliveryDate2 are required together
+
+When a IDFSIT is requested, the API will auto-create the following group of service items:
+  - IDFSIT - International destination 1st day SIT
+  - IDASIT - International destination Additional day SIT
+  - IDDSIT - International destination SIT delivery
+  - IDSFSC - International destination SIT fuel surcharge
+
+**NOTE** When providing the `sitEntryDate` value in the payload, please ensure that the date is not BEFORE
+`firstAvailableDeliveryDate1` or `firstAvailableDeliveryDate2`. If it is, you will receive an error response.
+
+**IDASIT**
+
+**Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
+Additional IDASIT service items can be created and added to an existing shipment that **includes a IDFSIT service item**.
 */
 type CreateMTOServiceItem struct {
 	Context *middleware.Context

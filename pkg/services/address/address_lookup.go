@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -22,8 +23,14 @@ func NewVLocation() services.VLocation {
 	return &vLocation{}
 }
 
-func (o vLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, search string, exclusionStateFilters []string) (*models.VLocations, error) {
-	locationList, err := FindLocationsByZipCity(appCtx, search, exclusionStateFilters)
+func (o vLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, search string, exclusionStateFilters []string, exactMatch ...bool) (*models.VLocations, error) {
+	exact := false
+
+	if len(exactMatch) > 0 {
+		exact = true
+	}
+
+	locationList, err := FindLocationsByZipCity(appCtx, search, exclusionStateFilters, exact)
 
 	if err != nil {
 		switch err {
@@ -42,7 +49,7 @@ func (o vLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, sear
 // to determine when the state and postal code need to be parsed from the search string
 // If there is only one result and no comma and the search string is all numbers we then search
 // using the entered postal code rather than city name
-func FindLocationsByZipCity(appCtx appcontext.AppContext, search string, exclusionStateFilters []string) (models.VLocations, error) {
+func FindLocationsByZipCity(appCtx appcontext.AppContext, search string, exclusionStateFilters []string, exactMatch bool) (models.VLocations, error) {
 	var locationList []models.VLocation
 	searchSlice := strings.Split(search, ",")
 	city := ""
@@ -67,8 +74,14 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string, exclusi
 	}
 
 	sqlQuery := `SELECT vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
-	FROM v_locations vl where vl.uspr_zip_id like ? AND
-	vl.city_name like upper(?) AND vl.state like upper(?)`
+		FROM v_locations vl where vl.uspr_zip_id like ? AND
+		vl.city_name like upper(?) AND vl.state like upper(?)`
+
+	if exactMatch {
+		sqlQuery = `SELECT vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
+		FROM v_locations vl where vl.uspr_zip_id = ? AND
+		vl.city_name = upper(?) AND vl.state = upper(?)`
+	}
 
 	// apply filter to exclude specific states if provided
 	for _, value := range exclusionStateFilters {
@@ -76,8 +89,15 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string, exclusi
 	}
 
 	sqlQuery += ` limit 30`
+	var query *pop.Query
 
-	query := appCtx.DB().RawQuery(sqlQuery, fmt.Sprintf("%s%%", postalCode), fmt.Sprintf("%s%%", city), fmt.Sprintf("%s%%", state))
+	// we only want to add an extra % to the strings if we are using the LIKE in the query
+	if exactMatch {
+		query = appCtx.DB().RawQuery(sqlQuery, postalCode, city, state)
+	} else {
+		query = appCtx.DB().RawQuery(sqlQuery, fmt.Sprintf("%s%%", postalCode), fmt.Sprintf("%s%%", city), fmt.Sprintf("%s%%", state))
+	}
+
 	if err := query.All(&locationList); err != nil {
 		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
 			return locationList, err

@@ -16,6 +16,12 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn(),
 }));
 
+global.EventSource = jest.fn().mockImplementation(() => ({
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  close: jest.fn(),
+}));
+
 const mockPDFUpload = {
   contentType: 'application/pdf',
   createdAt: '2020-09-17T16:00:48.099137Z',

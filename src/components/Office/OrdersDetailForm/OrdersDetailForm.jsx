@@ -106,7 +106,15 @@ const OrdersDetailForm = ({
           isDisabled={formIsDisabled}
         />
       )}
-
+      <div className={styles.wrappedCheckbox}>
+        <CheckboxField
+          id="dependentsAuthorizedInput"
+          data-testid="dependentsAuthorizedInput"
+          name="dependentsAuthorized"
+          label="Dependents authorized"
+          isDisabled={formIsDisabled}
+        />
+      </div>
       {showHHGTac && showHHGSac && <h3>HHG accounting codes</h3>}
       {showHHGTac && (
         <MaskedTextField

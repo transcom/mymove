@@ -11,11 +11,12 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 	router := NewShipmentRouter()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	approver := NewShipmentDiversionApprover(router, moveRouter)
 
 	suite.Run("If the shipment diversion is approved successfully, it should update the shipment status in the DB", func() {

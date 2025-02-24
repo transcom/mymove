@@ -212,6 +212,7 @@ describe('Orders page', () => {
       );
 
       expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
+      expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
     });
 
     it('renders the sidebar elements', async () => {

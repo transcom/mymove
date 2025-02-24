@@ -291,7 +291,6 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 
 			var weightRestriction *int
-
 			entitlement := models.Entitlement{
 				DependentsAuthorized:    payload.HasDependents,
 				DBAuthorizedWeight:      models.IntPointer(weight),

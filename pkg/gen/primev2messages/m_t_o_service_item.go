@@ -285,6 +285,18 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 			return nil, err
 		}
 		return &result, nil
+	case "MTOServiceItemInternationalDestSIT":
+		var result MTOServiceItemInternationalDestSIT
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	case "MTOServiceItemInternationalOriginSIT":
+		var result MTOServiceItemInternationalOriginSIT
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	case "MTOServiceItemInternationalShuttle":
 		var result MTOServiceItemInternationalShuttle
 		if err := consumer.Consume(buf2, &result); err != nil {

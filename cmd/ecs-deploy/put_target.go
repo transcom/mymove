@@ -32,6 +32,7 @@ var names = []string{
 	"connect-to-gex-via-sftp",
 	"post-file-to-gex",
 	"process-edis",
+	"process-tpps",
 	"save-ghc-fuel-price-data",
 	"send-payment-reminder",
 }
