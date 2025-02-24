@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -26,6 +27,7 @@ import (
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	verifyAddressFields := func(address *models.Address, payload *primev3messages.Address) {
 		suite.Equal(address.ID.String(), payload.ID.String())
@@ -44,13 +46,13 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	setupDefaultTestHandler := func() GetMoveTaskOrderHandler {
 		mockShipmentRateAreaFinder := &mocks.ShipmentRateAreaFinder{}
-		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentOconusRateArea",
+		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.Move"),
 		).Return(nil, nil)
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 			mockShipmentRateAreaFinder,
 		}
 		return handler
@@ -1167,7 +1169,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(payload.ETag())
 	})
 
-	suite.Run("Success - return all MTOServiceItemShuttle fields assoicated with the getMoveTaskOrder", func() {
+	suite.Run("Success - return all MTOServiceItemDomesticShuttle fields assoicated with the getMoveTaskOrder", func() {
 		handler := setupDefaultTestHandler()
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1231,14 +1233,14 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		json, err := json.Marshal(serviceItemPayload)
 		suite.NoError(err)
-		payload := primev3messages.MTOServiceItemShuttle{}
+		payload := primev3messages.MTOServiceItemDomesticShuttle{}
 		err = payload.UnmarshalJSON(json)
 		suite.NoError(err)
 
 		suite.Equal(serviceItem.MoveTaskOrderID.String(), payload.MoveTaskOrderID().String())
 		suite.Equal(serviceItem.MTOShipmentID.String(), payload.MtoShipmentID().String())
 		suite.Equal(serviceItem.ID.String(), payload.ID().String())
-		suite.Equal("MTOServiceItemShuttle", string(payload.ModelType()))
+		suite.Equal("MTOServiceItemDomesticShuttle", string(payload.ModelType()))
 		suite.Equal(string(serviceItem.ReService.Code), string(*payload.ReServiceCode))
 		suite.Equal(serviceItem.ReService.Name, payload.ReServiceName())
 		suite.Equal(string(serviceItem.Status), string(payload.Status()))
@@ -1378,7 +1380,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Failure 'Not Found' for non-available move", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 			mtoshipment.NewMTOShipmentRateAreaFetcher(),
 		}
 		failureMove := factory.BuildMove(suite.DB(), nil, nil) // default is not available to Prime
@@ -1411,7 +1413,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		// This tests fields that aren't other structs and Addresses
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 			mockShipmentRateAreaFinder,
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1457,7 +1459,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 		}
 
-		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentOconusRateArea",
+		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.Move"),
 		).Return(&shipmentPostalCodeRateArea, nil)
@@ -1529,14 +1531,14 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		// This tests fields that aren't other structs and Addresses
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 			mockShipmentRateAreaFinder,
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		defaultAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentOconusRateArea",
+		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.Move"),
 		).Return(nil, apperror.InternalServerError{})

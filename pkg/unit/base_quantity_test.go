@@ -61,3 +61,43 @@ func TestBaseQuantityFromInt(t *testing.T) {
 		t.Errorf("wrong BaseQuantity for int: expected %d, got %d", expected, result)
 	}
 }
+
+func TestBaseQuantityFromFloat(t *testing.T) {
+	result := BaseQuantityFromFloat(123)
+	expected := BaseQuantity(1230000)
+	if result != expected {
+		t.Errorf("wrong BaseQuantity for float: expected %d, got %d", expected, result)
+	}
+}
+
+func TestBaseQuantityFromThousandthInches(t *testing.T) {
+	result := BaseQuantityFromThousandthInches(123)
+	expected := BaseQuantity(1230)
+	if result != expected {
+		t.Errorf("wrong BaseQuantity for thousandth inches: expected %d, got %d", expected, result)
+	}
+}
+func TestBaseQuantityFromCents(t *testing.T) {
+	result := BaseQuantityFromCents(123)
+	expected := BaseQuantity(12300)
+	if result != expected {
+		t.Errorf("wrong BaseQuantity for cents: expected %d, got %d", expected, result)
+	}
+}
+
+func TestIntToBaseQuantity(t *testing.T) {
+	var number int64 = 123
+	result := IntToBaseQuantity(&number)
+	expected := BaseQuantity(123)
+
+	if *result != expected {
+		t.Errorf("wrong BaseQuantity for int64: expected %d, got %v", expected, result)
+	}
+}
+
+func TestIntToBaseQuantityNilCheck(t *testing.T) {
+	nilCheck := IntToBaseQuantity(nil)
+	if nilCheck != nil {
+		t.Errorf("value found in int64 to IntToBaseQuantity: expected nil")
+	}
+}

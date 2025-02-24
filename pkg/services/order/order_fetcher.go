@@ -2,6 +2,7 @@ package order
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
@@ -9,6 +10,8 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"github.com/jinzhu/copier"
+	"github.com/lib/pq"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -25,6 +28,7 @@ import (
 const RFC3339Micro = "2006-01-02T15:04:05.999999Z07:00"
 
 type orderFetcher struct {
+	waf services.WeightAllotmentFetcher
 }
 
 // QueryOption defines the type for the functional arguments used for private functions in OrderFetcher
@@ -121,8 +125,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
+	tooDestinationRequestsQuery := tooQueueOriginRequestsFilter(role)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
+	options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -306,7 +311,118 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	return moves, count, nil
 }
 
-// TODO: Update query to select distinct duty locations
+// this is a custom/temporary struct used in the below service object to get destination queue moves
+type MoveWithCount struct {
+	models.Move
+	OrdersRaw           json.RawMessage              `json:"orders" db:"orders"`
+	Orders              *models.Order                `json:"-"`
+	MTOShipmentsRaw     json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
+	MTOShipments        *models.MTOShipments         `json:"-"`
+	CounselingOfficeRaw json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
+	CounselingOffice    *models.TransportationOffice `json:"-"`
+	TOOAssignedRaw      json.RawMessage              `json:"too_assigned" db:"too_assigned"`
+	TOOAssignedUser     *models.OfficeUser           `json:"-"`
+	TotalCount          int64                        `json:"total_count" db:"total_count"`
+}
+
+type JSONB []byte
+
+func (j *JSONB) UnmarshalJSON(data []byte) error {
+	*j = data
+	return nil
+}
+
+func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
+	var moves []models.Move
+	var movesWithCount []MoveWithCount
+
+	// getting the office user's GBLOC
+	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+	officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+	if gblocErr != nil {
+		return []models.Move{}, 0, gblocErr
+	}
+
+	// calling the database function with all passed in parameters
+	err := appCtx.DB().RawQuery("SELECT * FROM get_destination_queue($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)",
+		officeUserGbloc,
+		params.CustomerName,
+		params.Edipi,
+		params.Emplid,
+		pq.Array(params.Status),
+		params.Locator,
+		params.RequestedMoveDate,
+		params.AppearedInTOOAt,
+		params.Branch,
+		strings.Join(params.OriginDutyLocation, " "),
+		params.CounselingOffice,
+		params.TOOAssignedUser,
+		params.Page,
+		params.PerPage,
+		params.Sort,
+		params.Order).
+		All(&movesWithCount)
+
+	if err != nil {
+		return []models.Move{}, 0, err
+	}
+
+	// each row is sent back with the total count from the db func, so we will take the value from the first one
+	var count int64
+	if len(movesWithCount) > 0 {
+		count = movesWithCount[0].TotalCount
+	} else {
+		count = 0
+	}
+
+	// we have to manually loop through each move and populate the nested objects that the queue uses/needs
+	for i := range movesWithCount {
+		// populating Move.Orders struct
+		var order models.Order
+		if err := json.Unmarshal(movesWithCount[i].OrdersRaw, &order); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling orders JSON: %w", err)
+		}
+		movesWithCount[i].OrdersRaw = nil
+		movesWithCount[i].Orders = &order
+
+		// populating Move.MTOShipments array
+		var shipments models.MTOShipments
+		if err := json.Unmarshal(movesWithCount[i].MTOShipmentsRaw, &shipments); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling shipments JSON: %w", err)
+		}
+		movesWithCount[i].MTOShipmentsRaw = nil
+		movesWithCount[i].MTOShipments = &shipments
+
+		// populating Moves.CounselingOffice struct
+		var counselingTransportationOffice models.TransportationOffice
+		if err := json.Unmarshal(movesWithCount[i].CounselingOfficeRaw, &counselingTransportationOffice); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling counseling_transportation_office JSON: %w", err)
+		}
+		movesWithCount[i].CounselingOfficeRaw = nil
+		movesWithCount[i].CounselingOffice = &counselingTransportationOffice
+
+		// populating Moves.TOOAssigned struct
+		var tooAssigned models.OfficeUser
+		if err := json.Unmarshal(movesWithCount[i].TOOAssignedRaw, &tooAssigned); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling too_assigned JSON: %w", err)
+		}
+		movesWithCount[i].TOOAssignedRaw = nil
+		movesWithCount[i].TOOAssignedUser = &tooAssigned
+	}
+
+	// the handler consumes a Move object and NOT the MoveWithCount struct used in this func
+	// so we have to copy our custom struct into the Move struct
+	for _, moveWithCount := range movesWithCount {
+		var move models.Move
+		if err := copier.Copy(&move, &moveWithCount); err != nil {
+			return nil, 0, fmt.Errorf("error copying movesWithCount into Moves struct: %w", err)
+		}
+		moves = append(moves, move)
+	}
+
+	return moves, int(count), nil
+}
+
 func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, error) {
 	var moves []models.Move
 	var err error
@@ -464,8 +580,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 }
 
 // NewOrderFetcher creates a new struct with the service dependencies
-func NewOrderFetcher() services.OrderFetcher {
-	return &orderFetcher{}
+func NewOrderFetcher(weightAllotmentFetcher services.WeightAllotmentFetcher) services.OrderFetcher {
+	return &orderFetcher{waf: weightAllotmentFetcher}
 }
 
 // FetchOrder retrieves an Order for a given UUID
@@ -487,6 +603,15 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 		default:
 			return &models.Order{}, apperror.NewQueryError("Order", err, "")
 		}
+	}
+
+	// Construct weight allotted if grade is present
+	if order.Grade != nil {
+		allotment, err := f.waf.GetWeightAllotment(appCtx, string(*order.Grade), order.OrdersType)
+		if err != nil {
+			return nil, err
+		}
+		order.Entitlement.WeightAllotted = &allotment
 	}
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
@@ -768,6 +893,98 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 			}
 		} else {
 			query.Order("moves.status desc")
+		}
+	}
+}
+
+// We want to filter out any moves that have ONLY destination type requests to them, such as destination SIT, shuttle, out of the
+// task order queue. If the moves have origin SIT, excess weight risks, or sit extensions with origin SIT service items, they
+// should still appear in the task order queue, which is what this query looks for
+func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
+	return func(query *pop.Query) {
+		if role == roles.RoleTypeTOO {
+			baseQuery := `
+			-- check for moves with destination requests and NOT origin requests, then return the inverse for the TOO queue with the NOT wrapped around the query
+			NOT (
+					-- check for moves with destination requests
+					(
+						-- moves with submitted destination SIT or shuttle submitted service items
+						EXISTS (
+							SELECT 1
+							FROM mto_service_items msi
+							JOIN re_services rs ON msi.re_service_id = rs.id
+							WHERE msi.mto_shipment_id = mto_shipments.id
+							AND msi.status = 'SUBMITTED'
+							AND rs.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC',
+											'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT', 'IDSFSC')
+						)
+						-- requested shipment address update
+						OR EXISTS (
+							SELECT 1
+							FROM shipment_address_updates sau
+							WHERE sau.shipment_id = mto_shipments.id
+							AND sau.status = 'REQUESTED'
+						)
+						-- Moves with SIT extensions and ONLY destination SIT service items we filter out of TOO queue
+						OR (
+							EXISTS (
+								SELECT 1
+								FROM sit_extensions se
+								JOIN mto_service_items msi ON se.mto_shipment_id = msi.mto_shipment_id
+								JOIN re_services rs ON msi.re_service_id = rs.id
+								WHERE se.mto_shipment_id = mto_shipments.id
+								AND se.status = 'PENDING'
+								AND rs.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC',
+												'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT', 'IDSFSC')
+							)
+							-- make sure there are NO origin SIT service items (otherwise, it should be in both queues)
+							AND NOT EXISTS (
+								SELECT 1
+								FROM mto_service_items msi
+								JOIN re_services rs ON msi.re_service_id = rs.id
+								WHERE msi.mto_shipment_id = mto_shipments.id
+								AND msi.status = 'SUBMITTED'
+								AND rs.code IN ('ICRT', 'IUBPK', 'IOFSIT', 'IOASIT', 'IOPSIT', 'IOSHUT',
+												'IHUPK', 'IUCRT', 'DCRT', 'MS', 'CS', 'DOFSIT', 'DOASIT',
+												'DOPSIT', 'DOSFSC', 'IOSFSC', 'DUPK', 'DUCRT', 'DOSHUT',
+												'FSC', 'DMHF', 'DBTF', 'DBHF', 'IBTF', 'IBHF', 'DCRTSA',
+												'DLH', 'DOP', 'DPK', 'DSH', 'DNPK', 'INPK', 'UBP',
+												'ISLH', 'POEFSC', 'PODFSC', 'IHPK')
+							)
+						)
+					)
+					-- check for moves with origin requests or conditions where move should appear in TOO queue
+					AND NOT (
+						-- keep moves in the TOO queue with origin submitted service items
+						EXISTS (
+							SELECT 1
+							FROM mto_service_items msi
+							JOIN re_services rs ON msi.re_service_id = rs.id
+							WHERE msi.mto_shipment_id = mto_shipments.id
+							AND msi.status = 'SUBMITTED'
+							AND rs.code IN ('ICRT', 'IUBPK', 'IOFSIT', 'IOASIT', 'IOPSIT', 'IOSHUT',
+											'IHUPK', 'IUCRT', 'DCRT', 'MS', 'CS', 'DOFSIT', 'DOASIT',
+											'DOPSIT', 'DOSFSC', 'IOSFSC', 'DUPK', 'DUCRT', 'DOSHUT',
+											'FSC', 'DMHF', 'DBTF', 'DBHF', 'IBTF', 'IBHF', 'DCRTSA',
+											'DLH', 'DOP', 'DPK', 'DSH', 'DNPK', 'INPK', 'UBP',
+											'ISLH', 'POEFSC', 'PODFSC', 'IHPK')
+						)
+						-- keep moves in the TOO queue if they have an unacknowledged excess weight risk
+						OR (
+							(
+								moves.excess_weight_qualified_at IS NOT NULL
+								AND moves.excess_weight_acknowledged_at IS NULL
+							)
+							OR (
+								moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
+								AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
+							)
+						)
+					)
+				)
+
+            `
+			query.Where(baseQuery)
 		}
 	}
 }

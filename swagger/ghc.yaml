@@ -1166,6 +1166,44 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /shipments/approve:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApproveShipments'
+      responses:
+        '200':
+          description: Successfully approved the shipments
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Approves multiple shipments in one request
+      operationId: approveShipments
+      summary: Approves multiple shipments at once
+      x-permissions:
+        - update.shipment
   /shipments/{shipmentID}/approve:
     parameters:
       - description: ID of the shipment
@@ -2350,9 +2388,9 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Changes move task order status to make it available to prime
+      description: Changes move task order status
       operationId: updateMoveTaskOrderStatus
-      summary: Change the status of a move task order to make it available to prime
+      summary: Change the status of a move task order
       x-permissions:
         - update.move
         - create.serviceItem
@@ -3637,6 +3675,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this payment request.
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3892,6 +3934,121 @@ paths:
           name: counselingOffice
           type: string
           description: filters using a counselingOffice name of the move
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
+  /queues/destination-requests:
+    get:
+      produces:
+        - application/json
+      summary: >-
+        Gets queued list of all customer moves by GBLOC that have both CONUS &
+        OCONUS destination requests (destination SIT, destination shuttle,
+        address requests)
+      description: >
+        A TOO will view this queue when they have destination requests tied to
+        their GBLOC. This includes unapproved destination SIT service items,
+        destination shuttle service items and destination address requests that
+        are not yet approved by the TOO.
+      operationId: getDestinationRequestsQueue
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: requested page of results
+        - in: query
+          name: perPage
+          type: integer
+          description: results per page
+        - in: query
+          name: sort
+          type: string
+          enum:
+            - customerName
+            - edipi
+            - emplid
+            - branch
+            - locator
+            - status
+            - originDutyLocation
+            - destinationDutyLocation
+            - requestedMoveDate
+            - appearedInTooAt
+            - assignedTo
+            - counselingOffice
+          description: field that results should be sorted by
+        - in: query
+          name: order
+          type: string
+          enum:
+            - asc
+            - desc
+          description: direction of sort order if applied
+        - in: query
+          name: branch
+          type: string
+        - in: query
+          name: locator
+          type: string
+        - in: query
+          name: customerName
+          type: string
+        - in: query
+          name: edipi
+          type: string
+        - in: query
+          name: emplid
+          type: string
+        - in: query
+          name: originDutyLocation
+          type: array
+          uniqueItems: true
+          collectionFormat: multi
+          items:
+            type: string
+        - in: query
+          name: destinationDutyLocation
+          type: string
+        - in: query
+          name: appearedInTooAt
+          type: string
+          format: date-time
+        - in: query
+          name: requestedMoveDate
+          type: string
+          description: filters the requested pickup date of a shipment on the move
+        - in: query
+          name: status
+          type: array
+          description: Filtering for the status.
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - SUBMITTED
+              - SERVICE COUNSELING COMPLETED
+              - APPROVALS REQUESTED
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this move.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4008,6 +4165,10 @@ paths:
             current user. Requires the HQ role or a secondary transportation
             office assignment. The parameter is ignored if the requesting user
             does not have the necessary role or assignment.
+        - in: query
+          name: activeRole
+          type: string
+          description: user's actively logged in role
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4289,7 +4450,7 @@ paths:
         - transportationOffice
       responses:
         '200':
-          description: Successfully retrieved transportation offices
+          description: Successfully retrieved GBLOCs
           schema:
             $ref: '#/definitions/GBLOCs'
         '400':
@@ -4332,6 +4493,45 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}:
+    get:
+      summary: Returns the counseling locations in the GBLOC matching the duty location
+      description: >-
+        Returns the counseling locations matching the GBLOC from the selected
+        duty location
+      operationId: showCounselingOffices
+      tags:
+        - transportationOffice
+      parameters:
+        - in: path
+          name: dutyLocationId
+          format: uuid
+          type: string
+          required: true
+          description: UUID of the duty location
+        - in: path
+          name: serviceMemberId
+          format: uuid
+          type: string
+          required: true
+          description: >-
+            UUID of the service member, some counseling offices are branch
+            specific
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully retrieved counseling offices
+          schema:
+            $ref: '#/definitions/CounselingOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          description: internal server error
   /uploads:
     post:
       summary: Create a new upload
@@ -5245,6 +5445,11 @@ definitions:
       gunSafe:
         type: boolean
         example: false
+      weightRestriction:
+        type: integer
+        example: 1500
+        x-formatting: weight
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -5479,6 +5684,15 @@ definitions:
         description: >-
           The transportation office that will handle reviewing PPM Closeout
           documentation for Army and Air Force service members
+        x-nullable: true
+      counselingOffice:
+        $ref: '#/definitions/TransportationOffice'
+      counselingOfficeId:
+        type: string
+        format: uuid
+        description: >-
+          The transportation office that will handle services counseling for
+          this move
         x-nullable: true
       approvalsRequestedAt:
         type: string
@@ -5911,6 +6125,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      counselingOfficeId:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
+        x-nullable: true
       ordersNumber:
         type: string
         title: Orders Number
@@ -6176,6 +6395,13 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the weight restriction for the move to a particular
+          location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6279,6 +6505,11 @@ definitions:
         example: 500
         type: integer
         x-nullable: true
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: Indicates the weight restriction for a move to a particular location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -6971,6 +7202,24 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+  ApproveShipments:
+    type: object
+    properties:
+      approveShipments:
+        type: array
+        items:
+          type: object
+          properties:
+            shipmentID:
+              type: string
+              format: uuid
+            eTag:
+              type: string
+          required:
+            - shipmentID
+            - eTag
+    required:
+      - approveShipments
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -7440,6 +7689,7 @@ definitions:
         type: boolean
       workload:
         type: integer
+        x-omitempty: false
   BulkAssignmentData:
     type: object
     properties:
@@ -8141,6 +8391,23 @@ definitions:
     type: array
     items:
       type: string
+  CounselingOffices:
+    type: array
+    items:
+      $ref: '#/definitions/CounselingOffice'
+  CounselingOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+    required:
+      - id
+      - name
   MovePayload:
     type: object
     properties:
@@ -8890,6 +9157,12 @@ definitions:
         description: >-
           To identify whether the service was provided within (CONUS) or
           (OCONUS)
+        x-nullable: true
+      sort:
+        type: string
+        description: >-
+          Sort order for service items to be displayed for a given shipment
+          type.
         x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
@@ -11031,6 +11304,24 @@ definitions:
         x-omitempty: false
       unpackPrice:
         description: The full price of all packing/unpacking services.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlPackPrice:
+        description: The full price of international packing (IHPK)
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlUnpackPrice:
+        description: The full price of international unpacking (IHUPK)
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      intlLinehaulPrice:
+        description: The full price of international shipping and linehaul (ISLH)
         type: integer
         format: cents
         x-nullable: true

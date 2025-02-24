@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -77,7 +78,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		false,
 	).Return(400, nil)
 
@@ -736,6 +736,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	testMTOShipmentObjects := suite.setUpMTOShipmentObjects()
 
 	planner := &routemocks.Planner{}
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	planner.On("TransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -743,7 +744,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mock.Anything,
 	).Return(400, nil)
 
-	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -762,7 +763,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 
 	authRequestAndSetUpHandlerAndParams := func(originalShipment models.MTOShipment, mockShipmentUpdater *mocks.ShipmentUpdater) (UpdateMTOShipmentHandler, mtoshipmentops.UpdateMTOShipmentParams) {
 		endpoint := fmt.Sprintf("/mto-shipments/%s", originalShipment.ID.String())

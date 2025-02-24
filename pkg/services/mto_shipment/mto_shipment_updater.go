@@ -844,7 +844,9 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		}
 
 		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
-		newShipment = models.DetermineShipmentMarketCode(newShipment)
+		if newShipment.ShipmentType != models.MTOShipmentTypePPM {
+			newShipment = models.DetermineShipmentMarketCode(newShipment)
+		}
 
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
@@ -877,7 +879,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 					destZip = newShipment.DestinationAddress.PostalCode
 				}
 				// we need to get the mileage from DTOD first, the db proc will consume that
-				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
 				if err != nil {
 					return err
 				}
@@ -1192,8 +1194,8 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 // based on the max_days_transit_time.
 func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.Planner, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int, marketCode models.MarketCode, moveID uuid.UUID) (*time.Time, error) {
 	internationalShipment := marketCode == models.MarketCodeInternational
-	// Get a distance calculation between pickup and destination addresses.
-	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, false, internationalShipment)
+
+	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, internationalShipment)
 	if err != nil {
 		return nil, err
 	}
@@ -1386,11 +1388,11 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 			if TOOApprovalRequired {
 				if serviceItem.SITDestinationOriginalAddress != nil {
 					// if TOO approval was required, shipment destination address has been updated at this point
-					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false, false)
+					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false)
 				}
 			} else {
 				// if TOO approval was not required, use the newAddress
-				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false, false)
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false)
 			}
 			if err != nil {
 				return err

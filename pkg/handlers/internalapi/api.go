@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/address"
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
 	dateservice "github.com/transcom/mymove/pkg/services/calendar"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -57,6 +58,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
+	waf := entitlements.NewWeightAllotmentFetcher()
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator)
@@ -174,12 +176,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{handlerConfig}
 
-	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{handlerConfig}
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{handlerConfig, moveRouter}
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{handlerConfig}
 	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{handlerConfig, moveRouter}
 
-	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{handlerConfig}
+	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{handlerConfig, waf}
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{handlerConfig}
 
@@ -192,11 +193,23 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		postalcodeservice.NewPostalCodeValidator(clock.New()),
 	}
 
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		handlerConfig.HHGPlanner(),
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer())
+
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		mtoServiceItemCreator,
 		moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator,
 	)
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
@@ -223,7 +236,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 			fetcher,
 			handlerConfig.DTODPlanner(),
 			moveRouter,
-			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf),
 			handlerConfig.NotificationSender(),
 			paymentRequestShipmentRecalculator,
 			addressUpdater,
@@ -232,6 +245,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		ppmShipmentUpdater,
 		boatShipmentUpdater,
 		mobileHomeShipmentUpdater,
+		mtoServiceItemCreator,
 	)
 
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{

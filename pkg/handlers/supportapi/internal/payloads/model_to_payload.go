@@ -85,9 +85,6 @@ func Order(order *models.Order) *supportmessages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	uploadedOrders := Document(&order.UploadedOrders)
-	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
-	}
 
 	reportByDate := strfmt.Date(order.ReportByDate)
 	issueDate := strfmt.Date(order.IssueDate)
@@ -151,6 +148,7 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 	if entitlement.UBAllowance != nil {
 		ubAllowance = int64(*entitlement.UBAllowance)
 	}
+
 	return &supportmessages.Entitlement{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -353,11 +351,33 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 			StandaloneCrate: mtoServiceItem.StandaloneCrate,
 		}
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
-		payload = &supportmessages.MTOServiceItemShuttle{
+		payload = &supportmessages.MTOServiceItemDomesticShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:          mtoServiceItem.Reason,
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
 			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+		}
+	case models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
+		market := models.MarketConus.FullString()
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIOSHUT && mtoServiceItem.MTOShipment.PickupAddress != nil {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
+				market = models.MarketOconus.FullString()
+			}
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIDSHUT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
+				market = models.MarketOconus.FullString()
+			}
+		}
+
+		payload = &supportmessages.MTOServiceItemInternationalShuttle{
+			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:          mtoServiceItem.Reason,
+			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+			Market:          market,
 		}
 	default:
 		// otherwise, basic service item

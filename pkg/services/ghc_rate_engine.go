@@ -85,11 +85,27 @@ type DomesticOriginShuttlingPricer interface {
 	ParamsPricer
 }
 
-// DomesticDestinationShuttlingPricer prices the domestic origin shuttling service for a GHC Move
+// DomesticDestinationShuttlingPricer prices the domestic destination shuttling service for a GHC Move
 //
 //go:generate mockery --name DomesticDestinationShuttlingPricer
 type DomesticDestinationShuttlingPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// InternationalDestinationShuttlingPricer prices the international destination shuttling service for a GHC Move
+//
+//go:generate mockery --name InternationalDestinationShuttlingPricer
+type InternationalDestinationShuttlingPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, market models.Market) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// InternationalOriginShuttlingPricer prices the international origin shuttling service for a GHC Move
+//
+//go:generate mockery --name InternationalOriginShuttlingPricer
+type InternationalOriginShuttlingPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, market models.Market) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -262,5 +278,53 @@ type IntlHHGUnpackPricer interface {
 //go:generate mockery --name IntlPortFuelSurchargePricer
 type IntlPortFuelSurchargePricer interface {
 	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlOriginFirstDaySITPricer prices international origin first day SIT
+//
+//go:generate mockery --name IntlOriginFirstDaySITPricer
+type IntlOriginFirstDaySITPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlOriginAdditionalDaySITPricer prices international origin additional days of SIT
+//
+//go:generate mockery --name IntlOriginAdditionalDaySITPricer
+type IntlOriginAdditionalDaySITPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, numberOfDaysInSIT int, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlDestinationFirstDaySITPricer prices international destination first day SIT
+//
+//go:generate mockery --name IntlDestinationFirstDaySITPricer
+type IntlDestinationFirstDaySITPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlDestinationAdditionalDaySITPricer prices international destination additional days of SIT
+//
+//go:generate mockery --name IntlDestinationAdditionalDaySITPricer
+type IntlDestinationAdditionalDaySITPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, numberOfDaysInSIT int, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlCratingPricer prices the international crating service for a Move
+//
+//go:generate mockery --name IntlCratingPricer
+type IntlCratingPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, standaloneCrate bool, standaloneCrateCap unit.Cents, externalCrate bool, market models.Market) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlUncratingPricer prices the international uncrating service for a Move
+//
+//go:generate mockery --name IntlUncratingPricer
+type IntlUncratingPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, market models.Market) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }

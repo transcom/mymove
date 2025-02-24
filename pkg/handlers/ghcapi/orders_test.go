@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -31,11 +32,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
 	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -73,6 +76,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		Sac:                  handlers.FmtString("SacNumber"),
 		DepartmentIndicator:  ghcmessages.NewDeptIndicator(deptIndicator),
 		Grade:                ghcmessages.GradeE1.Pointer(),
+		CounselingOfficeID:   handlers.FmtUUID(*dutyLocation.TransportationOfficeID),
 	}
 
 	params := orderop.CreateOrderParams{
@@ -83,7 +87,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	createHandler := CreateOrderHandler{handlerConfig}
+	createHandler := CreateOrderHandler{handlerConfig, waf}
 
 	response := createHandler.Handle(params)
 
@@ -106,20 +110,72 @@ func (suite *HandlerSuite) TestCreateOrder() {
 }
 
 func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
-	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
-	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
-	originDutyLocation := factory.BuildDutyLocation(suite.AppContextForTest().DB(), []factory.Customization{
+	customAffiliation := models.AffiliationARMY
+	sm := factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
 		{
-			Model: models.DutyLocation{
-				Name: "Not Yuma AFB",
+			Model: models.ServiceMember{
+				Affiliation: &customAffiliation,
 			},
 		},
 	}, nil)
-	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
-	factory.FetchOrBuildPostalCodeToGBLOC(suite.AppContextForTest().DB(), dutyLocation.Address.PostalCode, "KKFA")
-	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
+	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
+	usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
+
+	address := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				IsOconus:           models.BoolPointer(true),
+				UsPostRegionCityID: &usprc.ID,
+			},
+		},
+	}, nil)
+
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:      factory.MakeRandomString(8),
+				AddressID: address.ID,
+			},
+		},
+	}, nil)
+
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
+
+	contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+	rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+	rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+		ReRateArea: models.ReRateArea{
+			ContractID: contract.ID,
+			IsOconus:   true,
+			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+			Contract:   contract,
+		},
+	})
+	suite.NotNil(rateArea)
+
+	us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+	suite.NotNil(us_country)
+	suite.Nil(err)
+
+	oconusRateArea, err := models.FetchOconusRateAreaByCityId(suite.DB(), usprc.ID.String())
+	suite.NotNil(oconusRateArea)
+	suite.Nil(err)
+
+	jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MAPK")
+	suite.NotNil(jppsoRegion)
+	suite.Nil(err)
+
+	gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorARMY.String())
+	suite.NotNil(gblocAors)
+	suite.Nil(err)
+
+	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
 	req := httptest.NewRequest("POST", "/orders", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
@@ -159,7 +215,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	createHandler := CreateOrderHandler{handlerConfig}
+	createHandler := CreateOrderHandler{handlerConfig, waf}
 
 	response := createHandler.Handle(params)
 
@@ -171,6 +227,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.CustomerID.String())
 	suite.Assertions.Equal(ordersType, okResponse.Payload.OrderType)
 	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrderNumber)
+	suite.Assertions.Equal(ghcmessages.GBLOC("MAPK"), okResponse.Payload.OriginDutyLocationGBLOC)
 	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
@@ -186,7 +243,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	order := move.Orders
 	request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
@@ -199,7 +256,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	handlerConfig := suite.HandlerConfig()
 	handler := GetOrdersHandler{
 		handlerConfig,
-		orderservice.NewOrderFetcher(),
+		orderservice.NewOrderFetcher(waf),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -234,7 +291,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 
 func (suite *HandlerSuite) TestWeightAllowances() {
 	suite.Run("With E-1 rank and no dependents", func() {
-		order := factory.BuildOrder(nil, []factory.Customization{
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
 					ID:            uuid.Must(uuid.NewV4()),
@@ -288,7 +345,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 	})
 
 	suite.Run("With E-1 rank and dependents", func() {
-		order := factory.BuildOrder(nil, []factory.Customization{
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
 					ID:            uuid.Must(uuid.NewV4()),
@@ -398,7 +455,6 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		false,
 	).Return(400, nil)
 
@@ -1476,6 +1532,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
 		StorageInTransit:               models.Int64Pointer(80),
+		WeightRestriction:              models.Int64Pointer(0),
 	}
 
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)

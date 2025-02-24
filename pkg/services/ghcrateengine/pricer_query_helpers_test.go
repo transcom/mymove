@@ -78,6 +78,16 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchAccessorialPrice() {
 	})
 }
 
+func (suite *GHCRateEngineServiceSuite) Test_fetchInternationalAccessorialPrice() {
+	suite.Run("golden path", func() {
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, idshutTestMarket, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
+		internationalAccessorialPrice, err := fetchInternationalAccessorialPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeIDSHUT, idshutTestMarket)
+
+		suite.NoError(err)
+		suite.Equal(idshutTestBasePriceCents, internationalAccessorialPrice.PerUnitCents)
+	})
+}
+
 func (suite *GHCRateEngineServiceSuite) Test_fetchContractYear() {
 	testDate := time.Date(testdatagen.TestYear, time.June, 17, 8, 45, 44, 333, time.UTC)
 	testEscalationCompounded := 1.0512

@@ -1,12 +1,15 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/apperror"
 )
 
 // ReServiceCode is the code of service
@@ -83,6 +86,8 @@ const (
 	ReServiceCodeIDDSIT ReServiceCode = "IDDSIT"
 	// ReServiceCodeIDFSIT International destination 1st day SIT
 	ReServiceCodeIDFSIT ReServiceCode = "IDFSIT"
+	// ReServiceCodeIDSFSC International destination SIT FSC
+	ReServiceCodeIDSFSC ReServiceCode = "IDSFSC"
 	// ReServiceCodeIDSHUT International destination shuttle service
 	ReServiceCodeIDSHUT ReServiceCode = "IDSHUT"
 	// ReServiceCodeIHPK International HHG pack
@@ -105,6 +110,8 @@ const (
 	ReServiceCodeIOOUB ReServiceCode = "IOOUB"
 	// ReServiceCodeIOPSIT International origin SIT pickup
 	ReServiceCodeIOPSIT ReServiceCode = "IOPSIT"
+	// ReServiceCodeIOSFSC International origin SIT FSC
+	ReServiceCodeIOSFSC ReServiceCode = "IOSFSC"
 	// ReServiceCodeIOSHUT International origin shuttle service
 	ReServiceCodeIOSHUT ReServiceCode = "IOSHUT"
 	// ReServiceCodeIUBPK International UB pack
@@ -119,7 +126,7 @@ const (
 	ReServiceCodeNSTH ReServiceCode = "NSTH"
 	// ReServiceCodeNSTUB Nonstandard UB
 	ReServiceCodeNSTUB ReServiceCode = "NSTUB"
-	// ReServiceCodeUBP International UB
+	// ReServiceCodeUBP International UB price
 	ReServiceCodeUBP ReServiceCode = "UBP"
 	// ReServiceCodeISLH Shipping & Linehaul
 	ReServiceCodeISLH ReServiceCode = "ISLH"
@@ -147,6 +154,7 @@ type ReService struct {
 	Priority        int                  `db:"priority" rw:"r"`
 	Name            string               `json:"name" db:"name" rw:"r"`
 	ServiceLocation *ServiceLocationType `db:"service_location" rw:"r"`
+	ReServiceItems  *ReServiceItems      `has_many:"re_service_items" fk_id:"service_id"`
 	CreatedAt       time.Time            `json:"created_at" db:"created_at" rw:"r"`
 	UpdatedAt       time.Time            `json:"updated_at" db:"updated_at" rw:"r"`
 }
@@ -222,4 +230,17 @@ func (r *ReService) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(r.Code), Name: "Code"},
 		&validators.StringIsPresent{Field: r.Name, Name: "Name"},
 	), nil
+}
+
+func FetchReServiceByCode(db *pop.Connection, code ReServiceCode) (*ReService, error) {
+	var reServiceCode ReServiceCode
+	if code != reServiceCode {
+		reService := ReService{}
+		err := db.Where("code = ?", code).First(&reService)
+		if err != nil {
+			return nil, apperror.NewQueryError("ReService", err, "")
+		}
+		return &reService, err
+	}
+	return nil, fmt.Errorf("error fetching from re_services - required code not provided")
 }

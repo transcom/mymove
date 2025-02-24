@@ -39,6 +39,14 @@ func (t *testOfficeUserQueryBuilder) QueryForAssociations(_ appcontext.AppContex
 	return nil
 }
 
+func (t *testOfficeUserQueryBuilder) DeleteOne(_ appcontext.AppContext, _ interface{}) error {
+	return nil
+}
+
+func (t *testOfficeUserQueryBuilder) DeleteMany(_ appcontext.AppContext, _ interface{}, _ []services.QueryFilter) error {
+	return nil
+}
+
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 	suite.Run("if the user is fetched, it should be re turned", func() {
 		id, err := uuid.NewV4()
@@ -80,27 +88,6 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
 		suite.Equal(models.OfficeUser{}, officeUser)
-	})
-}
-
-func (suite *OfficeUserServiceSuite) TestFetchOfficeUserByID() {
-	suite.Run("FetchOfficeUserByID returns office user on success", func() {
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		fetcher := NewOfficeUserFetcherPop()
-
-		fetchedUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), officeUser.ID)
-
-		suite.NoError(err)
-		suite.Equal(officeUser.ID, fetchedUser.ID)
-	})
-
-	suite.Run("FetchOfficeUserByID returns zero value office user on error", func() {
-		fetcher := NewOfficeUserFetcherPop()
-		officeUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), uuid.Nil)
-
-		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(uuid.Nil, officeUser.ID)
 	})
 }
 
