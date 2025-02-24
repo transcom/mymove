@@ -1089,8 +1089,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 				LinkOnly: true,
 			},
 		}, nil)
-
-		closestOffices, err := toRouter.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), ppmDutyLocation.ID)
+		closestOffices, err := toRouter.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), ppmDutyLocation.ID, move.Orders.ServiceMemberID)
 		suite.NoError(err)
 		suite.NotNil(closestOffices)
 
