@@ -206,8 +206,8 @@ const MoveQueue = ({
   isQueueManagementFFEnabled,
   userPrivileges,
   isBulkAssignmentFFEnabled,
-  setRefetchQueue,
   activeRole,
+  setRefetchQueue,
 }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
