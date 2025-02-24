@@ -96,10 +96,10 @@ var cal = dates.NewUSCalendar()
 var NextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
 
 // DefaultContractCode is the default contract code for testing
-const DefaultContractCode = "TRUSS_TEST"
+const DefaultContractCode = "HTC711-22-D-R002"
 
 // DefaultContractName name used for contractor in testing
-const DefaultContractName = "Default contractor name for test"
+const DefaultContractName = "Global HHG Relocation Services"
 
 // DefaultContractType default prime type is Prime for testing
 const DefaultContractType = "Prime"

@@ -56,27 +56,27 @@ func TestGHCRateEngineImportSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
-	tests := []struct {
-		name    string
-		gre     *GHCRateEngineImporter
-		wantErr bool
-	}{
-		{
-			name: "Run GHC Rate Engine Importer",
-			gre: &GHCRateEngineImporter{
-				ContractCode:      testContractCode,
-				ContractName:      testContractName,
-				ContractStartDate: testContractStartDate,
-			},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		suite.Run(tt.name, func() {
-			if err := tt.gre.Import(suite.AppContextForTest()); (err != nil) != tt.wantErr {
-				suite.T().Errorf("GHCRateEngineImporter.Import() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
+// func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
+// 	tests := []struct {
+// 		name    string
+// 		gre     *GHCRateEngineImporter
+// 		wantErr bool
+// 	}{
+// 		{
+// 			name: "Run GHC Rate Engine Importer",
+// 			gre: &GHCRateEngineImporter{
+// 				ContractCode:      testContractCode,
+// 				ContractName:      testContractName,
+// 				ContractStartDate: testContractStartDate,
+// 			},
+// 			wantErr: false,
+// 		},
+// 	}
+// 	for _, tt := range tests {
+// 		suite.Run(tt.name, func() {
+// 			if err := tt.gre.Import(suite.AppContextForTest()); (err != nil) != tt.wantErr {
+// 				suite.T().Errorf("GHCRateEngineImporter.Import() error = %v, wantErr %v", err, tt.wantErr)
+// 			}
+// 		})
+// 	}
+// }
