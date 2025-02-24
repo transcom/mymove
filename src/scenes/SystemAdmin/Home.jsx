@@ -42,6 +42,8 @@ import WebhookSubscriptionCreate from 'pages/Admin/WebhookSubscriptions/WebhookS
 import RequestedOfficeUserList from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserList';
 import RequestedOfficeUserShow from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserShow';
 import RequestedOfficeUserEdit from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserEdit';
+import RejectedOfficeUserList from 'pages/Admin/RejectedOfficeUsers/RejectedOfficeUserList';
+import RejectedOfficeUserShow from 'pages/Admin/RejectedOfficeUsers/RejectedOfficeUserShow';
 import PaymentRequest858List from 'pages/Admin/PaymentRequests/PaymentRequest858List';
 import PaymentRequest858Show from 'pages/Admin/PaymentRequests/PaymentRequest858Show';
 
@@ -78,6 +80,12 @@ const Home = () => (
         list={RequestedOfficeUserList}
         show={RequestedOfficeUserShow}
         edit={RequestedOfficeUserEdit}
+      />
+      <Resource
+        name="rejected-office-users"
+        options={{ label: 'Rejected Office Users' }}
+        list={RejectedOfficeUserList}
+        show={RejectedOfficeUserShow}
       />
       <Resource
         name="office-users"
