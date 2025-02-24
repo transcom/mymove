@@ -350,7 +350,7 @@ const TableQueue = ({
       {successMessageEnabled && (
         <Grid col={12} className={styles.alertContainer}>
           <Alert headingLevel="h4" slim type="success">
-            Successfully bulk assigned moves.
+            Moves assigned successfully!
           </Alert>
         </Grid>
       )}
