@@ -820,7 +820,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	})
 
 	// If the service item we're trying to create is shuttle service and there is no estimated weight, it fails.
-	suite.Run("MTOServiceItemShuttle no prime weight is okay", func() {
+	suite.Run("MTOServiceItemDomesticShuttle no prime weight is okay", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDSHUT service item on a shipment without estimated weight
@@ -2109,22 +2109,22 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
-		suite.Equal(unit.Cents(61080), dopEstimatedPriceInCents)
+		suite.Equal(unit.Cents(67188), dopEstimatedPriceInCents)
 
 		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment)
-		suite.Equal(unit.Cents(540000), dpkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(594000), dpkEstimatedPriceInCents)
 
 		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment)
-		suite.Equal(unit.Cents(42240), ddpEstimatedPriceInCents)
+		suite.Equal(unit.Cents(46464), ddpEstimatedPriceInCents)
 
 		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment)
-		suite.Equal(unit.Cents(43860), dupkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(48246), dupkEstimatedPriceInCents)
 
 		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment)
-		suite.Equal(unit.Cents(12381600), dlhEstimatedPriceInCents)
+		suite.Equal(unit.Cents(13619760), dlhEstimatedPriceInCents)
 
 		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment)
-		suite.Equal(unit.Cents(10080000), dshEstimatedPriceInCents)
+		suite.Equal(unit.Cents(11088000), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
 		suite.Equal(unit.Cents(-168), fscEstimatedPriceInCents)
@@ -2159,7 +2159,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 					Model: models.MTOShipment{
 						PrimeEstimatedWeight: &estimatedPrimeWeight,
 						RequestedPickupDate:  &pickupDate,
-						ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+						ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
 					},
 				},
 			}, nil)
@@ -2430,4 +2430,67 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		suite.Equal(unit.Cents(-335), fscEstimatedPriceInCents)
 	})
 
+}
+func (suite *MTOServiceItemServiceSuite) TestGetAdjustedWeight() {
+	suite.Run("If no weight is provided", func() {
+		var incomingWeight unit.Pound
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(0), *adjustedWeight)
+	})
+	suite.Run("If a weight of 0 is provided", func() {
+		incomingWeight := unit.Pound(0)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(0), *adjustedWeight)
+	})
+	suite.Run("If weight of 100 is provided", func() {
+		incomingWeight := unit.Pound(100)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(500), *adjustedWeight)
+	})
+	suite.Run("If weight of 454 is provided", func() {
+		incomingWeight := unit.Pound(454)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(500), *adjustedWeight)
+	})
+	suite.Run("If weight of 456 is provided", func() {
+		incomingWeight := unit.Pound(456)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(501), *adjustedWeight)
+	})
+	suite.Run("If weight of 1000 is provided", func() {
+		incomingWeight := unit.Pound(1000)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, false)
+		suite.Equal(unit.Pound(1100), *adjustedWeight)
+	})
+
+	suite.Run("If no weight is provided UB", func() {
+		var incomingWeight unit.Pound
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(0), *adjustedWeight)
+	})
+	suite.Run("If a weight of 0 is provided UB", func() {
+		incomingWeight := unit.Pound(0)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(0), *adjustedWeight)
+	})
+	suite.Run("If weight of 100 is provided UB", func() {
+		incomingWeight := unit.Pound(100)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(300), *adjustedWeight)
+	})
+	suite.Run("If weight of 272 is provided UB", func() {
+		incomingWeight := unit.Pound(272)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(300), *adjustedWeight)
+	})
+	suite.Run("If weight of 274 is provided UB", func() {
+		incomingWeight := unit.Pound(274)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(301), *adjustedWeight)
+	})
+	suite.Run("If weight of 1000 is provided UB", func() {
+		incomingWeight := unit.Pound(1000)
+		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
+		suite.Equal(unit.Pound(1100), *adjustedWeight)
+	})
 }

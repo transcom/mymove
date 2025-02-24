@@ -3497,7 +3497,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateDomesticServiceItems() {
 	}
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),

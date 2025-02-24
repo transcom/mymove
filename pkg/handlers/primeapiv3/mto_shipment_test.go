@@ -87,10 +87,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		return mockUpdater
 	}
-
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		mtoServiceItemCreator,
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 
 	setupTestData := func(boatFeatureFlag bool, ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
 
@@ -552,6 +552,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -833,6 +834,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -1548,10 +1550,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   If underlying CreateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		now := time.Now()
@@ -1623,10 +1626,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   If underlying UpdateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{}, nil)
@@ -1671,10 +1675,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   If underlying CreateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
 		}
 
 		now := time.Now()

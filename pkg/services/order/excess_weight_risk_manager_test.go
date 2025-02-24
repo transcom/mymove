@@ -551,7 +551,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 	})
 
 	suite.Run("Updates the ExcessUnaccompaniedBaggageWeightAcknowledgedAt field and approves the move when all fields are valid", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
