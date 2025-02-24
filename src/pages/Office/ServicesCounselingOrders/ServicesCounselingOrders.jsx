@@ -306,6 +306,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
     payGrade: order?.grade,
+    dependentsAuthorized: order?.entitlement?.dependentsAuthorized,
   };
 
   const tacWarningMsg =

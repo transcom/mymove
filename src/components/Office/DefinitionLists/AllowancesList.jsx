@@ -41,10 +41,6 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dt>Storage in transit (SIT)</dt>
           <dd data-testid="storageInTransit">{info.storageInTransit} days</dd>
         </div>
-        <div className={descriptionListStyles.row}>
-          <dt>Dependents</dt>
-          <dd data-testid="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</dd>
-        </div>
         {/* Begin OCONUS fields */}
         {/* As these fields are grouped together and only apply to OCONUS orders
         They will all be NULL for CONUS orders. If one of these fields are present,

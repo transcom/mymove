@@ -26,9 +26,6 @@ type UpdateAllowancePayload struct {
 	// agency
 	Agency *Affiliation `json:"agency,omitempty"`
 
-	// dependents authorized
-	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
-
 	// Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
 	// Example: 3
 	DependentsTwelveAndOver *int64 `json:"dependentsTwelveAndOver,omitempty"`
