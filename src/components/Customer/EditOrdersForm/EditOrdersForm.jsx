@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
+import { connect } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
@@ -16,7 +17,7 @@ import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { FEATURE_FLAG_KEYS, documentSizeLimitMsg } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, MOVE_STATUSES, documentSizeLimitMsg } from 'shared/constants';
 import profileImage from 'scenes/Review/images/profile.png';
 import { DropdownArrayOf } from 'types';
 import { ExistingUploadsShape } from 'types/uploads';
@@ -26,6 +27,10 @@ import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { showCounselingOffices } from 'services/internalApi';
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import { milmoveLogger } from 'utils/milmoveLog';
+import retryPageLoading from 'utils/retryPageLoading';
+import Hint from 'components/Hint';
 
 const EditOrdersForm = ({
   createUpload,
@@ -36,6 +41,7 @@ const EditOrdersForm = ({
   onSubmit,
   ordersTypeOptions,
   onCancel,
+  setShowLoadingSpinner,
 }) => {
   const [officeOptions, setOfficeOptions] = useState(null);
   const [currentDutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
@@ -93,7 +99,7 @@ const EditOrdersForm = ({
   });
 
   const enableDelete = () => {
-    const isValuePresent = initialValues.move_status === 'DRAFT';
+    const isValuePresent = initialValues.move_status === MOVE_STATUSES.DRAFT;
     return isValuePresent;
   };
 
@@ -113,25 +119,40 @@ const EditOrdersForm = ({
     };
     checkUBFeatureFlag();
   }, []);
+
   useEffect(() => {
-    showCounselingOffices(currentDutyLocation?.id).then((fetchedData) => {
-      if (fetchedData.body) {
-        const counselingOffices = fetchedData.body.map((item) => ({
-          key: item.id,
-          value: item.name,
-        }));
-        setOfficeOptions(counselingOffices);
+    const fetchCounselingOffices = async () => {
+      if (currentDutyLocation?.id && !officeOptions) {
+        setShowLoadingSpinner(true, null);
+        try {
+          const fetchedData = await showCounselingOffices(currentDutyLocation.id);
+          if (fetchedData.body) {
+            const counselingOffices = fetchedData.body.map((item) => ({
+              key: item.id,
+              value: item.name,
+            }));
+            setOfficeOptions(counselingOffices);
+          }
+        } catch (error) {
+          const { message } = error;
+          milmoveLogger.error({ message, info: null });
+          retryPageLoading(error);
+        }
+        setShowLoadingSpinner(false, null);
       }
-    });
+    };
+    fetchCounselingOffices();
+  }, [currentDutyLocation.id, officeOptions, setShowLoadingSpinner]);
+
+  useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
       setIsOconusMove(true);
     } else {
       setIsOconusMove(false);
     }
+
     if (currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
-      // Only if one of the duty locations is OCONUS should accompanied tour and dependent
-      // age fields display
       if (isOconusMove && hasDependents) {
         setShowAccompaniedTourField(true);
         setShowDependentAgeFields(true);
@@ -140,12 +161,13 @@ const EditOrdersForm = ({
         setShowDependentAgeFields(false);
       }
     }
+
     if (isLoading && finishedFetchingFF) {
       // If the form is still loading and the FF has finished fetching,
       // then the form is done loading
       setIsLoading(false);
     }
-  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, finishedFetchingFF, isLoading]);
+  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, isLoading, finishedFetchingFF]);
 
   if (isLoading) {
     return <LoadingPlaceholder />;
@@ -272,11 +294,6 @@ const EditOrdersForm = ({
               />
               {currentDutyLocation?.provides_services_counseling && (
                 <div>
-                  <Label>
-                    Select an origin duty location that most closely represents your current physical location, not
-                    where your shipment will originate, if different. This will allow a nearby transportation office to
-                    assist
-                  </Label>
                   <DropdownInput
                     label="Counseling office"
                     name="counseling_office_id"
@@ -285,6 +302,11 @@ const EditOrdersForm = ({
                     required
                     options={officeOptions}
                   />
+                  <Hint>
+                    Select an origin duty location that most closely represents your current physical location, not
+                    where your shipment will originate, if different. This will allow a nearby transportation office to
+                    assist.
+                  </Hint>
                 </div>
               )}
               {isRetirementOrSeparation ? (
@@ -521,4 +543,8 @@ EditOrdersForm.defaultProps = {
   filePondEl: null,
 };
 
-export default EditOrdersForm;
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => ({}), mapDispatchToProps)(EditOrdersForm);

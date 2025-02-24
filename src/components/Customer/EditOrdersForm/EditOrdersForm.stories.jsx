@@ -3,6 +3,7 @@ import React from 'react';
 import EditOrdersForm from './EditOrdersForm';
 
 import { ORDERS_TYPE } from 'constants/orders';
+import { MockProviders } from 'testUtils';
 
 const testInitialValues = {
   orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
@@ -101,49 +102,57 @@ const testProps = {
 };
 
 export const EmptyValues = (argTypes) => (
-  <EditOrdersForm
-    {...testProps}
-    initialValues={testProps.initialValues}
-    onSubmit={argTypes.onSubmit}
-    onCancel={argTypes.onCancel}
-    createUpload={argTypes.createUpload}
-    onUploadComplete={argTypes.onUploadComplete}
-    onDelete={argTypes.onDelete}
-  />
+  <MockProviders>
+    <EditOrdersForm
+      {...testProps}
+      initialValues={testProps.initialValues}
+      onSubmit={argTypes.onSubmit}
+      onCancel={argTypes.onCancel}
+      createUpload={argTypes.createUpload}
+      onUploadComplete={argTypes.onUploadComplete}
+      onDelete={argTypes.onDelete}
+    />
+  </MockProviders>
 );
 
 export const PrefillNoDependents = (argTypes) => (
-  <EditOrdersForm
-    {...testProps}
-    initialValues={testInitialValues}
-    onSubmit={argTypes.onSubmit}
-    onCancel={argTypes.onCancel}
-    createUpload={argTypes.createUpload}
-    onUploadComplete={argTypes.onUploadComplete}
-    onDelete={argTypes.onDelete}
-  />
+  <MockProviders>
+    <EditOrdersForm
+      {...testProps}
+      initialValues={testInitialValues}
+      onSubmit={argTypes.onSubmit}
+      onCancel={argTypes.onCancel}
+      createUpload={argTypes.createUpload}
+      onUploadComplete={argTypes.onUploadComplete}
+      onDelete={argTypes.onDelete}
+    />
+  </MockProviders>
 );
 
 export const PrefillYesDependents = (argTypes) => (
-  <EditOrdersForm
-    {...testProps}
-    initialValues={{ ...testInitialValues, has_dependents: 'yes' }}
-    onSubmit={argTypes.onSubmit}
-    onCancel={argTypes.onCancel}
-    createUpload={argTypes.createUpload}
-    onUploadComplete={argTypes.onUploadComplete}
-    onDelete={argTypes.onDelete}
-  />
+  <MockProviders>
+    <EditOrdersForm
+      {...testProps}
+      initialValues={{ ...testInitialValues, has_dependents: 'yes' }}
+      onSubmit={argTypes.onSubmit}
+      onCancel={argTypes.onCancel}
+      createUpload={argTypes.createUpload}
+      onUploadComplete={argTypes.onUploadComplete}
+      onDelete={argTypes.onDelete}
+    />
+  </MockProviders>
 );
 
 export const PCSOnly = (argTypes) => (
-  <EditOrdersForm
-    {...testProps}
-    ordersTypeOptions={[testProps.ordersTypeOptions[0]]}
-    onSubmit={argTypes.onSubmit}
-    onCancel={argTypes.onCancel}
-    createUpload={argTypes.createUpload}
-    onUploadComplete={argTypes.onUploadComplete}
-    onDelete={argTypes.onDelete}
-  />
+  <MockProviders>
+    <EditOrdersForm
+      {...testProps}
+      ordersTypeOptions={[testProps.ordersTypeOptions[0]]}
+      onSubmit={argTypes.onSubmit}
+      onCancel={argTypes.onCancel}
+      createUpload={argTypes.createUpload}
+      onUploadComplete={argTypes.onUploadComplete}
+      onDelete={argTypes.onDelete}
+    />
+  </MockProviders>
 );

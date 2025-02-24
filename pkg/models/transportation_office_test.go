@@ -10,6 +10,9 @@
 package models_test
 
 import (
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/factory"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/address"
 )
@@ -77,4 +80,96 @@ func (suite *ModelSuite) Test_TransportationOffice() {
 	suite.DB().Eager().Find(&loadedOffice, ppo.ID)
 	suite.Equal(ppo.ID, loadedOffice.ID)
 	suite.Equal(jppso.ID, loadedOffice.ShippingOffice.ID)
+}
+
+func (suite *ModelSuite) TestGetCounselingOffices() {
+	customAddress1 := m.Address{
+		ID:         uuid.Must(uuid.NewV4()),
+		PostalCode: "59801",
+	}
+	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: customAddress1, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: m.DutyLocation{
+				ProvidesServicesCounseling: false,
+			},
+		},
+		{
+			Model: m.TransportationOffice{
+				Name: "PPPO Holloman AFB - USAF",
+			},
+		},
+	}, nil)
+
+	// duty locations in KKFA with provides_services_counseling = true
+	customAddress2 := m.Address{
+		ID:         uuid.Must(uuid.NewV4()),
+		PostalCode: "59801",
+	}
+	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: customAddress2, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: m.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
+		{
+			Model: m.TransportationOffice{
+				Name: "PPPO Hill AFB - USAF",
+			},
+		},
+	}, nil)
+
+	customAddress3 := m.Address{
+		ID:         uuid.Must(uuid.NewV4()),
+		PostalCode: "59801",
+	}
+	origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: customAddress3, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: m.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
+		{
+			Model: m.TransportationOffice{
+				Name:             "PPPO Travis AFB - USAF",
+				Gbloc:            "KKFA",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+
+	// this one will not show in the return since it is not KKFA
+	customAddress4 := m.Address{
+		ID:         uuid.Must(uuid.NewV4()),
+		PostalCode: "20906",
+	}
+	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: customAddress4, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: m.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
+		{
+			Model: m.TransportationOffice{
+				Name:             "PPPO Fort Meade - USA",
+				Gbloc:            "BGCA",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+
+	armyAffliation := m.AffiliationARMY
+	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+		{
+			Model: m.ServiceMember{
+				Affiliation: &armyAffliation,
+			},
+		},
+	}, nil)
+	offices, err := m.GetCounselingOffices(suite.DB(), origDutyLocation.ID, serviceMember.ID)
+	suite.NoError(err)
+	suite.Len(offices, 2)
 }

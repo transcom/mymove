@@ -100,7 +100,8 @@ func (suite *TransportationOfficeServiceSuite) Test_SortedTransportationOffices(
 }
 
 func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
-	// duty location in KKFA with provies services counseling false
+	suite.toFetcher = NewTransportationOfficesFetcher()
+	// duty location in KKFA with provides_services_counseling = false
 	customAddress1 := models.Address{
 		ID:         uuid.Must(uuid.NewV4()),
 		PostalCode: "59801",
@@ -119,7 +120,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		},
 	}, nil)
 
-	// duty location in KKFA with provides services counseling true
+	// duty locations in KKFA with provides_services_counseling = true
 	customAddress2 := models.Address{
 		ID:         uuid.Must(uuid.NewV4()),
 		PostalCode: "59801",
@@ -138,7 +139,6 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		},
 	}, nil)
 
-	// duty location in KKFA with provides services counseling true
 	customAddress3 := models.Address{
 		ID:         uuid.Must(uuid.NewV4()),
 		PostalCode: "59801",
@@ -159,7 +159,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		},
 	}, nil)
 
-	// duty location NOT in KKFA with provides services counseling true
+	// this one will not show in the return since it is not KKFA
 	customAddress4 := models.Address{
 		ID:         uuid.Must(uuid.NewV4()),
 		PostalCode: "20906",
@@ -189,12 +189,9 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		},
 	}, nil)
 
-	offices, err := findCounselingOffice(suite.AppContextForTest(), origDutyLocation.ID, serviceMember.ID)
-
+	offices, err := suite.toFetcher.GetCounselingOffices(suite.AppContextForTest(), origDutyLocation.ID, serviceMember.ID)
 	suite.NoError(err)
-	suite.Len(offices, 2)
-	suite.Equal(offices[0].Name, "PPPO Hill AFB - USAF")
-	suite.Equal(offices[1].Name, "PPPO Travis AFB - USAF")
+	suite.Len(*offices, 2)
 }
 
 func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffices() {
@@ -399,7 +396,6 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 		suite.Nil(err)
 		suite.Equal(2, len(offices))
 	})
-
 }
 
 func (suite *TransportationOfficeServiceSuite) Test_GetTransportationOffice() {

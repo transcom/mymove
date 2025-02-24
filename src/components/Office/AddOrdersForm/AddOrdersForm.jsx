@@ -22,6 +22,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import formStyles from 'styles/form.module.scss';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { showCounselingOffices } from 'services/ghcApi';
+import Hint from 'components/Hint';
 
 let originMeta;
 let newDutyMeta = '';
@@ -217,11 +218,6 @@ const AddOrdersForm = ({
               />
               {currentDutyLocation.provides_services_counseling && (
                 <div>
-                  <Label>
-                    Select an origin duty location that most closely represents the customers current physical location,
-                    not where their shipment will originate, if different. This will allow a nearby transportation
-                    office to assist them.
-                  </Label>
                   <DropdownInput
                     label="Counseling office"
                     name="counselingOfficeId"
@@ -231,6 +227,11 @@ const AddOrdersForm = ({
                     required
                     options={counselingOfficeOptions}
                   />
+                  <Hint>
+                    Select an origin duty location that most closely represents the customers current physical location,
+                    not where their shipment will originate, if different. This will allow a nearby transportation
+                    office to assist them.
+                  </Hint>
                 </div>
               )}
 
