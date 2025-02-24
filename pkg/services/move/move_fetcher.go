@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -60,6 +61,21 @@ func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, sea
 	}
 
 	return move, nil
+}
+
+func (f moveFetcher) FetchMovesByIdArray(appCtx appcontext.AppContext, moveIds []ghcmessages.BulkAssignmentMoveData) (models.Moves, error) {
+	moves := models.Moves{}
+
+	err := appCtx.DB().Q().
+		Where("id in (?)", moveIds).
+		Where("show = TRUE").
+		All(&moves)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return moves, nil
 }
 
 // Fetches moves for Navy servicemembers with approved shipments. Ignores gbloc rules
@@ -172,7 +188,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx ap
 
 	query := `SELECT
 					moves.id,
-					ppm_shipments.submitted_at AS earliest_date
+					COALESCE(MIN(ppm_shipments.submitted_at), '0001-01-01') AS earliest_date
 				FROM moves
 				INNER JOIN orders ON orders.id = moves.orders_id
 				INNER JOIN service_members ON service_members.id = orders.service_member_id
@@ -200,7 +216,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCloseout(appCtx ap
 
 	query += ` AND (ppm_shipments.status IN ($2))
 					AND (orders.orders_type NOT IN ($3, $4, $5))
-				GROUP BY moves.id, ppm_shipments.submitted_at
+				GROUP BY moves.id
 				ORDER BY earliest_date ASC`
 
 	err := appCtx.DB().RawQuery(query,
@@ -283,7 +299,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentPaymentRequest(app
 	sqlQuery := `
 		SELECT
 			moves.id,
-			min(payment_requests.requested_at) AS earliest_date
+			MIN(payment_requests.requested_at) AS earliest_date
 		FROM moves
 		INNER JOIN orders ON orders.id = moves.orders_id
 		INNER JOIN service_members ON orders.service_member_id = service_members.id
