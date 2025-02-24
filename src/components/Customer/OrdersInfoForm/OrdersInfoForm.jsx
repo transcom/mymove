@@ -104,34 +104,28 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
         }
         setShowLoadingSpinner(false, null);
       }
-
-      // Check if either currentDutyLocation or newDutyLocation is OCONUS
-      if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
-        setIsOconusMove(true);
-      } else {
-        setIsOconusMove(false);
-      }
-
-      if (currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
-        if (isOconusMove && hasDependents) {
-          setShowAccompaniedTourField(true);
-          setShowDependentAgeFields(true);
-        } else {
-          setShowAccompaniedTourField(false);
-          setShowDependentAgeFields(false);
-        }
-      }
     };
     fetchCounselingOffices();
-  }, [
-    currentDutyLocation,
-    newDutyLocation,
-    isOconusMove,
-    hasDependents,
-    enableUB,
-    setShowLoadingSpinner,
-    counselingOfficeOptions,
-  ]);
+  }, [counselingOfficeOptions, currentDutyLocation.id, setShowLoadingSpinner]);
+
+  useEffect(() => {
+    // Check if either currentDutyLocation or newDutyLocation is OCONUS
+    if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
+      setIsOconusMove(true);
+    } else {
+      setIsOconusMove(false);
+    }
+
+    if (currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
+      if (isOconusMove && hasDependents) {
+        setShowAccompaniedTourField(true);
+        setShowDependentAgeFields(true);
+      } else {
+        setShowAccompaniedTourField(false);
+        setShowDependentAgeFields(false);
+      }
+    }
+  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -259,11 +253,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               />
               {currentDutyLocation.provides_services_counseling && (
                 <div>
-                  <Label>
-                    Select an origin duty location that most closely represents your current physical location, not
-                    where your shipment will originate, if different. This will allow a nearby transportation office to
-                    assist you.
-                  </Label>
                   <DropdownInput
                     label="Counseling office"
                     name="counseling_office_id"
@@ -272,6 +261,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     required
                     options={counselingOfficeOptions}
                   />
+                  <Hint>
+                    Select an origin duty location that most closely represents your current physical location, not
+                    where your shipment will originate, if different. This will allow a nearby transportation office to
+                    assist you.
+                  </Hint>
                 </div>
               )}
               {isRetirementOrSeparation ? (
