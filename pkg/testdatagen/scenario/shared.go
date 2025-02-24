@@ -5011,7 +5011,7 @@ func createHHGWithPaymentServiceItems(
 	}
 
 	destEntryDate := actualPickupDate
-	destDepDate := actualPickupDate
+	destDepDate := actualPickupDate.AddDate(0, 0, 1)
 	destSITAddress := factory.BuildAddress(db, nil, nil)
 	destSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{

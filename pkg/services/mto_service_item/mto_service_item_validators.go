@@ -830,3 +830,16 @@ func (o *mtoServiceItemCreator) checkSITEntryDateAndFADD(serviceItem *models.MTO
 
 	return nil
 }
+
+func (o *mtoServiceItemCreator) checkSITEntryDateBeforeDepartureDate(serviceItem *models.MTOServiceItem) error {
+	if serviceItem.SITEntryDate == nil || serviceItem.SITDepartureDate == nil {
+		return nil
+	}
+
+	//Departure Date has to be after the Entry Date
+	if !serviceItem.SITDepartureDate.After(*serviceItem.SITEntryDate) {
+		return apperror.NewUnprocessableEntityError(fmt.Sprintf("the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
+			serviceItem.SITDepartureDate.Format("2006-01-02"), serviceItem.SITEntryDate.Format("2006-01-02")))
+	}
+	return nil
+}
