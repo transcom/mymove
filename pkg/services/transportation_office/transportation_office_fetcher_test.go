@@ -597,10 +597,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 		suite.Nil(err)
 
 		serviceMember := setupServiceMember(models.AffiliationARMY)
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			ServiceMemberID: serviceMember.ID,
-		})
-		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, serviceMember.ID)
+		departmentIndictor, err := findOconusGblocDepartmentIndicator(suite.AppContextForTest(), dutylocation, serviceMember.ID)
 		suite.NotNil(departmentIndictor)
 		suite.Nil(err)
 		suite.Nil(departmentIndictor.DepartmentIndicator)
@@ -622,11 +619,8 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 
 		// loop through and make sure all branches are using it's own dedicated GBLOC and not default
 		serviceMember := setupServiceMember(models.AffiliationAIRFORCE)
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			ServiceMemberID: serviceMember.ID,
-		})
 		suite.Nil(err)
-		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
+		departmentIndictor, err := findOconusGblocDepartmentIndicator(suite.AppContextForTest(), dutylocation, serviceMember.ID)
 		suite.NotNil(departmentIndictor)
 		suite.Nil(err)
 		suite.NotNil(departmentIndictor.DepartmentIndicator)
@@ -670,10 +664,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 		suite.Nil(err)
 
 		serviceMember := setupServiceMember(models.AffiliationAIRFORCE)
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			ServiceMemberID: serviceMember.ID,
-		})
-		offices, err := suite.toFetcher.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), dutylocation.ID, appCtx.Session().ServiceMemberID)
+		offices, err := suite.toFetcher.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), dutylocation.ID, serviceMember.ID)
 		suite.NotNil(offices)
 		suite.Nil(err)
 		suite.Equal(offices.Name, "PPPO Fort Belvoir - USA")
