@@ -61,7 +61,7 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 	move.LockExpiresAt = &expirationTime
 
 	// Store move before update
-	moveBeforeUpdate := move
+	var moveBeforeUpdate = *move
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, saveErr := appCtx.DB().ValidateAndSave(move)
