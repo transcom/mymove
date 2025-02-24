@@ -519,7 +519,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 	suite.Equal(offices.Name, "PPPO Jacksonville - USN")
 }
 
-func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOfficesCounseled() {
+func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrimeCounseledOCONUS() {
 	setupServiceMember := func(serviceMemberAffiliation models.ServiceMemberAffiliation) models.ServiceMember {
 		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{Model: models.ServiceMember{
