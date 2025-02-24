@@ -28,7 +28,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   const [isSaveDisabled, setIsSaveDisabled] = useState(false);
   const [numberOfMoves, setNumberOfMoves] = useState(0);
   const [selectedUsers, setSelectedUsers] = useState({});
-  const [radioSelectedUsers, setRadioSelectedUsers] = useState({});
+  const [radioSelectedUsers, setRadioSelectedUser] = useState({});
 
   const errorMessage = 'Cannot assign more moves than are available.';
 
@@ -153,7 +153,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
             // };
 
             const handleRadioDeselect = (id) => {
-              setRadioSelectedUsers((prev) => ({
+              setRadioSelectedUser((prev) => ({
                 ...prev,
                 [id]: false, // Deselect the radio button
               }));
@@ -247,16 +247,17 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                               onChange={(event) => {
                                 handleChange(event);
                                 if (radioSelectedUsers[user.officeUserId]) {
-                                  setRadioSelectedUsers((prev) => ({
+                                  setRadioSelectedUser((prev) => ({
                                     ...prev,
+
                                     [user.officeUserId]: false, // Re-enable the checkbox but keep it unchecked
                                   }));
                                 } else {
                                   setSelectedUsers((prev) => ({
                                     ...prev,
-                                    [user.officeUserId]: true, // Re-enable the checkbox but keep it unchecked
+                                    [user.officeUserId]: false, // Re-enable the checkbox but keep it unchecked
                                   }));
-                                  setRadioSelectedUsers((prev) => ({
+                                  setRadioSelectedUser((prev) => ({
                                     ...prev,
                                     [user.officeUserId]: true, // Re-enable the checkbox but keep it unchecked
                                   }));
