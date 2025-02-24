@@ -870,7 +870,7 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 			continue
 		} // Added quick nil check to ensure SSW returns while moving expenses are being added still
 		var nilPPMDocumentStatus *models.PPMDocumentStatus
-		if expense.Status != nilPPMDocumentStatus && (*expense.Status == models.PPMDocumentStatusRejected || *expense.Status == models.PPMDocumentStatusExcluded) {
+		if expense.Status == nilPPMDocumentStatus || *expense.Status != models.PPMDocumentStatusApproved {
 			continue
 		}
 		expenseType, addToTotal := getExpenseType(expense)
