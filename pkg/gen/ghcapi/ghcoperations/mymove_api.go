@@ -176,6 +176,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler: customer_support_remarks.GetCustomerSupportRemarksForMoveHandlerFunc(func(params customer_support_remarks.GetCustomerSupportRemarksForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.GetCustomerSupportRemarksForMove has not yet been implemented")
 		}),
+		QueuesGetDestinationRequestsQueueHandler: queues.GetDestinationRequestsQueueHandlerFunc(func(params queues.GetDestinationRequestsQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetDestinationRequestsQueue has not yet been implemented")
+		}),
 		GhcDocumentsGetDocumentHandler: ghc_documents.GetDocumentHandlerFunc(func(params ghc_documents.GetDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation ghc_documents.GetDocument has not yet been implemented")
 		}),
@@ -313,6 +316,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PpmShowAOAPacketHandler: ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
+		}),
+		TransportationOfficeShowCounselingOfficesHandler: transportation_office.ShowCounselingOfficesHandlerFunc(func(params transportation_office.ShowCounselingOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_office.ShowCounselingOffices has not yet been implemented")
 		}),
 		PpmShowPaymentPacketHandler: ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")
@@ -514,6 +520,8 @@ type MymoveAPI struct {
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler sets the operation handler for the get customer support remarks for move operation
 	CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler customer_support_remarks.GetCustomerSupportRemarksForMoveHandler
+	// QueuesGetDestinationRequestsQueueHandler sets the operation handler for the get destination requests queue operation
+	QueuesGetDestinationRequestsQueueHandler queues.GetDestinationRequestsQueueHandler
 	// GhcDocumentsGetDocumentHandler sets the operation handler for the get document operation
 	GhcDocumentsGetDocumentHandler ghc_documents.GetDocumentHandler
 	// MoveTaskOrderGetEntitlementsHandler sets the operation handler for the get entitlements operation
@@ -606,6 +614,8 @@ type MymoveAPI struct {
 	MoveSetFinancialReviewFlagHandler move.SetFinancialReviewFlagHandler
 	// PpmShowAOAPacketHandler sets the operation handler for the show a o a packet operation
 	PpmShowAOAPacketHandler ppm.ShowAOAPacketHandler
+	// TransportationOfficeShowCounselingOfficesHandler sets the operation handler for the show counseling offices operation
+	TransportationOfficeShowCounselingOfficesHandler transportation_office.ShowCounselingOfficesHandler
 	// PpmShowPaymentPacketHandler sets the operation handler for the show payment packet operation
 	PpmShowPaymentPacketHandler ppm.ShowPaymentPacketHandler
 	// EvaluationReportsSubmitEvaluationReportHandler sets the operation handler for the submit evaluation report operation
@@ -850,6 +860,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.GetCustomerSupportRemarksForMoveHandler")
 	}
+	if o.QueuesGetDestinationRequestsQueueHandler == nil {
+		unregistered = append(unregistered, "queues.GetDestinationRequestsQueueHandler")
+	}
 	if o.GhcDocumentsGetDocumentHandler == nil {
 		unregistered = append(unregistered, "ghc_documents.GetDocumentHandler")
 	}
@@ -987,6 +1000,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmShowAOAPacketHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowAOAPacketHandler")
+	}
+	if o.TransportationOfficeShowCounselingOfficesHandler == nil {
+		unregistered = append(unregistered, "transportation_office.ShowCounselingOfficesHandler")
 	}
 	if o.PpmShowPaymentPacketHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowPaymentPacketHandler")
@@ -1307,6 +1323,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/queues/destination-requests"] = queues.NewGetDestinationRequestsQueue(o.context, o.QueuesGetDestinationRequestsQueueHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/documents/{documentId}"] = ghc_documents.NewGetDocument(o.context, o.GhcDocumentsGetDocumentHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1488,6 +1508,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/aoa-packet"] = ppm.NewShowAOAPacket(o.context, o.PpmShowAOAPacketHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}"] = transportation_office.NewShowCounselingOffices(o.context, o.TransportationOfficeShowCounselingOfficesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
