@@ -407,9 +407,7 @@ WITH move AS (
 						'shipment_type', ppms.shipment_type,
 						'shipment_id_abbr', (CASE WHEN ppms.shipment_id IS NOT NULL THEN LEFT(ppms.shipment_id::TEXT, 5) ELSE NULL END),
 						'w2_address', (SELECT row_to_json(x) FROM (SELECT * FROM addresses WHERE addresses.id = CAST(ppms.w2_address_id AS UUID)) x)::TEXT,
-						'shipment_locator', ppms.shipment_locator,
-						'pickup_postal_address_id', ppms.pickup_postal_address_id,
-						'secondary_pickup_postal_address_id', ppms.secondary_pickup_postal_address_id
+						'shipment_locator', ppms.shipment_locator
 					)
 				)
 			)::TEXT AS context,
