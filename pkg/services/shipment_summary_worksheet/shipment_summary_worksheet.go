@@ -1087,6 +1087,32 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, dbQErr
 	}
 
+	// the following checks are needed since we can't use "ExcludeDeletedScope()" in the big query above
+	// this is because not all of the tables being queried have "deleted_at" columns and this returns an error
+	if ppmShipment.WeightTickets != nil {
+		var filteredWeightTickets []models.WeightTicket
+		// We do not need to consider deleted weight tickets or uploads within them
+		for _, wt := range ppmShipment.WeightTickets {
+			if wt.DeletedAt == nil {
+				wt.EmptyDocument.UserUploads = wt.EmptyDocument.UserUploads.FilterDeleted()
+				wt.FullDocument.UserUploads = wt.FullDocument.UserUploads.FilterDeleted()
+				wt.ProofOfTrailerOwnershipDocument.UserUploads = wt.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
+				filteredWeightTickets = append(filteredWeightTickets, wt)
+			}
+		}
+		ppmShipment.WeightTickets = filteredWeightTickets
+	}
+	// We do not need to consider deleted moving expenses
+	if len(ppmShipment.MovingExpenses) > 0 {
+		nonDeletedMovingExpenses := ppmShipment.MovingExpenses.FilterDeleted()
+		ppmShipment.MovingExpenses = nonDeletedMovingExpenses
+	}
+	// We do not need to consider deleted progear weight tickets
+	if len(ppmShipment.ProgearWeightTickets) > 0 {
+		nonDeletedProgearTickets := ppmShipment.ProgearWeightTickets.FilterDeleted()
+		ppmShipment.ProgearWeightTickets = nonDeletedProgearTickets
+	}
+
 	// Final actual weight is a calculated value we don't store. This needs to be fetched independently
 	// Requires WeightTickets eager preload
 	ppmShipmentFinalWeight := models.GetPPMNetWeight(ppmShipment)
