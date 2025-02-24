@@ -42,7 +42,7 @@ func (suite *TransportationOfficeServiceSuite) Test_SearchTransportationOffice()
 			},
 		},
 	}, nil)
-	office, err := FindTransportationOffice(suite.AppContextForTest(), "LRC Fort Knox", true)
+	office, err := FindTransportationOffice(suite.AppContextForTest(), "LRC Fort Knox", true, false)
 
 	suite.NoError(err)
 	suite.Equal(transportationOffice.Name, office[0].Name)
@@ -53,7 +53,7 @@ func (suite *TransportationOfficeServiceSuite) Test_SearchTransportationOffice()
 
 func (suite *TransportationOfficeServiceSuite) Test_SearchWithNoTransportationOffices() {
 
-	office, err := FindTransportationOffice(suite.AppContextForTest(), "LRC Fort Knox", true)
+	office, err := FindTransportationOffice(suite.AppContextForTest(), "LRC Fort Knox", true, false)
 	suite.NoError(err)
 	suite.Len(office, 0)
 }
@@ -87,7 +87,7 @@ func (suite *TransportationOfficeServiceSuite) Test_SortedTransportationOffices(
 		},
 	}, nil)
 
-	office, err := FindTransportationOffice(suite.AppContextForTest(), "JPPSO", true)
+	office, err := FindTransportationOffice(suite.AppContextForTest(), "JPPSO", true, false)
 
 	suite.NoError(err)
 	suite.Equal(transportationOffice1.Name, office[0].Name)

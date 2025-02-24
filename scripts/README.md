@@ -170,6 +170,7 @@ migrations.
 | `download-secure-migration` | A script to download secure migrations from all environments                                 |
 | `generate-secure-migration` | A script to help manage the creation of secure migrations                                    |
 | `upload-secure-migration`   | A script to upload secure migrations to all environments in both commercial and GovCloud AWS |
+| `generate-ddl-migration`   | A script to help manage the creation of DDL migrations                                      |
 
 ### Database Scripts
 

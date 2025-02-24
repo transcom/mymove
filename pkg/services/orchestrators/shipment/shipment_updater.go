@@ -6,6 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // shipmentUpdater is the concrete struct implementing the services.ShipmentUpdater interface
@@ -15,16 +16,18 @@ type shipmentUpdater struct {
 	ppmShipmentUpdater        services.PPMShipmentUpdater
 	boatShipmentUpdater       services.BoatShipmentUpdater
 	mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater
+	mtoServiceItemCreator     services.MTOServiceItemCreator
 }
 
 // NewShipmentUpdater creates a new shipmentUpdater struct with the basic checks and service dependencies.
-func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipmentUpdater services.PPMShipmentUpdater, boatShipmentUpdater services.BoatShipmentUpdater, mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater) services.ShipmentUpdater {
+func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipmentUpdater services.PPMShipmentUpdater, boatShipmentUpdater services.BoatShipmentUpdater, mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater, mtoServiceItemCreator services.MTOServiceItemCreator) services.ShipmentUpdater {
 	return &shipmentUpdater{
 		checks:                    basicShipmentChecks(),
 		mtoShipmentUpdater:        mtoShipmentUpdater,
 		ppmShipmentUpdater:        ppmShipmentUpdater,
 		boatShipmentUpdater:       boatShipmentUpdater,
 		mobileHomeShipmentUpdater: mobileHomeShipmentUpdater,
+		mtoServiceItemCreator:     mtoServiceItemCreator,
 	}
 }
 
@@ -41,6 +44,20 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 
 		if err != nil {
 			return err
+		}
+
+		if mtoShipment != nil && (mtoShipment.ShipmentType != models.MTOShipmentTypePPM) && (shipment.PrimeEstimatedWeight != nil || mtoShipment.PrimeEstimatedWeight != nil) && mtoShipment.Status == models.MTOShipmentStatusApproved {
+			mtoShipment, err = AddPricingEstimatesToMTOServiceItems(appCtx, *s, mtoShipment, shipment)
+			if err != nil {
+				return err
+			}
+		}
+
+		if mtoShipment.MTOServiceItems != nil {
+			_, mtoErr := appCtx.DB().ValidateAndUpdate(&mtoShipment.MTOServiceItems)
+			if mtoErr != nil {
+				return mtoErr
+			}
 		}
 
 		isBoatShipment := shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway
@@ -121,4 +138,31 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 	}
 
 	return mtoShipment, nil
+}
+
+func AddPricingEstimatesToMTOServiceItems(appCtx appcontext.AppContext, shipmentUpdater shipmentUpdater, mtoShipment *models.MTOShipment, shipmentDelta *models.MTOShipment) (*models.MTOShipment, error) {
+	mtoShipmentCopy := mtoShipment
+
+	for index, serviceItem := range mtoShipmentCopy.MTOServiceItems {
+		var estimatedWeightToUse unit.Pound
+		if shipmentDelta.PrimeEstimatedWeight != nil {
+			estimatedWeightToUse = *shipmentDelta.PrimeEstimatedWeight
+		} else {
+			estimatedWeightToUse = *mtoShipmentCopy.PrimeEstimatedWeight
+		}
+
+		serviceItemEstimatedPrice, err := shipmentUpdater.mtoServiceItemCreator.FindEstimatedPrice(appCtx, &serviceItem, *mtoShipment)
+
+		// store actual captured weight
+		mtoShipmentCopy.MTOServiceItems[index].EstimatedWeight = &estimatedWeightToUse
+		mtoShipmentCopy.PrimeEstimatedWeight = &estimatedWeightToUse
+
+		if serviceItemEstimatedPrice != 0 && err == nil {
+			mtoShipmentCopy.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
+		}
+		if err != nil {
+			return mtoShipmentCopy, err
+		}
+	}
+	return mtoShipmentCopy, nil
 }

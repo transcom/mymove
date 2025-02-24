@@ -24,11 +24,11 @@ BEGIN
 	SELECT '8d613f71-b80e-4ad4-95e7-00781b084c7c'::uuid, 'n/a', NULL, 'NAS NORTH ISLAND', 'CA', '39125', now(), now(), NULL, 'SAN DIEGO', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '191165db-d30a-414d-862b-54afdfc7aeb9'::uuid
 	WHERE NOT EXISTS (select * from addresses where id = '8d613f71-b80e-4ad4-95e7-00781b084c7c');
 
-	INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_at,transportation_office_id,provides_services_counseling) 
+	INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_at,transportation_office_id,provides_services_counseling)
 	SELECT '56255626-bbbe-4834-8324-1c08f011f2f6'::uuid,'NAS N Island, CA 92135',NULL,'3d617fab-bf6f-4f07-8ab5-f7652b8e7f3e'::uuid,now(),now(),null,true
 	WHERE NOT EXISTS (select * from duty_locations where id = '56255626-bbbe-4834-8324-1c08f011f2f6');
-	
-	INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_at,transportation_office_id,provides_services_counseling) 
+
+	INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_at,transportation_office_id,provides_services_counseling)
 	SELECT '7156098f-13cf-4455-bcd5-eb829d57c714'::uuid,'NAS North Island, CA 92135',NULL,'8d613f71-b80e-4ad4-95e7-00781b084c7c'::uuid,now(),now(),null,true
 	WHERE NOT EXISTS (select * from duty_locations where id = '7156098f-13cf-4455-bcd5-eb829d57c714');
 END $$;
@@ -42,7 +42,7 @@ BEGIN
 	SELECT 'fb90a7df-6494-4974-a0ce-4bdbcaff80c0'::uuid, 'n/a', NULL, 'CANNON AFB', 'NM', '88101', now(), now(), NULL, 'CURRY', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '68393e10-1aed-4a51-85a0-559a0a5b0e3f'::uuid
 	WHERE NOT EXISTS (select * from addresses where id = 'fb90a7df-6494-4974-a0ce-4bdbcaff80c0');
 
-	INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_at,transportation_office_id,provides_services_counseling) 
+	INSERT INTO duty_locations (id,"name",affiliation,address_id,created_at,updated_at,transportation_office_id,provides_services_counseling)
 	SELECT '98beab3c-f8ce-4e3c-b78e-8db614721621'::uuid, 'Cannon AFB, NM 88101',null, 'fb90a7df-6494-4974-a0ce-4bdbcaff80c0'::uuid,now(),now(),'80796bc4-e494-4b19-bb16-cdcdba187829',true
 	WHERE NOT EXISTS (select * from duty_locations where id = '98beab3c-f8ce-4e3c-b78e-8db614721621');
 END $$;

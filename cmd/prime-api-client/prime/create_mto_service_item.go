@@ -39,6 +39,10 @@ type shuttleParams struct {
 	Body primemessages.MTOServiceItemShuttle `json:"body"`
 }
 
+type domesticShuttleParams struct {
+	Body primemessages.MTOServiceItemDomesticShuttle `json:"body"`
+}
+
 // InitCreateMTOServiceItemFlags initializes flags.
 func InitCreateMTOServiceItemFlags(flag *pflag.FlagSet) {
 	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
@@ -146,12 +150,17 @@ func CreateMTOServiceItem(cmd *cobra.Command, args []string) error {
 		var params shuttleParams
 		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
 		serviceItemParams.SetBody(&params.Body)
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticShuttle:
+		var params domesticShuttleParams
+		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
+		serviceItemParams.SetBody(&params.Body)
 	default:
 		err = fmt.Errorf("allowed modelType(): %v", []primemessages.MTOServiceItemModelType{
 			primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT,
 			primemessages.MTOServiceItemModelTypeMTOServiceItemOriginSIT,
 			primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating,
 			primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle,
+			primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticShuttle,
 		})
 	}
 	// return any decoding errors

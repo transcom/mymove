@@ -102,6 +102,7 @@
 
   .descriptionTitle {
     @include u-font-weight('bold');
+    @include u-margin-right(0.5);
     color: $base-darker;
   }
 

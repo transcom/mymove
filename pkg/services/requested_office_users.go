@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -13,7 +14,7 @@ import (
 //
 //go:generate mockery --name RequestedOfficeUserListFetcher
 type RequestedOfficeUserListFetcher interface {
-	FetchRequestedOfficeUsersList(appCtx appcontext.AppContext, filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.OfficeUsers, error)
+	FetchRequestedOfficeUsersList(appCtx appcontext.AppContext, filterFuncs []func(*pop.Query), pagination Pagination, ordering QueryOrder) (models.OfficeUsers, int, error)
 	FetchRequestedOfficeUsersCount(appCtx appcontext.AppContext, filters []QueryFilter) (int, error)
 }
 

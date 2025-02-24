@@ -55,6 +55,8 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 		{models.ReServiceCodeIOSHUT, &internationalOriginShuttlingPricer{}},
 		{models.ReServiceCodeDCRT, &domesticCratingPricer{}},
 		{models.ReServiceCodeDUCRT, &domesticUncratingPricer{}},
+		{models.ReServiceCodeICRT, &intlCratingPricer{}},
+		{models.ReServiceCodeIUCRT, &intlUncratingPricer{}},
 		{models.ReServiceCodeDPK, &domesticPackPricer{}},
 		{models.ReServiceCodeDNPK, &domesticNTSPackPricer{}},
 		{models.ReServiceCodeDUPK, &domesticUnpackPricer{}},

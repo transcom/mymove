@@ -10,7 +10,10 @@ import {
   shipmentIsOverweight,
   getWeightTicketNetWeight,
 } from './shipmentWeights';
-import { createCompleteProGearWeightTicket } from './test/factories/proGearWeightTicket';
+import {
+  createCompleteProGearWeightTicket,
+  createRejectedProGearWeightTicket,
+} from './test/factories/proGearWeightTicket';
 import { createCompleteWeightTicket } from './test/factories/weightTicket';
 
 describe('shipmentWeights utils', () => {
@@ -202,6 +205,13 @@ describe('calculateNetWeightForProGearWeightTicket', () => {
       expect(calculateNetWeightForProGearWeightTicket(proGearWeightTicket)).toEqual(expectedNetWeight);
     },
   );
+
+  it('rejected weight ticket net weight is zero', () => {
+    const rejectedProGearWeightTicket = createRejectedProGearWeightTicket({}, { weight: 200 });
+    // The weight of the ticket should be greater than zero for this test to be valid.
+    expect(rejectedProGearWeightTicket.weight).toBeGreaterThan(0);
+    expect(calculateNetWeightForProGearWeightTicket(rejectedProGearWeightTicket)).toEqual(0);
+  });
 });
 
 describe('calculateTotalNetWeightForProGearWeightTickets', () => {
@@ -223,6 +233,20 @@ describe('calculateTotalNetWeightForProGearWeightTickets', () => {
     });
 
     expect(calculateTotalNetWeightForProGearWeightTickets(proGearWeightTickets)).toEqual(expectedNetWeight);
+  });
+});
+
+describe('calculateTotalNetWeightForProGearWeightTickets with a rejected weight ticket', () => {
+  it('rejected weight ticket is not included in total net weight', () => {
+    const approvedWeight = 350;
+    const approvedProGearWeightTicket = createCompleteProGearWeightTicket({}, { weight: approvedWeight });
+    const rejectedProGearWeightTicket = createRejectedProGearWeightTicket({}, { weight: 200 });
+    // The weight of each ticket should be greater than zero for this test to be valid.
+    expect(approvedProGearWeightTicket.weight).toBeGreaterThan(0);
+    expect(rejectedProGearWeightTicket.weight).toBeGreaterThan(0);
+    expect(
+      calculateTotalNetWeightForProGearWeightTickets([approvedProGearWeightTicket, rejectedProGearWeightTicket]),
+    ).toEqual(approvedWeight);
   });
 });
 
