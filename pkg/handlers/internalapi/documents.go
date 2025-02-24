@@ -73,7 +73,7 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			document, err := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, false)
+			document, err := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
