@@ -69,6 +69,7 @@ const useOrdersDocumentQueriesReturnValue = {
         totalDependents: 1,
         totalWeight: 5000,
         weightRestriction: 500,
+        ubWeightRestriction: 400,
       },
       first_name: 'Leo',
       grade: 'E_1',
@@ -177,6 +178,7 @@ describe('MoveAllowances page', () => {
       expect(screen.getByLabelText('OCIE authorized (Army only)')).toBeChecked();
 
       expect(screen.getByTestId('weightAllowance')).toHaveTextContent('5,000 lbs');
+      // admin restricted weight location
       const adminWeightCheckbox = await screen.findByTestId('adminWeightLocation');
       expect(adminWeightCheckbox).toBeChecked();
       const weightRestrictionInput = screen.getByTestId('weightRestrictionInput');
@@ -196,6 +198,28 @@ describe('MoveAllowances page', () => {
       await waitFor(() => {
         expect(
           screen.getByText(/Weight restriction is required when Admin Restricted Weight Location is enabled/i),
+        ).toBeInTheDocument();
+      });
+      // admin restricted UB weight location
+      const adminUBWeightCheckbox = await screen.findByTestId('adminUBWeightLocation');
+      expect(adminUBWeightCheckbox).toBeChecked();
+      const ubWeightRestrictionInput = screen.getByTestId('ubWeightRestrictionInput');
+      expect(ubWeightRestrictionInput).toHaveValue('400');
+
+      await userEvent.click(ubWeightRestrictionInput);
+      await userEvent.clear(ubWeightRestrictionInput);
+      await userEvent.type(ubWeightRestrictionInput, '0');
+      fireEvent.blur(ubWeightRestrictionInput);
+
+      await waitFor(() => {
+        expect(screen.getByText(/UB Weight restriction must be greater than 0/i)).toBeInTheDocument();
+      });
+
+      await userEvent.clear(ubWeightRestrictionInput);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/UB weight restriction is required when Admin Restricted UB Weight Location is enabled/i),
         ).toBeInTheDocument();
       });
     });

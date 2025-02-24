@@ -20,6 +20,7 @@ const info = {
   organizationalClothingAndIndividualEquipment: true,
   ubAllowance: 400,
   weightRestriction: 1500,
+  ubWeightRestriction: 1100,
 };
 
 const initialValuesOconusAdditions = {
@@ -180,5 +181,10 @@ describe('AllowancesList', () => {
     const adminRestrictedWtLoc = { ...info, adminRestrictedWeightLocation: true };
     render(<AllowancesList info={adminRestrictedWtLoc} />);
     expect(screen.getByTestId('weightRestriction').textContent).toEqual('1,500 lbs');
+  });
+  it('renders UB weight restriction', () => {
+    const adminRestrictedUBWtLoc = { ...info, adminrestrictedUBWeightLocation: true };
+    render(<AllowancesList info={adminRestrictedUBWtLoc} />);
+    expect(screen.getByTestId('ubWeightRestriction').textContent).toEqual('1,100 lbs');
   });
 });

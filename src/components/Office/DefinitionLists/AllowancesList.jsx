@@ -114,6 +114,17 @@ const AllowancesList = ({ info, showVisualCues }) => {
             {info.weightRestriction ? formatWeight(info.weightRestriction) : DEFAULT_EMPTY_VALUE}
           </dd>
         </div>
+        <div className={visualCuesStyle}>
+          <dt>Admin Restricted UB Weight Location</dt>
+          <dd data-testid="adminRestrictedUBWtLoc">{info.ubWeightRestriction > 0 ? 'Yes' : 'No'}</dd>
+        </div>
+
+        <div className={visualCuesStyle}>
+          <dt>UB Weight Restriction</dt>
+          <dd data-testid="ubWeightRestriction">
+            {info.ubWeightRestriction ? formatWeight(info.ubWeightRestriction) : DEFAULT_EMPTY_VALUE}
+          </dd>
+        </div>
       </dl>
     </div>
   );

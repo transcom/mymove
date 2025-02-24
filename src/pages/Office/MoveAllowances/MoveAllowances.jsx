@@ -55,6 +55,18 @@ const validationSchema = Yup.object({
       otherwise: (schema) => schema.notRequired().nullable(),
     }),
   adminRestrictedWeightLocation: Yup.boolean().notRequired(),
+  ubWeightRestriction: Yup.number()
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .when('adminRestrictedUBWeightLocation', {
+      is: true,
+      then: (schema) =>
+        schema
+          .min(1, 'UB weight restriction must be greater than 0')
+          .max(2000, 'UB weight restriction cannot exceed 2,000 lbs')
+          .required('UB weight restriction is required when Admin Restricted UB Weight Location is enabled'),
+      otherwise: (schema) => schema.notRequired().nullable(),
+    }),
+  adminRestrictedUBWeightLocation: Yup.boolean().notRequired(),
 });
 
 const MoveAllowances = () => {
@@ -112,6 +124,8 @@ const MoveAllowances = () => {
       gunSafe,
       adminRestrictedWeightLocation,
       weightRestriction,
+      adminRestrictedUBWeightLocation,
+      ubWeightRestriction,
       accompaniedTour,
       dependentsTwelveAndOver,
       dependentsUnderTwelve,
@@ -134,6 +148,7 @@ const MoveAllowances = () => {
       storageInTransit: Number(storageInTransit),
       gunSafe,
       weightRestriction: adminRestrictedWeightLocation && weightRestriction ? Number(weightRestriction) : null,
+      ubWeightRestriction: adminRestrictedUBWeightLocation && ubWeightRestriction ? Number(ubWeightRestriction) : null,
       accompaniedTour,
       dependentsTwelveAndOver: Number(dependentsTwelveAndOver),
       dependentsUnderTwelve: Number(dependentsUnderTwelve),
@@ -151,6 +166,7 @@ const MoveAllowances = () => {
     organizationalClothingAndIndividualEquipment,
     gunSafe,
     weightRestriction,
+    ubWeightRestriction,
     storageInTransit,
     dependentsUnderTwelve,
     dependentsTwelveAndOver,
@@ -168,6 +184,8 @@ const MoveAllowances = () => {
     gunSafe,
     adminRestrictedWeightLocation: weightRestriction > 0,
     weightRestriction: weightRestriction ? `${weightRestriction}` : '0',
+    adminRestrictedUBWeightLocation: ubWeightRestriction > 0,
+    ubWeightRestriction: ubWeightRestriction ? `${ubWeightRestriction}` : '0',
     storageInTransit: `${storageInTransit}`,
     accompaniedTour,
     dependentsUnderTwelve: `${dependentsUnderTwelve}`,
