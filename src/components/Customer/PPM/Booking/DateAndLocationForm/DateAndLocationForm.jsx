@@ -21,6 +21,7 @@ import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/valid
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import RequiredTag from 'components/form/RequiredTag';
+import { isPreceedingAddressComplete } from 'shared/utils';
 
 let meta = '';
 
@@ -311,6 +312,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryPickupAddress"
                             value="true"
                             checked={values.hasSecondaryPickupAddress === 'true'}
+                            disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
                             onChange={handleAddressToggleChange}
                           />
                           <Field
@@ -321,6 +323,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryPickupAddress"
                             value="false"
                             checked={values.hasSecondaryPickupAddress === 'false'}
+                            disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
                             onChange={handleAddressToggleChange}
                           />
                         </Fieldset>
@@ -361,6 +364,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 value="true"
                                 title="Yes, I have a third delivery address"
                                 checked={values.hasTertiaryPickupAddress === 'true'}
+                                disabled={
+                                  !isPreceedingAddressComplete(
+                                    values.hasSecondaryPickupAddress,
+                                    values.secondaryPickupAddress.address,
+                                  )
+                                }
                                 onChange={handleAddressToggleChange}
                               />
                               <Field
@@ -372,6 +381,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 value="false"
                                 title="No, I do not have a third delivery address"
                                 checked={values.hasTertiaryPickupAddress === 'false'}
+                                disabled={
+                                  !isPreceedingAddressComplete(
+                                    values.hasSecondaryPickupAddress,
+                                    values.secondaryPickupAddress.address,
+                                  )
+                                }
                                 onChange={handleAddressToggleChange}
                               />
                             </Fieldset>
@@ -428,6 +443,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryDestinationAddress"
                             value="true"
                             checked={values.hasSecondaryDestinationAddress === 'true'}
+                            disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
                             onChange={handleAddressToggleChange}
                           />
                           <Field
@@ -438,6 +454,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="hasSecondaryDestinationAddress"
                             value="false"
                             checked={values.hasSecondaryDestinationAddress === 'false'}
+                            disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
                             onChange={handleAddressToggleChange}
                           />
                         </Fieldset>
@@ -479,6 +496,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 value="true"
                                 title="Yes, I have a third delivery address"
                                 checked={values.hasTertiaryDestinationAddress === 'true'}
+                                disabled={
+                                  !isPreceedingAddressComplete(
+                                    values.hasSecondaryDestinationAddress,
+                                    values.secondaryDestinationAddress.address,
+                                  )
+                                }
                                 onChange={handleAddressToggleChange}
                               />
                               <Field
@@ -490,6 +513,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 value="false"
                                 title="No, I do not have a third delivery address"
                                 checked={values.hasTertiaryDestinationAddress === 'false'}
+                                disabled={
+                                  !isPreceedingAddressComplete(
+                                    values.hasSecondaryDestinationAddress,
+                                    values.secondaryDestinationAddress.address,
+                                  )
+                                }
                                 onChange={handleAddressToggleChange}
                               />
                             </Fieldset>

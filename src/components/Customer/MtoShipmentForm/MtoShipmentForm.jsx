@@ -51,6 +51,7 @@ import withRouter from 'utils/routing';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
+import { isPreceedingAddressComplete } from 'shared/utils';
 
 const blankAddress = {
   address: {
@@ -105,7 +106,7 @@ class MtoShipmentForm extends Component {
     const { moveId } = params;
 
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
-    const saveDeliveryAddress = hasDeliveryAddress === 'yes' || isNTSR;
+    const saveDeliveryAddress = hasDeliveryAddress === 'true' || isNTSR;
 
     const preformattedMtoShipment = {
       shipmentType,
@@ -116,14 +117,14 @@ class MtoShipmentForm extends Component {
         ...delivery,
         address: saveDeliveryAddress ? delivery.address : undefined,
       },
-      hasSecondaryPickup: hasSecondaryPickup === 'yes',
-      secondaryPickup: hasSecondaryPickup === 'yes' ? secondaryPickup : {},
-      hasSecondaryDelivery: hasSecondaryDelivery === 'yes',
-      secondaryDelivery: hasSecondaryDelivery === 'yes' ? secondaryDelivery : {},
-      hasTertiaryPickup: hasTertiaryPickup === 'yes',
-      tertiaryPickup: hasTertiaryPickup === 'yes' ? tertiaryPickup : {},
-      hasTertiaryDelivery: hasTertiaryDelivery === 'yes',
-      tertiaryDelivery: hasTertiaryDelivery === 'yes' ? tertiaryDelivery : {},
+      hasSecondaryPickup: hasSecondaryPickup === 'true',
+      secondaryPickup: hasSecondaryPickup === 'true' ? secondaryPickup : {},
+      hasSecondaryDelivery: hasSecondaryDelivery === 'true',
+      secondaryDelivery: hasSecondaryDelivery === 'true' ? secondaryDelivery : {},
+      hasTertiaryPickup: hasTertiaryPickup === 'true',
+      tertiaryPickup: hasTertiaryPickup === 'true' ? tertiaryPickup : {},
+      hasTertiaryDelivery: hasTertiaryDelivery === 'true',
+      tertiaryDelivery: hasTertiaryDelivery === 'true' ? tertiaryDelivery : {},
     };
 
     const pendingMtoShipment = formatMtoShipmentForAPI(preformattedMtoShipment);
@@ -481,9 +482,10 @@ class MtoShipmentForm extends Component {
                                       data-testid="has-secondary-pickup"
                                       label="Yes"
                                       name="hasSecondaryPickup"
-                                      value="yes"
+                                      value="true"
                                       title="Yes, I have a second pickup address"
-                                      checked={hasSecondaryPickup === 'yes'}
+                                      checked={hasSecondaryPickup === 'true'}
+                                      disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
                                       onChange={handleAddressToggleChange}
                                     />
                                     <Field
@@ -492,14 +494,15 @@ class MtoShipmentForm extends Component {
                                       data-testid="no-secondary-pickup"
                                       label="No"
                                       name="hasSecondaryPickup"
-                                      value="no"
+                                      value="false"
                                       title="No, I do not have a second pickup address"
-                                      checked={hasSecondaryPickup !== 'yes'}
+                                      checked={hasSecondaryPickup !== 'true'}
+                                      disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
                                       onChange={handleAddressToggleChange}
                                     />
                                   </div>
                                 </FormGroup>
-                                {hasSecondaryPickup === 'yes' && (
+                                {hasSecondaryPickup === 'true' && (
                                   <AddressFields
                                     name="secondaryPickup.address"
                                     labelHint="Required"
@@ -507,7 +510,7 @@ class MtoShipmentForm extends Component {
                                     formikProps={formikProps}
                                   />
                                 )}
-                                {isTertiaryAddressEnabled && hasSecondaryPickup === 'yes' && (
+                                {isTertiaryAddressEnabled && hasSecondaryPickup === 'true' && (
                                   <div>
                                     <FormGroup>
                                       <p>Do you want movers to pick up any belongings from a third address?</p>
@@ -518,9 +521,15 @@ class MtoShipmentForm extends Component {
                                           data-testid="has-tertiary-pickup"
                                           label="Yes"
                                           name="hasTertiaryPickup"
-                                          value="yes"
+                                          value="true"
                                           title="Yes, I have a third pickup address"
-                                          checked={hasTertiaryPickup === 'yes'}
+                                          checked={hasTertiaryPickup === 'true'}
+                                          disabled={
+                                            !isPreceedingAddressComplete(
+                                              hasSecondaryPickup,
+                                              values.secondaryPickup.address,
+                                            )
+                                          }
                                           onChange={handleAddressToggleChange}
                                         />
                                         <Field
@@ -529,9 +538,15 @@ class MtoShipmentForm extends Component {
                                           data-testid="no-tertiary-pickup"
                                           label="No"
                                           name="hasTertiaryPickup"
-                                          value="no"
+                                          value="false"
                                           title="No, I do not have a third pickup address"
-                                          checked={hasTertiaryPickup !== 'yes'}
+                                          checked={hasTertiaryPickup !== 'true'}
+                                          disabled={
+                                            !isPreceedingAddressComplete(
+                                              hasSecondaryPickup,
+                                              values.secondaryPickup.address,
+                                            )
+                                          }
                                           onChange={handleAddressToggleChange}
                                         />
                                       </div>
@@ -539,8 +554,8 @@ class MtoShipmentForm extends Component {
                                   </div>
                                 )}
                                 {isTertiaryAddressEnabled &&
-                                  hasTertiaryPickup === 'yes' &&
-                                  hasSecondaryPickup === 'yes' && (
+                                  hasTertiaryPickup === 'true' &&
+                                  hasSecondaryPickup === 'true' && (
                                     <>
                                       <h3>Third Pickup Address</h3>
                                       <AddressFields
@@ -602,9 +617,9 @@ class MtoShipmentForm extends Component {
                                     id="has-delivery-address"
                                     label="Yes"
                                     name="hasDeliveryAddress"
-                                    value="yes"
+                                    value="true"
                                     title="Yes, I know my delivery address"
-                                    checked={hasDeliveryAddress === 'yes'}
+                                    checked={hasDeliveryAddress === 'true'}
                                     onChange={handleAddressToggleChange}
                                   />
                                   <Field
@@ -612,15 +627,15 @@ class MtoShipmentForm extends Component {
                                     id="no-delivery-address"
                                     label="No"
                                     name="hasDeliveryAddress"
-                                    value="no"
+                                    value="false"
                                     title="No, I do not know my delivery address"
-                                    checked={hasDeliveryAddress === 'no'}
+                                    checked={hasDeliveryAddress === 'false'}
                                     onChange={handleAddressToggleChange}
                                   />
                                 </div>
                               </FormGroup>
                             )}
-                            {(hasDeliveryAddress === 'yes' || isNTSR) && (
+                            {(hasDeliveryAddress === 'true' || isNTSR) && (
                               <AddressFields
                                 name="delivery.address"
                                 labelHint="Required"
@@ -642,9 +657,10 @@ class MtoShipmentForm extends Component {
                                           id="has-secondary-delivery"
                                           label="Yes"
                                           name="hasSecondaryDelivery"
-                                          value="yes"
+                                          value="true"
                                           title="Yes, I have a second delivery address"
-                                          checked={hasSecondaryDelivery === 'yes'}
+                                          checked={hasSecondaryDelivery === 'true'}
+                                          disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
                                           onChange={handleAddressToggleChange}
                                         />
                                         <Field
@@ -653,14 +669,15 @@ class MtoShipmentForm extends Component {
                                           id="no-secondary-delivery"
                                           label="No"
                                           name="hasSecondaryDelivery"
-                                          value="no"
+                                          value="false"
                                           title="No, I do not have a second delivery address"
-                                          checked={hasSecondaryDelivery === 'no'}
+                                          checked={hasSecondaryDelivery === 'false'}
+                                          disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
                                           onChange={handleAddressToggleChange}
                                         />
                                       </div>
                                     </FormGroup>
-                                    {hasSecondaryDelivery === 'yes' && (
+                                    {hasSecondaryDelivery === 'true' && (
                                       <AddressFields
                                         name="secondaryDelivery.address"
                                         labelHint="Required"
@@ -668,7 +685,7 @@ class MtoShipmentForm extends Component {
                                         formikProps={formikProps}
                                       />
                                     )}
-                                    {isTertiaryAddressEnabled && hasSecondaryDelivery === 'yes' && (
+                                    {isTertiaryAddressEnabled && hasSecondaryDelivery === 'true' && (
                                       <div>
                                         <FormGroup>
                                           <p>Do you want movers to deliver any belongings to a third address?</p>
@@ -679,9 +696,15 @@ class MtoShipmentForm extends Component {
                                               data-testid="has-tertiary-delivery"
                                               label="Yes"
                                               name="hasTertiaryDelivery"
-                                              value="yes"
+                                              value="true"
                                               title="Yes, I have a third delivery address"
-                                              checked={hasTertiaryDelivery === 'yes'}
+                                              checked={hasTertiaryDelivery === 'true'}
+                                              disabled={
+                                                !isPreceedingAddressComplete(
+                                                  hasSecondaryDelivery,
+                                                  values.secondaryDelivery.address,
+                                                )
+                                              }
                                               onChange={handleAddressToggleChange}
                                             />
                                             <Field
@@ -690,9 +713,15 @@ class MtoShipmentForm extends Component {
                                               data-testid="no-tertiary-delivery"
                                               label="No"
                                               name="hasTertiaryDelivery"
-                                              value="no"
+                                              value="false"
                                               title="No, I do not have a third delivery address"
-                                              checked={hasTertiaryDelivery === 'no'}
+                                              checked={hasTertiaryDelivery === 'false'}
+                                              disabled={
+                                                !isPreceedingAddressComplete(
+                                                  hasSecondaryDelivery,
+                                                  values.secondaryDelivery.address,
+                                                )
+                                              }
                                               onChange={handleAddressToggleChange}
                                             />
                                           </div>
@@ -700,8 +729,8 @@ class MtoShipmentForm extends Component {
                                       </div>
                                     )}
                                     {isTertiaryAddressEnabled &&
-                                      hasTertiaryDelivery === 'yes' &&
-                                      hasSecondaryDelivery === 'yes' && (
+                                      hasTertiaryDelivery === 'true' &&
+                                      hasSecondaryDelivery === 'true' && (
                                         <>
                                           <h4>Third Delivery Address</h4>
                                           <AddressFields
@@ -716,7 +745,7 @@ class MtoShipmentForm extends Component {
                                 )}
                               />
                             )}
-                            {hasDeliveryAddress === 'no' && !isRetireeSeparatee && !isNTSR && (
+                            {hasDeliveryAddress === 'false' && !isRetireeSeparatee && !isNTSR && (
                               <p>
                                 We can use the zip of your new duty location.
                                 <br />
@@ -728,7 +757,7 @@ class MtoShipmentForm extends Component {
                                 You can add the specific delivery address later, once you know it.
                               </p>
                             )}
-                            {hasDeliveryAddress === 'no' && isRetireeSeparatee && !isNTSR && (
+                            {hasDeliveryAddress === 'false' && isRetireeSeparatee && !isNTSR && (
                               <p>
                                 We can use the zip of the HOR, PLEAD or HOS you entered with your orders.
                                 <br />

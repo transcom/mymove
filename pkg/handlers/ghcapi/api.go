@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/go-openapi/loads"
+	"github.com/go-openapi/runtime"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi"
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
@@ -259,7 +260,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
 		HandlerConfig:         handlerConfig,
-		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher),
+		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		Fetcher:               fetch.NewFetcher(queryBuilder),
 		ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
 		MTOShipmentFetcher:    mtoshipment.NewMTOShipmentFetcher(),
@@ -553,7 +554,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.ShipmentUpdateSITServiceItemCustomerExpenseHandler = UpdateSITServiceItemCustomerExpenseHandler{
 		handlerConfig,
-		mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher),
+		mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		mtoshipment.NewMTOShipmentFetcher(),
 		shipmentSITStatus,
 	}
@@ -725,6 +726,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
 	ghcAPI.UploadsUpdateUploadHandler = UpdateUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	ghcAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
+	ghcAPI.UploadsGetUploadStatusHandler = GetUploadStatusHandler{handlerConfig, upload.NewUploadInformationFetcher()}
+	ghcAPI.TextEventStreamProducer = runtime.ByteStreamProducer() // GetUploadStatus produces Event Stream
 
 	ghcAPI.CustomerSearchCustomersHandler = SearchCustomersHandler{
 		HandlerConfig:    handlerConfig,
