@@ -151,10 +151,6 @@ describe('BulkAssignmentModal', () => {
               ID: '045c3048-df9a-4d44-88ed-8cd6e2100e08',
               moveAssignments: 1,
             },
-            {
-              ID: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42a',
-              moveAssignments: 0,
-            },
           ],
         },
       };
