@@ -28,6 +28,18 @@ describe('when a payment request has an update', () => {
     },
   };
 
+  const historyRecord3 = {
+    action: 'UPDATE',
+    tableName: 'payment_requests',
+    eventName: '',
+    changedValues: {
+      status: 'PAID',
+    },
+    oldValues: {
+      payment_request_number: '4462-6355-3',
+    },
+  };
+
   const historyRecordWithError = {
     action: 'UPDATE',
     tableName: 'payment_requests',
@@ -56,8 +68,9 @@ describe('when a payment request has an update', () => {
   describe('should display the proper labeled details when payment status is changed', () => {
     it.each([
       ['Status', ': Sent to GEX', historyRecord],
-      ['Status', ': Received', historyRecord2],
-      ['Status', ': EDI error', historyRecordWithError],
+      ['Status', ': TPPS Received', historyRecord2],
+      ['Status', ': TPPS Paid', historyRecord3],
+      ['Status', ': EDI Error', historyRecordWithError],
     ])('label `%s` should have value `%s`', (label, value, record) => {
       const template = getTemplate(record);
       render(template.getDetails(record));

@@ -214,7 +214,7 @@ describe('PaymentRequestQueue', () => {
     expect(firstPaymentRequest.find('td.customerName').text()).toBe('Spacemen, Leo');
     expect(firstPaymentRequest.find('td.edipi').text()).toBe('3305957632');
     expect(firstPaymentRequest.find('td.emplid').text()).toBe('1253694');
-    expect(firstPaymentRequest.find('td.status').text()).toBe('Payment requested');
+    expect(firstPaymentRequest.find('td.status').text()).toBe('Payment Requested');
     expect(firstPaymentRequest.find('td.age').text()).toBe('Less than 1 day');
     expect(firstPaymentRequest.find('td.submittedAt').text()).toBe('15 Oct 2020');
     expect(firstPaymentRequest.find('td.locator').text()).toBe('R993T7');
@@ -227,7 +227,7 @@ describe('PaymentRequestQueue', () => {
     expect(secondPaymentRequest.find('td.customerName').text()).toBe('Booga, Ooga');
     expect(secondPaymentRequest.find('td.edipi').text()).toBe('1234567');
     expect(secondPaymentRequest.find('td.emplid').text()).toBe('');
-    expect(secondPaymentRequest.find('td.status').text()).toBe('Payment requested');
+    expect(secondPaymentRequest.find('td.status').text()).toBe('Payment Requested');
     expect(secondPaymentRequest.find('td.age').text()).toBe('Less than 1 day');
     expect(secondPaymentRequest.find('td.submittedAt').text()).toBe('17 Oct 2020');
     expect(secondPaymentRequest.find('td.locator').text()).toBe('0OOGAB');
@@ -444,7 +444,7 @@ describe('PaymentRequestQueue', () => {
       </MockProviders>,
     );
     // expect Payment requested status to appear in the TIO queue
-    expect(screen.getAllByText('Payment requested')).toHaveLength(2);
+    expect(screen.getAllByText('Payment Requested')).toHaveLength(2);
     // expect other statuses NOT to appear in the TIO queue
     expect(screen.queryByText('Deprecated')).not.toBeInTheDocument();
     expect(screen.queryByText('Error')).not.toBeInTheDocument();
