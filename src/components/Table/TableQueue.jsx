@@ -27,7 +27,6 @@ import {
   getTableQueueSortParamSessionStorageValue,
   getSelectionOptionLabel,
 } from 'components/Table/utils';
-import { roleTypes } from 'constants/userRoles';
 import { saveBulkAssignmentData } from 'services/ghcApi';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
@@ -103,7 +102,7 @@ const TableQueue = ({
 
   const gblocContext = useContext(SelectedGblocContext);
   const { selectedGbloc } =
-    (activeRole === roleTypes.HQ || officeUser?.transportation_office_assignments?.length > 1) && gblocContext
+    officeUser?.transportation_office_assignments?.length > 1 && gblocContext
       ? gblocContext
       : { selectedGbloc: undefined };
 
@@ -370,7 +369,6 @@ const TableQueue = ({
                   totalCount={totalCount}
                   paramSort={paramSort}
                   paramFilters={paramFilters}
-                  isHeadquartersUser={activeRole === roleTypes.HQ}
                 />
               )}
             </div>
