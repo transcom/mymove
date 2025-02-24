@@ -178,7 +178,11 @@ func (f *shipmentAddressUpdateRequester) doesShipmentContainApprovedDestinationS
 		for _, serviceItem := range serviceItems {
 			serviceCode := serviceItem.ReService.Code
 			status := serviceItem.Status
-			if (serviceCode == models.ReServiceCodeDDASIT || serviceCode == models.ReServiceCodeDDDSIT || serviceCode == models.ReServiceCodeDDFSIT || serviceCode == models.ReServiceCodeDDSFSC) &&
+			if (serviceCode == models.ReServiceCodeDDASIT ||
+				serviceCode == models.ReServiceCodeDDDSIT ||
+				serviceCode == models.ReServiceCodeDDFSIT ||
+				serviceCode == models.ReServiceCodeDDSFSC ||
+				serviceCode == models.ReServiceCodeIDSFSC) &&
 				status == models.MTOServiceItemStatusApproved {
 				return true
 			}
