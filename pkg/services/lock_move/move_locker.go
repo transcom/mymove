@@ -59,6 +59,7 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 	now := time.Now()
 	expirationTime := now.Add(30 * time.Minute)
 	move.LockExpiresAt = &expirationTime
+	moveBeforeUpdate := move
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, saveErr := appCtx.DB().ValidateAndSave(move)
@@ -68,6 +69,10 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 			return invalidInputError
 		}
 		if saveErr != nil {
+			return err
+		}
+
+		if err := appCtx.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?", moveBeforeUpdate.UpdatedAt, move.ID).Exec(); err != nil {
 			return err
 		}
 

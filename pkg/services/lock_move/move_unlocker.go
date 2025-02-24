@@ -41,6 +41,7 @@ func (m moveUnlocker) UnlockMove(appCtx appcontext.AppContext, move *models.Move
 	if move.LockedByOfficeUser != nil {
 		move.LockedByOfficeUser = nil
 	}
+	moveBeforeUpdate := move
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, saveErr := appCtx.DB().ValidateAndSave(move)
@@ -51,6 +52,10 @@ func (m moveUnlocker) UnlockMove(appCtx appcontext.AppContext, move *models.Move
 		}
 		if saveErr != nil {
 			return saveErr
+		}
+
+		if err := appCtx.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?", moveBeforeUpdate.UpdatedAt, move.ID).Exec(); err != nil {
+			return err
 		}
 
 		return nil
