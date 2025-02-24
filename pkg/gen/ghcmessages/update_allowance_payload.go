@@ -68,6 +68,10 @@ type UpdateAllowancePayload struct {
 	// Example: 500
 	UbAllowance *int64 `json:"ubAllowance,omitempty"`
 
+	// Indicates the UB weight restriction for the move to a particular location.
+	// Example: 1500
+	UbWeightRestriction *int64 `json:"ubWeightRestriction,omitempty"`
+
 	// Indicates the weight restriction for the move to a particular location.
 	// Example: 1500
 	WeightRestriction *int64 `json:"weightRestriction,omitempty"`

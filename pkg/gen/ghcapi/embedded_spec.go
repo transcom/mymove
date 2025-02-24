@@ -7524,6 +7524,12 @@ func init() {
           "x-nullable": true,
           "example": 500
         },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
+        },
         "weightRestriction": {
           "description": "Indicates the weight restriction for a move to a particular location.",
           "type": "integer",
@@ -8740,6 +8746,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         },
         "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
@@ -14644,6 +14656,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         },
         "weightRestriction": {
           "description": "Indicates the weight restriction for the move to a particular location.",
@@ -25139,6 +25157,12 @@ func init() {
           "x-nullable": true,
           "example": 500
         },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
+        },
         "weightRestriction": {
           "description": "Indicates the weight restriction for a move to a particular location.",
           "type": "integer",
@@ -26355,6 +26379,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         },
         "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
@@ -32391,6 +32421,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         },
         "weightRestriction": {
           "description": "Indicates the weight restriction for the move to a particular location.",

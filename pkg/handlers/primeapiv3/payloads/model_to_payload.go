@@ -223,6 +223,10 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 	if entitlement.WeightRestriction != nil {
 		weightRestriction = int64(*entitlement.WeightRestriction)
 	}
+	var ubWeightRestriction int64
+	if entitlement.UBWeightRestriction != nil {
+		ubWeightRestriction = int64(*entitlement.UBWeightRestriction)
+	}
 	return &primev3messages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -234,11 +238,12 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
 		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		StorageInTransit:  sit,
-		TotalDependents:   totalDependents,
-		TotalWeight:       totalWeight,
-		WeightRestriction: &weightRestriction,
-		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
+		StorageInTransit:    sit,
+		TotalDependents:     totalDependents,
+		TotalWeight:         totalWeight,
+		WeightRestriction:   &weightRestriction,
+		UbWeightRestriction: &ubWeightRestriction,
+		ETag:                etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 

@@ -5291,6 +5291,11 @@ definitions:
         example: 1500
         x-formatting: weight
         x-nullable: true
+      ubWeightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: Indicates the UB weight restriction for the move to a particular location.
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -6186,6 +6191,11 @@ definitions:
         type: integer
         x-nullable: true
         description: Indicates the weight restriction for the move to a particular location.
+      ubWeightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: Indicates the UB weight restriction for the move to a particular location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6280,6 +6290,11 @@ definitions:
         type: integer
         x-nullable: true
         description: Indicates the weight restriction for a move to a particular location.
+      ubWeightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: Indicates the UB weight restriction for the move to a particular location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
