@@ -33,6 +33,11 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
 
   const handleRadioChange = (index) => {
     setSelectedRadio(index);
+
+    setSelectedUsers((prev) => ({
+      ...prev,
+      [index]: false,
+    }));
   };
 
   const handleCheckboxChange = (userId) => {
