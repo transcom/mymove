@@ -10,8 +10,6 @@
 package models_test
 
 import (
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/factory"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/address"
@@ -83,12 +81,14 @@ func (suite *ModelSuite) Test_TransportationOffice() {
 }
 
 func (suite *ModelSuite) TestGetCounselingOffices() {
-	customAddress1 := m.Address{
-		ID:         uuid.Must(uuid.NewV4()),
-		PostalCode: "59801",
-	}
+	customAddress1 := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: m.Address{
+				PostalCode: "59801",
+			},
+		},
+	}, nil)
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: customAddress1, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: m.DutyLocation{
 				ProvidesServicesCounseling: false,
@@ -99,15 +99,22 @@ func (suite *ModelSuite) TestGetCounselingOffices() {
 				Name: "PPPO Holloman AFB - USAF",
 			},
 		},
+		{
+			Model:    customAddress1,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DutyLocationAddress,
+		},
 	}, nil)
 
 	// duty locations in KKFA with provides_services_counseling = true
-	customAddress2 := m.Address{
-		ID:         uuid.Must(uuid.NewV4()),
-		PostalCode: "59801",
-	}
+	customAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: m.Address{
+				PostalCode: "59801",
+			},
+		},
+	}, nil)
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: customAddress2, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: m.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -118,14 +125,21 @@ func (suite *ModelSuite) TestGetCounselingOffices() {
 				Name: "PPPO Hill AFB - USAF",
 			},
 		},
+		{
+			Model:    customAddress2,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DutyLocationAddress,
+		},
 	}, nil)
 
-	customAddress3 := m.Address{
-		ID:         uuid.Must(uuid.NewV4()),
-		PostalCode: "59801",
-	}
+	customAddress3 := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: m.Address{
+				PostalCode: "59801",
+			},
+		},
+	}, nil)
 	origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: customAddress3, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: m.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -138,15 +152,22 @@ func (suite *ModelSuite) TestGetCounselingOffices() {
 				ProvidesCloseout: true,
 			},
 		},
+		{
+			Model:    customAddress3,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DutyLocationAddress,
+		},
 	}, nil)
 
 	// this one will not show in the return since it is not KKFA
-	customAddress4 := m.Address{
-		ID:         uuid.Must(uuid.NewV4()),
-		PostalCode: "20906",
-	}
+	customAddress4 := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: m.Address{
+				PostalCode: "20906",
+			},
+		},
+	}, nil)
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: customAddress4, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: m.DutyLocation{
 				ProvidesServicesCounseling: true,
@@ -158,6 +179,11 @@ func (suite *ModelSuite) TestGetCounselingOffices() {
 				Gbloc:            "BGCA",
 				ProvidesCloseout: true,
 			},
+		},
+		{
+			Model:    customAddress4,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DutyLocationAddress,
 		},
 	}, nil)
 
