@@ -58,7 +58,8 @@ func (p *hhgPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source str
 	sourceZip3 := sourceZip5[0:3]
 	destZip3 := destZip5[0:3]
 
-	if sourceZip3 == destZip3 || isInternationalShipment {
+	// if the first 3 numbers of the ZIPs are the same then we need to get the exact distance between the full ZIP5s
+	if sourceZip3 == destZip3 {
 		if sourceZip5 == destZip5 {
 			return 1, nil
 		}
@@ -66,19 +67,21 @@ func (p *hhgPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source str
 	} else {
 		// Get reZip3s for origin and destination to compare base point cities.
 		// Dont throw/return errors from this. If we dont find them, we'll just use randMcNallyZip3Distance
-		// this only applies to domestic shipments
-		sourceReZip3, sErr := models.FetchReZip3Item(appCtx.DB(), sourceZip3)
-		if sErr != nil {
-			appCtx.Logger().Error("Failed to fetch the reZip3 item for sourceZip3", zap.Error(sErr))
-		}
-		destinationReZip3, dErr := models.FetchReZip3Item(appCtx.DB(), destZip3)
-		if dErr != nil {
-			appCtx.Logger().Error("Failed to fetch the reZip3 item for destinationZip3", zap.Error(dErr))
-		}
+		// this only applies to domestic shipments since international addresses do not have base point cities
+		if !isInternationalShipment {
+			sourceReZip3, sErr := models.FetchReZip3Item(appCtx.DB(), sourceZip3)
+			if sErr != nil {
+				appCtx.Logger().Error("Failed to fetch the reZip3 item for sourceZip3", zap.Error(sErr))
+			}
+			destinationReZip3, dErr := models.FetchReZip3Item(appCtx.DB(), destZip3)
+			if dErr != nil {
+				appCtx.Logger().Error("Failed to fetch the reZip3 item for destinationZip3", zap.Error(dErr))
+			}
 
-		// Different zip3, same base point city, use DTOD
-		if sourceReZip3 != nil && destinationReZip3 != nil && sourceReZip3.BasePointCity == destinationReZip3.BasePointCity {
-			return p.dtodPlannerMileage.DTODZip5Distance(appCtx, source, destination)
+			// Different zip3, same base point city, use DTOD
+			if sourceReZip3 != nil && destinationReZip3 != nil && sourceReZip3.BasePointCity == destinationReZip3.BasePointCity {
+				return p.dtodPlannerMileage.DTODZip5Distance(appCtx, source, destination)
+			}
 		}
 	}
 
