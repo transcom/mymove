@@ -629,8 +629,8 @@ github.com/tiaguinho/gosoap v1.4.4 h1:4XZlaqf/y2UAbCPFGcZS4uLKrEvnMr+5pccIyQAUVg
 github.com/tiaguinho/gosoap v1.4.4/go.mod h1:4vv86Jl19UkOeoJW/aawihXYNJ/Iy2NHkhgmBUJ2Ibk=
 github.com/toqueteos/webbrowser v1.2.0 h1:tVP/gpK69Fx+qMJKsLE7TD8LuGWPnEV71wBN9rrstGQ=
 github.com/toqueteos/webbrowser v1.2.0/go.mod h1:XWoZq4cyp9WeUeak7w7LXRUQf1F1ATJMir8RTqb4ayM=
-github.com/transcom/pdfcpu v0.0.0-20250131173611-4b416bd62126 h1:XbLtbZvPTc5bY6DuXF2ZHPLPmE3GVe3T/o8PzfmITCA=
-github.com/transcom/pdfcpu v0.0.0-20250131173611-4b416bd62126/go.mod h1:8EAma3IBIS7ssMiPlcNIPWwISTuP31WToXfGvc327vI=
+github.com/transcom/pdfcpu v0.0.0-20250225161110-ce2f81788248 h1:G1EenmQJPQ5EO1U2iOi3olQxpM0bW+AsPWFpJhnfL1w=
+github.com/transcom/pdfcpu v0.0.0-20250225161110-ce2f81788248/go.mod h1:8EAma3IBIS7ssMiPlcNIPWwISTuP31WToXfGvc327vI=
 github.com/urfave/cli v1.22.10 h1:p8Fspmz3iTctJstry1PYS3HVdllxnEzTEsgIgtxTrCk=
 github.com/urfave/cli v1.22.10/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
 github.com/vektra/mockery/v2 v2.45.1 h1:6HpdnKiLCjVtzlRLQPUNIM0u7yrvAoZ7VWF1TltJvTM=
