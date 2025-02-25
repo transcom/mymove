@@ -1025,7 +1025,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 				},
 			}, nil)
 			newSITServiceItem := oldSITServiceItem
-			newSITServiceItem.SITDepartureDate = &later
+			newSITDepartureDate := later.AddDate(0, 0, 1)
+			newSITServiceItem.SITDepartureDate = &newSITDepartureDate
 			serviceItemData := updateMTOServiceItemData{
 				updatedServiceItem: newSITServiceItem,
 				oldServiceItem:     oldSITServiceItem,
@@ -1913,6 +1914,51 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemValidators() {
 			"the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
 			serviceItem.SITEntryDate.Format("2006-01-02"),
 			serviceItem.CustomerContacts[0].FirstAvailableDeliveryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
+	suite.Run("checkSITEntryDateBeforeDepartureDate - success when the SIT entry date is before the SIT departure date", func() {
+		s := mtoServiceItemCreator{}
+		serviceItem := setupTestData()
+		//Set SIT entry date = today, SIT departure date = tomorrow
+		serviceItem.SITEntryDate = models.TimePointer(time.Now())
+		serviceItem.SITDepartureDate = models.TimePointer(time.Now().AddDate(0, 0, 1))
+		err := s.checkSITEntryDateBeforeDepartureDate(&serviceItem)
+		suite.NoError(err)
+	})
+
+	suite.Run("checkSITEntryDateBeforeDepartureDate - error when the SIT entry date is after the SIT departure date", func() {
+		s := mtoServiceItemCreator{}
+		serviceItem := setupTestData()
+		//Set SIT entry date = tomorrow, SIT departure date = today
+		serviceItem.SITEntryDate = models.TimePointer(time.Now().AddDate(0, 0, 1))
+		serviceItem.SITDepartureDate = models.TimePointer(time.Now())
+		err := s.checkSITEntryDateBeforeDepartureDate(&serviceItem)
+		suite.Error(err)
+		suite.IsType(apperror.UnprocessableEntityError{}, err)
+		expectedError := fmt.Sprintf(
+			"the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
+			serviceItem.SITDepartureDate.Format("2006-01-02"),
+			serviceItem.SITEntryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
+	suite.Run("checkSITEntryDateBeforeDepartureDate - error when the SIT entry date is the same as the SIT departure date", func() {
+		s := mtoServiceItemCreator{}
+		serviceItem := setupTestData()
+		//Set SIT entry date = today, SIT departure date = today
+		today := models.TimePointer(time.Now())
+		serviceItem.SITEntryDate = today
+		serviceItem.SITDepartureDate = today
+		err := s.checkSITEntryDateBeforeDepartureDate(&serviceItem)
+		suite.Error(err)
+		suite.IsType(apperror.UnprocessableEntityError{}, err)
+		expectedError := fmt.Sprintf(
+			"the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
+			serviceItem.SITDepartureDate.Format("2006-01-02"),
+			serviceItem.SITEntryDate.Format("2006-01-02"),
 		)
 		suite.Contains(err.Error(), expectedError)
 	})
