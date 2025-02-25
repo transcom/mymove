@@ -103,7 +103,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                   name="pickupAddress"
                   legend="Pickup Address"
                   labelHint="Required"
-                  locationLookup
                   formikProps={formikProps}
                   className={styles.AddressFieldSet}
                   render={(fields) => (
@@ -139,12 +138,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                         </div>
                       </FormGroup>
                       {values.hasSecondaryPickupAddress === 'true' && (
-                        <AddressFields
-                          name="secondaryPickupAddress"
-                          labelHint="Required"
-                          locationLookup
-                          formikProps={formikProps}
-                        />
+                        <AddressFields name="secondaryPickupAddress" labelHint="Required" formikProps={formikProps} />
                       )}
                     </>
                   )}
@@ -154,7 +148,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                   legend="Delivery Address"
                   className={styles.AddressFieldSet}
                   labelHint="Required"
-                  locationLookup
                   formikProps={formikProps}
                   render={(fields) => (
                     <>
@@ -192,7 +185,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                         <AddressFields
                           name="secondaryDestinationAddress"
                           labelHint="Required"
-                          locationLookup
                           formikProps={formikProps}
                         />
                       )}
@@ -247,7 +239,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                   name={formFieldsName}
                   className={styles.AddressFieldSet}
                   labelHint="Required"
-                  locationLookup
                   formikProps={formikProps}
                 />
               </SectionWrapper>

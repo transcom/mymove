@@ -27,7 +27,6 @@ export const AddressFields = ({
   name,
   render,
   validators,
-  locationLookup,
   formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
   address1LabelHint,
@@ -35,7 +34,6 @@ export const AddressFields = ({
   const addressFieldsUUID = useRef(uuidv4());
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
-  const location = `${name}.city, ${name}.state ${name}.postalCode`;
 
   const getAddress1LabelHintText = (labelHint, address1Label) => {
     if (address1Label === null) {
@@ -97,10 +95,9 @@ export const AddressFields = ({
             validate={validators?.streetAddress3}
           />
           <LocationInput
-            name={`${name}-location`}
+            name={`${name}`}
             placeholder="Start typing a Zip or City, State Zip"
             label="Location Lookup"
-            value={location}
             handleLocationChange={handleOnLocationChange}
           />
           <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
@@ -110,50 +107,6 @@ export const AddressFields = ({
             </a>
             {assistanceStr}
           </Hint>
-          <div className={styles.container}>
-            <div className={styles.column}>
-              <TextField
-                label="City"
-                id={`city_${addressFieldsUUID.current}`}
-                name={`${name}.city`}
-                labelHint={labelHintProp}
-                data-testid={`${name}.city`}
-                display="readonly"
-                validate={validators?.city}
-              />
-              <TextField
-                label="State"
-                id={`state_${addressFieldsUUID.current}`}
-                name={`${name}.state`}
-                data-testid={`${name}.state`}
-                labelHint={labelHintProp}
-                display="readonly"
-                validate={validators?.state}
-                styles="margin-top: 1.5em"
-              />
-            </div>
-            <div className={styles.column}>
-              <TextField
-                label="ZIP"
-                id={`zip_${addressFieldsUUID.current}`}
-                name={`${name}.postalCode`}
-                data-testid={`${name}.postalCode`}
-                maxLength={10}
-                labelHint={labelHintProp}
-                display={!locationLookup ? '' : 'readonly'}
-                validate={validators?.postalCode}
-              />
-              <TextField
-                label="County"
-                id={`county_${addressFieldsUUID.current}`}
-                name={`${name}.county`}
-                labelHint={labelHintProp}
-                data-testid={`${name}.county`}
-                display="readonly"
-                validate={validators?.county}
-              />
-            </div>
-          </div>
         </>,
       )}
     </Fieldset>
@@ -165,7 +118,6 @@ AddressFields.propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
   render: PropTypes.func,
-  locationLookup: PropTypes.bool,
   validators: PropTypes.shape({
     streetAddress1: PropTypes.func,
     streetAddress2: PropTypes.func,
@@ -188,7 +140,6 @@ AddressFields.defaultProps = {
   legend: '',
   className: '',
   render: (fields) => fields,
-  locationLookup: false,
   validators: {},
   address1LabelHint: null,
   formikProps: {},
