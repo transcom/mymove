@@ -859,6 +859,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(400, nil)
 		officeUser := setupTestData()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{

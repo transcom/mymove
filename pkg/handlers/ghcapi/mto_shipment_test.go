@@ -615,7 +615,6 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
 	ppmEstimator := mocks.PPMEstimator{}
 	planner.On("ZipTransitDistance",
@@ -975,7 +974,6 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 		false,
 	).Return(400, nil)
 
