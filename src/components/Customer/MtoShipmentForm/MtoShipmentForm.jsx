@@ -57,9 +57,11 @@ const blankAddress = {
   address: {
     streetAddress1: '',
     streetAddress2: '',
+    streetAddress3: '',
     city: '',
     state: '',
     postalCode: '',
+    usPostRegionCitiesID: '',
   },
 };
 
@@ -259,7 +261,6 @@ class MtoShipmentForm extends Component {
                   ...values,
                   hasSecondaryPickup: 'false',
                   secondaryPickup: {
-                    ...values.secondaryPickup,
                     blankAddress,
                   },
                 });
@@ -279,7 +280,6 @@ class MtoShipmentForm extends Component {
                   ...values,
                   hasTertiaryPickup: 'false',
                   tertiaryPickup: {
-                    ...values.tertiaryPickup,
                     blankAddress,
                   },
                 });
@@ -319,7 +319,6 @@ class MtoShipmentForm extends Component {
                   ...values,
                   hasSecondaryDelivery: 'false',
                   secondaryDelivery: {
-                    ...values.secondaryDelivery,
                     blankAddress,
                   },
                 });
@@ -339,7 +338,6 @@ class MtoShipmentForm extends Component {
                   ...values,
                   hasTertiaryDelivery: 'false',
                   tertiaryDelivery: {
-                    ...values.tertiaryDelivery,
                     blankAddress,
                   },
                 });

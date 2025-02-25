@@ -29,6 +29,7 @@ const blankAddress = {
   address: {
     streetAddress1: '',
     streetAddress2: '',
+    streetAddress3: '',
     city: '',
     state: '',
     postalCode: '',

@@ -103,6 +103,7 @@ const ShipmentForm = (props) => {
     address: {
       streetAddress1: '',
       streetAddress2: '',
+      streetAddress3: '',
       city: '',
       state: '',
       postalCode: '',
@@ -866,6 +867,44 @@ const ShipmentForm = (props) => {
                 hasTertiaryDelivery: 'true',
                 tertiaryDelivery: {
                   ...values.tertiaryDelivery,
+                },
+              });
+            }
+          }
+          if (e.target.name === 'hasSecondaryDestination') {
+            if (e.target.value === 'false') {
+              setValues({
+                ...values,
+                hasSecondaryDestination: 'false',
+                secondaryDestination: {
+                  blankAddress,
+                },
+              });
+            } else if (e.target.value === 'true') {
+              setValues({
+                ...values,
+                hasSecondaryDestination: 'true',
+                secondaryDestination: {
+                  ...values.secondaryDestination,
+                },
+              });
+            }
+          }
+          if (e.target.name === 'hasTertiaryDestination') {
+            if (e.target.value === 'false') {
+              setValues({
+                ...values,
+                hasTertiaryDestination: 'false',
+                tertiaryDestination: {
+                  blankAddress,
+                },
+              });
+            } else if (e.target.value === 'true') {
+              setValues({
+                ...values,
+                hasTertiaryDestination: 'true',
+                tertiaryDestination: {
+                  ...values.tertiaryDestination,
                 },
               });
             }
