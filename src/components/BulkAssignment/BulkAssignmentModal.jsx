@@ -19,6 +19,7 @@ const initialValues = {
 
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
   const bulkAssignmentSwitchLabels = ['Bulk Assignment', 'Bulk Re-assignment'];
+
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isBulkReAssignmentMode, setIsBulkReAssignmentMode] = useState(false);
@@ -32,9 +33,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
 
   const handleRadioChange = (index) => {
     setSelectedRadio(index);
-
-    // Enable all checkboxes, then disable the one corresponding to the selected radio
-    setSelectedUsers((prev) => prev.map((checked, i) => (i === index ? false : checked)));
   };
 
   const handleCheckboxChange = (userId) => {
