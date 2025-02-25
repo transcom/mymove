@@ -478,6 +478,13 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		appCtx.Logger().Fatal("notification sender sending not enabled", zap.Error(err))
 	}
 
+	// Notification Receiver
+	runReceiverCleanup := v.GetBool(cli.ReceiverCleanupOnStartFlag) // Cleanup aws artifacts left over from previous runs
+	notificationReceiver, err := notifications.InitReceiver(v, appCtx.Logger(), runReceiverCleanup)
+	if err != nil {
+		appCtx.Logger().Fatal("notification receiver not enabled", zap.Error(err))
+	}
+
 	routingConfig.BuildRoot = v.GetString(cli.BuildRootFlag)
 	sendProductionInvoice := v.GetBool(cli.GEXSendProdInvoiceFlag)
 
@@ -567,6 +574,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		dtodRoutePlanner,
 		fileStorer,
 		notificationSender,
+		notificationReceiver,
 		iwsPersonLookup,
 		sendProductionInvoice,
 		gexSender,
