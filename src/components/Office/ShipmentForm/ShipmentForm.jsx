@@ -547,7 +547,7 @@ const ShipmentForm = (props) => {
     } = formValues;
 
     const deliveryDetails = delivery;
-    if (hasDeliveryAddress === 'no' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
+    if (hasDeliveryAddress === 'false' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
       delete deliveryDetails.address;
     }
 
@@ -776,18 +776,18 @@ const ShipmentForm = (props) => {
 
         const handleAddressToggleChange = (e) => {
           if (e.target.name === 'hasSecondaryPickup') {
-            if (e.target.value === 'no') {
+            if (e.target.value === 'false') {
               setValues({
                 ...values,
-                hasSecondaryPickup: 'no',
+                hasSecondaryPickup: 'false',
                 secondaryPickup: {
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'yes') {
+            } else if (e.target.value === 'true') {
               setValues({
                 ...values,
-                hasSecondaryPickup: 'yes',
+                hasSecondaryPickup: 'true',
                 secondaryPickup: {
                   ...values.secondaryPickup,
                 },
@@ -795,18 +795,18 @@ const ShipmentForm = (props) => {
             }
           }
           if (e.target.name === 'hasTertiaryPickup') {
-            if (e.target.value === 'no') {
+            if (e.target.value === 'false') {
               setValues({
                 ...values,
-                hasTertiaryPickup: 'no',
+                hasTertiaryPickup: 'false',
                 tertiaryPickup: {
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'yes') {
+            } else if (e.target.value === 'true') {
               setValues({
                 ...values,
-                hasTertiaryPickup: 'yes',
+                hasTertiaryPickup: 'true',
                 tertiaryPickup: {
                   ...values.tertiaryPickup,
                 },
@@ -814,18 +814,18 @@ const ShipmentForm = (props) => {
             }
           }
           if (e.target.name === 'hasDeliveryAddress') {
-            if (e.target.value === 'no') {
+            if (e.target.value === 'false') {
               setValues({
                 ...values,
-                hasDeliveryAddress: 'no',
+                hasDeliveryAddress: 'false',
                 delivery: {
                   address: newDutyLocationAddress,
                 },
               });
-            } else if (e.target.value === 'yes') {
+            } else if (e.target.value === 'true') {
               setValues({
                 ...values,
-                hasDeliveryAddress: 'yes',
+                hasDeliveryAddress: 'true',
                 delivery: {
                   ...values.delivery,
                 },
@@ -833,18 +833,18 @@ const ShipmentForm = (props) => {
             }
           }
           if (e.target.name === 'hasSecondaryDelivery') {
-            if (e.target.value === 'no') {
+            if (e.target.value === 'false') {
               setValues({
                 ...values,
-                hasSecondaryDelivery: 'no',
+                hasSecondaryDelivery: 'false',
                 secondaryDelivery: {
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'yes') {
+            } else if (e.target.value === 'true') {
               setValues({
                 ...values,
-                hasSecondaryDelivery: 'yes',
+                hasSecondaryDelivery: 'true',
                 secondaryDelivery: {
                   ...values.secondaryDelivery,
                 },
@@ -852,18 +852,18 @@ const ShipmentForm = (props) => {
             }
           }
           if (e.target.name === 'hasTertiaryDelivery') {
-            if (e.target.value === 'no') {
+            if (e.target.value === 'false') {
               setValues({
                 ...values,
-                hasTertiaryDelivery: 'no',
+                hasTertiaryDelivery: 'false',
                 tertiaryDelivery: {
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'yes') {
+            } else if (e.target.value === 'true') {
               setValues({
                 ...values,
-                hasTertiaryDelivery: 'yes',
+                hasTertiaryDelivery: 'true',
                 tertiaryDelivery: {
                   ...values.tertiaryDelivery,
                 },
