@@ -192,6 +192,13 @@ const (
 	PPMTypeSmallPackage PPMType = "SMALL_PACKAGE"
 )
 
+// AllowedPPMTypes is a list of all the allowed values for PPM types
+var AllowedPPMTypes = []string{
+	string(PPMTypeIncentiveBased),
+	string(PPMTypeActualExpense),
+	string(PPMTypeSmallPackage),
+}
+
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
 	ID                             uuid.UUID            `json:"id" db:"id"`
@@ -277,6 +284,7 @@ type PPMShipments []PPMShipment
 func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Name: "ShipmentID", Field: p.ShipmentID},
+		&validators.StringInclusion{Name: "PPMType", Field: string(p.PPMType), List: AllowedPPMTypes},
 		&OptionalTimeIsPresent{Name: "DeletedAt", Field: p.DeletedAt},
 		&validators.TimeIsPresent{Name: "ExpectedDepartureDate", Field: p.ExpectedDepartureDate},
 		&validators.StringInclusion{Name: "Status", Field: string(p.Status), List: AllowedPPMShipmentStatuses},
