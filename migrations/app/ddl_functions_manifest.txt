@@ -1,3 +1,4 @@
 # This is the functions(procedures) migrations manifest.
 # If a migration is not recorded here, then it will error.
 # Naming convention: fn_some_function.up.sql  running <generate-ddl-migration some_function functions> will create this file.
+20250225183302_fn_prime_acknowledge_moves_shipments.up.sql
