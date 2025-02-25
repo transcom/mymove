@@ -38,10 +38,10 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 	}
 }
 
-func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx appcontext.AppContext, addressUpdate models.ShipmentAddressUpdate, isInternationalShipment bool) (bool, error) {
+func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx appcontext.AppContext, addressUpdate models.ShipmentAddressUpdate) (bool, error) {
 
 	// We calculate and set the distance between the old and new address
-	distance, err := f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, isInternationalShipment)
+	distance, err := f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
 	if err != nil {
 		return false, err
 	}
@@ -123,11 +123,11 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeMileageB
 	}
 
 	// this only runs for domestic shipments so putting false for the isInternationalShipment value here
-	previousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode, false)
+	previousDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, originalDeliveryAddress.PostalCode)
 	if err != nil {
 		return false, err
 	}
-	newDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, newDeliveryAddress.PostalCode, false)
+	newDistance, err := f.planner.ZipTransitDistance(appCtx, originalPickupAddress.PostalCode, newDeliveryAddress.PostalCode)
 	if err != nil {
 		return false, err
 	}
@@ -340,14 +340,14 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		if addressUpdate.NewSitDistanceBetween != nil {
 			distanceBetweenOld = *addressUpdate.NewSitDistanceBetween
 		} else {
-			distanceBetweenOld, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode, isInternationalShipment)
+			distanceBetweenOld, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode)
 		}
 		if err != nil {
 			return nil, err
 		}
 
 		// calculating distance between the new address update & the SIT
-		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode, isInternationalShipment)
+		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
 		if err != nil {
 			return nil, err
 		}
@@ -404,7 +404,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 
 	if !updateNeedsTOOReview {
-		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate, isInternationalShipment)
+		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate)
 		if err != nil {
 			return nil, err
 		}
@@ -685,7 +685,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 					destZip = shipment.DestinationAddress.PostalCode
 				}
 				// we need to get the mileage first, the db proc will consume that
-				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, isInternationalShipment)
+				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip)
 				if err != nil {
 					return err
 				}

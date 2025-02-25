@@ -172,7 +172,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 
 		planner := suite.planner.(*mocks.Planner)
 		// should be called with the 98421 ZIP of the Tacoma port and NOT 99505
-		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, "98421", true)
+		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, "98421")
 	})
 
 	suite.Run("Calculate transit zip distance with an approved Destination SIT service item", func() {
@@ -273,7 +273,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.NoError(err)
 
 		planner := suite.planner.(*mocks.Planner)
-		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode, false)
+		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
 
 		err = suite.DB().Reload(&ppmShipment.Shipment)
 		suite.NoError(err)
@@ -304,7 +304,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.NoError(err)
 
 		planner := suite.planner.(*mocks.Planner)
-		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode, false)
+		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
 
 		err = suite.DB().Reload(&ppmShipment.Shipment)
 		suite.NoError(err)

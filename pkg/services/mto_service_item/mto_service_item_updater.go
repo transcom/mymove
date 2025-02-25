@@ -194,7 +194,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-				distance, err = p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false)
+				distance, err = p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
 				if err != nil {
 					return 0, err
 				}
@@ -222,7 +222,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 		// fuel surcharge
 		if serviceItem.ReService.Code == models.ReServiceCodeFSC {
 			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-				distance, err = p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false)
+				distance, err = p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
 				if err != nil {
 					return 0, err
 				}
@@ -365,7 +365,6 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			if err != nil {
 				return nil, err
 			}
-			isInternationalShipment := mtoShipment.MarketCode == models.MarketCodeInternational
 
 			// Check to see if there is already a SIT Destination Original Address
 			// by checking for the ID before trying to set one on the service item.
@@ -406,7 +405,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 				if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 					serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
 					// Destination SIT: distance between shipment destination address & service item ORIGINAL destination address
-					milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, isInternationalShipment)
+					milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
 					if err != nil {
 						return nil, err
 					}
@@ -418,7 +417,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
 				serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
 				// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
-				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode, isInternationalShipment)
+				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
 				if err != nil {
 					return nil, err
 				}
@@ -561,8 +560,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
 	sitCustomerContacted *time.Time, sitDepartureDate *time.Time) (*time.Time, error) {
 	// Get a distance calculation between pickup and destination addresses.
-	isInternationalShipment := shipment.MarketCode == models.MarketCodeInternational
-	distance, err := planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode, isInternationalShipment)
+	distance, err := planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode)
 
 	if err != nil {
 		return nil, apperror.NewUnprocessableEntityError("cannot calculate distance between pickup and destination addresses")
@@ -794,7 +792,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 		// this only applies to international shipments
 		if oldServiceItem.POELocationID != mtoServiceItem.POELocationID || oldServiceItem.PODLocationID != mtoServiceItem.PODLocationID {
 			shipment := oldServiceItem.MTOShipment
-			isInternationalShipment := shipment.MarketCode == models.MarketCodeInternational
 			if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
 				(mtoServiceItem.POELocation != nil && mtoServiceItem.POELocation.UsPostRegionCity.UsprZipID != "" ||
 					mtoServiceItem.PODLocation != nil && mtoServiceItem.PODLocation.UsPostRegionCity.UsprZipID != "") {
@@ -811,7 +808,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 				}
 				// we need to get the mileage first, the db proc will consume that
 				// only international shipments will have POE/PODFSC service items
-				mileage, err := p.planner.ZipTransitDistance(appCtx, pickupZip, destZip, isInternationalShipment)
+				mileage, err := p.planner.ZipTransitDistance(appCtx, pickupZip, destZip)
 				if err != nil {
 					return err
 				}
