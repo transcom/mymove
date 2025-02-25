@@ -181,11 +181,15 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
             };
 
             const handleReAssignClick = () => {
-              const totalMoves = bulkAssignmentData?.bulkAssignmentMoveIDs?.length;
-              const numUsers = Object.keys(selectedUsers).filter((id) => selectedUsers[id]).length;
-              const baseAssignments = Math.floor(totalMoves / numUsers);
+              const reassignableMoves = bulkAssignmentData.availableOfficeUsers
+                .filter((users) => users.ID !== selectedRadio)
+                .reduce((sum, user) => sum + user.workload, 0);
+              const numUsers = Object.keys(selectedUsers).filter(
+                (id) => selectedUsers[id] && selectedUsers[id] !== selectedRadio,
+              ).length;
+              const baseAssignments = Math.floor(reassignableMoves / numUsers);
 
-              let remainingMoves = totalMoves % numUsers;
+              let remainingMoves = reassignableMoves % numUsers;
 
               const newValues = { ...values };
 
