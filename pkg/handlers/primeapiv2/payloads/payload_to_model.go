@@ -621,9 +621,24 @@ func MTOServiceItemModel(mtoServiceItem primev2messages.MTOServiceItem) (*models
 		if model.SITDestinationFinalAddress != nil {
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
-
 	case primev2messages.MTOServiceItemModelTypeMTOServiceItemShuttle:
 		shuttleService := mtoServiceItem.(*primev2messages.MTOServiceItemShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
+	case primev2messages.MTOServiceItemModelTypeMTOServiceItemDomesticShuttle:
+		shuttleService := mtoServiceItem.(*primev2messages.MTOServiceItemDomesticShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
+	case primev2messages.MTOServiceItemModelTypeMTOServiceItemInternationalShuttle:
+		shuttleService := mtoServiceItem.(*primev2messages.MTOServiceItemInternationalShuttle)
 		// values to get from payload
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
@@ -814,6 +829,20 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		shuttle := mtoServiceItem.(*primev2messages.UpdateMTOServiceItemShuttle)
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
 		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
+
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+	case primev2messages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle:
+		shuttle := mtoServiceItem.(*primev2messages.UpdateMTOServiceItemInternationalShuttle)
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
+
+		if shuttle.RequestApprovalsRequestedStatus != nil {
+			pointerValue := *shuttle.RequestApprovalsRequestedStatus
+			model.RequestedApprovalsRequestedStatus = &pointerValue
+			model.Status = models.MTOServiceItemStatusSubmitted
+		}
 
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs

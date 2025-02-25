@@ -346,6 +346,68 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		suite.Equal(expectedCodes, reServiceCodes)
 	})
 
+	suite.Run("Build SIT service items for international shipment - origin SIT", func() {
+
+		customMove := BuildMove(suite.DB(), nil, nil)
+		customMTOShipment := BuildMTOShipment(suite.DB(), []Customization{
+			{
+				Model:    customMove,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+		}, nil)
+
+		oneMonthLater := time.Now().AddDate(0, 1, 0)
+		sitServiceItems := BuildOriginSITServiceItems(suite.DB(), customMove, customMTOShipment, &oneMonthLater, nil)
+		reServiceCodes := []models.ReServiceCode{}
+
+		for i := range sitServiceItems {
+			reServiceCodes = append(reServiceCodes, sitServiceItems[i].ReService.Code)
+		}
+		expectedCodes := []models.ReServiceCode{
+			models.ReServiceCodeIOFSIT,
+			models.ReServiceCodeIOASIT,
+			models.ReServiceCodeIOPSIT,
+			models.ReServiceCodeIOSFSC,
+		}
+		suite.Equal(expectedCodes, reServiceCodes)
+	})
+
+	suite.Run("Build SIT service items for international shipment - destination SIT", func() {
+
+		customMove := BuildMove(suite.DB(), nil, nil)
+		customMTOShipment := BuildMTOShipment(suite.DB(), []Customization{
+			{
+				Model:    customMove,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+		}, nil)
+
+		oneMonthLater := time.Now().AddDate(0, 1, 0)
+		sitServiceItems := BuildDestSITServiceItems(suite.DB(), customMove, customMTOShipment, &oneMonthLater, nil)
+		reServiceCodes := []models.ReServiceCode{}
+
+		for i := range sitServiceItems {
+			reServiceCodes = append(reServiceCodes, sitServiceItems[i].ReService.Code)
+		}
+		expectedCodes := []models.ReServiceCode{
+			models.ReServiceCodeIDFSIT,
+			models.ReServiceCodeIDASIT,
+			models.ReServiceCodeIDDSIT,
+			models.ReServiceCodeIDSFSC,
+		}
+		suite.Equal(expectedCodes, reServiceCodes)
+	})
+
 	suite.Run("Port Locations not populated by default", func() {
 
 		serviceItem := BuildMTOServiceItem(suite.DB(), nil, nil)

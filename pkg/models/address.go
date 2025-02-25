@@ -219,3 +219,17 @@ func EvaluateIsOconus(address Address) bool {
 		return false
 	}
 }
+
+// Fetches the GBLOC for a specific Address (for now this will be used for OCONUS)
+func FetchAddressGbloc(db *pop.Connection, address Address, serviceMember ServiceMember) (*string, error) {
+	var gbloc *string
+
+	err := db.RawQuery("SELECT * FROM get_address_gbloc($1, $2)", address.ID, serviceMember.Affiliation.String()).
+		First(&gbloc)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return gbloc, nil
+}
