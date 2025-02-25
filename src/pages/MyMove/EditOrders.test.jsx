@@ -15,6 +15,7 @@ import {
 } from 'store/entities/selectors';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ORDERS_TYPE } from 'constants/orders';
+import { setShowLoadingSpinner } from 'store/general/actions';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -53,6 +54,15 @@ jest.mock('services/internalApi', () => ({
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
+jest.mock('store/general/actions', () => ({
+  ...jest.requireActual('store/general/actions'),
+  setShowLoadingSpinner: jest.fn().mockImplementation(() => ({
+    type: '',
+    showSpinner: false,
+    loadingSpinnerMessage: '',
+  })),
 }));
 
 describe('EditOrders Page', () => {
@@ -438,6 +448,24 @@ describe('EditOrders Page', () => {
         }),
       );
     });
+  });
+
+  it('calls the loading spinner on page load', async () => {
+    renderWithProviders(<EditOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_EDIT_PATH,
+      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
+    });
+
+    // calls the loading spinner on load
+    await waitFor(() => {
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
+    });
+
+    const h1 = await screen.findByRole('heading', { name: 'Orders', level: 1 });
+    expect(h1).toBeInTheDocument();
+
+    const editOrdersHeader = await screen.findByRole('heading', { name: 'Edit Orders:', level: 2 });
+    expect(editOrdersHeader).toBeInTheDocument();
   });
 
   afterEach(jest.clearAllMocks);
