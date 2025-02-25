@@ -1040,8 +1040,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
-		sitEntryDate := time.Date(2024, time.February, 28, 0, 0, 0, 0, time.UTC)
-		sitDepartureDate := time.Date(2024, time.February, 27, 0, 0, 0, 0, time.UTC)
+		sitEntryDate := time.Date(2024, time.February, 27, 0, 0, 0, 0, time.UTC)
+		sitDepartureDate := time.Date(2024, time.February, 28, 0, 0, 0, 0, time.UTC)
 		sitPostalCode := "00000"
 
 		// Original customer pickup address
@@ -1693,7 +1693,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		).Return(400, nil)
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher),
+			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		}
 
 		// create the params struct
@@ -1977,7 +1977,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		).Return(400, nil)
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher),
+			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		}
 
 		// create the params struct

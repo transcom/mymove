@@ -44,6 +44,9 @@ export const Basic = () => (
         NTStac: text('ordersInfo.NTStac', '9999'),
         payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
+      }}
     />
   </div>
 );
@@ -83,6 +86,9 @@ export const AsServiceCounselor = () => (
         NTStac: '',
         payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
+      }}
     />
   </div>
 );
@@ -108,6 +114,9 @@ export const AsServiceCounselorProcessingRetirement = () => (
         NTStac: '',
         payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
+      }}
     />
   </div>
 );
@@ -132,6 +141,9 @@ export const AsServiceCounselorProcessingSeparation = () => (
         NTSsac: '',
         NTStac: '',
         payGrade: text('ordersInfo.payGrade', 'E_5'),
+      }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
       }}
     />
   </div>
@@ -170,6 +182,9 @@ export const AsTOO = () => (
         NTSsac: '',
         NTStac: '',
         payGrade: text('ordersInfo.payGrade', 'E_5'),
+      }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
       }}
     />
   </div>
@@ -218,6 +233,9 @@ export const AsTOOProcessingSeparation = () => (
         NTSsac: '',
         NTStac: '',
         payGrade: text('ordersInfo.payGrade', 'E_5'),
+      }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
       }}
     />
   </div>
