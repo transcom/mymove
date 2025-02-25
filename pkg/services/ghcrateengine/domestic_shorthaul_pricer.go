@@ -28,7 +28,8 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 	referenceDate time.Time,
 	distance unit.Miles,
 	weight unit.Pound,
-	serviceArea string) (totalCost unit.Cents, params services.PricingDisplayParams, err error) {
+	serviceArea string,
+	isPPM bool) (totalCost unit.Cents, params services.PricingDisplayParams, err error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -36,7 +37,7 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if weight < minDomesticWeight {
+	if !isPPM && weight < minDomesticWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
 	if distance <= 0 {
@@ -110,5 +111,13 @@ func (p domesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext, 
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip), unit.Pound(weightBilled), serviceAreaOrigin)
+	var isPPM = false
+	if params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypePPM {
+		// PPMs do not require minimums for a shipment's weight or distance
+		// this flag is passed into the Price function to ensure the weight and distance mins
+		// are not enforced for PPMs
+		isPPM = true
+	}
+
+	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip), unit.Pound(weightBilled), serviceAreaOrigin, isPPM)
 }
