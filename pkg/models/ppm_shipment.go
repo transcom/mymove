@@ -180,9 +180,22 @@ type PPMDocuments struct {
 	ProgearWeightTickets
 }
 
+// PPMType represents the type of a PPM shipment
+type PPMType string
+
+const (
+	// PPMTypeIncentiveBased captures enum value "INCENTIVE_BASED"
+	PPMTypeIncentiveBased PPMType = "INCENTIVE_BASED"
+	// PPMTypeActualExpense captures enum value "ACTUAL_EXPENSE"
+	PPMTypeActualExpense PPMType = "ACTUAL_EXPENSE"
+	// PPMTypeSmallPackage captures enum value "SMALL_PACKAGE"
+	PPMTypeSmallPackage PPMType = "SMALL_PACKAGE"
+)
+
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
 	ID                             uuid.UUID            `json:"id" db:"id"`
+	PPMType                        PPMType              `json:"ppm_type" db:"ppm_type"`
 	ShipmentID                     uuid.UUID            `json:"shipment_id" db:"shipment_id"`
 	Shipment                       MTOShipment          `belongs_to:"mto_shipments" fk_id:"shipment_id"`
 	CreatedAt                      time.Time            `json:"created_at" db:"created_at"`
