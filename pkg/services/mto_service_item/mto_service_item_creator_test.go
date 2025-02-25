@@ -1354,6 +1354,97 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.IsType(apperror.ConflictError{}, err)
 	})
 
+	suite.Run("Do not create DOFSIT if departure date is after entry date", func() {
+		shipment := setupTestData()
+		originAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		reServiceDOFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		serviceItemDOFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     models.TimePointer(time.Now().AddDate(0, 0, 1)),
+					SITDepartureDate: models.TimePointer(time.Now()),
+				},
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    originAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
+			},
+		}, nil)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			false,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
+		suite.Error(err)
+		expectedError := fmt.Sprintf(
+			"the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
+			serviceItemDOFSIT.SITDepartureDate.Format("2006-01-02"),
+			serviceItemDOFSIT.SITEntryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
+	suite.Run("Do not create DOFSIT if departure date is the same as entry date", func() {
+		today := models.TimePointer(time.Now())
+		shipment := setupTestData()
+		originAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		reServiceDOFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		serviceItemDOFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     today,
+					SITDepartureDate: today,
+				},
+			},
+			{
+				Model:    reServiceDOFSIT,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    originAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
+			},
+		}, nil)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			false,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
+		suite.Error(err)
+		expectedError := fmt.Sprintf(
+			"the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
+			serviceItemDOFSIT.SITDepartureDate.Format("2006-01-02"),
+			serviceItemDOFSIT.SITEntryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
 	suite.Run("Do not create standalone DOPSIT service item", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
@@ -1775,6 +1866,63 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			"the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
 			serviceItemDDFSIT.SITEntryDate.Format("2006-01-02"),
 			serviceItemDDFSIT.CustomerContacts[0].FirstAvailableDeliveryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
+	suite.Run("Do not create DDFSIT if departure date is after entry date", func() {
+		shipment, creator, reServiceDDFSIT := setupTestData()
+		serviceItemDDFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     models.TimePointer(time.Now().AddDate(0, 0, 1)),
+					SITDepartureDate: models.TimePointer(time.Now()),
+				},
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.Error(err)
+		expectedError := fmt.Sprintf(
+			"the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
+			serviceItemDDFSIT.SITDepartureDate.Format("2006-01-02"),
+			serviceItemDDFSIT.SITEntryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
+	suite.Run("Do not create DDFSIT if departure date is the same as entry date", func() {
+		today := models.TimePointer(time.Now())
+		shipment, creator, reServiceDDFSIT := setupTestData()
+		serviceItemDDFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     today,
+					SITDepartureDate: today,
+				},
+			},
+			{
+				Model:    reServiceDDFSIT,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.Error(err)
+		expectedError := fmt.Sprintf(
+			"the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
+			serviceItemDDFSIT.SITDepartureDate.Format("2006-01-02"),
+			serviceItemDDFSIT.SITEntryDate.Format("2006-01-02"),
 		)
 		suite.Contains(err.Error(), expectedError)
 	})
@@ -2312,7 +2460,6 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -2611,7 +2758,6 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 			false,
 		).Return(800, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
