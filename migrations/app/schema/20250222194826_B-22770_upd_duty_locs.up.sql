@@ -119,3 +119,54 @@ BEGIN
 	END IF;
 
 END $$;
+
+--remove duty loc Austin, TX 78760
+DO $$
+BEGIN
+
+	IF EXISTS (SELECT 1 FROM duty_locations WHERE id = '063f0e90-da3e-46cb-9a75-59b172a8337f') THEN
+
+		update orders set origin_duty_location_id = '53210016-136d-4314-9494-bfe49ea428fa', updated_at = now() where origin_duty_location_id = '063f0e90-da3e-46cb-9a75-59b172a8337f';
+		update orders set new_duty_location_id = '53210016-136d-4314-9494-bfe49ea428fa', updated_at = now() where new_duty_location_id = '063f0e90-da3e-46cb-9a75-59b172a8337f';
+
+		delete from duty_locations where id = '063f0e90-da3e-46cb-9a75-59b172a8337f';
+
+		update re_us_post_regions set is_po_box = true, updated_at = now() where id = 'f17462d0-4375-48d4-b068-300c6f8d508b';
+
+	END IF;
+
+END $$;
+
+--remove duty loc Columbus, GA 31908
+DO $$
+BEGIN
+
+	IF EXISTS (SELECT 1 FROM duty_locations WHERE id = '8fc9c0c5-0dca-4217-ac4d-cc09bdeb4a97') THEN
+
+		update orders set origin_duty_location_id = '7de8225d-6248-49c3-9708-2eb6cba9ac32', updated_at = now() where origin_duty_location_id = '8fc9c0c5-0dca-4217-ac4d-cc09bdeb4a97';
+		update orders set new_duty_location_id = '7de8225d-6248-49c3-9708-2eb6cba9ac32', updated_at = now() where new_duty_location_id = '8fc9c0c5-0dca-4217-ac4d-cc09bdeb4a97';
+
+		delete from duty_locations where id = '8fc9c0c5-0dca-4217-ac4d-cc09bdeb4a97';
+
+		update re_us_post_regions set is_po_box = true, updated_at = now() where id = 'abe0e510-1abe-4135-86f1-fec6727ed220';
+
+	END IF;
+
+END $$;
+
+--remove duty loc Las Vegas, NV 89136
+DO $$
+BEGIN
+
+	IF EXISTS (SELECT 1 FROM duty_locations WHERE id = 'b865ba00-6949-4185-bf47-2587eb2666c6') THEN
+
+		update orders set origin_duty_location_id = '35aaa898-6844-44f2-ae69-02b5b069c138', updated_at = now() where origin_duty_location_id = 'b865ba00-6949-4185-bf47-2587eb2666c6';
+		update orders set new_duty_location_id = '35aaa898-6844-44f2-ae69-02b5b069c138', updated_at = now() where new_duty_location_id = 'b865ba00-6949-4185-bf47-2587eb2666c6';
+
+		delete from duty_locations where id = 'b865ba00-6949-4185-bf47-2587eb2666c6';
+
+		update re_us_post_regions set is_po_box = true, updated_at = now() where id = 'aa990f46-6488-4764-a603-6908a464d76e';
+
+	END IF;
+
+END $$;
