@@ -115,14 +115,14 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 
 		distanceStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		expected := strconv.Itoa(defaultInternationalZipDistance)
+		expected := strconv.Itoa(defaultZipDistance)
 		suite.Equal(expected, distanceStr)
 
 		var mtoShipment models.MTOShipment
 		err = suite.DB().Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 		suite.NoError(err)
 
-		suite.Equal(unit.Miles(defaultInternationalZipDistance), *mtoShipment.Distance)
+		suite.Equal(unit.Miles(defaultZipDistance), *mtoShipment.Distance)
 	})
 
 	suite.Run("Call ZipTransitDistance on international PPMs with CONUS -> Tacoma Port ZIP", func() {
