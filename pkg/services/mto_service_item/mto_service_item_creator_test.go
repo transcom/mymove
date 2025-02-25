@@ -1288,7 +1288,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			},
 		}, nil)
 		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &mocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1334,7 +1334,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			},
 		}, nil)
 		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &mocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
