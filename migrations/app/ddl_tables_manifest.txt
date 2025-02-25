@@ -1,4 +1,4 @@
 # This is the tables migrations manifest.
 # If a migration is not recorded here, then it will error.
 # Naming convention: tbl_some_table.up.sql  running <generate-ddl-migration some_table tables> will create this file.
-20250224162949_tbl_update_moves_B-22706.up.sql
+20250224162949_B-22706_tbl_update_moves.up.sql
