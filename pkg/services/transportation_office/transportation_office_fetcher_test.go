@@ -642,12 +642,20 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 	})
 
 	suite.Run("failure - not found duty location returns error", func() {
+		_, oconusRateArea, _, _ := setupDataForOconusSearchCounselingOffice("99619", "MAPS")
+
+		// setup department affiliation to GBLOC mappings
+		jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MAPS")
+		suite.NotNil(jppsoRegion)
+		suite.Nil(err)
+		gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorARMY.String())
+		suite.NotNil(gblocAors)
+		suite.Nil(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ServiceMemberID: uuid.Must(uuid.NewV4()),
 		})
 		unknown_duty_location_id := uuid.Must(uuid.NewV4())
-		offices, err := findCounselingOffice(appCtx, unknown_duty_location_id, appCtx.Session().ServiceMemberID)
-		suite.Nil(offices)
+		_, err = suite.toFetcher.FindCounselingOfficeForPrimeCounseled(appCtx, unknown_duty_location_id, appCtx.Session().ServiceMemberID)
 		suite.NotNil(err)
 	})
 
