@@ -1,0 +1,14 @@
+@import 'shared/styles/colors.scss';
+
+.searchContainer {
+  margin-left: 15px;
+  margin-bottom: 10px;
+
+  .searchBar {
+    float: left;
+  }
+
+  .filters {
+    float: center;
+  }
+}

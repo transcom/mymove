@@ -2,14 +2,18 @@ import React from 'react';
 import {
   Datagrid,
   DateField,
-  Filter,
   List,
   ReferenceField,
   TextField,
   TextInput,
   TopToolbar,
   useRecordContext,
+  SearchInput,
+  FilterForm,
+  FilterButton,
 } from 'react-admin';
+
+import styles from './RejectedOfficeUserList.module.scss';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
@@ -33,22 +37,33 @@ const ListActions = () => {
   return <TopToolbar />;
 };
 
-const RejectedOfficeUserListFilter = () => (
-  <Filter>
-    <TextInput source="search" alwaysOn />
-  </Filter>
+const filterList = [
+  <SearchInput source="search" alwaysOn />,
+  <TextInput label="Emails" source="emails" />,
+  <TextInput label="First Name" source="firstName" />,
+  <TextInput label="Last Name" source="lastName" />,
+  <TextInput label="Offices" source="offices" />,
+  <TextInput label="Rejection Reason" source="rejectionReason" />,
+  <TextInput label="Rejection On" source="rejectedOn" />,
+  <TextInput label="Roles" source="roles" />,
+];
+
+const SearchFilters = () => (
+  <div className={styles.searchContainer}>
+    <div className={styles.searchBar}>
+      <FilterForm filters={filterList} />
+    </div>
+    <div className={styles.filters}>
+      <FilterButton filters={filterList} />
+    </div>
+  </div>
 );
 
 const defaultSort = { field: 'createdAt', order: 'DESC' };
 
 const RejectedOfficeUserList = () => (
-  <List
-    pagination={<AdminPagination />}
-    perPage={25}
-    sort={defaultSort}
-    filters={<RejectedOfficeUserListFilter />}
-    actions={<ListActions />}
-  >
+  <List pagination={<AdminPagination />} perPage={25} sort={defaultSort} actions={<ListActions />}>
+    <SearchFilters />
     <Datagrid bulkActionButtons={false} rowClick="show" data-testid="rejected-office-user-fields">
       <TextField source="id" />
       <TextField source="email" />
