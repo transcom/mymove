@@ -513,7 +513,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 		queryBuilder := query.NewQueryBuilder()
-		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(f.planner, queryBuilder, f.moveRouter, f.shipmentFetcher, f.addressCreator, f.portLocationFetcher)
+		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(f.planner, queryBuilder, f.moveRouter, f.shipmentFetcher, f.addressCreator, f.portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(f.planner, queryBuilder, f.moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
@@ -537,12 +537,39 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		}
 
 		var shipmentDetails models.MTOShipment
-		err = appCtx.DB().EagerPreload("MoveTaskOrder", "MTOServiceItems.ReService").Find(&shipmentDetails, shipmentID)
+		err = appCtx.DB().EagerPreload("MoveTaskOrder", "MTOServiceItems.ReService", "MTOServiceItems.SITDestinationOriginalAddress", "MTOServiceItems.SITDestinationFinalAddress").Find(&shipmentDetails, shipmentID)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment")
 			}
 			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
+
+		shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipmentDetails)
+
+		for i, serviceItem := range shipmentDetails.MTOServiceItems {
+			if shipment.MarketCode != models.MarketCodeInternational && shipment.PrimeEstimatedWeight != nil || shipment.MarketCode != models.MarketCodeInternational && shipment.PrimeActualWeight != nil {
+				var updatedServiceItem *models.MTOServiceItem
+				if serviceItem.ReService.Code == models.ReServiceCodeDDP || serviceItem.ReService.Code == models.ReServiceCodeDUPK {
+					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
+					if err != nil {
+						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+					}
+				}
+
+				if !shipmentHasApprovedDestSIT {
+					if serviceItem.ReService.Code == models.ReServiceCodeDLH || serviceItem.ReService.Code == models.ReServiceCodeFSC {
+						updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
+						if err != nil {
+							return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+						}
+					}
+				}
+
+				if updatedServiceItem != nil {
+					shipmentDetails.MTOServiceItems[i] = *updatedServiceItem
+				}
+			}
 		}
 
 		// If the pricing type has changed then we automatically reject the DLH or DSH service item on the shipment since it is now inaccurate
@@ -559,8 +586,6 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 					if err != nil {
 						return nil, apperror.NewQueryError("ServiceItemPaymentRequests", err, "")
 					}
-
-					shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipmentDetails)
 
 					// do NOT regenerate any service items if the following conditions exist:
 					// payment has already been approved for DLH or DSH service item

@@ -9,6 +9,7 @@ import PrimeUIUpdateDestSITForm from './PrimeUIUpdateDestSITForm';
 import PrimeUIUpdateInternationalOriginSITForm from './PrimeUIUpdateInternationalOriginSITForm';
 import PrimeUIUpdateInternationalDestSITForm from './PrimeUIUpdateInternationalDestSITForm';
 import PrimeUIUpdateInternationalFuelSurchargeForm from './PrimeUIUpdateInternationalFuelSurchargeForm';
+import PrimeUIUpdateInternationalShuttleForm from './PrimeUIUpdateInternationalShuttleForm';
 
 import { updateMTOServiceItem } from 'services/primeApi';
 import scrollToTop from 'shared/scrollToTop';
@@ -80,6 +81,7 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
     modelType === 'MTOServiceItemInternationalOriginSIT'
   ) {
     initialValues = {
+      sitEntryDate: formatDateWithUTC(serviceItem.sitEntryDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
       sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
       sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
       sitCustomerContacted: formatDateWithUTC(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
@@ -92,6 +94,7 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
     onSubmit = (values) => {
       const {
         sitCustomerContacted,
+        sitEntryDate,
         sitDepartureDate,
         sitRequestedDelivery,
         updateReason,
@@ -101,6 +104,7 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
       } = values;
 
       const body = {
+        sitEntryDate: sitEntryDate === 'Invalid date' ? null : formatDateForSwagger(sitEntryDate),
         sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
         sitRequestedDelivery:
           sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
@@ -168,6 +172,12 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
                   moveTaskOrder={moveTaskOrder}
                   mtoServiceItemId={mtoServiceItemId}
                   onUpdateServiceItem={createUpdateServiceItemRequestMutation}
+                />
+              ) : null}
+              {modelType === 'MTOServiceItemInternationalShuttle' ? (
+                <PrimeUIUpdateInternationalShuttleForm
+                  onUpdateServiceItem={createUpdateServiceItemRequestMutation}
+                  serviceItem={serviceItem}
                 />
               ) : null}
             </Grid>
