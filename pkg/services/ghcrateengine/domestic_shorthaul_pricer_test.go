@@ -135,6 +135,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 			dshTestMileage,
 			dshTestWeight,
 			dshTestServiceArea,
+			false,
 		)
 		expectedCost := unit.Cents(6566400)
 		suite.NoError(err)
@@ -158,6 +159,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 			dshTestMileage,
 			dshTestWeight,
 			dshTestServiceArea,
+			false,
 		)
 		expectedCost := unit.Cents(5702400)
 		suite.NoError(err)
@@ -176,6 +178,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 			dshTestMileage,
 			dshTestWeight,
 			dshTestServiceArea,
+			false,
 		)
 
 		suite.Error(err)
@@ -194,6 +197,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 			dshTestMileage,
 			dshTestWeight,
 			dshTestServiceArea,
+			false,
 		)
 
 		suite.Error(err)
@@ -212,6 +216,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 			dshTestMileage,
 			unit.Pound(499),
 			dshTestServiceArea,
+			false,
 		)
 		suite.Equal(unit.Cents(0), cost)
 		suite.Error(err)
@@ -226,31 +231,31 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No contract code
-		_, rateEngineParams, err := pricer.Price(suite.AppContextForTest(), "", requestedPickupDate, dshTestMileage, dshTestWeight, dshTestServiceArea)
+		_, rateEngineParams, err := pricer.Price(suite.AppContextForTest(), "", requestedPickupDate, dshTestMileage, dshTestWeight, dshTestServiceArea, false)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No reference date
-		_, rateEngineParams, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, dshTestMileage, dshTestWeight, dshTestServiceArea)
+		_, rateEngineParams, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, dshTestMileage, dshTestWeight, dshTestServiceArea, false)
 		suite.Error(err)
 		suite.Equal("ReferenceDate is required", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No distance
-		_, rateEngineParams, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, dshTestWeight, dshTestServiceArea)
+		_, rateEngineParams, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, dshTestWeight, dshTestServiceArea, false)
 		suite.Error(err)
 		suite.Equal("Distance must be greater than 0", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No weight
-		_, rateEngineParams, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, 0, dshTestServiceArea)
+		_, rateEngineParams, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, 0, dshTestServiceArea, false)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No service area
-		_, rateEngineParams, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, dshTestWeight, "")
+		_, rateEngineParams, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, dshTestWeight, "", false)
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
 		suite.Nil(rateEngineParams)
