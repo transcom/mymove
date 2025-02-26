@@ -83,5 +83,9 @@ EOM
 #
 # Update the migrations manifest
 #
+# Add migration to DML manifest
+readonly manifest_file="${dir}/../migrations/app/dml_migrations_manifest.txt"
+echo "${secure_migration_name}" >> "$manifest_file"
 
-./scripts/update-migrations-manifest
+
+##./scripts/update-migrations-manifest
