@@ -233,7 +233,7 @@ func PPMShipmentModelFromCreate(ppmShipment *primemessages.CreatePPMShipment) *m
 		StreetAddress1: "Deprecated Endpoint Prime V2",
 		StreetAddress2: models.StringPointer("Endpoint no longer supported"),
 		StreetAddress3: models.StringPointer("Update address field to appropriate values"),
-		City:           "DEPV2",
+		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "90210",
 	}
@@ -537,6 +537,22 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
 		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
 
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticShuttle:
+		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemDomesticShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalShuttle:
+		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemInternationalShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
 
@@ -725,6 +741,20 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle:
+		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemInternationalShuttle)
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
+
+		if shuttle.RequestApprovalsRequestedStatus != nil {
+			pointerValue := *shuttle.RequestApprovalsRequestedStatus
+			model.RequestedApprovalsRequestedStatus = &pointerValue
+			model.Status = models.MTOServiceItemStatusSubmitted
+		}
+
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
 
 	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalPortFSC:
 		portFsc := mtoServiceItem.(*primemessages.UpdateMTOServiceItemInternationalPortFSC)
@@ -873,4 +903,20 @@ func validateReasonOriginSIT(m primemessages.MTOServiceItemOriginSIT) *validate.
 		verrs.Add("reason", "reason is required in body.")
 	}
 	return verrs
+}
+
+func VLocationModel(vLocation *primemessages.VLocation) *models.VLocation {
+	if vLocation == nil {
+		return nil
+	}
+
+	usPostRegionCitiesID := uuid.FromStringOrNil(vLocation.UsPostRegionCitiesID.String())
+
+	return &models.VLocation{
+		CityName:             vLocation.City,
+		StateName:            vLocation.State,
+		UsprZipID:            vLocation.PostalCode,
+		UsprcCountyNm:        *vLocation.County,
+		UsPostRegionCitiesID: &usPostRegionCitiesID,
+	}
 }

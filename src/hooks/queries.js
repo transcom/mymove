@@ -34,6 +34,7 @@ import {
   getPPMActualWeight,
   searchCustomers,
   getGBLOCs,
+  getDestinationRequestsQueue,
   getBulkAssignmentData,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
@@ -571,10 +572,33 @@ export const useMovesQueueQueries = ({
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
+  activeRole,
+}) => {
+  const { data = {}, ...movesQueueQuery } = useQuery(
+    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
+    ({ queryKey }) => getMovesQueue(...queryKey),
+  );
+  const { isLoading, isError, isSuccess } = movesQueueQuery;
+  const { queueMoves, ...dataProps } = data;
+  return {
+    queueResult: { data: queueMoves, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useDestinationRequestsQueueQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
 }) => {
   const { data = {}, ...movesQueueQuery } = useQuery(
     [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
-    ({ queryKey }) => getMovesQueue(...queryKey),
+    ({ queryKey }) => getDestinationRequestsQueue(...queryKey),
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
   const { queueMoves, ...dataProps } = data;
@@ -593,11 +617,12 @@ export const useServicesCounselingQueuePPMQueries = ({
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
+  activeRole,
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
     [
       SERVICES_COUNSELING_QUEUE,
-      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true, viewAsGBLOC },
+      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true, viewAsGBLOC, activeRole },
     ],
     ({ queryKey }) => getServicesCounselingPPMQueue(...queryKey),
   );
@@ -619,11 +644,12 @@ export const useServicesCounselingQueueQueries = ({
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
+  activeRole,
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
     [
       SERVICES_COUNSELING_QUEUE,
-      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false, viewAsGBLOC },
+      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false, viewAsGBLOC, activeRole },
     ],
     ({ queryKey }) => getServicesCounselingQueue(...queryKey),
   );
@@ -645,9 +671,10 @@ export const usePaymentRequestQueueQueries = ({
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
+  activeRole,
 }) => {
   const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
-    [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
+    [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getPaymentRequestsQueue(...queryKey),
   );
 

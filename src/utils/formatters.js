@@ -7,7 +7,7 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
-import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
+import { DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -601,6 +601,48 @@ export const constructSCOrderOconusFields = (values) => {
   };
 };
 
+export const userName = (user) => {
+  let formattedUser = '';
+  if (user.firstName && user.lastName) {
+    formattedUser += `${user.lastName}, `;
+    formattedUser += ` ${user.firstName}`;
+  } else {
+    if (user.firstName) {
+      formattedUser += ` ${user.firstName}`;
+    }
+    if (user.lastName) {
+      formattedUser += ` ${user.lastName}`;
+    }
+  }
+  return formattedUser;
+};
+
+export const formatAssignedOfficeUserFromContext = (historyRecord) => {
+  const { changedValues, context, oldValues } = historyRecord;
+  const newValues = {};
+  if (!context) return newValues;
+
+  const name = `${context[0].assigned_office_user_last_name}, ${context[0].assigned_office_user_first_name}`;
+
+  if (changedValues?.sc_assigned_id) {
+    if (oldValues.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING) {
+      if (oldValues.sc_assigned_id === null) newValues.assigned_sc = name;
+      if (oldValues.sc_assigned_id !== null) newValues.re_assigned_sc = name;
+    } else {
+      if (oldValues.sc_assigned_id === null) newValues.assigned_sc_ppm = name;
+      if (oldValues.sc_assigned_id !== null) newValues.re_assigned_sc_ppm = name;
+    }
+  }
+  if (changedValues?.too_assigned_id) {
+    if (oldValues.too_assigned_id === null) newValues.assigned_too = name;
+    if (oldValues.too_assigned_id !== null) newValues.re_assigned_too = name;
+  }
+  if (changedValues?.tio_assigned_id) {
+    if (oldValues.tio_assigned_id === null) newValues.assigned_tio = name;
+    if (oldValues.tio_assigned_id !== null) newValues.re_assigned_tio = name;
+  }
+  return newValues;
+};
 /**
  * @description Converts a string to title case (capitalizes the first letter of each word)
  * @param {string} str - The input string to format.

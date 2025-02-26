@@ -8,6 +8,7 @@ import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 import ShuttleSITServiceItemForm from './ShuttleSITServiceItemForm';
 import DomesticCratingForm from './DomesticCratingForm';
 import InternationalCratingForm from './InternationalCratingForm';
+import InternationalShuttleServiceItemForm from './InternationalShuttleServiceItemForm';
 
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ShipmentShape } from 'types/shipment';
@@ -19,9 +20,10 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
   const {
     MTOServiceItemOriginSIT,
     MTOServiceItemDestSIT,
-    MTOServiceItemShuttle,
+    MTOServiceItemDomesticShuttle,
     MTOServiceItemDomesticCrating,
     MTOServiceItemInternationalCrating,
+    MTOServiceItemInternationalShuttle,
   } = createServiceItemModelTypes;
   const [selectedServiceItemType, setSelectedServiceItemType] = useState(MTOServiceItemOriginSIT);
   const [enableAlaskaFeatureFlag, setEnableAlaskaFeatureFlag] = useState(false);
@@ -47,7 +49,8 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
         <>
           <option value={MTOServiceItemOriginSIT}>Origin SIT</option>
           <option value={MTOServiceItemDestSIT}>Destination SIT</option>
-          <option value={MTOServiceItemShuttle}>Shuttle</option>
+          <option value={MTOServiceItemDomesticShuttle}>Domestic Shuttle</option>
+          <option value={MTOServiceItemInternationalShuttle}>International Shuttle</option>
           <option value={MTOServiceItemDomesticCrating}>Domestic Crating</option>
           {enableAlaskaFeatureFlag && <option value={MTOServiceItemInternationalCrating}>International Crating</option>}
         </>
@@ -58,8 +61,11 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
       {selectedServiceItemType === MTOServiceItemDestSIT && (
         <DestinationSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
-      {selectedServiceItemType === MTOServiceItemShuttle && (
+      {selectedServiceItemType === MTOServiceItemDomesticShuttle && (
         <ShuttleSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
+      )}
+      {selectedServiceItemType === MTOServiceItemInternationalShuttle && (
+        <InternationalShuttleServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
       {selectedServiceItemType === MTOServiceItemDomesticCrating && (
         <DomesticCratingForm shipment={shipment} submission={createServiceItemMutation} />

@@ -60,8 +60,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mock.Anything,
 		mock.Anything,
 		false,
-		false,
 	).Return(400, nil)
+	vLocationServices := address.NewVLocation()
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
@@ -87,10 +87,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		return mockUpdater
 	}
-
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		mtoServiceItemCreator,
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
@@ -113,10 +113,70 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
+
+	setupAddresses := func() {
+		// Make stubbed addresses just to collect address data for payload
+		newAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		pickupAddress = primev3messages.Address{
+			City:           &newAddress.City,
+			PostalCode:     &newAddress.PostalCode,
+			State:          &newAddress.State,
+			StreetAddress1: &newAddress.StreetAddress1,
+			StreetAddress2: newAddress.StreetAddress2,
+			StreetAddress3: newAddress.StreetAddress3,
+		}
+		secondaryPickupAddress = primev3messages.Address{
+			City:           &newAddress.City,
+			PostalCode:     &newAddress.PostalCode,
+			State:          &newAddress.State,
+			StreetAddress1: &newAddress.StreetAddress1,
+			StreetAddress2: newAddress.StreetAddress2,
+			StreetAddress3: newAddress.StreetAddress3,
+		}
+		tertiaryPickupAddress = primev3messages.Address{
+			City:           &newAddress.City,
+			PostalCode:     &newAddress.PostalCode,
+			State:          &newAddress.State,
+			StreetAddress1: &newAddress.StreetAddress1,
+			StreetAddress2: newAddress.StreetAddress2,
+			StreetAddress3: newAddress.StreetAddress3,
+		}
+		newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		destinationAddress = primev3messages.Address{
+			City:           &newAddress.City,
+			PostalCode:     &newAddress.PostalCode,
+			State:          &newAddress.State,
+			StreetAddress1: &newAddress.StreetAddress1,
+			StreetAddress2: newAddress.StreetAddress2,
+			StreetAddress3: newAddress.StreetAddress3,
+		}
+		secondaryDestinationAddress = primev3messages.Address{
+			City:           &newAddress.City,
+			PostalCode:     &newAddress.PostalCode,
+			State:          &newAddress.State,
+			StreetAddress1: &newAddress.StreetAddress1,
+			StreetAddress2: newAddress.StreetAddress2,
+			StreetAddress3: newAddress.StreetAddress3,
+		}
+		tertiaryDestinationAddress = primev3messages.Address{
+			City:           &newAddress.City,
+			PostalCode:     &newAddress.PostalCode,
+			State:          &newAddress.State,
+			StreetAddress1: &newAddress.StreetAddress1,
+			StreetAddress2: newAddress.StreetAddress2,
+			StreetAddress3: newAddress.StreetAddress3,
+		}
+	}
 
 	setupTestData := func(boatFeatureFlag bool, ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
-
+		vLocationServices := address.NewVLocation()
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		handlerConfig := suite.HandlerConfig()
 		expectedFeatureFlag := services.FeatureFlag{
@@ -198,67 +258,26 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			handlerConfig,
 			shipmentCreator,
 			mtoChecker,
+			vLocationServices,
 		}
 
-		// Make stubbed addresses just to collect address data for payload
-		newAddress := factory.BuildAddress(nil, []factory.Customization{
-			{
-				Model: models.Address{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, nil)
-		pickupAddress = primev3messages.Address{
-			City:           &newAddress.City,
-			PostalCode:     &newAddress.PostalCode,
-			State:          &newAddress.State,
-			StreetAddress1: &newAddress.StreetAddress1,
-			StreetAddress2: newAddress.StreetAddress2,
-			StreetAddress3: newAddress.StreetAddress3,
-		}
-		secondaryPickupAddress = primev3messages.Address{
-			City:           &newAddress.City,
-			PostalCode:     &newAddress.PostalCode,
-			State:          &newAddress.State,
-			StreetAddress1: &newAddress.StreetAddress1,
-			StreetAddress2: newAddress.StreetAddress2,
-			StreetAddress3: newAddress.StreetAddress3,
-		}
-		tertiaryPickupAddress = primev3messages.Address{
-			City:           &newAddress.City,
-			PostalCode:     &newAddress.PostalCode,
-			State:          &newAddress.State,
-			StreetAddress1: &newAddress.StreetAddress1,
-			StreetAddress2: newAddress.StreetAddress2,
-			StreetAddress3: newAddress.StreetAddress3,
-		}
-		newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
-		destinationAddress = primev3messages.Address{
-			City:           &newAddress.City,
-			PostalCode:     &newAddress.PostalCode,
-			State:          &newAddress.State,
-			StreetAddress1: &newAddress.StreetAddress1,
-			StreetAddress2: newAddress.StreetAddress2,
-			StreetAddress3: newAddress.StreetAddress3,
-		}
-		secondaryDestinationAddress = primev3messages.Address{
-			City:           &newAddress.City,
-			PostalCode:     &newAddress.PostalCode,
-			State:          &newAddress.State,
-			StreetAddress1: &newAddress.StreetAddress1,
-			StreetAddress2: newAddress.StreetAddress2,
-			StreetAddress3: newAddress.StreetAddress3,
-		}
-		tertiaryDestinationAddress = primev3messages.Address{
-			City:           &newAddress.City,
-			PostalCode:     &newAddress.PostalCode,
-			State:          &newAddress.State,
-			StreetAddress1: &newAddress.StreetAddress1,
-			StreetAddress2: newAddress.StreetAddress2,
-			StreetAddress3: newAddress.StreetAddress3,
-		}
+		setupAddresses()
 		return handler, move
+	}
 
+	setupTestDataWithoutFF := func() (CreateMTOShipmentHandler, models.Move) {
+		vLocationServices := address.NewVLocation()
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		handler := CreateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentCreator,
+			mtoChecker,
+			vLocationServices,
+		}
+
+		setupAddresses()
+		return handler, move
 	}
 
 	suite.Run("Successful POST - Integration Test", func() {
@@ -364,20 +383,20 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		address1 := models.Address{
 			StreetAddress1: "some address",
-			City:           "city",
+			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 		address2 := models.Address{
 			StreetAddress1: "some address",
-			City:           "city",
+			City:           "Scott Afb",
 			State:          "IL",
 			PostalCode:     "62225",
 		}
 
 		address3 := models.Address{
 			StreetAddress1: "some address",
-			City:           "city",
+			City:           "Suffolk",
 			State:          "VA",
 			PostalCode:     "23435",
 		}
@@ -552,6 +571,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
+			vLocationServices,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -712,13 +733,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		address1 := models.Address{
 			StreetAddress1: "some address",
-			City:           "city",
+			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 		addressWithEmptyStreet1 := models.Address{
 			StreetAddress1: "",
-			City:           "city",
+			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
@@ -833,6 +854,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
+			vLocationServices,
 		}
 
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
@@ -855,7 +878,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// as empty on the server side.
 		// *************************************************************************************
 		ppmDestinationAddressOptionalStreet1ContainingWhitespaces := primev3messages.PPMDestinationAddress{
-			City:           models.StringPointer("SomeCity"),
+			City:           models.StringPointer("Beverly Hills"),
 			Country:        models.StringPointer("US"),
 			PostalCode:     models.StringPointer("90210"),
 			State:          models.StringPointer("CA"),
@@ -1548,10 +1571,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   If underlying CreateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
+			vLocationServices,
 		}
 
 		now := time.Now()
@@ -1559,7 +1584,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
@@ -1568,7 +1593,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
@@ -1623,10 +1648,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   If underlying UpdateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
+			vLocationServices,
 		}
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{}, nil)
@@ -1671,10 +1698,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:   If underlying CreateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
 
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
+			planner,
+			vLocationServices,
 		}
 
 		now := time.Now()
@@ -1682,7 +1711,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
@@ -1691,7 +1720,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
@@ -1700,7 +1729,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
@@ -1709,7 +1738,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "Beverly Hills",
 					State:          "CA",
 					PostalCode:     "90210",
 				},
@@ -1755,6 +1784,1063 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchResponse := patchHandler.Handle(patchParams)
 		response := patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+	})
+
+	suite.Run("PATCH failure - Invalid address.", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Set an invalid zip
+		// Expected:   422 Response returned
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			planner,
+			vLocationServices,
+		}
+
+		now := time.Now()
+		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some second pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some third pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.TertiaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some second delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.SecondaryDeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some third delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.TertiaryDeliveryAddress,
+			},
+		}, nil)
+		move := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		var testMove models.Move
+		err := suite.DB().EagerPreload("MTOShipments.PPMShipment").Find(&testMove, move.ID)
+		suite.NoError(err)
+		var testMtoShipment models.MTOShipment
+		err = suite.DB().Find(&testMtoShipment, mto_shipment.ID)
+		suite.NoError(err)
+		testMtoShipment.MoveTaskOrderID = testMove.ID
+		testMtoShipment.MoveTaskOrder = testMove
+		err = suite.DB().Save(&testMtoShipment)
+		suite.NoError(err)
+		testMove.MTOShipments = append(testMove.MTOShipments, mto_shipment)
+		err = suite.DB().Save(&testMove)
+		suite.NoError(err)
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", testMove.MTOShipments[0].ID), nil)
+
+		eTag := etag.GenerateEtag(testMtoShipment.UpdatedAt)
+		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(testMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+		tertiaryAddress := GetTestAddress()
+		tertiaryAddress.PostalCode = handlers.FmtString("99999")
+		patchParams.Body = &primev3messages.UpdateMTOShipment{
+			TertiaryDeliveryAddress: struct{ primev3messages.Address }{tertiaryAddress},
+		}
+		patchResponse := patchHandler.Handle(patchParams)
+		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, errResponse)
+	})
+
+	suite.Run("PATCH failure - Internal Server error GetLocationsByZipCityState", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Mock location to return an error
+		// Expected:   500 Response returned
+		handler, move := setupTestData(false, true)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
+				Agents:               nil,
+				CustomerRemarks:      nil,
+				PointOfContact:       "John Doe",
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		expectedError := models.ErrFetchNotFound
+		vLocationFetcher := &mocks.VLocation{}
+		vLocationFetcher.On("GetLocationsByZipCityState",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, expectedError).Once()
+		handler.VLocation = vLocationFetcher
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+	})
+
+	suite.Run("PATCH success - valid AK address FF is on", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Set an valid AK address but turn FF on
+		// Expected:   200 Response returned
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			planner,
+			vLocationServices,
+		}
+
+		now := time.Now()
+		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some second pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some third pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.TertiaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some second delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.SecondaryDeliveryAddress,
+			},
+		}, nil)
+		move := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		var testMove models.Move
+		err := suite.DB().EagerPreload("MTOShipments.PPMShipment").Find(&testMove, move.ID)
+		suite.NoError(err)
+		var testMtoShipment models.MTOShipment
+		err = suite.DB().Find(&testMtoShipment, mto_shipment.ID)
+		suite.NoError(err)
+		testMtoShipment.MoveTaskOrderID = testMove.ID
+		testMtoShipment.MoveTaskOrder = testMove
+		err = suite.DB().Save(&testMtoShipment)
+		suite.NoError(err)
+		testMove.MTOShipments = append(testMove.MTOShipments, mto_shipment)
+		err = suite.DB().Save(&testMove)
+		suite.NoError(err)
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", testMove.MTOShipments[0].ID), nil)
+
+		eTag := etag.GenerateEtag(testMtoShipment.UpdatedAt)
+		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(testMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+		alaskaAddress := primev3messages.Address{
+			City:           handlers.FmtString("Juneau"),
+			PostalCode:     handlers.FmtString("99801"),
+			State:          handlers.FmtString("AK"),
+			StreetAddress1: handlers.FmtString("Some AK street"),
+		}
+		patchParams.Body = &primev3messages.UpdateMTOShipment{
+			TertiaryDeliveryAddress: struct{ primev3messages.Address }{alaskaAddress},
+		}
+
+		// setting the AK flag to true
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: true,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		patchHandler.HandlerConfig = handlerConfig
+		patchResponse := patchHandler.Handle(patchParams)
+		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, errResponse)
+	})
+
+	suite.Run("PATCH success - valid HI address FF is on", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Set an valid HI address but turn FF on
+		// Expected:   200 Response returned
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			planner,
+			vLocationServices,
+		}
+
+		now := time.Now()
+		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some second pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some third pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.TertiaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some second delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.SecondaryDeliveryAddress,
+			},
+		}, nil)
+		move := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		var testMove models.Move
+		err := suite.DB().EagerPreload("MTOShipments.PPMShipment").Find(&testMove, move.ID)
+		suite.NoError(err)
+		var testMtoShipment models.MTOShipment
+		err = suite.DB().Find(&testMtoShipment, mto_shipment.ID)
+		suite.NoError(err)
+		testMtoShipment.MoveTaskOrderID = testMove.ID
+		testMtoShipment.MoveTaskOrder = testMove
+		err = suite.DB().Save(&testMtoShipment)
+		suite.NoError(err)
+		testMove.MTOShipments = append(testMove.MTOShipments, mto_shipment)
+		err = suite.DB().Save(&testMove)
+		suite.NoError(err)
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", testMove.MTOShipments[0].ID), nil)
+
+		eTag := etag.GenerateEtag(testMtoShipment.UpdatedAt)
+		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(testMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+		hawaiiAddress := primev3messages.Address{
+			City:           handlers.FmtString("HONOLULU"),
+			PostalCode:     handlers.FmtString("96835"),
+			State:          handlers.FmtString("HI"),
+			StreetAddress1: handlers.FmtString("Some HI street"),
+		}
+		patchParams.Body = &primev3messages.UpdateMTOShipment{
+			TertiaryDeliveryAddress: struct{ primev3messages.Address }{hawaiiAddress},
+		}
+
+		// setting the HI flag to true
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_hawaii",
+			Match: true,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		patchHandler.HandlerConfig = handlerConfig
+		patchResponse := patchHandler.Handle(patchParams)
+		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, errResponse)
+	})
+
+	suite.Run("PATCH failure - valid AK address FF is off", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Set an valid AK address but turn FF off
+		// Expected:   422 Response returned
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			planner,
+			vLocationServices,
+		}
+
+		now := time.Now()
+		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some second pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some third pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.TertiaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some second delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.SecondaryDeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some third delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.TertiaryDeliveryAddress,
+			},
+		}, nil)
+		move := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		var testMove models.Move
+		err := suite.DB().EagerPreload("MTOShipments.PPMShipment").Find(&testMove, move.ID)
+		suite.NoError(err)
+		var testMtoShipment models.MTOShipment
+		err = suite.DB().Find(&testMtoShipment, mto_shipment.ID)
+		suite.NoError(err)
+		testMtoShipment.MoveTaskOrderID = testMove.ID
+		testMtoShipment.MoveTaskOrder = testMove
+		err = suite.DB().Save(&testMtoShipment)
+		suite.NoError(err)
+		testMove.MTOShipments = append(testMove.MTOShipments, mto_shipment)
+		err = suite.DB().Save(&testMove)
+		suite.NoError(err)
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", testMove.MTOShipments[0].ID), nil)
+
+		eTag := etag.GenerateEtag(testMtoShipment.UpdatedAt)
+		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(testMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+		alaskaAddress := primev3messages.Address{
+			City:           handlers.FmtString("Juneau"),
+			PostalCode:     handlers.FmtString("99801"),
+			State:          handlers.FmtString("AK"),
+			StreetAddress1: handlers.FmtString("Some AK street"),
+		}
+		patchParams.Body = &primev3messages.UpdateMTOShipment{
+			TertiaryDeliveryAddress: struct{ primev3messages.Address }{alaskaAddress},
+		}
+
+		// setting the AK flag to false
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		patchHandler.HandlerConfig = handlerConfig
+		patchResponse := patchHandler.Handle(patchParams)
+		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, errResponse)
+	})
+
+	suite.Run("PATCH failure - valid HI address FF is off", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Set an valid HI address but turn FF off
+		// Expected:   422 Response returned
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			planner,
+			vLocationServices,
+		}
+
+		now := time.Now()
+		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some second pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some third pickup address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.TertiaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some second delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.SecondaryDeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some third delivery address",
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				Type: &factory.Addresses.TertiaryDeliveryAddress,
+			},
+		}, nil)
+		move := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		var testMove models.Move
+		err := suite.DB().EagerPreload("MTOShipments.PPMShipment").Find(&testMove, move.ID)
+		suite.NoError(err)
+		var testMtoShipment models.MTOShipment
+		err = suite.DB().Find(&testMtoShipment, mto_shipment.ID)
+		suite.NoError(err)
+		testMtoShipment.MoveTaskOrderID = testMove.ID
+		testMtoShipment.MoveTaskOrder = testMove
+		err = suite.DB().Save(&testMtoShipment)
+		suite.NoError(err)
+		testMove.MTOShipments = append(testMove.MTOShipments, mto_shipment)
+		err = suite.DB().Save(&testMove)
+		suite.NoError(err)
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", testMove.MTOShipments[0].ID), nil)
+
+		eTag := etag.GenerateEtag(testMtoShipment.UpdatedAt)
+		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(testMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+		hawaiiAddress := primev3messages.Address{
+			City:           handlers.FmtString("HONOLULU"),
+			PostalCode:     handlers.FmtString("HI"),
+			State:          handlers.FmtString("96835"),
+			StreetAddress1: handlers.FmtString("Some HI street"),
+		}
+		patchParams.Body = &primev3messages.UpdateMTOShipment{
+			TertiaryDeliveryAddress: struct{ primev3messages.Address }{hawaiiAddress},
+		}
+
+		// setting the HI flag to false
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_hawaii",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		patchHandler.HandlerConfig = handlerConfig
+		patchResponse := patchHandler.Handle(patchParams)
+		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, errResponse)
+	})
+
+	suite.Run("POST failure - 422 - Invalid address", func() {
+		// Under Test: CreateMTOShipment handler code
+		// Setup:   Create an mto shipment on an available move
+		// Expected:   Failure, invalid address
+		handler, move := setupTestDataWithoutFF()
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:             handlers.FmtUUID(move.ID),
+				Agents:                      nil,
+				CustomerRemarks:             nil,
+				PointOfContact:              "John Doe",
+				PrimeEstimatedWeight:        handlers.FmtInt64(1200),
+				RequestedPickupDate:         handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:                primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
+				PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
+				SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
+				TertiaryPickupAddress:       struct{ primev3messages.Address }{tertiaryPickupAddress},
+				DestinationAddress:          struct{ primev3messages.Address }{destinationAddress},
+				SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
+				TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
+			},
+		}
+
+		// set bad data for address so the validation fails
+		params.Body.PickupAddress.City = handlers.FmtString("Bad City")
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.Run("POST failure - 422 - Doesn't return results for valid AK address if FF returns false", func() {
+		// Under Test: CreateMTOShipment handler code
+		// Setup:   Create an mto shipment on an available move
+		// Expected:   Failure, valid AK address but AK FF off, no results
+		handler, move := setupTestDataWithoutFF()
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:             handlers.FmtUUID(move.ID),
+				Agents:                      nil,
+				CustomerRemarks:             nil,
+				PointOfContact:              "John Doe",
+				PrimeEstimatedWeight:        handlers.FmtInt64(1200),
+				RequestedPickupDate:         handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:                primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
+				PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
+				SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
+				TertiaryPickupAddress:       struct{ primev3messages.Address }{tertiaryPickupAddress},
+				DestinationAddress:          struct{ primev3messages.Address }{destinationAddress},
+				SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
+				TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
+			},
+		}
+
+		// setting the AK flag to false and use a valid address
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlag",
+			mock.Anything,                 // context.Context
+			mock.Anything,                 // *zap.Logger
+			mock.AnythingOfType("string"), // entityID (userID)
+			mock.AnythingOfType("string"), // key
+			mock.Anything,                 // flagContext (map[string]string)
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		handler.HandlerConfig = handlerConfig
+		params.Body.PickupAddress.City = handlers.FmtString("JUNEAU")
+		params.Body.PickupAddress.State = handlers.FmtString("AK")
+		params.Body.PickupAddress.PostalCode = handlers.FmtString("99801")
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.Run("POST failure - 422 - Doesn't return results for valid HI address if FF returns false", func() {
+		// Under Test: CreateMTOShipment handler code
+		// Setup:   Create an mto shipment on an available move
+		// Expected:   Failure, valid HI address but HI FF off, no results
+		handler, move := setupTestDataWithoutFF()
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:             handlers.FmtUUID(move.ID),
+				Agents:                      nil,
+				CustomerRemarks:             nil,
+				PointOfContact:              "John Doe",
+				PrimeEstimatedWeight:        handlers.FmtInt64(1200),
+				RequestedPickupDate:         handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:                primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
+				PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
+				SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
+				TertiaryPickupAddress:       struct{ primev3messages.Address }{tertiaryPickupAddress},
+				DestinationAddress:          struct{ primev3messages.Address }{destinationAddress},
+				SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
+				TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
+			},
+		}
+
+		// setting the HI flag to false and use a valid address
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_hawaii",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlag",
+			mock.Anything,                 // context.Context
+			mock.Anything,                 // *zap.Logger
+			mock.AnythingOfType("string"), // entityID (userID)
+			mock.AnythingOfType("string"), // key
+			mock.Anything,                 // flagContext (map[string]string)
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		handler.HandlerConfig = handlerConfig
+		params.Body.PickupAddress.City = handlers.FmtString("HONOLULU")
+		params.Body.PickupAddress.State = handlers.FmtString("HI")
+		params.Body.PickupAddress.PostalCode = handlers.FmtString("96835")
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.Run("POST success - 200 - valid AK address if FF ON", func() {
+		// Under Test: CreateMTOShipment handler code
+		// Setup:   Create an mto shipment on an available move
+		// Expected:   Success, valid AK address AK FF ON
+		handler, move := setupTestData(false, true)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:             handlers.FmtUUID(move.ID),
+				Agents:                      nil,
+				CustomerRemarks:             nil,
+				PointOfContact:              "John Doe",
+				PrimeEstimatedWeight:        handlers.FmtInt64(1200),
+				RequestedPickupDate:         handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:                primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
+				PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
+				SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
+				TertiaryPickupAddress:       struct{ primev3messages.Address }{tertiaryPickupAddress},
+				DestinationAddress:          struct{ primev3messages.Address }{destinationAddress},
+				SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
+				TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
+			},
+		}
+
+		// setting the AK flag to false and use a valid address
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: true,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlag",
+			mock.Anything,                 // context.Context
+			mock.Anything,                 // *zap.Logger
+			mock.AnythingOfType("string"), // entityID (userID)
+			mock.AnythingOfType("string"), // key
+			mock.Anything,                 // flagContext (map[string]string)
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		handler.HandlerConfig = handlerConfig
+		params.Body.PickupAddress.City = handlers.FmtString("JUNEAU")
+		params.Body.PickupAddress.State = handlers.FmtString("AK")
+		params.Body.PickupAddress.PostalCode = handlers.FmtString("99801")
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+	})
+
+	suite.Run("POST success - 200 - valid HI address if FF ON", func() {
+		// Under Test: CreateMTOShipment handler code
+		// Setup:   Create an mto shipment on an available move
+		// Expected:   Success, valid HI address HI FF ON
+		handler, move := setupTestData(false, true)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:             handlers.FmtUUID(move.ID),
+				Agents:                      nil,
+				CustomerRemarks:             nil,
+				PointOfContact:              "John Doe",
+				PrimeEstimatedWeight:        handlers.FmtInt64(1200),
+				RequestedPickupDate:         handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:                primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
+				PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
+				SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
+				TertiaryPickupAddress:       struct{ primev3messages.Address }{tertiaryPickupAddress},
+				DestinationAddress:          struct{ primev3messages.Address }{destinationAddress},
+				SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
+				TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
+			},
+		}
+
+		// setting the HI flag to false and use a valid address
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_hawaii",
+			Match: true,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlag",
+			mock.Anything,                 // context.Context
+			mock.Anything,                 // *zap.Logger
+			mock.AnythingOfType("string"), // entityID (userID)
+			mock.AnythingOfType("string"), // key
+			mock.Anything,                 // flagContext (map[string]string)
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		handler.HandlerConfig = handlerConfig
+		params.Body.PickupAddress.City = handlers.FmtString("HONOLULU")
+		params.Body.PickupAddress.State = handlers.FmtString("HI")
+		params.Body.PickupAddress.PostalCode = handlers.FmtString("96835")
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+	})
+
+	suite.Run("Failure POST - 422 - Invalid address (PPM)", func() {
+		// Under Test: CreateMTOShipment handler code
+		// Setup:      Create a PPM shipment on an available move
+		// Expected:   Failure, returns an invalid address error
+		handler, move := setupTestDataWithoutFF()
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		counselorRemarks := "Some counselor remarks"
+		expectedDepartureDate := time.Now().AddDate(0, 0, 10)
+		sitExpected := true
+		sitLocation := primev3messages.SITLocationTypeDESTINATION
+		sitEstimatedWeight := unit.Pound(1500)
+		sitEstimatedEntryDate := expectedDepartureDate.AddDate(0, 0, 5)
+		sitEstimatedDepartureDate := sitEstimatedEntryDate.AddDate(0, 0, 20)
+		estimatedWeight := unit.Pound(3200)
+		hasProGear := true
+		proGearWeight := unit.Pound(400)
+		spouseProGearWeight := unit.Pound(250)
+		estimatedIncentive := 123456
+		sitEstimatedCost := 67500
+
+		address1 := models.Address{
+			StreetAddress1: "some address",
+			City:           "Bad City",
+			State:          "CA",
+			PostalCode:     "90210",
+		}
+
+		expectedPickupAddress := address1
+		pickupAddress = primev3messages.Address{
+			City:           &expectedPickupAddress.City,
+			PostalCode:     &expectedPickupAddress.PostalCode,
+			State:          &expectedPickupAddress.State,
+			StreetAddress1: &expectedPickupAddress.StreetAddress1,
+			StreetAddress2: expectedPickupAddress.StreetAddress2,
+			StreetAddress3: expectedPickupAddress.StreetAddress3,
+		}
+
+		expectedDestinationAddress := address1
+		destinationAddress = primev3messages.Address{
+			City:           &expectedDestinationAddress.City,
+			PostalCode:     &expectedDestinationAddress.PostalCode,
+			State:          &expectedDestinationAddress.State,
+			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
+			StreetAddress2: expectedDestinationAddress.StreetAddress2,
+			StreetAddress3: expectedDestinationAddress.StreetAddress3,
+		}
+		ppmDestinationAddress = primev3messages.PPMDestinationAddress{
+			City:           &expectedDestinationAddress.City,
+			PostalCode:     &expectedDestinationAddress.PostalCode,
+			State:          &expectedDestinationAddress.State,
+			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
+			StreetAddress2: expectedDestinationAddress.StreetAddress2,
+			StreetAddress3: expectedDestinationAddress.StreetAddress3,
+		}
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:  handlers.FmtUUID(move.ID),
+				ShipmentType:     primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypePPM),
+				CounselorRemarks: &counselorRemarks,
+				PpmShipment: &primev3messages.CreatePPMShipment{
+					ExpectedDepartureDate:  handlers.FmtDate(expectedDepartureDate),
+					PickupAddress:          struct{ primev3messages.Address }{pickupAddress},
+					SecondaryPickupAddress: struct{ primev3messages.Address }{secondaryPickupAddress},
+					TertiaryPickupAddress:  struct{ primev3messages.Address }{tertiaryPickupAddress},
+					DestinationAddress: struct {
+						primev3messages.PPMDestinationAddress
+					}{ppmDestinationAddress},
+					SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
+					TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
+					SitExpected:                 &sitExpected,
+					SitLocation:                 &sitLocation,
+					SitEstimatedWeight:          handlers.FmtPoundPtr(&sitEstimatedWeight),
+					SitEstimatedEntryDate:       handlers.FmtDate(sitEstimatedEntryDate),
+					SitEstimatedDepartureDate:   handlers.FmtDate(sitEstimatedDepartureDate),
+					EstimatedWeight:             handlers.FmtPoundPtr(&estimatedWeight),
+					HasProGear:                  &hasProGear,
+					ProGearWeight:               handlers.FmtPoundPtr(&proGearWeight),
+					SpouseProGearWeight:         handlers.FmtPoundPtr(&spouseProGearWeight),
+				},
+			},
+		}
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 	})
 }
 func GetTestAddress() primev3messages.Address {

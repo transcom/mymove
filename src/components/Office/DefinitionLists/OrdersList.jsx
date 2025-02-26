@@ -15,7 +15,7 @@ import {
   ordersTypeDetailReadable,
 } from 'utils/formatters';
 
-const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
+const OrdersList = ({ ordersInfo, moveInfo, showMissingWarnings }) => {
   const { ordersType } = ordersInfo;
   const isRetiree = ordersType === 'RETIREMENT';
   const isSeparatee = ordersType === 'SEPARATION';
@@ -57,6 +57,12 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
           <dt>Current duty location</dt>
           <dd data-testid="currentDutyLocation">{ordersInfo.currentDutyLocation?.name}</dd>
         </div>
+        <div className={descriptionListStyles.row}>
+          <dt>Counseling office</dt>
+          <dd data-testid="counselingOffice">
+            {moveInfo?.counselingOffice?.name ? moveInfo.counselingOffice.name : '—'}
+          </dd>
+        </div>
         <div
           className={classnames(descriptionListStyles.row, {
             [styles.missingInfoError]: !ordersInfo.newDutyLocation?.name,
@@ -66,7 +72,7 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
             {isRetiree || isSeparatee ? 'HOR, HOS, or PLEAD' : 'New duty location'}
           </dt>
           <dd data-testid="newDutyLocation">
-            {ordersInfo.newDutyLocation?.name ? ordersInfo.newDutyLocation?.name : '-'}
+            {ordersInfo.newDutyLocation?.name ? ordersInfo.newDutyLocation?.name : '—'}
           </dd>
         </div>
         <div
@@ -95,6 +101,10 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
         >
           <dt>Orders type detail</dt>
           <dd data-testid="ordersTypeDetail">{ordersTypeDetailReadable(ordersInfo.ordersTypeDetail, missingText)}</dd>
+        </div>
+        <div className={descriptionListStyles.row}>
+          <dt>Dependents</dt>
+          <dd data-testid="dependents">{ordersInfo.dependents ? 'Authorized' : 'Unauthorized'}</dd>
         </div>
         <div
           className={classnames(descriptionListStyles.row, {
@@ -135,6 +145,7 @@ OrdersList.defaultProps = {
 
 OrdersList.propTypes = {
   ordersInfo: OrdersInfoShape.isRequired,
+  moveInfo: PropTypes.object.isRequired,
   showMissingWarnings: PropTypes.bool,
 };
 

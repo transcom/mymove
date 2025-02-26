@@ -159,18 +159,9 @@ repos:
     rev: v1.1.1
     hooks:
       - id: gen-docs
-        args: ['docs/adr']
-      - id: circleci-validate
+        args: ["docs/adr"]
       - id: markdown-toc
       - id: hadolint
-
-  - repo: local
-    hooks:
-      - id: migrations-manifest
-        name: migrations manifest
-        entry: scripts/update-migrations-manifest
-        language: script
-        pass_filenames: false
 
   - repo: local
     hooks:
