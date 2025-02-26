@@ -1,6 +1,8 @@
 package move
 
 import (
+	"container/list"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -22,32 +24,55 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 		return nil, apperror.NewBadDataError("No moves to assign")
 	}
 
+	// make a map to track users and their assignment counts
+	// and a queue of userIDs
+	moveAssignments := make(map[uuid.UUID]int)
+	queue := list.New()
+	for _, user := range officeUserData {
+		if user != nil && user.MoveAssignments > 0 {
+			userID := uuid.FromStringOrNil(user.ID.String())
+			moveAssignments[userID] = int(user.MoveAssignments)
+			queue.PushBack(userID)
+		}
+	}
+
+	// point at the index in the movesToAssign set
+	moveIndex := 0
+
 	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		for _, move := range movesToAssign {
-			for _, officeUser := range officeUserData {
-				if officeUser != nil && officeUser.MoveAssignments > 0 {
-					officeUserId := uuid.FromStringOrNil(officeUser.ID.String())
+		// while we have a queue...
+		for moveIndex < len(movesToAssign) && queue.Len() > 0 {
+			// grab that ID off the front
+			user := queue.Front()
+			userID := user.Value.(uuid.UUID)
+			queue.Remove(user)
 
-					switch queueType {
-					case string(models.QueueTypeCounseling):
-						move.SCAssignedID = &officeUserId
-					case string(models.QueueTypeCloseout):
-						move.SCAssignedID = &officeUserId
-					case string(models.QueueTypeTaskOrder):
-						move.TOOAssignedID = &officeUserId
-					case string(models.QueueTypePaymentRequest):
-						move.TIOAssignedID = &officeUserId
-					}
+			// do our assignment logic
+			move := movesToAssign[moveIndex]
+			switch queueType {
+			case string(models.QueueTypeCounseling):
+				move.SCAssignedID = &userID
+			case string(models.QueueTypeCloseout):
+				move.SCAssignedID = &userID
+			case string(models.QueueTypeTaskOrder):
+				move.TOOAssignedID = &userID
+			case string(models.QueueTypePaymentRequest):
+				move.TIOAssignedID = &userID
+			}
 
-					officeUser.MoveAssignments -= 1
+			verrs, err := appCtx.DB().ValidateAndUpdate(&move)
+			if err != nil || verrs.HasAny() {
+				return apperror.NewInvalidInputError(move.ID, err, verrs, "")
+			}
 
-					verrs, err := appCtx.DB().ValidateAndUpdate(&move)
-					if err != nil || verrs.HasAny() {
-						return apperror.NewInvalidInputError(move.ID, err, verrs, "")
-					}
+			// decrement the users assignment count
+			moveAssignments[userID]--
+			// increment our index
+			moveIndex++
 
-					break
-				}
+			// If user still has remaining assignments, re-queue them
+			if moveAssignments[userID] > 0 {
+				queue.PushBack(userID)
 			}
 		}
 
