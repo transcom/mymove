@@ -444,9 +444,9 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
   it('toggles the sort direction when clicked - MovesQueue', () => {
     const wrapper = GetMountedComponent(tooRoutes.MOVE_QUEUE);
     const statusHeading = wrapper.find({ 'data-testid': 'status' }).at(0);
-
     statusHeading.simulate('click');
-    GetMountedComponent(tooRoutes.MOVE_QUEUE).update();
+    wrapper.update();
+
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(true);
 
     statusHeading.simulate('click');
@@ -461,14 +461,19 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     wrapper.update();
 
     expect(wrapper.find({ 'data-testid': 'customerName' }).at(0).hasClass('sortAscending')).toBe(true);
-  });
 
+    const assignedHeading = wrapper.find({ 'data-testid': 'assignedTo' }).at(0);
+    assignedHeading?.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'assignedTo' }).at(0).hasClass('sortAscending')).toBe(true);
+  });
   it('toggles the sort direction when clicked - DestinationRequestsQueue', () => {
     const wrapper = GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE);
     const statusHeading = wrapper.find({ 'data-testid': 'status' }).at(0);
-
     statusHeading.simulate('click');
-    GetMountedComponent(tooRoutes.MOVE_QUEUE).update();
+    wrapper.update();
+
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(true);
 
     statusHeading.simulate('click');
@@ -483,6 +488,12 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     wrapper.update();
 
     expect(wrapper.find({ 'data-testid': 'customerName' }).at(0).hasClass('sortAscending')).toBe(true);
+
+    const assignedHeading = wrapper.find({ 'data-testid': 'assignedTo' }).at(0);
+    assignedHeading?.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'assignedTo' }).at(0).hasClass('sortAscending')).toBe(true);
   });
 
   it('filters the queue - MovesQueue', () => {
@@ -494,6 +505,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     wrapper.update();
     expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('New move');
   });
+
   it('filters the queue - DestinationRequestsQueue', () => {
     const wrapper = GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE);
     const input = wrapper.find(Select).at(0).find('input');
@@ -503,6 +515,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     wrapper.update();
     expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('New move');
   });
+
   it('renders Search, Destination Queue and Move Queue tabs', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
