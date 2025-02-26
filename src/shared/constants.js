@@ -118,6 +118,18 @@ export const SHIPMENT_TYPES = {
   UNACCOMPANIED_BAGGAGE: 'UNACCOMPANIED_BAGGAGE',
 };
 
+export const PPM_TYPES = {
+  INCENTIVE_BASED: 'INCENTIVE_BASED',
+  ACTUAL_EXPENSE: 'ACTUAL_EXPENSE',
+  SMALL_PACKAGE: 'SMALL_PACKAGE',
+};
+
+export const ppmTypeLabels = [
+  { key: PPM_TYPES.INCENTIVE_BASED, label: 'Incentive-based' },
+  { key: PPM_TYPES.ACTUAL_EXPENSE, label: 'Actual Expense' },
+  { key: PPM_TYPES.SMALL_PACKAGE, label: 'Small Package' },
+];
+
 // These constants are used for forming URLs that have the shipment type in
 // them so that they are human readable.
 export const SHIPMENT_OPTIONS_URL = {
@@ -219,6 +231,7 @@ export const DEFAULT_EMPTY_VALUE = '—'; // emdash
 
 export const FEATURE_FLAG_KEYS = {
   PPM: 'ppm',
+  PPM_SPR: 'ppm_spr',
   NTS: 'nts',
   NTSR: 'ntsr',
   BOAT: 'boat',
