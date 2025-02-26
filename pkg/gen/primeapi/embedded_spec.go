@@ -36,6 +36,44 @@ func init() {
   },
   "basePath": "/prime/v1",
   "paths": {
+    "/addresses/zip-city-lookup/{search}": {
+      "get": {
+        "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns city, state, postal code, and county associated with the specified full/partial postal code or city state string",
+        "operationId": "getLocationByZipCityState",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "search",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested list of city, state, county, and postal code matches",
+            "schema": {
+              "$ref": "#/definitions/VLocations"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
@@ -4714,6 +4752,151 @@ func init() {
         }
       }
     },
+    "VLocation": {
+      "description": "A postal code, city, and state lookup",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "Anytown"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
+        "postalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}?)$",
+          "example": "90210"
+        },
+        "state": {
+          "type": "string",
+          "title": "State",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "x-display-value": {
+            "AK": "AK",
+            "AL": "AL",
+            "AR": "AR",
+            "AZ": "AZ",
+            "CA": "CA",
+            "CO": "CO",
+            "CT": "CT",
+            "DC": "DC",
+            "DE": "DE",
+            "FL": "FL",
+            "GA": "GA",
+            "HI": "HI",
+            "IA": "IA",
+            "ID": "ID",
+            "IL": "IL",
+            "IN": "IN",
+            "KS": "KS",
+            "KY": "KY",
+            "LA": "LA",
+            "MA": "MA",
+            "MD": "MD",
+            "ME": "ME",
+            "MI": "MI",
+            "MN": "MN",
+            "MO": "MO",
+            "MS": "MS",
+            "MT": "MT",
+            "NC": "NC",
+            "ND": "ND",
+            "NE": "NE",
+            "NH": "NH",
+            "NJ": "NJ",
+            "NM": "NM",
+            "NV": "NV",
+            "NY": "NY",
+            "OH": "OH",
+            "OK": "OK",
+            "OR": "OR",
+            "PA": "PA",
+            "RI": "RI",
+            "SC": "SC",
+            "SD": "SD",
+            "TN": "TN",
+            "TX": "TX",
+            "UT": "UT",
+            "VA": "VA",
+            "VT": "VT",
+            "WA": "WA",
+            "WI": "WI",
+            "WV": "WV",
+            "WY": "WY"
+          }
+        },
+        "usPostRegionCitiesID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "VLocations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/VLocation"
+      }
+    },
     "ValidationError": {
       "allOf": [
         {
@@ -4848,6 +5031,56 @@ func init() {
   },
   "basePath": "/prime/v1",
   "paths": {
+    "/addresses/zip-city-lookup/{search}": {
+      "get": {
+        "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns city, state, postal code, and county associated with the specified full/partial postal code or city state string",
+        "operationId": "getLocationByZipCityState",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "search",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested list of city, state, county, and postal code matches",
+            "schema": {
+              "$ref": "#/definitions/VLocations"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
@@ -9901,6 +10134,151 @@ func init() {
           "format": "uri",
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
+      }
+    },
+    "VLocation": {
+      "description": "A postal code, city, and state lookup",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "Anytown"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
+        "postalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}?)$",
+          "example": "90210"
+        },
+        "state": {
+          "type": "string",
+          "title": "State",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "x-display-value": {
+            "AK": "AK",
+            "AL": "AL",
+            "AR": "AR",
+            "AZ": "AZ",
+            "CA": "CA",
+            "CO": "CO",
+            "CT": "CT",
+            "DC": "DC",
+            "DE": "DE",
+            "FL": "FL",
+            "GA": "GA",
+            "HI": "HI",
+            "IA": "IA",
+            "ID": "ID",
+            "IL": "IL",
+            "IN": "IN",
+            "KS": "KS",
+            "KY": "KY",
+            "LA": "LA",
+            "MA": "MA",
+            "MD": "MD",
+            "ME": "ME",
+            "MI": "MI",
+            "MN": "MN",
+            "MO": "MO",
+            "MS": "MS",
+            "MT": "MT",
+            "NC": "NC",
+            "ND": "ND",
+            "NE": "NE",
+            "NH": "NH",
+            "NJ": "NJ",
+            "NM": "NM",
+            "NV": "NV",
+            "NY": "NY",
+            "OH": "OH",
+            "OK": "OK",
+            "OR": "OR",
+            "PA": "PA",
+            "RI": "RI",
+            "SC": "SC",
+            "SD": "SD",
+            "TN": "TN",
+            "TX": "TX",
+            "UT": "UT",
+            "VA": "VA",
+            "VT": "VT",
+            "WA": "WA",
+            "WI": "WI",
+            "WV": "WV",
+            "WY": "WY"
+          }
+        },
+        "usPostRegionCitiesID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "VLocations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/VLocation"
       }
     },
     "ValidationError": {
