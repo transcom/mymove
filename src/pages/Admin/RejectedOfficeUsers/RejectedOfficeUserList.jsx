@@ -39,12 +39,12 @@ const ListActions = () => {
 
 const filterList = [
   <SearchInput source="search" alwaysOn />,
-  <TextInput label="Emails" source="emails" />,
+  <TextInput label="Email" source="emails" />,
   <TextInput label="First Name" source="firstName" />,
   <TextInput label="Last Name" source="lastName" />,
-  <TextInput label="Offices" source="offices" />,
+  <TextInput label="Office" source="offices" />,
   <TextInput label="Rejection Reason" source="rejectionReason" />,
-  <TextInput label="Rejection On" source="rejectedOn" />,
+  <TextInput label="Rejected On" source="rejectedOn" />,
   <TextInput label="Roles" source="roles" />,
 ];
 
@@ -62,8 +62,13 @@ const SearchFilters = () => (
 const defaultSort = { field: 'createdAt', order: 'DESC' };
 
 const RejectedOfficeUserList = () => (
-  <List pagination={<AdminPagination />} perPage={25} sort={defaultSort} actions={<ListActions />}>
-    <SearchFilters />
+  <List
+    filters={<SearchFilters />}
+    pagination={<AdminPagination />}
+    perPage={25}
+    sort={defaultSort}
+    actions={<ListActions />}
+  >
     <Datagrid bulkActionButtons={false} rowClick="show" data-testid="rejected-office-user-fields">
       <TextField source="id" />
       <TextField source="email" />
