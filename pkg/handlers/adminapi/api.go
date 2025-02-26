@@ -24,6 +24,7 @@ import (
 	prsff "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	rejectedofficeusers "github.com/transcom/mymove/pkg/services/rejected_office_users"
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 	"github.com/transcom/mymove/pkg/services/roles"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
@@ -78,6 +79,20 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		requestedofficeusers.NewRequestedOfficeUserUpdater(queryBuilder),
 		userRolesCreator,
 		newRolesFetcher,
+	}
+
+	adminAPI.RejectedOfficeUsersIndexRejectedOfficeUsersHandler = IndexRejectedOfficeUsersHandler{
+		handlerConfig,
+		rejectedofficeusers.NewRejectedOfficeUsersListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+		adminAPI.RejectedOfficeUsersGetRejectedOfficeUserHandler = GetRejectedOfficeUserHandler{
+		handlerConfig,
+		rejectedofficeusers.NewRejectedOfficeUserFetcher(queryBuilder),
+		newRolesFetcher,
+		query.NewQueryFilter,
 	}
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
