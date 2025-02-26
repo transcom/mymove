@@ -91,6 +91,7 @@ func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext
 		Where("users_roles.deleted_at IS NULL").
 		Where("office_users.active = TRUE").
 		Order("last_name asc").
+		Order("first_name asc").
 		All(&officeUsers)
 
 	if err != nil {
@@ -120,6 +121,7 @@ func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx 
 		Where("users_privileges.deleted_at IS NULL").
 		Where("privileges.privilege_type = 'safety'").
 		Order("last_name asc").
+		Order("first_name asc").
 		All(&officeUsers)
 
 	if err != nil {
