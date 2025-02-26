@@ -501,15 +501,10 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		}, nil)
 		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 
-		if err != nil {
-			suite.Error(err)
-			suite.Contains(err.Error(), "Failed to find counseling office that provides counseling")
-		} else {
-			suite.NoError(err)
-			suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected Needs Service Counseling")
-			suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status, "expected Submitted")
-			suite.Equal(models.PPMShipmentStatusSubmitted, move.MTOShipments[0].PPMShipment.Status, "expected Submitted")
-		}
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected Needs Service Counseling")
+		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status, "expected Submitted")
+		suite.Equal(models.PPMShipmentStatusSubmitted, move.MTOShipments[0].PPMShipment.Status, "expected Submitted")
 	})
 
 	suite.Run("returns an error when a Mobile Home Shipment is not formatted correctly", func() {
@@ -1089,8 +1084,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 				LinkOnly: true,
 			},
 		}, nil)
-
-		closestOffices, err := toRouter.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), ppmDutyLocation.ID)
+		closestOffices, err := toRouter.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), ppmDutyLocation.ID, move.Orders.ServiceMemberID)
 		suite.NoError(err)
 		suite.NotNil(closestOffices)
 
