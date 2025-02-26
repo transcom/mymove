@@ -73,6 +73,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 	suite.Run("Test updating service item destination address on shipment address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		address := factory.BuildAddress(suite.DB(), nil, nil)
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
 		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -89,6 +90,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			{
 				Model:    address,
 				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
 				LinkOnly: true,
 			},
 		}, nil)
@@ -125,6 +131,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 	suite.Run("Test updating origin SITDeliveryMiles on shipment pickup address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		address := factory.BuildAddress(suite.DB(), nil, nil)
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
 		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -141,6 +148,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			{
 				Model:    address,
 				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
 				LinkOnly: true,
 			},
 		}, nil)

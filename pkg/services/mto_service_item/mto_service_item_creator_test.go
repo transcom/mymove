@@ -1830,7 +1830,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
-	suite.Run("Calcuating price estimated on creation for HHG ", func() {
+	suite.Run("Calculating price estimated on creation for HHG ", func() {
 		setupTestData := func() models.MTOShipment {
 			// Set up data to use for all Origin SIT Service Item tests
 
@@ -2104,6 +2104,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			mock.Anything,
 			false,
 			false,
+			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -2129,7 +2130,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		suite.Equal(unit.Cents(-168), fscEstimatedPriceInCents)
 	})
 
-	suite.Run("Calcuating price estimated on creation for NTS shipment ", func() {
+	suite.Run("Calculating price estimated on creation for NTS shipment ", func() {
 		setupTestData := func() models.MTOShipment {
 			// Set up data to use for all Origin SIT Service Item tests
 
