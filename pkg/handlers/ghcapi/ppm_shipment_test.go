@@ -46,6 +46,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 				ServiceArea:      "056",
 				ServicesSchedule: 3,
 				SITPDSchedule:    3,
+				ContractID:       contractYear.ContractID,
 			},
 		})
 
