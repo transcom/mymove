@@ -2971,7 +2971,6 @@ definitions:
     type: string
     title: PPM Type
     description: Defines a PPM type
-    readOnly: true
     enum:
       - INCENTIVE_BASED
       - ACTUAL_EXPENSE

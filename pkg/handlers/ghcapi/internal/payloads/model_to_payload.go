@@ -982,6 +982,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	payloadPPMShipment := &ghcmessages.PPMShipment{
 		ID:                             *handlers.FmtUUID(ppmShipment.ID),
+		PpmType:                        ghcmessages.PPMType(ppmShipment.PPMType),
 		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
 		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
 		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),

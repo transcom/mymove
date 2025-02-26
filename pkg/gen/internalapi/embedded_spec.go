@@ -6695,8 +6695,7 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ],
-      "readOnly": true
+      ]
     },
     "PatchMovePayload": {
       "type": "object",
@@ -15851,8 +15850,7 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ],
-      "readOnly": true
+      ]
     },
     "PatchMovePayload": {
       "type": "object",

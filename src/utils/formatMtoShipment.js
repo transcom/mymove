@@ -87,6 +87,7 @@ const emptyAddressShape = {
 
 export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment = {}, closeoutOffice = {} }) {
   const displayValues = {
+    ppmType: ppmShipment.ppmType,
     expectedDepartureDate: ppmShipment.expectedDepartureDate,
     pickup: {
       address: ppmShipment.pickupAddress || emptyAddressShape,
@@ -294,6 +295,7 @@ export function formatMtoShipmentForDisplay({
 
 export function formatPpmShipmentForAPI(formValues) {
   let ppmShipmentValues = {
+    ppmType: formValues.ppmType,
     expectedDepartureDate: formatDateForSwagger(formValues.expectedDepartureDate),
     pickupAddress: formatAddressForAPI(formValues.pickup.address),
     destinationAddress: formatAddressForAPI(formValues.destination.address),
