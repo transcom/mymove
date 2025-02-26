@@ -103,6 +103,7 @@ type Move struct {
 	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
 	CounselingOfficeID                             *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
 	CounselingOffice                               *TransportationOffice `json:"counseling_transportation_office" belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
+	PrimeAcknowledgedAt							   *time.Time            `db:"prime_acknowledged_at"`
 }
 
 type MoveWithEarliestDate struct {
