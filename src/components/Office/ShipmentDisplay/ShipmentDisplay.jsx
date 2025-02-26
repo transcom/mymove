@@ -14,7 +14,7 @@ import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
-import { shipmentStatuses, ppmShipmentStatusLabels, ppmShipmentStatuses } from 'constants/shipments';
+import { shipmentStatuses, ppmShipmentStatuses, ppmShipmentStatusLabels } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 import Restricted from 'components/Restricted/Restricted';
