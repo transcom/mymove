@@ -205,11 +205,11 @@ export function formatMtoShipmentForDisplay({
     tertiaryDelivery: {
       address: { ...emptyAddressShape },
     },
-    hasDeliveryAddress: 'no',
-    hasSecondaryPickup: 'no',
-    hasSecondaryDelivery: 'no',
-    hasTertiaryPickup: 'no',
-    hasTertiaryDelivery: 'no',
+    hasDeliveryAddress: 'false',
+    hasSecondaryPickup: 'false',
+    hasSecondaryDelivery: 'false',
+    hasTertiaryPickup: 'false',
+    hasTertiaryDelivery: 'false',
     ntsRecordedWeight,
     tacType,
     sacType,
@@ -245,16 +245,16 @@ export function formatMtoShipmentForDisplay({
 
   if (secondaryPickupAddress) {
     displayValues.secondaryPickup.address = { ...emptyAddressShape, ...secondaryPickupAddress };
-    displayValues.hasSecondaryPickup = 'yes';
+    displayValues.hasSecondaryPickup = 'true';
   }
   if (tertiaryPickupAddress) {
     displayValues.tertiaryPickup.address = { ...emptyAddressShape, ...tertiaryPickupAddress };
-    displayValues.hasTertiaryPickup = 'yes';
+    displayValues.hasTertiaryPickup = 'true';
   }
 
   if (destinationAddress) {
     displayValues.delivery.address = { ...emptyAddressShape, ...destinationAddress };
-    if (destinationAddress.streetAddress1 !== 'N/A') displayValues.hasDeliveryAddress = 'yes';
+    if (destinationAddress.streetAddress1 !== 'N/A') displayValues.hasDeliveryAddress = 'true';
   }
 
   if (destinationType) {
@@ -263,11 +263,11 @@ export function formatMtoShipmentForDisplay({
 
   if (secondaryDeliveryAddress) {
     displayValues.secondaryDelivery.address = { ...emptyAddressShape, ...secondaryDeliveryAddress };
-    displayValues.hasSecondaryDelivery = 'yes';
+    displayValues.hasSecondaryDelivery = 'true';
   }
   if (tertiaryDeliveryAddress) {
     displayValues.tertiaryDelivery.address = { ...emptyAddressShape, ...tertiaryDeliveryAddress };
-    displayValues.hasTertiaryDelivery = 'yes';
+    displayValues.hasTertiaryDelivery = 'true';
   }
 
   if (requestedDeliveryDate) {
