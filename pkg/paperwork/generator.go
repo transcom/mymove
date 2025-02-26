@@ -175,7 +175,24 @@ func (g *Generator) newTempFileWithName(fileName string) (afero.File, error) {
 
 // Cleanup removes filesystem working dir
 func (g *Generator) Cleanup(_ appcontext.AppContext) error {
-	return g.fs.RemoveAll(g.workDir)
+	files, err := afero.ReadDir(g.fs, g.workDir)
+
+	if err != nil {
+		return err
+	}
+	fmt.Println("--------- BEFORE DELETION -----------")
+	for _, file := range files {
+		fmt.Println(file.Name())
+	}
+	fmt.Println("-------------------------------------")
+
+	err = g.fs.RemoveAll(g.workDir)
+
+	if err != nil {
+		return err
+	}
+
+	return err
 }
 
 // Get PDF Configuration (For Testing)

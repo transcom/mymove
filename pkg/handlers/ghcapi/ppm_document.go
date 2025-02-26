@@ -187,6 +187,15 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 			}
 
 			payload := io.NopCloser(AOAPacket)
+
+			if err = h.AOAPacketCreator.CleanupAOAPacketFiles(appCtx); err != nil {
+				logger.Error("Error deleting temp AOA Packet files", zap.Error(err))
+				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+				errPayload := &ghcmessages.Error{Message: &errInstance}
+				return ppmdocumentops.NewShowAOAPacketInternalServerError().
+					WithPayload(errPayload), err
+			}
+
 			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
 
 			return ppmdocumentops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
@@ -222,6 +231,15 @@ func (h ShowPaymentPacketHandler) Handle(params ppmdocumentops.ShowPaymentPacket
 			}
 
 			payload := io.NopCloser(pdf)
+
+			if err = h.PaymentPacketCreator.CleanupPaymentPacketFiles(appCtx); err != nil {
+				appCtx.Logger().Error("Error deleting temp Payment Packet files", zap.Error(err))
+				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+				errPayload := &ghcmessages.Error{Message: &errInstance}
+				return ppmdocumentops.NewShowAOAPacketInternalServerError().
+					WithPayload(errPayload), err
+			}
+
 			filename := fmt.Sprintf("inline; filename=\"ppm_payment_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
 
 			return ppmdocumentops.NewShowPaymentPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
