@@ -14,7 +14,7 @@ import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
-import { shipmentStatuses, ppmShipmentStatusLabels } from 'constants/shipments';
+import { shipmentStatuses, ppmShipmentStatusLabels, ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 import Restricted from 'components/Restricted/Restricted';
@@ -112,7 +112,14 @@ const ShipmentDisplay = ({
                 )}
                 {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
                 {displayInfo.ppmShipment?.status && (
-                  <Tag className="usa-tag--ppmStatus" data-testid="ppmStatusTag">
+                  <Tag
+                    className={
+                      displayInfo.ppmShipment.status !== ppmShipmentStatuses.CANCELED
+                        ? 'usa-tag--ppmStatus'
+                        : 'usa-tag--cancellation'
+                    }
+                    data-testid="ppmStatusTag"
+                  >
                     {ppmShipmentStatusLabels[displayInfo.ppmShipment?.status]}
                   </Tag>
                 )}
