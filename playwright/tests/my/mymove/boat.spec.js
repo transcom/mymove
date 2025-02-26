@@ -125,7 +125,7 @@ test.describe('Boat shipment', () => {
     ).toBeVisible();
     await page.getByTestId('boatConfirmationContinue').click();
 
-    await expect(page.getByText('HHG')).toBeVisible();
+    await expect(page.getByTestId('tag')).toHaveText('HHG');
   });
 
   test('Is able to delete a boat shipment', async ({ page, customerPage }) => {
@@ -236,7 +236,7 @@ test.describe('Boat shipment', () => {
     await expect(
       page.getByRole('heading', { name: 'Movers pack and ship it, paid by the government (HHG)' }),
     ).not.toBeVisible();
-    await expect(page.getByText('HHG')).toBeVisible();
+    await expect(page.getByTestId('tag')).toHaveText('HHG');
     await expect(page.getByText('Movers pack and transport this shipment')).toBeVisible();
     await page.getByTestId('wizardNextButton').click();
     await customerPage.waitForPage.reviewShipments();
@@ -452,7 +452,7 @@ test.describe('(MultiMove) Boat shipment', () => {
     ).toBeVisible();
     await page.getByTestId('boatConfirmationContinue').click();
 
-    await expect(page.getByText('HHG')).toBeVisible();
+    await expect(page.getByTestId('tag')).toHaveText('HHG');
   });
 
   test('Is able to delete a boat shipment', async ({ page, customerPage }) => {
@@ -569,7 +569,7 @@ test.describe('(MultiMove) Boat shipment', () => {
     await expect(
       page.getByRole('heading', { name: 'Movers pack and ship it, paid by the government (HHG)' }),
     ).not.toBeVisible();
-    await expect(page.getByText('HHG')).toBeVisible();
+    await expect(page.getByTestId('tag')).toHaveText('HHG');
     await expect(page.getByText('Movers pack and transport this shipment')).toBeVisible();
     await page.getByTestId('wizardNextButton').click();
     await customerPage.waitForPage.reviewShipments();
