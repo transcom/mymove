@@ -14,7 +14,7 @@ import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
-import { shipmentStatuses, ppmShipmentStatuses } from 'constants/shipments';
+import { shipmentStatuses, ppmShipmentStatusLabels } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 import Restricted from 'components/Restricted/Restricted';
@@ -101,8 +101,7 @@ const ShipmentDisplay = ({
                 )}
                 {displayInfo.isDiversion && <Tag className="usa-tag--diversion">diversion</Tag>}
                 {(displayInfo.shipmentStatus === shipmentStatuses.CANCELED ||
-                  displayInfo.status === shipmentStatuses.CANCELED ||
-                  displayInfo.ppmShipment?.status === ppmShipmentStatuses.CANCELED) && (
+                  displayInfo.status === shipmentStatuses.CANCELED) && (
                   <Tag className="usa-tag--cancellation">canceled</Tag>
                 )}
                 {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
@@ -112,6 +111,11 @@ const ShipmentDisplay = ({
                   <Tag className="usa-tag--cancellation">cancellation requested</Tag>
                 )}
                 {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
+                {displayInfo.ppmShipment?.status && (
+                  <Tag className="usa-tag--ppmStatus" data-testid="ppmStatusTag">
+                    {ppmShipmentStatusLabels[displayInfo.ppmShipment?.status]}
+                  </Tag>
+                )}
               </div>
             </div>
             <div className={styles.shipmentLocator}>
