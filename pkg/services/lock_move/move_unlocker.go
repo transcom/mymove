@@ -46,19 +46,7 @@ func (m moveUnlocker) UnlockMove(appCtx appcontext.AppContext, move *models.Move
 	var moveBeforeUpdate = *move
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		verrs, saveErr := appCtx.DB().ValidateAndSave(move)
-		if verrs != nil && verrs.HasAny() {
-			invalidInputError := apperror.NewInvalidInputError(move.ID, nil, verrs, "Could not validate move while unlocking it.")
-
-			return invalidInputError
-		}
-		if saveErr != nil {
-			return saveErr
-		}
-
-		// Pop automatically updates updated_at. Even when passing in updated_at to the excluded columns for ValidateAndSave.
-		// Storing the move before update then setting the updated_at value back to what it was before go buffalo implementation.
-		if err := appCtx.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?", moveBeforeUpdate.UpdatedAt, move.ID).Exec(); err != nil {
+		if err := appCtx.DB().RawQuery("UPDATE moves SET locked_by=?, lock_expires_at=?, updated_at=? WHERE id=?", nil, nil, moveBeforeUpdate.UpdatedAt, move.ID).Exec(); err != nil {
 			return err
 		}
 
