@@ -784,13 +784,13 @@ func (f *estimatePPM) CalculateOCONUSIncentive(appCtx appcontext.AppContext, ppm
 		mileage = 0
 	case isPickupOconus && !isDestinationOconus:
 		// OCONUS -> CONUS (port ZIP -> address ZIP)
-		mileage, err = f.planner.ZipTransitDistance(appCtx, ppmPort.UsPostRegionCity.UsprZipID, destinationAddress.PostalCode, true)
+		mileage, err = f.planner.ZipTransitDistance(appCtx, ppmPort.UsPostRegionCity.UsprZipID, destinationAddress.PostalCode)
 		if err != nil {
 			return nil, fmt.Errorf("failed to calculate OCONUS to CONUS mileage: %w", err)
 		}
 	case !isPickupOconus && isDestinationOconus:
 		// CONUS -> OCONUS (address ZIP -> port ZIP)
-		mileage, err = f.planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, ppmPort.UsPostRegionCity.UsprZipID, true)
+		mileage, err = f.planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, ppmPort.UsPostRegionCity.UsprZipID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to calculate CONUS to OCONUS mileage: %w", err)
 		}

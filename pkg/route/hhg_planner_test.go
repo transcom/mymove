@@ -78,7 +78,7 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 
 		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewHHGPlanner(plannerMileage)
-		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30301", false)
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30301")
 		suite.NoError(err)
 		suite.Equal(149, distance)
 	})
@@ -88,7 +88,7 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 
 		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewHHGPlanner(plannerMileage)
-		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "11201", "11201", false)
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "11201", "11201")
 		suite.NoError(err)
 		suite.Equal(1, distance)
 	})
@@ -105,7 +105,7 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 		planner := NewHHGPlanner(plannerMileage)
 
 		// Get distance between two zips in the same base point city
-		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "33169", "33040", false)
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "33169", "33040")
 		suite.NoError(err)
 
 		// Ensure DTOD was used for distance
@@ -121,8 +121,27 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 
 		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewHHGPlanner(plannerMileage)
-		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30901", false)
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30901")
 		suite.Error(err)
 		suite.Equal(0, distance)
+	})
+
+	suite.Run("ZipTransitDistance returns Rand McNally distance when isInternationalShipment is true", func() {
+		testSoapClient := &ghcmocks.SoapCaller{}
+
+		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
+		planner := NewHHGPlanner(plannerMileage)
+		fromZip := "74133"
+		toZip := "99702"
+
+		// get the result from the test db
+		var zip3Distance models.Zip3Distance
+		err := suite.DB().Where("from_zip3 = $1 AND to_zip3 = $2", fromZip[0:3], toZip[0:3]).First(&zip3Distance)
+		suite.NoError(err)
+
+		// confirm we get the same
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "74133", "99702")
+		suite.NoError(err)
+		suite.Equal(zip3Distance.DistanceMiles, distance)
 	})
 }
