@@ -1246,3 +1246,30 @@ func (suite *PayloadsSuite) TestMTOServiceItemsPODFSC() {
 	suite.Equal(portLocation.Port.PortCode, internationalFuelSurchargeItem.PortCode)
 	suite.Equal(podfscServiceItem.ReService.Code.String(), internationalFuelSurchargeItem.ReServiceCode)
 }
+
+func (suite *PayloadsSuite) TestVLocation() {
+	suite.Run("correctly maps VLocation with all fields populated", func() {
+		city := "LOS ANGELES"
+		state := "CA"
+		postalCode := "90210"
+		county := "LOS ANGELES"
+		usPostRegionCityID := uuid.Must(uuid.NewV4())
+
+		vLocation := &models.VLocation{
+			CityName:             city,
+			StateName:            state,
+			UsprZipID:            postalCode,
+			UsprcCountyNm:        county,
+			UsPostRegionCitiesID: &usPostRegionCityID,
+		}
+
+		payload := VLocation(vLocation)
+
+		suite.IsType(payload, &primemessages.VLocation{})
+		suite.Equal(handlers.FmtUUID(usPostRegionCityID), &payload.UsPostRegionCitiesID, "Expected UsPostRegionCitiesID to match")
+		suite.Equal(city, payload.City, "Expected City to match")
+		suite.Equal(state, payload.State, "Expected State to match")
+		suite.Equal(postalCode, payload.PostalCode, "Expected PostalCode to match")
+		suite.Equal(county, *(payload.County), "Expected County to match")
+	})
+}

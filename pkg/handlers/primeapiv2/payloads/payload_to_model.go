@@ -276,7 +276,7 @@ func PPMShipmentModelFromCreate(ppmShipment *primev2messages.CreatePPMShipment) 
 		StreetAddress1: "Deprecated Endpoint Prime V1",
 		StreetAddress2: models.StringPointer("Endpoint no longer supported"),
 		StreetAddress3: models.StringPointer("Update address field to appropriate values"),
-		City:           "DEPV1",
+		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "90210",
 	}

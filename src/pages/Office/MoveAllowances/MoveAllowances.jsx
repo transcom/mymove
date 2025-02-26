@@ -115,7 +115,6 @@ const MoveAllowances = () => {
     const {
       grade,
       agency,
-      dependentsAuthorized,
       proGearWeight,
       proGearWeightSpouse,
       requiredMedicalEquipmentWeight,
@@ -140,7 +139,6 @@ const MoveAllowances = () => {
       reportByDate: order.report_by_date,
       grade,
       agency,
-      dependentsAuthorized,
       proGearWeight: Number(proGearWeight),
       proGearWeightSpouse: Number(proGearWeightSpouse),
       requiredMedicalEquipmentWeight: Number(requiredMedicalEquipmentWeight),
@@ -159,7 +157,6 @@ const MoveAllowances = () => {
 
   const { entitlement, grade, agency } = order;
   const {
-    dependentsAuthorized,
     proGearWeight,
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
@@ -176,7 +173,6 @@ const MoveAllowances = () => {
   const initialValues = {
     grade,
     agency,
-    dependentsAuthorized,
     proGearWeight: `${proGearWeight}`,
     proGearWeightSpouse: `${proGearWeightSpouse}`,
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
