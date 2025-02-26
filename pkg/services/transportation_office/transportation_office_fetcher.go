@@ -134,8 +134,10 @@ func ListDistinctGBLOCs(appCtx appcontext.AppContext) (models.GBLOCs, error) {
 	return gblocList, err
 }
 
+// return all the transportation offices in the GBLOC of the given duty location where provides_services_counseling = true
+// serviceMemberID is only provided when this function is called by the office handler
 func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffices, error) {
-	officeList, err := findCounselingOffice(appCtx, dutyLocationID, serviceMemberID)
+	officeList, err := models.GetCounselingOffices(appCtx.DB(), dutyLocationID, serviceMemberID)
 
 	if err != nil {
 		switch err {
@@ -315,7 +317,7 @@ func findOconusGblocDepartmentIndicator(appCtx appcontext.AppContext, dutyLocati
 }
 
 // Return the closest transportation office in the GBLOC of the given duty location for oconus/conus duty locations for a prime counseled
-func (o transportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffice, error) {
+func (o transportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffice, error) {
 	var closestOffice models.TransportationOffice
 	duty_location, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
 	if err != nil {
@@ -326,7 +328,7 @@ func (o transportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appC
 
 	// Find for oconus duty location
 	if *duty_location.Address.IsOconus {
-		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location, appCtx.Session().ServiceMemberID)
+		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location, serviceMemberID)
 		if err != nil {
 			appCtx.Logger().Error("Failed to find OCONUS GBLOC department indicator", zap.Error(err))
 			return &closestOffice, err
