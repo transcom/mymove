@@ -1,4 +1,11 @@
-import { setMoveId, SET_MOVE_ID, SET_CAN_ADD_ORDERS, setCanAddOrders } from './actions';
+import {
+  setMoveId,
+  SET_MOVE_ID,
+  SET_CAN_ADD_ORDERS,
+  setCanAddOrders,
+  SET_REFETCH_QUEUE,
+  setRefetchQueue,
+} from './actions';
 
 describe('GeneralState actions', () => {
   it('setMoveId returns the expected action', () => {
@@ -17,5 +24,14 @@ describe('GeneralState actions', () => {
     };
 
     expect(setCanAddOrders(true)).toEqual(expectedAction);
+  });
+
+  it('setRefetchQueue returns the expected action', () => {
+    const expectedAction = {
+      type: SET_REFETCH_QUEUE,
+      payload: true,
+    };
+
+    expect(setRefetchQueue(true)).toEqual(expectedAction);
   });
 });
