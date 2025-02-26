@@ -17,6 +17,24 @@ type PaymentPacketCreator struct {
 	mock.Mock
 }
 
+// CleanupPaymentPacketFiles provides a mock function with given fields: appCtx
+func (_m *PaymentPacketCreator) CleanupPaymentPacketFiles(appCtx appcontext.AppContext) error {
+	ret := _m.Called(appCtx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CleanupPaymentPacketFiles")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) error); ok {
+		r0 = rf(appCtx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Generate provides a mock function with given fields: appCtx, ppmShipmentID, addBookmarks, addWaterMarks
 func (_m *PaymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWaterMarks bool) (io.ReadCloser, error) {
 	ret := _m.Called(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
