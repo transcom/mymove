@@ -90,7 +90,6 @@ const ServicesCounselingMoveAllowances = () => {
     const {
       grade,
       agency,
-      dependentsAuthorized,
       proGearWeight,
       proGearWeightSpouse,
       requiredMedicalEquipmentWeight,
@@ -112,7 +111,6 @@ const ServicesCounselingMoveAllowances = () => {
       reportByDate: order.report_by_date,
       grade,
       agency,
-      dependentsAuthorized,
       proGearWeight: Number(proGearWeight),
       proGearWeightSpouse: Number(proGearWeightSpouse),
       requiredMedicalEquipmentWeight: Number(requiredMedicalEquipmentWeight),
@@ -129,7 +127,6 @@ const ServicesCounselingMoveAllowances = () => {
 
   const { entitlement, grade, agency } = order;
   const {
-    dependentsAuthorized,
     proGearWeight,
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
@@ -145,7 +142,6 @@ const ServicesCounselingMoveAllowances = () => {
   const initialValues = {
     grade,
     agency,
-    dependentsAuthorized,
     proGearWeight: `${proGearWeight}`,
     proGearWeightSpouse: `${proGearWeightSpouse}`,
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
