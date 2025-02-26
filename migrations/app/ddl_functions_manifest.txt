@@ -2,3 +2,4 @@
 # If a migration is not recorded here, then it will error.
 # Naming convention: fn_some_function.up.sql  running <generate-ddl-migration some_function functions> will create this file.
 20250223023132_fn_get_counseling_offices.up.sql
+20250225233157_fn_get_destination_queue.up.sql
