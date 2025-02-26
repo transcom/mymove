@@ -1092,13 +1092,6 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 		}
 
 		shipment.RequiredDeliveryDate = requiredDeliveryDate
-	} else if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage && shipment.ScheduledPickupDate != nil && !shipment.ScheduledDeliveryDate.IsZero() {
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDateForInternationalShipment(appCtx, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.ShipmentType)
-		if calcErr != nil {
-			return calcErr
-		}
-
-		shipment.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
 	return nil
@@ -1240,7 +1233,6 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 	}
 	// Let's add some days if we're dealing with a shipment between CONUS/Alaska
 	if (destinationIsAlaska || pickupIsAlaska) && !(destinationIsAlaska && pickupIsAlaska) {
-		var rateAreaID uuid.UUID
 		var intlTransTime models.InternationalTransitTime
 
 		contract, err := models.FetchContractForMove(appCtx, moveID)
@@ -1248,113 +1240,57 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			return nil, fmt.Errorf("error fetching contract for move ID: %s", moveID)
 		}
 
-		if destinationIsAlaska {
-			rateAreaID, err = models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, &uuid.Nil, contract.ID)
-			if err != nil {
-				return nil, fmt.Errorf("error fetching destination rate area id for address ID: %s", destinationAddress.ID)
-			}
-			err = appCtx.DB().Where("destination_rate_area_id = $1", rateAreaID).First(&intlTransTime)
-			if err != nil {
-				switch err {
-				case sql.ErrNoRows:
-					return nil, fmt.Errorf("no international transit time found for destination rate area ID: %s", rateAreaID)
-				default:
-					return nil, err
-				}
-			}
+		pickupAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
 		}
 
-		if pickupIsAlaska {
-			rateAreaID, err = models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
-			if err != nil {
-				return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
-			}
-			err = appCtx.DB().Where("origin_rate_area_id = $1", rateAreaID).First(&intlTransTime)
-			if err != nil {
-				switch err {
-				case sql.ErrNoRows:
-					return nil, fmt.Errorf("no international transit time found for pickup rate area ID: %s", rateAreaID)
-				default:
-					return nil, err
-				}
-			}
+		destinationAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, &uuid.Nil, contract.ID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching destination rate area id for address ID: %s", destinationAddress.ID)
 		}
 
-		if shipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
-			if intlTransTime.HhgTransitTime != nil {
-				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.HhgTransitTime)
+		if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			intlTransTime, err = models.FetchInternationalTransitTime(appCtx.DB(), pickupAddressRateAreaID, destinationAddressRateAreaID)
+			if err != nil {
+				return nil, fmt.Errorf("error fetching intl transit record for origin rate area ID: %s and destination rate area ID: %s", pickupAddressRateAreaID, destinationAddressRateAreaID)
+			}
+
+			if intlTransTime.UbTransitTime != nil {
+				requiredDeliveryDate = pickupDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
 			}
 		} else {
-			if intlTransTime.UbTransitTime != nil {
-				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
-			}
-		}
-
-		if pickupIsAlaska {
-			rateAreaID, err = models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
-			if err != nil {
-				return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
-			}
-			err = appCtx.DB().Where("origin_rate_area_id = $1", rateAreaID).First(&intlTransTime)
-			if err != nil {
-				switch err {
-				case sql.ErrNoRows:
-					return nil, fmt.Errorf("no international transit time found for pickup rate area ID: %s", rateAreaID)
-				default:
-					return nil, err
+			if destinationIsAlaska {
+				err = appCtx.DB().Where("destination_rate_area_id = $1", destinationAddressRateAreaID).First(&intlTransTime)
+				if err != nil {
+					switch err {
+					case sql.ErrNoRows:
+						return nil, fmt.Errorf("no international transit time found for destination rate area ID: %s", destinationAddressRateAreaID)
+					default:
+						return nil, err
+					}
 				}
 			}
-		}
 
-		if shipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
+			if pickupIsAlaska {
+				err = appCtx.DB().Where("origin_rate_area_id = $1", pickupAddressRateAreaID).First(&intlTransTime)
+				if err != nil {
+					switch err {
+					case sql.ErrNoRows:
+						return nil, fmt.Errorf("no international transit time found for pickup rate area ID: %s", pickupAddressRateAreaID)
+					default:
+						return nil, err
+					}
+				}
+			}
+
 			if intlTransTime.HhgTransitTime != nil {
 				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.HhgTransitTime)
-			}
-		} else {
-			if intlTransTime.UbTransitTime != nil {
-				dayAfterPickupDay := pickupDate.AddDate(0, 0, 1)
-				requiredDeliveryDate = dayAfterPickupDay.AddDate(0, 0, *intlTransTime.UbTransitTime)
 			}
 		}
 	}
 
-	// return the value
 	return &requiredDeliveryDate, nil
-}
-
-// CalculateRequiredDeliveryDateForInternationalShipment function is used to get the Required delivery Date of a UB shipment by finding the re_intl_transit_time using the origin and destination address rate areas.
-// The transit time is then added to the day after the pickup date then that date is used as the required delivery date for the UB shipment.
-func CalculateRequiredDeliveryDateForInternationalShipment(appCtx appcontext.AppContext, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, shipmentType models.MTOShipmentType) (time.Time, error) {
-
-	// Transit times does not include the pickup date. Setting the required delivery date to the day after pickup date
-	rdd := pickupDate.AddDate(0, 0, 1)
-
-	// get the contract id
-	contractID, err := models.FetchContractId(appCtx.DB(), pickupDate)
-	if err != nil {
-		return rdd, err
-	}
-
-	// get the rate area id for the origin address
-	originRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, nil, contractID)
-	if err != nil {
-		return rdd, err
-	}
-
-	// get the rate area id for the destination address
-	destRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, nil, contractID)
-	if err != nil {
-		return rdd, err
-	}
-
-	// lookup the intl transit time
-	internationalTransitTime, err := models.FetchInternationalTransitTime(appCtx.DB(), originRateAreaID, destRateAreaID)
-	if err != nil {
-		return rdd, err
-	}
-
-	// rdd plus the intl ub transit time
-	return rdd.AddDate(0, 0, *internationalTransitTime.UbTransitTime), nil
 }
 
 // This private function is used to generically construct service items when shipments are approved.

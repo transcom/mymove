@@ -254,13 +254,6 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 		}
 
 		shipment.RequiredDeliveryDate = requiredDeliveryDate
-	} else if shipment.ScheduledPickupDate != nil && !shipment.ScheduledPickupDate.IsZero() && shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDateForInternationalShipment(appCtx, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.ShipmentType)
-		if calcErr != nil {
-			return calcErr
-		}
-
-		shipment.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
 	return nil
