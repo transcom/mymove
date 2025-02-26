@@ -137,6 +137,13 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	return mergedPdf, nil
 }
 
+// remove all of the packet files from the temp directory associated with creating the AOA packet
+func (a *aoaPacketCreator) CleanupAOAPacketFiles(appCtx appcontext.AppContext) error {
+	err := a.pdfGenerator.Cleanup(appCtx)
+
+	return err
+}
+
 // saveAOAPacket uploads the AOA packet to S3 and saves the document data to the database, associating it with the PPM
 // shipment.
 func saveAOAPacket(

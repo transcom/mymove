@@ -15,6 +15,24 @@ type AOAPacketCreator struct {
 	mock.Mock
 }
 
+// CleanupAOAPacketFiles provides a mock function with given fields: appCtx
+func (_m *AOAPacketCreator) CleanupAOAPacketFiles(appCtx appcontext.AppContext) error {
+	ret := _m.Called(appCtx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CleanupAOAPacketFiles")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) error); ok {
+		r0 = rf(appCtx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CreateAOAPacket provides a mock function with given fields: appCtx, ppmShipmentID, isPaymentPacket
 func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, error) {
 	ret := _m.Called(appCtx, ppmShipmentID, isPaymentPacket)
