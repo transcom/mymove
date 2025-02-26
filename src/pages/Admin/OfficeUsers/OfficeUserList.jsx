@@ -46,7 +46,7 @@ const transformRowData = (rowData, officeObjects) => {
 };
 
 // Overriding the default toolbar for customizations
-export const ListActions = () => {
+const ListActions = () => {
   const { total, resource, sort, filterValues } = useListController();
   const dataProvider = useDataProvider();
   const exporter = async (data) => {
