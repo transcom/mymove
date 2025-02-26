@@ -4296,7 +4296,7 @@ func createHHGWithOriginSITServiceItems(
 		mock.Anything,
 		false,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -4566,7 +4566,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		mock.Anything,
 		false,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
@@ -5011,7 +5011,7 @@ func createHHGWithPaymentServiceItems(
 	}
 
 	destEntryDate := actualPickupDate
-	destDepDate := actualPickupDate
+	destDepDate := actualPickupDate.AddDate(0, 0, 1)
 	destSITAddress := factory.BuildAddress(db, nil, nil)
 	destSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
@@ -5053,7 +5053,7 @@ func createHHGWithPaymentServiceItems(
 		mock.Anything,
 		false,
 	).Return(400, nil)
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
