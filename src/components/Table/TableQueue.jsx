@@ -29,6 +29,7 @@ import {
 } from 'components/Table/utils';
 import { saveBulkAssignmentData } from 'services/ghcApi';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
+import { roleTypes } from 'constants/userRoles';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -102,7 +103,7 @@ const TableQueue = ({
 
   const gblocContext = useContext(SelectedGblocContext);
   const { selectedGbloc } =
-    officeUser?.transportation_office_assignments?.length > 1 && gblocContext
+    (activeRole === roleTypes.HQ || officeUser?.transportation_office_assignments?.length > 1) && gblocContext
       ? gblocContext
       : { selectedGbloc: undefined };
 
