@@ -486,8 +486,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
@@ -689,8 +689,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
@@ -2463,15 +2463,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Test that we are properly adding days to Alaska shipments", func() {
-		reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             reContract,
-				ContractID:           reContract.ID,
-				StartDate:            time.Now(),
-				EndDate:              time.Now().Add(time.Hour * 12),
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)

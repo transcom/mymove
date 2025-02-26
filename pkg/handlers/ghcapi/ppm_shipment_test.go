@@ -34,30 +34,25 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		})
 
+		contractYear := models.ReContractYear{
+			StartDate: testdatagen.ContractStartDate,
+			EndDate:   testdatagen.ContractEndDate,
+		}
+
+		contractYear = testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{ReContractYear: contractYear})
+
 		originDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
 				ServiceArea:      "056",
 				ServicesSchedule: 3,
 				SITPDSchedule:    3,
 			},
-			ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
-		})
-
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				Contract:             originDomesticServiceArea.Contract,
-				ContractID:           originDomesticServiceArea.ContractID,
-				StartDate:            time.Date(2019, time.June, 1, 0, 0, 0, 0, time.UTC),
-				EndDate:              time.Date(2020, time.May, 31, 0, 0, 0, 0, time.UTC),
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
-			},
 		})
 
 		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 			ReZip3: models.ReZip3{
-				Contract:            originDomesticServiceArea.Contract,
-				ContractID:          originDomesticServiceArea.ContractID,
+				Contract:            contractYear.Contract,
+				ContractID:          contractYear.ContractID,
 				DomesticServiceArea: originDomesticServiceArea,
 				Zip3:                "902",
 			},
@@ -65,16 +60,16 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 
 		destDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				Contract:    originDomesticServiceArea.Contract,
-				ContractID:  originDomesticServiceArea.ContractID,
+				Contract:    contractYear.Contract,
+				ContractID:  contractYear.ContractID,
 				ServiceArea: "208",
 			},
 		})
 
 		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 			ReZip3: models.ReZip3{
-				Contract:            destDomesticServiceArea.Contract,
-				ContractID:          destDomesticServiceArea.ContractID,
+				Contract:            contractYear.Contract,
+				ContractID:          contractYear.ContractID,
 				DomesticServiceArea: destDomesticServiceArea,
 				Zip3:                "308",
 			},

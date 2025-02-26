@@ -426,18 +426,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Expected outcome:
 		//             Success, CS & MS can be created as long as requested pickup date exists on a shipment
 
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-		startDate := time.Date(2024, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2024, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             contract,
-				ContractID:           contract.ID,
-				StartDate:            startDate,
-				EndDate:              endDate,
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
@@ -505,18 +497,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Expected outcome:
 		//             Return empty MTOServiceItems and continue, MS cannot be created if there is one already created for the move.
 
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-		startDate := time.Date(2024, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2024, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             contract,
-				ContractID:           contract.ID,
-				StartDate:            startDate,
-				EndDate:              endDate,
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
@@ -568,18 +552,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Expected outcome:
 		//             Error, CS & MS cannot be created unless a shipment within the move has a requested pickup date
 
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             contract,
-				ContractID:           contract.ID,
-				StartDate:            startDate,
-				EndDate:              endDate,
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
@@ -643,18 +619,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Set up:     Create an approved move with a PPM shipment that has an expected departure date
 		//             Success, CS can be created
 
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             contract,
-				ContractID:           contract.ID,
-				StartDate:            startDate,
-				EndDate:              endDate,
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
@@ -691,32 +659,17 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Expected outcome:
 		//             Success and the service items should have the correct price based off of the contract year/requested pickup date
 
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             contract,
-				ContractID:           contract.ID,
-				StartDate:            startDate,
-				EndDate:              endDate,
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
-		contract2 := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		startDate2 := time.Date(2021, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate2 := time.Date(2021, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear2 := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             contract2,
-				ContractID:           contract2.ID,
-				StartDate:            startDate2,
-				EndDate:              endDate2,
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
@@ -2321,9 +2274,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		reServiceCodeDSH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
 		reServiceCodeFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
 
-		startDate := time.Now().AddDate(-1, 0, 0)
-		endDate := startDate.AddDate(1, 1, 1)
-		sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
+		sitEntryDate := time.Date(2024, time.October, 24, 0, 0, 0, 0, time.UTC)
 		sitPostalCode := "99999"
 		reason := "lorem ipsum"
 
@@ -2331,10 +2282,8 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
+					StartDate: testdatagen.ContractStartDate,
+					EndDate:   testdatagen.ContractEndDate,
 				},
 			})
 

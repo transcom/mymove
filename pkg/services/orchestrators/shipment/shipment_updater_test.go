@@ -532,19 +532,14 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		}, nil)
 
 		reServiceCodeFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
-
-		startDate := time.Now().AddDate(-1, 0, 0)
-		endDate := startDate.AddDate(1, 1, 1)
 		reason := "lorem ipsum"
 
 		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
+					StartDate: testdatagen.ContractStartDate,
+					EndDate:   testdatagen.ContractEndDate,
 				},
 			})
 

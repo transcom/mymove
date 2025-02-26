@@ -747,18 +747,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 	}
 
 	setupPricerData := func() {
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             contract,
-				ContractID:           contract.ID,
-				StartDate:            startDate,
-				EndDate:              endDate,
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
@@ -1015,18 +1007,11 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	}
 
 	setupPricerData := func() {
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             contract,
-				ContractID:           contract.ID,
-				StartDate:            startDate,
-				EndDate:              endDate,
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 

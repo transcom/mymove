@@ -12,6 +12,12 @@ var TestYear = 2018
 // GHCTestYear is the default for GHC rate engine testing
 var GHCTestYear = 2024
 
+// ContractStartDate is the default for GHC rate engine testing
+var ContractStartDate = time.Date(GHCTestYear, time.February, 5, 0, 0, 0, 0, time.UTC)
+
+// ContractEndDate is the default for GHC rate engine testing
+var ContractEndDate = time.Date(GHCTestYear+2, time.February, 4, 0, 0, 0, 0, time.UTC)
+
 // DefaultZip3 is the default zip3 for testing
 var DefaultZip3 = "902"
 
