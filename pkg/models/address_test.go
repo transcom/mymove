@@ -1,13 +1,8 @@
 package models_test
 
 import (
-	"fmt"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/factory"
 	m "github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestBasicAddressInstantiation() {
@@ -218,20 +213,6 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 			},
 		}, nil)
 
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
-			ReRateArea: m.ReRateArea{
-				ContractID: contract.ID,
-				IsOconus:   true,
-				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
-				Contract:   contract,
-			},
-		})
-		suite.NotNil(rateArea)
-		suite.Nil(err)
-
 		us_country, err := m.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)
 		suite.Nil(err)
@@ -315,19 +296,6 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 				Type:     &factory.Addresses.DutyLocationAddress,
 			},
 		}, nil)
-
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
-			ReRateArea: m.ReRateArea{
-				ContractID: contract.ID,
-				IsOconus:   true,
-				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
-				Contract:   contract,
-			},
-		})
-		suite.NotNil(rateArea)
 
 		us_country, err := m.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)

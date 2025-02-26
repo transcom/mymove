@@ -33,7 +33,6 @@ import (
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -146,19 +145,6 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	}, nil)
 
 	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
-
-	contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-	rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-	rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
-		ReRateArea: models.ReRateArea{
-			ContractID: contract.ID,
-			IsOconus:   true,
-			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
-			Contract:   contract,
-		},
-	})
-	suite.NotNil(rateArea)
 
 	us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 	suite.NotNil(us_country)

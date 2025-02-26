@@ -40,19 +40,14 @@ func MakeReZip3(db *pop.Connection, assertions Assertions) models.ReZip3 {
 }
 
 func FetchOrMakeReZip3(db *pop.Connection, assertions Assertions) models.ReZip3 {
-	var contractID uuid.UUID
-	if assertions.ReZip3.ContractID != uuid.Nil {
-		contractID = assertions.ReZip3.ContractID
-	} else if assertions.ReContract.ID != uuid.Nil {
-		contractID = assertions.ReContract.ID
+	var contractYear models.ReContractYear
+	if assertions.ReContractYear.ID == uuid.Nil {
+		contractYear = MakeReContractYear(db, assertions)
+	} else {
+		contractYear = assertions.ReContractYear
 	}
-
-	if contractID == uuid.Nil || assertions.ReZip3.Zip3 == "" {
-		return MakeReZip3(db, assertions)
-	}
-
 	var reZip3 models.ReZip3
-	err := db.Eager("Contract").Where("re_zip3s.contract_id = ? AND re_zip3s.zip3 = ?", contractID, assertions.ReZip3.Zip3).First(&reZip3)
+	err := db.Eager("Contract").Where("re_zip3s.contract_id = ? AND re_zip3s.zip3 = ?", contractYear.ContractID, assertions.ReZip3.Zip3).First(&reZip3)
 
 	if err != nil && err != sql.ErrNoRows {
 		log.Panic(err)

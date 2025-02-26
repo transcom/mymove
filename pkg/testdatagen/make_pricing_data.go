@@ -1,8 +1,6 @@
 package testdatagen
 
 import (
-	"time"
-
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -12,10 +10,8 @@ import (
 // returns contractYear, serviceArea, rateArea, reZip3
 func SetupServiceAreaRateArea(db *pop.Connection, assertions Assertions) (models.ReContractYear, models.ReDomesticServiceArea, models.ReRateArea, models.ReZip3) {
 	contractYear := models.ReContractYear{
-		Escalation:           1.0185,
-		EscalationCompounded: 1.04082,
-		StartDate:            time.Date(GHCTestYear, time.January, 1, 0, 0, 0, 0, time.UTC),
-		EndDate:              time.Date(GHCTestYear, time.December, 31, 0, 0, 0, 0, time.UTC),
+		StartDate: ContractStartDate,
+		EndDate:   ContractEndDate,
 	}
 
 	mergeModels(&contractYear, assertions.ReContractYear)
@@ -65,7 +61,8 @@ func SetupServiceAreaRateArea(db *pop.Connection, assertions Assertions) (models
 	mergeModels(&reZip3, assertions.ReZip3)
 
 	reZip3 = FetchOrMakeReZip3(db, Assertions{
-		ReZip3: reZip3,
+		ReZip3:         reZip3,
+		ReContractYear: contractYear,
 	})
 
 	return contractYear, serviceArea, rateArea, reZip3

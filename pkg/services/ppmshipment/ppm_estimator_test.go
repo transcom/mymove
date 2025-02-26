@@ -172,12 +172,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             originDomesticServiceArea.Contract,
-				ContractID:           originDomesticServiceArea.ContractID,
-				StartDate:            time.Date(2019, time.June, 1, 0, 0, 0, 0, time.UTC),
-				EndDate:              time.Date(2020, time.May, 31, 0, 0, 0, 0, time.UTC),
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
@@ -2035,17 +2031,10 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 	ppmEstimator := NewEstimatePPM(planner, paymentRequestHelper)
 
 	setupPricerData := func() {
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             contract,
-				ContractID:           contract.ID,
-				StartDate:            startDate,
-				EndDate:              endDate,
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 	}
