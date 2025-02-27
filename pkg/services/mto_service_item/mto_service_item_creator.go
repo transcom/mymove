@@ -152,7 +152,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *adjustedWeight, domesticServiceArea.ServiceArea)
+			price, _, err = o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *adjustedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
