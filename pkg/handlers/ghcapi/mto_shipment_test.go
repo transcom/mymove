@@ -4109,6 +4109,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 				MoveTaskOrderID: handlers.FmtUUID(move.ID),
 				ShipmentType:    &shipmentType,
 				PpmShipment: &ghcmessages.CreatePPMShipment{
+					PpmType:                ghcmessages.PPMType(models.PPMTypeIncentiveBased),
 					ExpectedDepartureDate:  handlers.FmtDatePtr(expectedDepartureDate),
 					PickupAddress:          struct{ ghcmessages.Address }{pickupAddress},
 					SecondaryPickupAddress: struct{ ghcmessages.Address }{secondaryPickupAddress},
@@ -4166,6 +4167,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		if suite.NotNil(ppmPayload) {
 			suite.NotZero(ppmPayload.ID)
 			suite.NotEqual(uuid.Nil.String(), ppmPayload.ID.String())
+			suite.NotNil(ppmPayload.PpmType)
 			suite.EqualDatePtr(expectedDepartureDate, ppmPayload.ExpectedDepartureDate)
 			suite.Equal(expectedPickupAddress.PostalCode, *ppmPayload.PickupAddress.PostalCode)
 			suite.Equal(&expectedSecondaryPickupAddress.PostalCode, ppmPayload.SecondaryPickupAddress.PostalCode)

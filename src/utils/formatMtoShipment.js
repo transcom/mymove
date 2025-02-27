@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
-import { MTOAgentType, SHIPMENT_TYPES } from 'shared/constants';
+import { MTOAgentType, PPM_TYPES, SHIPMENT_TYPES } from 'shared/constants';
 import { parseDate } from 'shared/dates';
 import { formatDelimitedNumber, parseSwaggerDate } from 'utils/formatters';
 import { roleTypes } from 'constants/userRoles';
@@ -308,7 +308,7 @@ export function formatPpmShipmentForAPI(formValues) {
     hasSecondaryDestinationAddress: formValues.hasSecondaryDestination === 'true',
     hasTertiaryPickupAddress: formValues.hasTertiaryPickup === 'true',
     hasTertiaryDestinationAddress: formValues.hasTertiaryDestination === 'true',
-    isActualExpenseReimbursement: formValues.isActualExpenseReimbursement === 'true',
+    isActualExpenseReimbursement: formValues.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
   };
 
   if (ppmShipmentValues.hasSecondaryPickupAddress) {

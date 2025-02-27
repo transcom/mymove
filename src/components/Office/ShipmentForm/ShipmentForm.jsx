@@ -110,7 +110,7 @@ const ShipmentForm = (props) => {
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
   const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
-  const [ppmSprFF, setppmSprFF] = useState(false);
+  const [ppmSprFF, setPpmSprFF] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,7 +120,7 @@ const ShipmentForm = (props) => {
   }, []);
   useEffect(() => {
     const fetchData = async () => {
-      setppmSprFF(await isBooleanFlagEnabled('ppm_spr'));
+      setPpmSprFF(await isBooleanFlagEnabled('ppm_spr'));
     };
     fetchData();
   }, []);
@@ -302,7 +302,7 @@ const ShipmentForm = (props) => {
             closeoutOffice: move.closeoutOffice,
           },
     );
-    if (isCreatePage && serviceMember?.grade === 'CIVILIAN_EMPLOYEE')
+    if (isCreatePage && mtoShipment.ppmShipment?.ppmType === PPM_TYPES.ACTUAL_EXPENSE)
       initialValues.isActualExpenseReimbursement = 'true';
   } else if (isMobileHome) {
     const hhgInitialValues = formatMtoShipmentForDisplay(
@@ -661,8 +661,16 @@ const ShipmentForm = (props) => {
           hasSecondaryDelivery,
           hasTertiaryPickup,
           hasTertiaryDelivery,
-          isActualExpenseReimbursement,
         } = values;
+
+        const isCivilian = serviceMember?.grade === 'CIVILIAN_EMPLOYEE';
+        if (!ppmType) {
+          const type = isCivilian ? PPM_TYPES.ACTUAL_EXPENSE : PPM_TYPES.INCENTIVE_BASED;
+          setValues({
+            ...values,
+            ppmType: type,
+          });
+        }
         const lengthHasError = !!(
           (formikProps.touched.lengthFeet && formikProps.errors.lengthFeet === 'Required') ||
           (formikProps.touched.lengthInches && formikProps.errors.lengthFeet === 'Required')
@@ -861,9 +869,9 @@ const ShipmentForm = (props) => {
                       {getPPMTypeLabel(ppmType)}
                     </Tag>
                   )}
-                  {isActualExpenseReimbursement === 'true' && (
+                  {ppmType === PPM_TYPES.ACTUAL_EXPENSE && (
                     <Tag className={styles.tagInfo} data-testid="actualExpenseReimbursementTag">
-                      Actual Expense Reimbursement
+                      {getPPMTypeLabel(ppmType)}
                     </Tag>
                   )}
 
@@ -1431,81 +1439,50 @@ const ShipmentForm = (props) => {
                 {isPPM && !isAdvancePage && (
                   <>
                     {isServiceCounselor && (
-                      <>
-                        {ppmSprFF && (
-                          <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                            <h3>PPM Type</h3>
-                            <FormGroup>
-                              <Label className={styles.Label} htmlFor="ppmType">
-                                Indicate the PPM Type
-                              </Label>
-                              <Field
-                                as={Radio}
-                                id="isIncentiveBased"
-                                label="Incentive-based"
-                                name="ppmType"
-                                value={PPM_TYPES.INCENTIVE_BASED}
-                                checked={ppmType === PPM_TYPES.INCENTIVE_BASED}
-                                disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
-                                className={styles.buttonGroup}
-                                data-testid="isIncentiveBased"
-                              />
-                              <Field
-                                as={Radio}
-                                id="isActualExpense"
-                                label="Actual Expense"
-                                name="ppmType"
-                                value={PPM_TYPES.ACTUAL_EXPENSE}
-                                checked={ppmType === PPM_TYPES.ACTUAL_EXPENSE}
-                                className={styles.buttonGroup}
-                                data-testid="isActualExpense"
-                              />
-                              <Field
-                                as={Radio}
-                                id="isSmallPackage"
-                                label="Small Package"
-                                name="ppmType"
-                                value={PPM_TYPES.SMALL_PACKAGE}
-                                checked={ppmType === PPM_TYPES.SMALL_PACKAGE}
-                                className={styles.buttonGroup}
-                                data-testid="isSmallPackage"
-                              />
-                            </FormGroup>
-                          </SectionWrapper>
-                        )}
-                        <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                          <h3>Actual Expense Reimbursement</h3>
-                          <FormGroup>
-                            <Label className={styles.Label} htmlFor="isActualExpenseReimbursement">
-                              Is this PPM an Actual Expense Reimbursement?
-                            </Label>
+                      <SectionWrapper
+                        className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}
+                        data-testid="ppmTypeSection"
+                      >
+                        <h3>PPM Type</h3>
+                        <FormGroup>
+                          <Label className={styles.Label} htmlFor="ppmType">
+                            Indicate the PPM Type
+                          </Label>
+                          <Field
+                            as={Radio}
+                            id="isIncentiveBased"
+                            label={getPPMTypeLabel(PPM_TYPES.INCENTIVE_BASED)}
+                            name="ppmType"
+                            value={PPM_TYPES.INCENTIVE_BASED}
+                            checked={(ppmType == null && !isCivilian) || ppmType === PPM_TYPES.INCENTIVE_BASED}
+                            disabled={isCivilian}
+                            className={styles.buttonGroup}
+                            data-testid="isIncentiveBased"
+                          />
+                          <Field
+                            as={Radio}
+                            id="isActualExpense"
+                            label={getPPMTypeLabel(PPM_TYPES.ACTUAL_EXPENSE)}
+                            name="ppmType"
+                            value={PPM_TYPES.ACTUAL_EXPENSE}
+                            checked={(ppmType == null && isCivilian) || ppmType === PPM_TYPES.ACTUAL_EXPENSE}
+                            className={styles.buttonGroup}
+                            data-testid="isActualExpense"
+                          />
+                          {ppmSprFF && (
                             <Field
                               as={Radio}
-                              id="isActualExpenseReimbursementYes"
-                              label="Yes"
-                              name="isActualExpenseReimbursement"
-                              value="true"
-                              title="Yes"
-                              checked={isActualExpenseReimbursement === 'true'}
-                              disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
+                              id="isSmallPackage"
+                              label={getPPMTypeLabel(PPM_TYPES.SMALL_PACKAGE)}
+                              name="ppmType"
+                              value={PPM_TYPES.SMALL_PACKAGE}
+                              checked={ppmType === PPM_TYPES.SMALL_PACKAGE}
                               className={styles.buttonGroup}
-                              data-testid="isActualExpenseReimbursementYes"
+                              data-testid="isSmallPackage"
                             />
-                            <Field
-                              as={Radio}
-                              id="isActualExpenseReimbursementNo"
-                              label="No"
-                              name="isActualExpenseReimbursement"
-                              value="false"
-                              title="No"
-                              checked={isActualExpenseReimbursement !== 'true'}
-                              disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
-                              className={styles.buttonGroup}
-                              data-testid="isActualExpenseReimbursementNo"
-                            />
-                          </FormGroup>
-                        </SectionWrapper>
-                      </>
+                          )}
+                        </FormGroup>
+                      </SectionWrapper>
                     )}
                     <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                       <h3>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped Date' : 'Departure Date'}</h3>

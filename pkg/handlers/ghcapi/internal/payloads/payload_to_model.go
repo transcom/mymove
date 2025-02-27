@@ -320,6 +320,7 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 	}
 
 	model := &models.PPMShipment{
+		PPMType:         models.PPMType(ppmShipment.PpmType),
 		Status:          models.PPMShipmentStatusSubmitted,
 		SITExpected:     ppmShipment.SitExpected,
 		EstimatedWeight: handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),

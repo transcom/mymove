@@ -110,7 +110,7 @@ export const PPM_TYPES = {
 
 const PPM_TYPE_LABELS_MAP = {
   [PPM_TYPES.INCENTIVE_BASED]: 'Incentive-based',
-  [PPM_TYPES.ACTUAL_EXPENSE]: 'Actual Expense',
+  [PPM_TYPES.ACTUAL_EXPENSE]: 'Actual Expense Reimbursement',
   [PPM_TYPES.SMALL_PACKAGE]: 'Small Package Reimbursement',
 };
 
