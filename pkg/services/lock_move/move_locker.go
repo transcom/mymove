@@ -42,6 +42,10 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 		EagerPreload("Address", "Address.Country").
 		First(&transportationOffice)
 
+	if err != nil {
+		return nil, err
+	}
+
 	if move.LockedByOfficeUserID != models.UUIDPointer(officeUserID) {
 		move.LockedByOfficeUserID = models.UUIDPointer(officeUserID)
 	}
@@ -60,14 +64,11 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 	expirationTime := now.Add(30 * time.Minute)
 	move.LockExpiresAt = &expirationTime
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		verrs, saveErr := appCtx.DB().ValidateAndSave(move)
-		if verrs != nil && verrs.HasAny() {
-			invalidInputError := apperror.NewInvalidInputError(move.ID, nil, verrs, "Could not validate move while locking it.")
+	// Store move before update
+	var moveBeforeUpdate = *move
 
-			return invalidInputError
-		}
-		if saveErr != nil {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if err := appCtx.DB().RawQuery("UPDATE moves SET locked_by=?, lock_expires_at=?, updated_at=? WHERE id=?", officeUserID, expirationTime, moveBeforeUpdate.UpdatedAt, move.ID).Exec(); err != nil {
 			return err
 		}
 
