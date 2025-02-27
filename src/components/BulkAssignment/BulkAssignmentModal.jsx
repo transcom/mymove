@@ -30,7 +30,16 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   const [selectedUsers, setSelectedUsers] = useState({});
   const [selectedRadio, setSelectedRadio] = useState(null);
   const errorMessage = 'Cannot assign more moves than are available.';
-  const currentBulkReassignmentFlagState = isBooleanFlagEnabled('bulk_re_assignment');
+  const [isBulkReAssignmentEnabled, setIsBulkReAssignmentEnabled] = useState(false);
+
+  useEffect(() => {
+    // checking feature flag to see if DODID input should be disabled
+    // this data pulls from Okta and doens't let the customer update it
+    const fetchData = async () => {
+      setIsBulkReAssignmentEnabled(await isBooleanFlagEnabled('bulk_re_assignment'));
+    };
+    fetchData();
+  }, []);
 
   const handleRadioChange = (index) => {
     setSelectedRadio(index);
@@ -131,7 +140,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
     };
 
     fetchData();
-  }, []);
+  }, [queueType]);
 
   // adds move data to the initialValues obj
   initialValues.moveData = bulkAssignmentData?.bulkAssignmentMoveIDs;
@@ -150,9 +159,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           {isBulkReAssignmentMode ? bulkAssignmentSwitchLabels[1] : bulkAssignmentSwitchLabels[0]} ({numberOfMoves})
         </h3>
       </ModalTitle>
-      {currentBulkReassignmentFlagState && (
-        <Switch name="BulkAssignmentModeSwitch" onChange={handleAssignmentModeChange} />
-      )}
+      {isBulkReAssignmentEnabled && <Switch name="BulkAssignmentModeSwitch" onChange={handleAssignmentModeChange} />}
       <div className={styles.BulkAssignmentTable}>
         <Formik
           onSubmit={(values) => {
