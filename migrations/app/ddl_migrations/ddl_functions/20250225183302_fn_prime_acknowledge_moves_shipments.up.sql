@@ -1,3 +1,4 @@
+--B-22692 Brian Manley added prime_acknowledge_moves_shipments
 CREATE OR REPLACE PROCEDURE prime_acknowledge_moves_shipments(json_data jsonb)
 LANGUAGE plpgsql
 AS '
