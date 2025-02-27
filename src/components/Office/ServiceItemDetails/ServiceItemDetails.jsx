@@ -528,6 +528,18 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
     case 'IUBUPK':
     case 'POEFSC':
     case 'PODFSC':
+    case 'INPK': {
+      detailSection = (
+        <div>
+          <dl>
+            {generateDetailText({
+              'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
+          </dl>
+        </div>
+      );
+      break;
+    }
     case 'UBP': {
       detailSection = (
         <div>

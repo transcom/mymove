@@ -550,7 +550,7 @@ describe('ServiceItemDetails Crating Rejected', () => {
   });
 });
 
-describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, DUPK, ISLH, IHPK, IHUPK, IUBPK, IUBUPK, POEFSC, PODFSC, UBP', () => {
+describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, DUPK, ISLH, IHPK, IHUPK, IUBPK, INPK, IUBUPK, POEFSC, PODFSC, UBP', () => {
   it.each([
     ['DLH'],
     ['DSH'],
@@ -563,6 +563,7 @@ describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, D
     ['IHPK'],
     ['IHUPK'],
     ['IUBPK'],
+    ['INPK'],
     ['IUBUPK'],
     ['POEFSC'],
     ['PODFSC'],
@@ -595,6 +596,7 @@ describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, D
     ['ISLH'],
     ['IHPK'],
     ['IHUPK'],
+    ['INPK'],
     ['IUBPK'],
     ['IUBUPK'],
     ['POEFSC'],
