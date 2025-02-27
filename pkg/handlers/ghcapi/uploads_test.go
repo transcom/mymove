@@ -10,7 +10,10 @@ import (
 	uploadop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
+	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 const FixturePDF = "test.pdf"
@@ -33,7 +36,17 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	handler := CreateUploadHandler{handlerConfig}
+	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
+	suite.FatalNoError(err)
+
+	pdfGenerator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
+	suite.FatalNoError(err)
+
+	parserComputer := weightticketparser.NewWeightTicketComputer()
+	weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(pdfGenerator)
+	suite.FatalNoError(err)
+
+	handler := CreateUploadHandler{handlerConfig, parserComputer, weightGenerator}
 	response := handler.Handle(params)
 
 	return response
