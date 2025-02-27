@@ -262,8 +262,8 @@ func calculateSumOfWeights(move models.Move, updatedShipment *models.MTOShipment
 	return sumOfWeights
 }
 
-// GetAutoReweighShipments returns all shipments that need to be reweighed
-func (w moveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
+// getAutoReweighShipments returns all shipments that need to be reweighed
+func (w moveWeights) getAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
 	if move == nil {
 		return nil, apperror.NewBadDataError("received a nil move, a move must be supplied for checking reweighs")
 	}
@@ -348,7 +348,7 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		return nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	autoReweighShipments, err := w.GetAutoReweighShipments(appCtx, &move, updatedShipment)
+	autoReweighShipments, err := w.getAutoReweighShipments(appCtx, &move, updatedShipment)
 	if err != nil {
 		return nil, err
 	}
