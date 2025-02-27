@@ -817,19 +817,16 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 				mock.AnythingOfType("*appcontext.appContext"),
 				"94535",
 				"94535",
-				false,
 			).Return(0, nil).Once()
 			mockPlanner.On("ZipTransitDistance",
 				mock.AnythingOfType("*appcontext.appContext"),
 				"94523",
 				"99695",
-				false,
 			).Return(500, nil).Once()
 			mockPlanner.On("ZipTransitDistance",
 				mock.AnythingOfType("*appcontext.appContext"),
 				"94535",
 				"99695",
-				false,
 			).Return(1000, nil).Once()
 
 			// request the update
