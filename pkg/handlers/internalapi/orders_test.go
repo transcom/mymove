@@ -23,7 +23,6 @@ import (
 	orderservice "github.com/transcom/mymove/pkg/services/order"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -148,20 +147,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 
 		dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
-			ReRateArea: models.ReRateArea{
-				ContractID: contract.ID,
-				IsOconus:   true,
-				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
-				Contract:   contract,
-			},
-		})
-		suite.NotNil(rateArea)
-		suite.Nil(err)
-
 		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)
 		suite.Nil(err)
@@ -271,19 +256,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		}, nil)
 
 		dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
-			ReRateArea: models.ReRateArea{
-				ContractID: contract.ID,
-				IsOconus:   true,
-				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
-				Contract:   contract,
-			},
-		})
-		suite.NotNil(rateArea)
 
 		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)
@@ -871,20 +843,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			}}, nil)
 
 		newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-
-		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
-		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
-			ReRateArea: models.ReRateArea{
-				ContractID: contract.ID,
-				IsOconus:   true,
-				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
-				Contract:   contract,
-			},
-		})
-		suite.NotNil(rateArea)
-		suite.Nil(err)
 
 		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)

@@ -1413,8 +1413,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
@@ -3118,13 +3118,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 }
 
 func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
-	startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-	endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
 
 	testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
-			StartDate: startDate,
-			EndDate:   endDate,
+			StartDate: testdatagen.ContractStartDate,
+			EndDate:   testdatagen.ContractEndDate,
 		},
 	})
 

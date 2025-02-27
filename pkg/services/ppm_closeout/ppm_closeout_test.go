@@ -55,12 +55,8 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCloseout() {
 
 		testdatagen.FetchOrMakeReContractYear(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             originDomesticServiceArea.Contract,
-				ContractID:           originDomesticServiceArea.ContractID,
-				StartDate:            time.Now(),
-				EndDate:              time.Now().Add(time.Hour * 8760),
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
