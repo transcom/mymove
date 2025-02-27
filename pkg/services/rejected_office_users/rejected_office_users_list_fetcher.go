@@ -36,7 +36,7 @@ func (o *rejectedOfficeUserListFetcher) FetchRejectedOfficeUsersList(appCtx appc
 		filterFunc(query)
 	}
 
-	query = query.Where("status = ?", models.OfficeUserStatusREJECTED)
+	query = query.Where("status = ?", models.OfficeUserStatusREJECTED).Where("rejected_on IS NOT NULL")
 	query.GroupBy("office_users.id")
 
 	var order = "desc"
