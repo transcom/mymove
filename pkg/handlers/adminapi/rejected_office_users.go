@@ -54,6 +54,18 @@ func payloadForRejectedOfficeUserModel(o models.OfficeUser) *adminmessages.Offic
 	return payload
 }
 
+// Adds rejectedOn date to pre-existing rejected office users.
+func AddRejectedOnDate(db *pop.Connection, officeUser models.OfficeUser) error {
+	query := `UPDATE public.office_users SET rejected_on=updated_at WHERE id = $1`
+
+	err := db.RawQuery(query, officeUser.ID).Exec()
+	if err != nil {
+		return fmt.Errorf("error creating approved service items: %w", err)
+	}
+
+	return nil
+}
+
 // IndexRejectedOfficeUsersHandler returns a list of rejected office users via GET /rejected_office_users
 type IndexRejectedOfficeUsersHandler struct {
 	handlers.HandlerConfig
@@ -97,6 +109,14 @@ func (h IndexRejectedOfficeUsersHandler) Handle(params rejected_office_users.Ind
 			officeUsers, count, err := h.RejectedOfficeUserListFetcher.FetchRejectedOfficeUsersList(appCtx, filterFuncs, pagination, ordering)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			// Check for preexisting rejected office users
+			for i := 0; i < len(officeUsers); i++ {
+				if officeUsers[i].RejectedOn == nil {
+					AddRejectedOnDate(appCtx.DB(), officeUsers[i])
+					officeUsers[i].RejectedOn = &officeUsers[i].UpdatedAt
+				}
 			}
 
 			queriedOfficeUsersCount := len(officeUsers)
