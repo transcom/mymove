@@ -184,9 +184,9 @@ BEGIN
                 -- Okay, now that we have all of our numbers. We just gotta calc
                 -- the final price
 
-                -- Final estimated price = escalated price * factor * estimated weight
+                -- Final estimated price = escalated price * factor * 110% of estimated weight
                 estimated_price := ROUND(
-                    ( escalated_price * declared_oconus_factor * (shipment.prime_estimated_weight / 100.0) )::numeric,
+                    ( escalated_price * declared_oconus_factor * ((shipment.prime_estimated_weight * 1.1) / 100.0) )::numeric,
                     2
                 ) * 100;
 
