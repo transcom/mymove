@@ -16,15 +16,14 @@ import {
 } from 'react-admin';
 import * as jsonexport from 'jsonexport/dist';
 
-import { ADMIN_APP_USER_EXPORT_HEADERS } from '../../../shared/constants';
-
+import { OFFICE_USER_EXPORT_HEADERS } from 'constants/adminApp';
 import ImportOfficeUserButton from 'components/Admin/ImportOfficeUserButton';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 // Function to transform rowData based on headers
 const transformRowData = (rowData, officeObjects) => {
   const transformedData = {};
-  ADMIN_APP_USER_EXPORT_HEADERS.forEach(({ key, header }) => {
+  OFFICE_USER_EXPORT_HEADERS.forEach(({ key, header }) => {
     switch (key) {
       case 'roles':
         transformedData[header] = rowData[key] ? rowData[key].map((role) => role.roleType).join(',') : '';
@@ -65,7 +64,7 @@ const ListActions = () => {
     const usersForExport = data.map((rowData) => transformRowData(rowData, officeObjects));
 
     // Extract header names for jsonexport
-    const headersMap = ADMIN_APP_USER_EXPORT_HEADERS.map((h) => h.header);
+    const headersMap = OFFICE_USER_EXPORT_HEADERS.map((h) => h.header);
     // Convert the data to CSV and trigger the download
     jsonexport(usersForExport, { headersMap }, (err, csv) => {
       if (err) throw err;
