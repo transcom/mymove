@@ -19,6 +19,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
+
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
@@ -361,5 +363,19 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			contentDisposition := fmt.Sprintf("inline; filename=\"%s-for-MTO-%s-%s.pdf\"", fileNamePrefix, locator, time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
 
 			return movetaskorderops.NewDownloadMoveOrderOK().WithContentDisposition(contentDisposition).WithPayload(payload), nil
+		})
+}
+
+type AcknowledgeMovesAndShipmentsHandler struct {
+	handlers.HandlerConfig
+}
+
+func (h AcknowledgeMovesAndShipmentsHandler) Handle(params movetaskorderops.AcknowledgeMovesAndShipmentsParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			payload := &primemessages.AcknowledgeMovesShipmentsSuccessResponse{
+				Message: "Way to go!",
+			}
+			return movetaskorderops.NewAcknowledgeMovesAndShipmentsOK().WithPayload(payload), nil
 		})
 }

@@ -202,5 +202,9 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		primeDownloadMoveUploadPDFGenerator,
 	}
 
+	primeAPI.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler = AcknowledgeMovesAndShipmentsHandler{
+		handlerConfig,
+	}
+
 	return primeAPI
 }
