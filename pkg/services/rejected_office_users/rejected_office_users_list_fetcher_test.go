@@ -52,7 +52,7 @@ func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() 
 		suite.Equal(officeUser1.ID, rejectedOfficeUsers[0].ID)
 	})
 
-	suite.Run("if the users don't have a rejected on date, they should not be returned", func() {
+	suite.Run("if the users don't have a rejected on date, they should still be returned", func() {
 		rejectedStatus := models.OfficeUserStatusREJECTED
 		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -68,7 +68,7 @@ func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() 
 		rejectedOfficeUsers, _, err := fetcher.FetchRejectedOfficeUsersList(suite.AppContextForTest(), nil, defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
-		suite.Equal(0, len(rejectedOfficeUsers))
+		suite.Equal(1, len(rejectedOfficeUsers))
 	})
 
 	suite.Run("if there are no rejected office users, we don't receive any rejected office users", func() {
