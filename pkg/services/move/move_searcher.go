@@ -89,9 +89,8 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	scheduledDeliveryDateQuery := scheduledDeliveryDateFilter(params.DeliveryDate)
 	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName, params.PaymentRequestCode)
 	paymentRequestQuery := paymentRequestCodeFilter(params.PaymentRequestCode)
-	deletedShipmentsQuery := deletedShipmentsFilter()
-	options := [13]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
-		destinationPostalCodeQuery, statusQuery, shipmentsCountQuery, scheduledPickupDateQuery, scheduledDeliveryDateQuery, paymentRequestQuery, deletedShipmentsQuery}
+	options := [12]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
+		destinationPostalCodeQuery, statusQuery, shipmentsCountQuery, scheduledPickupDateQuery, scheduledDeliveryDateQuery, paymentRequestQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -148,12 +147,6 @@ func originPostalCodeFilter(postalCode *string) QueryOption {
 		if postalCode != nil {
 			query.Where("origin_addresses.postal_code = ?", *postalCode)
 		}
-	}
-}
-
-func deletedShipmentsFilter() QueryOption {
-	return func(query *pop.Query) {
-		query.Where("mto_shipments.deleted_at IS NULL")
 	}
 }
 
