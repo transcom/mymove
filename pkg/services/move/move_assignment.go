@@ -24,6 +24,18 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 		return nil, apperror.NewBadDataError("No moves to assign")
 	}
 
+	var assign func(*models.Move, uuid.UUID)
+	switch queueType {
+	case string(models.QueueTypeCounseling), string(models.QueueTypeCloseout):
+		assign = func(move *models.Move, userID uuid.UUID) { move.SCAssignedID = &userID }
+	case string(models.QueueTypeTaskOrder):
+		assign = func(move *models.Move, userID uuid.UUID) { move.TOOAssignedID = &userID }
+	case string(models.QueueTypePaymentRequest):
+		assign = func(move *models.Move, userID uuid.UUID) { move.TIOAssignedID = &userID }
+	default:
+		return nil, apperror.NewBadDataError("Invalid queue type")
+	}
+
 	// make a map to track users and their assignment counts
 	// and a queue of userIDs
 	moveAssignments := make(map[uuid.UUID]int)
@@ -49,25 +61,16 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 
 			// do our assignment logic
 			move := movesToAssign[moveIndex]
-			switch queueType {
-			case string(models.QueueTypeCounseling):
-				move.SCAssignedID = &userID
-			case string(models.QueueTypeCloseout):
-				move.SCAssignedID = &userID
-			case string(models.QueueTypeTaskOrder):
-				move.TOOAssignedID = &userID
-			case string(models.QueueTypePaymentRequest):
-				move.TIOAssignedID = &userID
-			}
+			assign(&move, userID)
 
 			verrs, err := appCtx.DB().ValidateAndUpdate(&move)
 			if err != nil || verrs.HasAny() {
 				return apperror.NewInvalidInputError(move.ID, err, verrs, "")
 			}
 
-			// decrement the users assignment count
+			// decrement the user's assignment count
 			moveAssignments[userID]--
-			// increment our index
+			// increment our moves to assign index
 			moveIndex++
 
 			// If user still has remaining assignments, re-queue them
