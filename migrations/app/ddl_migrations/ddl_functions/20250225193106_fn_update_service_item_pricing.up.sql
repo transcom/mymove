@@ -134,8 +134,7 @@ BEGIN
                 WHERE riop.contract_id = declared_contract_id
                 AND riop.service_id = (SELECT id FROM re_services WHERE code = ''IHPK'' LIMIT 1)
                 AND riop.rate_area_id = o_rate_area_id
-                AND shipment.requested_pickup_date >= rcy.start_date
-                AND shipment.requested_pickup_date <= rcy.end_date
+                AND shipment.requested_pickup_date between rcy.start_date and rcy.end_date
                 LIMIT 1;
 
                 IF declared_base_price IS NULL THEN
@@ -178,7 +177,7 @@ BEGIN
 
                 IF declared_oconus_factor IS NULL THEN
                     RAISE EXCEPTION ''No OCONUS/CONUS factor found for INPK for market_code=%, contract_id=%, re_service_id=%.'', declared_market_code, declared_contract_id, service_item.re_service_id;
-                    CONTINUE;
+                    RETURN;
                 END IF;
 
                 -- Okay, now that we have all of our numbers. We just gotta calc
@@ -203,7 +202,7 @@ BEGIN
                  WHERE id = service_item.id;
             ELSE
                 -- Case if none of the above are triggered
-                RAISE EXCEPTION ''Unknown service code: % for service item %'', service_code, service_item.id;
+                RAISE NOTICE ''Unknown service code: % for service item %'', service_code, service_item.id;
         END CASE;
     END LOOP;
 END;
