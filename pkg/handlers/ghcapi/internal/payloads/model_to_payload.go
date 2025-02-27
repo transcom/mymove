@@ -2635,7 +2635,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 				(shipment.Status != models.MTOShipmentStatusRejected) &&
 				(shipment.Status != models.MTOShipmentStatusCancellationRequested) &&
 				(shipment.Status != models.MTOShipmentStatusCanceled) &&
-				(shipment.DeletedAt == nil) { // still returning the delete shipments - just not counting them
+				(shipment.DeletedAt == nil) {
 				numShipments++
 			}
 		}
