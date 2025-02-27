@@ -68,7 +68,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
 		Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
 		Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
-		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
+		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id").
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
 		Where("show = TRUE")
@@ -89,9 +89,9 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	scheduledDeliveryDateQuery := scheduledDeliveryDateFilter(params.DeliveryDate)
 	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName, params.PaymentRequestCode)
 	paymentRequestQuery := paymentRequestCodeFilter(params.PaymentRequestCode)
-
-	options := [12]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
-		destinationPostalCodeQuery, statusQuery, shipmentsCountQuery, scheduledPickupDateQuery, scheduledDeliveryDateQuery, paymentRequestQuery}
+	deletedShipmentsQuery := deletedShipmentsFilter()
+	options := [13]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
+		destinationPostalCodeQuery, statusQuery, shipmentsCountQuery, scheduledPickupDateQuery, scheduledDeliveryDateQuery, paymentRequestQuery, deletedShipmentsQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -150,6 +150,13 @@ func originPostalCodeFilter(postalCode *string) QueryOption {
 		}
 	}
 }
+
+func deletedShipmentsFilter() QueryOption {
+	return func(query *pop.Query) {
+		query.Where("mto_shipments.deleted_at IS NULL")
+	}
+}
+
 func destinationPostalCodeFilter(postalCode *string) QueryOption {
 	return func(query *pop.Query) {
 		if postalCode != nil {
