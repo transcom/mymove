@@ -55,13 +55,15 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
 
   const handleAssignmentModeChange = (event) => {
     setIsBulkReAssignmentMode(event.target.checked);
-    if (isBulkReAssignmentMode && selectedRadio != null) {
+    if (event.target.checked && selectedRadio != null) {
       const reAssignableMoves = bulkAssignmentData.availableOfficeUsers.find(
         (user) => user.officeUserId === selectedRadio,
       ).workload;
       setNumberOfMoves(reAssignableMoves);
-    } else {
+    } else if (event.target.checked && selectedRadio == null) {
       setNumberOfMoves(0);
+    } else {
+      setNumberOfMoves(bulkAssignmentData.bulkAssignmentMoveIDs.length);
     }
     // need to sync workload with user load
     const newValues = { ...initialValues };
@@ -128,30 +130,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
 
     fetchData();
   }, []);
-
-  // if the counts change in bulk re-assignment, lower the move count from the selected user
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        getBulkAssignmentData(queueType).then((data) => {
-          setBulkAssignmentData(data);
-          initUserData(data?.availableOfficeUsers);
-
-          if (data.bulkAssignmentMoveIDs === undefined) {
-            setIsSaveDisabled(true);
-            setNumberOfMoves(0);
-          } else {
-            setNumberOfMoves(data.bulkAssignmentMoveIDs.length);
-          }
-        });
-      } catch (err) {
-        setBulkAssignmentData({});
-        milmoveLogger.error('Error fetching bulk assignment data:', err);
-      }
-    };
-
-    fetchData();
-  }, [numberOfMoves]);
 
   // adds move data to the initialValues obj
   initialValues.moveData = bulkAssignmentData?.bulkAssignmentMoveIDs;
