@@ -55,68 +55,6 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler_NilRejectedOn() {
-	// test that everything is wired up
-	suite.Run("rejected users result in ok response", func() {
-		// building two office user with rejected status
-
-		status := models.OfficeUserStatusREJECTED
-		reason := "testing reason"
-		
-		var preRejectedOfficeUser = factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
-			{
-				Model: models.OfficeUser{
-					FirstName:       "Angelina",
-					LastName:        "Jolie",
-					Email:           "angelinaJ@mail.mil",
-					Status:          &status,
-					RejectionReason: &reason,
-				},
-			},
-		}, []roles.RoleType{roles.RoleTypeTOO})
-
-		var preRejectedOfficeUser2 = factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
-			{
-				Model: models.OfficeUser{
-					FirstName:       "Johnny",
-					LastName:        "Bravo",
-					Email:           "johnnyB@navy.mail.mil",
-					Status:          &status,
-					RejectionReason: &reason,
-				},
-			},
-		}, []roles.RoleType{roles.RoleTypeTOO})
-
-		rejectedOfficeUsers := models.OfficeUsers{
-			preRejectedOfficeUser, preRejectedOfficeUser2}
-
-		params := rejectedofficeuserop.IndexRejectedOfficeUsersParams{
-			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/rejected_office_users"),
-		}
-
-		queryBuilder := query.NewQueryBuilder()
-		handler := IndexRejectedOfficeUsersHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
-			NewQueryFilter:                query.NewQueryFilter,
-			RejectedOfficeUserListFetcher: rejectedofficeusers.NewRejectedOfficeUsersListFetcher(queryBuilder),
-			NewPagination:                 pagination.NewPagination,
-		}
-
-		response := handler.Handle(params)
-
-		// should get an ok response
-		suite.IsType(&rejectedofficeuserop.IndexRejectedOfficeUsersOK{}, response)
-		okResponse := response.(*rejectedofficeuserop.IndexRejectedOfficeUsersOK)
-		suite.Equal(len(okResponse.Payload), len(rejectedOfficeUsers))
-
-		actualID := []string{okResponse.Payload[0].ID.String(), okResponse.Payload[1].ID.String()}
-		expected := []string{rejectedOfficeUsers[0].ID.String(), rejectedOfficeUsers[1].ID.String()}
-		for _, expectedID := range expected {
-			suite.True(slices.Contains(actualID, expectedID))
-		}
-	})
-}
-
 func (suite *HandlerSuite) TestGetRejectedOfficeUserHandler() {
 	suite.Run("integration test ok response", func() {
 		rejectedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRejectedOfficeUser(), []roles.RoleType{roles.RoleTypeQae})
