@@ -1599,7 +1599,7 @@ func computeINPKExpectedPriceCents(
 	primeEstimatedWeightLbs int,
 ) unit.Cents {
 	esc := float64(basePriceCents) * escalationFactor
-	cwt := float64(primeEstimatedWeightLbs) / 100.0
+	cwt := (float64(primeEstimatedWeightLbs) * 1.1) / 100.0
 	final := math.Round(esc * marketFactor * cwt * 100)
 	return unit.Cents(final)
 }
