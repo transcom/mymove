@@ -51,6 +51,9 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 	// point at the index in the movesToAssign set
 	moveIndex := 0
 
+	// keep track of the updatedMoves to batch save
+	updatedMoves := make([]models.Move, 0, len(movesToAssign))
+
 	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// while we have a queue...
 		for moveIndex < len(movesToAssign) && queue.Len() > 0 {
@@ -62,15 +65,10 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 			// do our assignment logic
 			move := movesToAssign[moveIndex]
 			assign(&move, userID)
-
-			verrs, err := appCtx.DB().ValidateAndUpdate(&move)
-			if err != nil || verrs.HasAny() {
-				return apperror.NewInvalidInputError(move.ID, err, verrs, "")
-			}
+			updatedMoves = append(updatedMoves, move)
 
 			// decrement the user's assignment count
 			moveAssignments[userID]--
-			// increment our moves to assign index
 			moveIndex++
 
 			// If user still has remaining assignments, re-queue them
@@ -81,6 +79,13 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 
 		return nil
 	})
+
+	if len(updatedMoves) > 0 {
+		verrs, err := appCtx.DB().ValidateAndUpdate(updatedMoves) // Bulk update
+		if err != nil || verrs.HasAny() {
+			return nil, apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Bulk assignment failed")
+		}
+	}
 
 	if transactionErr != nil {
 		return nil, transactionErr
