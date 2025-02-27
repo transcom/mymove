@@ -91,6 +91,7 @@ type PPMShipmentUpdatedSubmitter interface {
 type AOAPacketCreator interface {
 	VerifyAOAPacketInternal(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error
 	CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, error)
+	CleanupAOAPacketFiles(appCtx appcontext.AppContext) error
 }
 
 // PaymentPacketCreator creates a payment packet for a PPM shipment
@@ -99,4 +100,5 @@ type AOAPacketCreator interface {
 type PaymentPacketCreator interface {
 	Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWaterMarks bool) (io.ReadCloser, error)
 	GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (io.ReadCloser, error)
+	CleanupPaymentPacketFiles(appCtx appcontext.AppContext) error
 }

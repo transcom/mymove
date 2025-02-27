@@ -155,6 +155,13 @@ func (p *paymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppm
 	return p.Generate(appCtx, ppmShipmentID, true, true)
 }
 
+// remove all of the packet files from the temp directory associated with creating the payment packet
+func (p *paymentPacketCreator) CleanupPaymentPacketFiles(appCtx appcontext.AppContext) error {
+	err := p.pdfGenerator.Cleanup(appCtx)
+
+	return err
+}
+
 func buildBookMarks(fileNamesToMerge []string, sortedPaymentPacketItems map[int]paymentPacketItem, aoaPacketFile io.ReadSeeker, pdfGenerator paperwork.Generator) ([]pdfcpu.Bookmark, error) {
 	// go out and retrieve PDF file info for each file name
 	for i := 0; i < len(fileNamesToMerge); i++ {
