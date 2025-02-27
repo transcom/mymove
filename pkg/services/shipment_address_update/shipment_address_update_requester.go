@@ -281,6 +281,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
 	}
+
 	isInternationalShipment := shipment.MarketCode == models.MarketCodeInternational
 
 	shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipment)
