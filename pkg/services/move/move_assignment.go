@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -64,8 +65,11 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 
 			// do our assignment logic
 			move := movesToAssign[moveIndex]
-			assign(&move, userID)
-			updatedMoves = append(updatedMoves, move)
+			ordersType := move.Orders.OrdersType
+			if ordersType != internalmessages.OrdersTypeSAFETY && ordersType != internalmessages.OrdersTypeBLUEBARK && ordersType != internalmessages.OrdersTypeWOUNDEDWARRIOR {
+				assign(&move, userID)
+				updatedMoves = append(updatedMoves, move)
+			}
 
 			// decrement the user's assignment count
 			moveAssignments[userID]--

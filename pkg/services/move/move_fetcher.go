@@ -72,7 +72,7 @@ func (f moveFetcher) FetchMovesByIdArray(appCtx appcontext.AppContext, moveIds [
 	}
 	caseExpr += "ELSE " + fmt.Sprintf("%d", len(moveIds)) + " END"
 
-	query := appCtx.DB().Q().
+	query := appCtx.DB().Q().EagerPreload("Orders").
 		Where("show = TRUE").
 		Where("id in (?)", moveIds).
 		Order(caseExpr)
