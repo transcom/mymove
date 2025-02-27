@@ -217,6 +217,14 @@ const MoveDetails = ({ setFlashMessage }) => {
                     </dd>
                   </div>
                   <div className={descriptionListStyles.row}>
+                    <dt>Admin Restricted UB Weight:</dt>
+                    <dd>
+                      {moveTaskOrder.order.entitlement.ubWeightRestriction > 0
+                        ? formatWeight(moveTaskOrder.order.entitlement.ubWeightRestriction)
+                        : 'no'}
+                    </dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
                     <Button onClick={handleDownloadOrders}>Download Move Orders</Button>
                     <select
                       onChange={handleDocumentTypeChange}
