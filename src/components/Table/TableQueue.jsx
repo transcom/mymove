@@ -27,9 +27,9 @@ import {
   getTableQueueSortParamSessionStorageValue,
   getSelectionOptionLabel,
 } from 'components/Table/utils';
-import { roleTypes } from 'constants/userRoles';
 import { saveBulkAssignmentData } from 'services/ghcApi';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
+import { roleTypes } from 'constants/userRoles';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -384,7 +384,6 @@ const TableQueue = ({
                   totalCount={totalCount}
                   paramSort={paramSort}
                   paramFilters={paramFilters}
-                  isHeadquartersUser={activeRole === roleTypes.HQ}
                 />
               )}
             </div>
