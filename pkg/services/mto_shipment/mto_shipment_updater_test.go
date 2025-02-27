@@ -3924,7 +3924,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
-		true,
 	).Return(500, nil)
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
