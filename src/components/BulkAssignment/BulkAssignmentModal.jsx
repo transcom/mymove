@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Checkbox } from '@trussworks/react-uswds';
-import { Formik, useFormikContext } from 'formik';
-import { Switch, FormGroup, FormControlLabel, FormLabel, FormControl } from '@material-ui/core';
+import { Button } from '@trussworks/react-uswds';
+import { Formik } from 'formik';
+import { Switch } from '@material-ui/core';
 import * as Yup from 'yup';
 
 import styles from './BulkAssignmentModal.module.scss';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 import { Form } from 'components/form';
 import { getBulkAssignmentData } from 'services/ghcApi';
@@ -29,6 +30,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   const [selectedUsers, setSelectedUsers] = useState({});
   const [selectedRadio, setSelectedRadio] = useState(null);
   const errorMessage = 'Cannot assign more moves than are available.';
+  const currentBulkReassignmentFlagState = isBooleanFlagEnabled('bulk_re_assignment');
 
   const handleRadioChange = (index) => {
     setSelectedRadio(index);
@@ -148,7 +150,9 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           {isBulkReAssignmentMode ? bulkAssignmentSwitchLabels[1] : bulkAssignmentSwitchLabels[0]} ({numberOfMoves})
         </h3>
       </ModalTitle>
-      <Switch name="BulkAssignmentModeSwitch" onChange={handleAssignmentModeChange} />
+      {currentBulkReassignmentFlagState && (
+        <Switch name="BulkAssignmentModeSwitch" onChange={handleAssignmentModeChange} />
+      )}
       <div className={styles.BulkAssignmentTable}>
         <Formik
           onSubmit={(values) => {
