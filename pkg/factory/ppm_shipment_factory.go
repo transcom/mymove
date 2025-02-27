@@ -57,6 +57,7 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 	}
 
 	ppmShipment := models.PPMShipment{
+		PPMType:               models.PPMType(models.PPMTypeIncentiveBased),
 		ShipmentID:            shipment.ID,
 		Shipment:              shipment,
 		Status:                models.PPMShipmentStatusDraft,

@@ -108,6 +108,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 		suite.Nil(err)
 		suite.NotNil(createdPPMShipment)
+		suite.Equal(createdPPMShipment.PPMType, models.PPMTypeIncentiveBased)
 		suite.Equal(createdPPMShipment.Shipment.MarketCode, models.MarketCodeDomestic)
 	})
 
