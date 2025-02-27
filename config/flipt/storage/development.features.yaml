@@ -73,6 +73,14 @@ flags:
       - segment:
           key: mil-app
           value: false
+  - key: enable_hawaii
+    name: Enable Hawaii feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
   - key: okta_dodid_input
     name: Customer DODID input being pulled from Okta and disabling text input
     type: BOOLEAN_FLAG_TYPE
@@ -89,6 +97,14 @@ flags:
       - segment:
           key: mil-app
           value: true
+  - key: ppm_spr
+    name: Enable PPM Small Package Reimbursement flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
   - key: nts
     name: NTS feature flag
     type: BOOLEAN_FLAG_TYPE

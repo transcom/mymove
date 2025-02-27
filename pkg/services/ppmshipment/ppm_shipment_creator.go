@@ -56,6 +56,11 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT or SUBMITTED status associated with PPM shipment")
 		}
 
+		// default PPM type is incentive based
+		if ppmShipment.PPMType == "" {
+			ppmShipment.PPMType = models.PPMType(models.PPMTypeIncentiveBased)
+		}
+
 		// create pickup and destination addresses
 		if ppmShipment.PickupAddress != nil {
 			address, err = f.addressCreator.CreateAddress(txnAppCtx, ppmShipment.PickupAddress)

@@ -10,7 +10,7 @@ import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { getPPMTypeLabel, PPM_TYPES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
@@ -96,6 +96,9 @@ const ShipmentDisplay = ({
                 </label>
               </h3>
               <div className={styles.tagWrapper}>
+                {displayInfo.ppmShipment?.ppmType === PPM_TYPES.SMALL_PACKAGE && (
+                  <Tag data-testid="ppmTypeTag">{getPPMTypeLabel(displayInfo.ppmShipment.ppmType)}</Tag>
+                )}
                 {displayInfo.isActualExpenseReimbursement && (
                   <Tag data-testid="actualReimbursementTag">actual expense reimbursement</Tag>
                 )}

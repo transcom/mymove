@@ -883,6 +883,7 @@ commands:
             export ENVIRONMENT=test
             export FEATURE_FLAG_MULTI_MOVE=true
             export FEATURE_FLAG_PPM=true
+            export FEATURE_FLAG_PPM_SPR=false
             export FEATURE_FLAG_NTS=true
             export FEATURE_FLAG_NTSR=true
             export FEATURE_FLAG_BOAT=true

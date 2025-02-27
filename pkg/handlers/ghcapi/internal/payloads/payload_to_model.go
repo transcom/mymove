@@ -626,6 +626,7 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		return nil
 	}
 	model := &models.PPMShipment{
+		PPMType:                        models.PPMType(ppmShipment.PpmType),
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),

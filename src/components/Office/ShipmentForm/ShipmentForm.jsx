@@ -49,7 +49,7 @@ import {
   updateMoveCloseoutOffice,
   dateSelectionIsWeekendHoliday,
 } from 'services/ghcApi';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES, technicalHelpDeskURL } from 'shared/constants';
+import { getPPMTypeLabel, PPM_TYPES, SHIPMENT_OPTIONS, SHIPMENT_TYPES, technicalHelpDeskURL } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -107,14 +107,20 @@ const ShipmentForm = (props) => {
   const [errorCode, setErrorCode] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [shipmentAddressUpdateReviewErrorMessage, setShipmentAddressUpdateReviewErrorMessage] = useState(null);
-
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
-
   const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
+  const [ppmSprFF, setppmSprFF] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
+    };
+    fetchData();
+  }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      setppmSprFF(await isBooleanFlagEnabled('ppm_spr'));
     };
     fetchData();
   }, []);
@@ -173,8 +179,6 @@ const ShipmentForm = (props) => {
   });
 
   const getShipmentNumber = () => {
-    // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
-    // we should fix this also b/c it doesn't display correctly in storybook
     const { search } = window.location;
     const params = new URLSearchParams(search);
     const shipmentNumber = params.get('shipmentNumber');
@@ -649,6 +653,7 @@ const ShipmentForm = (props) => {
     >
       {({ values, isValid, isSubmitting, setValues, handleSubmit, setFieldError, validateForm, ...formikProps }) => {
         const {
+          ppmType,
           hasSecondaryDestination,
           hasTertiaryDestination,
           hasDeliveryAddress,
@@ -851,6 +856,11 @@ const ShipmentForm = (props) => {
               <div className={styles.headerWrapper}>
                 <div>
                   <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
+                  {ppmType === PPM_TYPES.SMALL_PACKAGE && (
+                    <Tag className={styles.tagInfo} data-testid="ppmTypeTag">
+                      {getPPMTypeLabel(ppmType)}
+                    </Tag>
+                  )}
                   {isActualExpenseReimbursement === 'true' && (
                     <Tag className={styles.tagInfo} data-testid="actualExpenseReimbursementTag">
                       Actual Expense Reimbursement
@@ -919,7 +929,7 @@ const ShipmentForm = (props) => {
 
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
-                    <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
+                    <h3 className={styles.SectionHeaderExtraSpacing}>Pickup details</h3>
                     <Fieldset>
                       {isRequestedPickupDateAlertVisible && (
                         <Alert type="warning" aria-live="polite" headingLevel="h4">
@@ -1070,7 +1080,7 @@ const ShipmentForm = (props) => {
 
                 {showDeliveryFields && (
                   <SectionWrapper className={formStyles.formSection}>
-                    <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
+                    <h3 className={styles.SectionHeaderExtraSpacing}>Delivery details</h3>
                     <Fieldset>
                       {isRequestedDeliveryDateAlertVisible && (
                         <Alert type="warning" aria-live="polite" headingLevel="h4">
@@ -1421,42 +1431,92 @@ const ShipmentForm = (props) => {
                 {isPPM && !isAdvancePage && (
                   <>
                     {isServiceCounselor && (
-                      <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                        <h2>Actual Expense Reimbursement</h2>
-                        <FormGroup>
-                          <Label className={styles.Label} htmlFor="isActualExpenseReimbursement">
-                            Is this PPM an Actual Expense Reimbursement?
-                          </Label>
-                          <Field
-                            as={Radio}
-                            id="isActualExpenseReimbursementYes"
-                            label="Yes"
-                            name="isActualExpenseReimbursement"
-                            value="true"
-                            title="Yes"
-                            checked={isActualExpenseReimbursement === 'true'}
-                            disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
-                            className={styles.buttonGroup}
-                            data-testid="isActualExpenseReimbursementYes"
-                          />
-                          <Field
-                            as={Radio}
-                            id="isActualExpenseReimbursementNo"
-                            label="No"
-                            name="isActualExpenseReimbursement"
-                            value="false"
-                            title="No"
-                            checked={isActualExpenseReimbursement !== 'true'}
-                            disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
-                            className={styles.buttonGroup}
-                            data-testid="isActualExpenseReimbursementNo"
-                          />
-                        </FormGroup>
-                      </SectionWrapper>
+                      <>
+                        {ppmSprFF && (
+                          <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+                            <h3>PPM Type</h3>
+                            <FormGroup>
+                              <Label className={styles.Label} htmlFor="ppmType">
+                                Indicate the PPM Type
+                              </Label>
+                              <Field
+                                as={Radio}
+                                id="isIncentiveBased"
+                                label="Incentive-based"
+                                name="ppmType"
+                                value={PPM_TYPES.INCENTIVE_BASED}
+                                checked={ppmType === PPM_TYPES.INCENTIVE_BASED}
+                                disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
+                                className={styles.buttonGroup}
+                                data-testid="isIncentiveBased"
+                              />
+                              <Field
+                                as={Radio}
+                                id="isActualExpense"
+                                label="Actual Expense"
+                                name="ppmType"
+                                value={PPM_TYPES.ACTUAL_EXPENSE}
+                                checked={ppmType === PPM_TYPES.ACTUAL_EXPENSE}
+                                className={styles.buttonGroup}
+                                data-testid="isActualExpense"
+                              />
+                              <Field
+                                as={Radio}
+                                id="isSmallPackage"
+                                label="Small Package"
+                                name="ppmType"
+                                value={PPM_TYPES.SMALL_PACKAGE}
+                                checked={ppmType === PPM_TYPES.SMALL_PACKAGE}
+                                className={styles.buttonGroup}
+                                data-testid="isSmallPackage"
+                              />
+                            </FormGroup>
+                          </SectionWrapper>
+                        )}
+                        <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+                          <h3>Actual Expense Reimbursement</h3>
+                          <FormGroup>
+                            <Label className={styles.Label} htmlFor="isActualExpenseReimbursement">
+                              Is this PPM an Actual Expense Reimbursement?
+                            </Label>
+                            <Field
+                              as={Radio}
+                              id="isActualExpenseReimbursementYes"
+                              label="Yes"
+                              name="isActualExpenseReimbursement"
+                              value="true"
+                              title="Yes"
+                              checked={isActualExpenseReimbursement === 'true'}
+                              disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
+                              className={styles.buttonGroup}
+                              data-testid="isActualExpenseReimbursementYes"
+                            />
+                            <Field
+                              as={Radio}
+                              id="isActualExpenseReimbursementNo"
+                              label="No"
+                              name="isActualExpenseReimbursement"
+                              value="false"
+                              title="No"
+                              checked={isActualExpenseReimbursement !== 'true'}
+                              disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
+                              className={styles.buttonGroup}
+                              data-testid="isActualExpenseReimbursementNo"
+                            />
+                          </FormGroup>
+                        </SectionWrapper>
+                      </>
                     )}
                     <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                      <h2>Departure date</h2>
-                      <DatePickerInput name="expectedDepartureDate" label="Planned Departure Date" />
+                      <h3>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped Date' : 'Departure Date'}</h3>
+                      <DatePickerInput
+                        name="expectedDepartureDate"
+                        label={
+                          ppmType === PPM_TYPES.SMALL_PACKAGE
+                            ? 'When did the customer ship their package?'
+                            : 'Planned Departure Date'
+                        }
+                      />
                       <Hint className={ppmStyles.hint}>
                         Enter the first day you expect to move things. It&apos;s OK if the actual date is different. We
                         will ask for your actual departure date when you document and complete your PPM.
@@ -1681,7 +1741,7 @@ const ShipmentForm = (props) => {
                     </SectionWrapper>
                     {showCloseoutOffice && (
                       <SectionWrapper>
-                        <h2>Closeout office</h2>
+                        <h3>Closeout office</h3>
                         <CloseoutOfficeInput
                           hint="If there is more than one PPM for this move, the closeout office will be the same for all your PPMs."
                           name="closeoutOffice"

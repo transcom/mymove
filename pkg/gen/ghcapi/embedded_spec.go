@@ -12320,6 +12320,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -12532,6 +12535,16 @@ func init() {
         "NEEDS_CLOSEOUT",
         "CLOSEOUT_COMPLETE",
         "COMPLETED"
+      ]
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
       ]
     },
     "PWSViolation": {
@@ -15040,6 +15053,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -29916,6 +29932,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -30128,6 +30147,16 @@ func init() {
         "NEEDS_CLOSEOUT",
         "CLOSEOUT_COMPLETE",
         "COMPLETED"
+      ]
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
       ]
     },
     "PWSViolation": {
@@ -32695,6 +32724,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",

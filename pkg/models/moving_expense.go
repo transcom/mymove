@@ -29,6 +29,8 @@ const (
 	MovingExpenseReceiptTypeTolls MovingExpenseReceiptType = "TOLLS"
 	// MovingExpenseReceiptTypeWeighingFee captures enum value "WEIGHING_FEE"
 	MovingExpenseReceiptTypeWeighingFee MovingExpenseReceiptType = "WEIGHING_FEE"
+	// MovingExpenseReceiptTypeSmallPackage captures enum value "SMALL_PACKAGE"
+	MovingExpenseReceiptTypeSmallPackage MovingExpenseReceiptType = "SMALL_PACKAGE"
 	// MovingExpenseReceiptTypeOther captures enum value "OTHER"
 	MovingExpenseReceiptTypeOther MovingExpenseReceiptType = "OTHER"
 )
