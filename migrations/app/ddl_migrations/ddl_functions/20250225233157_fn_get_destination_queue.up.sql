@@ -49,7 +49,6 @@ BEGIN
         per_page := 20;
     END IF;
 
-    -- OFFSET for pagination
     offset_value := (page - 1) * per_page;
 
     sql_query := '
@@ -121,6 +120,7 @@ BEGIN
         LEFT JOIN transportation_offices AS counseling_offices
             ON moves.counseling_transportation_office_id = counseling_offices.id
         LEFT JOIN shipment_address_updates ON shipment_address_updates.shipment_id = mto_shipments.id
+        LEFT JOIN sit_extensions ON sit_extensions.mto_shipment_id = mto_shipments.id
         JOIN move_to_dest_gbloc ON move_to_dest_gbloc.move_id = moves.id
         WHERE moves.show = TRUE
     ';
@@ -180,13 +180,17 @@ BEGIN
         sql_query := sql_query || ' AND (too_user.first_name || '' '' || too_user.last_name) ILIKE ''%'' || $12 || ''%'' ';
     END IF;
 
-    -- add destination queue-specific filters (pending dest address requests, dest SIT & dest shuttle service items)
+    -- add destination queue-specific filters (pending dest address requests, pending dest SIT extension requests when there are dest SIT service items, submitted dest SIT & dest shuttle service items)
     sql_query := sql_query || '
         AND (
             shipment_address_updates.status = ''REQUESTED''
             OR (
+                sit_extensions.status = ''PENDING''
+                AND re_services.code IN (''DDFSIT'', ''DDASIT'', ''DDDSIT'', ''DDSFSC'', ''DDSHUT'', ''IDFSIT'', ''IDASIT'', ''IDDSIT'', ''IDSFSC'', ''IDSHUT'')
+            )
+            OR (
                 mto_service_items.status = ''SUBMITTED''
-                AND re_services.code IN (''DDFSIT'', ''DDASIT'', ''DDDSIT'', ''DDSHUT'', ''DDSFSC'', ''IDFSIT'', ''IDASIT'', ''IDDSIT'', ''IDSHUT'')
+                AND re_services.code IN (''DDFSIT'', ''DDASIT'', ''DDDSIT'', ''DDSFSC'', ''DDSHUT'', ''IDFSIT'', ''IDASIT'', ''IDDSIT'', ''IDSFSC'', ''IDSHUT'')
             )
         )
     ';
