@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { arrayOf, bool, func, number } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './PPMSummaryList.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatAddressShort } from 'utils/formatters';
-import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import AsyncPacketDownloadLink, {
+  onPacketDownloadSuccessHandler,
+} from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
 import { isFeedbackAvailable } from 'constants/ppmFeedback';
 
@@ -90,9 +93,32 @@ const paymentReviewed = (approvedAt, submittedAt, reviewedAt, pickupAddress, des
 };
 
 const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, onFeedbackClick) => {
+  const [isDownloading, setIsDownloading] = useState(false);
   const {
     ppmShipment: { status, approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress },
   } = shipment;
+
+  React.useEffect(() => {
+    if (isDownloading) {
+      document.body.classList.add('has-overlay');
+    } else {
+      document.body.classList.remove('has-overlay');
+    }
+
+    return () => {
+      document.body.classList.remove('has-overlay');
+    };
+  }, [isDownloading]);
+
+  const handleDownloadSuccess = (response) => {
+    setIsDownloading(false);
+    onPacketDownloadSuccessHandler(response);
+  };
+
+  const handleDownloadError = () => {
+    setIsDownloading(false);
+    onDownloadError();
+  };
 
   let actionButtons;
   let content;
@@ -124,23 +150,33 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
         [
           <div>
             <Button onClick={() => onFeedbackClick()}>View Closeout Feedback</Button>
-            <AsyncPacketDownloadLink
-              id={shipment?.ppmShipment?.id}
-              label="Download Payment Packet"
-              asyncRetrieval={downloadPPMPaymentPacket}
-              onFailure={onDownloadError}
-              className="styles.btn"
-            />
+            <div className={styles.downloadWrapper}>
+              <AsyncPacketDownloadLink
+                id={shipment?.ppmShipment?.id}
+                label="Download Payment Packet"
+                asyncRetrieval={downloadPPMPaymentPacket}
+                onSuccess={handleDownloadSuccess}
+                onFailure={handleDownloadError}
+                onStart={() => setIsDownloading(true)}
+                disabled={isDownloading}
+                className="styles.btn"
+              />
+            </div>
           </div>,
         ]
       ) : (
-        <AsyncPacketDownloadLink
-          id={shipment?.ppmShipment?.id}
-          label="Download Payment Packet"
-          asyncRetrieval={downloadPPMPaymentPacket}
-          onFailure={onDownloadError}
-          className="styles.btn"
-        />
+        <div className={styles.downloadWrapper}>
+          <AsyncPacketDownloadLink
+            id={shipment?.ppmShipment?.id}
+            label="Download Payment Packet"
+            asyncRetrieval={downloadPPMPaymentPacket}
+            onSuccess={handleDownloadSuccess}
+            onFailure={handleDownloadError}
+            onStart={() => setIsDownloading(true)}
+            disabled={isDownloading}
+            className="styles.btn"
+          />
+        </div>
       );
 
       content = paymentReviewed(approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress);
@@ -149,13 +185,22 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
   }
 
   return (
-    <SectionWrapper className={styles['ppm-shipment']}>
-      <div className={styles['ppm-shipment__heading-section']}>
-        <strong>{orderLabel}</strong>
-        {actionButtons}
-      </div>
-      <div className={styles['ppm-shipment__content']}>{content}</div>
-    </SectionWrapper>
+    <div className={styles.container}>
+      {isDownloading && (
+        <div className={styles.fullPageOverlay} role="dialog" aria-modal="true">
+          <div className={styles.spinnerContainer}>
+            <LoadingSpinner message="Downloading payment packet..." />
+          </div>
+        </div>
+      )}
+      <SectionWrapper className={styles['ppm-shipment']}>
+        <div className={styles['ppm-shipment__heading-section']}>
+          <strong>{orderLabel}</strong>
+          {actionButtons}
+        </div>
+        <div className={styles['ppm-shipment__content']}>{content}</div>
+      </SectionWrapper>
+    </div>
   );
 };
 
