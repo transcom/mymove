@@ -122,6 +122,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			ReportByDate:         &reportByDate,
 			Tac:                  handlers.FmtString("E19A"),
 			Sac:                  nullable.NewString("987654321"),
+			DependentsAuthorized: models.BoolPointer(true),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -146,6 +147,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Equal(payload.Tac, updatedOrder.TAC)
 		suite.Equal(payload.Sac.Value, updatedOrder.SAC)
 		suite.EqualValues(updatedGbloc.GBLOC, *updatedOrder.OriginDutyLocationGBLOC)
+		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
 
 		var moveInDB models.Move
 		err = suite.DB().Find(&moveInDB, move.ID)
@@ -451,6 +453,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 			Tac:                  handlers.FmtString("E19A"),
 			Sac:                  nullable.NewString("987654321"),
 			Grade:                &grade,
+			DependentsAuthorized: models.BoolPointer(true),
 		}
 
 		eTag := etag.GenerateEtag(order.UpdatedAt)
@@ -474,6 +477,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.EqualValues(body.Tac, updatedOrder.TAC)
 		suite.EqualValues(body.Sac.Value, updatedOrder.SAC)
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
+		suite.Equal(body.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
 	})
 
 	suite.Run("Updates the PPM actual expense reimbursement when pay grade is civilian", func() {
@@ -581,9 +585,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.UpdateAllowancePayload{
-			Agency:               &affiliation,
-			DependentsAuthorized: models.BoolPointer(true),
-			Grade:                &grade,
+			Agency: &affiliation,
+			Grade:  &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
@@ -598,7 +601,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
 		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
@@ -620,9 +622,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.UpdateAllowancePayload{
-			Agency:               &affiliation,
-			DependentsAuthorized: models.BoolPointer(true),
-			Grade:                &grade,
+			Agency: &affiliation,
+			Grade:  &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
@@ -640,7 +641,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
 		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
@@ -720,9 +720,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.UpdateAllowancePayload{
-			Agency:               &affiliation,
-			DependentsAuthorized: models.BoolPointer(true),
-			Grade:                &grade,
+			Agency: &affiliation,
+			Grade:  &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
@@ -737,7 +736,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
 		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
@@ -789,9 +787,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
-			Agency:               &affiliation,
-			DependentsAuthorized: models.BoolPointer(true),
-			Grade:                &grade,
+			Agency: &affiliation,
+			Grade:  &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
@@ -807,7 +804,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.NoError(err)
 
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
 		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
@@ -833,9 +829,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		ubWeightRestriction := models.Int64Pointer(2000)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
-			Agency:               &affiliation,
-			DependentsAuthorized: models.BoolPointer(true),
-			Grade:                &grade,
+			Agency: &affiliation,
+			Grade:  &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
@@ -855,7 +850,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
 		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
@@ -934,9 +928,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
-			Agency:               &affiliation,
-			DependentsAuthorized: models.BoolPointer(true),
-			Grade:                &grade,
+			Agency: &affiliation,
+			Grade:  &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
@@ -955,7 +948,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 
 		suite.NoError(err)
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
 		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
@@ -984,9 +976,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		eTag := etag.GenerateEtag(orderWithoutDefaults.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
-			Agency:               &affiliation,
-			DependentsAuthorized: models.BoolPointer(true),
-			Grade:                &grade,
+			Agency: &affiliation,
+			Grade:  &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
@@ -1005,7 +996,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 
 		suite.NoError(err)
 		suite.Equal(orderWithoutDefaults.ID.String(), updatedOrder.ID.String())
-		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
 		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
@@ -1036,9 +1026,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
-			Agency:               &affiliation,
-			DependentsAuthorized: models.BoolPointer(true),
-			Grade:                &grade,
+			Agency: &affiliation,
+			Grade:  &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
@@ -1073,9 +1062,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
-			Agency:               &affiliation,
-			DependentsAuthorized: models.BoolPointer(true),
-			Grade:                &grade,
+			Agency: &affiliation,
+			Grade:  &grade,
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,

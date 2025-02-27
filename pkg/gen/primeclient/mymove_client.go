@@ -10,6 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
+	"github.com/transcom/mymove/pkg/gen/primeclient/addresses"
 	"github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primeclient/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
@@ -58,6 +59,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Mymove {
 
 	cli := new(Mymove)
 	cli.Transport = transport
+	cli.Addresses = addresses.New(transport, formats)
 	cli.MoveTaskOrder = move_task_order.New(transport, formats)
 	cli.MtoServiceItem = mto_service_item.New(transport, formats)
 	cli.MtoShipment = mto_shipment.New(transport, formats)
@@ -106,6 +108,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // Mymove is a client for mymove
 type Mymove struct {
+	Addresses addresses.ClientService
+
 	MoveTaskOrder move_task_order.ClientService
 
 	MtoServiceItem mto_service_item.ClientService
@@ -120,6 +124,7 @@ type Mymove struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *Mymove) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
+	c.Addresses.SetTransport(transport)
 	c.MoveTaskOrder.SetTransport(transport)
 	c.MtoServiceItem.SetTransport(transport)
 	c.MtoShipment.SetTransport(transport)

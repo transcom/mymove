@@ -1,5 +1,6 @@
 @import 'shared/styles/colors';
 @import 'shared/styles/_basics';
+@import 'shared/styles/_variables';
 
 .WizardNavigation {
   display: flex;
@@ -15,6 +16,10 @@
   > .button + .button {
     @include u-margin-top(0);
     @include u-margin-left('105');
+
+    @media (max-width: $tablet) {
+      margin-left: 0;
+    }
   }
 
   *:last-child {
