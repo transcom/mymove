@@ -243,8 +243,8 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentUpdater
-	planner route.Planner
 	services.VLocation
+	planner route.Planner
 }
 
 // Handle handler that updates a mto shipment
