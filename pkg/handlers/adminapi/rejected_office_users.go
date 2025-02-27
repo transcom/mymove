@@ -60,7 +60,7 @@ func AddRejectedOnDate(db *pop.Connection, officeUser models.OfficeUser) error {
 
 	err := db.RawQuery(query, officeUser.ID).Exec()
 	if err != nil {
-		return fmt.Errorf("error updating preexisting rejected users: %w", err)
+		return fmt.Errorf("error updating preexisting rejected user: %w", err)
 	}
 
 	return nil
