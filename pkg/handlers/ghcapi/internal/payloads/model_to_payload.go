@@ -2633,16 +2633,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
-		numShipments := 0
-
-		for _, shipment := range move.MTOShipments {
-			if (shipment.Status != models.MTOShipmentStatusDraft) &&
-				(shipment.Status != models.MTOShipmentStatusRejected) &&
-				(shipment.Status != models.MTOShipmentStatusCancellationRequested) &&
-				(shipment.Status != models.MTOShipmentStatusCanceled) {
-				numShipments++
-			}
-		}
+		numShipments := len(move.MTOShipments)
 
 		var pickupDate, deliveryDate *strfmt.Date
 

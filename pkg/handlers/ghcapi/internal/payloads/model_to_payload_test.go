@@ -866,86 +866,12 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 		},
 	}, nil)
 
-	moveWithShipmentsOfEveryStatus := factory.BuildMove(suite.DB(), nil, nil)
-	shipmentWithSubmittedStatus := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-		{
-			Model:    moveWithShipmentsOfEveryStatus,
-			LinkOnly: true,
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-		},
-	}, nil)
-	shipmentWithCanceledStatus := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-		{
-			Model:    moveWithShipmentsOfEveryStatus,
-			LinkOnly: true,
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusCanceled,
-			},
-		},
-	}, nil)
-	rejectionReason := "bad shipment"
-	shipmentWithRejectedStatus := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-		{
-			Model:    moveWithShipmentsOfEveryStatus,
-			LinkOnly: true,
-		},
-		{
-			Model: models.MTOShipment{
-				Status:          models.MTOShipmentStatusRejected,
-				RejectionReason: &rejectionReason,
-			},
-		},
-	}, nil)
-	shipmentWithCancellationRequestedStatus := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-		{
-			Model:    moveWithShipmentsOfEveryStatus,
-			LinkOnly: true,
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusCancellationRequested,
-			},
-		},
-	}, nil)
-	shipmentWithApprovedStatus := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-		{
-			Model:    moveWithShipmentsOfEveryStatus,
-			LinkOnly: true,
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-	moveWithShipmentsOfEveryStatus.MTOShipments = models.MTOShipments{
-		shipmentWithSubmittedStatus,
-		shipmentWithCanceledStatus,
-		shipmentWithRejectedStatus,
-		shipmentWithCancellationRequestedStatus,
-		shipmentWithApprovedStatus,
-	}
-
 	moves := models.Moves{moveUSMC}
-	movesWithShipments := models.Moves{moveWithShipmentsOfEveryStatus}
 	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Marine move with no shipments", func() {
 		payload := SearchMoves(appCtx, moves)
 
 		suite.IsType(payload, &ghcmessages.SearchMoves{})
 		suite.NotNil(payload)
-	})
-	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Marine move with shipments", func() {
-		payload := SearchMoves(appCtx, movesWithShipments)
-
-		suite.IsType(payload, &ghcmessages.SearchMoves{})
-		suite.NotNil(payload)
-		suite.Equal(&(*payload)[0].ShipmentsCount, handlers.FmtInt64(2))
 	})
 }
 
