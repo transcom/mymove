@@ -6620,6 +6620,13 @@ func init() {
             "name": "file",
             "in": "formData",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "If the upload is a Weight Receipt",
+            "name": "weightReceipt",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -24243,6 +24250,13 @@ func init() {
             "description": "The file to upload.",
             "name": "file",
             "in": "formData",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "If the upload is a Weight Receipt",
+            "name": "weightReceipt",
+            "in": "query",
             "required": true
           }
         ],
