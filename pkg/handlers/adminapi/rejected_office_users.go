@@ -39,7 +39,10 @@ func payloadForRejectedOfficeUserModel(o models.OfficeUser) *adminmessages.Offic
 		RejectionReason:        handlers.FmtStringPtr(o.RejectionReason),
 		CreatedAt:              *handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              *handlers.FmtDateTime(o.UpdatedAt),
-		RejectedOn:             *handlers.FmtDateTime(*o.RejectedOn),
+	}
+
+	if o.RejectedOn != nil {
+		payload.RejectedOn = *handlers.FmtDateTime(*o.RejectedOn)
 	}
 
 	if o.UserID != nil {
@@ -103,8 +106,8 @@ func (h IndexRejectedOfficeUsersHandler) Handle(params rejected_office_users.Ind
 
 			payload := make(adminmessages.OfficeUsers, queriedOfficeUsersCount)
 
-			for i, s := range officeUsers {
-				payload[i] = payloadForRejectedOfficeUserModel(s)
+			for i, officeUser := range officeUsers {
+				payload[i] = payloadForRejectedOfficeUserModel(officeUser)
 			}
 
 			return rejected_office_users.NewIndexRejectedOfficeUsersOK().WithContentRange(fmt.Sprintf("rejected office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, count)).WithPayload(payload), nil
