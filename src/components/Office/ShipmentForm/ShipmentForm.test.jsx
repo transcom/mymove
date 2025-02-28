@@ -385,6 +385,30 @@ const defaultPropsSeparation = {
   orderType: ORDERS_TYPE.SEPARATION,
 };
 
+// const defaultPropsSecondaryDestAddress = {
+//   ...defaultProps,
+//   pickupAddress: {
+//     streetAddress1: '111 Test Street',
+//     city: 'ELIZABETHTOWN',
+//     state: 'KY',
+//     postalCode: '42701',
+//   },
+//   destinationAddress: {
+//     streetAddress1: '222 Test Street',
+//     city: 'BIG CLIFTY',
+//     state: 'KY',
+//     postalCode: '42712',
+//   },
+//   secondaryDeliveryAddress: {
+//     streetAddress1: '123 N Main',
+//     city: 'Tacoma',
+//     state: 'WA',
+//     postalCode: '98421',
+//   },
+//   hasSecondaryPickupAddress: false,
+//   hasSecondaryDeliveryAddress: true,
+// };
+
 jest.mock('utils/validation', () => ({
   ...jest.requireActual('utils/validation'),
   validatePostalCode: jest.fn(),
@@ -476,31 +500,117 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent(defaultProps.currentResidence.postalCode);
     });
 
-    it('renders a second address fieldset when the user has a delivery address', async () => {
+    it('renders a second address fieldset when the user has a second pickup address', async () => {
+      const user = userEvent.setup();
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+
+      await act(async () => {
+        await user.click(screen.getByLabelText('Use pickup address'));
+      });
+      await act(async () => {
+        await user.click(screen.getByTitle('Yes, I have a second pickup address'));
+      });
+
+      const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
+      expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress1');
+
+      const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
+      expect(streetAddress2[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress2');
+
+      const city = screen.getAllByTestId('City');
+      expect(city[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.city');
+
+      const state = screen.getAllByTestId(/State/);
+      expect(state[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.state');
+
+      const zip = screen.getAllByTestId(/ZIP/);
+      expect(zip[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.postalCode');
+    });
+
+    it('renders a delivery address fieldset when the user has a delivery address', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       await act(async () => {
         await userEvent.click(screen.getAllByLabelText('Yes')[1]);
       });
 
-      expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveAttribute(
-        'name',
-        'pickup.address.streetAddress1',
-      );
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
 
-      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
 
-      expect(screen.getAllByTestId('City')[0]).toHaveAttribute('aria-label', 'pickup.address.city');
       expect(screen.getAllByTestId('City')[1]).toHaveAttribute('aria-label', 'delivery.address.city');
 
-      expect(screen.getAllByTestId('State')[0]).toHaveAttribute('aria-label', 'pickup.address.state');
       expect(screen.getAllByTestId('State')[1]).toHaveAttribute('aria-label', 'delivery.address.state');
 
-      expect(screen.getAllByTestId('ZIP')[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
       expect(screen.getAllByTestId('ZIP')[1]).toHaveAttribute('aria-label', 'delivery.address.postalCode');
     });
+
+    // it('renders a second delivery address fieldset when the user has a second delivery address', async () => {
+    //   await act(async () => {
+    //     renderWithRouter(
+    //       <ShipmentForm
+    //         {...defaultProps}
+    //         shipmentType={SHIPMENT_OPTIONS.HHG}
+    //         mtoShipment={{
+    //           ...mockMtoShipment,
+    //           destinationAddress: {
+    //             streetAddress1: '441 SW Rio de la Plata Drive',
+    //             city: 'Tacoma',
+    //             state: 'WA',
+    //             postalCode: '98421',
+    //           },
+    //           secondaryDeliveryAddress: {
+    //             streetAddress1: '123 Second Address',
+    //             city: 'Tacoma',
+    //             state: 'WA',
+    //             postalCode: '98421',
+    //           },
+    //         }}
+    //       />,
+    //     );
+
+    //     await act(async () => {
+    //       await userEvent.click(screen.getAllByLabelText('Yes')[1]);
+    //     });
+    //     await userEvent.tab(); //
+    //     const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+    //     const address2 = screen.getAllByLabelText('Address 2', { exact: false });
+    //     const address3 = screen.getAllByLabelText('Address 3', { exact: false });
+    //     const state = screen.getAllByTestId(/State/);
+    //     const city = screen.getAllByTestId(/City/);
+    //     const postalCodes = screen.getAllByTestId(/ZIP/);
+
+    //     await waitFor(() => {
+    //       expect(address1[1]).toBeInstanceOf(HTMLInputElement);
+    //       expect(address2[1]).toBeInstanceOf(HTMLInputElement);
+    //       expect(address3[1]).toBeInstanceOf(HTMLInputElement);
+    //       expect(state[1]).toBeInstanceOf(HTMLLabelElement);
+    //       expect(city[1]).toBeInstanceOf(HTMLLabelElement);
+    //       expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+    //     });
+    //     await userEvent.type(address1[1], '441 SW Rio de la Plata Drive');
+
+    //     await act(async () => {
+    //       await userEvent.click(screen.getAllByLabelText('Yes')[2]);
+    //     });
+
+    //     const address1new = screen.getAllByLabelText(/Address 1/, { exact: false });
+    //     const address2new = screen.getAllByLabelText('Address 2', { exact: false });
+    //     const address3new = screen.getAllByLabelText('Address 3', { exact: false });
+    //     const statenew = screen.getAllByTestId(/State/);
+    //     const citynew = screen.getAllByTestId(/City/);
+    //     const postalCodesnew = screen.getAllByTestId(/ZIP/);
+
+    //     await waitFor(() => {
+    //       expect(address1new[2]).toBeInstanceOf(HTMLInputElement);
+    //       expect(address2new[2]).toBeInstanceOf(HTMLInputElement);
+    //       expect(address3new[2]).toBeInstanceOf(HTMLInputElement);
+    //       expect(statenew[2]).toBeInstanceOf(HTMLLabelElement);
+    //       expect(citynew[2]).toBeInstanceOf(HTMLLabelElement);
+    //       expect(postalCodesnew[2]).toBeInstanceOf(HTMLLabelElement);
+    //     });
+    //   });
+    // });
 
     it('renders a delivery address type for retirement orders type', async () => {
       renderWithRouter(<ShipmentForm {...defaultPropsRetirement} shipmentType={SHIPMENT_OPTIONS.HHG} />);

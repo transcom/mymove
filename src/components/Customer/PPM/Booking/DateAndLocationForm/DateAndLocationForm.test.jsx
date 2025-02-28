@@ -409,4 +409,57 @@ describe('validates form fields and displays error messages', () => {
       });
     });
   });
+
+  // it('does allow the user to save if the secondary pickup address 1 is cleared but the toggle is switched to No', async () => {
+  //   await act(async () => {
+  //     const newPPM = {
+  //       ...defaultProps,
+  //       mtoShipment: {
+  //         ppmShipment: {
+  //           pickupAddress: {
+  //             streetAddress1: '111 Test Street',
+  //             city: 'ELIZABETHTOWN',
+  //             state: 'KY',
+  //             postalCode: '42701',
+  //           },
+  //           secondaryPickupAddress: {
+  //             streetAddress1: '777 Test Street',
+  //             city: 'ELIZABETHTOWN',
+  //             state: 'KY',
+  //             postalCode: '42702',
+  //           },
+  //         },
+  //       },
+  //     };
+  //     render(
+  //       <Provider store={mockStore.store}>
+  //         <DateAndLocationForm {...defaultProps} serviceMember={newPPM} />
+  //       </Provider>,
+  //     );
+
+  //     await act(async () => {
+  //       await userEvent.click(screen.getByLabelText('Use my current pickup address'));
+  //     });
+  //     const hasSecondaryPickupAddress = screen.getAllByLabelText('Yes')[0];
+  //     await userEvent.click(hasSecondaryPickupAddress);
+
+  //     // await waitFor(() => {
+  //     //   expect(screen.getByText('Second Pickup Address')).toBeInTheDocument();
+  //     // });
+  //     expect(screen.getByRole('heading', { level: 3, name: 'Second Pickup Address' })).toBeInTheDocument();
+
+  //     const postalCodes = screen.getAllByTestId(/ZIP/);
+  //     const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+  //     const address2 = screen.getAllByLabelText('Address 2', { exact: false });
+  //     const state = screen.getAllByTestId(/State/);
+  //     const city = screen.getAllByTestId(/City/);
+  //     await waitFor(() => {
+  //       expect(address1[1]).toBeInstanceOf(HTMLInputElement);
+  //       expect(address2[1]).toBeInstanceOf(HTMLInputElement);
+  //       expect(city[1]).toBeInstanceOf(HTMLLabelElement);
+  //       expect(state[1]).toBeInstanceOf(HTMLLabelElement);
+  //       expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+  //     });
+  //   });
+  // });
 });
