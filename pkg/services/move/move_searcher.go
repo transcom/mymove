@@ -104,6 +104,12 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	if err != nil {
 		return models.Moves{}, 0, apperror.NewQueryError("Move", err, "")
 	}
+
+	for i := range moves {
+		if moves[i].MTOShipments != nil {
+			moves[i].MTOShipments = filterMtoShipments(moves[i].MTOShipments)
+		}
+	}
 	return moves, query.Paginator.TotalEntriesSize, nil
 }
 
@@ -235,4 +241,26 @@ func sortOrder(sort *string, order *string, customerNameSearch *string, paymentR
 func orderName(query *pop.Query, order *string) *pop.Query {
 	query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 	return query
+}
+
+// filters the returned MtoShipments for each move.
+// Ignoring mto shipments that have been deleted, cancelled, rejected, or cancelled requested.
+func filterMtoShipments(unfilteredShipments models.MTOShipments) models.MTOShipments {
+	//filter
+	if len(unfilteredShipments) == 0 {
+		return unfilteredShipments
+	}
+
+	filteredShipments := models.MTOShipments{}
+	for _, shipment := range unfilteredShipments {
+		if shipment.DeletedAt == nil &&
+			(shipment.Status != models.MTOShipmentStatusDraft) &&
+			(shipment.Status != models.MTOShipmentStatusRejected) &&
+			(shipment.Status != models.MTOShipmentStatusCancellationRequested) &&
+			(shipment.Status != models.MTOShipmentStatusCanceled) { //append if deleted, or status = DRAFT, Rejected, cancelled
+			filteredShipments = append(filteredShipments, shipment)
+		}
+	}
+
+	return filteredShipments
 }
