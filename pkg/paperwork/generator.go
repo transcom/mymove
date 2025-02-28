@@ -488,7 +488,7 @@ var contentTypeToImageType = map[string]string{
 }
 
 // ReduceUnusedSpace reduces unused space
-func ReduceUnusedSpace(_ appcontext.AppContext, file afero.File, g *Generator, contentType string) (imgFile afero.File, width float64, height float64, err error) {
+func ReduceUnusedSpace(_ appcontext.AppContext, file afero.File, g *Generator, contentType string, dirName string) (imgFile afero.File, width float64, height float64, err error) {
 	// Figure out if the image should be rotated by calculating height and width of image.
 	pic, _, decodeErr := image.Decode(file)
 	if decodeErr != nil {
@@ -500,7 +500,7 @@ func ReduceUnusedSpace(_ appcontext.AppContext, file afero.File, g *Generator, c
 
 	// If the image is landscape, then turn it to portrait orientation
 	if w > h {
-		newFile, newTemplateFileErr := g.newTempFile()
+		newFile, newTemplateFileErr := g.newTempFileInDir(dirName)
 		if newTemplateFileErr != nil {
 			return nil, 0.0, 0.0, errors.Wrap(newTemplateFileErr, "Creating temp file for image rotation")
 		}
@@ -611,7 +611,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 			}
 		}
 
-		optimizedFile, w, h, rotateErr := ReduceUnusedSpace(appCtx, file, g, img.ContentType)
+		optimizedFile, w, h, rotateErr := ReduceUnusedSpace(appCtx, file, g, img.ContentType, dirName)
 		if rotateErr != nil {
 			return "", errors.Wrapf(rotateErr, "Rotating image if in landscape orientation")
 		}
