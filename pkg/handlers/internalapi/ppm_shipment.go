@@ -294,14 +294,14 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			AOAPacket, dirPath, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, false)
+			AOAPacket, packetPath, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, false)
 
 			if err != nil {
 				logger.Error("Error creating AOA", zap.Error(err))
 				aoaError := err.Error()
 
 				// need to cleanup any files created prior to the packet creation failure
-				if err = h.AOAPacketCreator.CleanupAOAPacketDir(dirPath); err != nil {
+				if err = h.AOAPacketCreator.CleanupAOAPacketDir(packetPath); err != nil {
 					logger.Error("Error deleting temp AOA files", zap.Error(err))
 					aoaError = aoaError + ": " + err.Error()
 				}
@@ -314,7 +314,7 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 			payload := io.NopCloser(AOAPacket)
 
 			// we have copied the created files into the payload so we can remove them from memory
-			if err = h.AOAPacketCreator.CleanupAOAPacketDir(dirPath); err != nil {
+			if err = h.AOAPacketCreator.CleanupAOAPacketDir(packetPath); err != nil {
 				logger.Error("Error deleting temp AOA files", zap.Error(err))
 				aoaError := err.Error()
 				payload := payloads.InternalServerError(&aoaError, h.GetTraceIDFromRequest(params.HTTPRequest))
@@ -343,8 +343,13 @@ func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) 
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			pdf, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
+			pdf, packetPath, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
 			if err != nil {
+				// need to cleanup any files created prior to the packet creation failure
+				if packetErr := h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); packetErr != nil {
+					appCtx.Logger().Error("Error deleting temp AOA files", zap.Error(packetErr))
+				}
+
 				switch err.(type) {
 				case apperror.ForbiddenError:
 					// this indicates user does not have access to PPM
@@ -362,10 +367,8 @@ func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) 
 
 			payload := io.NopCloser(pdf)
 
-			// we have copied the created file into the payload so we can remove it from memory
-			// we pass in false for closing because the file was never opened therefore doesn't
-			// need to be closed
-			if err = h.PaymentPacketCreator.CleanupPaymentPacketFile(pdf, false); err != nil {
+			// we have copied the created files into the payload so we can remove them from memory
+			if err = h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); err != nil {
 				appCtx.Logger().Error(fmt.Sprintf("internalapi.DownPaymentPacket InternalServerError failed to delete temp packet files for ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
 				return ppmops.NewShowPaymentPacketInternalServerError(), err
 			}

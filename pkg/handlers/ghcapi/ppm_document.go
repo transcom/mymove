@@ -177,7 +177,7 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 				return ppmdocumentops.NewShowAOAPacketBadRequest().WithPayload(errPayload), err
 			}
 
-			AOAPacket, dirPath, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, false)
+			AOAPacket, packetPath, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, false)
 
 			if err != nil {
 				logger.Error("Error creating AOA", zap.Error(err))
@@ -185,7 +185,7 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 				errPayload := &ghcmessages.Error{Message: &errInstance}
 
 				// need to cleanup any files created prior to the packet creation failure
-				if err = h.AOAPacketCreator.CleanupAOAPacketDir(dirPath); err != nil {
+				if err = h.AOAPacketCreator.CleanupAOAPacketDir(packetPath); err != nil {
 					logger.Error("Error deleting temp AOA files", zap.Error(err))
 				}
 
@@ -195,11 +195,9 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 
 			payload := io.NopCloser(AOAPacket)
 
-			// we have copied the created file into the payload so we can remove it from memory
-			// we pass in false for closing because the file was never opened therefore doesn't
-			// need to be closed
-			if err = h.AOAPacketCreator.CleanupAOAPacketFile(AOAPacket, false); err != nil {
-				logger.Error("Error deleting temp AOA Packet files", zap.Error(err))
+			// we have copied the created files into the payload so we can remove them from memory
+			if err = h.AOAPacketCreator.CleanupAOAPacketDir(packetPath); err != nil {
+				logger.Error("Error deleting temp AOA Packet directory", zap.Error(err))
 				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
 				errPayload := &ghcmessages.Error{Message: &errInstance}
 				return ppmdocumentops.NewShowAOAPacketInternalServerError().
@@ -227,8 +225,13 @@ func (h ShowPaymentPacketHandler) Handle(params ppmdocumentops.ShowPaymentPacket
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			pdf, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
+			pdf, packetPath, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
 			if err != nil {
+				// need to cleanup any files created prior to the packet creation failure
+				if packetErr := h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); packetErr != nil {
+					appCtx.Logger().Error("Error deleting temp AOA files", zap.Error(packetErr))
+				}
+
 				switch err.(type) {
 				case apperror.NotFoundError:
 					// this indicates ppm was not found
@@ -242,10 +245,8 @@ func (h ShowPaymentPacketHandler) Handle(params ppmdocumentops.ShowPaymentPacket
 
 			payload := io.NopCloser(pdf)
 
-			// we have copied the created file into the payload so we can remove it from memory
-			// we pass in false for closing because the file was never opened therefore doesn't
-			// need to be closed
-			if err = h.PaymentPacketCreator.CleanupPaymentPacketFile(pdf, false); err != nil {
+			// we have copied the created files into the payload so we can remove them from memory
+			if err = h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); err != nil {
 				appCtx.Logger().Error("Error deleting temp Payment Packet files", zap.Error(err))
 				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
 				errPayload := &ghcmessages.Error{Message: &errInstance}

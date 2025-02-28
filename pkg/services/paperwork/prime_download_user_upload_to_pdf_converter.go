@@ -45,7 +45,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 		if move.Orders.UploadedOrdersID == uuid.Nil {
 			return nil, apperror.NewUnprocessableEntityError(fmt.Sprintf("order does not have any uploads associated to it, move.Orders.ID: %s", move.Orders.ID))
 		}
-		info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderUpload, move.Orders.UploadedOrdersID)
+		info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderUpload, move.Orders.UploadedOrdersID, dirName)
 		if err != nil {
 			return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for order docs")
 		}
@@ -57,7 +57,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 			return nil, apperror.NewUnprocessableEntityError(fmt.Sprintf("order does not have any amendment uploads associated to it, move.Orders.ID: %s", move.Orders.ID))
 		}
 		if move.Orders.UploadedAmendedOrdersID != nil {
-			info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderAmendmentUpload, *move.Orders.UploadedAmendedOrdersID)
+			info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderAmendmentUpload, *move.Orders.UploadedAmendedOrdersID, dirName)
 			if err != nil {
 				return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for amendment docs")
 			}
@@ -73,7 +73,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 	}
 
 	// Take all of generated PDFs and merge into a single PDF.
-	mergedPdf, err := g.pdfGenerator.MergePDFFiles(appCtx, pdfFileNames)
+	mergedPdf, err := g.pdfGenerator.MergePDFFiles(appCtx, pdfFileNames, dirName)
 	if err != nil {
 		return nil, errors.Wrap(err, "error merging PDF files into one")
 	}
@@ -114,7 +114,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 	}
 
 	// Decorate master PDF file with bookmarks
-	return g.pdfGenerator.AddPdfBookmarks(mergedPdf, bookmarks)
+	return g.pdfGenerator.AddPdfBookmarks(mergedPdf, bookmarks, dirName)
 }
 
 func (g *moveUserUploadToPDFDownloader) CleanupFile(file afero.File) error {
@@ -143,7 +143,7 @@ func (g *moveUserUploadToPDFDownloader) CleanupFile(file afero.File) error {
 }
 
 // Build orderUploadDocType for document
-func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppContext, uploadDocType services.MoveOrderUploadType, documentID uuid.UUID) (*pdfBatchInfo, error) {
+func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppContext, uploadDocType services.MoveOrderUploadType, documentID uuid.UUID, dirName string) (*pdfBatchInfo, error) {
 	document, err := models.FetchDocumentWithNoRestrictions(appCtx.DB(), appCtx.Session(), documentID)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("error fetching document domain by id: %s", documentID))
@@ -163,7 +163,7 @@ func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppC
 			return nil, errors.Wrap(err, "error retrieving user uploads")
 		}
 
-		pdfFile, err := g.pdfGenerator.CreateMergedPDFUpload(appCtx, uploads)
+		pdfFile, err := g.pdfGenerator.CreateMergedPDFUpload(appCtx, uploads, dirName)
 		if err != nil {
 			return nil, errors.Wrap(err, "error generating a merged PDF file")
 		}
