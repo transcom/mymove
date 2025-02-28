@@ -3,6 +3,7 @@ package ppmshipment
 import (
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -134,14 +135,27 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
+	// cleanup files
+	if err = a.CleanupAOAPacketFile(SSWPPMWorksheet, true); err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
+
+	if err = a.CleanupAOAPacketFile(ordersFile, true); err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
+
 	return mergedPdf, nil
 }
 
 // remove all of the packet files from the temp directory associated with creating the AOA packet
-func (a *aoaPacketCreator) CleanupAOAPacketFiles(appCtx appcontext.AppContext) error {
-	err := a.pdfGenerator.Cleanup(appCtx)
+func (a *aoaPacketCreator) CleanupAOAPacketFile(packetFile afero.File, closeFile bool) error {
+	if closeFile {
+		if err := packetFile.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
+			return err
+		}
+	}
 
-	return err
+	return a.pdfGenerator.FileSystem().Remove(packetFile.Name())
 }
 
 // saveAOAPacket uploads the AOA packet to S3 and saves the document data to the database, associating it with the PPM

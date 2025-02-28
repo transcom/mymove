@@ -3,10 +3,12 @@ package ppmshipment
 import (
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/gofrs/uuid"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -53,7 +55,7 @@ func NewPaymentPacketCreator(
 	}
 }
 
-func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (io.ReadCloser, error) {
+func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (afero.File, error) {
 
 	err := verifyPPMShipment(appCtx, ppmShipmentID)
 	if err != nil {
@@ -151,15 +153,19 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	return finalMergePdf, nil
 }
 
-func (p *paymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (io.ReadCloser, error) {
+func (p *paymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, error) {
 	return p.Generate(appCtx, ppmShipmentID, true, true)
 }
 
 // remove all of the packet files from the temp directory associated with creating the payment packet
-func (p *paymentPacketCreator) CleanupPaymentPacketFiles(appCtx appcontext.AppContext) error {
-	err := p.pdfGenerator.Cleanup(appCtx)
+func (p *paymentPacketCreator) CleanupPaymentPacketFile(packetFile afero.File, closeFile bool) error {
+	if closeFile {
+		if err := packetFile.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
+			return err
+		}
+	}
 
-	return err
+	return p.pdfGenerator.FileSystem().Remove(packetFile.Name())
 }
 
 func buildBookMarks(fileNamesToMerge []string, sortedPaymentPacketItems map[int]paymentPacketItem, aoaPacketFile io.ReadSeeker, pdfGenerator paperwork.Generator) ([]pdfcpu.Bookmark, error) {
