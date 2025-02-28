@@ -523,7 +523,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
         <MoveQueue />
       </MockProviders>,
     );
-    expect(screen.getByTestId('closeout-tab-link')).toBeInTheDocument();
+    expect(screen.getByTestId('task-orders-tab-link')).toBeInTheDocument();
     expect(screen.getByTestId('search-tab-link')).toBeInTheDocument();
     expect(screen.getByText('Task Order Queue', { selector: 'span' })).toBeInTheDocument();
     expect(screen.getByText('Destination Requests Queue', { selector: 'span' })).toBeInTheDocument();
