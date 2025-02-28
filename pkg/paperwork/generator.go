@@ -380,6 +380,7 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 
 	images := make([]inputFile, 0)
 	images = append(images, inputFile{Path: path, ContentType: upload.ContentType})
+	g.fs.Remove(outputFile.Name())
 	return g.PDFFromImages(appCtx, images)
 }
 
@@ -470,6 +471,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 		if closeErr := outputFile.Close(); closeErr != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
+		g.fs.Remove(outputFile.Name())
 	}()
 
 	var opt gofpdf.ImageOptions
@@ -498,6 +500,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 				if closeErr := newFile.Close(); closeErr != nil {
 					appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 				}
+				g.fs.Remove(newFile.Name())
 			}()
 
 			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
@@ -590,6 +593,7 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 		if closeErr := outputFile.Close(); closeErr != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
+		g.fs.Remove(outputFile.Name())
 	}()
 
 	var opt gofpdf.ImageOptions
@@ -618,6 +622,7 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 				if closeErr := newFile.Close(); closeErr != nil {
 					appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 				}
+				g.fs.Remove(newFile.Name())
 			}()
 
 			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)

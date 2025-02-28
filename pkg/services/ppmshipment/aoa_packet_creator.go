@@ -155,7 +155,8 @@ func (a *aoaPacketCreator) CleanupAOAPacketFile(packetFile afero.File, closeFile
 		}
 	}
 
-	return a.pdfGenerator.FileSystem().Remove(packetFile.Name())
+	a.pdfGenerator.FileSystem().Remove(packetFile.Name())
+	return nil
 }
 
 // saveAOAPacket uploads the AOA packet to S3 and saves the document data to the database, associating it with the PPM
