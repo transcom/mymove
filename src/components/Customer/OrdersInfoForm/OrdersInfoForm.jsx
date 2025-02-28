@@ -40,6 +40,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [hasDependents, setHasDependents] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
+  const [ordersType, setOrdersType] = useState('');
+  const [currentGrade, setCurrentGrade] = useState('');
+  const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
 
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
@@ -126,7 +129,24 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
         setShowDependentAgeFields(false);
       }
     }
-  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
+
+    if (ordersType && currentGrade) {
+      if (ordersType === ORDERS_TYPE.TEMPORARY_DUTY && currentGrade === 'CIVILIAN_EMPLOYEE') {
+        setIsCivilianTDYMove(true);
+      } else {
+        setIsCivilianTDYMove(false);
+      }
+    }
+  }, [
+    currentDutyLocation,
+    newDutyLocation,
+    isOconusMove,
+    hasDependents,
+    enableUB,
+    ordersType,
+    currentGrade,
+    isCivilianTDYMove,
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -189,6 +209,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
         const handleOrderTypeChange = (e) => {
           const { value } = e.target;
+          setOrdersType(value);
           if (value === ORDERS_TYPE.STUDENT_TRAVEL || value === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS) {
             setHasDependentsDisabled(true);
             handleHasDependentsChange({ target: { value: 'yes' } });
@@ -434,7 +455,28 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 id="grade"
                 required
                 options={payGradeOptions}
+                onChange={(e) => {
+                  setCurrentGrade(e.target.value);
+                  handleChange(e);
+                }}
               />
+
+              {isCivilianTDYMove && (
+                <FormGroup>
+                  <MaskedTextField
+                    data-testid="civilianUBAllowance"
+                    defaultValue="0"
+                    name="civilian_ub_allowance"
+                    label="If your orders specify a specific UB weight allowance, enter it here"
+                    id="civilianUBAllowance"
+                    mask={Number}
+                    scale={0}
+                    signed={false}
+                    thousandsSeparator=","
+                    lazy={false}
+                  />
+                </FormGroup>
+              )}
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
