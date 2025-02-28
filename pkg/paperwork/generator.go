@@ -281,7 +281,7 @@ func (g *Generator) FileSystem() *afero.Afero {
 }
 
 // Add bookmarks into a single PDF
-func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
+func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark, dirName string) (afero.File, error) {
 
 	buf := new(bytes.Buffer)
 	replace := true
@@ -290,7 +290,7 @@ func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Boo
 		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
 	}
 
-	tempFile, err := g.newTempFile()
+	tempFile, err := g.newTempFileInDir(dirName)
 	if err != nil {
 		return nil, err
 	}
@@ -335,13 +335,13 @@ func (g *Generator) GetPdfFileInfoByContents(file afero.File) (*pdfcpu.PDFInfo, 
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
-func (g *Generator) CreateMergedPDFUpload(appCtx appcontext.AppContext, uploads models.Uploads) (afero.File, error) {
-	pdfs, err := g.ConvertUploadsToPDF(appCtx, uploads, true)
+func (g *Generator) CreateMergedPDFUpload(appCtx appcontext.AppContext, uploads models.Uploads, dirName string) (afero.File, error) {
+	pdfs, err := g.ConvertUploadsToPDF(appCtx, uploads, true, dirName)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while converting uploads")
 	}
 
-	mergedPdf, err := g.MergePDFFiles(appCtx, pdfs)
+	mergedPdf, err := g.MergePDFFiles(appCtx, pdfs, dirName)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while merging PDFs")
 	}
@@ -350,7 +350,7 @@ func (g *Generator) CreateMergedPDFUpload(appCtx appcontext.AppContext, uploads 
 }
 
 // ConvertUploadsToPDF turns a slice of Uploads into a slice of paths to converted PDF files
-func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads models.Uploads, doRotation bool) ([]string, error) {
+func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads models.Uploads, doRotation bool, dirName string) ([]string, error) {
 	// tempfile paths to be returned
 	pdfs := make([]string, 0)
 
@@ -366,12 +366,12 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 				var pdf string
 				var err error
 				if doRotation {
-					pdf, err = g.PDFFromImages(appCtx, images)
+					pdf, err = g.PDFFromImages(appCtx, images, dirName)
 					if err != nil {
 						return nil, errors.Wrap(err, "Converting images")
 					}
 				} else {
-					pdf, err = g.PDFFromImagesNoRotation(appCtx, images)
+					pdf, err = g.PDFFromImagesNoRotation(appCtx, images, dirName)
 					if err != nil {
 						return nil, errors.Wrap(err, "Converting images")
 					}
@@ -392,7 +392,7 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 			}
 		}()
 
-		outputFile, err := g.newTempFile()
+		outputFile, err := g.newTempFileInDir(dirName)
 
 		if err != nil {
 			return nil, errors.Wrap(err, "Creating temp file")
@@ -418,12 +418,12 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 		var err error
 
 		if doRotation {
-			pdf, err = g.PDFFromImages(appCtx, images)
+			pdf, err = g.PDFFromImages(appCtx, images, dirName)
 			if err != nil {
 				return nil, errors.Wrap(err, "Converting remaining images to pdf")
 			}
 		} else {
-			pdf, err = g.PDFFromImagesNoRotation(appCtx, images)
+			pdf, err = g.PDFFromImagesNoRotation(appCtx, images, dirName)
 			if err != nil {
 				return nil, errors.Wrap(err, "Converting remaining images to pdf")
 			}
@@ -445,7 +445,7 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 	return pdfs, nil
 }
 
-func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload models.Upload) (string, error) {
+func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload models.Upload, dirName string) (string, error) {
 
 	download, err := g.uploader.Download(appCtx, &upload)
 	if err != nil {
@@ -458,7 +458,7 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 		}
 	}()
 
-	outputFile, err := g.newTempFile()
+	outputFile, err := g.newTempFileInDir(dirName)
 
 	if err != nil {
 		return "nil", errors.Wrap(err, "Creating temp file")
@@ -478,7 +478,7 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 	images := make([]inputFile, 0)
 	images = append(images, inputFile{Path: path, ContentType: upload.ContentType})
 	cleanupFile(g, outputFile)
-	return g.PDFFromImages(appCtx, images)
+	return g.PDFFromImages(appCtx, images, dirName)
 }
 
 // convert between image MIME types and the values expected by gofpdf
@@ -542,7 +542,7 @@ func ReduceUnusedSpace(_ appcontext.AppContext, file afero.File, g *Generator, c
 //
 // The files at those paths will be tempfiles that will need to be cleaned
 // up by the caller.
-func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFile) (string, error) {
+func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFile, dirName string) (string, error) {
 	// These constants are based on A4 page size, which we currently default to.
 	horizontalMargin := 0.0
 	topMargin := 0.0
@@ -559,7 +559,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 
 	appCtx.Logger().Debug("generating PDF from image files", zap.Any("images", images))
 
-	outputFile, err := g.newTempFile()
+	outputFile, err := g.newTempFileInDir(dirName)
 	if err != nil {
 		return "", err
 	}
@@ -588,7 +588,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 		if img.ContentType == uploader.FileTypePNG {
 			appCtx.Logger().Debug("Converting png to 8-bit")
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
-			newFile, newTemplateFileErr := g.newTempFile()
+			newFile, newTemplateFileErr := g.newTempFileInDir(dirName)
 			if newTemplateFileErr != nil {
 				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for png conversion")
 			}
@@ -664,7 +664,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 //
 // The files at those paths will be tempfiles that will need to be cleaned
 // up by the caller.
-func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images []inputFile) (string, error) {
+func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images []inputFile, dirName string) (string, error) {
 	// These constants are based on A4 page size, which we currently default to.
 	horizontalMargin := 0.0
 	topMargin := 0.0
@@ -681,7 +681,7 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 
 	appCtx.Logger().Debug("generating PDF from image files", zap.Any("images", images))
 
-	outputFile, err := g.newTempFile()
+	outputFile, err := g.newTempFileInDir(dirName)
 	if err != nil {
 		return "", err
 	}
@@ -710,7 +710,7 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 		if img.ContentType == uploader.FileTypePNG {
 			appCtx.Logger().Debug("Converting png to 8-bit")
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
-			newFile, newTemplateFileErr := g.newTempFile()
+			newFile, newTemplateFileErr := g.newTempFileInDir(dirName)
 			if newTemplateFileErr != nil {
 				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for png conversion")
 			}
@@ -771,9 +771,9 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 }
 
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
-func (g *Generator) MergePDFFiles(_ appcontext.AppContext, paths []string) (afero.File, error) {
+func (g *Generator) MergePDFFiles(_ appcontext.AppContext, paths []string, dirName string) (afero.File, error) {
 	var err error
-	mergedFile, err := g.newTempFile()
+	mergedFile, err := g.newTempFileInDir(dirName)
 	if err != nil {
 		return mergedFile, err
 	}
@@ -806,7 +806,7 @@ func (g *Generator) MergePDFFiles(_ appcontext.AppContext, paths []string) (afer
 // The content type of the image is inferred from its extension. If this proves to
 // be insufficient, storage.DetectContentType and contentTypeToImageType above can
 // be used.
-func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []string) (string, error) {
+func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []string, dirName string) (string, error) {
 	// path and type for each image
 	images := make([]inputFile, 0)
 
@@ -818,7 +818,7 @@ func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []strin
 		})
 	}
 
-	return g.PDFFromImages(appCtx, images)
+	return g.PDFFromImages(appCtx, images, dirName)
 }
 
 func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, fileName string, dirName string) (SSWWorksheet afero.File, err error) {
@@ -896,11 +896,11 @@ func (g *Generator) LockPDFForm(templateReader io.ReadSeeker, fileName string, d
 }
 
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
-func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders []io.ReadSeeker) (afero.File, error) {
+func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders []io.ReadSeeker, dirName string) (afero.File, error) {
 	var err error
 
 	// Create a merged file
-	mergedFile, err := g.newTempFile()
+	mergedFile, err := g.newTempFileInDir(dirName)
 	if err != nil {
 		return nil, err
 	}

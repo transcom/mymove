@@ -97,7 +97,8 @@ type AOAPacketCreator interface {
 //
 //go:generate mockery --name PaymentPacketCreator
 type PaymentPacketCreator interface {
-	Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWaterMarks bool) (afero.File, error)
-	GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, error)
+	Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWaterMarks bool) (afero.File, string, error)
+	GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, string, error)
 	CleanupPaymentPacketFile(packetDir afero.File, closeFile bool) error
+	CleanupPaymentPacketDir(dirName string) error
 }

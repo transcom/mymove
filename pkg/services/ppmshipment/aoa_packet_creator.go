@@ -76,7 +76,7 @@ func (a *aoaPacketCreator) VerifyAOAPacketInternal(appCtx appcontext.AppContext,
 func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, string, error) {
 	errMsgPrefix := "error creating AOA packet"
 	dirName := uuid.Must(uuid.NewV4()).String()
-	dirPath := a.pdfGenerator.GetWorkDir()
+	dirPath := a.pdfGenerator.GetWorkDir() + "/" + dirName
 
 	// First we begin by fetching SSW Data, computing obligations, formatting, and filling the SSWPDF
 	ssfd, err := a.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
@@ -133,7 +133,7 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	files = append(files, SSWPPMWorksheet)
 	files = append(files, ordersFile)
 	// Take all of generated PDFs and merge into a single PDF.
-	mergedPdf, err := a.pdfGenerator.MergePDFFilesByContents(appCtx, files)
+	mergedPdf, err := a.pdfGenerator.MergePDFFilesByContents(appCtx, files, dirName)
 	if err != nil {
 		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
@@ -175,20 +175,8 @@ func (a *aoaPacketCreator) CleanupAOAPacketFile(packetFile afero.File, closeFile
 
 // remove all of the packet files from the temp directory associated with creating the AOA packet
 func (a *aoaPacketCreator) CleanupAOAPacketDir(dirPath string) error {
-	fs := a.pdfGenerator.FileSystem()
-
-	// Check if directory exists
-	exists, err := afero.DirExists(fs, dirPath)
-
-	if err != nil {
-		return err
-	}
-
-	if exists {
-		return fs.RemoveAll(dirPath)
-	}
-
-	return nil
+	// RemoveAll does not return an error if the directory doesn't exist it will just do nothing and return nil
+	return a.pdfGenerator.FileSystem().RemoveAll(dirPath)
 }
 
 // saveAOAPacket uploads the AOA packet to S3 and saves the document data to the database, associating it with the PPM
