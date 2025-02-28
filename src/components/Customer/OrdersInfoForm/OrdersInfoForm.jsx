@@ -41,7 +41,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
   const [ordersType, setOrdersType] = useState('');
-  const [currentGrade, setCurrentGrade] = useState('');
+  const [grade, setGrade] = useState('');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
 
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
@@ -129,9 +129,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
         setShowDependentAgeFields(false);
       }
     }
+  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
 
-    if (ordersType && currentGrade) {
-      if (ordersType === ORDERS_TYPE.TEMPORARY_DUTY && currentGrade === 'CIVILIAN_EMPLOYEE') {
+  useEffect(() => {
+    if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
+      if (isOconusMove && ordersType === ORDERS_TYPE.TEMPORARY_DUTY && grade === 'CIVILIAN_EMPLOYEE') {
         setIsCivilianTDYMove(true);
       } else {
         setIsCivilianTDYMove(false);
@@ -144,7 +146,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
     hasDependents,
     enableUB,
     ordersType,
-    currentGrade,
+    grade,
     isCivilianTDYMove,
   ]);
 
@@ -456,7 +458,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 required
                 options={payGradeOptions}
                 onChange={(e) => {
-                  setCurrentGrade(e.target.value);
+                  setGrade(e.target.value);
                   handleChange(e);
                 }}
               />
