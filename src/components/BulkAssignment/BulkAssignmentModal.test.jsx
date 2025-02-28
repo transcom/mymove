@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { BulkAssignmentModal } from 'components/BulkAssignment/BulkAssignmentModal';
 import { QUEUE_TYPES } from 'constants/queues';
 import { MockProviders } from 'testUtils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 let onClose;
 let onSubmit;
@@ -36,6 +37,11 @@ const bulkAssignmentData = {
 
 jest.mock('services/ghcApi', () => ({
   getBulkAssignmentData: jest.fn().mockImplementation(() => Promise.resolve(bulkAssignmentData)),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 describe('BulkAssignmentModal', () => {
@@ -88,7 +94,7 @@ describe('BulkAssignmentModal', () => {
     const userTable = await screen.findByRole('table');
     expect(userTable).toBeInTheDocument();
     expect(screen.getByText('User')).toBeInTheDocument();
-    expect(screen.getByText('Workload')).toBeInTheDocument();
+    expect(screen.getByText('Current Workload')).toBeInTheDocument();
     expect(screen.getByText('Assignment')).toBeInTheDocument();
     await act(async () => {
       expect(await screen.getByText('user, sc')).toBeInTheDocument();
@@ -134,7 +140,7 @@ describe('BulkAssignmentModal', () => {
     const userTable = await screen.findByRole('table');
     expect(userTable).toBeInTheDocument();
     expect(screen.getByText('User')).toBeInTheDocument();
-    expect(screen.getByText('Workload')).toBeInTheDocument();
+    expect(screen.getByText('Current Workload')).toBeInTheDocument();
     expect(screen.getByText('Assignment')).toBeInTheDocument();
     await act(async () => {
       expect(await screen.getByText('user, sc')).toBeInTheDocument();
@@ -168,5 +174,35 @@ describe('BulkAssignmentModal', () => {
 
       expect(onSubmit).toHaveBeenCalledWith(payload);
     });
+  });
+
+  it('displays bulk re-assignment when switch is toggled', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+
+    screen.debug();
+
+    const bulkReAssignToggleSwitch = screen.getByRole('checkbox', { name: 'BulkAssignmentModeSwitch', hidden: true });
+
+    await userEvent.click(bulkReAssignToggleSwitch);
+
+    expect(screen.getByText('Bulk Re-assignment')).toBeInTheDocument();
+
+    expect(screen.getByText('User')).toBeInTheDocument();
+    expect(screen.getByText('Current Workload')).toBeInTheDocument();
+    expect(screen.getByText('Assignment')).toBeInTheDocument();
+    expect(screen.getByText('Re-assign User')).toBeInTheDocument();
+    expect(screen.getAllByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
+    expect(screen.getByText('Equal Assign')).toBeInTheDocument();
+
+    await userEvent.click(bulkReAssignToggleSwitch); // back to bulk assignment
+
+    expect(screen.getByText('Bulk Assignment')).toBeInTheDocument();
+
+    expect(screen.getByText('User')).toBeInTheDocument();
+    expect(screen.getByText('Current Workload')).toBeInTheDocument();
+    expect(screen.getByText('Assignment')).toBeInTheDocument();
+    expect(screen.getByText('Re-assign User')).not.toBeInTheDocument();
+    expect(screen.getAllByTestId('selectDeselectAllButton')).toBeInTheDocument();
   });
 });

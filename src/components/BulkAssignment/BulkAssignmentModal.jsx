@@ -159,7 +159,11 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           {isBulkReAssignmentMode ? bulkAssignmentSwitchLabels[1] : bulkAssignmentSwitchLabels[0]} ({numberOfMoves})
         </h3>
       </ModalTitle>
-      {isBulkReAssignmentEnabled && <Switch name="BulkAssignmentModeSwitch" onChange={handleAssignmentModeChange} />}
+      <Switch
+        data-testid="modalReAssignModeToggleSwitch"
+        name="BulkAssignmentModeSwitch"
+        onChange={handleAssignmentModeChange}
+      />
       <div className={styles.BulkAssignmentTable}>
         <Formik
           onSubmit={(values) => {
@@ -185,32 +189,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           initialValues={initialValues}
         >
           {({ handleChange, setValues, values }) => {
-            // const handleAssignmentChange = (event, i) => {
-            //   handleChange(event);
-            //   setIsError(false);
-
-            //   let newUserAssignment;
-            //   if (event.target.value !== '') {
-            //     newUserAssignment = {
-            //       ID: event.target.id,
-            //       moveAssignments: +event.target.value,
-            //     };
-            //   } else {
-            //     newUserAssignment = {
-            //       ID: event.target.id,
-            //       moveAssignments: 0,
-            //     };
-            //   }
-
-            //   const newValues = values;
-            //   newValues.userData[i] = newUserAssignment;
-
-            //   setValues({
-            //     ...values,
-            //     userData: newValues.userData,
-            //   });
-            // };
-
             const handleAssignClick = () => {
               const totalMoves = bulkAssignmentData?.bulkAssignmentMoveIDs?.length;
               const numUsers = Object.keys(selectedUsers).filter((id) => selectedUsers[id]).length;
@@ -243,7 +221,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     <th>
                       {!isBulkReAssignmentMode && (
                         <input
-                          data-testId="selectDeselectAllButton"
+                          data-testid="selectDeselectAllButton"
                           type="checkbox"
                           checked={isAllSelected()}
                           onChange={() => {
