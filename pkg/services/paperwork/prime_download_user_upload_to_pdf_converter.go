@@ -2,7 +2,9 @@ package paperwork
 
 import (
 	"fmt"
+	"os"
 	"strconv"
+	"syscall"
 
 	"github.com/gofrs/uuid"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
@@ -35,7 +37,7 @@ type pdfBatchInfo struct {
 }
 
 // MoveUserUploadToPDFDownloader converts user uploads to PDFs to download
-func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move, addBookmarks bool) (afero.File, error) {
+func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move, addBookmarks bool, dirName string) (afero.File, error) {
 	var pdfBatchInfos []pdfBatchInfo
 	var pdfFileNames []string
 
@@ -113,6 +115,31 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 
 	// Decorate master PDF file with bookmarks
 	return g.pdfGenerator.AddPdfBookmarks(mergedPdf, bookmarks)
+}
+
+func (g *moveUserUploadToPDFDownloader) CleanupFile(file afero.File) error {
+	fs := g.pdfGenerator.FileSystem()
+	exists, err := afero.Exists(fs, file.Name())
+
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		err := fs.Remove(file.Name())
+
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
+				// File does not exist treat it as non-error:
+				return nil
+			}
+
+			// Return the error if it's not a "file not found" error
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Build orderUploadDocType for document

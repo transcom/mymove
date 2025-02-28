@@ -88,8 +88,9 @@ type PPMShipmentUpdatedSubmitter interface {
 //go:generate mockery --name AOAPacketCreator
 type AOAPacketCreator interface {
 	VerifyAOAPacketInternal(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error
-	CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, error)
+	CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, string, error)
 	CleanupAOAPacketFile(packetFile afero.File, closeFile bool) error
+	CleanupAOAPacketDir(dirName string) error
 }
 
 // PaymentPacketCreator creates a payment packet for a PPM shipment

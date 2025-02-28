@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"syscall"
 
 	"github.com/gofrs/uuid"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
@@ -91,8 +92,10 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	var pdfFilesToMerge []io.ReadSeeker
 
 	// use aoa creator to generated SSW and Orders PDF
-	aoaPacketFile, err := p.aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, true)
+	aoaPacketFile, dirPath, err := p.aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, true)
 	if err != nil {
+		// cleanup any files that were created in memory prior to the failure
+		p.aoaPacketCreator.CleanupAOAPacketDir(dirPath)
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, fmt.Sprintf("failed to generate AOA packet for ppmShipmentID: %s", ppmShipmentID.String()))
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
@@ -176,7 +179,28 @@ func (p *paymentPacketCreator) CleanupPaymentPacketFile(packetFile afero.File, c
 		}
 	}
 
-	return p.pdfGenerator.FileSystem().Remove(packetFile.Name())
+	fs := p.pdfGenerator.FileSystem()
+	exists, err := afero.Exists(fs, packetFile.Name())
+
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		err := fs.Remove(packetFile.Name())
+
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
+				// File does not exist treat it as non-error:
+				return nil
+			}
+
+			// Return the error if it's not a "file not found" error
+			return err
+		}
+	}
+
+	return nil
 }
 
 func buildBookMarks(fileNamesToMerge []string, sortedPaymentPacketItems map[int]paymentPacketItem, aoaPacketFile io.ReadSeeker, pdfGenerator paperwork.Generator) ([]pdfcpu.Bookmark, error) {
