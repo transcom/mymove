@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	sitextensionservice "github.com/transcom/mymove/pkg/services/sit_extension"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *HandlerSuite) CreateSITExtensionHandler() {
@@ -30,7 +31,7 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 	}
 
 	// Create move router for SitExtension Createor
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	setupTestData := func() (CreateSITExtensionHandler, models.MTOShipment) {
 
 		// Make an available move
