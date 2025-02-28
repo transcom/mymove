@@ -222,9 +222,9 @@ stages:
       export MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
       export DML_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
       export DDL_TYPES_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
-      export DDL_TABLES_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
-      export DDL_VIEWS_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
-      export DDL_FUNCTIONS_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+      export DDL_TABLES_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+      export DDL_VIEWS_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+      export DDL_FUNCTIONS_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
       export MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
       export DDL_TYPES_MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
       export DDL_TABLES_MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
@@ -1457,6 +1457,8 @@ deploy_tasks_dp3:
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
     - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying process TPPS task service"
+    - ./scripts/ecs-deploy-task-container process-tpps "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:
@@ -1723,6 +1725,8 @@ deploy_tasks_stg:
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
     - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying process TPPS task service"
+    - ./scripts/ecs-deploy-task-container process-tpps "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:
@@ -2008,6 +2012,8 @@ deploy_tasks_prd:
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
     - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying process TPPS task service"
+    - ./scripts/ecs-deploy-task-container process-tpps "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:
