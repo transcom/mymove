@@ -107,7 +107,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 
 	for i := range moves {
 		if moves[i].MTOShipments != nil {
-			moves[i].MTOShipments = filterMtoShipments(moves[i].MTOShipments)
+			moves[i].MTOShipments = models.FilterMtoShipments(moves[i].MTOShipments)
 		}
 	}
 	return moves, query.Paginator.TotalEntriesSize, nil
@@ -244,23 +244,23 @@ func orderName(query *pop.Query, order *string) *pop.Query {
 }
 
 // filters the returned MtoShipments for each move.
-// Ignoring mto shipments that have been deleted, cancelled, rejected, or cancelled requested.
-func filterMtoShipments(unfilteredShipments models.MTOShipments) models.MTOShipments {
-	//filter
-	if len(unfilteredShipments) == 0 {
-		return unfilteredShipments
-	}
+// // Ignoring mto shipments that have been deleted, cancelled, rejected, or cancelled requested.
+// func filterMtoShipments(unfilteredShipments models.MTOShipments) models.MTOShipments {
+// 	//filter
+// 	if len(unfilteredShipments) == 0 {
+// 		return unfilteredShipments
+// 	}
 
-	filteredShipments := models.MTOShipments{}
-	for _, shipment := range unfilteredShipments {
-		if shipment.DeletedAt == nil &&
-			(shipment.Status != models.MTOShipmentStatusDraft) &&
-			(shipment.Status != models.MTOShipmentStatusRejected) &&
-			(shipment.Status != models.MTOShipmentStatusCancellationRequested) &&
-			(shipment.Status != models.MTOShipmentStatusCanceled) { //append if deleted, or status = DRAFT, Rejected, cancelled
-			filteredShipments = append(filteredShipments, shipment)
-		}
-	}
+// 	filteredShipments := models.MTOShipments{}
+// 	for _, shipment := range unfilteredShipments {
+// 		if shipment.DeletedAt == nil &&
+// 			(shipment.Status != models.MTOShipmentStatusDraft) &&
+// 			(shipment.Status != models.MTOShipmentStatusRejected) &&
+// 			(shipment.Status != models.MTOShipmentStatusCancellationRequested) &&
+// 			(shipment.Status != models.MTOShipmentStatusCanceled) { //append if deleted, or status = DRAFT, Rejected, cancelled
+// 			filteredShipments = append(filteredShipments, shipment)
+// 		}
+// 	}
 
-	return filteredShipments
-}
+// 	return filteredShipments
+// }
