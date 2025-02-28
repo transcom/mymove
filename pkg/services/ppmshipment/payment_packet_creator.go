@@ -103,6 +103,9 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 
 	// Start building individual PDFs for each expense/receipt docs. These files will then be merged as one PDF.
 	var pdfFileNamesToMerge []string
+	var pdfFileNamesToMergePdf afero.File
+	var perr error
+
 	sortedPaymentPacketItemsMap := buildPaymentPacketItemsMap(ppmShipment)
 
 	for i := 0; i < len(sortedPaymentPacketItemsMap); i++ {
@@ -116,7 +119,7 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	}
 
 	if len(pdfFileNamesToMerge) > 0 {
-		pdfFileNamesToMergePdf, perr := p.pdfGenerator.MergePDFFiles(appCtx, pdfFileNamesToMerge)
+		pdfFileNamesToMergePdf, perr = p.pdfGenerator.MergePDFFiles(appCtx, pdfFileNamesToMerge)
 		if perr != nil {
 			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed pdfGenerator.MergePDFFiles")
 			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
@@ -147,6 +150,14 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 
 	if addBookmarks {
 		return p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks)
+	}
+
+	// cleanup files
+	if err = p.CleanupPaymentPacketFile(aoaPacketFile, true); err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
+	if err = p.CleanupPaymentPacketFile(pdfFileNamesToMergePdf, true); err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
 	// bookmark and watermark both disabled
