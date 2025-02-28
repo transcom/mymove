@@ -89,6 +89,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	scheduledDeliveryDateQuery := scheduledDeliveryDateFilter(params.DeliveryDate)
 	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName, params.PaymentRequestCode)
 	paymentRequestQuery := paymentRequestCodeFilter(params.PaymentRequestCode)
+
 	options := [12]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
 		destinationPostalCodeQuery, statusQuery, shipmentsCountQuery, scheduledPickupDateQuery, scheduledDeliveryDateQuery, paymentRequestQuery}
 
@@ -155,7 +156,6 @@ func originPostalCodeFilter(postalCode *string) QueryOption {
 		}
 	}
 }
-
 func destinationPostalCodeFilter(postalCode *string) QueryOption {
 	return func(query *pop.Query) {
 		if postalCode != nil {
@@ -242,25 +242,3 @@ func orderName(query *pop.Query, order *string) *pop.Query {
 	query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 	return query
 }
-
-// filters the returned MtoShipments for each move.
-// // Ignoring mto shipments that have been deleted, cancelled, rejected, or cancelled requested.
-// func filterMtoShipments(unfilteredShipments models.MTOShipments) models.MTOShipments {
-// 	//filter
-// 	if len(unfilteredShipments) == 0 {
-// 		return unfilteredShipments
-// 	}
-
-// 	filteredShipments := models.MTOShipments{}
-// 	for _, shipment := range unfilteredShipments {
-// 		if shipment.DeletedAt == nil &&
-// 			(shipment.Status != models.MTOShipmentStatusDraft) &&
-// 			(shipment.Status != models.MTOShipmentStatusRejected) &&
-// 			(shipment.Status != models.MTOShipmentStatusCancellationRequested) &&
-// 			(shipment.Status != models.MTOShipmentStatusCanceled) { //append if deleted, or status = DRAFT, Rejected, cancelled
-// 			filteredShipments = append(filteredShipments, shipment)
-// 		}
-// 	}
-
-// 	return filteredShipments
-// }
