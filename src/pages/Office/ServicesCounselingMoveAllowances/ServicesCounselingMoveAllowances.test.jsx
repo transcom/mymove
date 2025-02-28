@@ -56,7 +56,6 @@ const useOrdersDocumentQueriesReturnValue = {
       eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
       entitlement: {
         authorizedWeight: 5000,
-        dependentsAuthorized: true,
         eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC42ODAwOVo=',
         id: '0dbc9029-dfc5-4368-bc6b-dfc95f5fe317',
         nonTemporaryStorage: true,
