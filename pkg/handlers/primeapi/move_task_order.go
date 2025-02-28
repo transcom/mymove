@@ -330,7 +330,8 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 				moveOrderUploadType = services.MoveOrderAmendmentUpload
 			}
 
-			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, moveOrderUploadType, move, true)
+			dirName := uuid.Must(uuid.NewV4()).String()
+			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, moveOrderUploadType, move, true, dirName)
 
 			if err != nil {
 				switch e := err.(type) {
@@ -347,6 +348,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 
 			payload := io.NopCloser(outputFile)
 
+			h.PrimeDownloadMoveUploadPDFGenerator.CleanupFile(outputFile)
 			// Build fileName in format: Customer-{type}-for-MTO-{locator}-{TIMESTAMP}.pdf
 			// example:
 			// Customer-ORDERS,AMENDMENTS-for-MTO-PPMSIT-2024-01-11T17-02.pdf   (all)

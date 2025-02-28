@@ -294,10 +294,18 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, false)
+			AOAPacket, dirPath, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, false)
+
 			if err != nil {
 				logger.Error("Error creating AOA", zap.Error(err))
 				aoaError := err.Error()
+
+				// need to cleanup any files created prior to the packet creation failure
+				if err = h.AOAPacketCreator.CleanupAOAPacketDir(dirPath); err != nil {
+					logger.Error("Error deleting temp AOA files", zap.Error(err))
+					aoaError = aoaError + ": " + err.Error()
+				}
+
 				payload := payloads.InternalServerError(&aoaError, h.GetTraceIDFromRequest(params.HTTPRequest))
 				return ppmops.NewShowAOAPacketInternalServerError().
 					WithPayload(payload), err
@@ -305,10 +313,8 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 
 			payload := io.NopCloser(AOAPacket)
 
-			// we have copied the created file into the payload so we can remove it from memory
-			// we pass in false for closing because the file was never opened therefore doesn't
-			// need to be closed
-			if err = h.AOAPacketCreator.CleanupAOAPacketFile(AOAPacket, false); err != nil {
+			// we have copied the created files into the payload so we can remove them from memory
+			if err = h.AOAPacketCreator.CleanupAOAPacketDir(dirPath); err != nil {
 				logger.Error("Error deleting temp AOA files", zap.Error(err))
 				aoaError := err.Error()
 				payload := payloads.InternalServerError(&aoaError, h.GetTraceIDFromRequest(params.HTTPRequest))

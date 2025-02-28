@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/disintegration/imaging"
 	"github.com/jung-kurt/gofpdf"
@@ -149,11 +150,45 @@ type inputFile struct {
 	ContentType string
 }
 
+// get the working directory path
+func (g *Generator) GetWorkDir() string {
+	return g.workDir
+}
+
 func (g *Generator) newTempFile() (afero.File, error) {
 	outputFile, err := g.fs.TempFile(g.workDir, "temp")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
+	return outputFile, nil
+}
+
+// creates the directory if it does not exist and creates a new file in that directory
+func (g *Generator) newTempFileInDir(dirName string) (afero.File, error) {
+	dirPath := g.workDir + "/" + dirName
+
+	// Check if directory exists
+	exists, err := afero.DirExists(g.fs, dirPath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !exists {
+		// Create a directory with permissions 0755 (read/write/execute for owner, read/execute for group/others)
+		err := g.fs.Mkdir(dirPath, 0755)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	outputFile, err := g.fs.TempFile(dirPath, "temp")
+
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	return outputFile, nil
 }
 
@@ -173,9 +208,71 @@ func (g *Generator) newTempFileWithName(fileName string) (afero.File, error) {
 	return outputFile, nil
 }
 
+func (g *Generator) newTempFileWithNameInDir(dirName string, fileName string) (afero.File, error) {
+	name := "temp"
+
+	if fileName != "" {
+		// by adding a * before the extension we tell TempFile to put its random number before the extension instead of after it
+		extensionIndex := strings.LastIndex(fileName, ".")
+		name = fileName[:extensionIndex] + strings.Replace(fileName[extensionIndex:], ".", "*.", 1)
+	}
+
+	dirPath := g.workDir
+
+	if dirPath != "" {
+		dirPath = dirPath + "/" + dirName
+	}
+
+	// Check if directory exists
+	exists, err := afero.DirExists(g.fs, dirPath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !exists {
+		// Create a directory with permissions 0755 (read/write/execute for owner, read/execute for group/others)
+		err := g.fs.Mkdir(dirPath, 0755)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	outputFile, err := g.fs.TempFile(dirPath, name)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return outputFile, nil
+}
+
 // Cleanup removes filesystem working dir
 func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 	return g.fs.RemoveAll(g.workDir)
+}
+
+func cleanupFile(g *Generator, file afero.File) error {
+	exists, err := afero.Exists(g.fs, file.Name())
+
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		err := g.fs.Remove(file.Name())
+
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
+				// File does not exist treat it as non-error:
+				return nil
+			}
+
+			// Return the error if it's not a "file not found" error
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Get PDF Configuration (For Testing)
@@ -380,7 +477,7 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 
 	images := make([]inputFile, 0)
 	images = append(images, inputFile{Path: path, ContentType: upload.ContentType})
-	g.fs.Remove(outputFile.Name())
+	cleanupFile(g, outputFile)
 	return g.PDFFromImages(appCtx, images)
 }
 
@@ -471,7 +568,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 		if closeErr := outputFile.Close(); closeErr != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
-		g.fs.Remove(outputFile.Name())
+		cleanupFile(g, outputFile)
 	}()
 
 	var opt gofpdf.ImageOptions
@@ -500,7 +597,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 				if closeErr := newFile.Close(); closeErr != nil {
 					appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 				}
-				g.fs.Remove(newFile.Name())
+				cleanupFile(g, newFile)
 			}()
 
 			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
@@ -593,7 +690,7 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 		if closeErr := outputFile.Close(); closeErr != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
-		g.fs.Remove(outputFile.Name())
+		cleanupFile(g, outputFile)
 	}()
 
 	var opt gofpdf.ImageOptions
@@ -622,7 +719,7 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 				if closeErr := newFile.Close(); closeErr != nil {
 					appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 				}
-				g.fs.Remove(newFile.Name())
+				cleanupFile(g, newFile)
 			}()
 
 			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
@@ -724,7 +821,7 @@ func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []strin
 	return g.PDFFromImages(appCtx, images)
 }
 
-func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, fileName string) (SSWWorksheet afero.File, err error) {
+func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, fileName string, dirName string) (SSWWorksheet afero.File, err error) {
 	var conf = g.pdfConfig
 	// Change type to reader
 	readJSON := strings.NewReader(string(jsonData))
@@ -735,7 +832,7 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, f
 		return nil, formerr
 	}
 
-	tempFile, err := g.newTempFileWithName(fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
+	tempFile, err := g.newTempFileWithNameInDir(dirName, fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
 	if err != nil {
 		return nil, err
 	}
@@ -757,7 +854,7 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, f
 // LockPDFForm takes in a PDF Form readseeker, reads all form fields, and locks them
 // This is primarily for the SSW, but needs to be done separately from filling as only one process (filling, locking, merging, etc)
 // may be completed at a time.
-func (g *Generator) LockPDFForm(templateReader io.ReadSeeker, fileName string) (SSWWorksheet afero.File, err error) {
+func (g *Generator) LockPDFForm(templateReader io.ReadSeeker, fileName string, dirName string) (SSWWorksheet afero.File, err error) {
 	var conf = g.pdfConfig
 	buf := new(bytes.Buffer)
 	// Reads all form fields on document as []form.Field
@@ -778,7 +875,7 @@ func (g *Generator) LockPDFForm(templateReader io.ReadSeeker, fileName string) (
 		return nil, err
 	}
 
-	tempFile, err := g.newTempFileWithName(fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
+	tempFile, err := g.newTempFileWithNameInDir(dirName, fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
 	if err != nil {
 		return nil, err
 	}

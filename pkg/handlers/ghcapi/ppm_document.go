@@ -177,11 +177,18 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 				return ppmdocumentops.NewShowAOAPacketBadRequest().WithPayload(errPayload), err
 			}
 
-			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, false)
+			AOAPacket, dirPath, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, false)
+
 			if err != nil {
 				logger.Error("Error creating AOA", zap.Error(err))
 				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
 				errPayload := &ghcmessages.Error{Message: &errInstance}
+
+				// need to cleanup any files created prior to the packet creation failure
+				if err = h.AOAPacketCreator.CleanupAOAPacketDir(dirPath); err != nil {
+					logger.Error("Error deleting temp AOA files", zap.Error(err))
+				}
+
 				return ppmdocumentops.NewShowAOAPacketInternalServerError().
 					WithPayload(errPayload), err
 			}
