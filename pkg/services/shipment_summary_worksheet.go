@@ -56,6 +56,7 @@ type Page1Values struct {
 	MileageTotal                    string
 	MailingAddressW2                string
 	IsActualExpenseReimbursement    bool
+	IsSmallPackageReimbursement     bool
 	GCCIsActualExpenseReimbursement string
 }
 

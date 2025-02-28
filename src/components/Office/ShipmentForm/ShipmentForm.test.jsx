@@ -5,8 +5,8 @@ import userEvent from '@testing-library/user-event';
 
 import ShipmentForm from './ShipmentForm';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { ORDERS_TYPE } from 'constants/orders';
+import { PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 import { ADDRESS_UPDATE_STATUS, ppmShipmentStatuses } from 'constants/shipments';
 import { tooRoutes } from 'constants/routes';
@@ -212,6 +212,7 @@ const defaultProps = {
       unaccompaniedBaggageAllowance: 400,
     },
     agency: '',
+    grade: ORDERS_PAY_GRADE_OPTIONS.E_7,
   },
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],
@@ -231,6 +232,7 @@ const mockPPMShipment = {
   ...mockMtoShipment,
   ppmShipment: {
     id: 'ppmShipmentID',
+    ppmType: PPM_TYPES.INCENTIVE_BASED,
     shipmentId: 'shipment123',
     status: ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL,
     expectedDepartureDate: '2022-04-01',
@@ -287,6 +289,7 @@ const mockRejectedPPMShipment = {
   ...mockMtoShipment,
   ppmShipment: {
     id: 'ppmShipmentID',
+    ppmType: PPM_TYPES.INCENTIVE_BASED,
     shipmentId: 'shipment123',
     status: ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL,
     expectedDepartureDate: '2022-04-01',
@@ -1308,6 +1311,8 @@ describe('ShipmentForm component', () => {
 
   describe('creating a new PPM shipment', () => {
     it('displays PPM content', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
       renderWithRouter(
         <ShipmentForm
           {...defaultProps}
@@ -1318,6 +1323,20 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+      const ppmTypeSection = await screen.findByTestId('ppmTypeSection');
+      expect(ppmTypeSection).toBeVisible();
+
+      const incentiveRadio = screen.getByTestId('isIncentiveBased');
+      expect(incentiveRadio).toBeInTheDocument();
+      expect(incentiveRadio).toHaveAttribute('value', PPM_TYPES.INCENTIVE_BASED);
+
+      const actualExpenseRadio = screen.getByTestId('isActualExpense');
+      expect(actualExpenseRadio).toBeInTheDocument();
+      expect(actualExpenseRadio).toHaveAttribute('value', PPM_TYPES.ACTUAL_EXPENSE);
+
+      const smallPackageRadio = screen.getByTestId('isSmallPackage');
+      expect(smallPackageRadio).toBeInTheDocument();
+      expect(smallPackageRadio).toHaveAttribute('value', PPM_TYPES.SMALL_PACKAGE);
     });
 
     it('PPM - delivery address street 1 is OPTIONAL', async () => {
@@ -1493,6 +1512,7 @@ describe('ShipmentForm component', () => {
             isCreatePage={false}
             shipmentType={SHIPMENT_OPTIONS.PPM}
             mtoShipment={mockPPMShipment}
+            userRole={roleTypes.SERVICES_COUNSELOR}
           />,
         );
 
@@ -1562,13 +1582,14 @@ describe('ShipmentForm component', () => {
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
         );
 
-        expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
-        expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
-        expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
-        expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Incentive-based')[0]).toBeChecked();
+        expect(screen.getAllByLabelText('Actual Expense Reimbursement')[0]).not.toBeChecked();
+        await waitFor(() => {
+          expect(screen.getAllByLabelText('Small Package Reimbursement')[0]).not.toBeChecked();
+        });
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-        expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
-        expect(screen.getAllByLabelText('No')[3]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[1]).toBeChecked();
       });
 
       it('test delivery address street 1 is OPTIONAL', async () => {
@@ -1898,8 +1919,8 @@ describe('ShipmentForm component', () => {
         />,
       );
 
+      expect(screen.getByText('PPM Type')).toBeInTheDocument();
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
-      expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
       expect(screen.getByText('What address are you moving from?')).toBeInTheDocument();
       expect(screen.getByText('Second Pickup Address')).toBeInTheDocument();
       expect(
