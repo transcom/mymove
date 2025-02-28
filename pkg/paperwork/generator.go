@@ -676,6 +676,8 @@ func (g *Generator) MergePDFFiles(_ appcontext.AppContext, paths []string) (afer
 		return mergedFile, err
 	}
 
+	defer mergedFile.Close()
+
 	var files []io.ReadSeeker
 	for _, p := range paths {
 		f, fileOpenErr := g.fs.Open(p)
@@ -840,39 +842,6 @@ func createMapOfOnlyWatermarkedPages(m map[int][]*model.Watermark) map[int][]*mo
 		}
 	}
 	return validMap
-}
-
-func (g *Generator) AddWatermarks(inputFile afero.File, m map[int][]*model.Watermark) (afero.File, error) {
-	// Preemptive nil check for the map and its contents
-	watermarkMap := createMapOfOnlyWatermarkedPages(m)
-	if watermarkMap[0] == nil {
-		return nil, fmt.Errorf("no watermarks provided for generation")
-	}
-
-	buf := new(bytes.Buffer)
-	err := api.AddWatermarksSliceMap(inputFile, buf, watermarkMap, g.pdfConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	tempFile, err := g.newTempFile()
-	if err != nil {
-		return nil, err
-	}
-
-	// copy byte[] to temp file
-	_, err = io.Copy(tempFile, buf)
-	if err != nil {
-		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
-	}
-
-	// Reload the file from memstore
-	pdfWithWatermarks, err := g.fs.Open(tempFile.Name())
-	if err != nil {
-		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
-	}
-
-	return pdfWithWatermarks, nil
 }
 
 func (g *Generator) CreateTextWatermark(text, desc string, onTop, update bool, u types.DisplayUnit) (*model.Watermark, error) {

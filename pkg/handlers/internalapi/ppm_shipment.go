@@ -305,7 +305,10 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 
 			payload := io.NopCloser(AOAPacket)
 
-			if err = h.AOAPacketCreator.CleanupAOAPacketFiles(appCtx); err != nil {
+			// we have copied the created file into the payload so we can remove it from memory
+			// we pass in false for closing because the file was never opened therefore doesn't
+			// need to be closed
+			if err = h.AOAPacketCreator.CleanupAOAPacketFile(AOAPacket, false); err != nil {
 				logger.Error("Error deleting temp AOA files", zap.Error(err))
 				aoaError := err.Error()
 				payload := payloads.InternalServerError(&aoaError, h.GetTraceIDFromRequest(params.HTTPRequest))
@@ -353,7 +356,10 @@ func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) 
 
 			payload := io.NopCloser(pdf)
 
-			if err = h.PaymentPacketCreator.CleanupPaymentPacketFiles(appCtx); err != nil {
+			// we have copied the created file into the payload so we can remove it from memory
+			// we pass in false for closing because the file was never opened therefore doesn't
+			// need to be closed
+			if err = h.PaymentPacketCreator.CleanupPaymentPacketFile(pdf, false); err != nil {
 				appCtx.Logger().Error(fmt.Sprintf("internalapi.DownPaymentPacket InternalServerError failed to delete temp packet files for ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
 				return ppmops.NewShowPaymentPacketInternalServerError(), err
 			}
