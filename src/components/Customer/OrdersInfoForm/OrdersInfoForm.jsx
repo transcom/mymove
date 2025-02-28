@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
+import { connect } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
@@ -23,10 +24,13 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
 import { showCounselingOffices } from 'services/internalApi';
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import retryPageLoading from 'utils/retryPageLoading';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 let originMeta;
 let newDutyMeta = '';
-const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
+const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
@@ -67,6 +71,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
       ? Yup.number().min(0).required('Required')
       : Yup.number().notRequired(),
   });
+
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
@@ -78,28 +83,40 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     };
     checkUBFeatureFlag();
   }, []);
+
   useEffect(() => {
-    // If current duty location is defined, show the counseling offices
-    if (currentDutyLocation?.id) {
-      showCounselingOffices(currentDutyLocation.id).then((fetchedData) => {
-        if (fetchedData.body) {
-          const counselingOffices = fetchedData.body.map((item) => ({
-            key: item.id,
-            value: item.name,
-          }));
-          setCounselingOfficeOptions(counselingOffices);
+    const fetchCounselingOffices = async () => {
+      if (currentDutyLocation?.id && !counselingOfficeOptions) {
+        setShowLoadingSpinner(true, 'Loading counseling offices');
+        try {
+          const fetchedData = await showCounselingOffices(currentDutyLocation.id);
+          if (fetchedData.body) {
+            const counselingOffices = fetchedData.body.map((item) => ({
+              key: item.id,
+              value: item.name,
+            }));
+            setCounselingOfficeOptions(counselingOffices);
+          }
+        } catch (error) {
+          const { message } = error;
+          milmoveLogger.error({ message, info: null });
+          retryPageLoading(error);
         }
-      });
-    }
+        setShowLoadingSpinner(false, null);
+      }
+    };
+    fetchCounselingOffices();
+  }, [counselingOfficeOptions, currentDutyLocation.id, setShowLoadingSpinner]);
+
+  useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
       setIsOconusMove(true);
     } else {
       setIsOconusMove(false);
     }
+
     if (currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
-      // Only if one of the duty locations is OCONUS should accompanied tour and dependent
-      // age fields display
       if (isOconusMove && hasDependents) {
         setShowAccompaniedTourField(true);
         setShowDependentAgeFields(true);
@@ -236,11 +253,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
               />
               {currentDutyLocation.provides_services_counseling && (
                 <div>
-                  <Label>
-                    Select an origin duty location that most closely represents your current physical location, not
-                    where your shipment will originate, if different. This will allow a nearby transportation office to
-                    assist you.
-                  </Label>
                   <DropdownInput
                     label="Counseling office"
                     name="counseling_office_id"
@@ -249,6 +261,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     required
                     options={counselingOfficeOptions}
                   />
+                  <Hint>
+                    Select an origin duty location that most closely represents your current physical location, not
+                    where your shipment will originate, if different. This will allow a nearby transportation office to
+                    assist you.
+                  </Hint>
                 </div>
               )}
               {isRetirementOrSeparation ? (
@@ -440,7 +457,7 @@ OrdersInfoForm.propTypes = {
     issue_date: PropTypes.string,
     report_by_date: PropTypes.string,
     has_dependents: PropTypes.string,
-    new_duty_location: PropTypes.shape({}),
+    new_duty_location: DutyLocationShape,
     grade: PropTypes.string,
     origin_duty_location: DutyLocationShape,
     dependents_under_twelve: PropTypes.string,
@@ -452,4 +469,8 @@ OrdersInfoForm.propTypes = {
   onBack: PropTypes.func.isRequired,
 };
 
-export default OrdersInfoForm;
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => ({}), mapDispatchToProps)(OrdersInfoForm);
