@@ -150,33 +150,29 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
         [
           <div>
             <Button onClick={() => onFeedbackClick()}>View Closeout Feedback</Button>
-            <div className={styles.downloadWrapper}>
-              <AsyncPacketDownloadLink
-                id={shipment?.ppmShipment?.id}
-                label="Download Payment Packet"
-                asyncRetrieval={downloadPPMPaymentPacket}
-                onSuccess={handleDownloadSuccess}
-                onFailure={handleDownloadError}
-                onStart={() => setIsDownloading(true)}
-                disabled={isDownloading}
-                className="styles.btn"
-              />
-            </div>
+            <AsyncPacketDownloadLink
+              id={shipment?.ppmShipment?.id}
+              label="Download Payment Packet"
+              asyncRetrieval={downloadPPMPaymentPacket}
+              onSuccess={handleDownloadSuccess}
+              onFailure={handleDownloadError}
+              onStart={() => setIsDownloading(true)}
+              disabled={isDownloading}
+              className="styles.btn"
+            />
           </div>,
         ]
       ) : (
-        <div className={styles.downloadWrapper}>
-          <AsyncPacketDownloadLink
-            id={shipment?.ppmShipment?.id}
-            label="Download Payment Packet"
-            asyncRetrieval={downloadPPMPaymentPacket}
-            onSuccess={handleDownloadSuccess}
-            onFailure={handleDownloadError}
-            onStart={() => setIsDownloading(true)}
-            disabled={isDownloading}
-            className="styles.btn"
-          />
-        </div>
+        <AsyncPacketDownloadLink
+          id={shipment?.ppmShipment?.id}
+          label="Download Payment Packet"
+          asyncRetrieval={downloadPPMPaymentPacket}
+          onSuccess={handleDownloadSuccess}
+          onFailure={handleDownloadError}
+          onStart={() => setIsDownloading(true)}
+          disabled={isDownloading}
+          className="styles.btn"
+        />
       );
 
       content = paymentReviewed(approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress);
@@ -188,9 +184,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
     <div className={styles.container}>
       {isDownloading && (
         <div className={styles.fullPageOverlay} role="dialog" aria-modal="true">
-          <div className={styles.spinnerContainer}>
-            <LoadingSpinner message="Downloading payment packet..." />
-          </div>
+          <LoadingSpinner message="Downloading payment packet..." />
         </div>
       )}
       <SectionWrapper className={styles['ppm-shipment']}>

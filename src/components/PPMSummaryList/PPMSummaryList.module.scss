@@ -72,28 +72,3 @@
   z-index: 10000;
   pointer-events: all;
 }
-
-.spinnerContainer {
-  :global(.container) {
-    position: static;
-    min-height: unset;
-    background: none;
-  }
-}
-
-.downloadWrapper {
-  display: inline-block;
-}
-
-:global(body.has-overlay) {
-  overflow: hidden;
-}
-
-@keyframes fadeIn{
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
