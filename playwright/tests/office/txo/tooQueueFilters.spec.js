@@ -1,9 +1,3 @@
-/**
- * Semi-automated converted from a cypress test, and thus may contain
- * non best-practices, in particular: heavy use of `page.locator`
- * instead of `page.getBy*`.
- */
-
 // @ts-check
 import { test, expect } from '../../utils/office/officeTest';
 
@@ -15,12 +9,8 @@ test.describe('TOO user queue filters - Move Queue', async () => {
   let tooFlowPage;
 
   test.beforeEach(async ({ officePage }) => {
-    if (!testMove) {
-      testMove = await officePage.testHarness.buildMoveWithNTSShipmentsForTOO();
-    }
-    if (!testMoveNotAssigned) {
-      testMoveNotAssigned = await officePage.testHarness.buildMoveWithNTSShipmentsForTOO();
-    }
+    testMove = await officePage.testHarness.buildMoveWithNTSShipmentsForTOO();
+    testMoveNotAssigned = await officePage.testHarness.buildMoveWithNTSShipmentsForTOO();
     await officePage.signInAsNewTOOUser();
     tooFlowPage = new TooFlowPage(officePage, testMove);
     await tooFlowPage.waitForLoading();
@@ -28,16 +18,20 @@ test.describe('TOO user queue filters - Move Queue', async () => {
 
   test('filters out all moves with nonsense assigned user', async ({ page }) => {
     test.slow();
-    await page.getByTestId('assignedTo').getByRole('textbox').fill('');
-    await page.getByTestId('assignedTo').getByRole('textbox').blur();
+    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').focus();
+    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').fill('');
+    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').blur();
     // We should still see all moves
     await expect(page.getByRole('heading', { level: 1 })).not.toContainText('All moves (0)');
 
     // Add nonsense string to our filter (so now we're searching for 'zzzz')
-    await page.getByTestId('assignedTo').getByRole('textbox').fill('zzzz');
-    await page.getByTestId('assignedTo').getByRole('textbox').blur();
+    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').focus();
+    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').fill('zzzz');
+    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').blur();
     // Now we shouldn't see any results
     await expect(page.getByRole('heading', { level: 1 })).toContainText('All moves (0)');
+    await expect(page.getByRole('row').getByText(testMove.locator)).not.toBeVisible();
+    await expect(page.getByRole('row').getByText(testMoveNotAssigned.locator)).not.toBeVisible();
   });
 
   test('filters all moves EXCEPT with assigned user, restores all moves when filter removed', async ({ page }) => {
@@ -45,11 +39,24 @@ test.describe('TOO user queue filters - Move Queue', async () => {
 
     await page.getByText('KKFA moves').click();
 
+    await expect(page.getByRole('heading', { level: 1 })).not.toContainText('All moves (0)');
     const allMoves = await page.getByRole('heading', { level: 1 }).innerHTML();
 
-    await page.getByTestId('locator').getByRole('textbox').fill(testMove.locator);
-    await page.getByTestId('locator').getByRole('textbox').blur();
-    await expect(page.locator('td').getByText(testMove.locator)).toBeVisible();
+    // assign user to test move
+    await page.getByTestId('locator').getByTestId('TextBoxFilter').clear();
+    await page.getByTestId('locator').getByTestId('TextBoxFilter').fill(testMove.locator);
+    await page.getByTestId('locator').getByTestId('TextBoxFilter').blur();
+    await page.waitForTimeout(500);
+    await expect(page.getByTestId('locator').getByTestId('TextBoxFilter')).toHaveValue(testMove.locator);
+    await expect(page.getByRole('row').getByText(testMove.locator)).toBeVisible();
+
+    expect(
+      await page
+        .getByTestId('assignedTo-0')
+        .getByTestId('dropdown')
+        .getByRole('option', { selected: true })
+        .textContent(),
+    ).toEqual('—');
 
     await page.getByTestId('assignedTo-0').getByTestId('dropdown').selectOption({ index: 1 });
 
@@ -63,18 +70,29 @@ test.describe('TOO user queue filters - Move Queue', async () => {
       .split(',')
       .at(0);
 
-    await page.getByTestId('locator').getByRole('textbox').fill('');
-    await page.getByTestId('locator').getByRole('textbox').blur();
-    await expect(page.locator('remove-filters-locator').getByText(testMove.locator)).not.toBeVisible();
+    // search for moves with assigned user only
+    await page.getByTestId('locator').getByTestId('TextBoxFilter').clear();
+    await page.getByTestId('locator').getByTestId('TextBoxFilter').fill('');
+    await page.getByTestId('locator').getByTestId('TextBoxFilter').blur();
+    await page.waitForTimeout(500);
+    await expect(page.getByTestId('locator').getByTestId('TextBoxFilter')).toBeEmpty();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(allMoves);
 
-    await page.getByTestId('assignedTo').getByRole('textbox').fill(assigned);
-    await page.getByTestId('assignedTo').getByRole('textbox').blur();
+    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').clear();
+    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').fill(assigned);
+    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').blur();
+    await page.waitForTimeout(500);
+    await expect(page.getByTestId('remove-filters-assignedTo')).toBeVisible();
+    // await page.waitForTimeout(200);
 
+    // assigned moves for user show in queue
     await expect(page.getByRole('table').getByText(testMove.locator)).toBeVisible();
     await expect(page.getByRole('heading', { level: 1 })).not.toContainText(allMoves);
-    await expect(page.getByRole('heading', { level: 1 })).not.toContainText('All moves(0)');
+    await expect(page.getByRole('heading', { level: 1 })).not.toContainText('All moves (0)');
+    await expect(page.getByRole('row').getByText(testMove.locator)).toBeVisible();
+    await expect(page.getByRole('row').getByText(testMoveNotAssigned.locator)).not.toBeVisible();
 
-    // Now, remove filter and ensure retores all moves
+    // Now, remove filter and ensure retores all moves in queue
     const removeFilterButton = page.getByTestId('remove-filters-assignedTo');
     await expect(removeFilterButton).toBeVisible();
     await removeFilterButton.click();
