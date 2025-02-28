@@ -1344,7 +1344,8 @@ func UpdateDestinationSITServiceItemsAddress(appCtx appcontext.AppContext, shipm
 	mtoServiceItems := mtoShipment.MTOServiceItems
 
 	// Only update these serviceItems address ID
-	serviceItemsToUpdate := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDSFSC}
+	serviceItemsToUpdate := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDSFSC,
+		models.ReServiceCodeIDDSIT, models.ReServiceCodeIDFSIT, models.ReServiceCodeIDASIT, models.ReServiceCodeIDSFSC}
 
 	for _, serviceItem := range mtoServiceItems {
 
@@ -1387,7 +1388,9 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 		serviceItem := s
 		reServiceCode := serviceItem.ReService.Code
 		if reServiceCode == models.ReServiceCodeDDDSIT ||
-			reServiceCode == models.ReServiceCodeDDSFSC {
+			reServiceCode == models.ReServiceCodeDDSFSC ||
+			reServiceCode == models.ReServiceCodeIDDSIT ||
+			reServiceCode == models.ReServiceCodeIDSFSC {
 
 			var milesCalculated int
 
