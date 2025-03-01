@@ -1,3 +1,5 @@
+--B-22540  Alex Lusk  Create ppm_closeouts table to store dollar values for Advana
+
 CREATE TABLE IF NOT EXISTS ppm_closeouts (
     id UUID PRIMARY KEY NOT NULL,
     ppm_shipment_id UUID REFERENCES ppm_shipments(id) ON DELETE CASCADE NOT NULL,
