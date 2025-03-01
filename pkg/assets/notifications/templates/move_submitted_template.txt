@@ -6,7 +6,7 @@ We have assigned you a move code: {{.Locator}}. You can use this code when talki
 
 {{ if .OriginDutyLocationPhoneLine -}} To change any information about your move, or to add or cancel shipments, you should contact {{.OriginDutyLocationPhoneLine}} or visit your local transportation office ({{.OneSourceTransportationOfficeLink}}) . {{- end }} {{- if not .OriginDutyLocationPhoneLine }} To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the directory of PCS-related contacts ({{.OneSourceTransportationOfficeLink}}) . {{- end }}
 
-Your standard weight allowance: {{.WeightAllowance}} pounds. That is how much combined weight the government will pay for all movements between authorized locations under your orders. Be advised, if you are moving to an administratively restricted HHG weight location this amount could be less.
+Your standard weight allowance: {{.WeightAllowance}} pounds. That is how much combined weight the government will pay for all movements between authorized locations under your orders. Be advised, if you are moving to an administratively restricted weight location this amount could be less.
 
 If you move more than {{.WeightAllowance}} pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
 
