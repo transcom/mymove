@@ -155,7 +155,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
     <Modal>
       <ModalClose handleClick={() => onClose()} />
       <ModalTitle>
-        <h3>
+        <h3 data-testid="modalTitleHeader">
           {isBulkReAssignmentMode ? bulkAssignmentSwitchLabels[1] : bulkAssignmentSwitchLabels[0]} ({numberOfMoves})
         </h3>
       </ModalTitle>
@@ -163,6 +163,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
         data-testid="modalReAssignModeToggleSwitch"
         name="BulkAssignmentModeSwitch"
         onChange={handleAssignmentModeChange}
+        inputProps={{ 'aria-label': 'BulkAssignmentModeSwitch' }}
       />
       <div className={styles.BulkAssignmentTable}>
         <Formik

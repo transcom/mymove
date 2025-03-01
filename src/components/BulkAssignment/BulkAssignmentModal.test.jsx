@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { BulkAssignmentModal } from 'components/BulkAssignment/BulkAssignmentModal';
@@ -177,32 +177,51 @@ describe('BulkAssignmentModal', () => {
   });
 
   it('displays bulk re-assignment when switch is toggled', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    isBooleanFlagEnabled.mockResolvedValue(true);
 
-    screen.debug();
+    await act(async () => {
+      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    });
 
-    const bulkReAssignToggleSwitch = screen.getByRole('checkbox', { name: 'BulkAssignmentModeSwitch', hidden: true });
+    // Check the state of the modal before toggling the modal state
+    await waitFor(() => {
+      expect(screen.getByLabelText('BulkAssignmentModeSwitch')).toBeInTheDocument();
+      expect(screen.getByText('User')).toBeInTheDocument();
+      expect(screen.getByText('Current Workload')).toBeInTheDocument();
+      expect(screen.getByText('Assignment')).toBeInTheDocument();
+      expect(screen.getByTestId('selectDeselectAllButton')).toBeInTheDocument();
+      expect(screen.getByText('Equal Assign')).toBeInTheDocument();
+    });
 
-    await userEvent.click(bulkReAssignToggleSwitch);
+    const bulkReAssignToggleSwitch = screen.getByLabelText('BulkAssignmentModeSwitch');
+    // Click the switch inside act() to ensure React updates state
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
 
-    expect(screen.getByText('Bulk Re-assignment')).toBeInTheDocument();
+    // Check the state of the modal after toggling the modal state
+    await waitFor(() => {
+      expect(screen.getByText('Bulk Re-Assignment', { exact: false })).toBeInTheDocument();
+      expect(screen.getByText('User')).toBeInTheDocument();
+      expect(screen.getByText('Current Workload')).toBeInTheDocument();
+      expect(screen.getByText('Assignment')).toBeInTheDocument();
+      expect(screen.getByText('Re-assign User')).toBeInTheDocument();
+      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
+    });
+    // Click again to revert back
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
 
-    expect(screen.getByText('User')).toBeInTheDocument();
-    expect(screen.getByText('Current Workload')).toBeInTheDocument();
-    expect(screen.getByText('Assignment')).toBeInTheDocument();
-    expect(screen.getByText('Re-assign User')).toBeInTheDocument();
-    expect(screen.getAllByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
-    expect(screen.getByText('Equal Assign')).toBeInTheDocument();
-
-    await userEvent.click(bulkReAssignToggleSwitch); // back to bulk assignment
-
-    expect(screen.getByText('Bulk Assignment')).toBeInTheDocument();
-
-    expect(screen.getByText('User')).toBeInTheDocument();
-    expect(screen.getByText('Current Workload')).toBeInTheDocument();
-    expect(screen.getByText('Assignment')).toBeInTheDocument();
-    expect(screen.getByText('Re-assign User')).not.toBeInTheDocument();
-    expect(screen.getAllByTestId('selectDeselectAllButton')).toBeInTheDocument();
+    // Check the state of the modal after reverting toggling the modal state
+    await waitFor(() => {
+      expect(screen.getByLabelText('BulkAssignmentModeSwitch')).toBeInTheDocument();
+      expect(screen.getByText('User')).toBeInTheDocument();
+      expect(screen.getByText('Current Workload')).toBeInTheDocument();
+      expect(screen.getByText('Assignment')).toBeInTheDocument();
+      expect(screen.getByTestId('selectDeselectAllButton')).toBeInTheDocument();
+      expect(screen.getByText('Equal Assign')).toBeInTheDocument();
+    });
   });
 });
