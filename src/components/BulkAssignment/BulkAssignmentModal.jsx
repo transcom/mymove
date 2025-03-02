@@ -19,7 +19,6 @@ const initialValues = {
 
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
   const [isError, setIsError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isDisabled, setIsDisabled] = useState(false);
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState({});
@@ -62,7 +61,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
     });
     setSelectedUsers(() => selectedOfficeUsers);
     initialValues.userData = officeUsers;
-    setIsLoading(false);
   };
 
   const fetchData = useCallback(async () => {
@@ -91,8 +89,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   const validationSchema = Yup.object().shape({
     assignment: Yup.number().min(0).typeError('Assignment must be a number'),
   });
-
-  if (isLoading) return null;
 
   return (
     <div>
@@ -256,7 +252,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     ) : (
                       <ModalActions autofocus="true">
                         <div className={styles.BulkAssignmentButtonsContainer}>
-                          <div>
+                          <div className={styles.BulkAssignmentButtonsLeft}>
                             <Button
                               disabled={isDisabled || isFormUnchanged(values)}
                               data-focus="true"
