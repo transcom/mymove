@@ -862,4 +862,60 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		_, err = moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, nil)
 		suite.EqualError(err, apperror.NewBadDataError("received a nil MTO shipment, an MTO shipment must be supplied for checking reweighs").Error())
 	})
+
+	suite.Run("will correctly factor in dependents authorized when requesting a reweigh", func() {
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		actualWeight := unit.Pound(5000)
+
+		move1 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment1 := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
+			},
+			{
+				Model:    move1,
+				LinkOnly: true,
+			},
+		}, nil)
+		move1.Orders.Entitlement.DependentsAuthorized = models.BoolPointer(false)
+		err := suite.DB().Save(move1.Orders.Entitlement)
+		suite.NoError(err)
+		shipment1.PrimeActualWeight = &actualWeight
+
+		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment2 := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
+			},
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+		}, nil)
+		move2.Orders.Entitlement.DependentsAuthorized = models.BoolPointer(true)
+		err = suite.DB().Save(move2.Orders.Entitlement)
+		suite.NoError(err)
+		shipment2.PrimeActualWeight = &actualWeight
+
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		autoReweighShipments, err := moveWeights.CheckAutoReweigh(session, move1.ID, &shipment1)
+		suite.NoError(err)
+		suite.Equal(1, len(autoReweighShipments))
+		noAutoReweighShipments, err := moveWeights.CheckAutoReweigh(session, move2.ID, &shipment2)
+		suite.NoError(err)
+		suite.Equal(0, len(noAutoReweighShipments))
+	})
 }
