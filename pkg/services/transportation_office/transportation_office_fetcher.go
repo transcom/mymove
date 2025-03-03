@@ -133,8 +133,10 @@ func ListDistinctGBLOCs(appCtx appcontext.AppContext) (models.GBLOCs, error) {
 	return gblocList, err
 }
 
+// return all the transportation offices in the GBLOC of the given duty location where provides_services_counseling = true
+// serviceMemberID is only provided when this function is called by the office handler
 func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffices, error) {
-	officeList, err := findCounselingOffice(appCtx, dutyLocationID, serviceMemberID)
+	officeList, err := models.GetCounselingOffices(appCtx.DB(), dutyLocationID, serviceMemberID)
 
 	if err != nil {
 		switch err {
