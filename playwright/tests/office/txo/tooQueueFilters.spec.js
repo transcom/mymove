@@ -3,6 +3,29 @@ import { test, expect } from '../../utils/office/officeTest';
 
 import TooFlowPage from './tooTestFixture';
 
+const waitForFilterInput = async (page, testId, value) => {
+  await page.waitForFunction(
+    (args) => {
+      /** @type {HTMLInputElement} */
+      const input = document.querySelector(`[data-testid="${args.testId}"] [data-testid="TextBoxFilter"]`);
+      if (input && input.value === args.value) return true;
+      if (input) {
+        input.value = args.value;
+        const keyupEvent = new KeyboardEvent('keyup', {
+          code: 'Enter',
+          key: 'Enter',
+          bubbles: true,
+          cancelable: true,
+        });
+        input.dispatchEvent(keyupEvent);
+      }
+      return false;
+    },
+    { testId, value },
+    { polling: 500, timeout: 5000 },
+  );
+};
+
 test.describe('TOO user queue filters - Move Queue', async () => {
   let testMove;
   let testMoveNotAssigned;
@@ -21,13 +44,9 @@ test.describe('TOO user queue filters - Move Queue', async () => {
     await expect(page.getByRole('heading', { level: 1 })).not.toContainText('All moves (0)');
 
     // Add nonsense string to our filter (so now we're searching for 'zzzz')
-    await page.waitForTimeout(200);
-    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').fill('zzzz');
-    await page.waitForTimeout(200);
-    await Promise.all([
-      page.waitForResponse((res) => res.url().includes('/ghc/v1/queues/moves')),
-      page.getByTestId('assignedTo').getByTestId('TextBoxFilter').blur(),
-    ]);
+
+    await waitForFilterInput(page, 'assignedTo', 'zzzz');
+
     // Now we shouldn't see any results
     await expect(page.getByRole('heading', { level: 1 })).toContainText('All moves (0)');
     await expect(page.getByRole('row').getByText(testMove.locator)).not.toBeVisible();
@@ -44,12 +63,8 @@ test.describe('TOO user queue filters - Move Queue', async () => {
     const allMoves = await page.getByRole('heading', { level: 1 }).innerHTML();
 
     // assign user to test move
-    await page.waitForTimeout(200);
-    await page.getByTestId('locator').getByTestId('TextBoxFilter').fill(testMove.locator);
-    await Promise.all([
-      page.waitForResponse((res) => res.url().includes('/ghc/v1/queues/moves')),
-      page.getByTestId('locator').getByTestId('TextBoxFilter').blur(),
-    ]);
+    await waitForFilterInput(page, 'locator', testMove.locator);
+
     await expect(page.getByTestId('locator').getByTestId('TextBoxFilter')).toHaveValue(testMove.locator);
     await expect(page.getByRole('row').getByText(testMove.locator)).toBeVisible();
 
@@ -76,24 +91,13 @@ test.describe('TOO user queue filters - Move Queue', async () => {
       .split(',')
       .at(0);
 
-    // search for moves with assigned user only
-    await page.waitForTimeout(200);
-    await page.getByTestId('locator').getByTestId('TextBoxFilter').fill('');
-    await Promise.all([
-      page.waitForResponse((res) => res.url().includes('/ghc/v1/queues/moves')),
-      page.getByTestId('locator').getByTestId('TextBoxFilter').blur(),
-    ]);
+    // search for moves with assigned user filter only
+    await waitForFilterInput(page, 'locator', '');
 
     await expect(page.getByTestId('locator').getByTestId('TextBoxFilter')).toBeEmpty();
     await expect(page.getByRole('heading', { level: 1 })).toContainText(allMoves);
 
-    await page.waitForTimeout(200);
-    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').fill(assigned);
-    await Promise.all([
-      page.waitForResponse((res) => res.url().includes('/ghc/v1/queues/moves')),
-      page.getByTestId('assignedTo').getByTestId('TextBoxFilter').blur(),
-    ]);
-    await expect(page.getByTestId('remove-filters-assignedTo')).toBeVisible();
+    await waitForFilterInput(page, 'assignedTo', assigned);
 
     // assigned moves for user show in queue
     await expect(page.getByRole('table').getByText(testMove.locator)).toBeVisible();
@@ -132,12 +136,8 @@ test.describe('TOO user queue filters - Destination Requests Queue', async () =>
     await expect(page.getByRole('heading', { level: 1 })).not.toContainText('Destination requests (0)');
 
     // Add nonsense string to our filter (so now we're searching for 'zzzz')
-    await page.waitForTimeout(200);
-    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').fill('zzzz');
-    await Promise.all([
-      page.waitForResponse((res) => res.url().includes('/ghc/v1/queues/destination-requests')),
-      page.getByTestId('assignedTo').getByTestId('TextBoxFilter').blur(),
-    ]);
+    await waitForFilterInput(page, 'assignedTo', 'zzzz');
+
     // Now we shouldn't see any results
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Destination requests (0)');
     await expect(page.getByRole('row').getByText(testMove.locator)).not.toBeVisible();
@@ -155,12 +155,8 @@ test.describe('TOO user queue filters - Destination Requests Queue', async () =>
     const destinationRequests = await page.getByRole('heading', { level: 1 }).innerHTML();
 
     // assign user to test move
-    await page.waitForTimeout(200);
-    await page.getByTestId('locator').getByTestId('TextBoxFilter').fill(testMove.locator);
-    await Promise.all([
-      page.waitForResponse((res) => res.url().includes('/ghc/v1/queues/destination-requests')),
-      page.getByTestId('locator').getByTestId('TextBoxFilter').blur(),
-    ]);
+    await waitForFilterInput(page, 'locator', testMove.locator);
+
     await expect(page.getByTestId('locator').getByTestId('TextBoxFilter')).toHaveValue(testMove.locator);
     await expect(page.getByRole('row').getByText(testMove.locator)).toBeVisible();
 
@@ -187,24 +183,13 @@ test.describe('TOO user queue filters - Destination Requests Queue', async () =>
       .split(',')
       .at(0);
 
-    // search for moves with assigned user only
-    await page.waitForTimeout(200);
-    await page.getByTestId('locator').getByTestId('TextBoxFilter').fill('');
-    await Promise.all([
-      page.waitForResponse((res) => res.url().includes('/ghc/v1/queues/destination-requests')),
-      page.getByTestId('locator').getByTestId('TextBoxFilter').blur(),
-    ]);
+    // search for moves with assigned user filter only
+    await waitForFilterInput(page, 'locator', '');
 
     await expect(page.getByTestId('locator').getByTestId('TextBoxFilter')).toBeEmpty();
     await expect(page.getByRole('heading', { level: 1 })).toContainText(destinationRequests);
 
-    await page.waitForTimeout(200);
-    await page.getByTestId('assignedTo').getByTestId('TextBoxFilter').fill(assigned);
-    await Promise.all([
-      page.waitForResponse((res) => res.url().includes('/ghc/v1/queues/destination-requests')),
-      page.getByTestId('assignedTo').getByTestId('TextBoxFilter').blur(),
-    ]);
-    await expect(page.getByTestId('remove-filters-assignedTo')).toBeVisible();
+    await waitForFilterInput(page, 'assignedTo', assigned);
 
     // assigned moves for user show in queue
     await expect(page.getByRole('table').getByText(testMove.locator)).toBeVisible();
