@@ -18,7 +18,6 @@
     @include u-padding-bottom(1);
     @include u-padding-left(2);
     @include u-display(flex);
-    justify-content: center;
     border: 1px solid $base-lighter;
     border-radius: 4px;
     max-width: 32rem;
