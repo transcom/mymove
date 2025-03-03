@@ -56,19 +56,3 @@
     @include u-margin-bottom(0);
   }
 }
-
-
-.container {
-  position: relative;
-}
-
-.fullPageOverlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  pointer-events: all;
-}

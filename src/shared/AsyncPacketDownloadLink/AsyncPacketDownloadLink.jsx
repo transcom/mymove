@@ -43,9 +43,8 @@ export const onPacketDownloadSuccessHandler = (response) => {
  * @param {func} onSuccess on success response handler
  * @param {func} onFailure on failure response handler
  * @param {func} onStart on start handler
- * @param {bool} disabled
  */
-const AsyncPacketDownloadLink = ({ id, label, asyncRetrieval, onSuccess, onFailure, onStart, disabled, className }) => {
+const AsyncPacketDownloadLink = ({ id, label, asyncRetrieval, onSuccess, onFailure, onStart, className }) => {
   const dataTestId = `asyncPacketDownloadLink${id}`;
 
   const handleClick = () => {
@@ -64,7 +63,6 @@ const AsyncPacketDownloadLink = ({ id, label, asyncRetrieval, onSuccess, onFailu
       data-testid={dataTestId}
       className={className ? className : styles.downloadButtonToLink}
       onClick={handleClick}
-      disabled={disabled}
     >
       {label}
     </Button>
@@ -78,7 +76,6 @@ AsyncPacketDownloadLink.propTypes = {
   onSuccess: PropTypes.func.isRequired,
   onFailure: PropTypes.func.isRequired,
   onStart: PropTypes.func,
-  disabled: PropTypes.bool,
   className: PropTypes.string,
 };
 
@@ -86,7 +83,6 @@ AsyncPacketDownloadLink.defaultProps = {
   onSuccess: onPacketDownloadSuccessHandler,
   onFailure: () => {},
   onStart: () => {},
-  disabled: false,
 };
 
 export default AsyncPacketDownloadLink;

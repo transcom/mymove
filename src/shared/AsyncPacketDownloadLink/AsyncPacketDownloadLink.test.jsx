@@ -19,7 +19,7 @@ describe('AsyncPacketDownloadLink success', () => {
         id={expectedId}
         label={expectedLabel}
         asyncRetrieval={asyncRetrieval}
-        onSucccess={onSuccessHandler}
+        onSuccess={onSuccessHandler}
         onFailure={onErrorHandler}
       />,
     );

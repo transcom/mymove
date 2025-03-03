@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { arrayOf, bool, func, number } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
@@ -98,7 +98,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
     ppmShipment: { status, approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress },
   } = shipment;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isDownloading) {
       document.body.classList.add('has-overlay');
     } else {
@@ -113,11 +113,6 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
   const handleDownloadSuccess = (response) => {
     setIsDownloading(false);
     onPacketDownloadSuccessHandler(response);
-  };
-
-  const handleDownloadError = () => {
-    setIsDownloading(false);
-    onDownloadError();
   };
 
   let actionButtons;
@@ -155,9 +150,8 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
               label="Download Payment Packet"
               asyncRetrieval={downloadPPMPaymentPacket}
               onSuccess={handleDownloadSuccess}
-              onFailure={handleDownloadError}
+              onFailure={onDownloadError}
               onStart={() => setIsDownloading(true)}
-              disabled={isDownloading}
               className="styles.btn"
             />
           </div>,
@@ -168,9 +162,8 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
           label="Download Payment Packet"
           asyncRetrieval={downloadPPMPaymentPacket}
           onSuccess={handleDownloadSuccess}
-          onFailure={handleDownloadError}
+          onFailure={onDownloadError}
           onStart={() => setIsDownloading(true)}
-          disabled={isDownloading}
           className="styles.btn"
         />
       );
@@ -181,12 +174,8 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
   }
 
   return (
-    <div className={styles.container}>
-      {isDownloading && (
-        <div className={styles.fullPageOverlay} role="dialog" aria-modal="true">
-          <LoadingSpinner message="Downloading payment packet..." />
-        </div>
-      )}
+    <div>
+      {isDownloading && <LoadingSpinner message="Downloading payment packet" />}
       <SectionWrapper className={styles['ppm-shipment']}>
         <div className={styles['ppm-shipment__heading-section']}>
           <strong>{orderLabel}</strong>
