@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react';
+import React, { useState, useEffect, useMemo, useContext, useRef } from 'react';
 import { connect } from 'react-redux';
 import { GridContainer, Button } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
@@ -96,6 +96,8 @@ const TableQueue = ({
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
+  const prevFiltersRef = useRef();
+
   const gblocContext = useContext(SelectedGblocContext);
   const { selectedGbloc } =
     (activeRole === roleTypes.HQ || officeUser?.transportation_office_assignments?.length > 1) && gblocContext
@@ -184,6 +186,10 @@ const TableQueue = ({
   useEffect(() => {
     if (!isLoading && !isError) {
       setParamSort(sortBy);
+      const prevFilters = prevFiltersRef.current;
+
+      // could use a ternary and call setCurrentPage once instead of the if/else
+      // const currentPageToBeOn = prevFilters !== filters ? pageIndex + 1 : defaultPage;
 
       if (filters.length === 0 && isPageReload) {
         // This is executed once. This is to ensure filters
@@ -194,13 +200,17 @@ const TableQueue = ({
           filters.push(item);
         });
       }
+      if (prevFilters !== null && prevFilters !== filters) {
+        setCurrentPage(defaultPage); // setting to default page
+      } else {
+        setCurrentPage(pageIndex + 1); // continue as normal
+      }
 
       // Save to cache.
       setTableQueueFilterSessionStorageValue(sessionStorageKey, filters);
-
-      setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));
+      prevFiltersRef.current = filters;
     }
   }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, isPageReload, sessionStorageKey]);
 
