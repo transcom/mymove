@@ -139,7 +139,10 @@ func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCt
 			office_users.last_name,
 			COUNT(DISTINCT moves.id) AS workload
 		FROM office_users
-		JOIN users_roles ON office_users.user_id = users_roles.user_id
+		JOIN users_roles
+			ON (
+				office_users.user_id = users_roles.user_id AND users_roles.deleted_at IS NULL
+			)
 		JOIN roles ON users_roles.role_id = roles.id
 		JOIN transportation_offices ON office_users.transportation_office_id = transportation_offices.id
 		LEFT JOIN moves
