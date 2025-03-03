@@ -4143,7 +4143,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
-		response := handler.Handle(params) // NEEDS SESSION
+		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
 		payload := okResponse.Payload
