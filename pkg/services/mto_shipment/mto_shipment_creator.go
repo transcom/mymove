@@ -331,6 +331,14 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			}
 		}
 
+		//For UB shipments, check if at least one address is OCONUS
+		if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			err = checkUBShipmentForOconusAddress(*shipment)
+			if err != nil {
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "At least one address must be an OCONUS address")
+			}
+		}
+
 		//assign status to shipment draft by default
 		if shipment.Status != models.MTOShipmentStatusSubmitted {
 			shipment.Status = models.MTOShipmentStatusDraft
