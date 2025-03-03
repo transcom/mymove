@@ -57,50 +57,52 @@ type Page1Values struct {
 	MailingAddressW2                string
 	IsActualExpenseReimbursement    bool
 	IsSmallPackageReimbursement     bool
-	GCCIsActualExpenseReimbursement string
+	GCCExpenseReimbursementType     string
 }
 
 // Page2Values is an object representing a Shipment Summary Worksheet
 type Page2Values struct {
-	CUIBanner                   string
-	PreparationDate2            string
-	TAC                         string
-	SAC                         string
-	ContractedExpenseMemberPaid string
-	ContractedExpenseGTCCPaid   string
-	RentalEquipmentMemberPaid   string
-	RentalEquipmentGTCCPaid     string
-	PackingMaterialsMemberPaid  string
-	PackingMaterialsGTCCPaid    string
-	WeighingFeesMemberPaid      string
-	WeighingFeesGTCCPaid        string
-	GasMemberPaid               string
-	GasGTCCPaid                 string
-	TollsMemberPaid             string
-	TollsGTCCPaid               string
-	OilMemberPaid               string
-	OilGTCCPaid                 string
-	OtherMemberPaid             string
-	OtherGTCCPaid               string
-	TotalMemberPaid             string
-	TotalGTCCPaid               string
-	TotalMemberPaidRepeated     string
-	TotalGTCCPaidRepeated       string
-	TotalPaidNonSIT             string
-	TotalMemberPaidSIT          string
-	TotalGTCCPaidSIT            string
-	TotalPaidSIT                string
-	Disbursement                string
-	ShipmentPickupDates         string
-	TrustedAgentName            string
-	ServiceMemberSignature      string
-	PPPOPPSORepresentative      string
-	SignatureDate               string
-	PPMRemainingEntitlement     string
+	CUIBanner                     string
+	PreparationDate2              string
+	TAC                           string
+	SAC                           string
+	ContractedExpenseMemberPaid   string
+	ContractedExpenseGTCCPaid     string
+	RentalEquipmentMemberPaid     string
+	RentalEquipmentGTCCPaid       string
+	PackingMaterialsMemberPaid    string
+	PackingMaterialsGTCCPaid      string
+	SmallPackageExpenseMemberPaid string
+	SmallPackageExpenseGTCCPaid   string
+	WeighingFeesMemberPaid        string
+	WeighingFeesGTCCPaid          string
+	GasMemberPaid                 string
+	GasGTCCPaid                   string
+	TollsMemberPaid               string
+	TollsGTCCPaid                 string
+	OilMemberPaid                 string
+	OilGTCCPaid                   string
+	OtherMemberPaid               string
+	OtherGTCCPaid                 string
+	TotalMemberPaid               string
+	TotalGTCCPaid                 string
+	TotalMemberPaidRepeated       string
+	TotalGTCCPaidRepeated         string
+	TotalPaidNonSIT               string
+	TotalMemberPaidSIT            string
+	TotalGTCCPaidSIT              string
+	TotalPaidSIT                  string
+	Disbursement                  string
+	ShipmentPickupDates           string
+	TrustedAgentName              string
+	ServiceMemberSignature        string
+	PPPOPPSORepresentative        string
+	SignatureDate                 string
+	PPMRemainingEntitlement       string
 	FormattedMovingExpenses
 	FormattedOtherExpenses
-	IncentiveIsActualExpenseReimbursement string
-	HeaderIsActualExpenseReimbursement    string
+	IncentiveExpenseReimbursementType string
+	HeaderExpenseReimbursementType    string
 }
 
 // Page3Values is an object representing a Shipment Summary Worksheet
@@ -118,30 +120,32 @@ type FormattedOtherExpenses struct {
 
 // FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
 type FormattedMovingExpenses struct {
-	ContractedExpenseMemberPaid string
-	ContractedExpenseGTCCPaid   string
-	RentalEquipmentMemberPaid   string
-	RentalEquipmentGTCCPaid     string
-	PackingMaterialsMemberPaid  string
-	PackingMaterialsGTCCPaid    string
-	WeighingFeesMemberPaid      string
-	WeighingFeesGTCCPaid        string
-	GasMemberPaid               string
-	GasGTCCPaid                 string
-	TollsMemberPaid             string
-	TollsGTCCPaid               string
-	OilMemberPaid               string
-	OilGTCCPaid                 string
-	OtherMemberPaid             string
-	OtherGTCCPaid               string
-	TotalMemberPaid             string
-	TotalGTCCPaid               string
-	TotalMemberPaidRepeated     string
-	TotalGTCCPaidRepeated       string
-	TotalPaidNonSIT             string
-	TotalMemberPaidSIT          string
-	TotalGTCCPaidSIT            string
-	TotalPaidSIT                string
+	ContractedExpenseMemberPaid   string
+	ContractedExpenseGTCCPaid     string
+	RentalEquipmentMemberPaid     string
+	RentalEquipmentGTCCPaid       string
+	PackingMaterialsMemberPaid    string
+	PackingMaterialsGTCCPaid      string
+	SmallPackageExpenseMemberPaid string
+	SmallPackageExpenseGTCCPaid   string
+	WeighingFeesMemberPaid        string
+	WeighingFeesGTCCPaid          string
+	GasMemberPaid                 string
+	GasGTCCPaid                   string
+	TollsMemberPaid               string
+	TollsGTCCPaid                 string
+	OilMemberPaid                 string
+	OilGTCCPaid                   string
+	OtherMemberPaid               string
+	OtherGTCCPaid                 string
+	TotalMemberPaid               string
+	TotalGTCCPaid                 string
+	TotalMemberPaidRepeated       string
+	TotalGTCCPaidRepeated         string
+	TotalPaidNonSIT               string
+	TotalMemberPaidSIT            string
+	TotalGTCCPaidSIT              string
+	TotalPaidSIT                  string
 }
 
 //go:generate mockery --name SSWPPMComputer
