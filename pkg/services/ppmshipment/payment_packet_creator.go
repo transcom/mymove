@@ -96,16 +96,17 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	// use aoa creator to generated SSW and Orders PDF
 	aoaPacketFile, aoaDirPath, err := p.aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, true)
 	if err != nil {
-		// cleanup any files that were created in memory prior to the failure
-		p.aoaPacketCreator.CleanupAOAPacketDir(aoaDirPath)
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, fmt.Sprintf("failed to generate AOA packet for ppmShipmentID: %s", ppmShipmentID.String()))
+
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
 		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
 	defer func() {
 		// no matter if there are any errors we need to remove the aoa packet from memory
-		p.aoaPacketCreator.CleanupAOAPacketDir(aoaDirPath)
+		if cleanupErr := p.aoaPacketCreator.CleanupAOAPacketDir(aoaDirPath); cleanupErr != nil {
+			appCtx.Logger().Error(errMsgPrefix, zap.Error(cleanupErr))
+		}
 	}()
 
 	// AOA packet will be appended at the beginning of the final pdf file

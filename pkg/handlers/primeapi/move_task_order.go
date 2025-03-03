@@ -348,7 +348,14 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 
 			payload := io.NopCloser(outputFile)
 
-			h.PrimeDownloadMoveUploadPDFGenerator.CleanupFile(outputFile)
+			err = h.PrimeDownloadMoveUploadPDFGenerator.CleanupFile(outputFile)
+
+			if err != nil {
+				appCtx.Logger().Error("primeapi.DownloadMoveOrder error", zap.Error(err))
+				return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
+					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
 			// Build fileName in format: Customer-{type}-for-MTO-{locator}-{TIMESTAMP}.pdf
 			// example:
 			// Customer-ORDERS,AMENDMENTS-for-MTO-PPMSIT-2024-01-11T17-02.pdf   (all)

@@ -155,14 +155,6 @@ func (g *Generator) GetWorkDir() string {
 	return g.workDir
 }
 
-func (g *Generator) newTempFile() (afero.File, error) {
-	outputFile, err := g.fs.TempFile(g.workDir, "temp")
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return outputFile, nil
-}
-
 // creates the directory if it does not exist and creates a new file in that directory
 func (g *Generator) newTempFileInDir(dirName string) (afero.File, error) {
 	dirPath := g.workDir + "/" + dirName
@@ -189,22 +181,6 @@ func (g *Generator) newTempFileInDir(dirName string) (afero.File, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	return outputFile, nil
-}
-
-func (g *Generator) newTempFileWithName(fileName string) (afero.File, error) {
-	name := "temp"
-
-	if fileName != "" {
-		// by adding a * before the extension we tell TempFile to put its random number before the extension instead of after it
-		extensionIndex := strings.LastIndex(fileName, ".")
-		name = fileName[:extensionIndex] + strings.Replace(fileName[extensionIndex:], ".", "*.", 1)
-	}
-
-	outputFile, err := g.fs.TempFile(g.workDir, name)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
 	return outputFile, nil
 }
 
@@ -452,12 +428,6 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 		return "nil", errors.Wrap(err, "Downloading file from upload")
 	}
 
-	defer func() {
-		if downloadErr := download.Close(); downloadErr != nil {
-			appCtx.Logger().Debug("Failed to close file", zap.Error(downloadErr))
-		}
-	}()
-
 	outputFile, err := g.newTempFileInDir(dirName)
 
 	if err != nil {
@@ -477,7 +447,16 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 
 	images := make([]inputFile, 0)
 	images = append(images, inputFile{Path: path, ContentType: upload.ContentType})
-	cleanupFile(g, outputFile)
+
+	defer func() {
+		if downloadErr := download.Close(); downloadErr != nil {
+			appCtx.Logger().Debug("Failed to close file", zap.Error(downloadErr))
+		}
+		if cleanupErr := cleanupFile(g, outputFile); cleanupErr != nil {
+			appCtx.Logger().Debug("Failed to remove file", zap.Error(cleanupErr))
+		}
+	}()
+
 	return g.PDFFromImages(appCtx, images, dirName)
 }
 
@@ -568,7 +547,10 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 		if closeErr := outputFile.Close(); closeErr != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
-		cleanupFile(g, outputFile)
+
+		if cleanupErr := cleanupFile(g, outputFile); cleanupErr != nil {
+			appCtx.Logger().Debug("Failed to remove file", zap.Error(cleanupErr))
+		}
 	}()
 
 	var opt gofpdf.ImageOptions
@@ -597,7 +579,9 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 				if closeErr := newFile.Close(); closeErr != nil {
 					appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 				}
-				cleanupFile(g, newFile)
+				if cleanupErr := cleanupFile(g, newFile); cleanupErr != nil {
+					appCtx.Logger().Debug("Failed to remove file", zap.Error(cleanupErr))
+				}
 			}()
 
 			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
@@ -690,7 +674,9 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 		if closeErr := outputFile.Close(); closeErr != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
-		cleanupFile(g, outputFile)
+		if cleanupErr := cleanupFile(g, outputFile); cleanupErr != nil {
+			appCtx.Logger().Debug("Failed to cleanup file", zap.Error(cleanupErr))
+		}
 	}()
 
 	var opt gofpdf.ImageOptions
@@ -719,7 +705,9 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 				if closeErr := newFile.Close(); closeErr != nil {
 					appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 				}
-				cleanupFile(g, newFile)
+				if cleanupErr := cleanupFile(g, newFile); cleanupErr != nil {
+					appCtx.Logger().Debug("Failed to cleanup file", zap.Error(cleanupErr))
+				}
 			}()
 
 			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)

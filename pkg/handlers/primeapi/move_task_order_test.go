@@ -2061,7 +2061,11 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, nil)
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(nil, nil)
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("afero.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2111,7 +2115,11 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("error"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(nil, errors.New("error"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("afero.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2296,7 +2304,11 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, apperror.NewUnprocessableEntityError("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(nil, apperror.NewUnprocessableEntityError("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("afero.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2342,7 +2354,11 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(nil, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("afero.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2389,7 +2405,11 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUploadAll, //Verify ALL enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(nil, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("afero.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2436,7 +2456,11 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUpload, //Verify Order only enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(nil, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("afero.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2484,7 +2508,11 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderAmendmentUpload, //Verify Amendment only enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(nil, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("afero.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
