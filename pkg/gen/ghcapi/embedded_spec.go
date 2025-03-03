@@ -6690,6 +6690,58 @@ func init() {
         }
       }
     },
+    "/uploads/{uploadID}/status": {
+      "get": {
+        "description": "Returns status of an upload based on antivirus run",
+        "produces": [
+          "text/event-stream"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Returns status of an upload",
+        "operationId": "getUploadStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to return status of",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested upload status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INFECTED",
+                "CLEAN",
+                "PROCESSING"
+              ],
+              "readOnly": true
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}/update": {
       "patch": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
@@ -7332,10 +7384,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -7413,6 +7461,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -12268,6 +12320,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -12481,6 +12536,17 @@ func init() {
         "CLOSEOUT_COMPLETE",
         "COMPLETED"
       ]
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
+      ],
+      "readOnly": true
     },
     "PWSViolation": {
       "description": "A PWS violation for an evaluation report",
@@ -14453,10 +14519,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -14802,6 +14864,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -24152,6 +24218,58 @@ func init() {
         }
       }
     },
+    "/uploads/{uploadID}/status": {
+      "get": {
+        "description": "Returns status of an upload based on antivirus run",
+        "produces": [
+          "text/event-stream"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Returns status of an upload",
+        "operationId": "getUploadStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to return status of",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested upload status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INFECTED",
+                "CLEAN",
+                "PROCESSING"
+              ],
+              "readOnly": true
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}/update": {
       "patch": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
@@ -24798,10 +24916,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -24883,6 +24997,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -29812,6 +29930,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -30025,6 +30146,17 @@ func init() {
         "CLOSEOUT_COMPLETE",
         "COMPLETED"
       ]
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
+      ],
+      "readOnly": true
     },
     "PWSViolation": {
       "description": "A PWS violation for an evaluation report",
@@ -32051,10 +32183,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -32404,6 +32532,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"

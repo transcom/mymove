@@ -4701,6 +4701,42 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /uploads/{uploadID}/status:
+    get:
+      summary: Returns status of an upload
+      description: Returns status of an upload based on antivirus run
+      operationId: getUploadStatus
+      produces:
+        - text/event-stream
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to return status of
+      responses:
+        '200':
+          description: the requested upload status
+          schema:
+            type: string
+            enum:
+              - INFECTED
+              - CLEAN
+              - PROCESSING
+            readOnly: true
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '500':
+          description: server error
   /application_parameters/{parameterName}:
     get:
       summary: Searches for an application parameter by name, returns nil if not found
@@ -6245,6 +6281,9 @@ definitions:
         type: boolean
         title: Are dependents included in your orders?
         x-nullable: true
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -6315,6 +6354,9 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -6326,9 +6368,6 @@ definitions:
     properties:
       grade:
         $ref: '#/definitions/Grade'
-      dependentsAuthorized:
-        type: boolean
-        x-nullable: true
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:
@@ -6436,9 +6475,6 @@ definitions:
     properties:
       grade:
         $ref: '#/definitions/Grade'
-      dependentsAuthorized:
-        type: boolean
-        x-nullable: true
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:
@@ -9679,6 +9715,15 @@ definitions:
           given SIT service items for an instance of SIT (Either Origin or
           Destination), grouped by the date they went into SIT and service items
           limited explicitly to SIT related Re Service Codes.
+  PPMType:
+    type: string
+    title: PPM Type
+    description: Defines a PPM type
+    readOnly: true
+    enum:
+      - INCENTIVE_BASED
+      - ACTUAL_EXPENSE
+      - SMALL_PACKAGE
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
@@ -10304,6 +10349,8 @@ definitions:
         format: uuid
         type: string
         readOnly: true
+      ppmType:
+        $ref: '#/definitions/PPMType'
       shipmentId:
         description: The id of the parent MTOShipment object
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
