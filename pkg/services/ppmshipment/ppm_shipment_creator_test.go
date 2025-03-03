@@ -277,19 +277,16 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 	suite.Run("Can successfully create a PPMShipment as SC", func() {
 		// Need a logged in user
-		lgu := uuid.Must(uuid.NewV4()).String()
-		user := models.User{
-			OktaID:    lgu,
-			OktaEmail: "email@example.com",
-		}
-		suite.MustSave(&user)
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		identity, err := models.FetchUserIdentity(suite.DB(), scOfficeUser.User.OktaID)
+		suite.NoError(err)
 
 		session := &auth.Session{
 			ApplicationName: auth.OfficeApp,
-			UserID:          user.ID,
+			UserID:          *scOfficeUser.UserID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
 		}
+		session.Roles = append(session.Roles, identity.Roles...)
 
 		appCtx := suite.AppContextWithSessionForTest(session)
 
@@ -380,7 +377,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.Equal(&sitExpected, createdPPMShipment.SITExpected)
 			suite.Equal(&estimatedWeight, createdPPMShipment.EstimatedWeight)
 			suite.Equal(&hasProGear, createdPPMShipment.HasProGear)
-			suite.Equal(models.PPMShipmentStatusSubmitted, createdPPMShipment.Status)
+			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, createdPPMShipment.Status)
 			suite.Equal(&estimatedIncentive, createdPPMShipment.EstimatedIncentive)
 			suite.Equal(&maxIncentive, createdPPMShipment.MaxIncentive)
 			suite.NotZero(createdPPMShipment.CreatedAt)
