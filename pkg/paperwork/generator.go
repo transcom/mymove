@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/disintegration/imaging"
 	"github.com/jung-kurt/gofpdf"
@@ -149,11 +150,45 @@ type inputFile struct {
 	ContentType string
 }
 
+// get the working directory path
+func (g *Generator) GetWorkDir() string {
+	return g.workDir
+}
+
 func (g *Generator) newTempFile() (afero.File, error) {
 	outputFile, err := g.fs.TempFile(g.workDir, "temp")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
+	return outputFile, nil
+}
+
+// creates the directory if it does not exist and creates a new file in that directory
+func (g *Generator) newTempFileInDir(dirName string) (afero.File, error) {
+	dirPath := g.workDir + "/" + dirName
+
+	// Check if directory exists
+	exists, err := afero.DirExists(g.fs, dirPath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !exists {
+		// Create a directory with permissions 0755 (read/write/execute for owner, read/execute for group/others)
+		err := g.fs.Mkdir(dirPath, 0755)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	outputFile, err := g.fs.TempFile(dirPath, "temp")
+
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	return outputFile, nil
 }
 
@@ -173,9 +208,71 @@ func (g *Generator) newTempFileWithName(fileName string) (afero.File, error) {
 	return outputFile, nil
 }
 
+func (g *Generator) newTempFileWithNameInDir(dirName string, fileName string) (afero.File, error) {
+	name := "temp"
+
+	if fileName != "" {
+		// by adding a * before the extension we tell TempFile to put its random number before the extension instead of after it
+		extensionIndex := strings.LastIndex(fileName, ".")
+		name = fileName[:extensionIndex] + strings.Replace(fileName[extensionIndex:], ".", "*.", 1)
+	}
+
+	dirPath := g.workDir
+
+	if dirPath != "" {
+		dirPath = dirPath + "/" + dirName
+	}
+
+	// Check if directory exists
+	exists, err := afero.DirExists(g.fs, dirPath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !exists {
+		// Create a directory with permissions 0755 (read/write/execute for owner, read/execute for group/others)
+		err := g.fs.Mkdir(dirPath, 0755)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	outputFile, err := g.fs.TempFile(dirPath, name)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return outputFile, nil
+}
+
 // Cleanup removes filesystem working dir
 func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 	return g.fs.RemoveAll(g.workDir)
+}
+
+func cleanupFile(g *Generator, file afero.File) error {
+	exists, err := afero.Exists(g.fs, file.Name())
+
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		err := g.fs.Remove(file.Name())
+
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
+				// File does not exist treat it as non-error:
+				return nil
+			}
+
+			// Return the error if it's not a "file not found" error
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Get PDF Configuration (For Testing)
@@ -184,7 +281,7 @@ func (g *Generator) FileSystem() *afero.Afero {
 }
 
 // Add bookmarks into a single PDF
-func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
+func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark, dirName string) (afero.File, error) {
 
 	buf := new(bytes.Buffer)
 	replace := true
@@ -193,7 +290,7 @@ func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Boo
 		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
 	}
 
-	tempFile, err := g.newTempFile()
+	tempFile, err := g.newTempFileInDir(dirName)
 	if err != nil {
 		return nil, err
 	}
@@ -238,13 +335,13 @@ func (g *Generator) GetPdfFileInfoByContents(file afero.File) (*pdfcpu.PDFInfo, 
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
-func (g *Generator) CreateMergedPDFUpload(appCtx appcontext.AppContext, uploads models.Uploads) (afero.File, error) {
-	pdfs, err := g.ConvertUploadsToPDF(appCtx, uploads, true)
+func (g *Generator) CreateMergedPDFUpload(appCtx appcontext.AppContext, uploads models.Uploads, dirName string) (afero.File, error) {
+	pdfs, err := g.ConvertUploadsToPDF(appCtx, uploads, true, dirName)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while converting uploads")
 	}
 
-	mergedPdf, err := g.MergePDFFiles(appCtx, pdfs)
+	mergedPdf, err := g.MergePDFFiles(appCtx, pdfs, dirName)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while merging PDFs")
 	}
@@ -253,7 +350,7 @@ func (g *Generator) CreateMergedPDFUpload(appCtx appcontext.AppContext, uploads 
 }
 
 // ConvertUploadsToPDF turns a slice of Uploads into a slice of paths to converted PDF files
-func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads models.Uploads, doRotation bool) ([]string, error) {
+func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads models.Uploads, doRotation bool, dirName string) ([]string, error) {
 	// tempfile paths to be returned
 	pdfs := make([]string, 0)
 
@@ -269,12 +366,12 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 				var pdf string
 				var err error
 				if doRotation {
-					pdf, err = g.PDFFromImages(appCtx, images)
+					pdf, err = g.PDFFromImages(appCtx, images, dirName)
 					if err != nil {
 						return nil, errors.Wrap(err, "Converting images")
 					}
 				} else {
-					pdf, err = g.PDFFromImagesNoRotation(appCtx, images)
+					pdf, err = g.PDFFromImagesNoRotation(appCtx, images, dirName)
 					if err != nil {
 						return nil, errors.Wrap(err, "Converting images")
 					}
@@ -295,7 +392,7 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 			}
 		}()
 
-		outputFile, err := g.newTempFile()
+		outputFile, err := g.newTempFileInDir(dirName)
 
 		if err != nil {
 			return nil, errors.Wrap(err, "Creating temp file")
@@ -321,12 +418,12 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 		var err error
 
 		if doRotation {
-			pdf, err = g.PDFFromImages(appCtx, images)
+			pdf, err = g.PDFFromImages(appCtx, images, dirName)
 			if err != nil {
 				return nil, errors.Wrap(err, "Converting remaining images to pdf")
 			}
 		} else {
-			pdf, err = g.PDFFromImagesNoRotation(appCtx, images)
+			pdf, err = g.PDFFromImagesNoRotation(appCtx, images, dirName)
 			if err != nil {
 				return nil, errors.Wrap(err, "Converting remaining images to pdf")
 			}
@@ -348,7 +445,7 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 	return pdfs, nil
 }
 
-func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload models.Upload) (string, error) {
+func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload models.Upload, dirName string) (string, error) {
 
 	download, err := g.uploader.Download(appCtx, &upload)
 	if err != nil {
@@ -361,7 +458,7 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 		}
 	}()
 
-	outputFile, err := g.newTempFile()
+	outputFile, err := g.newTempFileInDir(dirName)
 
 	if err != nil {
 		return "nil", errors.Wrap(err, "Creating temp file")
@@ -380,7 +477,8 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 
 	images := make([]inputFile, 0)
 	images = append(images, inputFile{Path: path, ContentType: upload.ContentType})
-	return g.PDFFromImages(appCtx, images)
+	cleanupFile(g, outputFile)
+	return g.PDFFromImages(appCtx, images, dirName)
 }
 
 // convert between image MIME types and the values expected by gofpdf
@@ -390,7 +488,7 @@ var contentTypeToImageType = map[string]string{
 }
 
 // ReduceUnusedSpace reduces unused space
-func ReduceUnusedSpace(_ appcontext.AppContext, file afero.File, g *Generator, contentType string) (imgFile afero.File, width float64, height float64, err error) {
+func ReduceUnusedSpace(_ appcontext.AppContext, file afero.File, g *Generator, contentType string, dirName string) (imgFile afero.File, width float64, height float64, err error) {
 	// Figure out if the image should be rotated by calculating height and width of image.
 	pic, _, decodeErr := image.Decode(file)
 	if decodeErr != nil {
@@ -402,7 +500,7 @@ func ReduceUnusedSpace(_ appcontext.AppContext, file afero.File, g *Generator, c
 
 	// If the image is landscape, then turn it to portrait orientation
 	if w > h {
-		newFile, newTemplateFileErr := g.newTempFile()
+		newFile, newTemplateFileErr := g.newTempFileInDir(dirName)
 		if newTemplateFileErr != nil {
 			return nil, 0.0, 0.0, errors.Wrap(newTemplateFileErr, "Creating temp file for image rotation")
 		}
@@ -444,7 +542,7 @@ func ReduceUnusedSpace(_ appcontext.AppContext, file afero.File, g *Generator, c
 //
 // The files at those paths will be tempfiles that will need to be cleaned
 // up by the caller.
-func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFile) (string, error) {
+func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFile, dirName string) (string, error) {
 	// These constants are based on A4 page size, which we currently default to.
 	horizontalMargin := 0.0
 	topMargin := 0.0
@@ -461,7 +559,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 
 	appCtx.Logger().Debug("generating PDF from image files", zap.Any("images", images))
 
-	outputFile, err := g.newTempFile()
+	outputFile, err := g.newTempFileInDir(dirName)
 	if err != nil {
 		return "", err
 	}
@@ -470,6 +568,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 		if closeErr := outputFile.Close(); closeErr != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
+		cleanupFile(g, outputFile)
 	}()
 
 	var opt gofpdf.ImageOptions
@@ -489,7 +588,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 		if img.ContentType == uploader.FileTypePNG {
 			appCtx.Logger().Debug("Converting png to 8-bit")
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
-			newFile, newTemplateFileErr := g.newTempFile()
+			newFile, newTemplateFileErr := g.newTempFileInDir(dirName)
 			if newTemplateFileErr != nil {
 				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for png conversion")
 			}
@@ -498,6 +597,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 				if closeErr := newFile.Close(); closeErr != nil {
 					appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 				}
+				cleanupFile(g, newFile)
 			}()
 
 			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
@@ -511,7 +611,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 			}
 		}
 
-		optimizedFile, w, h, rotateErr := ReduceUnusedSpace(appCtx, file, g, img.ContentType)
+		optimizedFile, w, h, rotateErr := ReduceUnusedSpace(appCtx, file, g, img.ContentType, dirName)
 		if rotateErr != nil {
 			return "", errors.Wrapf(rotateErr, "Rotating image if in landscape orientation")
 		}
@@ -564,7 +664,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 //
 // The files at those paths will be tempfiles that will need to be cleaned
 // up by the caller.
-func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images []inputFile) (string, error) {
+func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images []inputFile, dirName string) (string, error) {
 	// These constants are based on A4 page size, which we currently default to.
 	horizontalMargin := 0.0
 	topMargin := 0.0
@@ -581,7 +681,7 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 
 	appCtx.Logger().Debug("generating PDF from image files", zap.Any("images", images))
 
-	outputFile, err := g.newTempFile()
+	outputFile, err := g.newTempFileInDir(dirName)
 	if err != nil {
 		return "", err
 	}
@@ -590,6 +690,7 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 		if closeErr := outputFile.Close(); closeErr != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
+		cleanupFile(g, outputFile)
 	}()
 
 	var opt gofpdf.ImageOptions
@@ -609,7 +710,7 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 		if img.ContentType == uploader.FileTypePNG {
 			appCtx.Logger().Debug("Converting png to 8-bit")
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
-			newFile, newTemplateFileErr := g.newTempFile()
+			newFile, newTemplateFileErr := g.newTempFileInDir(dirName)
 			if newTemplateFileErr != nil {
 				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for png conversion")
 			}
@@ -618,6 +719,7 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 				if closeErr := newFile.Close(); closeErr != nil {
 					appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 				}
+				cleanupFile(g, newFile)
 			}()
 
 			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
@@ -669,12 +771,14 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 }
 
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
-func (g *Generator) MergePDFFiles(_ appcontext.AppContext, paths []string) (afero.File, error) {
+func (g *Generator) MergePDFFiles(_ appcontext.AppContext, paths []string, dirName string) (afero.File, error) {
 	var err error
-	mergedFile, err := g.newTempFile()
+	mergedFile, err := g.newTempFileInDir(dirName)
 	if err != nil {
 		return mergedFile, err
 	}
+
+	defer mergedFile.Close()
 
 	var files []io.ReadSeeker
 	for _, p := range paths {
@@ -702,7 +806,7 @@ func (g *Generator) MergePDFFiles(_ appcontext.AppContext, paths []string) (afer
 // The content type of the image is inferred from its extension. If this proves to
 // be insufficient, storage.DetectContentType and contentTypeToImageType above can
 // be used.
-func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []string) (string, error) {
+func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []string, dirName string) (string, error) {
 	// path and type for each image
 	images := make([]inputFile, 0)
 
@@ -714,10 +818,10 @@ func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []strin
 		})
 	}
 
-	return g.PDFFromImages(appCtx, images)
+	return g.PDFFromImages(appCtx, images, dirName)
 }
 
-func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, fileName string) (SSWWorksheet afero.File, err error) {
+func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, fileName string, dirName string) (SSWWorksheet afero.File, err error) {
 	var conf = g.pdfConfig
 	// Change type to reader
 	readJSON := strings.NewReader(string(jsonData))
@@ -728,7 +832,7 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, f
 		return nil, formerr
 	}
 
-	tempFile, err := g.newTempFileWithName(fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
+	tempFile, err := g.newTempFileWithNameInDir(dirName, fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
 	if err != nil {
 		return nil, err
 	}
@@ -750,7 +854,7 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, f
 // LockPDFForm takes in a PDF Form readseeker, reads all form fields, and locks them
 // This is primarily for the SSW, but needs to be done separately from filling as only one process (filling, locking, merging, etc)
 // may be completed at a time.
-func (g *Generator) LockPDFForm(templateReader io.ReadSeeker, fileName string) (SSWWorksheet afero.File, err error) {
+func (g *Generator) LockPDFForm(templateReader io.ReadSeeker, fileName string, dirName string) (SSWWorksheet afero.File, err error) {
 	var conf = g.pdfConfig
 	buf := new(bytes.Buffer)
 	// Reads all form fields on document as []form.Field
@@ -771,7 +875,7 @@ func (g *Generator) LockPDFForm(templateReader io.ReadSeeker, fileName string) (
 		return nil, err
 	}
 
-	tempFile, err := g.newTempFileWithName(fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
+	tempFile, err := g.newTempFileWithNameInDir(dirName, fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
 	if err != nil {
 		return nil, err
 	}
@@ -792,11 +896,11 @@ func (g *Generator) LockPDFForm(templateReader io.ReadSeeker, fileName string) (
 }
 
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
-func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders []io.ReadSeeker) (afero.File, error) {
+func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders []io.ReadSeeker, dirName string) (afero.File, error) {
 	var err error
 
 	// Create a merged file
-	mergedFile, err := g.newTempFile()
+	mergedFile, err := g.newTempFileInDir(dirName)
 	if err != nil {
 		return nil, err
 	}
@@ -840,39 +944,6 @@ func createMapOfOnlyWatermarkedPages(m map[int][]*model.Watermark) map[int][]*mo
 		}
 	}
 	return validMap
-}
-
-func (g *Generator) AddWatermarks(inputFile afero.File, m map[int][]*model.Watermark) (afero.File, error) {
-	// Preemptive nil check for the map and its contents
-	watermarkMap := createMapOfOnlyWatermarkedPages(m)
-	if watermarkMap[0] == nil {
-		return nil, fmt.Errorf("no watermarks provided for generation")
-	}
-
-	buf := new(bytes.Buffer)
-	err := api.AddWatermarksSliceMap(inputFile, buf, watermarkMap, g.pdfConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	tempFile, err := g.newTempFile()
-	if err != nil {
-		return nil, err
-	}
-
-	// copy byte[] to temp file
-	_, err = io.Copy(tempFile, buf)
-	if err != nil {
-		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
-	}
-
-	// Reload the file from memstore
-	pdfWithWatermarks, err := g.fs.Open(tempFile.Name())
-	if err != nil {
-		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
-	}
-
-	return pdfWithWatermarks, nil
 }
 
 func (g *Generator) CreateTextWatermark(text, desc string, onTop, update bool, u types.DisplayUnit) (*model.Watermark, error) {

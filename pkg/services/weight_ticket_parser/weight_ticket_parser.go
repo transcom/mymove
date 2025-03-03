@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"reflect"
 	"strings"
+	"syscall"
 
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
@@ -123,7 +125,7 @@ func (WeightTicketParserGenerator *WeightTicketGenerator) FillWeightEstimatorPDF
 		return nil, nil, errors.Wrap(err, "WeightTicketParserGenerator Error marshaling JSON")
 	}
 
-	WeightWorksheet, err := WeightTicketParserGenerator.generator.FillPDFForm(jsonData, WeightTicketParserGenerator.templateReader, fileName)
+	WeightWorksheet, err := WeightTicketParserGenerator.generator.FillPDFForm(jsonData, WeightTicketParserGenerator.templateReader, fileName, "")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -138,6 +140,31 @@ func (WeightTicketParserGenerator *WeightTicketGenerator) FillWeightEstimatorPDF
 	pdfInfo := pdfInfoResult
 
 	return WeightWorksheet, pdfInfo, err
+}
+
+func (WeightTicketParserGenerator *WeightTicketGenerator) CleanupFile(weightFile afero.File) error {
+	fs := WeightTicketParserGenerator.generator.FileSystem()
+	exists, err := afero.Exists(fs, weightFile.Name())
+
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		err := fs.Remove(weightFile.Name())
+
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
+				// File does not exist treat it as non-error:
+				return nil
+			}
+
+			// Return the error if it's not a "file not found" error
+			return err
+		}
+	}
+
+	return nil
 }
 
 // CreateTextFields formats the SSW Page data to match PDF-accepted JSON

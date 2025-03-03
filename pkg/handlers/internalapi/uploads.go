@@ -356,6 +356,12 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					}
 				}
 
+				err = h.WeightTicketGenerator.CleanupFile(aFile)
+
+				if err != nil {
+					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+				}
+
 				url, err = h.UserUploader.PresignedURL(appCtx, newUserUpload)
 
 				if err != nil {
