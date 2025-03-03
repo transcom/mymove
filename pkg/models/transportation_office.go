@@ -70,3 +70,17 @@ func FetchNearestTransportationOffice(tx *pop.Connection, long float32, lat floa
 
 	return to, nil
 }
+
+// GetCounselingOffices calls a db function that returns all the transportation offices in the GBLOC
+// of the given duty location where provides_services_counseling = true
+func GetCounselingOffices(db *pop.Connection, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (TransportationOffices, error) {
+	var officeList TransportationOffices
+
+	err := db.RawQuery("SELECT * FROM get_counseling_offices($1, $2)", dutyLocationID, serviceMemberID).
+		All(&officeList)
+	if err != nil {
+		return officeList, err
+	}
+
+	return officeList, nil
+}
