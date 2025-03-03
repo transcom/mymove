@@ -4222,10 +4222,14 @@ func createHHGWithOriginSITServiceItems(
 	handlerConfig := handlers.Config{}
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
-	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	_, approveErr := mtoUpdater.ApproveMoveAndCreateServiceItems(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
+	}
+	_, _, primeErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID)
+	if primeErr != nil {
+		logger.Fatal("Error making move available to Prime")
 	}
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
@@ -4292,7 +4296,7 @@ func createHHGWithOriginSITServiceItems(
 		mock.Anything,
 		false,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -4493,7 +4497,11 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	handlerConfig := handlers.Config{}
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
-	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	_, approveErr := mtoUpdater.ApproveMoveAndCreateServiceItems(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	_, _, primeErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID)
+	if primeErr != nil {
+		logger.Fatal("Error making move available to Prime")
+	}
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
 	// same contract as the rest of the timestamps on our move for pricing to work.
@@ -4558,7 +4566,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		mock.Anything,
 		false,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
@@ -4903,7 +4911,11 @@ func createHHGWithPaymentServiceItems(
 	handlerConfig := handlers.Config{}
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
-	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	_, approveErr := mtoUpdater.ApproveMoveAndCreateServiceItems(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	_, _, primeErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID)
+	if primeErr != nil {
+		logger.Fatal("Error making move available to Prime")
+	}
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
 	// same contract as the rest of the timestamps on our move for pricing to work.
@@ -4999,7 +5011,7 @@ func createHHGWithPaymentServiceItems(
 	}
 
 	destEntryDate := actualPickupDate
-	destDepDate := actualPickupDate
+	destDepDate := actualPickupDate.AddDate(0, 0, 1)
 	destSITAddress := factory.BuildAddress(db, nil, nil)
 	destSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
@@ -5041,7 +5053,7 @@ func createHHGWithPaymentServiceItems(
 		mock.Anything,
 		false,
 	).Return(400, nil)
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem

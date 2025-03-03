@@ -4,6 +4,7 @@ import * as formatters from './formatters';
 import { formatQAReportID } from './formatters';
 
 import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
+import { MOVE_STATUSES } from 'shared/constants';
 
 describe('formatters', () => {
   describe('format date for customer app', () => {
@@ -236,7 +237,7 @@ describe('formatters', () => {
 
   describe('paymentRequestStatusReadable', () => {
     it('returns expected string for PENDING', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual('Payment requested');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual('Payment Requested');
     });
 
     it('returns expected string for REVIEWED', () => {
@@ -248,15 +249,15 @@ describe('formatters', () => {
     });
 
     it('returns expected string for TPPS_RECEIVED', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.TPPS_RECEIVED)).toEqual('Received');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.TPPS_RECEIVED)).toEqual('TPPS Received');
     });
 
     it('returns expected string for PAID', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('Paid');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('TPPS Paid');
     });
 
     it('returns expected string for EDI_ERROR', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.EDI_ERROR)).toEqual('EDI error');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.EDI_ERROR)).toEqual('EDI Error');
     });
 
     it('returns expected string for DEPRECATED', () => {
@@ -345,6 +346,149 @@ describe('formatters', () => {
       expect(formatters.formatCustomerContactFullAddress(addressWithLine2And3)).toEqual(
         '12345 Any Street, Apt 12B, c/o Leo Spaceman, Beverly Hills, CA 90210',
       );
+    });
+  });
+});
+
+describe('formatAssignedOfficeUserFromContext', () => {
+  it(`properly formats a Services Counselor's name for assignment`, () => {
+    const values = {
+      changedValues: {
+        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        sc_assigned_id: null,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      },
+      context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_sc: 'Daniels, Jayden',
+    });
+  });
+  it(`properly formats a Services Counselor's name for reassignment`, () => {
+    const values = {
+      changedValues: {
+        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        sc_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      },
+      context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_sc: 'Daniels, Jayden',
+    });
+  });
+  it(`properly formats a Closeout Counselor's name for assignment`, () => {
+    const values = {
+      changedValues: {
+        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        sc_assigned_id: null,
+        status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+      },
+      context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_sc_ppm: 'Daniels, Jayden',
+    });
+  });
+  it(`properly formats a Closeout Counselor's name for reassignment`, () => {
+    const values = {
+      changedValues: {
+        sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        sc_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+        status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+      },
+      context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_sc_ppm: 'Daniels, Jayden',
+    });
+  });
+  it('properly formats a TOOs name for assignment', () => {
+    const values = {
+      changedValues: {
+        too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_assigned_id: null,
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_too: 'McLaurin, Terry',
+    });
+  });
+  it('properly formats a TOOs name for reassignment', () => {
+    const values = {
+      changedValues: {
+        too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_too: 'McLaurin, Terry',
+    });
+  });
+  it('properly formats a TIOs name for assignment', () => {
+    const values = {
+      changedValues: {
+        tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        tio_assigned_id: null,
+      },
+      context: [{ assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_tio: 'Robinson, Brian',
+    });
+  });
+  it('properly formats a TIOs name for reassignment', () => {
+    const values = {
+      changedValues: {
+        tio_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        tio_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+      },
+      context: [{ assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_tio: 'Robinson, Brian',
     });
   });
 });

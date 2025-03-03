@@ -27,7 +27,7 @@ type ServiceItemParamKeyData struct {
 	paramCache       *ServiceParamsCache
 }
 
-func NewServiceItemParamKeyData(planner route.Planner, lookups map[models.ServiceItemParamName]ServiceItemParamKeyLookup, mtoServiceItem models.MTOServiceItem, mtoShipment models.MTOShipment, contractCode string) ServiceItemParamKeyData {
+func NewServiceItemParamKeyData(planner route.Planner, lookups map[models.ServiceItemParamName]ServiceItemParamKeyLookup, mtoServiceItem models.MTOServiceItem, mtoShipment models.MTOShipment, contractCode string, contractID uuid.UUID) ServiceItemParamKeyData {
 	return ServiceItemParamKeyData{
 		planner:          planner,
 		lookups:          lookups,
@@ -36,6 +36,7 @@ func NewServiceItemParamKeyData(planner route.Planner, lookups map[models.Servic
 		mtoShipmentID:    &mtoShipment.ID,
 		MoveTaskOrderID:  mtoShipment.MoveTaskOrderID,
 		ContractCode:     contractCode,
+		ContractID:       contractID,
 	}
 }
 
@@ -90,6 +91,7 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNamePortZip,
 	models.ServiceItemParamNameMarketDest,
 	models.ServiceItemParamNameMarketOrigin,
+	models.ServiceItemParamNameExternalCrate,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
@@ -213,8 +215,11 @@ func ServiceParamLookupInitialize(
 	mtoShipment.DestinationAddress = &destinationAddress
 
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOSFSC:
-		err := appCtx.DB().Load(&mtoShipment, "SITDurationUpdates")
+	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT,
+		models.ReServiceCodeDDSFSC, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT,
+		models.ReServiceCodeDOFSIT, models.ReServiceCodeDOSFSC, models.ReServiceCodeIOFSIT,
+		models.ReServiceCodeIOASIT, models.ReServiceCodeIDFSIT, models.ReServiceCodeIDASIT:
+		err := appCtx.DB().Load(&mtoShipment, "SITDurationUpdates", "PPMShipment.PickupAddress", "PPMShipment.DestinationAddress")
 		if err != nil {
 			return nil, err
 		}
@@ -338,7 +343,8 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 	lookups[models.ServiceItemParamNameContractCode] = ContractCodeLookup{}
 
 	lookups[models.ServiceItemParamNameCubicFeetBilled] = CubicFeetBilledLookup{
-		Dimensions: serviceItem.Dimensions,
+		Dimensions:  serviceItem.Dimensions,
+		ServiceItem: serviceItem,
 	}
 
 	lookups[models.ServiceItemParamNamePSILinehaulDom] = PSILinehaulDomLookup{
@@ -449,6 +455,10 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 
 	lookups[models.ServiceItemParamNameMarketDest] = MarketDestinationLookup{
 		Address: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameExternalCrate] = ExternalCrateLookup{
+		ServiceItem: serviceItem,
 	}
 
 	return lookups
