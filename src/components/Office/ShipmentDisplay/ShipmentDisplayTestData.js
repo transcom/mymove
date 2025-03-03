@@ -1,4 +1,5 @@
 import { shipmentStatuses } from 'constants/shipments';
+import { PPM_TYPES } from 'shared/constants';
 
 export const ordersLOA = {
   tac: '1111',
@@ -143,6 +144,7 @@ export const ppmInfo = {
   heading: 'PPM',
   shipmentLocator: 'EVLRPT-03',
   ppmShipment: {
+    ppmType: PPM_TYPES.INCENTIVE_BASED,
     actualMoveDate: null,
     advanceAmountRequested: 598700,
     hasRequestedAdvance: true,
