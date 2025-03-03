@@ -32,18 +32,45 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if residentialAddress := customer.ResidentialAddress; residentialAddress != nil {
-			existingCustomer.ResidentialAddress.StreetAddress1 = residentialAddress.StreetAddress1
-			existingCustomer.ResidentialAddress.City = residentialAddress.City
-			existingCustomer.ResidentialAddress.State = residentialAddress.State
-			existingCustomer.ResidentialAddress.PostalCode = residentialAddress.PostalCode
-			if residentialAddress.StreetAddress2 != nil {
-				existingCustomer.ResidentialAddress.StreetAddress2 = residentialAddress.StreetAddress2
-			}
-			if residentialAddress.StreetAddress3 != nil {
-				existingCustomer.ResidentialAddress.StreetAddress3 = residentialAddress.StreetAddress3
-			}
-			if residentialAddress.UsPostRegionCityID != nil {
-				existingCustomer.ResidentialAddress.UsPostRegionCityID = residentialAddress.UsPostRegionCityID
+			if existingCustomer.ResidentialAddress != nil {
+				existingCustomer.ResidentialAddress.StreetAddress1 = residentialAddress.StreetAddress1
+				existingCustomer.ResidentialAddress.City = residentialAddress.City
+				existingCustomer.ResidentialAddress.State = residentialAddress.State
+				existingCustomer.ResidentialAddress.PostalCode = residentialAddress.PostalCode
+				if residentialAddress.StreetAddress2 != nil {
+					existingCustomer.ResidentialAddress.StreetAddress2 = residentialAddress.StreetAddress2
+				}
+				if residentialAddress.StreetAddress3 != nil {
+					existingCustomer.ResidentialAddress.StreetAddress3 = residentialAddress.StreetAddress3
+				}
+				if residentialAddress.UsPostRegionCityID != nil {
+					existingCustomer.ResidentialAddress.UsPostRegionCityID = residentialAddress.UsPostRegionCityID
+				}
+			} else {
+				newResidentialAddress := models.Address{
+					StreetAddress1: residentialAddress.StreetAddress1,
+					City:           residentialAddress.City,
+					State:          residentialAddress.State,
+					PostalCode:     residentialAddress.PostalCode,
+				}
+
+				isOconus, err := models.IsAddressOconus(txnAppCtx.DB(), newResidentialAddress)
+				if err != nil {
+					return err
+				}
+				newResidentialAddress.IsOconus = &isOconus
+
+				if residentialAddress.StreetAddress2 != nil {
+					newResidentialAddress.StreetAddress2 = residentialAddress.StreetAddress2
+				}
+				if residentialAddress.StreetAddress3 != nil {
+					newResidentialAddress.StreetAddress3 = residentialAddress.StreetAddress3
+				}
+				if residentialAddress.UsPostRegionCityID != nil {
+					newResidentialAddress.UsPostRegionCityID = residentialAddress.UsPostRegionCityID
+				}
+
+				existingCustomer.ResidentialAddress = &newResidentialAddress
 			}
 
 			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.ResidentialAddress)
@@ -56,18 +83,45 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 		}
 
 		if backupAddress := customer.BackupMailingAddress; backupAddress != nil {
-			existingCustomer.BackupMailingAddress.StreetAddress1 = backupAddress.StreetAddress1
-			existingCustomer.BackupMailingAddress.City = backupAddress.City
-			existingCustomer.BackupMailingAddress.State = backupAddress.State
-			existingCustomer.BackupMailingAddress.PostalCode = backupAddress.PostalCode
-			if backupAddress.StreetAddress2 != nil {
-				existingCustomer.BackupMailingAddress.StreetAddress2 = backupAddress.StreetAddress2
-			}
-			if backupAddress.StreetAddress3 != nil {
-				existingCustomer.BackupMailingAddress.StreetAddress3 = backupAddress.StreetAddress3
-			}
-			if backupAddress.UsPostRegionCityID != nil {
-				existingCustomer.BackupMailingAddress.UsPostRegionCityID = backupAddress.UsPostRegionCityID
+			if existingCustomer.BackupMailingAddress != nil {
+				existingCustomer.BackupMailingAddress.StreetAddress1 = backupAddress.StreetAddress1
+				existingCustomer.BackupMailingAddress.City = backupAddress.City
+				existingCustomer.BackupMailingAddress.State = backupAddress.State
+				existingCustomer.BackupMailingAddress.PostalCode = backupAddress.PostalCode
+				if backupAddress.StreetAddress2 != nil {
+					existingCustomer.BackupMailingAddress.StreetAddress2 = backupAddress.StreetAddress2
+				}
+				if backupAddress.StreetAddress3 != nil {
+					existingCustomer.BackupMailingAddress.StreetAddress3 = backupAddress.StreetAddress3
+				}
+				if backupAddress.UsPostRegionCityID != nil {
+					existingCustomer.BackupMailingAddress.UsPostRegionCityID = backupAddress.UsPostRegionCityID
+				}
+			} else {
+				newBackupAddress := models.Address{
+					StreetAddress1: backupAddress.StreetAddress1,
+					City:           backupAddress.City,
+					State:          backupAddress.State,
+					PostalCode:     backupAddress.PostalCode,
+				}
+
+				isOconus, err := models.IsAddressOconus(txnAppCtx.DB(), newBackupAddress)
+				if err != nil {
+					return err
+				}
+				newBackupAddress.IsOconus = &isOconus
+
+				if backupAddress.StreetAddress2 != nil {
+					newBackupAddress.StreetAddress2 = backupAddress.StreetAddress2
+				}
+				if backupAddress.StreetAddress3 != nil {
+					newBackupAddress.StreetAddress3 = backupAddress.StreetAddress3
+				}
+				if backupAddress.UsPostRegionCityID != nil {
+					newBackupAddress.UsPostRegionCityID = backupAddress.UsPostRegionCityID
+				}
+
+				existingCustomer.BackupMailingAddress = &newBackupAddress
 			}
 
 			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.BackupMailingAddress)
