@@ -196,6 +196,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 				Model:    mto,
 				LinkOnly: true,
 			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
 		}, nil)
 		mtoShipment.PrimeEstimatedWeight = nil
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
