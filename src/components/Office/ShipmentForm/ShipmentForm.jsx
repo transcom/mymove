@@ -871,7 +871,15 @@ const ShipmentForm = (props) => {
                   </Button>
                 )}
               </div>
-
+              {isPPM && !isAdvancePage && isServiceCounselor && (
+                <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+                  <Alert type="warning" aria-live="polite" headingLevel="h4">
+                    <strong>Warning:</strong> Creating a PPM as a Service Counselor will automatically approve the PPM
+                    shipment and send it to the customer. Please ensure all information is correct. After creation you
+                    will not be able to edit the shipment.
+                  </Alert>
+                </SectionWrapper>
+              )}
               <SectionWrapper className={styles.weightAllowance}>
                 {isUB ? (
                   <p data-testid="ubWeightAllowance">
