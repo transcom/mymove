@@ -10,6 +10,7 @@ import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import { store } from 'shared/store';
+import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Office Components/Table',
@@ -87,25 +88,32 @@ const defaultProps = {
 
 export const TXOTable = () => (
   <div className="officeApp">
-    <TableQueue {...defaultProps} />
+    <MockProviders>
+      <TableQueue {...defaultProps} />
+    </MockProviders>
   </div>
 );
 
 export const TXOTableSortable = () => (
   <div className="officeApp">
-    <TableQueue {...defaultProps} disableSortBy={false} defaultSortedColumns={[{ id: 'col1', desc: false }]} />
+    <MockProviders>
+      <TableQueue {...defaultProps} disableSortBy={false} defaultSortedColumns={[{ id: 'col1', desc: false }]} />
+    </MockProviders>
   </div>
 );
 
 export const TXOTableFilters = () => (
   <div className="officeApp">
-    <TableQueue {...defaultProps} columns={columns(true)} showFilters />
+    <MockProviders>
+      <TableQueue {...defaultProps} columns={columns(true)} showFilters />
+    </MockProviders>
   </div>
 );
 
 export const TXOTablePagination = () => (
   <div className="officeApp">
-    {' '}
-    <TableQueue {...defaultProps} showPagination />
+    <MockProviders>
+      <TableQueue {...defaultProps} showPagination />
+    </MockProviders>
   </div>
 );
