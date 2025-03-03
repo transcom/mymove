@@ -80,9 +80,21 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 		}
 
 		if backupContacts := customer.BackupContacts; len(backupContacts) > 0 {
-			existingCustomer.BackupContacts[0].Name = backupContacts[0].Name
-			existingCustomer.BackupContacts[0].Email = backupContacts[0].Email
-			existingCustomer.BackupContacts[0].Phone = backupContacts[0].Phone
+			// added this check to prevent crashes when the customer doesn't finish creating their profile
+			if len(existingCustomer.BackupContacts) > 0 {
+				existingCustomer.BackupContacts[0].Name = backupContacts[0].Name
+				existingCustomer.BackupContacts[0].Email = backupContacts[0].Email
+				existingCustomer.BackupContacts[0].Phone = backupContacts[0].Phone
+			} else {
+				newBackupContact := models.BackupContact{
+					Name:       backupContacts[0].Name,
+					Email:      backupContacts[0].Email,
+					Phone:      backupContacts[0].Phone,
+					Permission: models.BackupContactPermissionNONE,
+				}
+
+				existingCustomer.BackupContacts = append(existingCustomer.BackupContacts, newBackupContact)
+			}
 
 			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.BackupContacts)
 			if verrs != nil && verrs.HasAny() {
