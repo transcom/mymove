@@ -20,6 +20,20 @@ update duty_locations set name = 'NAS Whidbey Island, WA 98278', updated_at = no
 --Hammond, LA 70404
 --San Francisco, CA 94125
 --Jackson, MS 39205
+--Springfield, MO 65805
+--Madison, MS 39130
+--Colorado Springs, CO 80960
+--Tampa, FL 33601
+--Lincoln, NE 68542
+--Johnson City, TN 37605
+--Bay City, TX 77404
+--Tucson, AZ 85717
+--Beaufort, SC 29903
+--Evansville, IN 47703
+--Garland, TX 75049
+--Phoenix, AZ 85064
+--Kansas City, MO 64148
+--Goldsboro, NC 27532
 
 DO $$
 DECLARE
@@ -37,7 +51,10 @@ BEGIN
 				 and v_locations.uspr_zip_id in ('30010','23450','98175','80040','27602',
 												'20030','36577','78760','31908','89136',
 												'32854','94294','90202','92186','45413',
-												'70404','94125','39205')
+												'70404','94125','39205','65805','39130',
+												'80960','33601','68542','37605','77404',
+												'85717','29903','47703','75049','85064',
+												'64148','27532')
 			)
 	LOOP
 
