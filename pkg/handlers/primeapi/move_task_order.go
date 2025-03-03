@@ -334,6 +334,13 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, moveOrderUploadType, move, true, dirName)
 
 			if err != nil {
+
+				cleanupErr := h.PrimeDownloadMoveUploadPDFGenerator.CleanupFile(outputFile)
+
+				if cleanupErr != nil {
+					appCtx.Logger().Warn("primeapi.DownloadMoveOrder warn", zap.Error(cleanupErr))
+				}
+
 				switch e := err.(type) {
 				case apperror.UnprocessableEntityError:
 					appCtx.Logger().Warn("primeapi.DownloadMoveOrder warn", zap.Error(err))
