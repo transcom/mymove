@@ -8,7 +8,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -174,8 +176,22 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 
 		suite.Run(fmt.Sprintf("Sets status as expected: %s", name), func() {
 			subtestData := makeSubtestData(false, false)
+			// Need a logged in user
+			lgu := uuid.Must(uuid.NewV4()).String()
+			user := models.User{
+				OktaID:    lgu,
+				OktaEmail: "email@example.com",
+			}
+			suite.MustSave(&user)
 
-			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &tc.shipment)
+			session := &auth.Session{
+				ApplicationName: auth.OfficeApp,
+				UserID:          user.ID,
+				IDToken:         "fake token",
+				Roles:           roles.Roles{},
+			}
+
+			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), &tc.shipment)
 
 			suite.Nil(err)
 
@@ -203,7 +219,22 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		shipment := shipment
 
 		suite.Run(fmt.Sprintf("Calls necessary service objects for %s shipments", shipment.ShipmentType), func() {
-			appCtx := suite.AppContextForTest()
+			// Need a logged in user
+			lgu := uuid.Must(uuid.NewV4()).String()
+			user := models.User{
+				OktaID:    lgu,
+				OktaEmail: "email@example.com",
+			}
+			suite.MustSave(&user)
+
+			session := &auth.Session{
+				ApplicationName: auth.OfficeApp,
+				UserID:          user.ID,
+				IDToken:         "fake token",
+				Roles:           roles.Roles{},
+			}
+
+			appCtx := suite.AppContextWithSessionForTest(session)
 
 			subtestData := makeSubtestData(false, false)
 
@@ -252,7 +283,22 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 			PPMShipment:  &models.PPMShipment{},
 		}
 
-		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), shipment)
+		// Need a logged in user
+		lgu := uuid.Must(uuid.NewV4()).String()
+		user := models.User{
+			OktaID:    lgu,
+			OktaEmail: "email@example.com",
+		}
+		suite.MustSave(&user)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          user.ID,
+			IDToken:         "fake token",
+			Roles:           roles.Roles{},
+		}
+
+		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), shipment)
 
 		suite.NoError(err)
 
