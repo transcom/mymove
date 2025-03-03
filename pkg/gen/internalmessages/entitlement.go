@@ -43,6 +43,10 @@ type Entitlement struct {
 	// Example: 3
 	UbAllowance *int64 `json:"ub_allowance,omitempty"`
 
+	// Indicates the UB weight restricted to a specific location.
+	// Example: 1100
+	UbWeightRestriction *int64 `json:"ub_weight_restriction,omitempty"`
+
 	// Indicates the weight restricted to a specific location.
 	// Example: 1500
 	WeightRestriction *int64 `json:"weight_restriction,omitempty"`
