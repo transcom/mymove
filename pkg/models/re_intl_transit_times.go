@@ -24,14 +24,20 @@ func (InternationalTransitTime) TableName() string {
 	return "re_intl_transit_times"
 }
 
-// fetch the re_intl_transit_time record from the db
+// fetch the re_intl_transit_time record from the db. This function is bi-directional.
 func FetchInternationalTransitTime(db *pop.Connection, originRateAreaId uuid.UUID, destinationRateAreaId uuid.UUID) (InternationalTransitTime, error) {
 	var internationalTransitTime InternationalTransitTime
 	err := db.
 		Where("origin_rate_area_id = $1 and destination_rate_area_id = $2", originRateAreaId, destinationRateAreaId).
 		First(&internationalTransitTime)
 
-	if err != nil {
+	if err != nil && internationalTransitTime.ID.IsNil() {
+		err = db.
+			Where("origin_rate_area_id = $1 and destination_rate_area_id = $2", destinationRateAreaId, originRateAreaId).
+			First(&internationalTransitTime)
+	}
+
+	if err != nil && internationalTransitTime.ID.IsNil() {
 		return internationalTransitTime, apperror.NewQueryError("InternationalTransitTime", err, "could not look up intl transit time")
 	}
 
