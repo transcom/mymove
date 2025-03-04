@@ -342,6 +342,12 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				newUserUpload, verrs, createErr = h.UserUploader.CreateUserUploadForDocument(appCtx, &document.ID, appCtx.Session().UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesPPMDocuments)
 				if verrs.HasAny() || createErr != nil {
 					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+					cleanupErr := h.WeightTicketGenerator.CleanupFile(aFile)
+
+					if cleanupErr != nil {
+						appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(cleanupErr), zap.String("verrs", verrs.Error()))
+						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+					}
 					switch createErr.(type) {
 					case uploaderpkg.ErrUnsupportedContentType:
 						return ppmop.NewCreatePPMUploadUnprocessableEntity().WithPayload(payloads.ValidationError(createErr.Error(), uuid.Nil, verrs)), createErr
@@ -359,6 +365,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				err = h.WeightTicketGenerator.CleanupFile(aFile)
 
 				if err != nil {
+					appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(err), zap.String("verrs", verrs.Error()))
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 

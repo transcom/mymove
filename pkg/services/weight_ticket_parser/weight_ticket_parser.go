@@ -143,24 +143,26 @@ func (WeightTicketParserGenerator *WeightTicketGenerator) FillWeightEstimatorPDF
 }
 
 func (WeightTicketParserGenerator *WeightTicketGenerator) CleanupFile(weightFile afero.File) error {
-	fs := WeightTicketParserGenerator.generator.FileSystem()
-	exists, err := afero.Exists(fs, weightFile.Name())
-
-	if err != nil {
-		return err
-	}
-
-	if exists {
-		err := fs.Remove(weightFile.Name())
+	if weightFile != nil {
+		fs := WeightTicketParserGenerator.generator.FileSystem()
+		exists, err := afero.Exists(fs, weightFile.Name())
 
 		if err != nil {
-			if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
-				// File does not exist treat it as non-error:
-				return nil
-			}
-
-			// Return the error if it's not a "file not found" error
 			return err
+		}
+
+		if exists {
+			err := fs.Remove(weightFile.Name())
+
+			if err != nil {
+				if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
+					// File does not exist treat it as non-error:
+					return nil
+				}
+
+				// Return the error if it's not a "file not found" error
+				return err
+			}
 		}
 	}
 

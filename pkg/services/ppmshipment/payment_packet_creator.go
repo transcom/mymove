@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"syscall"
 
 	"github.com/gofrs/uuid"
@@ -57,12 +58,9 @@ func NewPaymentPacketCreator(
 }
 
 func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (afero.File, string, error) {
-	dirName := uuid.Must(uuid.NewV4()).String()
-	dirPath := p.pdfGenerator.GetWorkDir() + "/" + dirName
-
 	err := verifyPPMShipment(appCtx, ppmShipmentID)
 	if err != nil {
-		return nil, dirPath, err
+		return nil, "", err
 	}
 
 	errMsgPrefix := "error creating payment packet"
@@ -88,25 +86,21 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	if err != nil {
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to load PPMShipment")
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-		return nil, dirPath, err
+		return nil, "", err
 	}
 
 	var pdfFilesToMerge []io.ReadSeeker
 
 	// use aoa creator to generated SSW and Orders PDF
-	aoaPacketFile, aoaDirPath, err := p.aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, true)
+	aoaPacketFile, dirPath, err := p.aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, true)
 	if err != nil {
-		// cleanup any files that were created in memory prior to the failure
-		p.aoaPacketCreator.CleanupAOAPacketDir(aoaDirPath)
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, fmt.Sprintf("failed to generate AOA packet for ppmShipmentID: %s", ppmShipmentID.String()))
+
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
 		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	defer func() {
-		// no matter if there are any errors we need to remove the aoa packet from memory
-		p.aoaPacketCreator.CleanupAOAPacketDir(aoaDirPath)
-	}()
+	dirName := dirPath[strings.LastIndex(dirPath, "/")+1:]
 
 	// AOA packet will be appended at the beginning of the final pdf file
 	pdfFilesToMerge = append(pdfFilesToMerge, aoaPacketFile)
@@ -132,8 +126,8 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 		pdfFileNamesToMergePdf, perr = p.pdfGenerator.MergePDFFiles(appCtx, pdfFileNamesToMerge, dirName)
 		if perr != nil {
 			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed pdfGenerator.MergePDFFiles")
-			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-			return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
+			appCtx.Logger().Error(errMsgPrefix, zap.Error(perr))
+			return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, perr)
 		}
 		pdfFilesToMerge = append(pdfFilesToMerge, pdfFileNamesToMergePdf)
 	}

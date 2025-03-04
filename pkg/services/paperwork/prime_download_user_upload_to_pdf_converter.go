@@ -118,24 +118,26 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 }
 
 func (g *moveUserUploadToPDFDownloader) CleanupFile(file afero.File) error {
-	fs := g.pdfGenerator.FileSystem()
-	exists, err := afero.Exists(fs, file.Name())
-
-	if err != nil {
-		return err
-	}
-
-	if exists {
-		err := fs.Remove(file.Name())
+	if file != nil {
+		fs := g.pdfGenerator.FileSystem()
+		exists, err := afero.Exists(fs, file.Name())
 
 		if err != nil {
-			if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
-				// File does not exist treat it as non-error:
-				return nil
-			}
-
-			// Return the error if it's not a "file not found" error
 			return err
+		}
+
+		if exists {
+			err := fs.Remove(file.Name())
+
+			if err != nil {
+				if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
+					// File does not exist treat it as non-error:
+					return nil
+				}
+
+				// Return the error if it's not a "file not found" error
+				return err
+			}
 		}
 	}
 

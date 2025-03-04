@@ -81,5 +81,5 @@ const (
 //go:generate mockery --name PrimeDownloadMoveUploadPDFGenerator
 type PrimeDownloadMoveUploadPDFGenerator interface {
 	GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, moveOrderUploadType MoveOrderUploadType, move models.Move, addBookmarks bool, dirName string) (afero.File, error)
-	CleanupFile(weightFile afero.File) error
+	CleanupFile(file afero.File) error
 }

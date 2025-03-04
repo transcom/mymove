@@ -17,9 +17,9 @@ type PrimeDownloadMoveUploadPDFGenerator struct {
 	mock.Mock
 }
 
-// CleanupFile provides a mock function with given fields: weightFile
-func (_m *PrimeDownloadMoveUploadPDFGenerator) CleanupFile(weightFile afero.File) error {
-	ret := _m.Called(weightFile)
+// CleanupFile provides a mock function with given fields: file
+func (_m *PrimeDownloadMoveUploadPDFGenerator) CleanupFile(file afero.File) error {
+	ret := _m.Called(file)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CleanupFile")
@@ -27,7 +27,7 @@ func (_m *PrimeDownloadMoveUploadPDFGenerator) CleanupFile(weightFile afero.File
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(afero.File) error); ok {
-		r0 = rf(weightFile)
+		r0 = rf(file)
 	} else {
 		r0 = ret.Error(0)
 	}
