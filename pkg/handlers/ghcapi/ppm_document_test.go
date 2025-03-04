@@ -612,7 +612,8 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 			AOAPacketCreator: &mockAOAPacketCreator,
 		}
 
-		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, nil)
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, "", nil)
+		mockAOAPacketCreator.On("CleanupAOAPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -647,7 +648,8 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 			AOAPacketCreator: &mockAOAPacketCreator,
 		}
 
-		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, errors.New("Mock error"))
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, "", errors.New("Mock error"))
+		mockAOAPacketCreator.On("CleanupAOAPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -677,7 +679,8 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 			AOAPacketCreator: &mockAOAPacketCreator,
 		}
 
-		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, errors.New("Mock error"))
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, "", errors.New("Mock error"))
+		mockAOAPacketCreator.On("CleanupAOAPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -709,7 +712,9 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 
 		mockPaymentPacketCreator.On("GenerateDefault",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID")).Return(nil, nil)
+			mock.AnythingOfType("uuid.UUID")).Return(nil, "", nil)
+
+		mockPaymentPacketCreator.On("CleanupPaymentPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -735,7 +740,9 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 
 		mockPaymentPacketCreator.On("GenerateDefault",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID")).Return(nil, errors.New("Mock error"))
+			mock.AnythingOfType("uuid.UUID")).Return(nil, "", errors.New("Mock error"))
+
+		mockPaymentPacketCreator.On("CleanupPaymentPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -761,7 +768,9 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 
 		mockPaymentPacketCreator.On("GenerateDefault",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NotFoundError{})
+			mock.AnythingOfType("uuid.UUID")).Return(nil, "", apperror.NotFoundError{})
+
+		mockPaymentPacketCreator.On("CleanupPaymentPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
