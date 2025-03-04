@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -28,7 +29,7 @@ var DevSeedScenario = devSeedScenario{
 // Setup initializes the run setup for the devseed scenario
 func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	db := appCtx.DB()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 
 	// Testdatagen factories will create new random duty locations so let's get the standard ones in the migrations

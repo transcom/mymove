@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -4299,7 +4300,7 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	// Testdatagen factories will create new random duty locations so let's get the standard ones in the migrations
 	var allDutyLocations []models.DutyLocation
 	err := appCtx.DB().All(&allDutyLocations)

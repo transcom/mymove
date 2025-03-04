@@ -31,6 +31,7 @@ import (
 	portlocation "github.com/transcom/mymove/pkg/services/port_location"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -40,7 +41,7 @@ import (
 func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	sitStatusService := sitstatus.NewShipmentSITStatus()
@@ -2167,7 +2168,7 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowled
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -3162,7 +3163,7 @@ func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate() {
 	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	planner := &mocks.Planner{}
