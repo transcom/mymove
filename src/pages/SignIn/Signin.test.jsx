@@ -153,7 +153,7 @@ describe('SignIn tests', () => {
     expect(screen.queryAllByText('and could cause a delay in your shipment being moved.'));
   });
 
-  it('shows the EULA when the signuup button is clicked and hides the EULA when cancel is clicked', async () => {
+  it('shows the EULA when the sign up button is clicked and hides the EULA when cancel is clicked', async () => {
     isBooleanFlagEnabledUnauthenticated.mockImplementation(() => Promise.resolve(true));
     const context = { siteName: 'TestMove' };
     renderWithProviders(<SignIn />, {
