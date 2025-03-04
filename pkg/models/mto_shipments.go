@@ -531,7 +531,6 @@ func FilterDeletedRejectedCanceledMtoShipments(unfilteredShipments MTOShipments)
 		if shipment.DeletedAt == nil &&
 			(shipment.Status != MTOShipmentStatusDraft) &&
 			(shipment.Status != MTOShipmentStatusRejected) &&
-			(shipment.Status != MTOShipmentStatusCancellationRequested) &&
 			(shipment.Status != MTOShipmentStatusCanceled) {
 			filteredShipments = append(filteredShipments, shipment)
 		}
