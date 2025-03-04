@@ -40,25 +40,29 @@ export const onPacketDownloadSuccessHandler = (response) => {
  * @param {string} id uuid to download
  * @param {string} label link text
  * @param {Promise} asyncRetrieval asynch document retrieval
- * @param {func} onSucccess on success response handler
+ * @param {func} onSuccess on success response handler
  * @param {func} onFailure on failure response handler
+ * @param {func} onStart on start response handler
  */
-const AsyncPacketDownloadLink = ({ id, label, asyncRetrieval, onSucccess, onFailure, className }) => {
+const AsyncPacketDownloadLink = ({ id, label, asyncRetrieval, onSuccess, onFailure, onStart, className }) => {
   const dataTestId = `asyncPacketDownloadLink${id}`;
+
+  const handleClick = () => {
+    onStart && onStart();
+    asyncRetrieval(id)
+      .then((response) => {
+        onSuccess(response);
+      })
+      .catch(() => {
+        onFailure();
+      });
+  };
 
   return (
     <Button
       data-testid={dataTestId}
       className={className ? className : styles.downloadButtonToLink}
-      onClick={() =>
-        asyncRetrieval(id)
-          .then((response) => {
-            onSucccess(response);
-          })
-          .catch(() => {
-            onFailure();
-          })
-      }
+      onClick={handleClick}
     >
       {label}
     </Button>
@@ -69,14 +73,16 @@ AsyncPacketDownloadLink.propTypes = {
   id: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   asyncRetrieval: PropTypes.func.isRequired,
-  onSucccess: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
   onFailure: PropTypes.func.isRequired,
+  onStart: PropTypes.func,
   className: PropTypes.string,
 };
 
 AsyncPacketDownloadLink.defaultProps = {
-  onSucccess: onPacketDownloadSuccessHandler,
+  onSuccess: onPacketDownloadSuccessHandler,
   onFailure: () => {},
+  onStart: () => {},
 };
 
 export default AsyncPacketDownloadLink;
