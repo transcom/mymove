@@ -19,6 +19,11 @@ import (
 // swagger:model CreatePPMShipment
 type CreatePPMShipment struct {
 
+	// closeout office ID
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Format: uuid
+	CloseoutOfficeID strfmt.UUID `json:"closeoutOfficeID,omitempty"`
+
 	// destination address
 	// Required: true
 	DestinationAddress struct {
@@ -113,6 +118,10 @@ type CreatePPMShipment struct {
 func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCloseoutOfficeID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
@@ -168,6 +177,18 @@ func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CreatePPMShipment) validateCloseoutOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CloseoutOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("closeoutOfficeID", "body", "uuid", m.CloseoutOfficeID.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
