@@ -171,6 +171,7 @@ export const ppmInfo = {
 export const ppmInfoApprovedOrExcluded = {
   heading: 'PPM',
   ppmShipment: {
+    ppmType: PPM_TYPES.INCENTIVE_BASED,
     actualMoveDate: null,
     advanceAmountRequested: 598700,
     hasRequestedAdvance: true,
@@ -230,6 +231,7 @@ export const ppmInfoApprovedOrExcluded = {
 export const ppmInfoRejected = {
   heading: 'PPM',
   ppmShipment: {
+    ppmType: PPM_TYPES.INCENTIVE_BASED,
     actualMoveDate: null,
     advanceAmountRequested: 598700,
     hasRequestedAdvance: true,
@@ -255,6 +257,7 @@ export const ppmInfoRejected = {
 export const ppmInfoMultiple = {
   heading: 'PPM 1',
   ppmShipment: {
+    ppmType: PPM_TYPES.INCENTIVE_BASED,
     actualMoveDate: null,
     advanceAmountRequested: 598700,
     hasRequestedAdvance: true,
@@ -280,6 +283,7 @@ export const ppmInfoMultiple = {
 export const ppmInfoMultiple2 = {
   heading: 'PPM 2',
   ppmShipment: {
+    ppmType: PPM_TYPES.INCENTIVE_BASED,
     actualMoveDate: null,
     advanceAmountRequested: 4300,
     hasRequestedAdvance: true,
