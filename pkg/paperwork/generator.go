@@ -13,7 +13,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/disintegration/imaging"
 	"github.com/jung-kurt/gofpdf"
@@ -157,7 +156,11 @@ func (g *Generator) GetWorkDir() string {
 
 // creates the directory if it does not exist and creates a new file in that directory
 func (g *Generator) newTempFileInDir(dirName string) (afero.File, error) {
-	dirPath := g.workDir + "/" + dirName
+	dirPath := g.workDir
+
+	if dirName != "" {
+		dirPath = dirPath + "/" + dirName
+	}
 
 	// Check if directory exists
 	exists, err := afero.DirExists(g.fs, dirPath)
@@ -225,30 +228,6 @@ func (g *Generator) newTempFileWithNameInDir(dirName string, fileName string) (a
 // Cleanup removes filesystem working dir
 func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 	return g.fs.RemoveAll(g.workDir)
-}
-
-func cleanupFile(g *Generator, file afero.File) error {
-	exists, err := afero.Exists(g.fs, file.Name())
-
-	if err != nil {
-		return err
-	}
-
-	if exists {
-		err := g.fs.Remove(file.Name())
-
-		if err != nil {
-			if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
-				// File does not exist treat it as non-error:
-				return nil
-			}
-
-			// Return the error if it's not a "file not found" error
-			return err
-		}
-	}
-
-	return nil
 }
 
 // Get PDF Configuration (For Testing)
@@ -452,9 +431,6 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 		if downloadErr := download.Close(); downloadErr != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(downloadErr))
 		}
-		if cleanupErr := cleanupFile(g, outputFile); cleanupErr != nil {
-			appCtx.Logger().Debug("Failed to remove file", zap.Error(cleanupErr))
-		}
 	}()
 
 	return g.PDFFromImages(appCtx, images, dirName)
@@ -547,10 +523,6 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 		if closeErr := outputFile.Close(); closeErr != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
-
-		if cleanupErr := cleanupFile(g, outputFile); cleanupErr != nil {
-			appCtx.Logger().Debug("Failed to remove file", zap.Error(cleanupErr))
-		}
 	}()
 
 	var opt gofpdf.ImageOptions
@@ -578,9 +550,6 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 			defer func() {
 				if closeErr := newFile.Close(); closeErr != nil {
 					appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
-				}
-				if cleanupErr := cleanupFile(g, newFile); cleanupErr != nil {
-					appCtx.Logger().Debug("Failed to remove file", zap.Error(cleanupErr))
 				}
 			}()
 
@@ -674,9 +643,6 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 		if closeErr := outputFile.Close(); closeErr != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
-		if cleanupErr := cleanupFile(g, outputFile); cleanupErr != nil {
-			appCtx.Logger().Debug("Failed to cleanup file", zap.Error(cleanupErr))
-		}
 	}()
 
 	var opt gofpdf.ImageOptions
@@ -704,9 +670,6 @@ func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images
 			defer func() {
 				if closeErr := newFile.Close(); closeErr != nil {
 					appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
-				}
-				if cleanupErr := cleanupFile(g, newFile); cleanupErr != nil {
-					appCtx.Logger().Debug("Failed to cleanup file", zap.Error(cleanupErr))
 				}
 			}()
 

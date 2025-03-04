@@ -99,7 +99,7 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 		suite.FatalNil(err)
 	}
 
-	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images, "")
+	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images, "testDir")
 	suite.FatalNil(err, "failed to generate pdf")
 	aferoFile, err := generator.fs.Open(generatedPath)
 	suite.FatalNil(err, "afero failed to open pdf")
@@ -125,8 +125,6 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	suite.FatalNil(err, "Failed to read and validate the PDF file")
 	// Temporarily assert 2 pages of PDF while optimization is disabled
 	suite.Equal(2, pageCtx.PageCount, "Expected 2 pages in the PDF")
-	err = generator.Cleanup(suite.AppContextForTest()) // cleanup the files from memory
-	suite.NoError(err)
 	// TODO:
 	// Uncomment the remainder of this test as it is the best form of validation for the PDF generation
 	// BUTTTT it requires optimization to be enabled in pdfcpu. We had to disable it due to an overflow bug
@@ -173,7 +171,7 @@ func (suite *PaperworkSuite) TestPDFFromImagesNoRotation() {
 		suite.FatalNil(err)
 	}
 
-	generatedPath, err := generator.PDFFromImagesNoRotation(suite.AppContextForTest(), images, "")
+	generatedPath, err := generator.PDFFromImagesNoRotation(suite.AppContextForTest(), images, "testDir")
 	suite.FatalNil(err, "failed to generate pdf")
 	aferoFile, err := generator.fs.Open(generatedPath)
 	suite.FatalNil(err, "afero failed to open pdf")
@@ -199,8 +197,6 @@ func (suite *PaperworkSuite) TestPDFFromImagesNoRotation() {
 	suite.FatalNil(err, "Failed to read and validate the PDF file")
 	// Temporarily assert 2 pages of PDF while optimization is disabled
 	suite.Equal(2, pageCtx.PageCount, "Expected 2 pages in the PDF")
-	err = generator.Cleanup(suite.AppContextForTest()) // cleanup the files from memory
-	suite.NoError(err)
 	// TODO: Uncomment these lines below when the above lines are deleted
 	// err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
 	// suite.FatalNil(err)
@@ -244,11 +240,9 @@ func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
 	_, err = suite.openLocalFile(images[0].Path, generator.fs)
 	suite.FatalNil(err)
 
-	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images, "")
+	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images, "testDir")
 	suite.FatalNil(err, "failed to generate pdf")
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
-	err = generator.Cleanup(suite.AppContextForTest()) // cleanup the files from memory
-	suite.NoError(err)
 }
 
 func (suite *PaperworkSuite) TestPDFFromImagesRotation() {
@@ -267,11 +261,9 @@ func (suite *PaperworkSuite) TestPDFFromImagesRotation() {
 	_, err = suite.openLocalFile(images[1].Path, generator.fs)
 	suite.FatalNil(err)
 
-	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images, "")
+	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images, "testDir")
 	suite.FatalNil(err, "failed to generate pdf")
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
-	err = generator.Cleanup(suite.AppContextForTest()) // cleanup the files from memory
-	suite.NoError(err)
 }
 
 func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
@@ -279,12 +271,10 @@ func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 
 	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
 	suite.FatalNil(err)
-	paths, err := generator.ConvertUploadsToPDF(suite.AppContextForTest(), uploads, true, "")
+	paths, err := generator.ConvertUploadsToPDF(suite.AppContextForTest(), uploads, true, "testDir")
 	suite.FatalNil(err)
 
 	suite.Equal(3, len(paths), "wrong number of paths returned")
-	err = generator.Cleanup(suite.AppContextForTest()) // cleanup the files from memory
-	suite.NoError(err)
 }
 
 func (suite *PaperworkSuite) TestCreateMergedPDF() {
@@ -292,7 +282,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 
 	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
 	suite.FatalNil(err)
-	file, err := generator.CreateMergedPDFUpload(suite.AppContextForTest(), uploads, "")
+	file, err := generator.CreateMergedPDFUpload(suite.AppContextForTest(), uploads, "testDir")
 	suite.FatalNil(err)
 
 	// Read merged file and verify page count
@@ -303,8 +293,6 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 	suite.FatalNil(err)
 
 	suite.Equal(3, ctx.PageCount)
-	err = generator.Cleanup(suite.AppContextForTest()) // cleanup the files from memory
-	suite.NoError(err)
 }
 
 func (suite *PaperworkSuite) TestCreateMergedPDFByContents() {
@@ -322,7 +310,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDFByContents() {
 	files = append(files, file1)
 	files = append(files, file2)
 
-	file, err := generator.MergePDFFilesByContents(suite.AppContextForTest(), files, "")
+	file, err := generator.MergePDFFilesByContents(suite.AppContextForTest(), files, "testDir")
 	suite.FatalNil(err)
 
 	// Read merged file and verify page count
@@ -333,8 +321,6 @@ func (suite *PaperworkSuite) TestCreateMergedPDFByContents() {
 	suite.FatalNil(err)
 
 	suite.Equal(2, ctx.PageCount)
-	err = generator.Cleanup(suite.AppContextForTest()) // cleanup the files from memory
-	suite.NoError(err)
 }
 
 func (suite *PaperworkSuite) TestCleanup() {
@@ -342,7 +328,7 @@ func (suite *PaperworkSuite) TestCleanup() {
 
 	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
 	suite.FatalNil(err)
-	_, err = generator.CreateMergedPDFUpload(suite.AppContextForTest(), uploads, "")
+	_, err = generator.CreateMergedPDFUpload(suite.AppContextForTest(), uploads, "testDir")
 	suite.FatalNil(err)
 
 	//RA Summary: gosec - errcheck - Unchecked return value
