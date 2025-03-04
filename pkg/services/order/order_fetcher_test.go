@@ -3096,6 +3096,44 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		return move, shipment
 	}
 
+	buildMoveAGFM := func() (models.Move, models.MTOShipment) {
+		postalCode := "AGFM"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "AGFM", "AGFM")
+
+		// setting up two moves, each with requested destination SIT service items
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: postalCode},
+			},
+		}, nil)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		return move, shipment
+	}
+
 	buildMoveZone2AK := func(branch models.ServiceMemberAffiliation) (models.Move, models.MTOShipment) {
 		// Create a USAF move in Alaska Zone II
 		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
@@ -3511,5 +3549,188 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		suite.FatalNoError(err)
 		suite.Equal(3, moveCount)
 		suite.Len(moves, 3)
+	})
+
+	suite.Run("returns moves for secondary GBLOC (KKFA) and primary GBLOC (AGFM)", func() {
+		// build office user with primary GBLOC of AGFM
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name:  "Fort Punxsutawney",
+					Gbloc: "AGFM",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+		// Add a secondary GBLOC to the above office user, this should default to KKFA
+		secondaryTransportationOfficeAssignment := factory.BuildAlternateTransportationOfficeAssignment(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					ID: officeUser.ID,
+				},
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.Equal("AGFM", officeUser.TransportationOffice.Gbloc)
+		suite.Equal("KKFA", secondaryTransportationOfficeAssignment.TransportationOffice.Gbloc)
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		// setting up four moves in KKFA, each with destination requests
+		move, shipment := buildMoveKKFA()
+		// destination service item in SUBMITTED status
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		move2, shipment2 := buildMoveKKFA()
+		// destination shuttle
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDSHUT,
+				},
+			},
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment2,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		move3, shipment3 := buildMoveKKFA()
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeMS,
+				},
+			},
+			{
+				Model:    move3,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment3,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+		}, nil)
+		factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment3,
+				LinkOnly: true,
+			},
+			{
+				Model:    move3,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+
+		move4, shipment4 := buildMoveKKFA()
+		// build the destination SIT service items and update their status to SUBMITTED
+		oneMonthLater := time.Now().AddDate(0, 1, 0)
+		factory.BuildDestSITServiceItems(suite.DB(), move4, shipment4, &oneMonthLater, nil)
+		// build the SIT extension update
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    move4,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment4,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITDurationUpdate{
+					Status:            models.SITExtensionStatusPending,
+					ContractorRemarks: models.StringPointer("gimme some more plz"),
+				},
+			},
+		}, nil)
+
+		// setting up one move in AGFM with destination requests
+		AGFMmove1, AGFMshipment1 := buildMoveAGFM()
+		// destination shuttle
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDSHUT,
+				},
+			},
+			{
+				Model:    AGFMmove1,
+				LinkOnly: true,
+			},
+			{
+				Model:    AGFMshipment1,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		// Fetch and check secondary GBLOC destination queue
+		KKFA := "KKFA"
+		params := services.ListOrderParams{
+			ViewAsGBLOC: &KKFA,
+		}
+
+		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params,
+		)
+
+		suite.FatalNoError(err)
+		suite.Equal(4, moveCount)
+		suite.Len(moves, 4)
+
+		// Fetch and check primary GBLOC destination queue
+		AGFM := "AGFM"
+		params = services.ListOrderParams{
+			ViewAsGBLOC: &AGFM,
+		}
+
+		moves, moveCount, err = orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params,
+		)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
+		suite.Len(moves, 1)
 	})
 }

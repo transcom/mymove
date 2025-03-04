@@ -57,7 +57,7 @@ func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() 
 		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					Status:     &rejectedStatus,
+					Status: &rejectedStatus,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
