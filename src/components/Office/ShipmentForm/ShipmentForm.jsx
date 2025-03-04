@@ -395,38 +395,11 @@ const ShipmentForm = (props) => {
                 moveCode,
                 shipmentId: newMTOShipment.id,
               });
-              if (formValues.closeoutOffice.id) {
-                mutateMoveCloseoutOffice(
-                  {
-                    locator: moveCode,
-                    ifMatchETag: move.eTag,
-                    body: { closeoutOfficeId: formValues.closeoutOffice.id },
-                  },
-                  {
-                    onSuccess: () => {
-                      actions.setSubmitting(false);
-                      navigate(currentPath, { replace: true });
-                      if (isTOO) {
-                        navigate(moveViewPath);
-                      } else {
-                        navigate(advancePath);
-                      }
-                      setErrorMessage(null);
-                      onUpdate('success');
-                    },
-                    onError: (error) => {
-                      actions.setSubmitting(false);
-                      handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
-                    },
-                  },
-                );
+              navigate(currentPath, { replace: true });
+              if (isTOO) {
+                navigate(moveViewPath);
               } else {
-                navigate(currentPath, { replace: true });
-                if (isTOO) {
-                  navigate(moveViewPath);
-                } else {
-                  navigate(advancePath);
-                }
+                navigate(advancePath);
               }
             },
             onError: (error) => {
