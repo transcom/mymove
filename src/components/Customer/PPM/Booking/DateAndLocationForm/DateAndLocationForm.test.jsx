@@ -53,7 +53,7 @@ const defaultProps = {
       city: 'Fort Benning',
       state: 'GA',
       postalCode: '94611',
-      streetAddress1: '123 Main',
+      streetAddress1: '658 West Ave',
       streetAddress2: '',
       county: 'Muscogee',
     },
@@ -451,7 +451,7 @@ describe('validates form fields and displays error messages', () => {
         },
       };
 
-      render(
+      const { findAllByRole } = render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...newPPM} />
         </Provider>,
@@ -493,34 +493,54 @@ describe('validates form fields and displays error messages', () => {
       expect(county[1]).toHaveTextContent('Hardin');
 
       // verify delivery address
-      expect(address1[2]).toHaveValue('123 Main');
+      expect(address1[2]).toHaveValue('658 West Ave');
       expect(city[2]).toHaveTextContent('Fort Benning');
       expect(state[2]).toHaveTextContent('GA');
       expect(postalCodes[2]).toHaveTextContent('94611');
 
-      await act(async () => {
-        await userEvent.click(screen.getByLabelText(/Which closeout office should review your PPM\?/));
-        await userEvent.keyboard('{Scot}[Tab]');
-        // userEvent.keyboard('Altus{enter}');
-      });
-      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '07 Mar 2022');
+      const closeoutOfficeLabel = await screen.queryByText(/Which closeout office should review your PPM\?/);
+      expect(closeoutOfficeLabel).toBeTruthy();
+      await userEvent.keyboard('{Scot}[Tab]');
 
+      // await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '07 Mar 2022');
+      await waitFor(() => {
+        expect(screen.getByLabelText(/When do you plan to start moving your PPM?/)).toHaveDisplayValue('08 Mar 2025');
+      });
       // now clear out text, should raise required alert
-      // await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
+      await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
+      await userEvent.keyboard('[Tab]');
+
+      const alerts = await findAllByRole('alert');
+      // console.log(alerts[0].nextElementSibling);
+      expect(alerts.length).toBe(1);
+      alerts.forEach((alert) => {
+        expect(alert).toHaveTextContent('Required');
+      });
+      // console.log(alerts[0].nextElementSibling);
 
       await waitFor(() => {
-        //  **this should not be disabled with lines 507-508 commented out
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
       });
 
       // const noSecondaryPickupAddress = await screen.getAllByLabelText('No')[1];
       // await userEvent.click(noSecondaryPickupAddress);
+      await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
+      // await userEvent.keyboard('[Tab]');
 
+      const newPostalCode1 = screen.getAllByTestId(/ZIP/);
+      expect(newPostalCode1[1]).toHaveTextContent('94611'); // delivery
+      // const newAlerts = await findAllByRole('alert');
+      // newAlerts.forEach((alert) => {
+      //   expect(alert).toHaveTextContent('Required');
+      // });
+      // console.log(newAlerts[0].nextElementSibling);
+
+      // expect(newAlerts.length).toBe(0);
       // const saveButton = await screen.findByRole('button', { name: 'Save & Continue' });
       // expect(saveButton).not.toBeDisabled();
-      // await waitFor(() => {
-      //   expect(screen.getByRole('button', { name: 'Save & Continue' })).not.toBeDisabled();
-      // });
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+      });
     });
   });
 });

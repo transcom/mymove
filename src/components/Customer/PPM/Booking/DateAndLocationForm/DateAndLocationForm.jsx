@@ -305,28 +305,30 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         <Fieldset>
                           <legend className="usa-label">Will you add items to your PPM from a second address?</legend>
                           <RequiredTag />
-                          <Field
-                            as={Radio}
-                            data-testid="yes-secondary-pickup-address"
-                            id="yes-secondary-pickup-address"
-                            label="Yes"
-                            name="hasSecondaryPickupAddress"
-                            value="true"
-                            checked={values.hasSecondaryPickupAddress === 'true'}
-                            disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
-                            onChange={handleAddressToggleChange}
-                          />
-                          <Field
-                            as={Radio}
-                            data-testid="no-secondary-pickup-address"
-                            id="no-secondary-pickup-address"
-                            label="No"
-                            name="hasSecondaryPickupAddress"
-                            value="false"
-                            checked={values.hasSecondaryPickupAddress === 'false'}
-                            disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
-                            onChange={handleAddressToggleChange}
-                          />
+                          <div className={formStyles.radioGroup}>
+                            <Field
+                              as={Radio}
+                              data-testid="yes-secondary-pickup-address"
+                              id="yes-secondary-pickup-address"
+                              label="Yes"
+                              name="hasSecondaryPickupAddress"
+                              value="true"
+                              title="Yes, I have a second pickup address"
+                              checked={values.hasSecondaryPickupAddress === 'true'}
+                              disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
+                            />
+                            <Field
+                              as={Radio}
+                              data-testid="no-secondary-pickup-address"
+                              id="no-secondary-pickup-address"
+                              label="No"
+                              name="hasSecondaryPickupAddress"
+                              value="false"
+                              title="No, I do not have a second pickup address"
+                              checked={values.hasSecondaryPickupAddress === 'false'}
+                              disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
+                            />
+                          </div>
                         </Fieldset>
                       </FormGroup>
                       {values.hasSecondaryPickupAddress === 'true' && (
