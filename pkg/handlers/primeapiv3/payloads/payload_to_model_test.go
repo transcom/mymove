@@ -29,7 +29,13 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	// DCRT Service Item
 	itemMeasurement := int32(1100)
 	crateMeasurement := int32(1200)
+	estimatedWeight := int64(1000)
+	actualWeight := int64(1000)
 	dcrtCode := models.ReServiceCodeDCRT.String()
+	ddshutCode := models.ReServiceCodeDDSHUT.String()
+	doshutCode := models.ReServiceCodeDOSHUT.String()
+	idshutCode := models.ReServiceCodeIDSHUT.String()
+	ioshutCode := models.ReServiceCodeIOSHUT.String()
 	reason := "Reason"
 	description := "Description"
 	standaloneCrate := false
@@ -57,6 +63,42 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	DDSHUTServiceItem := &primev3messages.MTOServiceItemDomesticShuttle{
+		ReServiceCode:   &ddshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	DDSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	DDSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	DOSHUTServiceItem := &primev3messages.MTOServiceItemDomesticShuttle{
+		ReServiceCode:   &doshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	DOSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	DOSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	IDSHUTServiceItem := &primev3messages.MTOServiceItemInternationalShuttle{
+		ReServiceCode:   &idshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	IDSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	IDSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	IOSHUTServiceItem := &primev3messages.MTOServiceItemInternationalShuttle{
+		ReServiceCode:   &ioshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	IOSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	IOSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
 	destReason := "service member will pick up from storage at destination"
 	destServiceCode := models.ReServiceCodeDDFSIT.String()
@@ -144,6 +186,46 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeDCRT))
 		suite.Nil(returnedModel, "returned a model when erroring")
 
+	})
+
+	suite.Run("Success - Returns a DDSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(DDSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDSHUT, returnedModel.ReService.Code)
+		suite.Equal(DDSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a DOSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(DOSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDOSHUT, returnedModel.ReService.Code)
+		suite.Equal(DOSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a IOSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(IOSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeIOSHUT, returnedModel.ReService.Code)
+		suite.Equal(IOSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a IDSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(IDSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeIDSHUT, returnedModel.ReService.Code)
+		suite.Equal(IDSHUTServiceItem.Reason, returnedModel.Reason)
 	})
 
 	suite.Run("Success - Returns a ICRT/IUCRT service item model", func() {
@@ -296,8 +378,55 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
 	})
 
+	suite.Run("Success - Returns international SIT destination service item model", func() {
+		destSITServiceItem := &primev3messages.MTOServiceItemInternationalDestSIT{
+			ReServiceCode:               &destServiceCode,
+			FirstAvailableDeliveryDate1: &destDate,
+			FirstAvailableDeliveryDate2: &destDate,
+			DateOfContact1:              &destDate,
+			DateOfContact2:              &destDate,
+			TimeMilitary1:               &destTime,
+			TimeMilitary2:               &destTime,
+			SitDestinationFinalAddress:  &sitFinalDestAddress,
+			Reason:                      &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
+	})
+
 	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
 		destSITServiceItem := &primev3messages.MTOServiceItemDestSIT{
+			ReServiceCode:              &destServiceCode,
+			SitDestinationFinalAddress: &sitFinalDestAddress,
+			Reason:                     &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
+		suite.Equal(destReason, *returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns international SIT destination service item model without customer contact fields", func() {
+		destSITServiceItem := &primev3messages.MTOServiceItemInternationalDestSIT{
 			ReServiceCode:              &destServiceCode,
 			SitDestinationFinalAddress: &sitFinalDestAddress,
 			Reason:                     &destReason,
@@ -640,6 +769,23 @@ func (suite *PayloadsSuite) TestValidateReasonOriginSIT() {
 		mtoServiceItemOriginSIT := primev3messages.MTOServiceItemOriginSIT{}
 
 		verrs := validateReasonOriginSIT(mtoServiceItemOriginSIT)
+		suite.True(verrs.HasAny())
+	})
+
+	suite.Run("Reason provided - international", func() {
+		reason := "reason"
+		mtoServiceItemOriginSIT := primev3messages.MTOServiceItemInternationalOriginSIT{
+			Reason: &reason,
+		}
+
+		verrs := validateReasonInternationalOriginSIT(mtoServiceItemOriginSIT)
+		suite.False(verrs.HasAny())
+	})
+
+	suite.Run("No reason provided - international", func() {
+		mtoServiceItemOriginSIT := primev3messages.MTOServiceItemInternationalOriginSIT{}
+
+		verrs := validateReasonInternationalOriginSIT(mtoServiceItemOriginSIT)
 		suite.True(verrs.HasAny())
 	})
 }

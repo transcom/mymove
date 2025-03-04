@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -146,6 +147,13 @@ func (a *Address) LineDisplayFormat() string {
 	return fmt.Sprintf("%s%s%s, %s, %s %s", a.StreetAddress1, optionalStreetAddress2, optionalStreetAddress3, a.City, a.State, a.PostalCode)
 }
 
+func (a *Address) IsAddressAlaska() (bool, error) {
+	if a == nil {
+		return false, errors.New("address is nil")
+	}
+	return a.State == "AK", nil
+}
+
 // NotImplementedCountryCode is the default for unimplemented country code lookup
 type NotImplementedCountryCode struct {
 	message string
@@ -210,4 +218,18 @@ func EvaluateIsOconus(address Address) bool {
 	} else {
 		return false
 	}
+}
+
+// Fetches the GBLOC for a specific Address (for now this will be used for OCONUS)
+func FetchAddressGbloc(db *pop.Connection, address Address, serviceMember ServiceMember) (*string, error) {
+	var gbloc *string
+
+	err := db.RawQuery("SELECT * FROM get_address_gbloc($1, $2)", address.ID, serviceMember.Affiliation.String()).
+		First(&gbloc)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return gbloc, nil
 }

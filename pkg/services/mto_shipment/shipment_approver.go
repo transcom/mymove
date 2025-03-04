@@ -17,19 +17,23 @@ import (
 )
 
 type shipmentApprover struct {
-	router      services.ShipmentRouter
-	siCreator   services.MTOServiceItemCreator
-	planner     route.Planner
-	moveWeights services.MoveWeights
+	router               services.ShipmentRouter
+	siCreator            services.MTOServiceItemCreator
+	planner              route.Planner
+	moveWeights          services.MoveWeights
+	moveTaskOrderUpdater services.MoveTaskOrderUpdater
+	moveRouter           services.MoveRouter
 }
 
 // NewShipmentApprover creates a new struct with the service dependencies
-func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner, moveWeights services.MoveWeights) services.ShipmentApprover {
+func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner, moveWeights services.MoveWeights, moveTaskOrderUpdater services.MoveTaskOrderUpdater, moveRouter services.MoveRouter) services.ShipmentApprover {
 	return &shipmentApprover{
 		router,
 		siCreator,
 		planner,
 		moveWeights,
+		moveTaskOrderUpdater,
+		moveRouter,
 	}
 }
 
@@ -81,7 +85,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create international shipment service items before approving
 		// we use a database proc to create the basic auto-approved service items
-		internationalShipmentTypes := []models.MTOShipmentType{models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGIntoNTS, models.MTOShipmentTypeUnaccompaniedBaggage}
+		internationalShipmentTypes := []models.MTOShipmentType{models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGIntoNTS, models.MTOShipmentTypeHHGOutOfNTS, models.MTOShipmentTypeUnaccompaniedBaggage}
 		if slices.Contains(internationalShipmentTypes, shipment.ShipmentType) && shipment.MarketCode == models.MarketCodeInternational {
 			err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
 			if err != nil {
@@ -108,7 +112,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 						destZip = shipment.DestinationAddress.PostalCode
 					}
 					// we need to get the mileage from DTOD first, the db proc will consume that
-					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
 					if err != nil {
 						return err
 					}
@@ -144,6 +148,13 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 			return err
 		}
 
+		var move models.Move
+		move.ID = shipment.MoveTaskOrderID
+		// re-evaluate move status
+		if _, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
+			return err
+		}
+
 		return nil
 	})
 
@@ -152,6 +163,29 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 	}
 
 	return shipment, nil
+}
+
+// ApproveShipments Approves one or more shipments in one transaction
+func (f *shipmentApprover) ApproveShipments(appCtx appcontext.AppContext, shipments []services.ShipmentIdWithEtag) (*[]models.MTOShipment, error) {
+	var approvedShipments []models.MTOShipment
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		for _, shipment := range shipments {
+			shipmentID := shipment.ShipmentID
+			eTag := shipment.ETag
+
+			approvedShipment, err := f.ApproveShipment(txnAppCtx, shipmentID, eTag)
+			if err != nil {
+				return err
+			}
+
+			approvedShipments = append(approvedShipments, *approvedShipment)
+		}
+
+		return nil
+	})
+
+	return &approvedShipments, transactionError
 }
 
 func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
@@ -213,7 +247,7 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 			deliveryLocation = shipment.DestinationAddress
 			weight = shipment.PrimeEstimatedWeight.Int()
 		}
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight, shipment.MarketCode)
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight, shipment.MarketCode, shipment.MoveTaskOrderID, shipment.ShipmentType)
 		if calcErr != nil {
 			return calcErr
 		}

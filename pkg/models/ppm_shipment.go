@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -34,11 +35,14 @@ type PPMCloseout struct {
 	RemainingIncentive    *unit.Cents
 	HaulPrice             *unit.Cents
 	HaulFSC               *unit.Cents
-	HaulType              HaulType
+	HaulType              *HaulType
 	DOP                   *unit.Cents
 	DDP                   *unit.Cents
 	PackPrice             *unit.Cents
 	UnpackPrice           *unit.Cents
+	IntlPackPrice         *unit.Cents
+	IntlUnpackPrice       *unit.Cents
+	IntlLinehaulPrice     *unit.Cents
 	SITReimbursement      *unit.Cents
 }
 
@@ -176,9 +180,29 @@ type PPMDocuments struct {
 	ProgearWeightTickets
 }
 
+// PPMType represents the type of a PPM shipment
+type PPMType string
+
+const (
+	// PPMTypeIncentiveBased captures enum value "INCENTIVE_BASED"
+	PPMTypeIncentiveBased PPMType = "INCENTIVE_BASED"
+	// PPMTypeActualExpense captures enum value "ACTUAL_EXPENSE"
+	PPMTypeActualExpense PPMType = "ACTUAL_EXPENSE"
+	// PPMTypeSmallPackage captures enum value "SMALL_PACKAGE"
+	PPMTypeSmallPackage PPMType = "SMALL_PACKAGE"
+)
+
+// AllowedPPMTypes is a list of all the allowed values for PPM types
+var AllowedPPMTypes = []string{
+	string(PPMTypeIncentiveBased),
+	string(PPMTypeActualExpense),
+	string(PPMTypeSmallPackage),
+}
+
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
 	ID                             uuid.UUID            `json:"id" db:"id"`
+	PPMType                        PPMType              `json:"ppm_type" db:"ppm_type"`
 	ShipmentID                     uuid.UUID            `json:"shipment_id" db:"shipment_id"`
 	Shipment                       MTOShipment          `belongs_to:"mto_shipments" fk_id:"shipment_id"`
 	CreatedAt                      time.Time            `json:"created_at" db:"created_at"`
@@ -260,6 +284,7 @@ type PPMShipments []PPMShipment
 func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Name: "ShipmentID", Field: p.ShipmentID},
+		&validators.StringInclusion{Name: "PPMType", Field: string(p.PPMType), List: AllowedPPMTypes},
 		&OptionalTimeIsPresent{Name: "DeletedAt", Field: p.DeletedAt},
 		&validators.TimeIsPresent{Name: "ExpectedDepartureDate", Field: p.ExpectedDepartureDate},
 		&validators.StringInclusion{Name: "Status", Field: string(p.Status), List: AllowedPPMShipmentStatuses},
@@ -318,4 +343,45 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 		return nil, err
 	}
 	return &ppmShipment, nil
+}
+
+type PPMIncentiveOCONUS struct {
+	TotalIncentive int `db:"total_incentive"`
+	PriceISLH      int `db:"price_islh"`
+	PriceIHPK      int `db:"price_ihpk"`
+	PriceIHUPK     int `db:"price_ihupk"`
+	PriceFSC       int `db:"price_fsc"`
+}
+
+// a db function that will handle updating the estimated_incentive value
+// this simulates pricing of a basic iHHG shipment with ISLH, IHPK, IHUPK, and the CONUS portion for a FSC
+func CalculatePPMIncentive(db *pop.Connection, ppmID uuid.UUID, pickupAddressID uuid.UUID, destAddressID uuid.UUID, moveDate time.Time, mileage int, weight int, isEstimated bool, isActual bool, isMax bool) (*PPMIncentiveOCONUS, error) {
+	var incentive PPMIncentiveOCONUS
+
+	err := db.RawQuery("SELECT * FROM calculate_ppm_incentive($1, $2, $3, $4, $5, $6, $7, $8, $9)", ppmID, pickupAddressID, destAddressID, moveDate, mileage, weight, isEstimated, isActual, isMax).
+		First(&incentive)
+	if err != nil {
+		return nil, fmt.Errorf("error calculating PPM incentive for PPM ID %s: %w", ppmID, err)
+	}
+
+	return &incentive, nil
+}
+
+type PPMSITCosts struct {
+	TotalSITCost     int `db:"total_cost"`
+	PriceFirstDaySIT int `db:"price_first_day"`
+	PriceAddlDaySIT  int `db:"price_addl_day"`
+}
+
+// a db function that will handle calculating and returning the SIT costs related to a PPM shipment
+func CalculatePPMSITCost(db *pop.Connection, ppmID uuid.UUID, addressID uuid.UUID, isOrigin bool, moveDate time.Time, weight int, sitDays int) (*PPMSITCosts, error) {
+	var costs PPMSITCosts
+
+	err := db.RawQuery("SELECT * FROM calculate_ppm_SIT_cost($1, $2, $3, $4, $5, $6)", ppmID, addressID, isOrigin, moveDate, weight, sitDays).
+		First(&costs)
+	if err != nil {
+		return nil, fmt.Errorf("error calculating PPM SIT costs for PPM ID %s: %w", ppmID, err)
+	}
+
+	return &costs, nil
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -28,6 +29,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 	}{
 		"Successful Minimal Validation": {
 			ppmShipment: models.PPMShipment{
+				PPMType:               models.PPMTypeIncentiveBased,
 				ShipmentID:            uuid.Must(uuid.NewV4()),
 				ExpectedDepartureDate: testdatagen.PeakRateCycleStart,
 				Status:                models.PPMShipmentStatusDraft,
@@ -38,6 +40,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 		},
 		"Missing Required Fields": {
 			ppmShipment: models.PPMShipment{
+				PPMType:              models.PPMTypeIncentiveBased,
 				PickupAddressID:      models.UUIDPointer(uuid.Nil),
 				DestinationAddressID: models.UUIDPointer(uuid.Nil),
 			},
@@ -52,6 +55,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 		"Optional fields raise errors with invalid values": {
 			ppmShipment: models.PPMShipment{
 				// Setting up min required fields here so that we don't get these in our errors.
+				PPMType:               models.PPMTypeIncentiveBased,
 				ShipmentID:            uuid.Must(uuid.NewV4()),
 				ExpectedDepartureDate: testdatagen.PeakRateCycleStart,
 				Status:                models.PPMShipmentStatusDraft,
@@ -124,4 +128,162 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 			suite.verifyValidationErrors(testCase.ppmShipment, testCase.expectedErrs)
 		})
 	}
+}
+
+func (suite *ModelSuite) TestCalculatePPMIncentive() {
+	suite.Run("success - receive PPM incentive when all values exist", func() {
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "74135")
+		suite.FatalNoError(err)
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "Tester Address",
+					City:               "Tulsa",
+					State:              "OK",
+					PostalCode:         "74133",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &pickupUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		suite.FatalNoError(err)
+		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "JBER",
+					City:               "JBER",
+					State:              "AK",
+					PostalCode:         "99505",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &destUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		moveDate := time.Now()
+		mileage := 1000
+		weight := 2000
+
+		incentives, err := models.CalculatePPMIncentive(suite.DB(), ppmShipment.ID, pickupAddress.ID, destAddress.ID, moveDate, mileage, weight, true, false, false)
+		suite.NoError(err)
+		suite.NotNil(incentives)
+		suite.NotNil(incentives.PriceFSC)
+		suite.NotNil(incentives.PriceIHPK)
+		suite.NotNil(incentives.PriceIHUPK)
+		suite.NotNil(incentives.PriceISLH)
+		suite.NotNil(incentives.TotalIncentive)
+	})
+
+	suite.Run("failure - contract doesn't exist", func() {
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "74135")
+		suite.FatalNoError(err)
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "Tester Address",
+					City:               "Tulsa",
+					State:              "OK",
+					PostalCode:         "74133",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &pickupUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		suite.FatalNoError(err)
+		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "JBER",
+					City:               "JBER",
+					State:              "AK",
+					PostalCode:         "99505",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &destUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		moveDate := time.Now()
+		mileage := 1000
+		weight := 2000
+
+		incentives, err := models.CalculatePPMIncentive(suite.DB(), ppmShipment.ID, pickupAddress.ID, destAddress.ID, moveDate, mileage, weight, true, false, false)
+		suite.Error(err)
+		suite.Nil(incentives)
+	})
+}
+
+func (suite *ModelSuite) TestCalculatePPMSITCost() {
+	suite.Run("success - receive PPM SIT costs when all values exist", func() {
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		suite.FatalNoError(err)
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "JBER",
+					City:               "JBER",
+					State:              "AK",
+					PostalCode:         "99505",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &destUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		moveDate := time.Now()
+		sitDays := 7
+		weight := 2000
+
+		sitCost, err := models.CalculatePPMSITCost(suite.DB(), ppmShipment.ID, address.ID, false, moveDate, weight, sitDays)
+		suite.NoError(err)
+		suite.NotNil(sitCost)
+		suite.NotNil(sitCost.PriceAddlDaySIT)
+		suite.NotNil(sitCost.PriceFirstDaySIT)
+		suite.NotNil(sitCost.TotalSITCost)
+	})
+
+	suite.Run("failure - contract doesn't exist", func() {
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		suite.FatalNoError(err)
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "JBER",
+					City:               "JBER",
+					State:              "AK",
+					PostalCode:         "99505",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &destUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		moveDate := time.Now()
+		sitDays := 7
+		weight := 2000
+
+		sitCost, err := models.CalculatePPMSITCost(suite.DB(), ppmShipment.ID, address.ID, false, moveDate, weight, sitDays)
+		suite.Error(err)
+		suite.Nil(sitCost)
+	})
 }

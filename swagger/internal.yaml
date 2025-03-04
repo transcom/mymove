@@ -1431,6 +1431,9 @@ definitions:
       providesServicesCounseling:
         type: boolean
         x-omitempty: false
+      weightRestriction:
+        type: integer
+        x-nullable: true
     required:
       - id
       - service_member_id
@@ -1489,6 +1492,11 @@ definitions:
         description: >-
           The amount of weight in pounds that the move is entitled for shipment
           types of Unaccompanied Baggage.
+      weight_restriction:
+        type: integer
+        example: 1500
+        x-nullable: true
+        description: Indicates the weight restricted to a specific location.
   CreateUpdateOrders:
     type: object
     properties:
@@ -2959,6 +2967,15 @@ definitions:
       - id
       - service_member_id
       - uploads
+  PPMType:
+    type: string
+    title: PPM Type
+    description: Defines a PPM type
+    readOnly: true
+    enum:
+      - INCENTIVE_BASED
+      - ACTUAL_EXPENSE
+      - SMALL_PACKAGE
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
@@ -3590,6 +3607,8 @@ definitions:
         format: uuid
         type: string
         readOnly: true
+      ppmType:
+        $ref: '#/definitions/PPMType'
       shipmentId:
         description: The id of the parent MTOShipment object
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
