@@ -100,6 +100,14 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		weightRestrictionFormatted = humanize.Comma(int64(*weightRestriction))
 	}
 
+	var ubWeightRestriction *int64
+	var ubWeightRestrictionFormatted string
+	if orders.Entitlement != nil && orders.Entitlement.UBWeightRestriction != nil {
+		ubWeightRestrictionInt64 := int64(*orders.Entitlement.UBWeightRestriction)
+		ubWeightRestriction = &ubWeightRestrictionInt64
+		ubWeightRestrictionFormatted = humanize.Comma(int64(*ubWeightRestriction))
+	}
+
 	htmlBody, textBody, err := m.renderTemplates(appCtx, MoveCounseledEmailData{
 		OriginDutyLocation:         originDutyLocationName,
 		DestinationLocation:        destinationAddress,
@@ -107,6 +115,7 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		MyMoveLink:                 MyMoveLink,
 		ActualExpenseReimbursement: actualExpenseReimbursement,
 		WeightRestriction:          weightRestrictionFormatted,
+		UbWeightRestriction:        ubWeightRestrictionFormatted,
 	})
 
 	if err != nil {
@@ -146,6 +155,7 @@ type MoveCounseledEmailData struct {
 	MyMoveLink                 string
 	ActualExpenseReimbursement bool
 	WeightRestriction          string
+	UbWeightRestriction        string
 }
 
 // RenderHTML renders the html for the email
