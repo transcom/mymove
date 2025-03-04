@@ -74,6 +74,61 @@ func init() {
         }
       }
     },
+    "/move-task-orders/acknowledge": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint **updates** the Moves and Shipments to indicate that the Prime has acknowledged the Moves and Shipments have been received.\nThe Move and Shipment data is expected to be sent in the request body.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "acknowledgeMovesAndShipments",
+        "operationId": "acknowledgeMovesAndShipments",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AcknowledgeMoves"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Move and Shipment Acknowledgements.",
+            "schema": {
+              "$ref": "#/definitions/AcknowledgeMovesShipmentsSuccessResponse"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
@@ -1222,6 +1277,57 @@ func init() {
     }
   },
   "definitions": {
+    "AcknowledgeMove": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "mtoShipments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AcknowledgeShipment"
+          }
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-04-13T14:15:22Z"
+        }
+      }
+    },
+    "AcknowledgeMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AcknowledgeMove"
+      }
+    },
+    "AcknowledgeMovesShipmentsSuccessResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "example": "Moves/Shipments acknowledgement successfully completed"
+        }
+      }
+    },
+    "AcknowledgeShipment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-04-13T14:15:33Z"
+        }
+      }
+    },
     "Address": {
       "description": "A postal address",
       "type": "object",
@@ -5263,6 +5369,82 @@ func init() {
         }
       }
     },
+    "/move-task-orders/acknowledge": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint **updates** the Moves and Shipments to indicate that the Prime has acknowledged the Moves and Shipments have been received.\nThe Move and Shipment data is expected to be sent in the request body.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "acknowledgeMovesAndShipments",
+        "operationId": "acknowledgeMovesAndShipments",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AcknowledgeMoves"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Move and Shipment Acknowledgements.",
+            "schema": {
+              "$ref": "#/definitions/AcknowledgeMovesShipmentsSuccessResponse"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
@@ -6783,6 +6965,57 @@ func init() {
     }
   },
   "definitions": {
+    "AcknowledgeMove": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "mtoShipments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AcknowledgeShipment"
+          }
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-04-13T14:15:22Z"
+        }
+      }
+    },
+    "AcknowledgeMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AcknowledgeMove"
+      }
+    },
+    "AcknowledgeMovesShipmentsSuccessResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "example": "Moves/Shipments acknowledgement successfully completed"
+        }
+      }
+    },
+    "AcknowledgeShipment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-04-13T14:15:33Z"
+        }
+      }
+    },
     "Address": {
       "description": "A postal address",
       "type": "object",
