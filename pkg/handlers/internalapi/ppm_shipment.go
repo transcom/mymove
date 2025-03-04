@@ -302,7 +302,7 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 
 				// need to cleanup any files created prior to the packet creation failure
 				if err = h.AOAPacketCreator.CleanupAOAPacketDir(packetPath); err != nil {
-					logger.Error("Error deleting temp AOA files", zap.Error(err))
+					logger.Error("Error: cleaning up AOA files", zap.Error(err))
 					aoaError = aoaError + ": " + err.Error()
 				}
 
@@ -315,7 +315,7 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 
 			// we have copied the created files into the payload so we can remove them from memory
 			if err = h.AOAPacketCreator.CleanupAOAPacketDir(packetPath); err != nil {
-				logger.Error("Error deleting temp AOA files", zap.Error(err))
+				logger.Error("Error: cleaning up AOA files", zap.Error(err))
 				aoaError := err.Error()
 				payload := payloads.InternalServerError(&aoaError, h.GetTraceIDFromRequest(params.HTTPRequest))
 				return ppmops.NewShowAOAPacketInternalServerError().
@@ -344,10 +344,20 @@ func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) 
 			}
 
 			pdf, packetPath, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
+
+			defer func() {
+				// if a panic occurred we need to cleanup the files
+				if r := recover(); r != nil {
+					if packetErr := h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); packetErr != nil {
+						appCtx.Logger().Error("Panic: cleaning up Payment Packet files", zap.Error(packetErr))
+					}
+				}
+			}()
+
 			if err != nil {
 				// need to cleanup any files created prior to the packet creation failure
 				if packetErr := h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); packetErr != nil {
-					appCtx.Logger().Error("Error deleting temp AOA files", zap.Error(packetErr))
+					appCtx.Logger().Error("Error: cleaning up Payment Packet files", zap.Error(packetErr))
 				}
 
 				switch err.(type) {
@@ -369,7 +379,7 @@ func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) 
 
 			// we have copied the created files into the payload so we can remove them from memory
 			if err = h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); err != nil {
-				appCtx.Logger().Error(fmt.Sprintf("internalapi.DownPaymentPacket InternalServerError failed to delete temp packet files for ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
+				appCtx.Logger().Error(fmt.Sprintf("internalapi.DownPaymentPacket InternalServerError failed to clean up payment packet files for ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
 				return ppmops.NewShowPaymentPacketInternalServerError(), err
 			}
 

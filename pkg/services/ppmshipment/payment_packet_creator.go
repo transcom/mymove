@@ -57,7 +57,7 @@ func NewPaymentPacketCreator(
 	}
 }
 
-func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (afero.File, string, error) {
+func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (mergedPdf afero.File, dirPath string, returnErr error) {
 	err := verifyPPMShipment(appCtx, ppmShipmentID)
 	if err != nil {
 		return nil, "", err
@@ -152,6 +152,14 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	// This is because the watermark func was using bookmarks, not watermarks.
 	// See https://github.com/transcom/mymove/pull/14496 for removal
 
+	defer func() {
+		// if a panic occurred we set an error message that we can use to check for a recover in the calling method
+		if r := recover(); r != nil {
+			appCtx.Logger().Error("Panic: cleaning up payment packet files", zap.Error(err))
+			returnErr = fmt.Errorf("%s: panic", errMsgPrefix)
+		}
+	}()
+
 	if addBookmarks {
 		outputFile, err := p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks, dirName)
 
@@ -165,7 +173,7 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	}
 
 	// bookmark and watermark both disabled
-	return finalMergePdf, dirPath, nil
+	return mergedPdf, dirPath, nil
 }
 
 func (p *paymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, string, error) {

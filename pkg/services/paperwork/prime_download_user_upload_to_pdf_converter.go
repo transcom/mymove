@@ -10,6 +10,7 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -37,9 +38,10 @@ type pdfBatchInfo struct {
 }
 
 // MoveUserUploadToPDFDownloader converts user uploads to PDFs to download
-func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move, addBookmarks bool, dirName string) (afero.File, error) {
+func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move, addBookmarks bool, dirName string) (mergedPdf afero.File, returnErr error) {
 	var pdfBatchInfos []pdfBatchInfo
 	var pdfFileNames []string
+	var err error
 
 	if downloadMoveOrderUploadType == services.MoveOrderUploadAll || downloadMoveOrderUploadType == services.MoveOrderUpload {
 		if move.Orders.UploadedOrdersID == uuid.Nil {
@@ -73,7 +75,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 	}
 
 	// Take all of generated PDFs and merge into a single PDF.
-	mergedPdf, err := g.pdfGenerator.MergePDFFiles(appCtx, pdfFileNames, dirName)
+	mergedPdf, err = g.pdfGenerator.MergePDFFiles(appCtx, pdfFileNames, dirName)
 	if err != nil {
 		return nil, errors.Wrap(err, "error merging PDF files into one")
 	}
@@ -112,6 +114,14 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 			docCounter++
 		}
 	}
+
+	defer func() {
+		// if a panic occurred we set an error message that we can use to check for a recover in the calling method
+		if r := recover(); r != nil {
+			appCtx.Logger().Error("Panic creating move order download", zap.Error(err))
+			returnErr = fmt.Errorf("panic creating move order download")
+		}
+	}()
 
 	// Decorate master PDF file with bookmarks
 	return g.pdfGenerator.AddPdfBookmarks(mergedPdf, bookmarks, dirName)

@@ -64,7 +64,7 @@ func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services
 }
 
 // FillWeightEstimatorPDFForm takes form data and fills an existing Weight Estimaator PDF template with data
-func (WeightTicketParserGenerator *WeightTicketGenerator) FillWeightEstimatorPDFForm(PageValues services.WeightEstimatorPages, fileName string) (afero.File, *pdfcpu.PDFInfo, error) {
+func (WeightTicketParserGenerator *WeightTicketGenerator) FillWeightEstimatorPDFForm(PageValues services.WeightEstimatorPages, fileName string) (WeightWorksheet afero.File, pdfInfo *pdfcpu.PDFInfo, returnErr error) {
 	const weightEstimatePages = 11
 
 	// header represents the header section of the JSON.
@@ -125,7 +125,7 @@ func (WeightTicketParserGenerator *WeightTicketGenerator) FillWeightEstimatorPDF
 		return nil, nil, errors.Wrap(err, "WeightTicketParserGenerator Error marshaling JSON")
 	}
 
-	WeightWorksheet, err := WeightTicketParserGenerator.generator.FillPDFForm(jsonData, WeightTicketParserGenerator.templateReader, fileName, "")
+	WeightWorksheet, err = WeightTicketParserGenerator.generator.FillPDFForm(jsonData, WeightTicketParserGenerator.templateReader, fileName, "")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -137,7 +137,14 @@ func (WeightTicketParserGenerator *WeightTicketGenerator) FillWeightEstimatorPDF
 	}
 
 	// Return PDFInfo for additional testing in other functions
-	pdfInfo := pdfInfoResult
+	pdfInfo = pdfInfoResult
+
+	defer func() {
+		// if a panic occurred we set an error message that we can use to check for a recover in the calling method
+		if r := recover(); r != nil {
+			returnErr = fmt.Errorf("weight ticket parser panic")
+		}
+	}()
 
 	return WeightWorksheet, pdfInfo, err
 }
