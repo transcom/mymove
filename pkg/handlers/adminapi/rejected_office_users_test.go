@@ -252,6 +252,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		okResponse = response.(*rejectedofficeuserop.IndexRejectedOfficeUsersOK)
 		suite.Len(okResponse.Payload, 2)
 		suite.Equal(roleSearch, *okResponse.Payload[0].Roles[0].RoleName)
+		suite.Equal(roleSearch, *okResponse.Payload[1].Roles[0].RoleName)
 
 	})
 }
