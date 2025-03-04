@@ -19,7 +19,6 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -869,34 +868,4 @@ func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders
 	}
 
 	return mergedFile, nil
-}
-
-// Pdfcpu does not nil check watermarks as of version 0.9.1
-// This map allows us to preemptively nil check before calling the package
-func createMapOfOnlyWatermarkedPages(m map[int][]*model.Watermark) map[int][]*model.Watermark {
-	validMap := make(map[int][]*model.Watermark)
-	for page, wms := range m {
-		// Skip entries where the slice is nil or empty
-		if len(wms) == 0 {
-			continue
-		}
-
-		// Filter out nil pointers from the slice
-		validWms := []*model.Watermark{}
-		for _, wm := range wms {
-			if wm != nil {
-				validWms = append(validWms, wm)
-			}
-		}
-
-		// Only add the page to the valid map if the filtered slice is not empty
-		if len(validWms) > 0 {
-			validMap[page] = validWms
-		}
-	}
-	return validMap
-}
-
-func (g *Generator) CreateTextWatermark(text, desc string, onTop, update bool, u types.DisplayUnit) (*model.Watermark, error) {
-	return api.TextWatermark(text, desc, onTop, update, u)
 }
