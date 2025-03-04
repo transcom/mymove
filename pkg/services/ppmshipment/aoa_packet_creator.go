@@ -141,7 +141,7 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	defer func() {
 		// if a panic occurred we set an error message that we can use to check for a recover in the calling method
 		if r := recover(); r != nil {
-			appCtx.Logger().Error("Panic: cleaning up AOA packet files", zap.Error(err))
+			appCtx.Logger().Error("aoa packet files panic", zap.Error(err))
 			returnErr = fmt.Errorf("%s: panic", errMsgPrefix)
 		}
 	}()

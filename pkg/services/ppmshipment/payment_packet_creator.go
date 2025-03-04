@@ -155,7 +155,7 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	defer func() {
 		// if a panic occurred we set an error message that we can use to check for a recover in the calling method
 		if r := recover(); r != nil {
-			appCtx.Logger().Error("Panic: cleaning up payment packet files", zap.Error(err))
+			appCtx.Logger().Error("payment packet files panic", zap.Error(err))
 			returnErr = fmt.Errorf("%s: panic", errMsgPrefix)
 		}
 	}()
