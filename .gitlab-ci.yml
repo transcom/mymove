@@ -47,11 +47,12 @@ variables:
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
 
 
-  postgres: &postgres postgres:16.4
+  postgres: &postgres harbor.csde.caci.com/docker.io/library/postgres:16.4
   #postgres: &postgres postgres:16.4
-  redis: &redis redis:5.0.6
+  redis: &redis harbor.csde.caci.com/docker.io/library/redis:5.0.6
 
 stages:
+- pre_pre_checks
 - pre_checks
 - build
 - test
@@ -311,10 +312,11 @@ stages:
     export LOGIN_GOV_CALLBACK_PORT=4000
     export LOGIN_GOV_CALLBACK_PROTOCOL=http
     make db_dev_create
-    bin/milmove migrate
-    mkdir -p build
-    touch build/index.html
-    bin/milmove serve 2>&1 | tee server.log &
+
+  # bin/milmove migrate
+  # mkdir -p build
+  # touch build/index.html
+  # bin/milmove serve 2>&1 | tee server.log &
 
 .e2e_tests_playwright: &e2e_tests_playwright
   - |
@@ -1067,7 +1069,7 @@ integration_tests:
 
 
 integration_test_mtls:
-  stage: pre_checks
+  stage: pre_pre_checks
   interruptible: true
   cache:
     - <<: *yarn_cache
@@ -1076,12 +1078,14 @@ integration_test_mtls:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   services:
+    - name: registry.csde.caci.com/milmove/mymove:e2e-localbuild
+      alias: milmovelocal,officelocal,adminlocal,primelocal
     - name: $postgres
     - name: $redis
-    - name: registry.csde.caci.com/milmove/mymove:e2e-4049cd0a
-      alias: milmovemicroservice,milmovelocal,officelocal,adminlocal,primelocal
-      command: ["--port","4000","--verbose"]
+      # command: ["--verbose","node", "server.js"]
   variables:
+    CI_DEBUG_SERVICES: "true"
+    # FF_NETWORK_PER_BUILD: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
@@ -1166,7 +1170,7 @@ integration_test_mtls:
 
 
     HTTP_ADMIN_SERVER_NAME: adminlocal
-    HTTP_MY_SERVER_NAME: milmovemicroservice
+    HTTP_MY_SERVER_NAME: milmovelocal
     HTTP_OFFICE_SERVER_NAME: officelocal
     HTTP_ORDERS_SERVER_NAME: orderslocal
     HTTP_PRIME_SERVER_NAME: primelocal
@@ -1182,7 +1186,7 @@ integration_test_mtls:
   #   - compile_app_server
   before_script:
     - *setup_milmove_env
-    # - *setup_env_intergration_mtls
+    - *setup_env_intergration_mtls
   script:
     # - echo "TODO Add steps"
     # - echo "integration_test_mtls"
@@ -1190,7 +1194,8 @@ integration_test_mtls:
     # - dockerize -wait http://milmovelocal:4000 -timeout 5m
     - sed 's,^,export ,' /builds/milmove/mymove/config/env/review.app.env > server_env
     - source server_env
-    - until $(curl --output /dev/null --silent --head --fail http://milmovemicroservice:4000); do printf '.'; sleep 1; done
+    # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
+    # - curl http://milmovelocal:4000
     - echo "Running E2E mTLS tests"
     - ./scripts/run-e2e-mtls-test
   artifacts:
@@ -1216,7 +1221,7 @@ integration_test_admin:
     - name: $postgres
     - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
-      alias: milmovemicroservice,milmovelocal,officelocal,adminlocal,primelocal
+      alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
   variables:
@@ -1286,7 +1291,7 @@ integration_test_my:
     - name: $postgres
     - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
-      alias: milmovemicroservice,milmovelocal,officelocal,adminlocal,primelocal
+      alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
   variables:
@@ -1357,7 +1362,7 @@ integration_test_office:
     - name: $postgres
     - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
-      alias: milmovemicroservice,milmovelocal,officelocal,adminlocal,primelocal
+      alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
   variables:
@@ -1426,7 +1431,7 @@ integration_test_e2e_generic:
     - name: $postgres
     - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
-      alias: milmovemicroservice,milmovelocal,officelocal,adminlocal,primelocal
+      alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
   variables:
