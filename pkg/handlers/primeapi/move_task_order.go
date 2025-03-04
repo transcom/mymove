@@ -368,6 +368,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 
 type AcknowledgeMovesAndShipmentsHandler struct {
 	handlers.HandlerConfig
+	services.MoveAndShipmentAcknowledgementUpdater
 }
 
 func (h AcknowledgeMovesAndShipmentsHandler) Handle(params movetaskorderops.AcknowledgeMovesAndShipmentsParams) middleware.Responder {
@@ -390,9 +391,12 @@ func (h AcknowledgeMovesAndShipmentsHandler) Handle(params movetaskorderops.Ackn
 					payloads.ValidationError("Unable to process moves", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
 			}
 			// Call service to acknowledge moves/shipments here
-
+			err := h.MoveAndShipmentAcknowledgementUpdater.AcknowledgeMovesAndShipments(appCtx, moves)
+			if err != nil {
+				return movetaskorderops.NewAcknowledgeMovesAndShipmentsInternalServerError(), err
+			}
 			responsePayload := &primemessages.AcknowledgeMovesShipmentsSuccessResponse{
-				Message: "Way to go!",
+				Message: "Successfully updated acknowledgement for moves and shipments",
 			}
 			return movetaskorderops.NewAcknowledgeMovesAndShipmentsOK().WithPayload(responsePayload), nil
 		})
