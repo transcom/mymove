@@ -17,6 +17,8 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
+const onDownloadError = jest.fn();
+
 const shipments = [
   {
     id: '1',
@@ -143,6 +145,7 @@ const onUploadClick = jest.fn();
 
 const defaultProps = {
   shipments,
+  onDownloadError,
   onUploadClick,
 };
 
@@ -254,11 +257,19 @@ describe('PPMSummaryList component', () => {
       status: 200,
       data: null,
     };
-    downloadPPMPaymentPacket.mockImplementation(() => Promise.resolve(mockResponse));
+    // Setup a promise that will be resolved manually to check for the load mask
+    let resolveDownload;
+    const downloadPromise = new Promise((resolve) => {
+      resolveDownload = () => resolve(mockResponse);
+    });
+
+    downloadPPMPaymentPacket.mockImplementation(() => downloadPromise);
+
+    const onDownloadErrorNotCalled = jest.fn();
 
     render(
       <MockProviders>
-        <PPMSummaryList shipments={[shipments[3]]} />
+        <PPMSummaryList shipments={[shipments[3]]} onDownloadError={onDownloadErrorNotCalled} />
       </MockProviders>,
     );
 
@@ -269,15 +280,27 @@ describe('PPMSummaryList component', () => {
 
     await userEvent.click(downloadPaymentButton);
 
+    // Check for the load mask after clicking the download button
+    expect(screen.getByText('Downloading payment packet...')).toBeInTheDocument();
+
+    // Manually resolve the download
+    resolveDownload();
+
     await waitFor(() => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
+      expect(onDownloadErrorNotCalled).toHaveBeenCalledTimes(0);
+      expect(screen.queryByText('Downloading payment packet...')).not.toBeInTheDocument();
     });
   });
 
   it('PPM Download Payment Packet - failure', async () => {
-    downloadPPMPaymentPacket.mockRejectedValue({
-      response: { body: { title: 'Error title', detail: 'Error detail' } },
+    // Create a promise we can reject manually
+    let rejectDownload;
+    const downloadPromise = new Promise((_, reject) => {
+      rejectDownload = () => reject(new Error('Error title: Error detail'));
     });
+
+    downloadPPMPaymentPacket.mockReturnValue(downloadPromise);
 
     const shipment = {
       ppmShipment: {
@@ -300,11 +323,11 @@ describe('PPMSummaryList component', () => {
         },
       },
     };
-    const onErrorHandler = jest.fn();
+    const onDownloadErrorCalled = jest.fn();
 
     render(
       <MockProviders>
-        <PPMSummaryList shipments={[shipment]} onDownloadError={onErrorHandler} />
+        <PPMSummaryList shipments={[shipment]} onDownloadError={onDownloadErrorCalled} />
       </MockProviders>,
     );
 
@@ -314,9 +337,16 @@ describe('PPMSummaryList component', () => {
     expect(downloadPaymentButton).toBeInTheDocument();
     await userEvent.click(downloadPaymentButton);
 
+    // Check for the load mask after clicking the download button
+    expect(screen.getByText('Downloading payment packet...')).toBeInTheDocument();
+
+    // Manually reject the download
+    rejectDownload();
+
     await waitFor(() => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
-      expect(onErrorHandler).toHaveBeenCalledTimes(1);
+      expect(onDownloadErrorCalled).toHaveBeenCalledTimes(1);
+      expect(screen.queryByText('Downloading payment packet...')).not.toBeInTheDocument();
     });
   });
 });

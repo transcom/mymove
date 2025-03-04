@@ -115,6 +115,11 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
     onPacketDownloadSuccessHandler(response);
   };
 
+  const handleDownloadFailure = () => {
+    setIsDownloading(false);
+    onDownloadError();
+  };
+
   let actionButtons;
   let content;
 
@@ -150,7 +155,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
               label="Download Payment Packet"
               asyncRetrieval={downloadPPMPaymentPacket}
               onSuccess={handleDownloadSuccess}
-              onFailure={onDownloadError}
+              onFailure={handleDownloadFailure}
               onStart={() => setIsDownloading(true)}
               className="styles.btn"
             />
@@ -162,7 +167,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
           label="Download Payment Packet"
           asyncRetrieval={downloadPPMPaymentPacket}
           onSuccess={handleDownloadSuccess}
-          onFailure={onDownloadError}
+          onFailure={handleDownloadFailure}
           onStart={() => setIsDownloading(true)}
           className="styles.btn"
         />
@@ -172,7 +177,6 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
       break;
     default:
   }
-
   return (
     <div>
       {isDownloading && <LoadingSpinner message="Downloading payment packet" />}
@@ -206,7 +210,6 @@ const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackC
 
 const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick, onDownloadError, onFeedbackClick }) => {
   const orderLabel = hasMany ? `PPM ${index + 1}` : 'PPM';
-
   return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick);
 };
 
