@@ -85,6 +85,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagForUser has not yet been implemented")
 		})
 	}
+	if api.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler == nil {
+		api.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler = feature_flags.BooleanFeatureFlagUnauthenticatedHandlerFunc(func(params feature_flags.BooleanFeatureFlagUnauthenticatedParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagUnauthenticated has not yet been implemented")
+		})
+	}
 	if api.OfficeCancelMoveHandler == nil {
 		api.OfficeCancelMoveHandler = office.CancelMoveHandlerFunc(func(params office.CancelMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.CancelMove has not yet been implemented")
