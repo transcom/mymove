@@ -19,9 +19,30 @@ const serviceMember = {
       postalCode: '90210',
       streetAddress1: '123 Main',
       streetAddress2: '',
+      county: 'Muscogee',
     },
     affiliation: SERVICE_MEMBER_AGENCIES.ARMY,
   },
+};
+
+const mockCloseoutId = '3210a533-19b8-4805-a564-7eb452afce10';
+
+const mockCloseoutOffice = {
+  address: {
+    city: 'Test City',
+    country: 'United States',
+    id: 'a13806fc-0e7d-4dc3-91ca-b802d9da50f1',
+    postalCode: '85309',
+    state: 'AZ',
+    streetAddress1: '7383 N Litchfield Rd',
+    streetAddress2: 'Rm 1122',
+  },
+  created_at: '2018-05-28T14:27:39.198Z',
+  gbloc: 'KKFA',
+  id: mockCloseoutId,
+  name: 'Tester',
+  phone_lines: [],
+  updated_at: '2018-05-28T14:27:39.198Z',
 };
 
 const defaultProps = {
@@ -34,8 +55,10 @@ const defaultProps = {
       postalCode: '94611',
       streetAddress1: '123 Main',
       streetAddress2: '',
+      county: 'Muscogee',
     },
   },
+  mockCloseoutOffice,
   postalCodeValidator: jest.fn(),
   ...serviceMember,
 };
@@ -410,56 +433,94 @@ describe('validates form fields and displays error messages', () => {
     });
   });
 
-  // it('does allow the user to save if the secondary pickup address 1 is cleared but the toggle is switched to No', async () => {
-  //   await act(async () => {
-  //     const newPPM = {
-  //       ...defaultProps,
-  //       mtoShipment: {
-  //         ppmShipment: {
-  //           pickupAddress: {
-  //             streetAddress1: '111 Test Street',
-  //             city: 'ELIZABETHTOWN',
-  //             state: 'KY',
-  //             postalCode: '42701',
-  //           },
-  //           secondaryPickupAddress: {
-  //             streetAddress1: '777 Test Street',
-  //             city: 'ELIZABETHTOWN',
-  //             state: 'KY',
-  //             postalCode: '42702',
-  //           },
-  //         },
-  //       },
-  //     };
-  //     render(
-  //       <Provider store={mockStore.store}>
-  //         <DateAndLocationForm {...defaultProps} serviceMember={newPPM} />
-  //       </Provider>,
-  //     );
+  it('does allow the user to save if the secondary pickup address 1 is cleared but the toggle is switched to No', async () => {
+    await act(async () => {
+      const newPPM = {
+        ...defaultProps,
+        mtoShipment: {
+          ppmShipment: {
+            secondaryPickupAddress: {
+              streetAddress1: '777 Test Street',
+              city: 'ELIZABETHTOWN',
+              state: 'KY',
+              postalCode: '42702',
+              county: 'Hardin',
+            },
+            expectedDepartureDate: '2025-03-08',
+          },
+        },
+      };
 
-  //     await act(async () => {
-  //       await userEvent.click(screen.getByLabelText('Use my current pickup address'));
-  //     });
-  //     const hasSecondaryPickupAddress = screen.getAllByLabelText('Yes')[0];
-  //     await userEvent.click(hasSecondaryPickupAddress);
+      render(
+        <Provider store={mockStore.store}>
+          <DateAndLocationForm {...newPPM} />
+        </Provider>,
+      );
+      await act(async () => {
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
+      });
 
-  //     // await waitFor(() => {
-  //     //   expect(screen.getByText('Second Pickup Address')).toBeInTheDocument();
-  //     // });
-  //     expect(screen.getByRole('heading', { level: 3, name: 'Second Pickup Address' })).toBeInTheDocument();
+      const yesSecondaryPickupAddress = await screen.getAllByLabelText('Yes')[1];
+      await userEvent.click(yesSecondaryPickupAddress);
+      await userEvent.click(screen.getByLabelText('Use my current delivery address'));
 
-  //     const postalCodes = screen.getAllByTestId(/ZIP/);
-  //     const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
-  //     const address2 = screen.getAllByLabelText('Address 2', { exact: false });
-  //     const state = screen.getAllByTestId(/State/);
-  //     const city = screen.getAllByTestId(/City/);
-  //     await waitFor(() => {
-  //       expect(address1[1]).toBeInstanceOf(HTMLInputElement);
-  //       expect(address2[1]).toBeInstanceOf(HTMLInputElement);
-  //       expect(city[1]).toBeInstanceOf(HTMLLabelElement);
-  //       expect(state[1]).toBeInstanceOf(HTMLLabelElement);
-  //       expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
-  //     });
-  //   });
-  // });
+      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+      const state = screen.getAllByTestId(/State/);
+      const city = screen.getAllByTestId(/City/);
+      const postalCodes = screen.getAllByTestId(/ZIP/);
+      const county = screen.getAllByTestId(/County/);
+      // verify pickup address
+      expect(address1[0]).toHaveValue('123 Main');
+      expect(city[0]).toHaveTextContent('Fort Benning');
+      expect(state[0]).toHaveTextContent('GA');
+      expect(postalCodes[0]).toHaveTextContent('90210');
+      expect(county[0]).toHaveTextContent('Muscogee');
+
+      await waitFor(() => {
+        expect(address1[1]).toBeInstanceOf(HTMLInputElement);
+        expect(city[1]).toBeInstanceOf(HTMLLabelElement);
+        expect(state[1]).toBeInstanceOf(HTMLLabelElement);
+        expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+        expect(county[1]).toBeInstanceOf(HTMLLabelElement);
+      });
+
+      // verify 2nd pickup
+      expect(screen.getByRole('heading', { level: 3, name: 'Second Pickup Address' })).toBeInTheDocument();
+      expect(address1[1]).toHaveValue('777 Test Street');
+      expect(city[1]).toHaveTextContent('ELIZABETHTOWN');
+      expect(state[1]).toHaveTextContent('KY');
+      expect(postalCodes[1]).toHaveTextContent('42702');
+      expect(county[1]).toHaveTextContent('Hardin');
+
+      // verify delivery address
+      expect(address1[2]).toHaveValue('123 Main');
+      expect(city[2]).toHaveTextContent('Fort Benning');
+      expect(state[2]).toHaveTextContent('GA');
+      expect(postalCodes[2]).toHaveTextContent('94611');
+
+      await act(async () => {
+        await userEvent.click(screen.getByLabelText(/Which closeout office should review your PPM\?/));
+        await userEvent.keyboard('{Scot}[Tab]');
+        // userEvent.keyboard('Altus{enter}');
+      });
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '07 Mar 2022');
+
+      // now clear out text, should raise required alert
+      // await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
+
+      await waitFor(() => {
+        //  **this should not be disabled with lines 507-508 commented out
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+      });
+
+      // const noSecondaryPickupAddress = await screen.getAllByLabelText('No')[1];
+      // await userEvent.click(noSecondaryPickupAddress);
+
+      // const saveButton = await screen.findByRole('button', { name: 'Save & Continue' });
+      // expect(saveButton).not.toBeDisabled();
+      // await waitFor(() => {
+      //   expect(screen.getByRole('button', { name: 'Save & Continue' })).not.toBeDisabled();
+      // });
+    });
+  });
 });
