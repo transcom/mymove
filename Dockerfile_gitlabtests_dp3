@@ -51,8 +51,8 @@ COPY migrations/app/schema /migrate/schema
 COPY migrations/app/secure /migrate/secure
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
 
-COPY build /build
-COPY config /config
+# COPY build /build
+# COPY config /config
 COPY swagger /swagger
 COPY pkg/testdatagen/testdata /pkg/testdatagen/testdata
 COPY scripts /scripts
