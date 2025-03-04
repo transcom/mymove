@@ -169,15 +169,8 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
         <Formik
           onSubmit={(values) => {
             const totalAssignment = values?.userData?.reduce((sum, item) => sum + item.moveAssignments, 0);
-            const totalAssignmentWithoutReassignee = values?.userData
-              ?.filter((user) => user.officeUserID !== selectedRadio)
-              .reduce((sum, item) => sum + item.moveAssignments, 0);
-            const totalAssignedMovesGreaterThanMovesAvailableNonReassignment = totalAssignment > numberOfMoves;
-            const totalMovesExceedsReassignableMoves = totalAssignment - totalAssignmentWithoutReassignee === 0;
-            if (
-              isBulkReAssignmentMode &&
-              (totalAssignedMovesGreaterThanMovesAvailableNonReassignment || totalMovesExceedsReassignableMoves)
-            ) {
+            const totalAssignedMovesGreaterThanMovesAvailableReassignment = totalAssignment > numberOfMoves;
+            if (totalAssignedMovesGreaterThanMovesAvailableReassignment) {
               setIsError(true);
               return;
             }
@@ -298,7 +291,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                           <td className={styles.BulkAssignmentDataCenter}>
                             <input
                               type="radio"
-                              name="chooseReAssignment"
+                              name={`userData.${i}.moveReAssignment`}
                               value={user.officeUserId}
                               checked={selectedRadio === user.officeUserId}
                               onChange={() => handleRadioChange(user.officeUserId)}

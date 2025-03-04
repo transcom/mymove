@@ -26,12 +26,22 @@ const bulkAssignmentData = {
       firstName: 'test1',
       lastName: 'person',
       officeUserId: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42a',
+      workload: 0,
+    },
+    {
+      firstName: 'test2',
+      lastName: 'person',
+      officeUserId: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42c',
+      workload: 0,
     },
   ],
   bulkAssignmentMoveIDs: [
     'b3baf6ce-f43b-437c-85be-e1145c0ddb96',
     '962ce8d2-03a2-435c-94ca-6b9ef6c226c1',
     'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed3',
+    'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed4',
+    'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed5',
+    'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed6',
   ],
 };
 
@@ -52,7 +62,7 @@ describe('BulkAssignmentModal', () => {
       </MockProviders>,
     );
 
-    expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment (3)' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment (6)' })).toBeInTheDocument();
   });
 
   it('closes the modal when close icon is clicked', async () => {
@@ -109,8 +119,10 @@ describe('BulkAssignmentModal', () => {
     await userEvent.click(equalAssignButton);
     const row1 = await screen.getAllByTestId('assignment')[0];
     const row2 = await screen.getAllByTestId('assignment')[1];
+    const row3 = await screen.getAllByTestId('assignment')[1];
     expect(row1.value).toEqual('2');
-    expect(row2.value).toEqual('1');
+    expect(row2.value).toEqual('2');
+    expect(row3.value).toEqual('2');
   });
 
   it('select/deselect all checkbox works', async () => {
@@ -158,6 +170,9 @@ describe('BulkAssignmentModal', () => {
             'b3baf6ce-f43b-437c-85be-e1145c0ddb96',
             '962ce8d2-03a2-435c-94ca-6b9ef6c226c1',
             'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed3',
+            'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed4',
+            'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed5',
+            'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed6',
           ],
           userData: [
             {
@@ -166,6 +181,10 @@ describe('BulkAssignmentModal', () => {
             },
             {
               ID: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42a',
+              moveAssignments: 0,
+            },
+            {
+              ID: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42c',
               moveAssignments: 0,
             },
           ],
@@ -223,5 +242,93 @@ describe('BulkAssignmentModal', () => {
       expect(screen.getByTestId('selectDeselectAllButton')).toBeInTheDocument();
       expect(screen.getByText('Equal Assign')).toBeInTheDocument();
     });
+  });
+
+  it('only allows bulk re-assignment from one user at a time', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+    const expectedLabels = [
+      `Bulk Re-Assignment (${bulkAssignmentData.availableOfficeUsers[0].workload})`,
+      `Bulk Assignment (${bulkAssignmentData.availableOfficeUsers[0].workload})`,
+    ];
+
+    await act(async () => {
+      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    });
+
+    const bulkReAssignToggleSwitch = screen.getByLabelText('BulkAssignmentModeSwitch');
+    // Click the switch inside act() to ensure React updates state
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    // Check the state of the modal after toggling the modal state
+    await waitFor(() => {
+      expect(screen.getByText('Bulk Re-Assignment (0)', { exact: false })).toBeInTheDocument();
+      expect(screen.getByText('User')).toBeInTheDocument();
+      expect(screen.getByText('Current Workload')).toBeInTheDocument();
+      expect(screen.getByText('Assignment')).toBeInTheDocument();
+      expect(screen.getByText('Re-assign User')).toBeInTheDocument();
+      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
+    });
+    // Select a user to re-assign from
+    const radios = screen.getAllByRole('radio');
+    const radioToReAssign = radios[0];
+    const assignmentBoxes = screen.getAllByRole('spinbutton');
+    const reAssignBox = assignmentBoxes[0];
+
+    await act(async () => {
+      await fireEvent.click(radioToReAssign);
+    });
+    // Verify that assignment box is disabled
+    expect(screen.getByText('Bulk Re-Assignment (1)', { exact: false })).toBeInTheDocument();
+    expect(radioToReAssign).toBeChecked();
+    expect(reAssignBox).toBeDisabled();
+    expect(assignmentBoxes[1]).toBeEnabled();
+    expect(assignmentBoxes[2]).toBeEnabled();
+  });
+
+  it('cannot save if more reassignments are made than available', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    await act(async () => {
+      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    });
+
+    const bulkReAssignToggleSwitch = screen.getByLabelText('BulkAssignmentModeSwitch');
+    // Click the switch inside act() to ensure React updates state
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    // Check the state of the modal after toggling the modal state
+    await waitFor(() => {
+      expect(screen.getByText('Bulk Re-Assignment (0)', { exact: false })).toBeInTheDocument();
+      expect(screen.getByText('User')).toBeInTheDocument();
+      expect(screen.getByText('Current Workload')).toBeInTheDocument();
+      expect(screen.getByText('Assignment')).toBeInTheDocument();
+      expect(screen.getByText('Re-assign User')).toBeInTheDocument();
+      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
+    });
+    // Select a user to re-assign from
+    const radios = screen.getAllByRole('radio');
+    const radioToReAssign = radios[0];
+    const assignmentBoxes = screen.getAllByRole('spinbutton');
+    const reAssignBox = assignmentBoxes[1];
+
+    await act(async () => {
+      await fireEvent.click(radioToReAssign);
+    });
+    expect(screen.getByText('Bulk Re-Assignment (1)', { exact: false })).toBeInTheDocument();
+    // Try to re-assign 2 moves
+    await act(async () => {
+      await userEvent.type(reAssignBox, '2');
+    });
+
+    const saveButton = await screen.getByTestId('modalSubmitButton');
+    await userEvent.click(saveButton);
+
+    expect(screen.getByText('Cannot assign more moves than are available.')).toBeInTheDocument();
   });
 });
