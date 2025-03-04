@@ -236,6 +236,23 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				ListOrderParams.PerPage = models.Int64Pointer(20)
 			}
 
+			var officeUser models.OfficeUser
+			var assignedGblocs []string
+			var err error
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetMovesQueueInternalServerError(), err
+				}
+
+				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
+			}
+
+			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
+			}
+
 			moves, count, err := h.OrderFetcher.ListDestinationRequestsOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
@@ -248,14 +265,6 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
 			}
 
-			var officeUser models.OfficeUser
-			if appCtx.Session().OfficeUserID != uuid.Nil {
-				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
-				if err != nil {
-					appCtx.Logger().Error("Error retrieving office user", zap.Error(err))
-					return queues.NewGetDestinationRequestsQueueInternalServerError(), err
-				}
-			}
 			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))

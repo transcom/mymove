@@ -32,6 +32,7 @@ type GetDestinationRequestsQueueURL struct {
 	RequestedMoveDate       *string
 	Sort                    *string
 	Status                  []string
+	ViewAsGBLOC             *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -208,6 +209,14 @@ func (o *GetDestinationRequestsQueueURL) Build() (*url.URL, error) {
 		if qsv != "" {
 			qs.Set("status", qsv)
 		}
+	}
+
+	var viewAsGBLOCQ string
+	if o.ViewAsGBLOC != nil {
+		viewAsGBLOCQ = *o.ViewAsGBLOC
+	}
+	if viewAsGBLOCQ != "" {
+		qs.Set("viewAsGBLOC", viewAsGBLOCQ)
 	}
 
 	_result.RawQuery = qs.Encode()
