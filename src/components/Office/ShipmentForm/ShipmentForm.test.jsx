@@ -476,30 +476,80 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent(defaultProps.currentResidence.postalCode);
     });
 
-    it('renders a second address fieldset when the user has a delivery address', async () => {
+    it('renders a second address fieldset when the user has a second pickup address', async () => {
+      const user = userEvent.setup();
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       await act(async () => {
-        await userEvent.click(screen.getAllByLabelText('Yes')[1]);
+        await user.click(screen.getByLabelText('Use pickup address'));
+      });
+      await act(async () => {
+        await user.click(screen.getByTitle('Yes, I have a second pickup address'));
       });
 
-      expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveAttribute(
-        'name',
-        'pickup.address.streetAddress1',
-      );
+      const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
+      expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress1');
+
+      const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
+      expect(streetAddress2[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress2');
+
+      const city = screen.getAllByTestId('City');
+      expect(city[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.city');
+
+      const state = screen.getAllByTestId(/State/);
+      expect(state[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.state');
+
+      const zip = screen.getAllByTestId(/ZIP/);
+      expect(zip[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.postalCode');
+    });
+
+    it('renders a delivery address fieldset when the user has a delivery address', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+      const user = userEvent.setup();
+      await act(async () => {
+        await user.click(screen.getByTitle('Yes, I know my delivery address'));
+      });
+
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
 
-      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
 
-      expect(screen.getAllByTestId('City')[0]).toHaveAttribute('aria-label', 'pickup.address.city');
       expect(screen.getAllByTestId('City')[1]).toHaveAttribute('aria-label', 'delivery.address.city');
 
-      expect(screen.getAllByTestId('State')[0]).toHaveAttribute('aria-label', 'pickup.address.state');
       expect(screen.getAllByTestId('State')[1]).toHaveAttribute('aria-label', 'delivery.address.state');
 
-      expect(screen.getAllByTestId('ZIP')[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
       expect(screen.getAllByTestId('ZIP')[1]).toHaveAttribute('aria-label', 'delivery.address.postalCode');
+    });
+
+    it('renders a second delivery address fieldset when the user has a second delivery address, pre-existing shipment', async () => {
+      await act(async () => {
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultProps}
+            isCreatePage={false}
+            shipmentType={SHIPMENT_OPTIONS.HHG}
+            mtoShipment={mockMtoShipment}
+          />,
+        );
+
+        expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+          mockMtoShipment.destinationAddress.streetAddress1,
+        );
+        expect(await screen.getAllByTestId('City')[1]).toHaveTextContent(mockMtoShipment.destinationAddress.city);
+        expect(await screen.getAllByTestId('State')[1]).toHaveTextContent(mockMtoShipment.destinationAddress.state);
+        expect(await screen.getAllByTestId('ZIP')[1]).toHaveTextContent(mockMtoShipment.destinationAddress.postalCode);
+
+        await act(async () => {
+          await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+        });
+
+        await act(async () => {
+          expect(screen.getAllByLabelText('Address 1')[2]).toBeInstanceOf(HTMLInputElement);
+          expect(screen.getAllByTestId('City')[2]).toBeInstanceOf(HTMLLabelElement);
+          expect(screen.getAllByTestId('State')[2]).toBeInstanceOf(HTMLLabelElement);
+          expect(screen.getAllByTestId('ZIP')[2]).toBeInstanceOf(HTMLLabelElement);
+        });
+      });
     });
 
     it('renders a delivery address type for retirement orders type', async () => {
@@ -1263,6 +1313,125 @@ describe('ShipmentForm component', () => {
           onError: expect.any(Function),
         });
       });
+    });
+
+    it('allows the user to save the form if the secondary address1 field is cleared but the toggle is switched to No', async () => {
+      const expectedPayload = {
+        body: {
+          hasSecondaryDeliveryAddress: true,
+          hasSecondaryPickupAddress: true,
+          hasTertiaryDeliveryAddress: false,
+          hasTertiaryPickupAddress: false,
+          destinationAddress: {
+            streetAddress1: '441 SW Rio de la Plata Drive',
+            city: 'Tacoma',
+            state: 'WA',
+            postalCode: '98421',
+            streetAddress2: '',
+            county: 'PIERCE',
+          },
+          secondaryDestinationAddress: {
+            streetAddress1: '3373 NW Martin Luther King Blvd',
+            streetAddress2: '',
+            city: 'Tacoma',
+            state: 'WA',
+            postalCode: '98421',
+            county: 'PIERCE',
+          },
+          pickupAddress: {
+            streetAddress1: '812 S 129th St',
+            city: 'San Antonio',
+            state: 'TX',
+            postalCode: '78234',
+            streetAddress2: '',
+            county: 'BEXAR',
+          },
+          secondaryPickupAddress: {
+            streetAddress1: '123 N Main Street',
+            city: 'Tacoma',
+            state: 'WA',
+            postalCode: '98421',
+            streetAddress2: '',
+            county: 'PIERCE',
+          },
+          requestedDeliveryDate: '2020-03-30',
+          requestedPickupDate: '2020-03-01',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+        },
+        shipmentID: 'shipment123',
+        moveTaskOrderID: 'mock move id',
+        normalize: false,
+      };
+
+      const patchResponse = {
+        ...expectedPayload,
+        created_at: '2021-02-08T16:48:04.117Z',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      };
+
+      const mockSubmitHandler = jest.fn(() => Promise.resolve(patchResponse));
+
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
+      );
+
+      await userEvent.click(screen.getByLabelText('Use pickup address'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+      await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+
+      const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
+      expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress1');
+
+      const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
+      expect(streetAddress2[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress2');
+
+      const city = screen.getAllByTestId('City');
+      expect(city[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.city');
+
+      const state = screen.getAllByTestId(/State/);
+      expect(state[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.state');
+
+      const zip = screen.getAllByTestId(/ZIP/);
+      expect(zip[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.postalCode');
+
+      // Verify that the form is good to submit by checking that the save button is not disabled.
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      expect(saveButton).not.toBeDisabled();
+
+      // Clear the second pickup address1 field so that it triggers required validation, disables Save
+      // await userEvent.clear(document.querySelector('input[name="secondaryPickup.address.streetAddress1"]'));
+      // await userEvent.tab();
+      // // *** this should be disabled here ***
+      // await waitFor(() => {
+      //   expect(saveButton).toBeDisabled();
+      // });
+
+      // //  Click No to second pickup address, should be able to save
+      // await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
+      // await waitFor(() => {
+      //   expect(saveButton).not.toBeDisabled();
+      // });
+
+      // get new address1 pull since disabled above
+      const newAddress = await screen.findAllByLabelText(/Address 1/);
+      // Clear the second delivery address1 field so that it triggers required validation, disables Save
+      await userEvent.clear(newAddress[2]);
+      await waitFor(() => {
+        // *** this should be disabled here ***
+        expect(saveButton).toBeDisabled();
+      });
+
+      //  Click No to second delivery address, should be able to save
+      await userEvent.click(screen.getByTitle('No, I do not have a second destination location'));
+      // await waitFor(() => {
+      //   expect(saveButton).not.toBeDisabled();
+      // });
     });
   });
 

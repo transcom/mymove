@@ -99,6 +99,18 @@ const ShipmentForm = (props) => {
     setEstimatedWeightValue(value);
   };
 
+  const blankAddress = {
+    address: {
+      streetAddress1: '',
+      streetAddress2: '',
+      streetAddress3: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      usPostRegionCitiesID: '',
+    },
+  };
+
   const { moveCode } = useParams();
   const navigate = useNavigate();
 
@@ -536,7 +548,7 @@ const ShipmentForm = (props) => {
     } = formValues;
 
     const deliveryDetails = delivery;
-    if (hasDeliveryAddress === 'no' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
+    if (hasDeliveryAddress === 'false' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
       delete deliveryDetails.address;
     }
 
@@ -709,15 +721,7 @@ const ShipmentForm = (props) => {
                 ...values,
                 pickup: {
                   ...values.pickup,
-                  address: {
-                    streetAddress1: '',
-                    streetAddress2: '',
-                    streetAddress3: '',
-                    city: '',
-                    state: '',
-                    postalCode: '',
-                    county: '',
-                  },
+                  blankAddress,
                 },
               },
               { shouldValidate: true },
@@ -769,6 +773,142 @@ const ShipmentForm = (props) => {
             setIsRequestedDeliveryDateAlertVisible,
             onErrorHandler,
           );
+        };
+
+        const handleAddressToggleChange = (e) => {
+          if (e.target.name === 'hasSecondaryPickup') {
+            if (e.target.value === 'false') {
+              setValues({
+                ...values,
+                hasSecondaryPickup: 'false',
+                secondaryPickup: {
+                  blankAddress,
+                },
+              });
+            } else if (e.target.value === 'true') {
+              setValues({
+                ...values,
+                hasSecondaryPickup: 'true',
+                secondaryPickup: {
+                  ...values.secondaryPickup,
+                },
+              });
+            }
+          }
+          if (e.target.name === 'hasTertiaryPickup') {
+            if (e.target.value === 'false') {
+              setValues({
+                ...values,
+                hasTertiaryPickup: 'false',
+                tertiaryPickup: {
+                  blankAddress,
+                },
+              });
+            } else if (e.target.value === 'true') {
+              setValues({
+                ...values,
+                hasTertiaryPickup: 'true',
+                tertiaryPickup: {
+                  ...values.tertiaryPickup,
+                },
+              });
+            }
+          }
+          if (e.target.name === 'hasDeliveryAddress') {
+            if (e.target.value === 'false') {
+              setValues({
+                ...values,
+                hasDeliveryAddress: 'false',
+                delivery: {
+                  address: newDutyLocationAddress,
+                },
+              });
+            } else if (e.target.value === 'true') {
+              setValues({
+                ...values,
+                hasDeliveryAddress: 'true',
+                delivery: {
+                  ...values.delivery,
+                },
+              });
+            }
+          }
+          if (e.target.name === 'hasSecondaryDelivery') {
+            if (e.target.value === 'false') {
+              setValues({
+                ...values,
+                hasSecondaryDelivery: 'false',
+                secondaryDelivery: {
+                  blankAddress,
+                },
+              });
+            } else if (e.target.value === 'true') {
+              setValues({
+                ...values,
+                hasSecondaryDelivery: 'true',
+                secondaryDelivery: {
+                  ...values.secondaryDelivery,
+                },
+              });
+            }
+          }
+          if (e.target.name === 'hasTertiaryDelivery') {
+            if (e.target.value === 'false') {
+              setValues({
+                ...values,
+                hasTertiaryDelivery: 'false',
+                tertiaryDelivery: {
+                  blankAddress,
+                },
+              });
+            } else if (e.target.value === 'true') {
+              setValues({
+                ...values,
+                hasTertiaryDelivery: 'true',
+                tertiaryDelivery: {
+                  ...values.tertiaryDelivery,
+                },
+              });
+            }
+          }
+          if (e.target.name === 'hasSecondaryDestination') {
+            if (e.target.value === 'false') {
+              setValues({
+                ...values,
+                hasSecondaryDestination: 'false',
+                secondaryDestination: {
+                  blankAddress,
+                },
+              });
+            } else if (e.target.value === 'true') {
+              setValues({
+                ...values,
+                hasSecondaryDestination: 'true',
+                secondaryDestination: {
+                  ...values.secondaryDestination,
+                },
+              });
+            }
+          }
+          if (e.target.name === 'hasTertiaryDestination') {
+            if (e.target.value === 'false') {
+              setValues({
+                ...values,
+                hasTertiaryDestination: 'false',
+                tertiaryDestination: {
+                  blankAddress,
+                },
+              });
+            } else if (e.target.value === 'true') {
+              setValues({
+                ...values,
+                hasTertiaryDestination: 'true',
+                tertiaryDestination: {
+                  ...values.tertiaryDestination,
+                },
+              });
+            }
+          }
         };
 
         return (
@@ -966,6 +1106,7 @@ const ShipmentForm = (props) => {
                                     title="Yes, I have a second pickup address"
                                     checked={hasSecondaryPickup === 'true'}
                                     disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                    onChange={handleAddressToggleChange}
                                   />
                                   <Field
                                     as={Radio}
@@ -977,6 +1118,7 @@ const ShipmentForm = (props) => {
                                     title="No, I do not have a second pickup address"
                                     checked={hasSecondaryPickup !== 'true'}
                                     disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                    onChange={handleAddressToggleChange}
                                   />
                                 </div>
                               </FormGroup>
@@ -1008,6 +1150,7 @@ const ShipmentForm = (props) => {
                                                 values.secondaryPickup.address,
                                               )
                                             }
+                                            onChange={handleAddressToggleChange}
                                           />
                                           <Field
                                             as={Radio}
@@ -1024,6 +1167,7 @@ const ShipmentForm = (props) => {
                                                 values.secondaryPickup.address,
                                               )
                                             }
+                                            onChange={handleAddressToggleChange}
                                           />
                                         </div>
                                       </FormGroup>
@@ -1131,6 +1275,7 @@ const ShipmentForm = (props) => {
                                 title="Yes, I have a second destination location"
                                 checked={hasSecondaryDelivery === 'true'}
                                 disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
+                                onChange={handleAddressToggleChange}
                               />
                               <Field
                                 as={Radio}
@@ -1142,6 +1287,7 @@ const ShipmentForm = (props) => {
                                 title="No, I do not have a second destination location"
                                 checked={hasSecondaryDelivery !== 'true'}
                                 disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
+                                onChange={handleAddressToggleChange}
                               />
                             </div>
                           </FormGroup>
@@ -1173,6 +1319,7 @@ const ShipmentForm = (props) => {
                                             values.secondaryDelivery.address,
                                           )
                                         }
+                                        onChange={handleAddressToggleChange}
                                       />
                                       <Field
                                         as={Radio}
@@ -1189,6 +1336,7 @@ const ShipmentForm = (props) => {
                                             values.secondaryDelivery.address,
                                           )
                                         }
+                                        onChange={handleAddressToggleChange}
                                       />
                                     </div>
                                   </FormGroup>
@@ -1260,6 +1408,7 @@ const ShipmentForm = (props) => {
                                 value="true"
                                 title="Yes, I know my delivery address"
                                 checked={hasDeliveryAddress === 'true'}
+                                onChange={handleAddressToggleChange}
                               />
                               <Field
                                 as={Radio}
@@ -1269,6 +1418,7 @@ const ShipmentForm = (props) => {
                                 value="false"
                                 title="No, I do not know my delivery address"
                                 checked={hasDeliveryAddress === 'false'}
+                                onChange={handleAddressToggleChange}
                               />
                             </div>
                           </FormGroup>
@@ -1304,6 +1454,7 @@ const ShipmentForm = (props) => {
                                         disabled={
                                           !isPreceedingAddressComplete(hasDeliveryAddress, values.delivery.address)
                                         }
+                                        onChange={handleAddressToggleChange}
                                       />
                                       <Field
                                         as={Radio}
@@ -1317,6 +1468,7 @@ const ShipmentForm = (props) => {
                                         disabled={
                                           !isPreceedingAddressComplete(hasDeliveryAddress, values.delivery.address)
                                         }
+                                        onChange={handleAddressToggleChange}
                                       />
                                     </div>
                                   </FormGroup>
@@ -1350,6 +1502,7 @@ const ShipmentForm = (props) => {
                                                     values.secondaryDelivery.address,
                                                   )
                                                 }
+                                                onChange={handleAddressToggleChange}
                                               />
                                               <Field
                                                 as={Radio}
@@ -1366,6 +1519,7 @@ const ShipmentForm = (props) => {
                                                     values.secondaryDelivery.address,
                                                   )
                                                 }
+                                                onChange={handleAddressToggleChange}
                                               />
                                             </div>
                                           </FormGroup>
@@ -1496,6 +1650,7 @@ const ShipmentForm = (props) => {
                                   title="Yes, there is a second pickup address"
                                   checked={hasSecondaryPickup === 'true'}
                                   disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                  onChange={handleAddressToggleChange}
                                 />
                                 <Field
                                   as={Radio}
@@ -1507,6 +1662,7 @@ const ShipmentForm = (props) => {
                                   title="No, there is not a second pickup address"
                                   checked={hasSecondaryPickup !== 'true'}
                                   disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                  onChange={handleAddressToggleChange}
                                 />
                               </div>
                             </FormGroup>
@@ -1541,6 +1697,7 @@ const ShipmentForm = (props) => {
                                               values.secondaryPickup.address,
                                             )
                                           }
+                                          onChange={handleAddressToggleChange}
                                         />
                                         <Field
                                           as={Radio}
@@ -1557,6 +1714,7 @@ const ShipmentForm = (props) => {
                                               values.secondaryPickup.address,
                                             )
                                           }
+                                          onChange={handleAddressToggleChange}
                                         />
                                       </div>
                                     </FormGroup>
@@ -1600,6 +1758,7 @@ const ShipmentForm = (props) => {
                                   title="Yes, there is a second destination location"
                                   checked={hasSecondaryDestination === 'true'}
                                   disabled={!isPreceedingAddressComplete('true', values.destination.address)}
+                                  onChange={handleAddressToggleChange}
                                 />
                                 <Field
                                   as={Radio}
@@ -1611,6 +1770,7 @@ const ShipmentForm = (props) => {
                                   title="No, there is not a second destination location"
                                   checked={hasSecondaryDestination !== 'true'}
                                   disabled={!isPreceedingAddressComplete('true', values.destination.address)}
+                                  onChange={handleAddressToggleChange}
                                 />
                               </div>
                             </FormGroup>
@@ -1645,6 +1805,7 @@ const ShipmentForm = (props) => {
                                               values.secondaryDestination.address,
                                             )
                                           }
+                                          onChange={handleAddressToggleChange}
                                         />
                                         <Field
                                           as={Radio}
@@ -1661,6 +1822,7 @@ const ShipmentForm = (props) => {
                                               values.secondaryDestination.address,
                                             )
                                           }
+                                          onChange={handleAddressToggleChange}
                                         />
                                       </div>
                                     </FormGroup>
