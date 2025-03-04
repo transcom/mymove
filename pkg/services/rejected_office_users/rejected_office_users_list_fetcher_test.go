@@ -71,6 +71,17 @@ func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() 
 		suite.Equal(1, len(rejectedOfficeUsers))
 	})
 
+	suite.Run("if there are no rejected office users, we don't receive any rejected office users", func() {
+		builder := &testRejectedOfficeUsersListQueryBuilder{}
+
+		fetcher := NewRejectedOfficeUsersListFetcher(builder)
+
+		rejectedOfficeUsers, _, err := fetcher.FetchRejectedOfficeUsersList(suite.AppContextForTest(), nil, defaultPagination(), defaultOrdering())
+
+		suite.NoError(err)
+		suite.Equal(models.OfficeUsers(nil), rejectedOfficeUsers)
+	})
+
 	suite.Run("should sort and order rejected office users", func() {
 		rejectedStatus := models.OfficeUserStatusREJECTED
 		rejectedOn := time.Now()
