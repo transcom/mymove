@@ -16,12 +16,14 @@ import ConnectedEulaModal from 'components/EulaModal';
 import { isDevelopment } from 'shared/constants';
 import { useTitle } from 'hooks/custom';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
 
 const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
   const location = useLocation();
   const [showEula, setShowEula] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
+  const [customerRegistrationFF, setCustomerRegistrationFF] = useState(false);
 
   const navigate = useNavigate();
 
@@ -38,6 +40,12 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
     return () => window.removeEventListener('beforeunload', unload);
   }, [navigate]);
 
+  useEffect(() => {
+    isBooleanFlagEnabledUnauthenticated('customer_registration')?.then((enabled) => {
+      setCustomerRegistrationFF(enabled);
+    });
+  }, []);
+
   return (
     <div className={classNames(styles.center, 'usa-prose grid-container padding-top-3')}>
       <ConnectedEulaModal
@@ -46,7 +54,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
           if (isSigningIn) {
             window.location.href = '/auth/okta';
           } else if (isSigningUp) {
-            window.location.href = '/sign-up';
+            navigate('/sign-up');
           }
         }}
         closeModal={() => setShowEula(false)}
@@ -134,8 +142,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
               >
                 Sign in
               </Button>
-
-              {siteName === 'my.move.mil' ? (
+              {siteName === 'my.move.mil' && customerRegistrationFF ? (
                 <Button
                   aria-label="Sign Up"
                   className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}

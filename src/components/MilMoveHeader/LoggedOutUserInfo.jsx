@@ -6,7 +6,7 @@ import styles from './index.module.scss';
 
 import { pageNames } from 'constants/signInPageNames';
 
-const LoggedOutUserInfo = ({ handleLogin, handleRequestAccount, handleSignUp, app }) => {
+const LoggedOutUserInfo = ({ handleLogin, handleRequestAccount, app }) => {
   return (
     <>
       {app === pageNames.OFFICE && (
@@ -15,17 +15,6 @@ const LoggedOutUserInfo = ({ handleLogin, handleRequestAccount, handleSignUp, ap
             <li className="usa-nav__primary-item">
               <Button unstyled aria-label="Request Account" onClick={handleRequestAccount} type="button">
                 Request Account
-              </Button>
-            </li>
-          </ul>
-        </div>
-      )}
-      {app === pageNames.MYMOVE && (
-        <div className={styles.userInfo}>
-          <ul className="usa-nav__primary">
-            <li className="usa-nav__primary-item">
-              <Button unstyled aria-label="Request Account" onClick={handleSignUp} type="button">
-                Sign up
               </Button>
             </li>
           </ul>

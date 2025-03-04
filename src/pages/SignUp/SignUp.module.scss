@@ -10,25 +10,25 @@
     text-align: center;
   }
 
-.styledLine {
-    width: 75%;
-    height: 2px;
-    background-color: $base-dark;
-    margin: 30px auto;
-    border-radius: 1px;
-}
-
-// .formContainer {
-//     width: 40vw;
-// }
-
-.noTopMargin {
-    @media (max-width: $tablet) {
-        margin-top: 0;
+.formSection {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 18px;
+    @media(max-width: $tablet) {
+        padding-left: 0;
     }
 }
 
+.confirmContainer {
+    display: flex;
+    justify-content: space-evenly;
+}
+
 .buttonRow {
-    @include u-display('flex');
-    @include u-margin-y(3);
+    margin-top: 2vh;
+    display: flex;
+    @media(max-width: $tablet) {
+        padding-left: 5px;
+    }
 }

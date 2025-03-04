@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Grid, GridContainer, Alert, Button } from '@trussworks/react-uswds';
+import { Grid, GridContainer, Alert, Button, Label } from '@trussworks/react-uswds';
 import { Form, Formik } from 'formik';
 import classNames from 'classnames';
 import * as Yup from 'yup';
@@ -10,7 +10,6 @@ import styles from './SignUp.module.scss';
 import ValidCACModal from './ValidCACModal';
 
 import formStyles from 'styles/form.module.scss';
-import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes } from 'constants/routes';
 import TextField from 'components/form/fields/TextField/TextField';
@@ -21,45 +20,52 @@ import { dropdownInputOptions } from 'utils/formatters';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import departmentIndicators from 'constants/departmentIndicators';
 import StyledLine from 'components/StyledLine/StyledLine';
-import LoadingSpinnerModal from 'components/LoadingSpinnerModal/LoadingSpinnerModal';
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import RegistrationConfirmationModal from 'components/RegistrationConfirmationModal/RegistrationConfirmationModal';
 
-export const SignUp = () => {
+export const SignUp = ({ setShowLoadingSpinner }) => {
   const navigate = useNavigate();
-  const [serverError, setServerError] = useState(null);
+  const [serverError] = useState(null);
   const [showEmplid, setShowEmplid] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('Loading');
+  const [isCACModalVisible, setIsCACModalVisible] = useState(false);
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
 
-  // Timer to show the modal after 5 seconds
+  // timer that shows the CAC modal as soon as the component renders
   useEffect(() => {
+    setIsConfirmationModalVisible(false);
     const timer = setTimeout(() => {
-      setIsModalVisible(true);
-    }, 500);
+      setIsCACModalVisible(true);
+    }, 200);
 
     return () => clearTimeout(timer);
   }, []);
 
-  const handleModalYes = () => {
-    setIsModalVisible(false);
+  const handleCACModalYes = () => {
+    setIsCACModalVisible(false);
   };
 
-  const handleModalNo = () => {
+  const handleCACModalNo = () => {
     navigate('/sign-in', {
       state: { noValidCAC: true },
     });
   };
 
+  const handleConfirmationModalYes = () => {
+    window.location.href = '/auth/okta';
+  };
+
   const initialValues = {
     affiliation: '',
-    dodid: '',
-    dodidConfirmation: '',
+    edipi: '',
+    edipiConfirmation: '',
+    emplid: '',
+    emplidConfirmation: '',
     firstName: '',
     middleInitial: '',
     lastName: '',
     email: '',
+    emailConfirmation: '',
     telephone: '',
     secondaryTelephone: '',
     phoneIsPreferred: false,
@@ -76,25 +82,20 @@ export const SignUp = () => {
     });
   };
 
-  const handleStartLoading = async () => {
-    setIsDisabled(true);
-    setIsLoading(true);
-    setLoadingMessage('Creating MilMove Profile');
-
-    await delay(4000); // Wait 3 seconds
-    setLoadingMessage('Creating Okta Profile');
-
-    await delay(4000); // Wait 3 more seconds
-
-    // Navigate to the desired URL
-    window.location.href = '/auth/okta';
-    setIsLoading(false);
+  const handleAsyncSubmit = async (body) => {
+    setShowLoadingSpinner(true, `Creating MilMove Account for ${body.firstName} ${body.lastName}`);
+    await delay(2000);
+    setShowLoadingSpinner(true, `Creating Okta Account for ${body.firstName} ${body.lastName}`);
+    await delay(2000);
+    setShowLoadingSpinner(false, null);
+    setIsConfirmationModalVisible(true);
   };
 
   const handleSubmit = async (values) => {
     const body = {
       affiliation: values.affiliation,
       edipi: values.edipi,
+      emplid: values.emplid,
       firstName: values.firstName,
       middleInitial: values.middleInitial,
       lastName: values.lastName,
@@ -104,8 +105,7 @@ export const SignUp = () => {
       phoneIsPreferred: values.phoneIsPreferred,
       emailIsPreferred: values.emailIsPreferred,
     };
-    await handleStartLoading();
-    console.log('submitted!', body);
+    await handleAsyncSubmit(body);
   };
 
   const validationSchema = Yup.object().shape({
@@ -126,6 +126,11 @@ export const SignUp = () => {
             .required(`EMPLID is required for the Coast Guard`),
         otherwise: Yup.string().notRequired(),
       }),
+    emplidConfirmation:
+      showEmplid &&
+      Yup.string()
+        .oneOf([Yup.ref('emplid'), null], 'EMPLID numbers must match')
+        .required('Required'),
     firstName: Yup.string().required('Required'),
     middleName: Yup.string(),
     lastName: Yup.string().required('Required'),
@@ -139,14 +144,17 @@ export const SignUp = () => {
     email: Yup.string()
       .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
       .required('Required'),
+    emailConfirmation: Yup.string()
+      .oneOf([Yup.ref('email'), null], 'Emails must match')
+      .required('Required'),
     phoneIsPreferred: Yup.boolean(),
     emailIsPreferred: Yup.boolean(),
   });
 
   return (
-    <div className={classNames('usa-prose grid-container padding-top-3')}>
-      <LoadingSpinnerModal isOpen={isLoading} message={loadingMessage} />
-      <ValidCACModal isOpen={isModalVisible} onClose={handleModalNo} onSubmit={handleModalYes} />
+    <div className={classNames('usa-prose grid-container')}>
+      <ValidCACModal isOpen={isCACModalVisible} onClose={handleCACModalNo} onSubmit={handleCACModalYes} />
+      <RegistrationConfirmationModal isOpen={isConfirmationModalVisible} onSubmit={handleConfirmationModalYes} />
       <GridContainer>
         <NotificationScrollToTop dependency={serverError} />
 
@@ -199,79 +207,98 @@ export const SignUp = () => {
                   }
                 };
                 return (
-                  <Form>
-                    <SectionWrapper className={formStyles.formSection}>
-                      <h2>MilMove Registration</h2>
-                      <DropdownInput
-                        label="Branch of service"
-                        name="affiliation"
-                        id="affiliation"
-                        data-testid="affiliationInput"
-                        required
-                        onChange={(e) => {
-                          handleChange(e);
-                          handleBranchChange(e);
-                        }}
-                        options={branchOptions}
-                      />
-                      <TextField
-                        label="DoD ID number"
-                        name="edipi"
-                        id="edipi"
-                        maxLength="10"
-                        data-testid="edipiInput"
-                      />
-                      <TextField
-                        label="Confirm DoD ID number"
-                        name="edipiConfirmation"
-                        id="edipiConfirmation"
-                        maxLength="10"
-                        data-testid="edipiConfirmationInput"
-                      />
-                      {showEmplid && (
-                        <TextField
-                          label="EMPLID"
-                          name="emplid"
-                          id="emplid"
-                          maxLength="7"
-                          inputMode="numeric"
-                          pattern="[0-9]{7}"
-                          data-testid="emplidInput"
+                  <Form className={formStyles.formSection}>
+                    <SectionWrapper>
+                      <h2 className={styles.center}>MilMove Registration</h2>
+                      <div className={styles.formSection}>
+                        <DropdownInput
+                          label="Branch of service"
+                          name="affiliation"
+                          id="affiliation"
+                          data-testid="affiliationInput"
+                          required
+                          onChange={(e) => {
+                            handleChange(e);
+                            handleBranchChange(e);
+                          }}
+                          options={branchOptions}
                         />
-                      )}
-                      <StyledLine />
-                      <TextField label="First Name" name="firstName" id="firstName" />
-                      <TextField label="Middle Initial" name="middleInitial" id="middleInitial" />
-                      <TextField label="Last Name" name="lastName" id="lastName" />
-                      <StyledLine />
-                      <TextField label="Email" name="email" id="email" />
-                      <MaskedTextField
-                        label="Telephone"
-                        id="telephone"
-                        name="telephone"
-                        type="tel"
-                        minimum="12"
-                        mask="000{-}000{-}0000"
-                      />
-                      <MaskedTextField
-                        label="Secondary Telephone"
-                        id="secondaryTelephone"
-                        name="secondaryTelephone"
-                        type="tel"
-                        minimum="12"
-                        mask="000{-}000{-}0000"
-                      />
-                      <div className={styles.radioGroup}>
-                        <CheckboxField id="phoneIsPreferred" label="Phone" name="phone_is_preferred" />
-                        <CheckboxField id="emailIsPreferred" label="Email" name="email_is_preferred" />
+                        <TextField
+                          label="DoD ID number"
+                          name="edipi"
+                          id="edipi"
+                          maxLength="10"
+                          data-testid="edipiInput"
+                          required
+                        />
+                        <TextField
+                          label="Confirm DoD ID number"
+                          name="edipiConfirmation"
+                          id="edipiConfirmation"
+                          maxLength="10"
+                          data-testid="edipiConfirmationInput"
+                          disablePaste
+                        />
+                        {showEmplid && (
+                          <>
+                            <TextField
+                              label="EMPLID"
+                              name="emplid"
+                              id="emplid"
+                              maxLength="7"
+                              inputMode="numeric"
+                              pattern="[0-9]{7}"
+                              data-testid="emplidInput"
+                            />
+                            <TextField
+                              label="Confirm EMPLID"
+                              name="emplidConfirmation"
+                              id="emplidConfirmation"
+                              maxLength="7"
+                              inputMode="numeric"
+                              pattern="[0-9]{7}"
+                              data-testid="emplidConfirmationInput"
+                              disablePaste
+                            />
+                          </>
+                        )}
+                        <StyledLine />
+                        <TextField label="First Name" name="firstName" id="firstName" />
+                        <TextField label="Middle Initial" name="middleInitial" id="middleInitial" />
+                        <TextField label="Last Name" name="lastName" id="lastName" />
+                        <StyledLine />
+                        <TextField label="Email" name="email" id="email" />
+                        <TextField label="Confirm Email" name="emailConfirmation" id="emailConfirmation" disablePaste />
+                        <StyledLine />
+                        <MaskedTextField
+                          label="Telephone"
+                          id="telephone"
+                          name="telephone"
+                          type="tel"
+                          minimum="12"
+                          mask="000{-}000{-}0000"
+                        />
+                        <MaskedTextField
+                          label="Secondary Telephone"
+                          id="secondaryTelephone"
+                          name="secondaryTelephone"
+                          type="tel"
+                          minimum="12"
+                          mask="000{-}000{-}0000"
+                        />
+                        <Label className={styles.checkboxLabel}>Preferred contact method</Label>
+                        <div className={classNames(formStyles.radioGroup, formStyles.customerPreferredContact)}>
+                          <CheckboxField id="phoneIsPreferred" label="Phone" name="phoneIsPreferred" />
+                          <CheckboxField id="emailIsPreferred" label="Email" name="emailIsPreferred" />
+                        </div>
                       </div>
                     </SectionWrapper>
 
                     <div className={styles.buttonRow}>
-                      <Button type="submit" disabled={!isValid || isDisabled} onClick={handleSubmit}>
+                      <Button type="submit" disabled={!isValid}>
                         Submit
                       </Button>
-                      <Button type="button" disabled={isDisabled} onClick={handleCancel} secondary>
+                      <Button type="button" onClick={handleCancel} secondary>
                         Cancel
                       </Button>
                     </div>
@@ -287,7 +314,7 @@ export const SignUp = () => {
 };
 
 const mapDispatchToProps = {
-  setFlashMessage: setFlashMessageAction,
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
 export default connect(() => ({}), mapDispatchToProps)(SignUp);

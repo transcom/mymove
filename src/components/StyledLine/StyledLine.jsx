@@ -2,10 +2,10 @@ import React from 'react';
 
 import styles from './StyledLine.module.scss';
 
-const StyledLine = ({ width, color }) => {
+const StyledLine = ({ width, color, className }) => {
   return (
     <div
-      className={styles.styledLine}
+      className={`${className || styles.styledLine}`}
       style={{
         width: width || '75%',
         backgroundColor: color || '#565c65',
