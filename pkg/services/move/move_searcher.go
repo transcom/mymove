@@ -108,7 +108,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 
 	for i := range moves {
 		if moves[i].MTOShipments != nil {
-			moves[i].MTOShipments = models.FilterDeletedRejectedCancelledMtoShipments(moves[i].MTOShipments)
+			moves[i].MTOShipments = models.FilterDeletedRejectedCanceledMtoShipments(moves[i].MTOShipments)
 		}
 	}
 	return moves, query.Paginator.TotalEntriesSize, nil

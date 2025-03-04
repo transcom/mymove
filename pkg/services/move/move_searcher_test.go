@@ -331,7 +331,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 			shipmentWithCancellationRequestedStatus,
 			shipmentWithApprovedStatus,
 		}
-		filteredShipments := models.FilterDeletedRejectedCancelledMtoShipments(moveWithShipmentsOfEveryStatus.MTOShipments)
+		filteredShipments := models.FilterDeletedRejectedCanceledMtoShipments(moveWithShipmentsOfEveryStatus.MTOShipments)
 		moves, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{Locator: &moveWithShipmentsOfEveryStatus.Locator})
 		suite.NoError(err)
 		suite.Len(moves, 1)
