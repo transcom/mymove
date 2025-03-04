@@ -1603,9 +1603,15 @@ func computeINPKExpectedPriceCents(
 	marketFactor float64,
 	primeEstimatedWeightLbs int,
 ) unit.Cents {
-	esc := float64(basePriceCents) * escalationFactor
+	// Convert incoming cents to dollars just like how the calculate_escalated_price proc does before multiplying it
+	// As well as add double rounding to the dollar amounts since the proc uses dollars instead of cents
+	unroundedEscDollarAmount := float64(basePriceCents) / 100.0
+	roundedEscDollars := math.Round(unroundedEscDollarAmount*escalationFactor*100) / 100 // rounds to 2 decimals
 	cwt := (float64(primeEstimatedWeightLbs) * 1.1) / 100.0
-	final := math.Round(esc * marketFactor * cwt * 100)
+	finalDollars := roundedEscDollars * marketFactor * cwt
+	// Second rounding
+	final := math.Round(finalDollars * 100)
+
 	return unit.Cents(final)
 }
 
@@ -1752,7 +1758,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimat
 			// this also tests the calculate_escalation_factor proc
 			// This information was pulled from the migration scripts (Or just run db fresh and perform the lookups
 			// manually, whichever is your cup of tea)
-			suite.Equal(escalationFactor, 1.0185)
+			suite.Equal(escalationFactor, 1.04082)
 
 			// Fetch the INPK market factor from the DB
 			inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)

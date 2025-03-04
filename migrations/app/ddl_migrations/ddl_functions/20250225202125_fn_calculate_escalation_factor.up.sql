@@ -1,8 +1,8 @@
--- Fetch the escalation factor given a contract ID and date
+-- Cam B-22662 initial fetch the escalation factor given a contract ID and date
 CREATE OR REPLACE FUNCTION calculate_escalation_factor(in_contract_id UUID, in_date DATE) RETURNS NUMERIC(6, 5) AS $$
 DECLARE declared_factor NUMERIC(6, 5);
 BEGIN
-SELECT rcy.escalation INTO declared_factor
+SELECT rcy.escalation_compounded INTO declared_factor
 FROM re_contract_years rcy
 WHERE rcy.contract_id = in_contract_id
     AND in_date >= rcy.start_date
