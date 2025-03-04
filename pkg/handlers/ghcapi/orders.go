@@ -291,6 +291,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 
 			var weightRestriction *int
+			var ubWeightRestriction *int
 
 			entitlement := models.Entitlement{
 				DependentsAuthorized:    payload.HasDependents,
@@ -303,6 +304,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				DependentsTwelveAndOver: dependentsTwelveAndOver,
 				UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
 				WeightRestriction:       weightRestriction,
+				UBWeightRestriction:     ubWeightRestriction,
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {

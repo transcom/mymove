@@ -30,6 +30,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	orderservice "github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -449,13 +450,12 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -784,7 +784,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		}
 
 		moveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := UpdateOrderHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1078,7 +1078,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 			Body:        body,
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := CounselingUpdateOrderHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1326,7 +1326,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := UpdateAllowanceHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1553,7 +1553,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := CounselingUpdateAllowanceHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1710,7 +1710,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 			Body:        body,
 		}
 
-		router := moverouter.NewMoveRouter()
+		router := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := UpdateMaxBillableWeightAsTIOHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -1873,7 +1873,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 			Body:        body,
 		}
 
-		router := moverouter.NewMoveRouter()
+		router := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := UpdateBillableWeightHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -2089,7 +2089,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
 		}
 
-		router := moverouter.NewMoveRouter()
+		router := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := AcknowledgeExcessWeightRiskHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -2262,7 +2262,7 @@ func (suite *HandlerSuite) TestacknowledgeExcessUnaccompaniedBaggageWeightRiskHa
 			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
 		}
 
-		router := moverouter.NewMoveRouter()
+		router := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -2672,7 +2672,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
-	orderUpdater := orderservice.NewOrderUpdater(moverouter.NewMoveRouter())
+	orderUpdater := orderservice.NewOrderUpdater(moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()))
 
 	setUpRequestAndParams := func(orders models.Order) *orderop.UploadAmendedOrdersParams {
 		endpoint := fmt.Sprintf("/orders/%v/upload_amended_orders", orders.ID.String())

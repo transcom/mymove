@@ -13,6 +13,7 @@ const initialValues = {
   requiredMedicalEquipmentWeight: '1000',
   organizationalClothingAndIndividualEquipment: true,
   weightRestriction: '500',
+  ubWeightRestriction: '400',
 };
 
 const initialValuesOconusAdditions = {
@@ -83,6 +84,7 @@ const entitlements = {
   totalWeight: 11000,
   totalDependents: 2,
   weightRestriction: 500,
+  ubWeightRestriction: '400',
 };
 
 const entitlementOconusAdditions = {
@@ -201,6 +203,37 @@ describe('AllowancesDetailForm additional tests', () => {
     const adminWeightCheckbox = await screen.findByTestId('adminWeightLocation');
     expect(adminWeightCheckbox).toBeInTheDocument();
     expect(screen.queryByTestId('weightRestrictionInput')).not.toBeInTheDocument();
+  });
+
+  it('renders admin UB weight location section with conditional UB weight restriction field', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
+      </Formik>,
+    );
+
+    const adminUBWeightCheckbox = await screen.findByTestId('adminUBWeightLocation');
+    expect(adminUBWeightCheckbox).toBeInTheDocument();
+    expect(screen.getByLabelText('Admin restricted UB weight location')).toBeChecked();
+
+    const ubWeightRestrictionInput = screen.getByTestId('ubWeightRestrictionInput');
+    expect(ubWeightRestrictionInput).toBeInTheDocument();
+    expect(ubWeightRestrictionInput).toHaveValue('400');
+  });
+
+  it('does not render the admin UB weight location section when the ubWeightRestriction entitlement is null', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm
+          entitlements={{ ...entitlements, ubWeightRestriction: null }}
+          branchOptions={branchOptions}
+        />
+      </Formik>,
+    );
+
+    const adminUBWeightCheckbox = await screen.findByTestId('adminUBWeightLocation');
+    expect(adminUBWeightCheckbox).toBeInTheDocument();
+    expect(screen.queryByTestId('ubWeightRestrictionInput')).not.toBeInTheDocument();
   });
 
   it('displays the total weight allowance correctly', async () => {

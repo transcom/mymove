@@ -144,6 +144,27 @@ func (suite *UpdateSitEntryDateServiceSuite) TestUpdateSitEntryDate() {
 		suite.Equal(ddaServiceItem.SITEntryDate.Local(), newSitEntryDateNextDay.Local())
 	})
 
+	suite.Run("Successful update of service items - international", func() {
+		idfServiceItem, idaServiceItem := setupInternationalModels()
+		updatedServiceItem := models.SITEntryDateUpdate{
+			ID:           idfServiceItem.ID,
+			SITEntryDate: idfServiceItem.SITEntryDate,
+		}
+		newSitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
+		newSitEntryDateNextDay := newSitEntryDate.Add(24 * time.Hour)
+
+		updatedServiceItem.SITEntryDate = &newSitEntryDate
+		idaServiceItem.SITEntryDate = &newSitEntryDateNextDay
+
+		changedServiceItem, err := updater.UpdateSitEntryDate(suite.AppContextForTest(), &updatedServiceItem)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.Equal(idfServiceItem.ID, updatedServiceItem.ID)
+		suite.Equal(updatedServiceItem.SITEntryDate.Local(), changedServiceItem.SITEntryDate.Local())
+		suite.Equal(idaServiceItem.SITEntryDate.Local(), newSitEntryDateNextDay.Local())
+	})
+
 	suite.Run("Fails to update when DOFSIT entry date is after DOFSIT departure date", func() {
 		today := models.TimePointer(time.Now())
 		tomorrow := models.TimePointer(time.Now())
@@ -307,25 +328,4 @@ func (suite *UpdateSitEntryDateServiceSuite) TestUpdateSitEntryDate() {
 		)
 		suite.Contains(err.Error(), expectedError)
 	})
-	suite.Run("Successful update of service items - international", func() {
-		idfServiceItem, idaServiceItem := setupInternationalModels()
-		updatedServiceItem := models.SITEntryDateUpdate{
-			ID:           idfServiceItem.ID,
-			SITEntryDate: idfServiceItem.SITEntryDate,
-		}
-		newSitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
-		newSitEntryDateNextDay := newSitEntryDate.Add(24 * time.Hour)
-
-		updatedServiceItem.SITEntryDate = &newSitEntryDate
-		idaServiceItem.SITEntryDate = &newSitEntryDateNextDay
-
-		changedServiceItem, err := updater.UpdateSitEntryDate(suite.AppContextForTest(), &updatedServiceItem)
-
-		suite.NoError(err)
-		suite.NotNil(updatedServiceItem)
-		suite.Equal(idfServiceItem.ID, updatedServiceItem.ID)
-		suite.Equal(updatedServiceItem.SITEntryDate.Local(), changedServiceItem.SITEntryDate.Local())
-		suite.Equal(idaServiceItem.SITEntryDate.Local(), newSitEntryDateNextDay.Local())
-	})
-
 }

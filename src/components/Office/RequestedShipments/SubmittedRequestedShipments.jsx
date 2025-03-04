@@ -27,8 +27,8 @@ import { fieldValidationShape } from 'utils/displayFlags';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { SHIPMENT_OPTIONS_URL, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { updateMTOShipment } from 'services/ghcApi';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
@@ -323,6 +323,9 @@ const SubmittedRequestedShipments = ({
   // Hide counseling line item if prime counseling is already in the service items or if service counseling has been applied
   const hideCounselingCheckbox = hasCounseling(mtoServiceItems) || moveTaskOrder?.serviceCounselingCompletedAt;
 
+  // Disable counseling checkbox if full PPM shipment
+  const disableCounselingCheckbox = isPPMOnly(mtoShipments);
+
   // Hide move management line item if it is already in the service items or for PPM only moves
   const hideMoveManagementCheckbox = hasMoveManagement(mtoServiceItems) || isPPMOnly(mtoShipments);
 
@@ -438,7 +441,7 @@ const SubmittedRequestedShipments = ({
                       name="counselingFee"
                       onChange={formik.handleChange}
                       data-testid="counselingFee"
-                      disabled={isMoveLocked}
+                      disabled={isMoveLocked || disableCounselingCheckbox}
                     />
                   )}
                 </Fieldset>

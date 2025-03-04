@@ -2,7 +2,7 @@
 
 .BulkModal {
   min-width: 650px !important;
-  max-width: 90vw;
+  max-width: 60vw;
   overflow-y: auto;
   max-height: 90vh;
   overflow-x: hidden;
@@ -29,10 +29,22 @@
     height: 42px;
     width: 68px;
   }
+
+  .errorMessage {
+    margin: 0 auto;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    color: $error;
+    font-size: large;
+  }
 }
 
 .BulkAssignmentTable {
   table {
+    table-layout: fixed;
+    width: 100%;
+
     th {
       max-width: 10px;
       text-align: center;
@@ -45,6 +57,10 @@
       text-align: center;
       padding-left: 15px;
       padding-top: 4px;
+    }
+    .officeUserFormattedName {
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }

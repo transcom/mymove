@@ -386,7 +386,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 
 		ppmShipment.DestinationAddress = destinationAddress
 		mockedPlanner := &routemocks.Planner{}
-		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "30813", false).Return(2294, nil)
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "30813").Return(2294, nil)
 	}
 	setupData()
 

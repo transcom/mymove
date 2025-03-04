@@ -3722,6 +3722,34 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /queues/bulk-assignment/assign:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Assigns one or more moves to one or more office users
+      description: >
+        Supervisor office users are able to assign moves. This endpoint saves
+        office user assignments to multiple moves.
+      operationId: saveBulkAssignmentData
+      tags:
+        - queues
+      parameters:
+        - in: body
+          name: bulkAssignmentSavePayload
+          required: true
+          schema:
+            $ref: '#/definitions/BulkAssignmentSavePayload'
+      responses:
+        '204':
+          description: assigned
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/counseling/origin-list:
     get:
       produces:
@@ -5486,6 +5514,13 @@ definitions:
         example: 1500
         x-formatting: weight
         x-nullable: true
+      ubWeightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the UB weight restriction for the move to a particular
+          location.
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -6441,6 +6476,13 @@ definitions:
         description: >-
           Indicates the weight restriction for the move to a particular
           location.
+      ubWeightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the UB weight restriction for the move to a particular
+          location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6546,6 +6588,13 @@ definitions:
         type: integer
         x-nullable: true
         description: Indicates the weight restriction for a move to a particular location.
+      ubWeightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the UB weight restriction for the move to a particular
+          location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -7733,6 +7782,37 @@ definitions:
         $ref: '#/definitions/AvailableOfficeUsers'
       bulkAssignmentMoveIDs:
         $ref: '#/definitions/BulkAssignmentMoveIDs'
+  BulkAssignmentSavePayload:
+    type: object
+    properties:
+      userData:
+        type: array
+        items:
+          $ref: '#/definitions/BulkAssignmentForUser'
+      moveData:
+        type: array
+        items:
+          $ref: '#/definitions/BulkAssignmentMoveData'
+      queueType:
+        type: string
+        description: A string corresponding to the queue type
+        enum:
+          - COUNSELING
+          - CLOSEOUT
+          - TASK_ORDER
+          - PAYMENT_REQUEST
+  BulkAssignmentForUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      moveAssignments:
+        type: integer
+        x-omitempty: false
+  BulkAssignmentMoveData:
+    format: uuid
+    type: string
   QueueMoves:
     type: array
     items:
@@ -8411,6 +8491,10 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  ReServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ReServiceItem'
   TransportationOffices:
     type: array
     items:
@@ -8419,10 +8503,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/VLocation'
-  ReServiceItems:
-    type: array
-    items:
-      $ref: '#/definitions/ReServiceItem'
   GBLOCs:
     type: array
     items:

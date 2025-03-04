@@ -1178,6 +1178,11 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1200
+        },
         "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
@@ -1596,7 +1601,7 @@ func init() {
           ],
           "properties": {
             "actualWeight": {
-              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT \u0026 IOSHUT) service items.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
@@ -4151,6 +4156,11 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1200
+        },
         "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
@@ -4569,7 +4579,7 @@ func init() {
           ],
           "properties": {
             "actualWeight": {
-              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT \u0026 IOSHUT) service items.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
