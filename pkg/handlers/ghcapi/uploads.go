@@ -3,12 +3,17 @@ package ghcapi
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
+	"path/filepath"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -22,12 +27,17 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/upload"
+	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	"github.com/transcom/mymove/pkg/storage"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
+const weightEstimatePages = 11
+
 type CreateUploadHandler struct {
 	handlers.HandlerConfig
+	services.WeightTicketComputer
+	services.WeightTicketGenerator
 }
 
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
@@ -66,29 +76,114 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				docID = &document.ID
 			}
 
-			newUserUpload, url, verrs, createErr := uploaderpkg.CreateUserUploadForDocumentWrapper(
-				appCtx,
-				appCtx.Session().UserID,
-				h.FileStorer(),
-				file,
-				file.Header.Filename,
-				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
-				uploaderpkg.AllowedTypesServiceMember,
-				docID,
-				models.UploadTypeOFFICE,
-			)
+			var newUserUpload *models.UserUpload
+			var verrs *validate.Errors
+			var url string
+			var createErr error
+			isWeightEstimatorFile := false
 
-			if verrs.HasAny() || createErr != nil {
-				appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
-				switch createErr.(type) {
-				case uploaderpkg.ErrTooLarge:
-					return uploadop.NewCreateUploadRequestEntityTooLarge(), rollbackErr
-				case uploaderpkg.ErrFile:
+			// extract extension from filename
+			filename := file.Header.Filename
+			timestampPattern := regexp.MustCompile(`-(\d{14})$`)
+
+			timestamp := ""
+			filenameWithoutTimestamp := ""
+			if matches := timestampPattern.FindStringSubmatch(filename); len(matches) > 1 {
+				timestamp = matches[1]
+				filenameWithoutTimestamp = strings.TrimSuffix(filename, "-"+timestamp)
+			} else {
+				filenameWithoutTimestamp = filename
+			}
+
+			extension := filepath.Ext(filenameWithoutTimestamp)
+			extensionLower := strings.ToLower(extension)
+
+			// check if file is an excel file
+			if extensionLower == ".xlsx" {
+				var err error
+
+				isWeightEstimatorFile, err = weightticketparser.IsWeightEstimatorFile(appCtx, file)
+
+				if err != nil {
 					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
-				case uploaderpkg.ErrFailedToInitUploader:
+				}
+
+				_, err = file.Data.Seek(0, io.SeekStart)
+
+				if err != nil {
 					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
-				default:
-					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), rollbackErr
+				}
+			}
+
+			if params.WeightReceipt && isWeightEstimatorFile {
+				pageValues, err := h.WeightTicketComputer.ParseWeightEstimatorExcelFile(appCtx, file)
+
+				if err != nil {
+					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+				}
+
+				pdfFileName := strings.TrimSuffix(filenameWithoutTimestamp, filepath.Ext(filenameWithoutTimestamp)) + ".pdf" + "-" + timestamp
+				aFile, pdfInfo, err := h.WeightTicketGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
+
+				// Ensure weight receipt PDF is not corrupted
+				if err != nil || pdfInfo.PageCount != weightEstimatePages {
+					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+				}
+
+				newUserUpload, url, verrs, createErr = uploaderpkg.CreateUserUploadForDocumentWrapper(
+					appCtx,
+					appCtx.Session().UserID,
+					h.FileStorer(),
+					uploaderpkg.File{File: aFile},
+					file.Header.Filename,
+					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+					uploaderpkg.AllowedTypesPPMDocuments,
+					docID,
+					models.UploadTypeOFFICE,
+				)
+
+				if verrs.HasAny() || createErr != nil {
+					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+					switch createErr.(type) {
+					case uploaderpkg.ErrTooLarge:
+						return uploadop.NewCreateUploadRequestEntityTooLarge(), rollbackErr
+					case uploaderpkg.ErrFile:
+						return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+					case uploaderpkg.ErrFailedToInitUploader:
+						return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+					default:
+						return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), rollbackErr
+					}
+				}
+
+				if err != nil {
+					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+				}
+			} else {
+				newUserUpload, url, verrs, createErr = uploaderpkg.CreateUserUploadForDocumentWrapper(
+					appCtx,
+					appCtx.Session().UserID,
+					h.FileStorer(),
+					file,
+					file.Header.Filename,
+					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+					uploaderpkg.AllowedTypesServiceMember,
+					docID,
+					models.UploadTypeOFFICE,
+				)
+
+				if verrs.HasAny() || createErr != nil {
+					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+					switch createErr.(type) {
+					case uploaderpkg.ErrTooLarge:
+						return uploadop.NewCreateUploadRequestEntityTooLarge(), rollbackErr
+					case uploaderpkg.ErrFile:
+						return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+					case uploaderpkg.ErrFailedToInitUploader:
+						return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+					default:
+						return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), rollbackErr
+					}
 				}
 			}
 
