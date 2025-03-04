@@ -182,6 +182,9 @@ func (f *shipmentAddressUpdateRequester) doesShipmentContainApprovedDestinationS
 				serviceCode == models.ReServiceCodeDDDSIT ||
 				serviceCode == models.ReServiceCodeDDFSIT ||
 				serviceCode == models.ReServiceCodeDDSFSC ||
+				serviceCode == models.ReServiceCodeIDASIT ||
+				serviceCode == models.ReServiceCodeIDDSIT ||
+				serviceCode == models.ReServiceCodeIDFSIT ||
 				serviceCode == models.ReServiceCodeIDSFSC) &&
 				status == models.MTOServiceItemStatusApproved {
 				return true
@@ -285,6 +288,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
 	}
+
 	isInternationalShipment := shipment.MarketCode == models.MarketCodeInternational
 
 	shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipment)
@@ -320,7 +324,14 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		serviceItems := shipment.MTOServiceItems
 		for _, serviceItem := range serviceItems {
 			serviceCode := serviceItem.ReService.Code
-			if serviceCode == models.ReServiceCodeDDASIT || serviceCode == models.ReServiceCodeDDDSIT || serviceCode == models.ReServiceCodeDDFSIT || serviceCode == models.ReServiceCodeDDSFSC {
+			if serviceCode == models.ReServiceCodeDDASIT ||
+				serviceCode == models.ReServiceCodeDDDSIT ||
+				serviceCode == models.ReServiceCodeDDFSIT ||
+				serviceCode == models.ReServiceCodeDDSFSC ||
+				serviceCode == models.ReServiceCodeIDASIT ||
+				serviceCode == models.ReServiceCodeIDDSIT ||
+				serviceCode == models.ReServiceCodeIDFSIT ||
+				serviceCode == models.ReServiceCodeIDSFSC {
 				if serviceItem.SITDestinationOriginalAddressID != nil {
 					addressUpdate.SitOriginalAddressID = serviceItem.SITDestinationOriginalAddressID
 				}
