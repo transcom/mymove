@@ -105,7 +105,7 @@ var rejectedOfficeUserFilterConverters = map[string]func(string) func(*pop.Query
 	"rejectedOn": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
 			nameSearch := fmt.Sprintf("%%%s%%", content)
-			query.Where("office_users.rejected_on ILIKE ? AND office_users.status = 'REJECTED'", nameSearch)
+			query.Where("TO_CHAR(office_users.rejected_on  , 'MM/DD/YYYY') ILIKE ? AND office_users.status = 'REJECTED'", nameSearch)
 		}
 	},
 	"roles": func(content string) func(*pop.Query) {
