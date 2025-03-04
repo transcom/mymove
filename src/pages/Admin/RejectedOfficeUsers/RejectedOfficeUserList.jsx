@@ -44,7 +44,7 @@ const filterList = [
   <TextInput label="Last Name" source="lastName" />,
   <TextInput label="Office" source="offices" />,
   <TextInput label="Rejection Reason" source="rejectionReason" />,
-  <TextInput label="Rejected On" source="rejectedOn" />,
+  <TextInput label="Rejected On" placeholder="MM/DD/YYYY" source="rejectedOn" />,
   <TextInput label="Roles" source="roles" />,
 ];
 
