@@ -742,7 +742,7 @@ prep_integration_docker_microservice:
     - pre_deps_yarn
     - compile_app_server
   before_script:
-    - kaniko_before_setup
+    - *kaniko_before_setup
   script:
     - /kaniko/executor
       --context "${CI_PROJECT_DIR}"
