@@ -289,7 +289,7 @@ func (h PaymentRequestBulkDownloadHandler) Handle(params paymentrequestop.BulkDo
 
 				// need to cleanup any files created prior to the request failure
 				if err = h.PaymentRequestBulkDownloadCreator.CleanupPaymentRequestBulkDir(requestPath); err != nil {
-					logger.Error("Error deleting temp bulk payment request files", zap.Error(err))
+					logger.Error("Error cleaning up bulk payment request files", zap.Error(err))
 				}
 
 				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))

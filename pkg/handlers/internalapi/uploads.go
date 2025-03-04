@@ -335,11 +335,18 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 
 				// Ensure weight receipt PDF is not corrupted
 				if err != nil || pdfInfo.PageCount != weightEstimatePages {
+					cleanupErr := h.WeightTicketGenerator.CleanupFile(aFile)
+
+					if cleanupErr != nil {
+						appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(cleanupErr), zap.String("verrs", verrs.Error()))
+					}
+
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
 				// we already generated an afero file so we can skip that process the wrapper method does
 				newUserUpload, verrs, createErr = h.UserUploader.CreateUserUploadForDocument(appCtx, &document.ID, appCtx.Session().UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesPPMDocuments)
+
 				if verrs.HasAny() || createErr != nil {
 					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 					cleanupErr := h.WeightTicketGenerator.CleanupFile(aFile)
