@@ -116,8 +116,8 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 	primeAPIV2.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		handlerConfig,
 		shipmentUpdater,
-		handlerConfig.DTODPlanner(),
 		vLocation,
+		handlerConfig.DTODPlanner(),
 	}
 
 	return primeAPIV2
