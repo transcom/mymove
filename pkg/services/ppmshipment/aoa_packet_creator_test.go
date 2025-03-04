@@ -106,13 +106,18 @@ func (suite *PPMShipmentSuite) TestVerifyAOAPacketFail() {
 }
 
 func (suite *PPMShipmentSuite) TestCreateAOAPacketNotFound() {
-	mockSSWPPMGenerator := &mocks.SSWPPMGenerator{}
-	mockSSWPPMComputer := &mocks.SSWPPMComputer{}
-	mockPrimeDownloadMoveUploadPDFGenerator := &mocks.PrimeDownloadMoveUploadPDFGenerator{}
-	// mockAOAPacketCreator := &mocks.AOAPacketCreator{}
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.FatalNoError(uploaderErr)
+
+	generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
+	suite.FatalNoError(err)
+
+	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
+	suite.FatalNoError(err)
+
+	mockSSWPPMComputer := &mocks.SSWPPMComputer{}
+	mockPrimeDownloadMoveUploadPDFGenerator := &mocks.PrimeDownloadMoveUploadPDFGenerator{}
 
 	suite.Run("returns an error if the FetchDataShipmentSummaryWorksheet returns an error", func() {
 
@@ -125,10 +130,11 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketNotFound() {
 
 		// Create an instance of aoaPacketCreator with mock dependencies
 		a := &aoaPacketCreator{
-			SSWPPMGenerator:                     mockSSWPPMGenerator,
+			SSWPPMGenerator:                     ppmGenerator,
 			SSWPPMComputer:                      mockSSWPPMComputer,
 			PrimeDownloadMoveUploadPDFGenerator: mockPrimeDownloadMoveUploadPDFGenerator,
 			UserUploader:                        *userUploader,
+			pdfGenerator:                        generator,
 		}
 		fakeErr := apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
 		fakeErrWithWrap := fmt.Errorf("%s: %w", errMsgPrefix, fakeErr)

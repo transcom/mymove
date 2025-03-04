@@ -173,7 +173,7 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	}
 
 	// bookmark and watermark both disabled
-	return mergedPdf, dirPath, nil
+	return finalMergePdf, dirPath, nil
 }
 
 func (p *paymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, string, error) {
