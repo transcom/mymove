@@ -68,7 +68,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
 		Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
 		Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
-		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
+		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id").
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
 		Where("show = TRUE")
@@ -104,6 +104,12 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 
 	if err != nil {
 		return models.Moves{}, 0, apperror.NewQueryError("Move", err, "")
+	}
+
+	for i := range moves {
+		if moves[i].MTOShipments != nil {
+			moves[i].MTOShipments = models.FilterDeletedRejectedCanceledMtoShipments(moves[i].MTOShipments)
+		}
 	}
 	return moves, query.Paginator.TotalEntriesSize, nil
 }
