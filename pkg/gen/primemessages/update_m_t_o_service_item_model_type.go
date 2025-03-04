@@ -23,6 +23,14 @@ import (
 //   - DOFSIT - UpdateMTOServiceItemSIT
 //   - DOSFSC - UpdateMTOServiceItemSIT
 //   - DDSFSC - UpdateMTOServiceItemSIT
+//   - IDDSIT - UpdateMTOServiceItemSIT
+//   - IDFSIT - UpdateMTOServiceItemSIT
+//   - IDASIT - UpdateMTOServiceItemSIT
+//   - IOPSIT - UpdateMTOServiceItemSIT
+//   - IOASIT - UpdateMTOServiceItemSIT
+//   - IOFSIT - UpdateMTOServiceItemSIT
+//   - IOSFSC - UpdateMTOServiceItemSIT
+//   - IDSFSC - UpdateMTOServiceItemSIT
 //   - DDSHUT - UpdateMTOServiceItemShuttle
 //   - DOSHUT - UpdateMTOServiceItemShuttle
 //   - PODFSC - UpdateMTOServiceItemInternationalPortFSC
