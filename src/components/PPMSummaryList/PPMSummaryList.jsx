@@ -179,7 +179,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
   }
   return (
     <div>
-      {isDownloading && <LoadingSpinner message="Downloading payment packet" />}
+      {isDownloading && <LoadingSpinner message="Downloading Payment Packet (PDF)" />}
       <SectionWrapper className={styles['ppm-shipment']}>
         <div className={styles['ppm-shipment__heading-section']}>
           <strong>{orderLabel}</strong>

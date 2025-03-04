@@ -281,7 +281,7 @@ describe('PPMSummaryList component', () => {
     await userEvent.click(downloadPaymentButton);
 
     // Check for the load mask after clicking the download button
-    expect(screen.getByText('Downloading payment packet...')).toBeInTheDocument();
+    expect(screen.getByText('Downloading Payment Packet (PDF)...')).toBeInTheDocument();
 
     // Manually resolve the download
     resolveDownload();
@@ -289,7 +289,7 @@ describe('PPMSummaryList component', () => {
     await waitFor(() => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
       expect(onDownloadErrorNotCalled).toHaveBeenCalledTimes(0);
-      expect(screen.queryByText('Downloading payment packet...')).not.toBeInTheDocument();
+      expect(screen.queryByText('Downloading Payment Packet (PDF)...')).not.toBeInTheDocument();
     });
   });
 
@@ -338,7 +338,7 @@ describe('PPMSummaryList component', () => {
     await userEvent.click(downloadPaymentButton);
 
     // Check for the load mask after clicking the download button
-    expect(screen.getByText('Downloading payment packet...')).toBeInTheDocument();
+    expect(screen.getByText('Downloading Payment Packet (PDF)...')).toBeInTheDocument();
 
     // Manually reject the download
     rejectDownload();
@@ -346,7 +346,7 @@ describe('PPMSummaryList component', () => {
     await waitFor(() => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
       expect(onDownloadErrorCalled).toHaveBeenCalledTimes(1);
-      expect(screen.queryByText('Downloading payment packet...')).not.toBeInTheDocument();
+      expect(screen.queryByText('Downloading Payment Packet (PDF)...')).not.toBeInTheDocument();
     });
   });
 });

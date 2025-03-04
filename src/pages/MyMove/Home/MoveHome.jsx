@@ -489,6 +489,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   };
 
   const togglePPMPacketErrorModal = () => {
+    setIsDownloading(false);
     setShowErrorAlert(!showErrorAlert);
   };
 
@@ -720,7 +721,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     step="5"
                   >
                     <div>
-                      {isDownloading && <LoadingSpinner message="Downloading payment packet" />}
+                      {isDownloading && <LoadingSpinner message="Downloading AOA Paperwork (PDF)" />}
                       <SectionWrapper className={styles['ppm-shipment']}>
                         {hasAdvanceApproved() && (
                           <>
