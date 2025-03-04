@@ -2,7 +2,9 @@ package paperwork
 
 import (
 	"fmt"
+	"os"
 	"strconv"
+	"syscall"
 
 	"github.com/gofrs/uuid"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
@@ -35,7 +37,7 @@ type pdfBatchInfo struct {
 }
 
 // MoveUserUploadToPDFDownloader converts user uploads to PDFs to download
-func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move, addBookmarks bool) (afero.File, error) {
+func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move, addBookmarks bool, dirName string) (afero.File, error) {
 	var pdfBatchInfos []pdfBatchInfo
 	var pdfFileNames []string
 
@@ -43,7 +45,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 		if move.Orders.UploadedOrdersID == uuid.Nil {
 			return nil, apperror.NewUnprocessableEntityError(fmt.Sprintf("order does not have any uploads associated to it, move.Orders.ID: %s", move.Orders.ID))
 		}
-		info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderUpload, move.Orders.UploadedOrdersID)
+		info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderUpload, move.Orders.UploadedOrdersID, dirName)
 		if err != nil {
 			return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for order docs")
 		}
@@ -55,7 +57,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 			return nil, apperror.NewUnprocessableEntityError(fmt.Sprintf("order does not have any amendment uploads associated to it, move.Orders.ID: %s", move.Orders.ID))
 		}
 		if move.Orders.UploadedAmendedOrdersID != nil {
-			info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderAmendmentUpload, *move.Orders.UploadedAmendedOrdersID)
+			info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderAmendmentUpload, *move.Orders.UploadedAmendedOrdersID, dirName)
 			if err != nil {
 				return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for amendment docs")
 			}
@@ -71,7 +73,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 	}
 
 	// Take all of generated PDFs and merge into a single PDF.
-	mergedPdf, err := g.pdfGenerator.MergePDFFiles(appCtx, pdfFileNames)
+	mergedPdf, err := g.pdfGenerator.MergePDFFiles(appCtx, pdfFileNames, dirName)
 	if err != nil {
 		return nil, errors.Wrap(err, "error merging PDF files into one")
 	}
@@ -112,11 +114,38 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 	}
 
 	// Decorate master PDF file with bookmarks
-	return g.pdfGenerator.AddPdfBookmarks(mergedPdf, bookmarks)
+	return g.pdfGenerator.AddPdfBookmarks(mergedPdf, bookmarks, dirName)
+}
+
+func (g *moveUserUploadToPDFDownloader) CleanupFile(file afero.File) error {
+	if file != nil {
+		fs := g.pdfGenerator.FileSystem()
+		exists, err := afero.Exists(fs, file.Name())
+
+		if err != nil {
+			return err
+		}
+
+		if exists {
+			err := fs.Remove(file.Name())
+
+			if err != nil {
+				if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
+					// File does not exist treat it as non-error:
+					return nil
+				}
+
+				// Return the error if it's not a "file not found" error
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 // Build orderUploadDocType for document
-func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppContext, uploadDocType services.MoveOrderUploadType, documentID uuid.UUID) (*pdfBatchInfo, error) {
+func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppContext, uploadDocType services.MoveOrderUploadType, documentID uuid.UUID, dirName string) (*pdfBatchInfo, error) {
 	document, err := models.FetchDocumentWithNoRestrictions(appCtx.DB(), appCtx.Session(), documentID)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("error fetching document domain by id: %s", documentID))
@@ -136,7 +165,7 @@ func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppC
 			return nil, errors.Wrap(err, "error retrieving user uploads")
 		}
 
-		pdfFile, err := g.pdfGenerator.CreateMergedPDFUpload(appCtx, uploads)
+		pdfFile, err := g.pdfGenerator.CreateMergedPDFUpload(appCtx, uploads, dirName)
 		if err != nil {
 			return nil, errors.Wrap(err, "error generating a merged PDF file")
 		}

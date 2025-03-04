@@ -3,10 +3,14 @@ package ppmshipment
 import (
 	"fmt"
 	"io"
+	"os"
+	"strings"
+	"syscall"
 
 	"github.com/gofrs/uuid"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -53,11 +57,10 @@ func NewPaymentPacketCreator(
 	}
 }
 
-func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (io.ReadCloser, error) {
-
+func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (afero.File, string, error) {
 	err := verifyPPMShipment(appCtx, ppmShipmentID)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	errMsgPrefix := "error creating payment packet"
@@ -83,52 +86,58 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	if err != nil {
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to load PPMShipment")
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-		return nil, err
+		return nil, "", err
 	}
 
 	var pdfFilesToMerge []io.ReadSeeker
 
 	// use aoa creator to generated SSW and Orders PDF
-	aoaPacketFile, err := p.aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, true)
+	aoaPacketFile, dirPath, err := p.aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, true)
 	if err != nil {
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, fmt.Sprintf("failed to generate AOA packet for ppmShipmentID: %s", ppmShipmentID.String()))
+
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
+
+	dirName := dirPath[strings.LastIndex(dirPath, "/")+1:]
 
 	// AOA packet will be appended at the beginning of the final pdf file
 	pdfFilesToMerge = append(pdfFilesToMerge, aoaPacketFile)
 
 	// Start building individual PDFs for each expense/receipt docs. These files will then be merged as one PDF.
 	var pdfFileNamesToMerge []string
+	var pdfFileNamesToMergePdf afero.File
+	var perr error
+
 	sortedPaymentPacketItemsMap := buildPaymentPacketItemsMap(ppmShipment)
 
 	for i := 0; i < len(sortedPaymentPacketItemsMap); i++ {
-		pdfFileName, perr := p.pdfGenerator.ConvertUploadToPDF(appCtx, sortedPaymentPacketItemsMap[i].Upload)
+		pdfFileName, perr := p.pdfGenerator.ConvertUploadToPDF(appCtx, sortedPaymentPacketItemsMap[i].Upload, dirName)
 		if perr != nil {
 			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate pdf for upload")
 			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-			return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+			return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 		}
 		pdfFileNamesToMerge = append(pdfFileNamesToMerge, pdfFileName)
 	}
 
 	if len(pdfFileNamesToMerge) > 0 {
-		pdfFileNamesToMergePdf, perr := p.pdfGenerator.MergePDFFiles(appCtx, pdfFileNamesToMerge)
+		pdfFileNamesToMergePdf, perr = p.pdfGenerator.MergePDFFiles(appCtx, pdfFileNamesToMerge, dirName)
 		if perr != nil {
 			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed pdfGenerator.MergePDFFiles")
-			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-			return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+			appCtx.Logger().Error(errMsgPrefix, zap.Error(perr))
+			return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, perr)
 		}
 		pdfFilesToMerge = append(pdfFilesToMerge, pdfFileNamesToMergePdf)
 	}
 
 	// Do final merge of all PDFs into one.
-	finalMergePdf, err := p.pdfGenerator.MergePDFFilesByContents(appCtx, pdfFilesToMerge)
+	finalMergePdf, err := p.pdfGenerator.MergePDFFilesByContents(appCtx, pdfFilesToMerge, dirName)
 	if err != nil {
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generated file merged pdf")
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
 	// Start building bookmarks and watermarks
@@ -136,7 +145,7 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	if err != nil {
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate bookmarks for PDF")
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
 	// It was discovered during implementation of B-21938 that watermarks were not functional.
@@ -144,15 +153,61 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	// See https://github.com/transcom/mymove/pull/14496 for removal
 
 	if addBookmarks {
-		return p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks)
+		outputFile, err := p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks, dirName)
+
+		if err != nil {
+			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to add bookmarks for PDF")
+			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
+			return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		}
+
+		return outputFile, dirPath, nil
 	}
 
 	// bookmark and watermark both disabled
-	return finalMergePdf, nil
+	return finalMergePdf, dirPath, nil
 }
 
-func (p *paymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (io.ReadCloser, error) {
+func (p *paymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, string, error) {
 	return p.Generate(appCtx, ppmShipmentID, true, true)
+}
+
+// remove all of the packet files from the temp directory associated with creating the payment packet
+func (p *paymentPacketCreator) CleanupPaymentPacketFile(packetFile afero.File, closeFile bool) error {
+	if closeFile {
+		if err := packetFile.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
+			return err
+		}
+	}
+
+	fs := p.pdfGenerator.FileSystem()
+	exists, err := afero.Exists(fs, packetFile.Name())
+
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		err := fs.Remove(packetFile.Name())
+
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ENOENT) {
+				// File does not exist treat it as non-error:
+				return nil
+			}
+
+			// Return the error if it's not a "file not found" error
+			return err
+		}
+	}
+
+	return nil
+}
+
+// remove all of the packet files from the temp directory associated with creating the Payment Packet
+func (p *paymentPacketCreator) CleanupPaymentPacketDir(dirPath string) error {
+	// RemoveAll does not return an error if the directory doesn't exist it will just do nothing and return nil
+	return p.pdfGenerator.FileSystem().RemoveAll(dirPath)
 }
 
 func buildBookMarks(fileNamesToMerge []string, sortedPaymentPacketItems map[int]paymentPacketItem, aoaPacketFile io.ReadSeeker, pdfGenerator paperwork.Generator) ([]pdfcpu.Bookmark, error) {
