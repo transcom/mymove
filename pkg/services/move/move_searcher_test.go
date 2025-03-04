@@ -335,8 +335,8 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		moves, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{Locator: &moveWithShipmentsOfEveryStatus.Locator})
 		suite.NoError(err)
 		suite.Len(moves, 1)
-		suite.Len(moves[0].MTOShipments, 2)
-		suite.Equal(len(filteredShipments), 2)
+		suite.Len(moves[0].MTOShipments, 3)
+		suite.Equal(len(filteredShipments), 3)
 
 	})
 }

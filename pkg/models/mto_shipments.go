@@ -520,7 +520,7 @@ func FetchShipmentByID(db *pop.Connection, shipmentID uuid.UUID) (*MTOShipment, 
 }
 
 // filters the returned MtoShipments for each move.
-// Ignoring mto shipments that have been deleted, cancelled, rejected, or cancelled requested.
+// Ignoring mto shipments that have been deleted, cancelled, or rejected.
 func FilterDeletedRejectedCanceledMtoShipments(unfilteredShipments MTOShipments) MTOShipments {
 	if len(unfilteredShipments) == 0 {
 		return unfilteredShipments
