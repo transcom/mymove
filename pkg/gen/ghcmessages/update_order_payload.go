@@ -23,6 +23,9 @@ type UpdateOrderPayload struct {
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
 
+	// dependents authorized
+	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
+
 	// grade
 	Grade *Grade `json:"grade,omitempty"`
 
