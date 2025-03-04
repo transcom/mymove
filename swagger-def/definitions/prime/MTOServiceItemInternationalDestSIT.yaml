@@ -1,0 +1,74 @@
+description: Describes a international destination SIT service item. Subtype of a MTOServiceItem.
+allOf:
+  - $ref: 'MTOServiceItem.yaml'
+  - type: object
+    properties:
+      reServiceCode:
+        type: string
+        description: Service code allowed for this model type.
+        enum:
+          - IDFSIT # International Destination First Day SIT
+          - IDASIT # International Destination Additional SIT
+      dateOfContact1:
+        format: date
+        type: string
+        description: Date of attempted contact by the prime corresponding to `timeMilitary1`.
+        x-nullable: true
+      dateOfContact2:
+        format: date
+        type: string
+        description: Date of attempted contact by the prime corresponding to `timeMilitary2`.
+        x-nullable: true
+      timeMilitary1:
+        type: string
+        example: 1400Z
+        description: Time of attempted contact corresponding to `dateOfContact1`, in military format.
+        pattern: '\d{4}Z'
+        x-nullable: true
+      timeMilitary2:
+        type: string
+        example: 1400Z
+        description: Time of attempted contact corresponding to `dateOfContact2`, in military format.
+        pattern: '\d{4}Z'
+        x-nullable: true
+      firstAvailableDeliveryDate1:
+        format: date
+        type: string
+        description: First available date that Prime can deliver SIT service item.
+        x-nullable: true
+      firstAvailableDeliveryDate2:
+        format: date
+        type: string
+        description: Second available date that Prime can deliver SIT service item.
+        x-nullable: true
+      sitEntryDate:
+        format: date
+        type: string
+        description: Entry date for the SIT
+      sitDepartureDate:
+        format: date
+        type: string
+        description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+        x-nullable: true
+      sitDestinationFinalAddress:
+        $ref: '../Address.yaml'
+      reason:
+        type: string
+        description: >
+          The reason item has been placed in SIT.
+        x-nullable: true
+        x-omitempty: false
+      sitRequestedDelivery:
+        format: date
+        type: string
+        description: Date when the customer has requested delivery out of SIT.
+        x-nullable: true
+      sitCustomerContacted:
+        format: date
+        type: string
+        description: Date when the customer contacted the prime for a delivery out of SIT.
+        x-nullable: true
+    required:
+      - reServiceCode
+      - sitEntryDate
+      - reason

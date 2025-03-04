@@ -16,8 +16,6 @@ const OfficeList = () => (
     <Datagrid bulkActionButtons={false}>
       <TextField source="id" />
       <TextField source="name" />
-      <TextField source="latitude" />
-      <TextField source="longitude" />
       <TextField source="gbloc" />
     </Datagrid>
   </List>
