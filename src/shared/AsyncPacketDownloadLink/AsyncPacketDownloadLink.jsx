@@ -42,7 +42,7 @@ export const onPacketDownloadSuccessHandler = (response) => {
  * @param {Promise} asyncRetrieval asynch document retrieval
  * @param {func} onSuccess on success response handler
  * @param {func} onFailure on failure response handler
- * @param {func} onStart on start handler
+ * @param {func} onStart on start response handler
  */
 const AsyncPacketDownloadLink = ({ id, label, asyncRetrieval, onSuccess, onFailure, onStart, className }) => {
   const dataTestId = `asyncPacketDownloadLink${id}`;
