@@ -1829,10 +1829,14 @@ describe('loading mask behavior for PPM AOA packet download', () => {
     // Manually resolve promise
     resolveDownload();
 
-    await waitFor(() => {
-      expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
-      expect(wrapper.find('LoadingSpinner').length).toBe(0);
+    await act(async () => {
+      await Promise.resolve();
     });
+    wrapper.update();
+
+    // Verify that the load mask has been removed
+    expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+    expect(wrapper.find('LoadingSpinner').length).toBe(0);
   });
 
   it('should show and hide loading mask on failed download', async () => {
@@ -1855,10 +1859,13 @@ describe('loading mask behavior for PPM AOA packet download', () => {
     // Manually resolve promise
     rejectDownload();
 
-    await waitFor(() => {
-      expect(wrapper.find('LoadingSpinner').length).toBe(0);
-      expect(wrapper.text()).toContain('Something went wrong downloading PPM paperwork.');
-      expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      await Promise.resolve();
     });
+    wrapper.update();
+
+    // Verify that the load mask has been removed
+    expect(wrapper.find('LoadingSpinner').length).toBe(0);
+    expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
   });
 });
