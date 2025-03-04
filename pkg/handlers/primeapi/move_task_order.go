@@ -373,9 +373,27 @@ type AcknowledgeMovesAndShipmentsHandler struct {
 func (h AcknowledgeMovesAndShipmentsHandler) Handle(params movetaskorderops.AcknowledgeMovesAndShipmentsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			payload := &primemessages.AcknowledgeMovesShipmentsSuccessResponse{
+
+			payload := params.Body
+
+			if payload == nil {
+				invalidMovesError := apperror.NewBadDataError("Invalid moves: params Body is nil")
+				appCtx.Logger().Error(invalidMovesError.Error())
+				return movetaskorderops.NewAcknowledgeMovesAndShipmentsUnprocessableEntity(), invalidMovesError
+			}
+			moves, verrs := payloads.MovesModelFromAcknowledgeMovesAndShipments(&payload)
+			if verrs != nil && verrs.HasAny() {
+				return movetaskorderops.NewAcknowledgeMovesAndShipmentsUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Invalid input found in moves", h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
+			} else if moves == nil {
+				return movetaskorderops.NewAcknowledgeMovesAndShipmentsUnprocessableEntity().WithPayload(
+					payloads.ValidationError("Unable to process moves", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
+			}
+			// Call service to acknowledge moves/shipments here
+
+			responsePayload := &primemessages.AcknowledgeMovesShipmentsSuccessResponse{
 				Message: "Way to go!",
 			}
-			return movetaskorderops.NewAcknowledgeMovesAndShipmentsOK().WithPayload(payload), nil
+			return movetaskorderops.NewAcknowledgeMovesAndShipmentsOK().WithPayload(responsePayload), nil
 		})
 }
