@@ -2563,6 +2563,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		zone2Address := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddressAKZone2})
 		zone3Address := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddressAKZone3})
 		zone4Address := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddressAKZone4})
+		zone5Address := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddressAKZone5})
 
 		estimatedWeight := unit.Pound(11000)
 
@@ -2657,8 +2658,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			err = suite.DB().Find(&fetchedShipment, shipment.ID)
 			suite.NoError(err)
 			suite.NotNil(fetchedShipment.RequiredDeliveryDate)
-			fmt.Println("fetchedShipment.RequiredDeliveryDate")
-			fmt.Println(fetchedShipment.RequiredDeliveryDate)
 			suite.Equal(rdd20DaysDate.Format(time.RFC3339), fetchedShipment.RequiredDeliveryDate.Format(time.RFC3339))
 		}
 		testCases60Days := []struct {
