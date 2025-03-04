@@ -25,10 +25,10 @@ func (p intlUBPricer) Price(appCtx appcontext.AppContext, contractCode string, r
 		return 0, nil, errors.New("ContractCode is required")
 	}
 	if referenceDate.IsZero() {
-		return 0, nil, errors.New("referenceDate is required")
+		return 0, nil, errors.New("ReferenceDate is required")
 	}
 	if weight < minIntlWeightUB {
-		return 0, nil, fmt.Errorf("weight must be at least %d pounds", minIntlWeightUB)
+		return 0, nil, fmt.Errorf("Weight must be at least %d pounds", minIntlWeightUB)
 	}
 	if perUnitCents == 0 {
 		return 0, nil, errors.New("PerUnitCents is required")
