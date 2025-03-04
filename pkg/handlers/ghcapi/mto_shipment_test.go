@@ -3681,10 +3681,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
-		fmt.Println("params.Body")
-		fmt.Println(params.Body)
-		fmt.Println("params.Body.PpmShipment")
-		fmt.Println(params.Body.PpmShipment)
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
