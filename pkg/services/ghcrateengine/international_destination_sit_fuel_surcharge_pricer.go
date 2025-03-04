@@ -2,12 +2,9 @@ package ghcrateengine
 
 import (
 	"database/sql"
-	"fmt"
-	"math"
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -23,35 +20,8 @@ func NewInternationalDestinationSITFuelSurchargePricer() services.InternationalD
 	return &internationalDestinationSITFuelSurchargePricer{}
 }
 
-func (p internationalDestinationSITFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
-	// Validate parameters
-	if actualPickupDate.IsZero() {
-		return 0, nil, errors.New("ActualPickupDate is required")
-	}
-	if distance <= 0 {
-		return 0, nil, errors.New("Distance must be greater than 0")
-	}
-	if !isPPM && weight < minInternationalWeight {
-		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minInternationalWeight)
-	}
-	if fscWeightBasedDistanceMultiplier == 0 {
-		return 0, nil, errors.New("WeightBasedDistanceMultiplier is required")
-	}
-	if eiaFuelPrice == 0 {
-		return 0, nil, errors.New("EIAFuelPrice is required")
-	}
-
-	fscPriceDifferenceInCents := (eiaFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
-	fscMultiplier := fscWeightBasedDistanceMultiplier * distance.Float64()
-	fscPrice := fscMultiplier * fscPriceDifferenceInCents * 100
-	totalCost := unit.Cents(math.Round(fscPrice))
-
-	displayParams := services.PricingDisplayParams{
-		{Key: models.ServiceItemParamNameFSCPriceDifferenceInCents, Value: FormatFloat(fscPriceDifferenceInCents, 1)},
-		{Key: models.ServiceItemParamNameFSCMultiplier, Value: FormatFloat(fscMultiplier, 7)},
-	}
-
-	return totalCost, displayParams, nil
+func (p internationalDestinationSITFuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceIntlFuelSurcharge(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, isPPM)
 }
 
 func (p internationalDestinationSITFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {

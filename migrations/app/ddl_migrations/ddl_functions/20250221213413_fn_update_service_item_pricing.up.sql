@@ -1,6 +1,5 @@
 --B-22462  M.Inthavongsay Adding initial migration file for update_service_item_pricing stored procedure using new migration process.
 --Also updating to allow IOSFSC and IDSFSC SIT service items.
-
 CREATE OR REPLACE PROCEDURE update_service_item_pricing(
     shipment_id UUID,
     mileage INT
@@ -39,7 +38,7 @@ BEGIN
 
     -- loop through service items in the shipment
     FOR service_item IN
-        SELECT si.id, si.re_service_id
+        SELECT si.id, si.re_service_id, si.sit_delivery_miles
         FROM mto_service_items si
         WHERE si.mto_shipment_id = shipment_id
     LOOP
@@ -60,10 +59,10 @@ BEGIN
                     -- multiply by 110% of estimated weight
                     estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100), 2) * 100;
                     RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
-                    -- update the pricing_estimate value in mto_service_items
-                    UPDATE mto_service_items
-                    SET pricing_estimate = estimated_price
-                    WHERE id = service_item.id;
+			        -- update the pricing_estimate value in mto_service_items
+			        UPDATE mto_service_items
+			        SET pricing_estimate = estimated_price
+			        WHERE id = service_item.id;
                 END IF;
 
             WHEN service_code IN (''IHPK'', ''IUBPK'', ''IOSHUT'') THEN
@@ -76,10 +75,10 @@ BEGIN
                     -- multiply by 110% of estimated weight
                     estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100), 2) * 100;
                     RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
-                    -- update the pricing_estimate value in mto_service_items
-                    UPDATE mto_service_items
-                    SET pricing_estimate = estimated_price
-                    WHERE id = service_item.id;
+			        -- update the pricing_estimate value in mto_service_items
+			        UPDATE mto_service_items
+			        SET pricing_estimate = estimated_price
+			        WHERE id = service_item.id;
                 END IF;
 
             WHEN service_code IN (''IHUPK'', ''IUBUPK'', ''IDSHUT'') THEN
@@ -92,10 +91,10 @@ BEGIN
                     -- multiply by 110% of estimated weight
                     estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100), 2) * 100;
                     RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
-                    -- update the pricing_estimate value in mto_service_items
-                    UPDATE mto_service_items
-                    SET pricing_estimate = estimated_price
-                    WHERE id = service_item.id;
+			        -- update the pricing_estimate value in mto_service_items
+			        UPDATE mto_service_items
+			        SET pricing_estimate = estimated_price
+			        WHERE id = service_item.id;
                 END IF;
 
             WHEN service_code IN (''POEFSC'', ''PODFSC'') THEN
@@ -115,17 +114,17 @@ BEGIN
                     estimated_price := ROUND((cents_above_baseline * price_difference) * 100);
                     RAISE NOTICE ''Received estimated price of % cents for service_code: %.'', estimated_price, service_code;
 
-                    -- update the pricing_estimate value in mto_service_items
-                    UPDATE mto_service_items
-                    SET pricing_estimate = estimated_price
-                    WHERE id = service_item.id;
+			        -- update the pricing_estimate value in mto_service_items
+			        UPDATE mto_service_items
+			        SET pricing_estimate = estimated_price
+			        WHERE id = service_item.id;
                 END IF;
 
             WHEN service_code IN (''IOSFSC'', ''IDSFSC'') THEN
-                distance = mileage;
+                distance = service_item.sit_delivery_miles;
 
-                -- getting FSC multiplier from re_fsc_multipliers
-                estimated_fsc_multiplier := get_fsc_multiplier(shipment.prime_estimated_weight);
+                -- getting FSC multiplier from re_fsc_multipliers. inflate estimated weight by 10%.
+                estimated_fsc_multiplier := get_fsc_multiplier(CAST((shipment.prime_estimated_weight * 1.1) as INTEGER));
 
                 fuel_price := get_fuel_price(shipment.requested_pickup_date);
 
@@ -138,11 +137,13 @@ BEGIN
                     estimated_price := ROUND((cents_above_baseline * price_difference) * 100);
                     RAISE NOTICE ''Received estimated price of % cents for service_code: %.'', estimated_price, service_code;
 
-                    -- update the pricing_estimate value in mto_service_items
-                    UPDATE mto_service_items
-                    SET pricing_estimate = estimated_price
-                    WHERE id = service_item.id;
+			        -- update the pricing_estimate value in mto_service_items
+			        UPDATE mto_service_items
+			        SET pricing_estimate = estimated_price
+			        WHERE id = service_item.id;
                 END IF;
+            ELSE
+                -- DEFAULT HERE
         END CASE;
     END LOOP;
 END;
