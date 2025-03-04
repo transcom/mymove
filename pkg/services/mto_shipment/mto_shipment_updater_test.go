@@ -3897,7 +3897,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 		// this also tests the calculate_escalation_factor proc
 		// This information was pulled from the migration scripts (Or just run db fresh and perform the lookups
 		// manually, whichever is your cup of tea)
-		suite.Equal(escalationFactor, 1.0185)
+		suite.Equal(escalationFactor, 1.04082)
 
 		// Fetch the INPK market factor from the DB
 		inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)

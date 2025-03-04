@@ -141,33 +141,13 @@ BEGIN
                 );
 
                 -- Now that we have the escalated price, we multiply it by the
-                -- NTS INPK market code factor
-
-                SELECT is_oconus
-                INTO declared_is_oconus
-                FROM re_rate_areas
-                WHERE id = o_rate_area_id;
-
-                IF declared_is_oconus THEN
-                    declared_market_code := ''O'';
-                ELSE
-                    declared_market_code := ''C'';
-                END IF;
-
-                SELECT stp.factor
-                    INTO declared_oconus_factor
-                    FROM re_shipment_type_prices stp
-                 WHERE stp.contract_id = declared_contract_id
-                 -- Use INPK for this one, not IHPK as we are applying
-                 -- NTS math to IHPK price
-                    AND stp.service_id = service_item.re_service_id
-                    AND stp.market = declared_market_code
-                    LIMIT 1;
-
-                IF declared_oconus_factor IS NULL THEN
-                    RAISE EXCEPTION ''No OCONUS/CONUS factor found for INPK for market_code=%, contract_id=%, re_service_id=%.'', declared_market_code, declared_contract_id, service_item.re_service_id;
-                    RETURN;
-                END IF;
+                -- NTS INPK market code factor. This time we pass in INPK,
+                -- because this is an NTS scenario
+                declared_oconus_factor := get_market_code_factor_escalation(
+                    o_rate_area_id,
+                    declared_contract_id,
+                    (SELECT id FROM re_services WHERE code = ''INPK'' LIMIT 1)
+                );
 
                 -- Okay, now that we have all of our numbers. We just gotta calc
                 -- the final price
