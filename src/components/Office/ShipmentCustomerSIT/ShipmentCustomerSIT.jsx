@@ -69,7 +69,7 @@ const ShipmentCustomerSIT = ({ sitEstimatedWeight, sitEstimatedEntryDate, sitEst
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
-        <h2 className={styles.SectionHeader}>Storage in transit (SIT)</h2>
+        <h3 className={styles.SectionHeader}>Storage in transit (SIT)</h3>
 
         <Grid row gap>
           <Grid col={12}>
