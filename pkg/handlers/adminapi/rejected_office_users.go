@@ -69,7 +69,7 @@ var rejectedOfficeUserFilterConverters = map[string]func(string) func(*pop.Query
 	"search": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
 			nameSearch := fmt.Sprintf("%%%s%%", content)
-			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'REJECTED' OR office_users.last_name ILIKE ? AND office_users.status = 'REJECTED'", nameSearch, nameSearch)
+			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'REJECTED' OR office_users.last_name ILIKE ? AND office_users.status = 'REJECTED' OR office_users.email ILIKE ? AND office_users.status = 'REJECTED'", nameSearch, nameSearch, nameSearch)
 		}
 	},
 	"emails": func(content string) func(*pop.Query) {
