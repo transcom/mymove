@@ -6,8 +6,9 @@ import { Form, Formik } from 'formik';
 import classNames from 'classnames';
 import * as Yup from 'yup';
 
+import ValidCACModal from '../../components/ValidCACModal/ValidCACModal';
+
 import styles from './SignUp.module.scss';
-import ValidCACModal from './ValidCACModal';
 
 import formStyles from 'styles/form.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -263,12 +264,23 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                           </>
                         )}
                         <StyledLine />
-                        <TextField label="First Name" name="firstName" id="firstName" />
-                        <TextField label="Middle Initial" name="middleInitial" id="middleInitial" />
-                        <TextField label="Last Name" name="lastName" id="lastName" />
+                        <TextField label="First Name" name="firstName" id="firstName" data-testid="firstName" />
+                        <TextField
+                          label="Middle Initial"
+                          name="middleInitial"
+                          id="middleInitial"
+                          data-testid="middleInitial"
+                        />
+                        <TextField label="Last Name" name="lastName" id="lastName" data-testid="lastName" />
                         <StyledLine />
-                        <TextField label="Email" name="email" id="email" />
-                        <TextField label="Confirm Email" name="emailConfirmation" id="emailConfirmation" disablePaste />
+                        <TextField label="Email" name="email" id="email" data-testid="email" />
+                        <TextField
+                          label="Confirm Email"
+                          name="emailConfirmation"
+                          id="emailConfirmation"
+                          disablePaste
+                          data-testid="emailConfirmation"
+                        />
                         <StyledLine />
                         <MaskedTextField
                           label="Telephone"
@@ -277,6 +289,7 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                           type="tel"
                           minimum="12"
                           mask="000{-}000{-}0000"
+                          data-testid="telephone"
                         />
                         <MaskedTextField
                           label="Secondary Telephone"
@@ -285,20 +298,31 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                           type="tel"
                           minimum="12"
                           mask="000{-}000{-}0000"
+                          data-testid="secondaryTelephone"
                         />
                         <Label className={styles.checkboxLabel}>Preferred contact method</Label>
                         <div className={classNames(formStyles.radioGroup, formStyles.customerPreferredContact)}>
-                          <CheckboxField id="phoneIsPreferred" label="Phone" name="phoneIsPreferred" />
-                          <CheckboxField id="emailIsPreferred" label="Email" name="emailIsPreferred" />
+                          <CheckboxField
+                            id="phoneIsPreferred"
+                            label="Phone"
+                            name="phoneIsPreferred"
+                            data-testid="phoneIsPreferred"
+                          />
+                          <CheckboxField
+                            id="emailIsPreferred"
+                            label="Email"
+                            name="emailIsPreferred"
+                            data-testid="emailIsPreferred"
+                          />
                         </div>
                       </div>
                     </SectionWrapper>
 
                     <div className={styles.buttonRow}>
-                      <Button type="submit" disabled={!isValid}>
+                      <Button type="submit" disabled={!isValid} data-testid="submitBtn">
                         Submit
                       </Button>
-                      <Button type="button" onClick={handleCancel} secondary>
+                      <Button type="button" onClick={handleCancel} secondary data-testid="cancelBtn">
                         Cancel
                       </Button>
                     </div>

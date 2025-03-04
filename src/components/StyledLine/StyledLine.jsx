@@ -2,7 +2,7 @@ import React from 'react';
 
 import styles from './StyledLine.module.scss';
 
-const StyledLine = ({ width, color, className }) => {
+export const StyledLine = ({ width, color, className }) => {
   return (
     <div
       className={`${className || styles.styledLine}`}

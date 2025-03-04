@@ -6,7 +6,7 @@ import styles from './RegistrationConfirmationModal.module.scss';
 
 import Modal, { ModalActions, ModalTitle, connectModal } from 'components/Modal/Modal';
 
-const RegistrationConfirmationModal = ({ onSubmit }) => {
+export const RegistrationConfirmationModal = ({ onSubmit }) => {
   return (
     <Modal>
       <ModalTitle className={styles.center}>
@@ -32,5 +32,7 @@ const RegistrationConfirmationModal = ({ onSubmit }) => {
 RegistrationConfirmationModal.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
+
+RegistrationConfirmationModal.displayName = 'RegistrationConfirmationModal';
 
 export default connectModal(RegistrationConfirmationModal);

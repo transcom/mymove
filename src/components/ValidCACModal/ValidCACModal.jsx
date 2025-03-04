@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import styles from './SignUp.module.scss';
+import styles from '../../pages/SignUp/SignUp.module.scss';
 
 import smartCard from 'shared/images/smart-card.png';
 import Modal, { ModalTitle, ModalActions, connectModal } from 'components/Modal/Modal';
