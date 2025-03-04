@@ -1,3 +1,4 @@
+-- Cam B-22662 added INPK estimate pricing
 CREATE OR REPLACE PROCEDURE update_service_item_pricing(
     shipment_id UUID,
     mileage INT
@@ -127,29 +128,17 @@ BEGIN
                 -- get the base price for the origin rate area from IHPK (iHHG into iNTS means use IHPK base price)
                 declared_contract_id := get_contract_id(shipment.requested_pickup_date);
                 o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
-                SELECT riop.per_unit_cents
-                INTO declared_base_price
-                FROM re_intl_other_prices AS riop
-                JOIN re_contract_years AS rcy ON rcy.contract_id = riop.contract_id
-                WHERE riop.contract_id = declared_contract_id
-                AND riop.service_id = (SELECT id FROM re_services WHERE code = ''IHPK'' LIMIT 1)
-                AND riop.rate_area_id = o_rate_area_id
-                AND shipment.requested_pickup_date between rcy.start_date and rcy.end_date
-                LIMIT 1;
 
-                IF declared_base_price IS NULL THEN
-                    RAISE EXCEPTION ''No base price found for IHPK when calculating INPK estimate price: o_rate_area_id=%, declared_contract_id=%, cwt=%, shipment.requested_pickup_date=% (service_item id=%)'',
+                -- Use IHPK for the escalated price for the INPK case
+                -- THis is because the scenario is iHHG -> iNTS
+                escalated_price := calculate_escalated_price(
                     o_rate_area_id,
+                    NULL,
+                    (SELECT id FROM re_services WHERE code = ''IHPK'' LIMIT 1),
                     declared_contract_id,
-                    (shipment.prime_estimated_weight / 100.0),
-                    shipment.requested_pickup_date,
-                    service_item.id;
-                    CONTINUE;
-                END IF;
-                -- Now that we have the IHPK base price
-                -- we can get the escalation factor and thus the escalated price
-                declared_escalation_factor := calculate_escalation_factor(declared_contract_id, shipment.requested_pickup_date);
-                escalated_price := declared_base_price * declared_escalation_factor;
+                    ''IHPK'',
+                    shipment.requested_pickup_date
+                );
 
                 -- Now that we have the escalated price, we multiply it by the
                 -- NTS INPK market code factor
