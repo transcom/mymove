@@ -17,7 +17,9 @@ import {
 } from './HomeHelpers';
 
 import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
-import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import AsyncPacketDownloadLink, {
+  onPacketDownloadSuccessHandler,
+} from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
@@ -69,6 +71,7 @@ import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import ToolTip from 'shared/ToolTip/ToolTip';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -101,6 +104,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [isManageSupportingDocsEnabled, setIsManageSupportingDocsEnabled] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -131,6 +135,18 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       updateAllMoves(response);
     });
   }, [updateAllMoves, serviceMember]);
+
+  useEffect(() => {
+    if (isDownloading) {
+      document.body.classList.add('has-overlay');
+    } else {
+      document.body.classList.remove('has-overlay');
+    }
+
+    return () => {
+      document.body.classList.remove('has-overlay');
+    };
+  }, [isDownloading]);
 
   // loading placeholder while data loads - this handles any async issues
   if (!serviceMemberMoves || !serviceMemberMoves.currentMove || !serviceMemberMoves.previousMoves) {
@@ -392,6 +408,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     });
 
     navigate(path);
+  };
+
+  const handleDownloadSuccess = (response) => {
+    setIsDownloading(false);
+    onPacketDownloadSuccessHandler(response);
   };
 
   // if the move has amended orders that aren't approved, it will display an info box at the top of the page
@@ -698,12 +719,83 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     headerText="Advance request submitted"
                     step="5"
                   >
-                    <SectionWrapper className={styles['ppm-shipment']}>
-                      {hasAdvanceApproved() && (
-                        <>
+                    <div>
+                      {isDownloading && <LoadingSpinner message="Downloading payment packet" />}
+                      <SectionWrapper className={styles['ppm-shipment']}>
+                        {hasAdvanceApproved() && (
+                          <>
+                            <Description>
+                              Your Advance Operating Allowance (AOA) request has been reviewed. Download the paperwork
+                              for approved requests and submit it to your Finance Office to receive your advance.
+                              <br />
+                              <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                              incentive ends up being less than your advance, you will be required to pay back the
+                              difference.
+                              <br />
+                              <br />
+                            </Description>
+                            {ppmShipments.map((shipment) => {
+                              const { shipmentType } = shipment;
+                              if (shipmentNumbersByType[shipmentType]) {
+                                shipmentNumbersByType[shipmentType] += 1;
+                              } else {
+                                shipmentNumbersByType[shipmentType] = 1;
+                              }
+                              const shipmentNumber = shipmentNumbersByType[shipmentType];
+                              return (
+                                <>
+                                  <strong>
+                                    {shipmentTypes[shipment.shipmentType]}
+                                    {` ${shipmentNumber} `}
+                                  </strong>
+                                  {(shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue ||
+                                    shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.EDITED.apiValue) && (
+                                    // TODO: B-18060 will add link to method that will create the AOA packet and return for download
+                                    <p className={styles.downloadLink}>
+                                      <AsyncPacketDownloadLink
+                                        id={shipment?.ppmShipment?.id}
+                                        label="Download AOA Paperwork (PDF)"
+                                        asyncRetrieval={downloadPPMAOAPacket}
+                                        onSuccess={handleDownloadSuccess}
+                                        onFailure={togglePPMPacketErrorModal}
+                                        onStart={() => setIsDownloading(true)}
+                                      />
+                                    </p>
+                                  )}
+                                  {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
+                                    <Description>Advance request denied</Description>
+                                  )}
+                                  {shipment?.ppmShipment?.advanceStatus == null && (
+                                    <Description>Advance request pending</Description>
+                                  )}
+                                </>
+                              );
+                            })}
+                          </>
+                        )}
+                        {hasAllAdvancesRejected() && (
                           <Description>
-                            Your Advance Operating Allowance (AOA) request has been reviewed. Download the paperwork for
-                            approved requests and submit it to your Finance Office to receive your advance.
+                            Your Advance Operating Allowance (AOA) request has been denied. You may be able to use your
+                            Government Travel Charge Card (GTCC). Contact your local transportation office to verify
+                            GTCC usage authorization or ask any questions.
+                          </Description>
+                        )}
+                        {!isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
+                          <Description>
+                            Your service will review your request for an Advance Operating Allowance (AOA). If approved,
+                            you will be able to download the paperwork for your request and submit it to your Finance
+                            Office to receive your advance.
+                            <br />
+                            <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                            incentive ends up being less than your advance, you will be required to pay back the
+                            difference.
+                          </Description>
+                        )}
+                        {isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
+                          <Description>
+                            Once you have received counseling for your PPM you will receive emailed instructions on how
+                            to download your Advance Operating Allowance (AOA) packet. Please consult with your
+                            Transportation Office for review of your AOA packet.
                             <br />
                             <br /> The amount you receive will be deducted from your PPM incentive payment. If your
                             incentive ends up being less than your advance, you will be required to pay back the
@@ -711,112 +803,48 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                             <br />
                             <br />
                           </Description>
-                          {ppmShipments.map((shipment) => {
-                            const { shipmentType } = shipment;
-                            if (shipmentNumbersByType[shipmentType]) {
-                              shipmentNumbersByType[shipmentType] += 1;
-                            } else {
-                              shipmentNumbersByType[shipmentType] = 1;
-                            }
-                            const shipmentNumber = shipmentNumbersByType[shipmentType];
-                            return (
-                              <>
-                                <strong>
-                                  {shipmentTypes[shipment.shipmentType]}
-                                  {` ${shipmentNumber} `}
-                                </strong>
-                                {(shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue ||
-                                  shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.EDITED.apiValue) && (
-                                  // TODO: B-18060 will add link to method that will create the AOA packet and return for download
-                                  <p className={styles.downloadLink}>
-                                    <AsyncPacketDownloadLink
-                                      id={shipment?.ppmShipment?.id}
-                                      label="Download AOA Paperwork (PDF)"
-                                      asyncRetrieval={downloadPPMAOAPacket}
-                                      onFailure={togglePPMPacketErrorModal}
-                                    />
-                                  </p>
-                                )}
-                                {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
-                                  <Description>Advance request denied</Description>
-                                )}
-                                {shipment?.ppmShipment?.advanceStatus == null && (
-                                  <Description>Advance request pending</Description>
-                                )}
-                              </>
-                            );
-                          })}
-                        </>
-                      )}
-                      {hasAllAdvancesRejected() && (
-                        <Description>
-                          Your Advance Operating Allowance (AOA) request has been denied. You may be able to use your
-                          Government Travel Charge Card (GTCC). Contact your local transportation office to verify GTCC
-                          usage authorization or ask any questions.
-                        </Description>
-                      )}
-                      {!isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
-                        <Description>
-                          Your service will review your request for an Advance Operating Allowance (AOA). If approved,
-                          you will be able to download the paperwork for your request and submit it to your Finance
-                          Office to receive your advance.
-                          <br />
-                          <br /> The amount you receive will be deducted from your PPM incentive payment. If your
-                          incentive ends up being less than your advance, you will be required to pay back the
-                          difference.
-                        </Description>
-                      )}
-                      {isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
-                        <Description>
-                          Once you have received counseling for your PPM you will receive emailed instructions on how to
-                          download your Advance Operating Allowance (AOA) packet. Please consult with your
-                          Transportation Office for review of your AOA packet.
-                          <br />
-                          <br /> The amount you receive will be deducted from your PPM incentive payment. If your
-                          incentive ends up being less than your advance, you will be required to pay back the
-                          difference.
-                          <br />
-                          <br />
-                        </Description>
-                      )}
-                      {isPrimeCounselingComplete() && (
-                        <>
-                          {ppmShipments.map((shipment) => {
-                            const { shipmentType } = shipment;
-                            if (shipmentNumbersByType[shipmentType]) {
-                              shipmentNumbersByType[shipmentType] += 1;
-                            } else {
-                              shipmentNumbersByType[shipmentType] = 1;
-                            }
-                            const shipmentNumber = shipmentNumbersByType[shipmentType];
-                            return (
-                              <>
-                                <strong>
-                                  {shipmentTypes[shipment.shipmentType]}
-                                  {` ${shipmentNumber} `}
-                                </strong>
-                                {shipment?.ppmShipment?.hasRequestedAdvance && (
-                                  <p className={styles.downloadLink}>
-                                    <AsyncPacketDownloadLink
-                                      id={shipment?.ppmShipment?.id}
-                                      label="Download AOA Paperwork (PDF)"
-                                      asyncRetrieval={downloadPPMAOAPacket}
-                                      onFailure={togglePPMPacketErrorModal}
-                                    />
-                                  </p>
-                                )}
-                                {!shipment?.ppmShipment?.hasRequestedAdvance && (
-                                  <>
-                                    <br />
-                                    <br />
-                                  </>
-                                )}
-                              </>
-                            );
-                          })}
-                        </>
-                      )}
-                    </SectionWrapper>
+                        )}
+                        {isPrimeCounselingComplete() && (
+                          <>
+                            {ppmShipments.map((shipment) => {
+                              const { shipmentType } = shipment;
+                              if (shipmentNumbersByType[shipmentType]) {
+                                shipmentNumbersByType[shipmentType] += 1;
+                              } else {
+                                shipmentNumbersByType[shipmentType] = 1;
+                              }
+                              const shipmentNumber = shipmentNumbersByType[shipmentType];
+                              return (
+                                <>
+                                  <strong>
+                                    {shipmentTypes[shipment.shipmentType]}
+                                    {` ${shipmentNumber} `}
+                                  </strong>
+                                  {shipment?.ppmShipment?.hasRequestedAdvance && (
+                                    <p className={styles.downloadLink}>
+                                      <AsyncPacketDownloadLink
+                                        id={shipment?.ppmShipment?.id}
+                                        label="Download AOA Paperwork (PDF)"
+                                        asyncRetrieval={downloadPPMAOAPacket}
+                                        onSuccess={handleDownloadSuccess}
+                                        onFailure={togglePPMPacketErrorModal}
+                                        onStart={() => setIsDownloading(true)}
+                                      />
+                                    </p>
+                                  )}
+                                  {!shipment?.ppmShipment?.hasRequestedAdvance && (
+                                    <>
+                                      <br />
+                                      <br />
+                                    </>
+                                  )}
+                                </>
+                              );
+                            })}
+                          </>
+                        )}
+                      </SectionWrapper>
+                    </div>
                   </Step>
                 )}
                 {!!ppmShipments.length && hasSubmittedMove() && (

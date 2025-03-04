@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { arrayOf, bool, func, number } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './PPMSummaryList.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatAddressShort } from 'utils/formatters';
-import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import AsyncPacketDownloadLink, {
+  onPacketDownloadSuccessHandler,
+} from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
 import { isFeedbackAvailable } from 'constants/ppmFeedback';
 
@@ -90,9 +93,32 @@ const paymentReviewed = (approvedAt, submittedAt, reviewedAt, pickupAddress, des
 };
 
 const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, onFeedbackClick) => {
+  const [isDownloading, setIsDownloading] = useState(false);
   const {
     ppmShipment: { status, approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress },
   } = shipment;
+
+  useEffect(() => {
+    if (isDownloading) {
+      document.body.classList.add('has-overlay');
+    } else {
+      document.body.classList.remove('has-overlay');
+    }
+
+    return () => {
+      document.body.classList.remove('has-overlay');
+    };
+  }, [isDownloading]);
+
+  const handleDownloadSuccess = (response) => {
+    setIsDownloading(false);
+    onPacketDownloadSuccessHandler(response);
+  };
+
+  const handleDownloadFailure = () => {
+    setIsDownloading(false);
+    onDownloadError();
+  };
 
   let actionButtons;
   let content;
@@ -128,7 +154,9 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
               id={shipment?.ppmShipment?.id}
               label="Download Payment Packet"
               asyncRetrieval={downloadPPMPaymentPacket}
-              onFailure={onDownloadError}
+              onSuccess={handleDownloadSuccess}
+              onFailure={handleDownloadFailure}
+              onStart={() => setIsDownloading(true)}
               className="styles.btn"
             />
           </div>,
@@ -138,7 +166,9 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
           id={shipment?.ppmShipment?.id}
           label="Download Payment Packet"
           asyncRetrieval={downloadPPMPaymentPacket}
-          onFailure={onDownloadError}
+          onSuccess={handleDownloadSuccess}
+          onFailure={handleDownloadFailure}
+          onStart={() => setIsDownloading(true)}
           className="styles.btn"
         />
       );
@@ -147,15 +177,17 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
       break;
     default:
   }
-
   return (
-    <SectionWrapper className={styles['ppm-shipment']}>
-      <div className={styles['ppm-shipment__heading-section']}>
-        <strong>{orderLabel}</strong>
-        {actionButtons}
-      </div>
-      <div className={styles['ppm-shipment__content']}>{content}</div>
-    </SectionWrapper>
+    <div>
+      {isDownloading && <LoadingSpinner message="Downloading payment packet" />}
+      <SectionWrapper className={styles['ppm-shipment']}>
+        <div className={styles['ppm-shipment__heading-section']}>
+          <strong>{orderLabel}</strong>
+          {actionButtons}
+        </div>
+        <div className={styles['ppm-shipment__content']}>{content}</div>
+      </SectionWrapper>
+    </div>
   );
 };
 
@@ -178,7 +210,6 @@ const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackC
 
 const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick, onDownloadError, onFeedbackClick }) => {
   const orderLabel = hasMany ? `PPM ${index + 1}` : 'PPM';
-
   return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick);
 };
 
