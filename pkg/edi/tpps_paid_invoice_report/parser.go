@@ -1,14 +1,20 @@
 package tppspaidinvoicereport
 
 import (
-	"bufio"
+	"bytes"
+	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
+	"regexp"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/pkg/errors"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 func VerifyHeadersParsedCorrectly(parsedHeadersFromFile TPPSData) bool {
@@ -43,118 +49,135 @@ func VerifyHeadersParsedCorrectly(parsedHeadersFromFile TPPSData) bool {
 	return allHeadersWereProcessedCorrectly
 }
 
-// ProcessTPPSReportEntryForOneRow takes one tab-delimited data row, cleans it, and parses it into a string representation of the TPPSData struct
-func ParseTPPSReportEntryForOneRow(row []string, columnIndexes map[string]int, headerIndicesNeedDefined bool) (TPPSData, map[string]int, bool) {
-	tppsReportEntryForOnePaymentRequest := strings.Split(row[0], "\t")
-	var tppsData TPPSData
-	var processedTPPSReportEntryForOnePaymentRequest []string
-	var columnHeaderIndices map[string]int
-
-	if len(tppsReportEntryForOnePaymentRequest) > 0 {
-
-		for indexOfOneEntry := range tppsReportEntryForOnePaymentRequest {
-			var processedEntry string
-			if tppsReportEntryForOnePaymentRequest[indexOfOneEntry] != "" {
-				// Remove any NULL characters
-				entryWithoutNulls := strings.Split(tppsReportEntryForOnePaymentRequest[indexOfOneEntry], "\x00")
-				for indexCleanedUp := range entryWithoutNulls {
-					// Clean up extra characters
-					cleanedUpEntryString := strings.Split(entryWithoutNulls[indexCleanedUp], ("\xff\xfe"))
-					for index := range cleanedUpEntryString {
-						if cleanedUpEntryString[index] != "" {
-							processedEntry += cleanedUpEntryString[index]
-						}
-					}
-				}
-			}
-			processedEntry = strings.TrimSpace(processedEntry)
-			processedEntry = strings.TrimLeft(processedEntry, "�")
-			// After we have fully processed an entry and have built a string, store it
-			processedTPPSReportEntryForOnePaymentRequest = append(processedTPPSReportEntryForOnePaymentRequest, processedEntry)
-		}
-		if headerIndicesNeedDefined {
-			columnHeaderIndices = make(map[string]int)
-			for i, columnHeader := range processedTPPSReportEntryForOnePaymentRequest {
-				columnHeaderIndices[columnHeader] = i
-			}
-			// only need to define the column header indices once per read of a file, so set to false after first pass through
-			headerIndicesNeedDefined = false
-		} else {
-			columnHeaderIndices = columnIndexes
-		}
-		tppsData.InvoiceNumber = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Invoice Number From Invoice"]]
-		tppsData.TPPSCreatedDocumentDate = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Document Create Date"]]
-		tppsData.SellerPaidDate = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Seller Paid Date"]]
-		tppsData.InvoiceTotalCharges = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Invoice Total Charges"]]
-		tppsData.LineDescription = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Line Description"]]
-		tppsData.ProductDescription = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Product Description"]]
-		tppsData.LineBillingUnits = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Line Billing Units"]]
-		tppsData.LineUnitPrice = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Line Unit Price"]]
-		tppsData.LineNetCharge = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Line Net Charge"]]
-		tppsData.POTCN = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["PO/TCN"]]
-		tppsData.LineNumber = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Line Number"]]
-		tppsData.FirstNoteCode = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["First Note Code"]]
-		tppsData.FirstNoteCodeDescription = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["First Note Code Description"]]
-		tppsData.FirstNoteTo = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["First Note To"]]
-		tppsData.FirstNoteMessage = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["First Note Message"]]
-		tppsData.SecondNoteCode = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Second Note Code"]]
-		tppsData.SecondNoteCodeDescription = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Second Note Code Description"]]
-		tppsData.SecondNoteTo = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Second Note To"]]
-		tppsData.SecondNoteMessage = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Second Note Message"]]
-		tppsData.ThirdNoteCode = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Third Note Code"]]
-		tppsData.ThirdNoteCodeDescription = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Third Note Code Description"]]
-		tppsData.ThirdNoteTo = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Third Note To"]]
-		tppsData.ThirdNoteMessage = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Third Note Message"]]
-	}
-	return tppsData, columnHeaderIndices, headerIndicesNeedDefined
-}
-
 // Parse takes in a TPPS paid invoice report file and parses it into an array of TPPSData structs
-func (t *TPPSData) Parse(stringTPPSPaidInvoiceReportFilePath string, testTPPSInvoiceString string) ([]TPPSData, error) {
+func (t *TPPSData) Parse(appCtx appcontext.AppContext, stringTPPSPaidInvoiceReportFilePath string) ([]TPPSData, error) {
 	var tppsDataFile []TPPSData
 
-	var dataToParse io.Reader
-
 	if stringTPPSPaidInvoiceReportFilePath != "" {
-		csvFile, err := os.Open(filepath.Clean(stringTPPSPaidInvoiceReportFilePath))
+		appCtx.Logger().Info(fmt.Sprintf("Parsing TPPS data file: %s", stringTPPSPaidInvoiceReportFilePath))
+		csvFile, err := os.Open(stringTPPSPaidInvoiceReportFilePath)
 		if err != nil {
 			return nil, errors.Wrap(err, (fmt.Sprintf("Unable to read TPPS paid invoice report from path %s", stringTPPSPaidInvoiceReportFilePath)))
 		}
-		dataToParse = csvFile
-	} else {
-		dataToParse = strings.NewReader(testTPPSInvoiceString)
-	}
-	endOfFile := false
-	headersAreCorrect := false
-	needToDefineColumnIndices := true
-	var headerColumnIndices map[string]int
+		defer csvFile.Close()
 
-	scanner := bufio.NewScanner(dataToParse)
-	for scanner.Scan() {
-		rowIsHeader := false
-		row := strings.Split(scanner.Text(), "\n")
-		// If we have reached a NULL or empty row at the end of the file, do not continue parsing
-		if row[0] == "\x00" || row[0] == "" {
-			endOfFile = true
+		rawData, err := io.ReadAll(csvFile)
+		if err != nil {
+			return nil, fmt.Errorf("error reading file: %w", err)
 		}
-		if row != nil && !endOfFile {
-			tppsReportEntryForOnePaymentRequest, columnIndicesFound, keepFindingColumnIndices := ParseTPPSReportEntryForOneRow(row, headerColumnIndices, needToDefineColumnIndices)
-			// For first data row of file (headers), find indices of the columns
-			// For the rest of the file, use those same indices to parse in the data
-			if needToDefineColumnIndices {
-				// Only want to define header column indices once per file read
-				headerColumnIndices = columnIndicesFound
+
+		decoder := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewDecoder()
+		utf8Data, _, err := transform.Bytes(decoder, rawData)
+		if err != nil {
+			return nil, fmt.Errorf("error converting file encoding to UTF-8: %w", err)
+		}
+		utf8Data = cleanHeaders(utf8Data)
+
+		reader := csv.NewReader(bytes.NewReader(utf8Data))
+		reader.Comma = '\t'
+		reader.LazyQuotes = true
+		reader.FieldsPerRecord = -1
+
+		headers, err := reader.Read()
+		if err != nil {
+			return nil, fmt.Errorf("error reading CSV headers: %w", err)
+		}
+
+		columnHeaderIndices := make(map[string]int)
+		for i, col := range headers {
+			headers[i] = cleanText(col)
+			columnHeaderIndices[col] = i
+		}
+
+		headersAreCorrect := false
+		headersTPPSData := convertToTPPSDataStruct(headers, columnHeaderIndices)
+		headersAreCorrect = VerifyHeadersParsedCorrectly(headersTPPSData)
+
+		for rowIndex := 0; ; rowIndex++ {
+			rowIsHeader := false
+			row, err := reader.Read()
+			if err == io.EOF {
+				break
 			}
-			needToDefineColumnIndices = keepFindingColumnIndices
-			if tppsReportEntryForOnePaymentRequest.InvoiceNumber == "Invoice Number From Invoice" {
+			if err != nil {
+				fmt.Println("Error reading row:", err)
+				continue
+			}
+
+			if len(row) < len(columnHeaderIndices) {
+				fmt.Println("Skipping row due to incorrect column count:", row)
+				continue
+			}
+
+			for colIndex, value := range row {
+				row[colIndex] = cleanText(value)
+			}
+
+			tppsDataRow := convertToTPPSDataStruct(row, columnHeaderIndices)
+
+			if tppsDataRow.InvoiceNumber == "Invoice Number From Invoice" {
 				rowIsHeader = true
-				headersAreCorrect = VerifyHeadersParsedCorrectly(tppsReportEntryForOnePaymentRequest)
 			}
 			if !rowIsHeader && headersAreCorrect { // No need to append the header row to result set
-				tppsDataFile = append(tppsDataFile, tppsReportEntryForOnePaymentRequest)
+				tppsDataFile = append(tppsDataFile, tppsDataRow)
 			}
+		}
+	} else {
+		return nil, fmt.Errorf("TPPS data file path is empty")
+	}
+	return tppsDataFile, nil
+}
+
+func convertToTPPSDataStruct(row []string, columnHeaderIndices map[string]int) TPPSData {
+	tppsReportEntryForOnePaymentRequest := TPPSData{
+		InvoiceNumber:             row[columnHeaderIndices["Invoice Number From Invoice"]],
+		TPPSCreatedDocumentDate:   row[columnHeaderIndices["Document Create Date"]],
+		SellerPaidDate:            row[columnHeaderIndices["Seller Paid Date"]],
+		InvoiceTotalCharges:       row[columnHeaderIndices["Invoice Total Charges"]],
+		LineDescription:           row[columnHeaderIndices["Line Description"]],
+		ProductDescription:        row[columnHeaderIndices["Product Description"]],
+		LineBillingUnits:          row[columnHeaderIndices["Line Billing Units"]],
+		LineUnitPrice:             row[columnHeaderIndices["Line Unit Price"]],
+		LineNetCharge:             row[columnHeaderIndices["Line Net Charge"]],
+		POTCN:                     row[columnHeaderIndices["PO/TCN"]],
+		LineNumber:                row[columnHeaderIndices["Line Number"]],
+		FirstNoteCode:             row[columnHeaderIndices["First Note Code"]],
+		FirstNoteCodeDescription:  row[columnHeaderIndices["First Note Code Description"]],
+		FirstNoteTo:               row[columnHeaderIndices["First Note To"]],
+		FirstNoteMessage:          row[columnHeaderIndices["First Note Message"]],
+		SecondNoteCode:            row[columnHeaderIndices["Second Note Code"]],
+		SecondNoteCodeDescription: row[columnHeaderIndices["Second Note Code Description"]],
+		SecondNoteTo:              row[columnHeaderIndices["Second Note To"]],
+		SecondNoteMessage:         row[columnHeaderIndices["Second Note Message"]],
+		ThirdNoteCode:             row[columnHeaderIndices["Third Note Code"]],
+		ThirdNoteCodeDescription:  row[columnHeaderIndices["Third Note Code Description"]],
+		ThirdNoteTo:               row[columnHeaderIndices["Third Note To"]],
+		ThirdNoteMessage:          row[columnHeaderIndices["Third Note Message"]],
+	}
+	return tppsReportEntryForOnePaymentRequest
+}
+
+func cleanHeaders(rawTPPSData []byte) []byte {
+	// Remove first three UTF-8 bytes (0xEF 0xBB 0xBF)
+	if len(rawTPPSData) > 3 && rawTPPSData[0] == 0xEF && rawTPPSData[1] == 0xBB && rawTPPSData[2] == 0xBF {
+		rawTPPSData = rawTPPSData[3:]
+	}
+
+	// Remove leading non-UTF8 bytes
+	for i := 0; i < len(rawTPPSData); i++ {
+		if utf8.Valid(rawTPPSData[i:]) {
+			return rawTPPSData[i:]
 		}
 	}
 
-	return tppsDataFile, nil
+	return rawTPPSData
+}
+
+func cleanText(text string) string {
+	// Remove non-ASCII characters like the �� on the header row of every TPPS file
+	re := regexp.MustCompile(`[^\x20-\x7E]`)
+	cleaned := re.ReplaceAllString(text, "")
+
+	// Trim any unexpected spaces around the text
+	return strings.TrimSpace(cleaned)
 }
