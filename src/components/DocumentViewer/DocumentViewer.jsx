@@ -16,6 +16,8 @@ import { bulkDownloadPaymentRequest, updateUpload } from 'services/ghcApi';
 import { formatDate } from 'shared/dates';
 import { filenameFromPath } from 'utils/formatters';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS, UPLOAD_DOC_STATUS_DISPLAY_MESSAGE } from 'shared/constants';
+import Alert from 'shared/Alert';
 
 /**
  * TODO
@@ -23,19 +25,30 @@ import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketD
  * - implement rotate left/right
  */
 
-const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
+const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploading }) => {
   const [selectedFileIndex, selectFile] = useState(0);
   const [disableSaveButton, setDisableSaveButton] = useState(false);
   const [menuIsOpen, setMenuOpen] = useState(false);
   const [showContentError, setShowContentError] = useState(false);
   const sortedFiles = files.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
   const selectedFile = sortedFiles[parseInt(selectedFileIndex, 10)];
+  const [isJustUploadedFile, setIsJustUploadedFile] = useState(false);
+  const [fileStatus, setFileStatus] = useState(null);
 
   const [rotationValue, setRotationValue] = useState(selectedFile?.rotation || 0);
 
   const mountedRef = useRef(true);
 
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (isFileUploading) {
+      setIsJustUploadedFile(true);
+      setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
+    } else {
+      setIsJustUploadedFile(false);
+    }
+  }, [isFileUploading]);
 
   const { mutate: mutateUploads } = useMutation(updateUpload, {
     onSuccess: async (data, variables) => {
@@ -75,12 +88,85 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
   useEffect(() => {
     setShowContentError(false);
     setRotationValue(selectedFile?.rotation || 0);
-  }, [selectedFile]);
 
+    const handleFileProcessing = async (status) => {
+      switch (status) {
+        case UPLOAD_SCAN_STATUS.PROCESSING:
+          setFileStatus(UPLOAD_DOC_STATUS.SCANNING);
+          break;
+        case UPLOAD_SCAN_STATUS.CLEAN:
+          setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
+          break;
+        case UPLOAD_SCAN_STATUS.INFECTED:
+          setFileStatus(UPLOAD_DOC_STATUS.INFECTED);
+          break;
+        default:
+          throw new Error(`unrecognized file status`);
+      }
+    };
+    if (!isFileUploading && isJustUploadedFile) {
+      setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
+    }
+
+    let sse;
+    if (selectedFile) {
+      sse = new EventSource(`/ghc/v1/uploads/${selectedFile.id}/status`, { withCredentials: true });
+      sse.onmessage = (event) => {
+        handleFileProcessing(event.data);
+        if (
+          event.data === UPLOAD_SCAN_STATUS.CLEAN ||
+          event.data === UPLOAD_SCAN_STATUS.INFECTED ||
+          event.data === 'Connection closed'
+        ) {
+          sse.close();
+        }
+      };
+      sse.onerror = () => {
+        sse.close();
+        setFileStatus(null);
+      };
+    }
+
+    return () => {
+      sse?.close();
+    };
+  }, [selectedFile, isFileUploading, isJustUploadedFile]);
+  useEffect(() => {
+    if (fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
+      setTimeout(() => {
+        setFileStatus(UPLOAD_DOC_STATUS.LOADED);
+      }, 2000);
+    }
+  }, [fileStatus]);
   const fileType = useRef(selectedFile?.contentType);
 
-  if (!selectedFile) {
-    return <h2>File Not Found</h2>;
+  const getStatusMessage = (currentFileStatus, currentSelectedFile) => {
+    switch (currentFileStatus) {
+      case UPLOAD_DOC_STATUS.UPLOADING:
+        return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.UPLOADING;
+      case UPLOAD_DOC_STATUS.SCANNING:
+        return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.SCANNING;
+      case UPLOAD_DOC_STATUS.ESTABLISHING:
+        return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.ESTABLISHING_DOCUMENT_FOR_VIEWING;
+      case UPLOAD_DOC_STATUS.INFECTED:
+        return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.INFECTED_FILE_MESSAGE;
+      default:
+        if (!currentSelectedFile) {
+          return UPLOAD_DOC_STATUS_DISPLAY_MESSAGE.FILE_NOT_FOUND;
+        }
+        return null;
+    }
+  };
+
+  const alertMessage = getStatusMessage(fileStatus, selectedFile);
+  const alertType = fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'error' : 'info';
+  const alertHeading = fileStatus === UPLOAD_SCAN_STATUS.INFECTED ? 'Ask for a new file' : 'Document Status';
+  if (alertMessage) {
+    return (
+      <Alert type={alertType} className="usa-width-one-whole" heading={alertHeading} data-testid="documentAlertHeading">
+        <span data-testid="documentAlertMessage">{alertMessage}</span>
+      </Alert>
+    );
   }
 
   const openMenu = () => {
@@ -92,6 +178,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
 
   const handleSelectFile = (index) => {
     selectFile(index);
+    setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
     closeMenu();
   };
 
