@@ -956,6 +956,112 @@ paths:
 
         Additional DDASIT service items can be created and added to an existing
         shipment that **includes a DDFSIT service item**.
+
+
+        ---
+
+
+        **`MTOServiceItemInternationalOriginSIT`**
+
+
+        MTOServiceItemInternationalOriginSIT is a subtype of MTOServiceItem.
+
+
+        This model type describes a international origin SIT service item. Items
+        can be created using this
+
+        model type with the following codes:
+
+
+        **IOFSIT**
+
+
+        **1st day origin SIT service item**. When a IOFSIT is requested, the API
+        will auto-create the following group of service items:
+          * IOFSIT - International origin 1st day SIT
+          * IOASIT - International origin Additional day SIT
+          * IOPSIT - International origin SIT pickup
+          * IOSFSC - International origin SIT fuel surcharge
+
+        **IOASIT**
+
+
+        **Addt'l days origin SIT service item**. This represents an additional
+        day of storage for the same item.
+
+        Additional IOASIT service items can be created and added to an existing
+        shipment that **includes a IOFSIT service item**.
+
+
+        ---
+
+
+        **`MTOServiceItemInternationalDestSIT`**
+
+
+        MTOServiceItemInternationalDestSIT is a subtype of MTOServiceItem.
+
+
+        This model type describes a international destination SIT service item.
+        Items can be created using this
+
+        model type with the following codes:
+
+
+        **IDFSIT**
+
+
+        **1st day destination SIT service item**.
+
+
+        These additional fields are optional for creating a IDFSIT:
+          * `firstAvailableDeliveryDate1`
+            * string <date>
+            * First available date that Prime can deliver SIT service item.
+            * firstAvailableDeliveryDate1, dateOfContact1, and timeMilitary1 are required together
+          * `dateOfContact1`
+            * string <date>
+            * Date of attempted contact by the prime corresponding to `timeMilitary1`
+            * dateOfContact1, timeMilitary1, and firstAvailableDeliveryDate1 are required together
+          * `timeMilitary1`
+            * string\d{4}Z
+            * Time of attempted contact corresponding to `dateOfContact1`, in military format.
+            * timeMilitary1, dateOfContact1, and firstAvailableDeliveryDate1 are required together
+          * `firstAvailableDeliveryDate2`
+            * string <date>
+            * Second available date that Prime can deliver SIT service item.
+            * firstAvailableDeliveryDate2, dateOfContact2, and timeMilitary2 are required together
+          * `dateOfContact2`
+            * string <date>
+            * Date of attempted contact delivery by the prime corresponding to `timeMilitary2`
+            * dateOfContact2, timeMilitary2, and firstAvailableDeliveryDate2 are required together
+          * `timeMilitary2`
+            * string\d{4}Z
+            * Time of attempted contact corresponding to `dateOfContact2`, in military format.
+            * timeMilitary2, dateOfContact2, and firstAvailableDeliveryDate2 are required together
+
+        When a IDFSIT is requested, the API will auto-create the following group
+        of service items:
+          * IDFSIT - International destination 1st day SIT
+          * IDASIT - International destination Additional day SIT
+          * IDDSIT - International destination SIT delivery
+          * IDSFSC - International destination SIT fuel surcharge
+
+        **NOTE** When providing the `sitEntryDate` value in the payload, please
+        ensure that the date is not BEFORE
+
+        `firstAvailableDeliveryDate1` or `firstAvailableDeliveryDate2`. If it
+        is, you will receive an error response.
+
+
+        **IDASIT**
+
+
+        **Addt'l days destination SIT service item**. This represents an
+        additional day of storage for the same item.
+
+        Additional IDASIT service items can be created and added to an existing
+        shipment that **includes a IDFSIT service item**.
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -1058,6 +1164,22 @@ paths:
         - DDSFSC
 
         - DOSFSC
+
+        - IDASIT
+
+        - IDDSIT
+
+        - IDFSIT
+
+        - IOASIT
+
+        - IOPSIT
+
+        - IOFSIT
+
+        - IDSFSC
+
+        - IOSFSC
 
 
         The following Accessorial service items can be resubmitted following a
@@ -2415,6 +2537,96 @@ definitions:
           - reServiceCode
           - sitEntryDate
           - reason
+  MTOServiceItemInternationalDestSIT:
+    description: >-
+      Describes a international destination SIT service item. Subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - IDFSIT
+              - IDASIT
+          dateOfContact1:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              `timeMilitary1`.
+            x-nullable: true
+          dateOfContact2:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              `timeMilitary2`.
+            x-nullable: true
+          timeMilitary1:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of attempted contact corresponding to `dateOfContact1`, in
+              military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          timeMilitary2:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of attempted contact corresponding to `dateOfContact2`, in
+              military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
+            x-nullable: true
+          firstAvailableDeliveryDate2:
+            format: date
+            type: string
+            description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
+            x-nullable: true
+          sitDestinationFinalAddress:
+            $ref: '#/definitions/Address'
+          reason:
+            type: string
+            description: |
+              The reason item has been placed in SIT.
+            x-nullable: true
+            x-omitempty: false
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
+            x-nullable: true
+        required:
+          - reServiceCode
+          - sitEntryDate
+          - reason
   MTOServiceItemDomesticCrating:
     description: >-
       Describes a domestic crating/uncrating service item subtype of a
@@ -2529,6 +2741,64 @@ definitions:
             enum:
               - DOFSIT
               - DOASIT
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: Explanation of why Prime is picking up SIT item.
+          sitPostalCode:
+            type: string
+            format: zip
+            example: '90210'
+            pattern: ^(\d{5}([\-]\d{4})?)$
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            x-nullable: true
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
+          sitHHGActualOrigin:
+            $ref: '#/definitions/Address'
+          sitHHGOriginalOrigin:
+            $ref: '#/definitions/Address'
+          requestApprovalsRequestedStatus:
+            type: boolean
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
+            x-nullable: true
+        required:
+          - reServiceCode
+          - reason
+          - sitPostalCode
+          - sitEntryDate
+  MTOServiceItemInternationalOriginSIT:
+    description: >-
+      Describes a international origin SIT service item. Subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - IOFSIT
+              - IOASIT
           reason:
             type: string
             example: Storage items need to be picked up
@@ -2770,6 +3040,8 @@ definitions:
           This should be populated for the following service items:
             * DOASIT(Domestic origin Additional day SIT)
             * DDASIT(Domestic destination Additional day SIT)
+            * IOASIT(International origin Additional day SIT)
+            * IDASIT(International destination Additional day SIT)
 
           Both take in the following param keys:
             * `SITPaymentRequestStart`
@@ -2818,6 +3090,14 @@ definitions:
         * DOFSIT - UpdateMTOServiceItemSIT
         * DOSFSC - UpdateMTOServiceItemSIT
         * DDSFSC - UpdateMTOServiceItemSIT
+        * IDDSIT - UpdateMTOServiceItemSIT
+        * IDFSIT - UpdateMTOServiceItemSIT
+        * IDASIT - UpdateMTOServiceItemSIT
+        * IOPSIT - UpdateMTOServiceItemSIT
+        * IOASIT - UpdateMTOServiceItemSIT
+        * IOFSIT - UpdateMTOServiceItemSIT
+        * IOSFSC - UpdateMTOServiceItemSIT
+        * IDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
         * PODFSC - UpdateMTOServiceItemInternationalPortFSC
@@ -2922,6 +3202,14 @@ definitions:
               - DOASIT
               - DOFSIT
               - DOSFSC
+              - IDDSIT
+              - IDASIT
+              - IDFSIT
+              - IDSFSC
+              - IOPSIT
+              - IOASIT
+              - IOFSIT
+              - IOSFSC
           sitDepartureDate:
             format: date
             type: string
@@ -3999,6 +4287,8 @@ definitions:
       corresponding to the service item type.
         * DOFSIT, DOASIT - MTOServiceItemOriginSIT
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
+        * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT
+        * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DOSHUT, DDSHUT - MTOServiceItemDomesticShuttle
         * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle
@@ -4012,6 +4302,8 @@ definitions:
       - MTOServiceItemBasic
       - MTOServiceItemOriginSIT
       - MTOServiceItemDestSIT
+      - MTOServiceItemInternationalOriginSIT
+      - MTOServiceItemInternationalDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticShuttle
       - MTOServiceItemInternationalShuttle
