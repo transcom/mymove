@@ -69,7 +69,7 @@ func genMigrationFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	migrationPath := v.GetString(cli.MigrationGenPathFlag)
-	migrationManifest := v.GetString(cli.MigrationManifestFlag)
+	migrationManifest := v.GetString(cli.DMLMigrationManifestFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationType := v.GetString(cli.MigrationTypeFlag)

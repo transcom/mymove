@@ -365,15 +365,13 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				Show:   models.BoolPointer(true),
 				Status: &status,
 			}
-			if !appCtx.Session().OfficeUserID.IsNil() {
-				officeUser, err := models.FetchOfficeUserByID(appCtx.DB(), appCtx.Session().OfficeUserID)
+
+			if payload.CounselingOfficeID != nil {
+				counselingOffice, err := uuid.FromString(payload.CounselingOfficeID.String())
 				if err != nil {
-					err = apperror.NewBadDataError("Unable to fetch office user.")
-					appCtx.Logger().Error(err.Error())
-					return orderop.NewCreateOrderUnprocessableEntity(), err
-				} else {
-					moveOptions.CounselingOfficeID = &officeUser.TransportationOfficeID
+					return handlers.ResponseForError(appCtx.Logger(), err), err
 				}
+				moveOptions.CounselingOfficeID = &counselingOffice
 			}
 
 			if newOrder.OrdersType == "SAFETY" {
@@ -961,10 +959,10 @@ func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upl
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
-		uploadPayload.Status = "PROCESSING"
+	if err != nil {
+		uploadPayload.Status = string(models.AVStatusPROCESSING)
 	} else {
-		uploadPayload.Status = tags["av-status"]
+		uploadPayload.Status = string(models.GetAVStatusFromTags(tags))
 	}
 	return uploadPayload, nil
 }
