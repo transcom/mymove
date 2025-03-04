@@ -20,6 +20,7 @@ const ServicesCounselingMoveDocumentWrapper = () => {
   // this is to update the id when it is created to store amendedUpload data.
   const [amendedDocumentId, setAmendedDocumentId] = useState(amendedOrderDocumentId);
   const { amendedUpload } = useAmendedDocumentQueries(amendedDocumentId);
+  const [isFileUploading, setFileUploading] = useState(false);
 
   const updateAmendedDocument = (newId) => {
     setAmendedDocumentId(newId);
@@ -64,7 +65,7 @@ const ServicesCounselingMoveDocumentWrapper = () => {
     <div className={styles.DocumentWrapper}>
       {documentsForViewer && (
         <div data-testid="sc-doc-viewer-container" className={styles.embed}>
-          <DocumentViewer files={documentsForViewer} allowDownload />
+          <DocumentViewer files={documentsForViewer} allowDownload isFileUploading={isFileUploading} />
         </div>
       )}
       {showOrders ? (
@@ -73,6 +74,9 @@ const ServicesCounselingMoveDocumentWrapper = () => {
           files={documentsByTypes}
           amendedDocumentId={amendedDocumentId}
           updateAmendedDocument={updateAmendedDocument}
+          onAddFile={() => {
+            setFileUploading(true);
+          }}
         />
       ) : (
         <ServicesCounselingMoveAllowances moveCode={moveCode} />
