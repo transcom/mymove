@@ -43,9 +43,8 @@ test.describe('TOO user queue filters - Move Queue', async () => {
     // We should still see all moves
     await expect(page.getByRole('heading', { level: 1 })).not.toContainText('All moves (0)');
 
-    // Add nonsense string to our filter (so now we're searching for 'zzzz')
-
-    await waitForFilterInput(page, 'assignedTo', 'zzzz');
+    // Add nonsense string to our filter (so now we're searching for 'abcde')
+    await waitForFilterInput(page, 'assignedTo', 'abcde');
 
     // Now we shouldn't see any results
     await expect(page.getByRole('heading', { level: 1 })).toContainText('All moves (0)');
@@ -135,8 +134,8 @@ test.describe('TOO user queue filters - Destination Requests Queue', async () =>
     ]);
     await expect(page.getByRole('heading', { level: 1 })).not.toContainText('Destination requests (0)');
 
-    // Add nonsense string to our filter (so now we're searching for 'zzzz')
-    await waitForFilterInput(page, 'assignedTo', 'zzzz');
+    // Add nonsense string to our filter (so now we're searching for 'abcde')
+    await waitForFilterInput(page, 'assignedTo', 'abcde');
 
     // Now we shouldn't see any results
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Destination requests (0)');
