@@ -146,7 +146,7 @@ BEGIN
                 declared_oconus_factor := get_market_code_factor_escalation(
                     o_rate_area_id,
                     declared_contract_id,
-                    (SELECT id FROM re_services WHERE code = ''INPK'' LIMIT 1)
+                    service_item.re_service_id
                 );
 
                 -- Okay, now that we have all of our numbers. We just gotta calc
