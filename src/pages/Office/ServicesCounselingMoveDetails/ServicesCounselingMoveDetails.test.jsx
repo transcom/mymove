@@ -638,7 +638,7 @@ const ppmShipmentQuery = {
   ],
 };
 
-const ppmShipmentQueryNoHHG = {
+const ppmShipmentQueryNeedsCloseout = {
   ...newMoveDetailsQuery,
   mtoShipments: [
     {
@@ -720,10 +720,16 @@ const ppmShipmentQueryNoHHG = {
       status: 'APPROVED',
       updatedAt: '2022-11-08T23:44:58.217Z',
     },
+  ],
+};
+
+const ppmShipmentQueryWaitingOnCustomer = {
+  ...newMoveDetailsQuery,
+  mtoShipments: [
     {
       customerRemarks: 'Please treat gently',
       eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMTc4MVo=',
-      id: 'e33a1a7b-530f-4df4-b947-d3d719786385',
+      id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
         actualDestinationPostalCode: null,
@@ -743,6 +749,9 @@ const ppmShipmentQueryNoHHG = {
         hasRequestedAdvance: true,
         id: '79b98a71-158d-4b04-9a6c-25543c52183d',
         movingExpenses: null,
+        proGearWeight: 1987,
+        proGearWeightTickets: null,
+        reviewedAt: null,
         hasSecondaryPickupAddress: true,
         hasSecondaryDestinationAddress: true,
         pickupAddress: {
@@ -777,20 +786,17 @@ const ppmShipmentQueryNoHHG = {
           state: 'KY',
           postalCode: '42701',
         },
-        proGearWeight: 1987,
-        proGearWeightTickets: null,
-        reviewedAt: null,
-        shipmentId: 'e33a1a7b-530f-4df4-b947-d3d719786385',
+        shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
         sitEstimatedCost: null,
         sitEstimatedDepartureDate: null,
         sitEstimatedEntryDate: null,
         sitEstimatedWeight: null,
         sitExpected: false,
         spouseProGearWeight: 498,
-        status: 'NEEDS_CLOSEOUT',
+        status: 'WAITING_ON_CUSTOMER',
         submittedAt: null,
         updatedAt: '2022-11-08T23:44:58.226Z',
-        weightTickets: null,
+        weightTickets: [{ emptyWeight: 0, fullWeight: 20000 }],
       },
       primeActualWeight: 980,
       requestedDeliveryDate: '0001-01-01',
@@ -802,7 +808,7 @@ const ppmShipmentQueryNoHHG = {
   ],
 };
 
-const submittedPPMShipmentQuery = {
+const ppmShipmentQuerySubmitted = {
   ...newMoveDetailsQuery,
   mtoShipments: [
     {
@@ -873,6 +879,346 @@ const submittedPPMShipmentQuery = {
         sitExpected: false,
         spouseProGearWeight: 498,
         status: 'SUBMITTED',
+        submittedAt: null,
+        updatedAt: '2022-11-08T23:44:58.226Z',
+        weightTickets: [{ emptyWeight: 0, fullWeight: 20000 }],
+      },
+      primeActualWeight: 980,
+      requestedDeliveryDate: '0001-01-01',
+      requestedPickupDate: '0001-01-01',
+      shipmentType: 'PPM',
+      status: 'SUBMITTED',
+      updatedAt: '2022-11-08T23:44:58.217Z',
+    },
+  ],
+};
+
+const ppmShipmentQueryCloseoutComplete = {
+  ...newMoveDetailsQuery,
+  mtoShipments: [
+    {
+      customerRemarks: 'Please treat gently',
+      eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMTc4MVo=',
+      id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+      moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
+      ppmShipment: {
+        actualDestinationPostalCode: null,
+        actualMoveDate: null,
+        actualPickupPostalCode: null,
+        advanceAmountReceived: null,
+        advanceAmountRequested: 598700,
+        approvedAt: null,
+        createdAt: '2022-11-08T23:44:58.226Z',
+        eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
+        estimatedIncentive: 1000000,
+        estimatedWeight: 4000,
+        expectedDepartureDate: '2020-03-15',
+        finalIncentive: null,
+        hasProGear: true,
+        hasReceivedAdvance: null,
+        hasRequestedAdvance: true,
+        id: '79b98a71-158d-4b04-9a6c-25543c52183d',
+        movingExpenses: null,
+        proGearWeight: 1987,
+        proGearWeightTickets: null,
+        reviewedAt: null,
+        hasSecondaryPickupAddress: true,
+        hasSecondaryDestinationAddress: true,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+        sitEstimatedCost: null,
+        sitEstimatedDepartureDate: null,
+        sitEstimatedEntryDate: null,
+        sitEstimatedWeight: null,
+        sitExpected: false,
+        spouseProGearWeight: 498,
+        status: 'CLOSEOUT_COMPLETE',
+        submittedAt: null,
+        updatedAt: '2022-11-08T23:44:58.226Z',
+        weightTickets: [{ emptyWeight: 0, fullWeight: 20000 }],
+      },
+      primeActualWeight: 980,
+      requestedDeliveryDate: '0001-01-01',
+      requestedPickupDate: '0001-01-01',
+      shipmentType: 'PPM',
+      status: 'APPROVED',
+      updatedAt: '2022-11-08T23:44:58.217Z',
+    },
+  ],
+};
+
+const ppmShipmentQueryCancelled = {
+  ...newMoveDetailsQuery,
+  mtoShipments: [
+    {
+      customerRemarks: 'Please treat gently',
+      eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMTc4MVo=',
+      id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+      moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
+      ppmShipment: {
+        actualDestinationPostalCode: null,
+        actualMoveDate: null,
+        actualPickupPostalCode: null,
+        advanceAmountReceived: null,
+        advanceAmountRequested: 598700,
+        approvedAt: null,
+        createdAt: '2022-11-08T23:44:58.226Z',
+        eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
+        estimatedIncentive: 1000000,
+        estimatedWeight: 4000,
+        expectedDepartureDate: '2020-03-15',
+        finalIncentive: null,
+        hasProGear: true,
+        hasReceivedAdvance: null,
+        hasRequestedAdvance: true,
+        id: '79b98a71-158d-4b04-9a6c-25543c52183d',
+        movingExpenses: null,
+        proGearWeight: 1987,
+        proGearWeightTickets: null,
+        reviewedAt: null,
+        hasSecondaryPickupAddress: true,
+        hasSecondaryDestinationAddress: true,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+        sitEstimatedCost: null,
+        sitEstimatedDepartureDate: null,
+        sitEstimatedEntryDate: null,
+        sitEstimatedWeight: null,
+        sitExpected: false,
+        spouseProGearWeight: 498,
+        status: 'CANCELED',
+        submittedAt: null,
+        updatedAt: '2022-11-08T23:44:58.226Z',
+        weightTickets: [{ emptyWeight: 0, fullWeight: 20000 }],
+      },
+      primeActualWeight: 980,
+      requestedDeliveryDate: '0001-01-01',
+      requestedPickupDate: '0001-01-01',
+      shipmentType: 'PPM',
+      status: 'CANCELED',
+      updatedAt: '2022-11-08T23:44:58.217Z',
+    },
+  ],
+};
+
+const ppmShipmentQueryDraft = {
+  ...newMoveDetailsQuery,
+  mtoShipments: [
+    {
+      customerRemarks: 'Please treat gently',
+      eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMTc4MVo=',
+      id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+      moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
+      ppmShipment: {
+        actualDestinationPostalCode: null,
+        actualMoveDate: null,
+        actualPickupPostalCode: null,
+        advanceAmountReceived: null,
+        advanceAmountRequested: 598700,
+        approvedAt: null,
+        createdAt: '2022-11-08T23:44:58.226Z',
+        eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
+        estimatedIncentive: 1000000,
+        estimatedWeight: 4000,
+        expectedDepartureDate: '2020-03-15',
+        finalIncentive: null,
+        hasProGear: true,
+        hasReceivedAdvance: null,
+        hasRequestedAdvance: true,
+        id: '79b98a71-158d-4b04-9a6c-25543c52183d',
+        movingExpenses: null,
+        proGearWeight: 1987,
+        proGearWeightTickets: null,
+        reviewedAt: null,
+        hasSecondaryPickupAddress: true,
+        hasSecondaryDestinationAddress: true,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+        sitEstimatedCost: null,
+        sitEstimatedDepartureDate: null,
+        sitEstimatedEntryDate: null,
+        sitEstimatedWeight: null,
+        sitExpected: false,
+        spouseProGearWeight: 498,
+        status: 'DRAFT',
+        submittedAt: null,
+        updatedAt: '2022-11-08T23:44:58.226Z',
+        weightTickets: [{ emptyWeight: 0, fullWeight: 20000 }],
+      },
+      primeActualWeight: 980,
+      requestedDeliveryDate: '0001-01-01',
+      requestedPickupDate: '0001-01-01',
+      shipmentType: 'PPM',
+      status: 'DRAFT',
+      updatedAt: '2022-11-08T23:44:58.217Z',
+    },
+  ],
+};
+
+const ppmShipmentQueryNeedsAdvanceApproval = {
+  ...newMoveDetailsQuery,
+  mtoShipments: [
+    {
+      customerRemarks: 'Please treat gently',
+      eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMTc4MVo=',
+      id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+      moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
+      ppmShipment: {
+        actualDestinationPostalCode: null,
+        actualMoveDate: null,
+        actualPickupPostalCode: null,
+        advanceAmountReceived: null,
+        advanceAmountRequested: 598700,
+        approvedAt: null,
+        createdAt: '2022-11-08T23:44:58.226Z',
+        eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
+        estimatedIncentive: 1000000,
+        estimatedWeight: 4000,
+        expectedDepartureDate: '2020-03-15',
+        finalIncentive: null,
+        hasProGear: true,
+        hasReceivedAdvance: null,
+        hasRequestedAdvance: true,
+        id: '79b98a71-158d-4b04-9a6c-25543c52183d',
+        movingExpenses: null,
+        proGearWeight: 1987,
+        proGearWeightTickets: null,
+        reviewedAt: null,
+        hasSecondaryPickupAddress: true,
+        hasSecondaryDestinationAddress: true,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+        sitEstimatedCost: null,
+        sitEstimatedDepartureDate: null,
+        sitEstimatedEntryDate: null,
+        sitEstimatedWeight: null,
+        sitExpected: false,
+        spouseProGearWeight: 498,
+        status: 'NEEDS_ADVANCE_APPROVAL',
         submittedAt: null,
         updatedAt: '2022-11-08T23:44:58.226Z',
         weightTickets: [{ emptyWeight: 0, fullWeight: 20000 }],
@@ -1432,8 +1778,8 @@ describe('MoveDetails page', () => {
 
     describe('ppm specific statuses for service counselor', () => {
       // PPM Shipments should show the edit button on shipments where PPM Shipment status is DRAFT, SUBMITTED, or NEEDS_ADVANCE_APPROVAL
-      it('hides submit and view/edit buttons/links for statuses it should', async () => {
-        useMoveDetailsQueries.mockReturnValue(ppmShipmentQueryNoHHG);
+      it('hides submit and view/edit buttons/links for NEEDS_CLOSEOUT status', async () => {
+        useMoveDetailsQueries.mockReturnValue(ppmShipmentQueryNeedsCloseout);
 
         renderComponent();
 
@@ -1445,8 +1791,73 @@ describe('MoveDetails page', () => {
         expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
       });
 
-      it('shows submit and view/edit buttons/links for statuses it should', async () => {
-        useMoveDetailsQueries.mockReturnValue(submittedPPMShipmentQuery);
+      it('hides submit and view/edit buttons/links for WAITING_ON_CUSTOMER status', async () => {
+        useMoveDetailsQueries.mockReturnValue(ppmShipmentQueryWaitingOnCustomer);
+
+        renderComponent();
+
+        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(screen.queryByRole('combobox')).toBeInTheDocument(); // Add a new shipment ButtonDropdown
+        expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
+      });
+
+      it('hides submit and view/edit buttons/links for CLOSEOUT_COMPLETE status', async () => {
+        useMoveDetailsQueries.mockReturnValue(ppmShipmentQueryCloseoutComplete);
+
+        renderComponent();
+
+        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(screen.queryByRole('combobox')).toBeInTheDocument(); // Add a new shipment ButtonDropdown
+        expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
+      });
+
+      it('hides submit and view/edit buttons/links for CANCELLED status', async () => {
+        useMoveDetailsQueries.mockReturnValue(ppmShipmentQueryCancelled);
+
+        renderComponent();
+
+        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(screen.queryByRole('combobox')).toBeInTheDocument(); // Add a new shipment ButtonDropdown
+        expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
+      });
+
+      it('shows submit and view/edit buttons/links for SUBMITTED status', async () => {
+        useMoveDetailsQueries.mockReturnValue(ppmShipmentQuerySubmitted);
+
+        renderComponent();
+
+        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(screen.queryByRole('combobox')).toBeInTheDocument(); // Add a new shipment ButtonDropdown
+        expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
+      });
+
+      it('shows submit and view/edit buttons/links for DRAFT status', async () => {
+        useMoveDetailsQueries.mockReturnValue(ppmShipmentQueryDraft);
+
+        renderComponent();
+
+        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(screen.queryByRole('combobox')).toBeInTheDocument(); // Add a new shipment ButtonDropdown
+        expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
+      });
+
+      it('shows submit and view/edit buttons/links for NEEDS ADVANCE APPROVAL status', async () => {
+        useMoveDetailsQueries.mockReturnValue(ppmShipmentQueryNeedsAdvanceApproval);
 
         renderComponent();
 
