@@ -57,7 +57,7 @@ func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() 
 		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					Status: &rejectedStatus,
+					Status:     &rejectedStatus,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
@@ -75,7 +75,9 @@ func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() 
 		builder := &testRejectedOfficeUsersListQueryBuilder{}
 
 		fetcher := NewRejectedOfficeUsersListFetcher(builder)
+
 		rejectedOfficeUsers, _, err := fetcher.FetchRejectedOfficeUsersList(suite.AppContextForTest(), nil, defaultPagination(), defaultOrdering())
+
 		suite.NoError(err)
 		suite.Equal(models.OfficeUsers(nil), rejectedOfficeUsers)
 	})
