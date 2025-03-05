@@ -88,7 +88,7 @@ type PPMShipmentUpdatedSubmitter interface {
 //go:generate mockery --name AOAPacketCreator
 type AOAPacketCreator interface {
 	VerifyAOAPacketInternal(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error
-	CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, string, error)
+	CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (mergedPdf afero.File, dirPath string, returnErr error)
 	CleanupAOAPacketFile(packetFile afero.File, closeFile bool) error
 	CleanupAOAPacketDir(dirName string) error
 }
@@ -97,7 +97,7 @@ type AOAPacketCreator interface {
 //
 //go:generate mockery --name PaymentPacketCreator
 type PaymentPacketCreator interface {
-	Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWaterMarks bool) (afero.File, string, error)
+	Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWaterMarks bool) (mergedPdf afero.File, dirPath string, returnErr error)
 	GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, string, error)
 	CleanupPaymentPacketFile(packetDir afero.File, closeFile bool) error
 	CleanupPaymentPacketDir(dirName string) error

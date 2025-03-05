@@ -33,7 +33,6 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 
 	mockPPMShipmentFetcher := &mocks.PPMShipmentFetcher{}
 	mockAoaPacketCreator := &mocks.AOAPacketCreator{}
-
 	paymentPacketCreator := NewPaymentPacketCreator(
 		mockPPMShipmentFetcher,
 		generator,
@@ -62,7 +61,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 
 	file, err := suite.openLocalFile("../../paperwork/testdata/orders1.pdf", generator.FileSystem())
 	suite.FatalNil(err)
-	mockAoaPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(file, nil)
+	mockAoaPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(file, "testDir", nil)
 
 	suite.Run("generate pdf - INTERNAL", func() {
 

@@ -57,7 +57,7 @@ func NewPaymentPacketCreator(
 	}
 }
 
-func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (afero.File, string, error) {
+func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (mergedPdf afero.File, dirPath string, returnErr error) {
 	err := verifyPPMShipment(appCtx, ppmShipmentID)
 	if err != nil {
 		return nil, "", err
@@ -151,6 +151,14 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	// It was discovered during implementation of B-21938 that watermarks were not functional.
 	// This is because the watermark func was using bookmarks, not watermarks.
 	// See https://github.com/transcom/mymove/pull/14496 for removal
+
+	defer func() {
+		// if a panic occurred we set an error message that we can use to check for a recover in the calling method
+		if r := recover(); r != nil {
+			appCtx.Logger().Error("payment packet files panic", zap.Error(err))
+			returnErr = fmt.Errorf("%s: panic", errMsgPrefix)
+		}
+	}()
 
 	if addBookmarks {
 		outputFile, err := p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks, dirName)
