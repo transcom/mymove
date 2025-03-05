@@ -1,6 +1,8 @@
 package adminuser
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -31,7 +33,28 @@ func defaultOrdering() services.QueryOrder {
 func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() {
 	suite.Run("if the users are successfully fetched, they should be returned", func() {
 		rejectedStatus := models.OfficeUserStatusREJECTED
+		rejectedOn := time.Now()
 		officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Status:     &rejectedStatus,
+					RejectedOn: &rejectedOn,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+		builder := &testRejectedOfficeUsersListQueryBuilder{}
+
+		fetcher := NewRejectedOfficeUsersListFetcher(builder)
+
+		rejectedOfficeUsers, _, err := fetcher.FetchRejectedOfficeUsersList(suite.AppContextForTest(), nil, defaultPagination(), defaultOrdering())
+
+		suite.NoError(err)
+		suite.Equal(officeUser1.ID, rejectedOfficeUsers[0].ID)
+	})
+
+	suite.Run("if the users don't have a rejected on date, they should still be returned", func() {
+		rejectedStatus := models.OfficeUserStatusREJECTED
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
 					Status: &rejectedStatus,
@@ -45,7 +68,7 @@ func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() 
 		rejectedOfficeUsers, _, err := fetcher.FetchRejectedOfficeUsersList(suite.AppContextForTest(), nil, defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
-		suite.Equal(officeUser1.ID, rejectedOfficeUsers[0].ID)
+		suite.Equal(1, len(rejectedOfficeUsers))
 	})
 
 	suite.Run("if there are no rejected office users, we don't receive any rejected office users", func() {
@@ -61,13 +84,15 @@ func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() 
 
 	suite.Run("should sort and order rejected office users", func() {
 		rejectedStatus := models.OfficeUserStatusREJECTED
+		rejectedOn := time.Now()
 		officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Angelina",
-					LastName:  "Jolie",
-					Email:     "laraCroft@mail.mil",
-					Status:    &rejectedStatus,
+					FirstName:  "Angelina",
+					LastName:   "Jolie",
+					Email:      "laraCroft@mail.mil",
+					Status:     &rejectedStatus,
+					RejectedOn: &rejectedOn,
 				},
 			},
 			{
@@ -79,10 +104,11 @@ func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() 
 		officeUser2 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Billy",
-					LastName:  "Bob",
-					Email:     "bigBob@mail.mil",
-					Status:    &rejectedStatus,
+					FirstName:  "Billy",
+					LastName:   "Bob",
+					Email:      "bigBob@mail.mil",
+					Status:     &rejectedStatus,
+					RejectedOn: &rejectedOn,
 				},
 			},
 			{
@@ -94,10 +120,11 @@ func (suite *RejectedOfficeUsersServiceSuite) TestFetchRejectedOfficeUserList() 
 		officeUser3 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Nick",
-					LastName:  "Cage",
-					Email:     "conAirKilluh@mail.mil",
-					Status:    &rejectedStatus,
+					FirstName:  "Nick",
+					LastName:   "Cage",
+					Email:      "conAirKilluh@mail.mil",
+					Status:     &rejectedStatus,
+					RejectedOn: &rejectedOn,
 				},
 			},
 			{
