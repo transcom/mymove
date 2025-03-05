@@ -3568,7 +3568,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 					Status:              models.MTOShipmentStatusApproved,
 					ApprovedDate:        &now,
 					ScheduledPickupDate: &pickupDate,
-					PrimeActualWeight:   &actualWeight,
+					PrimeActualWeight:   &weight,
 				},
 			},
 			{
