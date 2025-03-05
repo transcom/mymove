@@ -23,10 +23,11 @@ import departmentIndicators from 'constants/departmentIndicators';
 import StyledLine from 'components/StyledLine/StyledLine';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import RegistrationConfirmationModal from 'components/RegistrationConfirmationModal/RegistrationConfirmationModal';
+import { registerUser } from 'services/internalApi';
 
 export const SignUp = ({ setShowLoadingSpinner }) => {
   const navigate = useNavigate();
-  const [serverError] = useState(null);
+  const [serverError, setServerError] = useState(null);
   const [showEmplid, setShowEmplid] = useState(false);
   const [isCACModalVisible, setIsCACModalVisible] = useState(false);
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
@@ -77,36 +78,51 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
     navigate(generalRoutes.SIGN_IN_PATH);
   };
 
-  const delay = (ms) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(), ms);
-    });
-  };
-
-  const handleAsyncSubmit = async (body) => {
-    setShowLoadingSpinner(true, `Creating MilMove Account for ${body.firstName} ${body.lastName}`);
-    await delay(2000);
-    setShowLoadingSpinner(true, `Creating Okta Account for ${body.firstName} ${body.lastName}`);
-    await delay(2000);
-    setShowLoadingSpinner(false, null);
-    setIsConfirmationModalVisible(true);
-  };
-
   const handleSubmit = async (values) => {
-    const body = {
+    if (values.firstName && values.lastName) {
+      setShowLoadingSpinner(true, `Creating MilMove Account for ${values.firstName} ${values.lastName}`);
+    } else {
+      setShowLoadingSpinner(true, `Creating MilMove Account`);
+    }
+    const payload = {
       affiliation: values.affiliation,
       edipi: values.edipi,
-      emplid: values.emplid,
+      emplid: values.emplid.trim() === '' ? null : values.emplid,
       firstName: values.firstName,
-      middleInitial: values.middleInitial,
+      middleInitial: values.middleInitial.trim() === '' ? null : values.middleInitial,
       lastName: values.lastName,
       email: values.email,
       telephone: values.telephone,
-      secondaryTelephone: values.secondaryTelephone,
+      secondaryTelephone: values.secondaryTelephone.trim() === '' ? null : values.secondaryTelephone,
       phoneIsPreferred: values.phoneIsPreferred,
       emailIsPreferred: values.emailIsPreferred,
     };
-    await handleAsyncSubmit(body);
+    return registerUser(payload)
+      .then(() => {
+        setShowLoadingSpinner(false, null);
+      })
+      .catch((e) => {
+        const { response } = e;
+        let errorMessage = `Failed to create account`;
+        setShowLoadingSpinner(false, null);
+        if (response.body) {
+          const responseBody = response.body;
+          let responseMsg = '';
+
+          if (responseBody.detail) {
+            responseMsg += `${responseBody.detail}:`;
+          }
+
+          if (responseBody.invalid_fields) {
+            const invalidFields = responseBody.invalid_fields;
+            Object.keys(invalidFields).forEach((key) => {
+              responseMsg += `\n${invalidFields[key]}`;
+            });
+          }
+          errorMessage += `\n${responseMsg}`;
+        }
+        setServerError(errorMessage);
+      });
   };
 
   const validationSchema = Yup.object().shape({
@@ -156,25 +172,23 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
     <div className={classNames('usa-prose grid-container')}>
       <ValidCACModal isOpen={isCACModalVisible} onClose={handleCACModalNo} onSubmit={handleCACModalYes} />
       <RegistrationConfirmationModal isOpen={isConfirmationModalVisible} onSubmit={handleConfirmationModalYes} />
+      <NotificationScrollToTop dependency={serverError} />
       <GridContainer>
-        <NotificationScrollToTop dependency={serverError} />
-
-        {serverError && (
-          <Grid row>
-            <Alert
-              data-testid="alert2"
-              type="error"
-              headingLevel="h4"
-              heading="An error occurred"
-              className={styles.error}
-            >
-              {serverError}
-            </Alert>
-          </Grid>
-        )}
-
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }} className={styles.formContainer}>
+            {serverError && (
+              <Grid row>
+                <Alert
+                  data-testid="alert2"
+                  type="error"
+                  headingLevel="h4"
+                  heading="An error occurred"
+                  className={styles.error}
+                >
+                  {serverError}
+                </Alert>
+              </Grid>
+            )}
             <Formik
               initialValues={initialValues}
               onSubmit={handleSubmit}
