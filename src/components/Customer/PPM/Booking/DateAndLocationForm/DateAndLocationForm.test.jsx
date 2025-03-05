@@ -498,14 +498,22 @@ describe('validates form fields and displays error messages', () => {
       expect(state[2]).toHaveTextContent('GA');
       expect(postalCodes[2]).toHaveTextContent('94611');
 
-      const closeoutOfficeLabel = await screen.queryByText(/Which closeout office should review your PPM\?/);
-      expect(closeoutOfficeLabel).toBeTruthy();
-      await userEvent.keyboard('{Scot}[Tab]');
+      // const closeoutOfficeLabel = await screen.queryByText(/Which closeout office should review your PPM\?/);
+      // expect(closeoutOfficeLabel).toBeTruthy();
+      await userEvent.selectOptions(screen.queryByText(/Which closeout office should review your PPM/), [
+        'PPPO Scott AFB - USAF',
+      ]);
+      // await userEvent.keyboard('{Scot}[Tab]');
 
       // await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '07 Mar 2022');
       await waitFor(() => {
         expect(screen.getByLabelText(/When do you plan to start moving your PPM?/)).toHaveDisplayValue('08 Mar 2025');
       });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).not.toBeDisabled();
+      });
+
       // now clear out text, should raise required alert
       await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
       await userEvent.keyboard('[Tab]');

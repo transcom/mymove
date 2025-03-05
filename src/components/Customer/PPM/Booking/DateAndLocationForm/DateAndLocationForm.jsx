@@ -158,7 +158,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
       validateOnMount
       validateOnChange
     >
-      {({ isValid, isSubmitting, handleSubmit, setValues, values, ...formikProps }) => {
+      {({ isValid, isSubmitting, handleSubmit, setValues, values, errors, ...formikProps }) => {
+        // console.log('Formik values:', values);
+        // console.log('Formik errors:', errors);
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
