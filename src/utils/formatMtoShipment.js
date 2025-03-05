@@ -130,7 +130,7 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     advance: (ppmShipment.advanceAmountRequested / 100 || '').toString(),
     closeoutOffice,
     counselorRemarks,
-    isActualExpenseReimbursement: ppmShipment.isActualExpenseReimbursement ? 'true' : 'false',
+    isActualExpenseReimbursement: ppmShipment.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
   };
 
   if (ppmShipment.hasSecondaryPickupAddress) {
