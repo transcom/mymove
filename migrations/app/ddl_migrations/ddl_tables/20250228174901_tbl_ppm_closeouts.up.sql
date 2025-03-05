@@ -55,7 +55,7 @@ COMMENT on COLUMN ppm_closeouts.total_gtcc_paid_expenses IS 'Total amount paid u
 COMMENT on COLUMN ppm_closeouts.total_member_paid_expenses IS 'Total amount paid by the service member. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.remaining_incentive IS 'Final PPM incentive less the advance recieved. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.gtcc_paid_sit IS 'Amount paid for SIT using the service member''s GTCC. Stored in cents.';
-COMMENT on COLUMN ppm_closeouts.member_paid_sit IS 'Evaluation report that is associated with the appeal.';
+COMMENT on COLUMN ppm_closeouts.member_paid_sit IS 'Amount paid for SIT by the service member. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.gtcc_disbursement IS 'Amount disbursed for GTCC expenses. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.member_disbursement IS 'Amount disbursed for service member paid expenses. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.created_at IS 'Date that this closeout was created.';
