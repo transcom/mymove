@@ -4068,8 +4068,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		suite.Nil(oldUbShipment.RequiredDeliveryDate)
 
 		pickUpDate := time.Now()
-		dayAfterPickupDay := pickUpDate.AddDate(0, 0, 1)
-		expectedRequiredDeiliveryDate := dayAfterPickupDay.AddDate(0, 0, 27)
+		expectedRequiredDeiliveryDate := pickUpDate.AddDate(0, 0, 27)
 		newUbShipment := models.MTOShipment{
 			ID:                  oldUbShipment.ID,
 			ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
