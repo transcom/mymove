@@ -36,7 +36,7 @@ describe('GeneralState actions', () => {
 
     expect(setRefetchQueue(true)).toEqual(expectedAction);
   });
-  
+
   it('setShowLoadingSpinner returns the expected action', () => {
     const expectedAction = {
       type: SET_SHOW_LOADING_SPINNER,
