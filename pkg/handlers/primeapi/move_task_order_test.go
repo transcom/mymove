@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -2030,6 +2031,8 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 	uri := "/moves/%s/documents"
 	paramTypeAll := "ALL"
+	fs := afero.NewMemMapFs()
+
 	suite.Run("Successful DownloadMoveOrder - 200", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
@@ -2057,12 +2060,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
 		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, nil)
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, nil)
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2107,12 +2117,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
 		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("error"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("error"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2292,12 +2309,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, apperror.NewUnprocessableEntityError("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, apperror.NewUnprocessableEntityError("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2338,12 +2362,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2385,12 +2416,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUploadAll, //Verify ALL enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2432,12 +2470,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUpload, //Verify Order only enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2456,7 +2501,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
 	})
 
-	suite.Run("DownloadMoveOrder: Orders Only - service returns unprocess entity - 422", func() {
+	suite.Run("DownloadMoveOrder: Amendments Only - service returns unprocess entity - 422", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
 		mockPrimeDownloadMoveUploadPDFGenerator := mocks.PrimeDownloadMoveUploadPDFGenerator{}
@@ -2480,12 +2525,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderAmendmentUpload, //Verify Amendment only enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
