@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-// BooleanFeatureFlagsUnauthentictedHandler handles evaluating boolean feature flags outside of authentication
+// BooleanFeatureFlagsUnauthenticatedHandler handles evaluating boolean feature flags outside of authentication
 type BooleanFeatureFlagsUnauthenticatedHandler struct {
 	handlers.HandlerConfig
 }

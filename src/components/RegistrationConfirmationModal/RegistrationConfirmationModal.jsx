@@ -14,7 +14,7 @@ export const RegistrationConfirmationModal = ({ onSubmit }) => {
       </ModalTitle>
       <p className={styles.center}>
         Your MilMove & Okta accounts have successfully been created. <br />
-        It is required that you first sign-in with a Smart Card (CAC). <br />
+        It is required that you first sign-in with a Common Access Card (CAC). <br />
         <br />
         You will now be redirected to the Okta sign-in page where you will click on the &quot;Sign in with PIV / CAC
         Card&quot; button to sign in.

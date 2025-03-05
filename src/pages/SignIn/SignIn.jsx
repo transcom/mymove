@@ -87,7 +87,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
             <div>
               <Alert type="error" heading="CAC Validation is required at first sign-in">
                 If you do not have a CAC do not request your account here. You must visit your nearest personal property
-                office and they will assist you with creating your MilMove account.
+                office where they will assist you with creating your MilMove account.
               </Alert>
             </div>
           )}
