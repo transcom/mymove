@@ -10,12 +10,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	// Create move router for SitExtension Createor
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	sitExtensionCreator := NewSitExtensionCreator(moveRouter)
 	waf := entitlements.NewWeightAllotmentFetcher()
 	movefetcher := movefetcher.NewMoveTaskOrderFetcher(waf)

@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/move"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -24,7 +25,7 @@ import (
 
 func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	suite.Run("Returns an error when order is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
@@ -38,7 +39,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Returns an error when origin duty location is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 		newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
@@ -57,7 +58,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Returns an error when new duty location is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 		originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
@@ -76,7 +77,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Returns an error when the etag does not match", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 
@@ -90,7 +91,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Updates the order when all fields are valid", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		move := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
 		order := move.Orders
@@ -156,7 +157,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Rolls back transaction if Order is invalid", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -190,7 +191,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Allow Order update to have a missing HHG SAC", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -234,7 +235,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Allow Order update to have a missing NTS SAC", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -278,7 +279,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Allow Order update to have a missing NTS TAC", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -322,7 +323,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Rolls back transaction if Order is invalid", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -357,7 +358,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Rolls back transaction if Order is missing required fields", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 
@@ -400,7 +401,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	suite.Run("Returns an error when order is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
@@ -414,7 +415,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	})
 
 	suite.Run("Returns an error when the etag does not match", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 
@@ -428,7 +429,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	})
 
 	suite.Run("Updates the order when it is found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
@@ -481,7 +482,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	})
 
 	suite.Run("Updates the PPM actual expense reimbursement when pay grade is civilian", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
@@ -509,7 +510,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	})
 
 	suite.Run("Rolls back transaction if Order is invalid", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 
@@ -544,7 +545,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 
 func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 	suite.Run("Returns an error when order is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
@@ -558,7 +559,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 	})
 
 	suite.Run("Returns an error when the etag does not match", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 
@@ -572,7 +573,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 	})
 
 	suite.Run("Updates the allowance when all fields are valid and no dependents", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -609,7 +610,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 	})
 
 	suite.Run("Updates the allowance when all OCONUS fields are valid with dependents", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -652,7 +653,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 	})
 
 	suite.Run("Updates the allowance when weightRestriction is null", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
 			{
@@ -677,8 +678,34 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		suite.Nil(updatedOrder.Entitlement.WeightRestriction)
 	})
 
+	suite.Run("Updates the UB allowance when ubWeightRestriction is null", func() {
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Entitlement{
+					UBWeightRestriction: models.IntPointer(1200),
+				},
+			},
+		}, nil).Orders
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateAllowancePayload{
+			UbWeightRestriction: nil,
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+		suite.NoError(err)
+		suite.Nil(updatedOrder.Entitlement.UBWeightRestriction)
+	})
+
 	suite.Run("Updates the allowance when all fields are valid with dependents", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		// Build with dependents trait
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, []factory.Trait{
@@ -720,7 +747,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	suite.Run("Returns an error when order is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
@@ -734,7 +761,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.Run("Returns an error when the etag does not match", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 
@@ -748,7 +775,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.Run("Updates the entitlement of OCONUS fields", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
@@ -771,6 +798,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			DependentsTwelveAndOver:        models.Int64Pointer(1),
 			DependentsUnderTwelve:          models.Int64Pointer(2),
 			WeightRestriction:              models.Int64Pointer(0),
+			UbWeightRestriction:            models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -787,7 +815,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.Run("Updates the allowance when all fields are valid with dependents authorized but not present", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
@@ -799,6 +827,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 		weightRestriction := models.Int64Pointer(5000)
+		ubWeightRestriction := models.Int64Pointer(2000)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
 			Agency: &affiliation,
@@ -808,6 +837,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
 			WeightRestriction:              weightRestriction,
+			UbWeightRestriction:            ubWeightRestriction,
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -828,10 +858,11 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
 		suite.Equal(*payload.WeightRestriction, int64(*updatedOrder.Entitlement.WeightRestriction))
+		suite.Equal(*payload.UbWeightRestriction, int64(*updatedOrder.Entitlement.UBWeightRestriction))
 	})
 
 	suite.Run("Updates the allowance when weightRestriction is null", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
 			{
@@ -856,8 +887,34 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Nil(updatedOrder.Entitlement.WeightRestriction)
 	})
 
+	suite.Run("Updates the UB allowance when ubWeightRestriction is null", func() {
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Entitlement{
+					UBWeightRestriction: models.IntPointer(1200),
+				},
+			},
+		}, nil).Orders
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.CounselingUpdateAllowancePayload{
+			UbWeightRestriction: nil,
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+		suite.NoError(err)
+		suite.Nil(updatedOrder.Entitlement.UBWeightRestriction)
+	})
+
 	suite.Run("Updates the allowance when all fields are valid with dependents present and authorized", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitHasDependents,
@@ -901,7 +958,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.Run("Updates the allowance when move needs service counseling and order fields are missing", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
@@ -957,7 +1014,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.Run("Entire update is aborted when ProGearWeight is over max amount", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
@@ -993,7 +1050,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.Run("Entire update is aborted when ProGearWeightSpouse is over max amount", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
@@ -1030,7 +1087,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 }
 
 func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	orderUpdater := NewOrderUpdater(moveRouter)
 
 	setUpOrders := func(setUpPreExistingAmendedOrders bool) *models.Order {
