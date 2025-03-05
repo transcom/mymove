@@ -120,7 +120,7 @@ func (suite *AcknowledgeMovesAndShipmentsServiceSuite) TestUpdateMoveAcknowledge
 		suite.NotEqual(move.PrimeAcknowledgedAt.UTC(), dbMove.PrimeAcknowledgedAt.UTC(), "Prime acknowledged at date was not updated")
 		suite.Equal(fourDaysAgo.UTC(), dbMove.PrimeAcknowledgedAt.UTC(), "Prime acknowledged at date remained 4 days ago")
 		suite.Equal(move.MTOShipments[0].ID, dbMove.MTOShipments[0].ID)
-		suite.NotEqual(move.MTOShipments[0].PrimeAcknowledgedAt.UTC(), dbMove.MTOShipments[0].PrimeAcknowledgedAt.UTC(), "Prime acknowledged at date was not update")
+		suite.NotEqual(move.MTOShipments[0].PrimeAcknowledgedAt.UTC(), dbMove.MTOShipments[0].PrimeAcknowledgedAt.UTC(), "Prime acknowledged at date was not updated")
 		suite.Equal(fourDaysAgo.UTC(), dbMove.PrimeAcknowledgedAt.UTC(), "Prime acknowledged at date remained 4 days ago")
 	})
 }
