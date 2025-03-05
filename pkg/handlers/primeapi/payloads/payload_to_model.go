@@ -1072,6 +1072,7 @@ func MovesModelFromAcknowledgeMovesAndShipments(acknowledgeMoves *primemessages.
 	verrs := validate.NewErrors()
 	if acknowledgeMoves == nil || len(*acknowledgeMoves) == 0 {
 		verrs.Add("acknowledgeMoves", "value cannot be nil or empty")
+		return nil, verrs
 	}
 	var moves = models.Moves{}
 	for _, movePayload := range *acknowledgeMoves {
