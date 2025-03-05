@@ -49,7 +49,14 @@ import {
   updateMoveCloseoutOffice,
   dateSelectionIsWeekendHoliday,
 } from 'services/ghcApi';
-import { getPPMTypeLabel, PPM_TYPES, SHIPMENT_OPTIONS, SHIPMENT_TYPES, technicalHelpDeskURL } from 'shared/constants';
+import {
+  FEATURE_FLAG_KEYS,
+  getPPMTypeLabel,
+  PPM_TYPES,
+  SHIPMENT_OPTIONS,
+  SHIPMENT_TYPES,
+  technicalHelpDeskURL,
+} from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -120,7 +127,7 @@ const ShipmentForm = (props) => {
   }, []);
   useEffect(() => {
     const fetchData = async () => {
-      setPpmSprFF(await isBooleanFlagEnabled('ppm_spr'));
+      setPpmSprFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR));
     };
     fetchData();
   }, []);
@@ -302,8 +309,6 @@ const ShipmentForm = (props) => {
             closeoutOffice: move.closeoutOffice,
           },
     );
-    if (isCreatePage && mtoShipment.ppmShipment?.ppmType === PPM_TYPES.ACTUAL_EXPENSE)
-      initialValues.isActualExpenseReimbursement = 'true';
   } else if (isMobileHome) {
     const hhgInitialValues = formatMtoShipmentForDisplay(
       isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
