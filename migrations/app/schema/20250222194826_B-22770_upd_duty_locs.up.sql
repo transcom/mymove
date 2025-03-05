@@ -34,6 +34,7 @@ update duty_locations set name = 'NAS Whidbey Island, WA 98278', updated_at = no
 --Phoenix, AZ 85064
 --Kansas City, MO 64148
 --Goldsboro, NC 27532
+--Austin, TX 78715
 
 DO $$
 DECLARE
@@ -54,7 +55,7 @@ BEGIN
 												'70404','94125','39205','65805','39130',
 												'80960','33601','68542','37605','77404',
 												'85717','29903','47703','75049','85064',
-												'64148','27532')
+												'64148','27532','78715')
 			)
 	LOOP
 
