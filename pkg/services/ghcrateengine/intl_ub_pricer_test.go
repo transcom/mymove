@@ -74,12 +74,12 @@ func (suite *GHCRateEngineServiceSuite) TestUbpPricer() {
 		// No reference date
 		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, ubpTestWeight, ubpTestPerUnitCents.Int())
 		suite.Error(err)
-		suite.Equal("referenceDate is required", err.Error())
+		suite.Equal("ReferenceDate is required", err.Error())
 
 		// No weight
 		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, ubpTestRequestedPickupDate, 0, ubpTestPerUnitCents.Int())
 		suite.Error(err)
-		suite.Equal(fmt.Sprintf("weight must be at least %d pounds", minIntlWeightUB), err.Error())
+		suite.Equal(fmt.Sprintf("Weight must be at least %d pounds", minIntlWeightUB), err.Error())
 
 		// No per unit cents
 		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, ubpTestRequestedPickupDate, ubpTestWeight, 0)
