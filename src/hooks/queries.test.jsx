@@ -18,6 +18,7 @@ import {
   useServicesCounselingQueuePPMQueries,
   useReviewShipmentWeightsQuery,
   useBulkAssignmentQueries,
+  usePPMShipmentAndDocsOnlyQueries,
 } from './queries';
 
 import { serviceItemCodes } from 'content/serviceItems';
@@ -1028,6 +1029,34 @@ describe('useServicesCounselingQueuePPMQueries', () => {
       isLoading: false,
       isError: false,
       isSuccess: true,
+    });
+  });
+});
+
+describe('usePPMShipmentAndDocsOnlyQueries', () => {
+  it('loads data', async () => {
+    const { result, waitFor } = renderHook(() => usePPMShipmentAndDocsOnlyQueries('1234'), { wrapper });
+
+    await waitFor(() => result.current.isSuccess);
+
+    expect(result.current).toEqual({
+      documents: {
+        MovingExpenses: [],
+        ProGearWeightTickets: [],
+        WeightTickets: [],
+      },
+      mtoShipment: {
+        customerRemarks: 'mock remarks',
+        id: '12345',
+        moveTaskOrderId: '67890',
+        requestedDeliveryDate: '2020-03-30',
+        requestedPickupDate: '2020-03-01',
+      },
+      isLoading: false,
+      isError: false,
+      isFetching: false,
+      isSuccess: true,
+      refetchMTOShipment: result.current.refetchMTOShipment,
     });
   });
 });
