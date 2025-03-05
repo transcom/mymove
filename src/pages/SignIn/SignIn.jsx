@@ -86,8 +86,8 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
           {location.state && location.state.noValidCAC && (
             <div>
               <Alert type="error" heading="CAC Validation is required at first sign-in">
-                If you do not have a CAC do not request your account here. You must visit your nearest personal property
-                office where they will assist you with creating your MilMove account.
+                If you do not have a Common Access Card (CAC) do not request your account here. You must visit your
+                nearest personal property office where they will assist you with creating your MilMove account.
               </Alert>
             </div>
           )}
