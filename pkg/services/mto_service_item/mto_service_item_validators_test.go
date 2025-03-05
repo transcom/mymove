@@ -1093,7 +1093,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 				},
 			}, nil)
 			newSITServiceItem := oldSITServiceItem
-			newSITServiceItem.SITDepartureDate = &later
+			newSITDepartureDate := later.AddDate(0, 0, 1)
+			newSITServiceItem.SITDepartureDate = &newSITDepartureDate
 			serviceItemData := updateMTOServiceItemData{
 				updatedServiceItem: newSITServiceItem,
 				oldServiceItem:     oldSITServiceItem,
@@ -1133,6 +1134,56 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			},
 			{
 				reServiceCode: models.ReServiceCodeDDDSIT,
+			},
+		}
+		for _, tc := range testCases {
+			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: tc.reServiceCode,
+					},
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate: &later,
+					},
+				},
+			}, nil)
+			newSITServiceItem := oldSITServiceItem
+			newSITServiceItem.SITDepartureDate = &before
+			serviceItemData := updateMTOServiceItemData{
+				updatedServiceItem: newSITServiceItem,
+				oldServiceItem:     oldSITServiceItem,
+				verrs:              validate.NewErrors(),
+			}
+			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+			suite.NoError(err) // Just verrs
+			suite.True(serviceItemData.verrs.HasAny())
+			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
+			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before or equal to the SIT entry date.")
+		}
+
+	})
+
+	suite.Run("SITDepartureDate - errors when set before the SIT entry date - international", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
+					DestinationSITAuthEndDate: &now},
+			},
+		}, nil)
+		testCases := []struct {
+			reServiceCode models.ReServiceCode
+		}{
+			{
+				reServiceCode: models.ReServiceCodeIOPSIT,
+			},
+			{
+				reServiceCode: models.ReServiceCodeIDDSIT,
 			},
 		}
 		for _, tc := range testCases {
@@ -1215,7 +1266,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
 			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before or equal to the SIT entry date.")
 		}
-
 	})
 
 	suite.Run("SITDepartureDate - errors when set before the SIT entry date - international", func() {
@@ -1265,7 +1315,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
 			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before or equal to the SIT entry date.")
 		}
-
 	})
 
 	suite.Run("SITDepartureDate - errors when service item is missing a shipment ID", func() {
