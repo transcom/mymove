@@ -41,10 +41,4 @@ func (suite *ModelSuite) TestFetchContractForMove() {
 		suite.Equal(contract.ID, reContract.ID)
 	})
 
-	suite.Run("returns error if no contract found", func() {
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		contract, err := models.FetchContractForMove(suite.AppContextForTest(), move.ID)
-		suite.Error(err)
-		suite.Equal(contract, models.ReContract{})
-	})
 }

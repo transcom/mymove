@@ -1,14 +1,11 @@
 package paymentrequest
 
 import (
-	"time"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -49,11 +46,6 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 		suite.Run("success", func() {
 
 			move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
-			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EndDate: time.Now().Add(time.Hour * 24),
-				},
-			})
 			estimatedWeight := unit.Pound(2048)
 			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 				{
@@ -104,11 +96,6 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 
 			move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 
-			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EndDate: time.Now().Add(time.Hour * 24),
-				},
-			})
 			estimatedWeight := unit.Pound(2048)
 			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 				{
@@ -163,11 +150,6 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 		suite.Run("success", func() {
 
 			move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
-			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EndDate: time.Now().Add(time.Hour * 24),
-				},
-			})
 			estimatedWeight := unit.Pound(2048)
 			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 				{
@@ -226,11 +208,6 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 			}
 
 			move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
-			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EndDate: time.Now().Add(time.Hour * 24),
-				},
-			})
 			estimatedWeight := unit.Pound(2048)
 			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 				{

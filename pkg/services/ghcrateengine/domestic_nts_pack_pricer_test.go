@@ -107,11 +107,11 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackServiceItem() models
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int, isPeakPeriod bool, priceCents unit.Cents, market models.Market, factor float64, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Name:                 contractYearName,
-				EscalationCompounded: escalationCompounded,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 

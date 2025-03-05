@@ -158,10 +158,10 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	}, nil)
 
 	//ContractCode
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+	testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
-			StartDate: time.Now().Add(-24 * time.Hour),
-			EndDate:   time.Now().Add(24 * time.Hour),
+			StartDate: testdatagen.ContractStartDate,
+			EndDate:   testdatagen.NextValidMoveDate,
 		},
 	})
 
@@ -320,10 +320,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		}, nil)
 		internationalShipmentEtag := etag.GenerateEtag(internationalShipment.UpdatedAt)
 
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 

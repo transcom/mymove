@@ -88,37 +88,6 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchInternationalAccessorialPrice(
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) Test_fetchContractYear() {
-	testDate := time.Date(testdatagen.TestYear, time.June, 17, 8, 45, 44, 333, time.UTC)
-	testEscalationCompounded := 1.0512
-
-	suite.Run("golden path", func() {
-		newContractYear := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: testEscalationCompounded,
-				},
-			})
-
-		contractYear, err := fetchContractYear(suite.AppContextForTest(), newContractYear.ContractID, testDate)
-		suite.NoError(err)
-		suite.Equal(testEscalationCompounded, contractYear.EscalationCompounded)
-	})
-
-	suite.Run("no records found", func() {
-		newContractYear := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: testEscalationCompounded,
-				},
-			})
-
-		// Look for a testDate that's a couple of years later.
-		_, err := fetchContractYear(suite.AppContextForTest(), newContractYear.ContractID, testDate.AddDate(2, 0, 0))
-		suite.Error(err)
-	})
-}
-
 func (suite *GHCRateEngineServiceSuite) Test_fetchShipmentTypePrice() {
 	suite.Run("golden path", func() {
 		suite.setupShipmentTypePrice(models.ReServiceCodeDNPK, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)

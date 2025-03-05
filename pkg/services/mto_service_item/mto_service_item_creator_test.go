@@ -2191,13 +2191,11 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		reason := "lorem ipsum"
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
+					StartDate: startDate,
+					EndDate:   endDate,
 				},
 			})
 

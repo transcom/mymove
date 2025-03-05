@@ -325,11 +325,11 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginServiceItems() models
 }
 
 func (suite *GHCRateEngineServiceSuite) setUpDomesticOriginData() {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Escalation:           1.0197,
-				EscalationCompounded: 1.0407,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 

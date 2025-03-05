@@ -18,12 +18,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	key := models.ServiceItemParamNameDistanceZip
 
 	suite.Run("Calculate transit zip distance", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -64,12 +58,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Calculate transit zip distance for international shipment with port data", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.Port{
@@ -176,12 +164,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Calculate transit zip distance with an approved Destination SIT service item", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		now := time.Now()
 
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -314,12 +296,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Sucessfully updates mtoShipment distance when the pickup and destination zips are the same", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -360,12 +336,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Calculate zip distance with param cache", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -496,12 +466,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 
 	suite.Run("returns error if the destination zipcode isn't at least 5 digits", func() {
 
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
