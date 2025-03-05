@@ -10,6 +10,22 @@
     text-align: center;
   }
 
+.centerColumn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    h2 {
+        margin-top: -8px;
+    }
+
+    .hint {
+        margin-bottom: 10px;
+    }
+}
+
 .formSection {
     display: flex;
     flex-direction: column;

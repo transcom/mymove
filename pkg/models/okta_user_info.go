@@ -20,11 +20,12 @@ type CreatedOktaUser struct {
 	Created   string `json:"created"`
 	Activated string `json:"activated"`
 	Profile   struct {
-		FirstName   string `json:"firstName"`
-		LastName    string `json:"lastName"`
-		MobilePhone string `json:"mobilePhone"`
-		SecondEmail string `json:"secondEmail"`
-		Login       string `json:"login"`
-		Email       string `json:"email"`
+		FirstName   string  `json:"firstName"`
+		LastName    string  `json:"lastName"`
+		MobilePhone string  `json:"mobilePhone"`
+		SecondEmail string  `json:"secondEmail"`
+		Login       string  `json:"login"`
+		Email       string  `json:"email"`
+		CacEdipi    *string `json:"cac_edipi"`
 	} `json:"profile"`
 }

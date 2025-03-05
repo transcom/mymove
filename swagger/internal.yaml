@@ -42,72 +42,6 @@ tags:
   - name: application_parameters
   - name: registration
 definitions:
-  CreateOktaAndMilMoveUser:
-    type: object
-    properties:
-      affiliation:
-        $ref: '#/definitions/Affiliation'
-        title: Branch
-      email:
-        type: string
-        example: user@userdomain.com
-        title: Email
-        x-nullable: false
-      edipi:
-        type: string
-        format: edipi
-        example: '5789345789'
-        pattern: ^\d{10}$
-        minLength: 10
-        maxLength: 10
-        x-nullable: true
-        title: DoD ID number
-      emplid:
-        type: string
-        pattern: ^\d{7}$
-        minLength: 7
-        maxLength: 7
-        example: '1234567'
-        x-nullable: true
-        title: USCG EMPLID
-      firstName:
-        type: string
-        title: First Name
-        x-nullable: false
-      middleInitial:
-        type: string
-        example: L.
-        x-nullable: true
-        title: Middle Initial
-      lastName:
-        type: string
-        title: Last Name
-        x-nullable: false
-      telephone:
-        type: string
-        format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-        example: 212-555-5555
-        x-nullable: false
-      secondaryTelephone:
-        type: string
-        format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-        example: 212-555-5555
-        x-nullable: false
-      phoneIsPreferred:
-        description: Indicates if phone is the preferred method of contact
-        type: boolean
-      emailIsPreferred:
-        description: Indicates if email is the preferred method of contact
-        type: boolean
-    required:
-      - affiliation
-      - email
-      - edipi
-      - firstName
-      - lastName
-      - telephone
   ApplicationParameters:
     type: object
     properties:
@@ -2619,6 +2553,72 @@ definitions:
       COAST_GUARD: Coast Guard
       SPACE_FORCE: Space Force
       OTHER: OTHER
+  CreateOktaAndMilMoveUser:
+    type: object
+    properties:
+      affiliation:
+        $ref: '#/definitions/Affiliation'
+        title: Branch
+      email:
+        type: string
+        example: user@userdomain.com
+        title: Email
+        x-nullable: false
+      edipi:
+        type: string
+        format: edipi
+        example: '5789345789'
+        pattern: ^\d{10}$
+        minLength: 10
+        maxLength: 10
+        x-nullable: true
+        title: DoD ID number
+      emplid:
+        type: string
+        pattern: ^\d{7}$
+        minLength: 7
+        maxLength: 7
+        example: '1234567'
+        x-nullable: true
+        title: USCG EMPLID
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: false
+      middleInitial:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initial
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: false
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        example: 212-555-5555
+        x-nullable: false
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        example: 212-555-5555
+        x-nullable: false
+      phoneIsPreferred:
+        description: Indicates if phone is the preferred method of contact
+        type: boolean
+      emailIsPreferred:
+        description: Indicates if email is the preferred method of contact
+        type: boolean
+    required:
+      - affiliation
+      - email
+      - edipi
+      - firstName
+      - lastName
+      - telephone
   FeatureFlagBoolean:
     description: A feature flag
     type: object
@@ -4463,9 +4463,9 @@ paths:
         - application/json
       responses:
         '201':
-          description: Successfully created MilMove and Okta registration
+          description: successfully registered service member
         '422':
-          description: unprocessable entity
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           description: internal server error
   /open/feature-flags/boolean/{key}:

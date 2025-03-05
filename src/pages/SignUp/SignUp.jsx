@@ -24,6 +24,7 @@ import StyledLine from 'components/StyledLine/StyledLine';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import RegistrationConfirmationModal from 'components/RegistrationConfirmationModal/RegistrationConfirmationModal';
 import { registerUser } from 'services/internalApi';
+import Hint from 'components/Hint';
 
 export const SignUp = ({ setShowLoadingSpinner }) => {
   const navigate = useNavigate();
@@ -31,7 +32,14 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
   const [showEmplid, setShowEmplid] = useState(false);
   const [isCACModalVisible, setIsCACModalVisible] = useState(false);
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
+
+  const hostname = window && window.location && window.location.hostname;
+  const oktaURL =
+    hostname === 'my.move.mil'
+      ? 'https://milmove.okta.mil/enduser/settings'
+      : 'https://test-milmove.okta.mil/enduser/settings';
 
   // timer that shows the CAC modal as soon as the component renders
   useEffect(() => {
@@ -97,31 +105,27 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
       phoneIsPreferred: values.phoneIsPreferred,
       emailIsPreferred: values.emailIsPreferred,
     };
-    return registerUser(payload)
+    await registerUser(payload)
       .then(() => {
         setShowLoadingSpinner(false, null);
+        setIsConfirmationModalVisible(true);
       })
       .catch((e) => {
         const { response } = e;
-        let errorMessage = `Failed to create account`;
+        let errorMessage = `There was an error creating your account`;
         setShowLoadingSpinner(false, null);
         if (response.body) {
           const responseBody = response.body;
           let responseMsg = '';
 
           if (responseBody.detail) {
-            responseMsg += `${responseBody.detail}:`;
+            responseMsg += `${responseBody.detail}`;
           }
 
-          if (responseBody.invalid_fields) {
-            const invalidFields = responseBody.invalid_fields;
-            Object.keys(invalidFields).forEach((key) => {
-              responseMsg += `\n${invalidFields[key]}`;
-            });
-          }
           errorMessage += `\n${responseMsg}`;
         }
         setServerError(errorMessage);
+        setShowHint(true);
       });
   };
 
@@ -224,7 +228,18 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                 return (
                   <Form className={formStyles.formSection}>
                     <SectionWrapper>
-                      <h2 className={styles.center}>MilMove Registration</h2>
+                      <div className={styles.centerColumn}>
+                        <h2>MilMove Registration</h2>
+                        {showHint && (
+                          <Hint className={styles.hint}>
+                            MilMove uses Okta for authentication. If you need to access an exsiting Okta account, you
+                            can access the Okta dashboard by{' '}
+                            <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
+                              <strong> clicking this link</strong>.
+                            </a>
+                          </Hint>
+                        )}
+                      </div>
                       <div className={styles.formSection}>
                         <DropdownInput
                           label="Branch of service"

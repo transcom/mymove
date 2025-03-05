@@ -1744,10 +1744,10 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "Successfully created MilMove and Okta registration"
+            "description": "successfully registered service member"
           },
           "422": {
-            "description": "unprocessable entity"
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "description": "internal server error"
@@ -10711,10 +10711,13 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "Successfully created MilMove and Okta registration"
+            "description": "successfully registered service member"
           },
           "422": {
-            "description": "unprocessable entity"
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
             "description": "internal server error"

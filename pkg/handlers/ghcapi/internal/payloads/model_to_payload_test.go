@@ -716,19 +716,9 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 	id2, _ := uuid.NewV4()
 	oktaID := "thisIsNotARealID"
 
-	oktaUser := models.CreatedOktaUser{
-		ID: oktaID,
-		Profile: struct {
-			FirstName   string `json:"firstName"`
-			LastName    string `json:"lastName"`
-			MobilePhone string `json:"mobilePhone"`
-			SecondEmail string `json:"secondEmail"`
-			Login       string `json:"login"`
-			Email       string `json:"email"`
-		}{
-			Email: "john.doe@example.com",
-		},
-	}
+	var oktaUser models.CreatedOktaUser
+	oktaUser.ID = oktaID
+	oktaUser.Profile.Email = "john.doe@example.com"
 
 	residentialAddress := models.Address{
 		StreetAddress1: "123 New St",

@@ -9,13 +9,15 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // CustomerRegistrationCreatedCode is the HTTP code returned for type CustomerRegistrationCreated
 const CustomerRegistrationCreatedCode int = 201
 
 /*
-CustomerRegistrationCreated Successfully created MilMove and Okta registration
+CustomerRegistrationCreated successfully registered service member
 
 swagger:response customerRegistrationCreated
 */
@@ -40,11 +42,16 @@ func (o *CustomerRegistrationCreated) WriteResponse(rw http.ResponseWriter, prod
 const CustomerRegistrationUnprocessableEntityCode int = 422
 
 /*
-CustomerRegistrationUnprocessableEntity unprocessable entity
+CustomerRegistrationUnprocessableEntity The payload was unprocessable.
 
 swagger:response customerRegistrationUnprocessableEntity
 */
 type CustomerRegistrationUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ValidationError `json:"body,omitempty"`
 }
 
 // NewCustomerRegistrationUnprocessableEntity creates CustomerRegistrationUnprocessableEntity with default headers values
@@ -53,12 +60,27 @@ func NewCustomerRegistrationUnprocessableEntity() *CustomerRegistrationUnprocess
 	return &CustomerRegistrationUnprocessableEntity{}
 }
 
+// WithPayload adds the payload to the customer registration unprocessable entity response
+func (o *CustomerRegistrationUnprocessableEntity) WithPayload(payload *internalmessages.ValidationError) *CustomerRegistrationUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the customer registration unprocessable entity response
+func (o *CustomerRegistrationUnprocessableEntity) SetPayload(payload *internalmessages.ValidationError) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *CustomerRegistrationUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // CustomerRegistrationInternalServerErrorCode is the HTTP code returned for type CustomerRegistrationInternalServerError

@@ -72,7 +72,7 @@ export async function getMTOShipmentsForMove(moveTaskOrderID, normalize = true) 
 
 /** SERVICE MEMBERS */
 export async function registerUser(payload) {
-  return makeInternalRequest('registration.customerRegistration', { registration: payload });
+  return makeInternalRequest('registration.customerRegistration', { registration: payload }, { normalize: false });
 }
 
 export async function createServiceMember(serviceMember = {}) {

@@ -11,4 +11,5 @@ type Profile struct {
 	Email       string `json:"email"`
 	Login       string `json:"login"`
 	MobilePhone string `json:"mobilePhone"`
+	CacEdipi    string `json:"cac_edipi"`
 }
