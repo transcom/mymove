@@ -1,12 +1,13 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import PPMSummaryList from './PPMSummaryList';
 
-import { MockProviders } from 'testUtils';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
+import { configureStore } from 'shared/store';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -18,6 +19,8 @@ afterEach(() => {
 });
 
 const onDownloadError = jest.fn();
+
+const mockStore = configureStore({});
 
 const shipments = [
   {
@@ -153,14 +156,22 @@ describe('PPMSummaryList component', () => {
   describe('pending approval from counselor', () => {
     const props = { ...defaultProps, shipments: shipments.slice(0, 1) };
     it('should have button disabled', () => {
-      render(<PPMSummaryList {...props} />);
+      render(
+        <Provider store={mockStore.store}>
+          <PPMSummaryList {...props} />
+        </Provider>,
+      );
       expect(screen.getByRole('button', { name: 'Upload PPM Documents' })).toBeDisabled();
     });
   });
   describe('approved by counselor', () => {
     const props = { ...defaultProps, shipments: shipments.slice(1, 2) };
     it('should have button enabled', async () => {
-      render(<PPMSummaryList {...props} />);
+      render(
+        <Provider store={mockStore.store}>
+          <PPMSummaryList {...props} />
+        </Provider>,
+      );
       const uploadButton = screen.getByRole('button', { name: 'Upload PPM Documents' });
       expect(uploadButton).toBeEnabled();
       await userEvent.click(uploadButton);
@@ -172,7 +183,11 @@ describe('PPMSummaryList component', () => {
       expect(screen.getByText(/Destination Test City, NY 11111/, { selector: 'p' })).toBeInTheDocument();
     });
     it('should contain approved date', () => {
-      render(<PPMSummaryList {...props} />);
+      render(
+        <Provider store={mockStore.store}>
+          <PPMSummaryList {...props} />
+        </Provider>,
+      );
       expect(screen.queryByText(`PPM approved: 15 Apr 2022.`)).toBeInTheDocument();
 
       expect(screen.queryByText(`PPM`)).toBeInTheDocument();
@@ -181,7 +196,11 @@ describe('PPMSummaryList component', () => {
 
   describe('payment docs submitted for closeout review', () => {
     it('should display submitted date and disabled button with copy', () => {
-      render(<PPMSummaryList shipments={[shipments[2]]} />);
+      render(
+        <Provider store={mockStore.store}>
+          <PPMSummaryList shipments={[shipments[2]]} />
+        </Provider>,
+      );
       expect(screen.getByRole('button', { name: 'Download Payment Packet' })).toBeDisabled();
 
       expect(screen.getByText(/From:/, { selector: 'span' })).toBeInTheDocument();
@@ -202,7 +221,11 @@ describe('PPMSummaryList component', () => {
 
   describe('payment docs reviewed', () => {
     it('should display reviewed date and enabled button with copy', () => {
-      render(<PPMSummaryList shipments={[shipments[3]]} />);
+      render(
+        <Provider store={mockStore.store}>
+          <PPMSummaryList shipments={[shipments[3]]} />
+        </Provider>,
+      );
       expect(screen.getByRole('button', { name: 'Download Payment Packet' })).toBeEnabled();
 
       expect(screen.queryByText(`PPM approved: 15 Apr 2022`)).toBeInTheDocument();
@@ -222,12 +245,20 @@ describe('PPMSummaryList component', () => {
     });
 
     it('should display button for feedback if any document is not approved', () => {
-      render(<PPMSummaryList shipments={[shipments[3]]} />);
+      render(
+        <Provider store={mockStore.store}>
+          <PPMSummaryList shipments={[shipments[3]]} />
+        </Provider>,
+      );
 
       expect(screen.getByRole('button', { name: 'View Closeout Feedback' })).toBeEnabled();
     });
     it('should not display button for feedback if all documents are approved', () => {
-      render(<PPMSummaryList shipments={[shipments[2]]} />);
+      render(
+        <Provider store={mockStore.store}>
+          <PPMSummaryList shipments={[shipments[2]]} />
+        </Provider>,
+      );
 
       expect(screen.queryByRole('button', { name: 'View Closeout Feedback' })).not.toBeInTheDocument();
     });
@@ -236,19 +267,34 @@ describe('PPMSummaryList component', () => {
   describe('there is only one shipment', () => {
     it('should not render numbers next to PPM', () => {
       const props = { ...defaultProps, shipments: shipments.slice(0, 1) };
-      render(<PPMSummaryList {...props} />);
+      render(
+        <Provider store={mockStore.store}>
+          <PPMSummaryList {...props} />
+        </Provider>,
+      );
       expect(screen.queryByText('PPM 1')).not.toBeInTheDocument();
     });
   });
   describe('there are multiple shipments', () => {
     it('should render numbers next to PPM', () => {
-      render(<PPMSummaryList {...defaultProps} />);
+      render(
+        <Provider store={mockStore.store}>
+          <PPMSummaryList {...defaultProps} />
+        </Provider>,
+      );
       expect(screen.queryByText('PPM 1')).toBeInTheDocument();
       expect(screen.queryByText('PPM 2')).toBeInTheDocument();
     });
   });
 
   it('PPM Download Payment Packet - success', async () => {
+    const store = configureStore({
+      general: {
+        showLoadingSpinner: false,
+        loadingSpinnerMessage: null,
+      },
+    });
+
     const mockResponse = {
       ok: true,
       headers: {
@@ -268,9 +314,9 @@ describe('PPMSummaryList component', () => {
     const onDownloadErrorNotCalled = jest.fn();
 
     render(
-      <MockProviders>
+      <Provider store={store}>
         <PPMSummaryList shipments={[shipments[3]]} onDownloadError={onDownloadErrorNotCalled} />
-      </MockProviders>,
+      </Provider>,
     );
 
     expect(screen.getByText('Download Payment Packet', { exact: false })).toBeInTheDocument();
@@ -281,7 +327,10 @@ describe('PPMSummaryList component', () => {
     await userEvent.click(downloadPaymentButton);
 
     // Check for the load mask after clicking the download button
-    expect(screen.getByText('Downloading Payment Packet (PDF)...')).toBeInTheDocument();
+    expect(store.getActions()).toContainEqual({
+      type: 'SET_SHOW_LOADING_SPINNER',
+      payload: { show: true, message: 'Downloading Payment Packet (PDF)...' },
+    });
 
     // Manually resolve the download
     resolveDownload();
@@ -289,11 +338,20 @@ describe('PPMSummaryList component', () => {
     await waitFor(() => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
       expect(onDownloadErrorNotCalled).toHaveBeenCalledTimes(0);
-      expect(screen.queryByText('Downloading Payment Packet (PDF)...')).not.toBeInTheDocument();
+      expect(store.getActions()).toContainEqual({
+        type: 'SET_SHOW_LOADING_SPINNER',
+        payload: { show: false, message: null },
+      });
     });
   });
 
   it('PPM Download Payment Packet - failure', async () => {
+    const store = configureStore({
+      general: {
+        showLoadingSpinner: false,
+        loadingSpinnerMessage: null,
+      },
+    });
     // Create a promise we can reject manually
     let rejectDownload;
     const downloadPromise = new Promise((_, reject) => {
@@ -326,9 +384,9 @@ describe('PPMSummaryList component', () => {
     const onDownloadErrorCalled = jest.fn();
 
     render(
-      <MockProviders>
+      <Provider store={store}>
         <PPMSummaryList shipments={[shipment]} onDownloadError={onDownloadErrorCalled} />
-      </MockProviders>,
+      </Provider>,
     );
 
     expect(screen.getByText('Download Payment Packet')).toBeInTheDocument();
@@ -338,7 +396,10 @@ describe('PPMSummaryList component', () => {
     await userEvent.click(downloadPaymentButton);
 
     // Check for the load mask after clicking the download button
-    expect(screen.getByText('Downloading Payment Packet (PDF)...')).toBeInTheDocument();
+    expect(store.getActions()).toContainEqual({
+      type: 'SET_SHOW_LOADING_SPINNER',
+      payload: { show: true, message: 'Downloading Payment Packet (PDF)...' },
+    });
 
     // Manually reject the download
     rejectDownload();
@@ -346,7 +407,10 @@ describe('PPMSummaryList component', () => {
     await waitFor(() => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
       expect(onDownloadErrorCalled).toHaveBeenCalledTimes(1);
-      expect(screen.queryByText('Downloading Payment Packet (PDF)...')).not.toBeInTheDocument();
+      expect(store.getActions()).toContainEqual({
+        type: 'SET_SHOW_LOADING_SPINNER',
+        payload: { show: false, message: null },
+      });
     });
   });
 });
