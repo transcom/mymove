@@ -2764,7 +2764,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			}, nil)
 			// adding 42 days; ghcDomesticTransitTime0LbsUpper.MaxDaysTransitTime is 12, plus 30 for Zone 5 UB
 			pickUpDate := shipment.ScheduledPickupDate
-			rdd60DaysDateUB := pickUpDate.AddDate(0, 0, 28)
+			rdd60DaysDateUB := pickUpDate.AddDate(0, 0, 27)
 			shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 			_, err = updater.UpdateMTOShipmentStatus(appCtx, shipment.ID, status, nil, nil, shipmentEtag)
 			suite.NoError(err)
