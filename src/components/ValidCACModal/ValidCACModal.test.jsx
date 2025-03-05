@@ -21,7 +21,9 @@ describe('ValidCACModal', () => {
     const image = screen.getByRole('img');
     expect(image).toBeInTheDocument();
 
-    expect(screen.getByText(/CAC \(ID Card\) registration is required at first sign-in/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Common Access Card \(CAC\) authentication is required at first sign-in/i),
+    ).toBeInTheDocument();
   });
 
   it('calls onSubmit when the "Yes" button is clicked', () => {
