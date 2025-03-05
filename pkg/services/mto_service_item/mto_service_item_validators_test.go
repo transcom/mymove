@@ -1093,8 +1093,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 				},
 			}, nil)
 			newSITServiceItem := oldSITServiceItem
-			newSITDepartureDate := later.AddDate(0, 0, 1)
-			newSITServiceItem.SITDepartureDate = &newSITDepartureDate
+			newSITServiceItem.SITDepartureDate = &later
 			serviceItemData := updateMTOServiceItemData{
 				updatedServiceItem: newSITServiceItem,
 				oldServiceItem:     oldSITServiceItem,
@@ -1105,6 +1104,75 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			suite.False(serviceItemData.verrs.HasAny())
 
 			// Double check the shipment and ensure that the SITDepartureDate is after the authorized end date and does not alter the authorized end date
+			var postUpdateShipment models.MTOShipment
+			err = suite.DB().Find(&postUpdateShipment, mtoShipment.ID)
+			suite.NoError(err)
+			if tc.reServiceCode == models.ReServiceCodeIOPSIT {
+				suite.True(mtoShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour).Equal(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
+				suite.True(newSITServiceItem.SITDepartureDate.Truncate(24 * time.Hour).After(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
+			}
+			if tc.reServiceCode == models.ReServiceCodeIDDSIT {
+				suite.True(mtoShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour).Equal(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
+				suite.True(newSITServiceItem.SITDepartureDate.Truncate(24 * time.Hour).After(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
+			}
+		}
+	})
+
+	suite.Run("SITDepartureDate - Does not error or update shipment auth end date when set after the authorized end date - international", func() {
+		// Under test:  checkSITDepartureDate checks that
+		//				the SITDepartureDate is not later than the authorized end date
+		// Set up:      Create an old and new IOPSIT and IDDSIT, with a date later than the
+		// 				shipment and try to update.
+		// Expected outcome: No ERROR if departure date comes after the end date.
+		//					 Shipment auth end date does not change
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
+					DestinationSITAuthEndDate: &now},
+			},
+		}, nil)
+		testCases := []struct {
+			reServiceCode models.ReServiceCode
+		}{
+			{
+				reServiceCode: models.ReServiceCodeIOPSIT,
+			},
+			{
+				reServiceCode: models.ReServiceCodeIDDSIT,
+			},
+		}
+		now := time.Now()
+		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+		later := nowDate.AddDate(0, 0, 3)
+		for _, tc := range testCases {
+			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: tc.reServiceCode,
+					},
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate: &nowDate,
+					},
+				},
+			}, nil)
+			newSITServiceItem := oldSITServiceItem
+			newSITServiceItem.SITDepartureDate = &later
+			serviceItemData := updateMTOServiceItemData{
+				updatedServiceItem: newSITServiceItem,
+				oldServiceItem:     oldSITServiceItem,
+				verrs:              validate.NewErrors(),
+			}
+			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+			suite.NoError(err)
+			suite.False(serviceItemData.verrs.HasAny())
+
+			// Double check the shipment and ensure that the SITDepartureDate is in fact after the authorized end date
 			var postUpdateShipment models.MTOShipment
 			err = suite.DB().Find(&postUpdateShipment, mtoShipment.ID)
 			suite.NoError(err)
