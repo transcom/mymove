@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, waitFor, fireEvent, within } from '@testing-library/react';
+import { act, render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { BulkAssignmentModal } from 'components/BulkAssignment/BulkAssignmentModal';

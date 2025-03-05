@@ -76,6 +76,11 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
     } else {
       setNumberOfMoves(bulkAssignmentData.bulkAssignmentMoveIDs.length);
     }
+
+    if (!event.target.checked) {
+      setSelectedRadio(null);
+    }
+
     // need to sync workload with user load
     const newValues = { ...initialValues };
     initialValues.userData.forEach((element) => {
@@ -159,12 +164,14 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
           {isBulkReAssignmentMode ? bulkAssignmentSwitchLabels[1] : bulkAssignmentSwitchLabels[0]} ({numberOfMoves})
         </h3>
       </ModalTitle>
-      <Switch
-        data-testid="modalReAssignModeToggleSwitch"
-        name="BulkAssignmentModeSwitch"
-        onChange={handleAssignmentModeChange}
-        inputProps={{ 'aria-label': 'BulkAssignmentModeSwitch' }}
-      />
+      {isBulkReAssignmentEnabled && (
+        <Switch
+          data-testid="modalReAssignModeToggleSwitch"
+          name="BulkAssignmentModeSwitch"
+          onChange={handleAssignmentModeChange}
+          inputProps={{ 'aria-label': 'BulkAssignmentModeSwitch' }}
+        />
+      )}
       <div className={styles.BulkAssignmentTable}>
         <Formik
           onSubmit={(values) => {
