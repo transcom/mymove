@@ -3,6 +3,7 @@ package mtoserviceitem
 import (
 	"database/sql"
 	"fmt"
+	"slices"
 	"strconv"
 	"time"
 
@@ -39,7 +40,8 @@ type mtoServiceItemCreator struct {
 	fuelSurchargePricer services.FuelSurchargePricer
 }
 
-func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
+// FindEstimatedPrice finds the estimated price for a service item
+func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
 	if serviceItem.ReService.Code == models.ReServiceCodeDOP ||
 		serviceItem.ReService.Code == models.ReServiceCodeDPK ||
 		serviceItem.ReService.Code == models.ReServiceCodeDDP ||
@@ -55,7 +57,8 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 		requestedPickupDate := *mtoShipment.RequestedPickupDate
 		currTime := time.Now()
 		var distance int
-		primeEstimatedWeight := *mtoShipment.PrimeEstimatedWeight
+
+		adjustedWeight := GetAdjustedWeight(*mtoShipment.PrimeEstimatedWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
 
 		contractCode, err := FetchContractCode(appCtx, currTime)
 		if err != nil {
@@ -74,7 +77,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 
-			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -87,7 +90,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 
 			servicesScheduleOrigin := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, servicesScheduleOrigin, isPPM)
+			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, servicesScheduleOrigin, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -102,7 +105,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -115,7 +118,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 
 			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, serviceScheduleDestination, isPPM)
+			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, serviceScheduleDestination, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -133,7 +136,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = o.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = o.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *adjustedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -149,7 +152,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea)
+			price, _, err = o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *adjustedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -173,7 +176,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, primeEstimatedWeight)
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, *adjustedWeight)
 			if err != nil {
 				return 0, err
 			}
@@ -185,7 +188,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 			if err != nil {
 				return 0, err
 			}
-			price, _, err = o.fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), primeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+			price, _, err = o.fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), *adjustedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -448,22 +451,35 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// checking to see if the service item being created is a destination SIT
 	// if so, we want the destination address to be the same as the shipment's
 	// which will later populate the additional dest SIT service items as well
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && mtoShipment.DestinationAddressID != nil {
+	if (serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeIDFSIT) &&
+		mtoShipment.DestinationAddressID != nil {
 		serviceItem.SITDestinationFinalAddress = mtoShipment.DestinationAddress
 		serviceItem.SITDestinationFinalAddressID = mtoShipment.DestinationAddressID
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT || serviceItem.ReService.Code == models.ReServiceCodeIOASIT {
+		// validation mappings
 		// DOASIT must be associated with shipment that has DOFSIT
-		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeDOFSIT)
+		// IOASIT must be associated with shipment that has IOFSIT
+		m := make(map[models.ReServiceCode]models.ReServiceCode)
+		m[models.ReServiceCodeDOASIT] = models.ReServiceCodeDOFSIT
+		m[models.ReServiceCodeIOASIT] = models.ReServiceCodeIOFSIT
+
+		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, m[serviceItem.ReService.Code])
 		if err != nil {
 			return nil, nil, err
 		}
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT || serviceItem.ReService.Code == models.ReServiceCodeIDASIT {
+		// validation mappings
 		// DDASIT must be associated with shipment that has DDFSIT
-		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeDDFSIT)
+		// IDASIT must be associated with shipment that has IDFSIT
+		m := make(map[models.ReServiceCode]models.ReServiceCode)
+		m[models.ReServiceCodeDDASIT] = models.ReServiceCodeDDFSIT
+		m[models.ReServiceCodeIDASIT] = models.ReServiceCodeIDFSIT
+
+		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, m[serviceItem.ReService.Code])
 		if err != nil {
 			return nil, nil, err
 		}
@@ -478,7 +494,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	}
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
-		serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
+		serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDOSFSC ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDDSIT || serviceItem.ReService.Code == models.ReServiceCodeIOPSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDSFSC || serviceItem.ReService.Code == models.ReServiceCodeIOSFSC {
 		verrs = validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
 		return nil, nil, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,
@@ -486,15 +504,19 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	}
 
 	updateShipmentPickupAddress := false
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeDOFSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDFSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIOFSIT {
 		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(appCtx, serviceItem)
 		if errSIT != nil {
 			return nil, nil, errSIT
 		}
 
-		// update HHG origin address for ReServiceCodeDOFSIT service item
-		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
-			// When creating a DOFSIT, the prime must provide an HHG actual address for the move/shift in origin (pickup address)
+		// update HHG origin address for ReServiceCodeDOFSIT/ReServiceCodeIOFSIT service item
+		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeIOFSIT {
+			// When creating a DOFSIT/IOFSIT, the prime must provide an HHG actual address for the move/shift in origin (pickup address)
 			if serviceItem.SITOriginHHGActualAddress == nil {
 				verrs = validate.NewErrors()
 				verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
@@ -543,13 +565,16 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			// changes were made to the shipment, needs to be saved to the database
 			updateShipmentPickupAddress = true
 
-			// Find the DOPSIT service item and update the SIT related address fields. These fields
-			// will be used for pricing when a payment request is created for DOPSIT
+			// Find the DOPSIT/IOPSIT service item and update the SIT related address fields. These fields
+			// will be used for pricing when a payment request is created for DOPSIT/IOPSIT
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
 				if extraServiceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeDOASIT ||
-					extraServiceItem.ReService.Code == models.ReServiceCodeDOSFSC {
+					extraServiceItem.ReService.Code == models.ReServiceCodeDOSFSC ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeIOPSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeIOASIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeIOSFSC {
 					extraServiceItem.SITOriginHHGActualAddress = serviceItem.SITOriginHHGActualAddress
 					extraServiceItem.SITOriginHHGActualAddressID = serviceItem.SITOriginHHGActualAddressID
 					extraServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
@@ -559,12 +584,17 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 
 		// make sure SITDestinationFinalAddress is the same for all destination SIT related service item
-		if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && serviceItem.SITDestinationFinalAddress != nil {
+		if (serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeIDFSIT) &&
+			serviceItem.SITDestinationFinalAddress != nil {
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
+				// handle both domestic and internationl(OCONUS)
 				if extraServiceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeDDASIT ||
-					extraServiceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+					extraServiceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeIDDSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeIDASIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeIDSFSC {
 					extraServiceItem.SITDestinationFinalAddress = serviceItem.SITDestinationFinalAddress
 					extraServiceItem.SITDestinationFinalAddressID = serviceItem.SITDestinationFinalAddressID
 				}
@@ -574,11 +604,13 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		milesCalculated, errCalcSITDelivery := o.calculateSITDeliveryMiles(appCtx, serviceItem, mtoShipment)
 
 		// only calculate SITDeliveryMiles for DOPSIT and DOSFSC origin service items
-		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT && milesCalculated != 0 {
+		if (serviceItem.ReService.Code == models.ReServiceCodeDOFSIT || serviceItem.ReService.Code == models.ReServiceCodeIOFSIT) &&
+			milesCalculated != 0 {
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
-				if extraServiceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
-					extraServiceItem.ReService.Code == models.ReServiceCodeDOSFSC {
+				if extraServiceItem.ReService.Code == models.ReServiceCodeDOPSIT || extraServiceItem.ReService.Code == models.ReServiceCodeIOPSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDOSFSC ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeIOSFSC {
 					if milesCalculated > 0 && errCalcSITDelivery == nil {
 						extraServiceItem.SITDeliveryMiles = &milesCalculated
 					}
@@ -587,11 +619,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 
 		// only calculate SITDeliveryMiles for DDDSIT and DDSFSC destination service items
-		if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && milesCalculated != 0 {
+		if (serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeIDFSIT) && milesCalculated != 0 {
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
-				if extraServiceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-					extraServiceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+				if extraServiceItem.ReService.Code == models.ReServiceCodeDDDSIT || extraServiceItem.ReService.Code == models.ReServiceCodeIDDSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeIDSFSC {
 					if milesCalculated > 0 && errCalcSITDelivery == nil {
 						extraServiceItem.SITDeliveryMiles = &milesCalculated
 					}
@@ -606,8 +639,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// DLH, DPK, DOP, DDP, DUPK
 
 	// NTS-release requested pickup dates are for handle out, their pricing is handled differently as their locations are based on storage facilities, not pickup locations
-	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil && mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
-		serviceItemEstimatedPrice, err := o.findEstimatedPrice(appCtx, serviceItem, mtoShipment)
+	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil {
+		serviceItemEstimatedPrice, err := o.FindEstimatedPrice(appCtx, serviceItem, mtoShipment)
 		if serviceItemEstimatedPrice != 0 && err == nil {
 			serviceItem.PricingEstimate = &serviceItemEstimatedPrice
 		}
@@ -673,11 +706,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 
 			if mtoShipment.MarketCode == models.MarketCodeInternational {
-				createdInternationalServiceItemIds, err = models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), *serviceItem.MTOShipmentID, models.MTOServiceItems{*serviceItem})
+				createdInternationalServiceItemIds, err = models.CreateInternationalAccessorialServiceItemsForShipment(appCtx.DB(), *requestedServiceItem.MTOShipmentID, models.MTOServiceItems{*requestedServiceItem})
 				if err != nil {
 					return err
 				}
 			} else {
+				if isInternationalServiceItem(requestedServiceItem) {
+					err := fmt.Errorf("cannot create international service items for domestic shipment: %s", mtoShipment.ID)
+					return apperror.NewInvalidInputError(mtoShipment.ID, err, nil, err.Error())
+				}
 				verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
 				if verrs != nil || err != nil {
 					return fmt.Errorf("%#v %e", verrs, err)
@@ -908,6 +945,12 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 		return nil, err
 	}
 
+	//SIT Entry Date must be before SIT Departure Date
+	err = o.checkSITEntryDateBeforeDepartureDate(serviceItem)
+	if err != nil {
+		return nil, err
+	}
+
 	verrs := validate.NewErrors()
 
 	// check if the address IDs are nil
@@ -932,6 +975,10 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC)
 	case models.ReServiceCodeDOFSIT:
 		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC)
+	case models.ReServiceCodeIDFSIT:
+		reServiceCodes = append(reServiceCodes, models.ReServiceCodeIDASIT, models.ReServiceCodeIDDSIT, models.ReServiceCodeIDSFSC)
+	case models.ReServiceCodeIOFSIT:
+		reServiceCodes = append(reServiceCodes, models.ReServiceCodeIOASIT, models.ReServiceCodeIOPSIT, models.ReServiceCodeIOSFSC)
 	default:
 		verrs := validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s invalid code", serviceItem.ReService.Code))
@@ -951,4 +998,41 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 	}
 
 	return &extraServiceItems, nil
+}
+
+// Get Adjusted weight for pricing. Returns the weight at 110% or the minimum billable weight whichever is higher, unless it's 0
+func GetAdjustedWeight(incomingWeight unit.Pound, isUB bool) *unit.Pound {
+	// minimum weight billed by GHC is 500 lbs unless it's Unaccompanied Baggage (UB)
+	minimumBilledWeight := unit.Pound(500)
+	if isUB {
+		minimumBilledWeight = unit.Pound(300)
+	}
+
+	// add 110% modifier to billable weight
+	newWeight := (int(incomingWeight.Float64() * 1.1))
+	adjustedWeight := (*unit.Pound)(&newWeight)
+
+	// if the adjusted weight is less than the minimum billable weight but is nonzero, set it to the minimum weight billed
+	if *adjustedWeight < minimumBilledWeight && *adjustedWeight > 0 {
+		*adjustedWeight = minimumBilledWeight
+	}
+	return adjustedWeight
+}
+
+func isInternationalServiceItem(serviceItem *models.MTOServiceItem) bool {
+	var internationalAccessorialServiceItems = []models.ReServiceCode{
+		models.ReServiceCodeICRT,
+		models.ReServiceCodeIUCRT,
+		models.ReServiceCodeIOASIT,
+		models.ReServiceCodeIDASIT,
+		models.ReServiceCodeIOFSIT,
+		models.ReServiceCodeIDFSIT,
+		models.ReServiceCodeIOPSIT,
+		models.ReServiceCodeIDDSIT,
+		models.ReServiceCodeIDSHUT,
+		models.ReServiceCodeIOSHUT,
+		models.ReServiceCodeIOSFSC,
+		models.ReServiceCodeIDSFSC,
+	}
+	return slices.Contains(internationalAccessorialServiceItems, serviceItem.ReService.Code)
 }

@@ -383,7 +383,6 @@ const ServicesCounselingMoveDetails = ({
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
-    dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
@@ -403,6 +402,7 @@ const ServicesCounselingMoveDetails = ({
     ordersType: order.order_type,
     ordersNumber: order.order_number,
     ordersTypeDetail: order.order_type_detail,
+    dependents: allowances.dependentsAuthorized,
     ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     tacMDC: order.tac,
     sacSDN: order.sac,
@@ -879,7 +879,7 @@ const ServicesCounselingMoveDetails = ({
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
-              <OrdersList ordersInfo={ordersInfo} />
+              <OrdersList ordersInfo={ordersInfo} moveInfo={move} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">

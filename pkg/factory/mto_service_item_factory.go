@@ -747,7 +747,7 @@ func BuildFullOriginMTOServiceItems(db *pop.Connection, customs []Customization,
 // are required params, and entryDate and departureDate can be specificed
 // optionally.
 func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment models.MTOShipment, entryDate *time.Time, departureDate *time.Time) models.MTOServiceItems {
-	postalCode := "90210"
+	postalCode := shipment.PickupAddress.PostalCode
 	reason := "peak season all trucks in use"
 	defaultEntryDate := time.Now().AddDate(0, 0, -45)
 	defaultApprovedAtDate := time.Now()
@@ -759,87 +759,193 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 		defaultDepartureDate = departureDate
 	}
 
-	dofsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOFSIT, move, shipment, []Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				ApprovedAt:    &defaultApprovedAtDate,
-				SITEntryDate:  &defaultEntryDate,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITOriginHHGActualAddress,
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITOriginHHGOriginalAddress,
-		},
-	}, nil)
+	var firstDaySit, addlDaySit, pickupSit, fuelSurchargeSit models.MTOServiceItem
 
-	doasit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOASIT, move, shipment, []Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				ApprovedAt:    &defaultApprovedAtDate,
-				SITEntryDate:  &defaultEntryDate,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
+	if shipment.MarketCode != models.MarketCodeInternational {
+		firstDaySit = BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOFSIT, move, shipment, []Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
 			},
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITOriginHHGActualAddress,
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITOriginHHGOriginalAddress,
-		},
-	}, nil)
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITOriginHHGActualAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITOriginHHGOriginalAddress,
+			},
+		}, nil)
 
-	dopsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOPSIT, move, shipment, []Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				ApprovedAt:       &defaultApprovedAtDate,
-				SITEntryDate:     &defaultEntryDate,
-				SITDepartureDate: defaultDepartureDate,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
+		addlDaySit = BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOASIT, move, shipment, []Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
 			},
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITOriginHHGActualAddress,
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITOriginHHGOriginalAddress,
-		},
-	}, nil)
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITOriginHHGActualAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITOriginHHGOriginalAddress,
+			},
+		}, nil)
 
-	dosfsc := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOSFSC, move, shipment, []Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				ApprovedAt:    &defaultApprovedAtDate,
-				SITEntryDate:  &defaultEntryDate,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
+		pickupSit = BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOPSIT, move, shipment, []Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:           models.MTOServiceItemStatusApproved,
+					ApprovedAt:       &defaultApprovedAtDate,
+					SITEntryDate:     &defaultEntryDate,
+					SITDepartureDate: defaultDepartureDate,
+					SITPostalCode:    &postalCode,
+					Reason:           &reason,
+				},
 			},
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITOriginHHGActualAddress,
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITOriginHHGOriginalAddress,
-		},
-	}, nil)
-	return []models.MTOServiceItem{dofsit, doasit, dopsit, dosfsc}
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITOriginHHGActualAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITOriginHHGOriginalAddress,
+			},
+		}, nil)
+
+		fuelSurchargeSit = BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOSFSC, move, shipment, []Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITOriginHHGActualAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITOriginHHGOriginalAddress,
+			},
+		}, nil)
+	} else {
+		firstDaySit = BuildMTOServiceItem(db, []Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIOFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		addlDaySit = BuildMTOServiceItem(db, []Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIOASIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		pickupSit = BuildMTOServiceItem(db, []Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIOPSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:           models.MTOServiceItemStatusApproved,
+					ApprovedAt:       &defaultApprovedAtDate,
+					SITEntryDate:     &defaultEntryDate,
+					SITDepartureDate: defaultDepartureDate,
+					SITPostalCode:    &postalCode,
+					Reason:           &reason,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		fuelSurchargeSit = BuildMTOServiceItem(db, []Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIOSFSC,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+
+	return []models.MTOServiceItem{firstDaySit, addlDaySit, pickupSit, fuelSurchargeSit}
 }
 
 // BuildDestSITServiceItems makes all of the service items that are
@@ -847,7 +953,7 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 // are required params, and entryDate and departureDate can be specificed
 // optionally.
 func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment models.MTOShipment, entryDate *time.Time, departureDate *time.Time) models.MTOServiceItems {
-	postalCode := "90210"
+	postalCode := shipment.DestinationAddress.PostalCode
 	reason := "peak season all trucks in use"
 	defaultEntryDate := time.Now().AddDate(0, 0, -45)
 	defaultApprovedAtDate := time.Now()
@@ -859,71 +965,181 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 		defaultDepartureDate = departureDate
 	}
 
-	ddfsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDFSIT, move, shipment, []Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				ApprovedAt:    &defaultApprovedAtDate,
-				SITEntryDate:  &defaultEntryDate,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
-			},
-		},
-	}, nil)
+	var firstDaySit models.MTOServiceItem
+	var addlDaySit models.MTOServiceItem
+	var deliverySit models.MTOServiceItem
+	var fuelSurchargeSit models.MTOServiceItem
 
-	ddasit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDASIT, move, shipment, []Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				ApprovedAt:    &defaultApprovedAtDate,
-				SITEntryDate:  &defaultEntryDate,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
+	// handling domestic SIT service item creation vs international
+	if shipment.MarketCode != models.MarketCodeInternational {
+		firstDaySit = BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDFSIT, move, shipment, []Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
 			},
-		},
-	}, nil)
+		}, nil)
 
-	dddsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDDSIT, move, shipment, []Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:           models.MTOServiceItemStatusApproved,
-				ApprovedAt:       &defaultApprovedAtDate,
-				SITEntryDate:     &defaultEntryDate,
-				SITDepartureDate: defaultDepartureDate,
-				SITPostalCode:    &postalCode,
-				Reason:           &reason,
+		addlDaySit = BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDASIT, move, shipment, []Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
 			},
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITDestinationFinalAddress,
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITDestinationOriginalAddress,
-		},
-	}, nil)
+		}, nil)
 
-	ddsfsc := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDSFSC, move, shipment, []Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				ApprovedAt:    &defaultApprovedAtDate,
-				SITEntryDate:  &defaultEntryDate,
-				SITPostalCode: &postalCode,
-				Reason:        &reason,
+		deliverySit = BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDDSIT, move, shipment, []Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:           models.MTOServiceItemStatusApproved,
+					ApprovedAt:       &defaultApprovedAtDate,
+					SITEntryDate:     &defaultEntryDate,
+					SITDepartureDate: defaultDepartureDate,
+					SITPostalCode:    &postalCode,
+					Reason:           &reason,
+				},
 			},
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITDestinationFinalAddress,
-		},
-		{
-			Model: models.Address{},
-			Type:  &Addresses.SITDestinationOriginalAddress,
-		},
-	}, nil)
-	return []models.MTOServiceItem{ddfsit, ddasit, dddsit, ddsfsc}
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITDestinationFinalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITDestinationOriginalAddress,
+			},
+		}, nil)
+
+		fuelSurchargeSit = BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDSFSC, move, shipment, []Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITDestinationFinalAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &Addresses.SITDestinationOriginalAddress,
+			},
+		}, nil)
+	} else {
+		firstDaySit = BuildMTOServiceItem(db, []Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIDFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		addlDaySit = BuildMTOServiceItem(db, []Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIDASIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		deliverySit = BuildMTOServiceItem(db, []Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:           models.MTOServiceItemStatusApproved,
+					ApprovedAt:       &defaultApprovedAtDate,
+					SITEntryDate:     &defaultEntryDate,
+					SITDepartureDate: defaultDepartureDate,
+					SITPostalCode:    &postalCode,
+					Reason:           &reason,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		fuelSurchargeSit = BuildMTOServiceItem(db, []Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIDSFSC,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:        models.MTOServiceItemStatusApproved,
+					ApprovedAt:    &defaultApprovedAtDate,
+					SITEntryDate:  &defaultEntryDate,
+					SITPostalCode: &postalCode,
+					Reason:        &reason,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+
+	return []models.MTOServiceItem{firstDaySit, addlDaySit, deliverySit, fuelSurchargeSit}
 }
 
 func BuildDestSITServiceItemsNoSITDepartureDate(db *pop.Connection, move models.Move, shipment models.MTOShipment, entryDate *time.Time) models.MTOServiceItems {

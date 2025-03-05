@@ -33,7 +33,7 @@ const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
-const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
+const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) => {
   const navigate = useNavigate();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
@@ -190,6 +190,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
+    dependentsAuthorized,
   } = entitlement;
 
   useEffect(() => {
@@ -310,6 +311,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
     ntsSac: order?.ntsSac,
     ordersAcknowledgement: !!amendedOrdersAcknowledgedAt,
     payGrade: order?.grade,
+    dependentsAuthorized,
   };
 
   return (
@@ -375,6 +377,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                       documentId={documentId}
                       files={ordersDocuments}
                       documentType={MOVE_DOCUMENT_TYPE.ORDERS}
+                      onAddFile={onAddFile}
                     />
                     <DocumentViewerFileManager
                       orderId={orderId}
@@ -382,6 +385,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                       files={amendedDocuments}
                       documentType={MOVE_DOCUMENT_TYPE.AMENDMENTS}
                       updateAmendedDocument={updateAmendedDocument}
+                      onAddFile={onAddFile}
                     />
                   </Restricted>
                 </div>

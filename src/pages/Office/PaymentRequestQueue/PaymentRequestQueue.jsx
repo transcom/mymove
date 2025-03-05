@@ -162,7 +162,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, setRefetchQueue,
           ) : (
             <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol} key={row.id}>
               <Dropdown
-                defaultValue={row.assignedTo?.officeUserId}
+                key={row.id}
                 onChange={(e) => {
                   handleQueueAssignment(row.moveID, e.target.value, roleTypes.TIO);
                   setRefetchQueue(true);
@@ -202,6 +202,7 @@ const PaymentRequestQueue = ({
   isQueueManagementFFEnabled,
   userPrivileges,
   isBulkAssignmentFFEnabled,
+  activeRole,
   setRefetchQueue,
 }) => {
   const { queueType } = useParams();
@@ -347,6 +348,7 @@ const PaymentRequestQueue = ({
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.PAYMENT_REQUEST}
+          activeRole={activeRole}
         />
       </div>
     );

@@ -7,8 +7,13 @@ import { connect } from 'react-redux';
 import styles from './MoveQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
-import { useMovesQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
-import { getMovesQueue } from 'services/ghcApi';
+import {
+  useMovesQueueQueries,
+  useUserQueries,
+  useMoveSearchQueries,
+  useDestinationRequestsQueueQueries,
+} from 'hooks/queries';
+import { getDestinationRequestsQueue, getMovesQueue } from 'services/ghcApi';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
@@ -197,7 +202,13 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, setRefetchQueue,
   return cols;
 };
 
-const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmentFFEnabled, setRefetchQueue }) => {
+const MoveQueue = ({
+  isQueueManagementFFEnabled,
+  userPrivileges,
+  isBulkAssignmentFFEnabled,
+  activeRole,
+  setRefetchQueue,
+}) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
@@ -282,6 +293,15 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
           <NavLink
             end
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={tooRoutes.BASE_DESTINATION_REQUESTS_QUEUE}
+          >
+            <span className="tab-title" title="Destination Requests Queue">
+              Destination Requests Queue
+            </span>
+          </NavLink>,
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
             to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
           >
             <span data-testid="search-tab-link" className="tab-title" title="Search">
@@ -344,6 +364,33 @@ const MoveQueue = ({ isQueueManagementFFEnabled, userPrivileges, isBulkAssignmen
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.TASK_ORDER}
+          activeRole={activeRole}
+        />
+      </div>
+    );
+  }
+  if (queueType === tooRoutes.DESTINATION_REQUESTS_QUEUE) {
+    return (
+      <div className={styles.MoveQueue} data-testid="destination-requests-queue">
+        {renderNavBar()}
+        <TableQueue
+          showFilters
+          showPagination
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'status', desc: false }]}
+          disableMultiSort
+          disableSortBy={false}
+          columns={columns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
+          title="Destination requests"
+          handleClick={handleClick}
+          useQueries={useDestinationRequestsQueueQueries}
+          showCSVExport
+          csvExportFileNamePrefix="Destination-Requests-Queue"
+          csvExportQueueFetcher={getDestinationRequestsQueue}
+          csvExportQueueFetcherKey="destinationQueueMoves"
+          sessionStorageKey={queueType}
+          key={queueType}
         />
       </div>
     );

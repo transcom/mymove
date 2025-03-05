@@ -1,32 +1,42 @@
-import React, { useCallback, useEffect, useState, useContext } from 'react';
-import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { Button, Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button, Dropdown } from '@trussworks/react-uswds';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { generatePath, Navigate, NavLink, useNavigate, useParams } from 'react-router-dom';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
-import { createHeader } from 'components/Table/utils';
-import SelectFilter from 'components/Table/Filters/SelectFilter';
+import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
+import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
+import NotFound from 'components/NotFound/NotFound';
+import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
+import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
+import SelectFilter from 'components/Table/Filters/SelectFilter';
+import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TableQueue from 'components/Table/TableQueue';
+import { createHeader } from 'components/Table/utils';
+import TabNav from 'components/TabNav';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import {
   BRANCH_OPTIONS,
-  SERVICE_COUNSELING_MOVE_STATUS_LABELS,
-  SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
-  SERVICE_COUNSELING_PPM_TYPE_LABELS,
-  SERVICE_COUNSELING_PPM_STATUS_OPTIONS,
-  SERVICE_COUNSELING_PPM_STATUS_LABELS,
   QUEUE_TYPES,
+  SERVICE_COUNSELING_MOVE_STATUS_LABELS,
+  SERVICE_COUNSELING_PPM_STATUS_LABELS,
+  SERVICE_COUNSELING_PPM_STATUS_OPTIONS,
+  SERVICE_COUNSELING_PPM_TYPE_LABELS,
+  SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
 } from 'constants/queues';
 import { generalRoutes, servicesCounselingRoutes } from 'constants/routes';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import { roleTypes } from 'constants/userRoles';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import {
-  useServicesCounselingQueueQueries,
-  useServicesCounselingQueuePPMQueries,
-  useUserQueries,
-  useMoveSearchQueries,
   useCustomerSearchQueries,
+  useMoveSearchQueries,
+  useServicesCounselingQueuePPMQueries,
+  useServicesCounselingQueueQueries,
+  useUserQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingOriginLocations,
@@ -34,25 +44,15 @@ import {
   getServicesCounselingQueue,
 } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
-import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import NotFound from 'components/NotFound/NotFound';
-import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
-import { roleTypes } from 'constants/userRoles';
-import SearchResultsTable from 'components/Table/SearchResultsTable';
-import TabNav from 'components/TabNav';
-import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
-import retryPageLoading from 'utils/retryPageLoading';
-import { milmoveLogger } from 'utils/milmoveLog';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
-import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
-import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
-import handleQueueAssignment from 'utils/queues';
 import { selectLoggedInUser } from 'store/entities/selectors';
-import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
+import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
+import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
+import { milmoveLogger } from 'utils/milmoveLog';
+import handleQueueAssignment from 'utils/queues';
+import retryPageLoading from 'utils/retryPageLoading';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
 export const counselingColumns = (
@@ -210,7 +210,7 @@ export const counselingColumns = (
           return !row?.assignable ? (
             <div>{row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}</div>
           ) : (
-            <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
+            <div data-label="assignedSelect" className={styles.assignedToCol}>
               <Dropdown
                 key={row.id}
                 onChange={(e) => {
@@ -455,6 +455,7 @@ const ServicesCounselingQueue = ({
   isQueueManagementFFEnabled,
   officeUser,
   isBulkAssignmentFFEnabled,
+  activeRole,
   setRefetchQueue,
 }) => {
   const { queueType } = useParams();
@@ -632,7 +633,7 @@ const ServicesCounselingQueue = ({
     return <TabNav className={styles.tableTabs} items={navTabs()} />;
   };
 
-  if (queueType === 'Search') {
+  if (queueType === generalRoutes.QUEUE_SEARCH_PATH) {
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
@@ -695,6 +696,7 @@ const ServicesCounselingQueue = ({
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.CLOSEOUT}
+          activeRole={activeRole}
         />
       </div>
     );
@@ -731,6 +733,7 @@ const ServicesCounselingQueue = ({
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.COUNSELING}
+          activeRole={activeRole}
         />
       </div>
     );

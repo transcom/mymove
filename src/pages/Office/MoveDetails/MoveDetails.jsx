@@ -428,6 +428,7 @@ const MoveDetails = ({
     ordersNumber: order.order_number,
     ordersType: order.order_type,
     ordersTypeDetail: order.order_type_detail,
+    dependents: allowances.dependentsAuthorized,
     ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
@@ -444,7 +445,6 @@ const MoveDetails = ({
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
-    dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
@@ -678,7 +678,7 @@ const MoveDetails = ({
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
             >
-              <OrdersList ordersInfo={ordersInfo} />
+              <OrdersList ordersInfo={ordersInfo} moveInfo={move} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">
