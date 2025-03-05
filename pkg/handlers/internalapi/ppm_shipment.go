@@ -294,16 +294,34 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, false)
+			AOAPacket, packetPath, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, false)
+
 			if err != nil {
 				logger.Error("Error creating AOA", zap.Error(err))
 				aoaError := err.Error()
+
+				// need to cleanup any files created prior to the packet creation failure
+				if err = h.AOAPacketCreator.CleanupAOAPacketDir(packetPath); err != nil {
+					logger.Error("Error: cleaning up AOA files", zap.Error(err))
+					aoaError = aoaError + ": " + err.Error()
+				}
+
 				payload := payloads.InternalServerError(&aoaError, h.GetTraceIDFromRequest(params.HTTPRequest))
 				return ppmops.NewShowAOAPacketInternalServerError().
 					WithPayload(payload), err
 			}
 
 			payload := io.NopCloser(AOAPacket)
+
+			// we have copied the created files into the payload so we can remove them from memory
+			if err = h.AOAPacketCreator.CleanupAOAPacketDir(packetPath); err != nil {
+				logger.Error("Error: cleaning up AOA files", zap.Error(err))
+				aoaError := err.Error()
+				payload := payloads.InternalServerError(&aoaError, h.GetTraceIDFromRequest(params.HTTPRequest))
+				return ppmops.NewShowAOAPacketInternalServerError().
+					WithPayload(payload), err
+			}
+
 			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
 
 			return ppmops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
@@ -325,8 +343,23 @@ func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) 
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			pdf, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
+			pdf, packetPath, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
+
+			defer func() {
+				// if a panic occurred we need to cleanup the files
+				if r := recover(); r != nil {
+					if packetErr := h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); packetErr != nil {
+						appCtx.Logger().Error("Panic: cleaning up Payment Packet files", zap.Error(packetErr))
+					}
+				}
+			}()
+
 			if err != nil {
+				// need to cleanup any files created prior to the packet creation failure
+				if packetErr := h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); packetErr != nil {
+					appCtx.Logger().Error("Error: cleaning up Payment Packet files", zap.Error(packetErr))
+				}
+
 				switch err.(type) {
 				case apperror.ForbiddenError:
 					// this indicates user does not have access to PPM
@@ -343,6 +376,13 @@ func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) 
 			}
 
 			payload := io.NopCloser(pdf)
+
+			// we have copied the created files into the payload so we can remove them from memory
+			if err = h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("internalapi.DownPaymentPacket InternalServerError failed to clean up payment packet files for ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
+				return ppmops.NewShowPaymentPacketInternalServerError(), err
+			}
+
 			filename := fmt.Sprintf("inline; filename=\"ppm_payment_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
 
 			return ppmops.NewShowPaymentPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
