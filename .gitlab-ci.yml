@@ -1080,8 +1080,6 @@ integration_test_mtls:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   services:
-    - name: registry.csde.caci.com/milmove/mymove:e2e-3ad28a8e
-      alias: milmovelocal,officelocal,adminlocal,primelocal
     - name: $postgres
     - name: $redis
       # command: ["--verbose","node", "server.js"]
@@ -1198,6 +1196,8 @@ integration_test_mtls:
     - source server_env
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     # - curl http://milmovelocal:4000
+    - make db_dev_create
+    - bin/milmove migrate
     - make bin/prime-api-client
     - echo "Running E2E mTLS tests"
     - ./scripts/run-e2e-mtls-test
