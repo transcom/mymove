@@ -188,6 +188,7 @@ type MTOShipment struct {
 	DestinationSITAuthEndDate        *time.Time             `json:"destination_sit_auth_end_date" db:"dest_sit_auth_end_date"`
 	MobileHome                       *MobileHome            `json:"mobile_home" has_one:"mobile_home" fk_id:"shipment_id"`
 	MarketCode                       MarketCode             `json:"market_code" db:"market_code"`
+	PrimeAcknowledgedAt				 *time.Time             `db:"prime_acknowledged_at"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -517,4 +518,24 @@ func FetchShipmentByID(db *pop.Connection, shipmentID uuid.UUID) (*MTOShipment, 
 		return nil, err
 	}
 	return &mtoShipment, nil
+}
+
+// filters the returned MtoShipments for each move.
+// Ignoring mto shipments that have been deleted, cancelled, or rejected.
+func FilterDeletedRejectedCanceledMtoShipments(unfilteredShipments MTOShipments) MTOShipments {
+	if len(unfilteredShipments) == 0 {
+		return unfilteredShipments
+	}
+
+	filteredShipments := MTOShipments{}
+	for _, shipment := range unfilteredShipments {
+		if shipment.DeletedAt == nil &&
+			(shipment.Status != MTOShipmentStatusDraft) &&
+			(shipment.Status != MTOShipmentStatusRejected) &&
+			(shipment.Status != MTOShipmentStatusCanceled) {
+			filteredShipments = append(filteredShipments, shipment)
+		}
+	}
+
+	return filteredShipments
 }
