@@ -581,7 +581,6 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(800, nil)
 
 		returnCents := unit.Cents(123)
