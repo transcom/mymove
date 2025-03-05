@@ -39,7 +39,9 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			EndDate:   testdatagen.ContractEndDate,
 		}
 
-		contractYear = testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{ReContractYear: contractYear})
+		contractYear = testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: contractYear,
+		})
 
 		originDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{

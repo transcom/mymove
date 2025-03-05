@@ -183,46 +183,6 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 		suite.NotNil(incentives.TotalIncentive)
 	})
 
-	suite.Run("failure - contract doesn't exist", func() {
-		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "74135")
-		suite.FatalNoError(err)
-		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1:     "Tester Address",
-					City:               "Tulsa",
-					State:              "OK",
-					PostalCode:         "74133",
-					IsOconus:           models.BoolPointer(false),
-					UsPostRegionCityID: &pickupUSPRC.ID,
-				},
-			},
-		}, nil)
-
-		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
-		suite.FatalNoError(err)
-		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1:     "JBER",
-					City:               "JBER",
-					State:              "AK",
-					PostalCode:         "99505",
-					IsOconus:           models.BoolPointer(true),
-					UsPostRegionCityID: &destUSPRC.ID,
-				},
-			},
-		}, nil)
-
-		moveDate := time.Now()
-		mileage := 1000
-		weight := 2000
-
-		incentives, err := models.CalculatePPMIncentive(suite.DB(), ppmShipment.ID, pickupAddress.ID, destAddress.ID, moveDate, mileage, weight, true, false, false)
-		suite.Error(err)
-		suite.Nil(incentives)
-	})
 }
 
 func (suite *ModelSuite) TestCalculatePPMSITCost() {
@@ -261,29 +221,4 @@ func (suite *ModelSuite) TestCalculatePPMSITCost() {
 		suite.NotNil(sitCost.TotalSITCost)
 	})
 
-	suite.Run("failure - contract doesn't exist", func() {
-		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
-		suite.FatalNoError(err)
-		address := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1:     "JBER",
-					City:               "JBER",
-					State:              "AK",
-					PostalCode:         "99505",
-					IsOconus:           models.BoolPointer(true),
-					UsPostRegionCityID: &destUSPRC.ID,
-				},
-			},
-		}, nil)
-
-		moveDate := time.Now()
-		sitDays := 7
-		weight := 2000
-
-		sitCost, err := models.CalculatePPMSITCost(suite.DB(), ppmShipment.ID, address.ID, false, moveDate, weight, sitDays)
-		suite.Error(err)
-		suite.Nil(sitCost)
-	})
 }

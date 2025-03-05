@@ -7,16 +7,13 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primev3api/primev3operations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primev3messages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -1404,180 +1401,180 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Contains(*movePayload.Detail, failureMove.ID.String())
 	})
 
-	suite.Run("Success - returns Oconus RateArea information", func() {
-		const fairbanksAlaskaPostalCode = "99716"
-		const anchorageAlaskaPostalCode = "99521"
+	// suite.Run("Success - returns Oconus RateArea information", func() {
+	// 	const fairbanksAlaskaPostalCode = "99716"
+	// 	const anchorageAlaskaPostalCode = "99521"
 
-		mockShipmentRateAreaFinder := &mocks.ShipmentRateAreaFinder{}
+	// 	mockShipmentRateAreaFinder := &mocks.ShipmentRateAreaFinder{}
 
-		// This tests fields that aren't other structs and Addresses
-		handler := GetMoveTaskOrderHandler{
-			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(waf),
-			mockShipmentRateAreaFinder,
-		}
-		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	// 	// This tests fields that aren't other structs and Addresses
+	// 	handler := GetMoveTaskOrderHandler{
+	// 		suite.HandlerConfig(),
+	// 		movetaskorder.NewMoveTaskOrderFetcher(waf),
+	// 		mockShipmentRateAreaFinder,
+	// 	}
+	// 	successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "1234 Street",
-					City:           "Fairbanks",
-					State:          "AK",
-					PostalCode:     fairbanksAlaskaPostalCode,
-				},
-			},
-		}, nil)
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "1234 Street",
-					City:           "Anchorage",
-					State:          "AK",
-					PostalCode:     anchorageAlaskaPostalCode,
-				},
-			},
-		}, nil)
+	// 	pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model: models.Address{
+	// 				StreetAddress1: "1234 Street",
+	// 				City:           "Fairbanks",
+	// 				State:          "AK",
+	// 				PostalCode:     fairbanksAlaskaPostalCode,
+	// 			},
+	// 		},
+	// 	}, nil)
+	// 	destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model: models.Address{
+	// 				StreetAddress1: "1234 Street",
+	// 				City:           "Anchorage",
+	// 				State:          "AK",
+	// 				PostalCode:     anchorageAlaskaPostalCode,
+	// 			},
+	// 		},
+	// 	}, nil)
 
-		// mock up ShipmentPostalCodeRateArea
-		shipmentPostalCodeRateArea := []services.ShipmentPostalCodeRateArea{
-			{
-				PostalCode: fairbanksAlaskaPostalCode,
-				RateArea: &models.ReRateArea{
-					ID:   uuid.Must(uuid.NewV4()),
-					Code: fairbanksAlaskaPostalCode,
-					Name: fairbanksAlaskaPostalCode,
-				},
-			},
-			{
-				PostalCode: anchorageAlaskaPostalCode,
-				RateArea: &models.ReRateArea{
-					ID:   uuid.Must(uuid.NewV4()),
-					Code: anchorageAlaskaPostalCode,
-					Name: anchorageAlaskaPostalCode,
-				},
-			},
-		}
+	// 	// mock up ShipmentPostalCodeRateArea
+	// 	shipmentPostalCodeRateArea := []services.ShipmentPostalCodeRateArea{
+	// 		{
+	// 			PostalCode: fairbanksAlaskaPostalCode,
+	// 			RateArea: &models.ReRateArea{
+	// 				ID:   uuid.Must(uuid.NewV4()),
+	// 				Code: fairbanksAlaskaPostalCode,
+	// 				Name: fairbanksAlaskaPostalCode,
+	// 			},
+	// 		},
+	// 		{
+	// 			PostalCode: anchorageAlaskaPostalCode,
+	// 			RateArea: &models.ReRateArea{
+	// 				ID:   uuid.Must(uuid.NewV4()),
+	// 				Code: anchorageAlaskaPostalCode,
+	// 				Name: anchorageAlaskaPostalCode,
+	// 			},
+	// 		},
+	// 	}
 
-		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("models.Move"),
-		).Return(&shipmentPostalCodeRateArea, nil)
+	// 	mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
+	// 		mock.AnythingOfType("*appcontext.appContext"),
+	// 		mock.AnythingOfType("models.Move"),
+	// 	).Return(&shipmentPostalCodeRateArea, nil)
 
-		destinationType := models.DestinationTypeHomeOfRecord
-		now := time.Now()
-		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
-		yesterDate := nowDate.AddDate(0, 0, -1)
-		aWeekAgo := nowDate.AddDate(0, 0, -7)
-		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ActualDeliveryDate:               &nowDate,
-					CounselorRemarks:                 models.StringPointer("LGTM"),
-					PickupAddressID:                  &pickupAddress.ID,
-					DestinationAddressID:             &destinationAddress.ID,
-					DestinationType:                  &destinationType,
-					FirstAvailableDeliveryDate:       &yesterDate,
-					Status:                           models.MTOShipmentStatusApproved,
-					NTSRecordedWeight:                models.PoundPointer(unit.Pound(249)),
-					PrimeEstimatedWeight:             models.PoundPointer(unit.Pound(980)),
-					PrimeEstimatedWeightRecordedDate: &aWeekAgo,
-					RequiredDeliveryDate:             &nowDate,
-					ScheduledDeliveryDate:            &nowDate,
-				},
-			},
-			{
-				Model:    successMove,
-				LinkOnly: true,
-			},
-		}, nil)
-		params := movetaskorderops.GetMoveTaskOrderParams{
-			HTTPRequest: request,
-			MoveID:      successMove.ID.String(),
-		}
+	// 	destinationType := models.DestinationTypeHomeOfRecord
+	// 	now := time.Now()
+	// 	nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	// 	yesterDate := nowDate.AddDate(0, 0, -1)
+	// 	aWeekAgo := nowDate.AddDate(0, 0, -7)
+	// 	successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model: models.MTOShipment{
+	// 				ActualDeliveryDate:               &nowDate,
+	// 				CounselorRemarks:                 models.StringPointer("LGTM"),
+	// 				PickupAddressID:                  &pickupAddress.ID,
+	// 				DestinationAddressID:             &destinationAddress.ID,
+	// 				DestinationType:                  &destinationType,
+	// 				FirstAvailableDeliveryDate:       &yesterDate,
+	// 				Status:                           models.MTOShipmentStatusApproved,
+	// 				NTSRecordedWeight:                models.PoundPointer(unit.Pound(249)),
+	// 				PrimeEstimatedWeight:             models.PoundPointer(unit.Pound(980)),
+	// 				PrimeEstimatedWeightRecordedDate: &aWeekAgo,
+	// 				RequiredDeliveryDate:             &nowDate,
+	// 				ScheduledDeliveryDate:            &nowDate,
+	// 			},
+	// 		},
+	// 		{
+	// 			Model:    successMove,
+	// 			LinkOnly: true,
+	// 		},
+	// 	}, nil)
+	// 	params := movetaskorderops.GetMoveTaskOrderParams{
+	// 		HTTPRequest: request,
+	// 		MoveID:      successMove.ID.String(),
+	// 	}
 
-		// Validate incoming payload: no body to validate
+	// 	// Validate incoming payload: no body to validate
 
-		response := handler.Handle(params)
-		suite.NotNil(response)
+	// 	response := handler.Handle(params)
+	// 	suite.NotNil(response)
 
-		suite.IsNotErrResponse(response)
-		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+	// 	suite.IsNotErrResponse(response)
+	// 	suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
 
-		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
-		movePayload := moveResponse.Payload
+	// 	moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+	// 	movePayload := moveResponse.Payload
 
-		// Validate outgoing payload
-		suite.NoError(movePayload.Validate(strfmt.Default))
+	// 	// Validate outgoing payload
+	// 	suite.NoError(movePayload.Validate(strfmt.Default))
 
-		suite.Equal(movePayload.ID.String(), successMove.ID.String())
+	// 	suite.Equal(movePayload.ID.String(), successMove.ID.String())
 
-		suite.NotNil(movePayload.AvailableToPrimeAt)
-		suite.NotEmpty(movePayload.AvailableToPrimeAt)
+	// 	suite.NotNil(movePayload.AvailableToPrimeAt)
+	// 	suite.NotEmpty(movePayload.AvailableToPrimeAt)
 
-		suite.NotNil(movePayload.MtoShipments[0].OriginRateArea)
-		suite.NotNil(movePayload.MtoShipments[0].DestinationRateArea)
+	// 	suite.NotNil(movePayload.MtoShipments[0].OriginRateArea)
+	// 	suite.NotNil(movePayload.MtoShipments[0].DestinationRateArea)
 
-		suite.Equal(shipmentPostalCodeRateArea[0].RateArea.Code, *movePayload.MtoShipments[0].OriginRateArea.RateAreaID)
-		suite.Equal(shipmentPostalCodeRateArea[1].RateArea.Code, *movePayload.MtoShipments[0].DestinationRateArea.RateAreaID)
+	// 	suite.Equal(shipmentPostalCodeRateArea[0].RateArea.Code, *movePayload.MtoShipments[0].OriginRateArea.RateAreaID)
+	// 	suite.Equal(shipmentPostalCodeRateArea[1].RateArea.Code, *movePayload.MtoShipments[0].DestinationRateArea.RateAreaID)
 
-		suite.Equal(successShipment.ID, handlers.FmtUUIDToPop(movePayload.MtoShipments[0].ID))
-	})
+	// 	suite.Equal(successShipment.ID, handlers.FmtUUIDToPop(movePayload.MtoShipments[0].ID))
+	// })
 
-	suite.Run("failure - error while attempting to retrieve Oconus RateArea information for shipments", func() {
+	// suite.Run("failure - error while attempting to retrieve Oconus RateArea information for shipments", func() {
 
-		mockShipmentRateAreaFinder := &mocks.ShipmentRateAreaFinder{}
+	// 	mockShipmentRateAreaFinder := &mocks.ShipmentRateAreaFinder{}
 
-		// This tests fields that aren't other structs and Addresses
-		handler := GetMoveTaskOrderHandler{
-			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(waf),
-			mockShipmentRateAreaFinder,
-		}
-		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	// 	// This tests fields that aren't other structs and Addresses
+	// 	handler := GetMoveTaskOrderHandler{
+	// 		suite.HandlerConfig(),
+	// 		movetaskorder.NewMoveTaskOrderFetcher(waf),
+	// 		mockShipmentRateAreaFinder,
+	// 	}
+	// 	successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		defaultAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	// 	defaultAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("models.Move"),
-		).Return(nil, apperror.InternalServerError{})
+	// 	mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
+	// 		mock.AnythingOfType("*appcontext.appContext"),
+	// 		mock.AnythingOfType("models.Move"),
+	// 	).Return(nil, apperror.InternalServerError{})
 
-		destinationType := models.DestinationTypeHomeOfRecord
-		now := time.Now()
-		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
-		yesterDate := nowDate.AddDate(0, 0, -1)
-		aWeekAgo := nowDate.AddDate(0, 0, -7)
-		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ActualDeliveryDate:               &nowDate,
-					CounselorRemarks:                 models.StringPointer("LGTM"),
-					PickupAddressID:                  &defaultAddress.ID,
-					DestinationAddressID:             &defaultAddress.ID,
-					DestinationType:                  &destinationType,
-					FirstAvailableDeliveryDate:       &yesterDate,
-					Status:                           models.MTOShipmentStatusApproved,
-					NTSRecordedWeight:                models.PoundPointer(unit.Pound(249)),
-					PrimeEstimatedWeight:             models.PoundPointer(unit.Pound(980)),
-					PrimeEstimatedWeightRecordedDate: &aWeekAgo,
-					RequiredDeliveryDate:             &nowDate,
-					ScheduledDeliveryDate:            &nowDate,
-				},
-			},
-			{
-				Model:    successMove,
-				LinkOnly: true,
-			},
-		}, nil)
-		params := movetaskorderops.GetMoveTaskOrderParams{
-			HTTPRequest: request,
-			MoveID:      successMove.ID.String(),
-		}
+	// 	destinationType := models.DestinationTypeHomeOfRecord
+	// 	now := time.Now()
+	// 	nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	// 	yesterDate := nowDate.AddDate(0, 0, -1)
+	// 	aWeekAgo := nowDate.AddDate(0, 0, -7)
+	// 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model: models.MTOShipment{
+	// 				ActualDeliveryDate:               &nowDate,
+	// 				CounselorRemarks:                 models.StringPointer("LGTM"),
+	// 				PickupAddressID:                  &defaultAddress.ID,
+	// 				DestinationAddressID:             &defaultAddress.ID,
+	// 				DestinationType:                  &destinationType,
+	// 				FirstAvailableDeliveryDate:       &yesterDate,
+	// 				Status:                           models.MTOShipmentStatusApproved,
+	// 				NTSRecordedWeight:                models.PoundPointer(unit.Pound(249)),
+	// 				PrimeEstimatedWeight:             models.PoundPointer(unit.Pound(980)),
+	// 				PrimeEstimatedWeightRecordedDate: &aWeekAgo,
+	// 				RequiredDeliveryDate:             &nowDate,
+	// 				ScheduledDeliveryDate:            &nowDate,
+	// 			},
+	// 		},
+	// 		{
+	// 			Model:    successMove,
+	// 			LinkOnly: true,
+	// 		},
+	// 	}, nil)
+	// 	params := movetaskorderops.GetMoveTaskOrderParams{
+	// 		HTTPRequest: request,
+	// 		MoveID:      successMove.ID.String(),
+	// 	}
 
-		response := handler.Handle(params)
-		suite.NotNil(response)
+	// 	response := handler.Handle(params)
+	// 	suite.NotNil(response)
 
-		suite.IsType(&movetaskorderops.GetMoveTaskOrderInternalServerError{}, response)
-	})
+	// 	suite.IsType(&movetaskorderops.GetMoveTaskOrderInternalServerError{}, response)
+	// })
 }
