@@ -32,8 +32,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	verifyAddressFields := func(address *models.Address, payload *primev3messages.Address) {
 		suite.Equal(address.ID.String(), payload.ID.String())
 		suite.Equal(address.StreetAddress1, *payload.StreetAddress1)
-		suite.Equal(*address.StreetAddress2, *payload.StreetAddress2)
-		suite.Equal(*address.StreetAddress3, *payload.StreetAddress3)
+		if address.StreetAddress2 != nil {
+			suite.Equal(*address.StreetAddress2, *payload.StreetAddress2)
+		}
+		if address.StreetAddress3 != nil {
+			suite.Equal(*address.StreetAddress3, *payload.StreetAddress3)
+		}
 		suite.Equal(address.City, *payload.City)
 		suite.Equal(address.State, *payload.State)
 		suite.Equal(address.PostalCode, *payload.PostalCode)
@@ -1494,6 +1498,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 					PrimeEstimatedWeightRecordedDate: &aWeekAgo,
 					RequiredDeliveryDate:             &nowDate,
 					ScheduledDeliveryDate:            &nowDate,
+					MarketCode:                       models.MarketCodeInternational,
 				},
 			},
 			{
