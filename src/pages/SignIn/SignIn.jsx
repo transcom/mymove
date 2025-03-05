@@ -13,7 +13,7 @@ import '@trussworks/react-uswds/lib/index.css';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
 import ConnectedEulaModal from 'components/EulaModal';
-import { isDevelopment } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, isDevelopment } from 'shared/constants';
 import { useTitle } from 'hooks/custom';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
@@ -41,7 +41,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
   }, [navigate]);
 
   useEffect(() => {
-    isBooleanFlagEnabledUnauthenticated('customer_registration')?.then((enabled) => {
+    isBooleanFlagEnabledUnauthenticated(FEATURE_FLAG_KEYS.CUSTOMER_REGISTRATION)?.then((enabled) => {
       setCustomerRegistrationFF(enabled);
     });
   }, []);
@@ -86,8 +86,8 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
           {location.state && location.state.noValidCAC && (
             <div>
               <Alert type="error" heading="CAC Validation is required at first sign-in">
-                If you do not have a CAC do not request your account here. You must visit your nearest personal property
-                office where they will assist you with creating your MilMove account.
+                If you do not have a Common Access Card (CAC) do not request your account here. You must visit your
+                nearest personal property office where they will assist you with creating your MilMove account.
               </Alert>
             </div>
           )}
