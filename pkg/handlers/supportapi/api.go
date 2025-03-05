@@ -28,12 +28,13 @@ import (
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 // NewSupportAPIHandler returns a handler for the Prime API
 func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
