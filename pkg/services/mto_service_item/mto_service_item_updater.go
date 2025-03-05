@@ -373,7 +373,11 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			if (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 				serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
 				serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
-				serviceItem.ReService.Code == models.ReServiceCodeDDFSIT) &&
+				serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeIDDSIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeIDSFSC ||
+				serviceItem.ReService.Code == models.ReServiceCodeIDASIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeIDFSIT) &&
 				serviceItem.SITDestinationOriginalAddressID == nil {
 
 				// Set the original address on a service item to the shipment's
@@ -401,9 +405,11 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 					serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
 				}
 
-				// Calculate SITDeliveryMiles for DDDSIT and DDSFSC origin SIT service items
+				// Calculate SITDeliveryMiles for DDDSIT/DDSFSC, IDDSIT/IDSFSC origin SIT service items
 				if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-					serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+					serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
+					serviceItem.ReService.Code == models.ReServiceCodeIDDSIT ||
+					serviceItem.ReService.Code == models.ReServiceCodeIDSFSC {
 					// Destination SIT: distance between shipment destination address & service item ORIGINAL destination address
 					milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
 					if err != nil {
@@ -413,9 +419,11 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 				}
 
 			}
-			// Calculate SITDeliveryMiles for DOPSIT and DOSFSC origin SIT service items
+			// Calculate SITDeliveryMiles for DOPSIT/DOSFSC, IOPSIT/IOSFSC origin SIT service items
 			if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
-				serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
+				serviceItem.ReService.Code == models.ReServiceCodeDOSFSC ||
+				serviceItem.ReService.Code == models.ReServiceCodeIOPSIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeIOSFSC {
 				// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
 				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
 				if err != nil {
