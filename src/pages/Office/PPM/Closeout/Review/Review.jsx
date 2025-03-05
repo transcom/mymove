@@ -7,12 +7,12 @@ import styles from './Review.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import Alert from 'shared/Alert';
-import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
+import ppmPageStyles from 'pages/Office/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { servicesCounselingRoutes } from 'constants/routes';
-import ReviewItems from 'components/Customer/PPM/Closeout/ReviewItems/ReviewItems';
+import ReviewItems from 'components/Office/PPM/Closeout/ReviewItems/ReviewItems';
 import {
   calculateTotalMovingExpensesAmount,
   formatAboutYourPPMItem,
@@ -181,112 +181,116 @@ const Review = () => {
   };
 
   return (
-    <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>
-      <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            {isDeleteModalVisible && (
-              <ReviewDeleteCloseoutItemModal
-                onSubmit={onDeleteSubmit}
-                onClose={setIsDeleteModalVisible}
-                itemToDelete={itemToDelete}
-              />
-            )}
-            {alert && (
-              <>
-                <Alert type={alert.type}>{alert.message}</Alert>
-                <br />
-              </>
-            )}
-            {showIncompleteError && (
-              <>
-                <Alert type="error">
-                  There are items below that are missing required information. Please select “Edit” to enter all
-                  required information or “Delete” to remove the item.
-                </Alert>
-                <br />
-              </>
-            )}
-            <ShipmentTag shipmentType={shipmentTypes.PPM} />
-            <h1>Review</h1>
-            <SectionWrapper className={styles.aboutSection} data-testid="aboutYourPPM">
-              <ReviewItems heading={<h2>About Your PPM</h2>} contents={aboutYourPPM} />
-            </SectionWrapper>
-            <SectionWrapper>
-              <h2>Documents</h2>
-              <ReviewItems
-                className={classnames(styles.reviewItems, 'reviewWeightTickets')}
-                heading={
-                  <>
-                    <h3>Weight moved</h3>
-                    <span>({formatWeight(weightTicketsTotal)})</span>
-                  </>
-                }
-                contents={weightTicketContents}
-                renderAddButton={() => (
-                  <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
-                    Add More Weight
-                  </Link>
+    <div className={ppmPageStyles.tabContent}>
+      <div className={ppmPageStyles.container}>
+        <GridContainer className={ppmPageStyles.gridContainer}>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <div className={ppmPageStyles.closeoutPageWrapper}>
+                {isDeleteModalVisible && (
+                  <ReviewDeleteCloseoutItemModal
+                    onSubmit={onDeleteSubmit}
+                    onClose={setIsDeleteModalVisible}
+                    itemToDelete={itemToDelete}
+                  />
                 )}
-                emptyMessage="No weight moved documented. At least one trip is required to continue."
-              />
-              <ReviewItems
-                className={classnames(styles.reviewItems, 'progearSection')}
-                heading={
+                {alert && (
                   <>
-                    <h3>Pro-gear</h3>
-                    <span>({formatWeight(proGearTotal)})</span>
+                    <Alert type={alert.type}>{alert.message}</Alert>
+                    <br />
                   </>
-                }
-                contents={proGearContents}
-                renderAddButton={() => (
-                  <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
-                    Add Pro-gear Weight
-                  </Link>
                 )}
-                emptyMessage="No pro-gear weight documented."
-              />
-              <ReviewItems
-                className={classnames(styles.reviewItems, 'reviewExpenses')}
-                heading={
+                {showIncompleteError && (
                   <>
-                    <h3>Expenses</h3>
-                    <span>(${expensesTotal ? formatCents(expensesTotal) : 0})</span>
+                    <Alert type="error">
+                      There are items below that are missing required information. Please select “Edit” to enter all
+                      required information or “Delete” to remove the item.
+                    </Alert>
+                    <br />
                   </>
-                }
-                contents={expenseContents}
-                renderAddButton={() => (
-                  <Link className="usa-button usa-button--secondary" to={expensesCreatePath}>
-                    Add Expenses
-                  </Link>
                 )}
-                emptyMessage="No receipts uploaded."
-              />
-            </SectionWrapper>
-            <div className={`${formStyles.formActions} ${ppmStyles.buttonGroup}`}>
-              <Button
-                data-testid="formBackButton"
-                className={ppmStyles.backButton}
-                type="button"
-                onClick={handleBack}
-                secondary
-                outline
-              >
-                Back
-              </Button>
-              <Button
-                data-testid="saveAndContinueButton"
-                className={ppmStyles.saveButton}
-                type="button"
-                onClick={handleSubmit}
-                disabled={!canAdvance}
-              >
-                Save & Continue
-              </Button>
-            </div>
+                <ShipmentTag shipmentType={shipmentTypes.PPM} />
+                <h1>Review</h1>
+                <SectionWrapper className={styles.aboutSection} data-testid="aboutYourPPM">
+                  <ReviewItems heading={<h2>About Your PPM</h2>} contents={aboutYourPPM} />
+                </SectionWrapper>
+                <SectionWrapper>
+                  <h2>Documents</h2>
+                  <ReviewItems
+                    className={classnames(styles.reviewItems, 'reviewWeightTickets')}
+                    heading={
+                      <>
+                        <h3>Weight moved</h3>
+                        <span>({formatWeight(weightTicketsTotal)})</span>
+                      </>
+                    }
+                    contents={weightTicketContents}
+                    renderAddButton={() => (
+                      <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
+                        Add More Weight
+                      </Link>
+                    )}
+                    emptyMessage="No weight moved documented. At least one trip is required to continue."
+                  />
+                  <ReviewItems
+                    className={classnames(styles.reviewItems, 'progearSection')}
+                    heading={
+                      <>
+                        <h3>Pro-gear</h3>
+                        <span>({formatWeight(proGearTotal)})</span>
+                      </>
+                    }
+                    contents={proGearContents}
+                    renderAddButton={() => (
+                      <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
+                        Add Pro-gear Weight
+                      </Link>
+                    )}
+                    emptyMessage="No pro-gear weight documented."
+                  />
+                  <ReviewItems
+                    className={classnames(styles.reviewItems, 'reviewExpenses')}
+                    heading={
+                      <>
+                        <h3>Expenses</h3>
+                        <span>(${expensesTotal ? formatCents(expensesTotal) : 0})</span>
+                      </>
+                    }
+                    contents={expenseContents}
+                    renderAddButton={() => (
+                      <Link className="usa-button usa-button--secondary" to={expensesCreatePath}>
+                        Add Expenses
+                      </Link>
+                    )}
+                    emptyMessage="No receipts uploaded."
+                  />
+                </SectionWrapper>
+                <div className={`${formStyles.formActions} ${ppmStyles.buttonGroup}`}>
+                  <Button
+                    data-testid="formBackButton"
+                    className={ppmStyles.backButton}
+                    type="button"
+                    onClick={handleBack}
+                    secondary
+                    outline
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    data-testid="saveAndContinueButton"
+                    className={ppmStyles.saveButton}
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={!canAdvance}
+                  >
+                    Save & Continue
+                  </Button>
+                </div>
+              </div>
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
+        </GridContainer>
+      </div>
     </div>
   );
 };
