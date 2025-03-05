@@ -107,7 +107,7 @@ const ShipmentForm = (props) => {
       city: '',
       state: '',
       postalCode: '',
-      usPostRegionCitiesID: '',
+      county: '',
     },
   };
 

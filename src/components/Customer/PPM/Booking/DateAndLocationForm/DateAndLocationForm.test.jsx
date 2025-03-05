@@ -412,7 +412,7 @@ describe('validates form fields and displays error messages', () => {
     });
   });
 
-  it('remove Required alert when secondary pickup streetAddress1 is cleared but the toggle is switched to No', async () => {
+  it('remove Required alert when secondary pickup/delivery streetAddress1 is cleared but the toggle is switched to No', async () => {
     await act(async () => {
       const newPPM = {
         ...defaultProps,
@@ -440,7 +440,7 @@ describe('validates form fields and displays error messages', () => {
         ...defaultProps.serviceMember,
         affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
       };
-      const { findAllByRole } = render(
+      render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...newPPM} serviceMember={navyServiceMember} />
         </Provider>,
@@ -504,17 +504,37 @@ describe('validates form fields and displays error messages', () => {
       expect(state[3]).toHaveTextContent('GA');
       expect(postalCodes[3]).toHaveTextContent('94611');
 
-      // now clear out text, should raise required alert
-      await userEvent.clear(document.querySelector('input[name="secondaryDestinationAddress.address.streetAddress1"]'));
+      // now clear out 2nd pickup address1 text, should raise required alert
+      await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
       await userEvent.keyboard('[Tab]');
 
-      const alerts = await findAllByRole('alert');
-      expect(alerts.length).toBe(1);
-      alerts.forEach((alert) => {
-        expect(alert).toHaveTextContent('Required');
+      await waitFor(() => {
+        const requiredAlerts = screen.queryAllByRole('alert');
+        expect(requiredAlerts.length).toBe(1);
+        requiredAlerts.forEach((alert) => {
+          expect(alert).toHaveTextContent('Required');
+        });
       });
 
       // toggle second pickup address to No, should get rid of Required error
+      await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
+
+      const alerts = screen.queryAllByRole('alert');
+      expect(alerts.length).toBe(0);
+
+      // now clear out 2nd delivery address1 text, should raise required alert
+      await userEvent.clear(document.querySelector('input[name="secondaryDestinationAddress.address.streetAddress1"]'));
+      await userEvent.keyboard('[Tab]');
+
+      await waitFor(() => {
+        const requiredAlerts = screen.queryAllByRole('alert');
+        expect(requiredAlerts.length).toBe(1);
+        requiredAlerts.forEach((alert) => {
+          expect(alert).toHaveTextContent('Required');
+        });
+      });
+
+      // toggle second delivery address to No, should get rid of Required error
       await userEvent.click(screen.getByTitle('No, I do not have a second delivery address'));
 
       const newAlerts = screen.queryAllByRole('alert');

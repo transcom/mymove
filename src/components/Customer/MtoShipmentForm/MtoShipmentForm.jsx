@@ -61,7 +61,6 @@ const blankAddress = {
     city: '',
     state: '',
     postalCode: '',
-    usPostRegionCitiesID: '',
   },
 };
 
