@@ -183,7 +183,7 @@ const PPMSummaryStatus = (
   );
 };
 
-const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackClick }) => {
+const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackClick, setShowLoadingSpinner }) => {
   const { length } = shipments;
   return shipments.map((shipment, i) => {
     return (
@@ -195,20 +195,30 @@ const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackC
         onUploadClick={() => onUploadClick(shipment.id)}
         onDownloadError={onDownloadError}
         onFeedbackClick={() => onFeedbackClick(shipment.id)}
+        setShowLoadingSpinner={setShowLoadingSpinner}
       />
     );
   });
 };
 
-const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick, onDownloadError, onFeedbackClick }) => {
+const PPMSummaryListItem = ({
+  shipment,
+  hasMany,
+  index,
+  onUploadClick,
+  onDownloadError,
+  onFeedbackClick,
+  setShowLoadingSpinner,
+}) => {
   const orderLabel = hasMany ? `PPM ${index + 1}` : 'PPM';
-  return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick);
+  return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick, setShowLoadingSpinner);
 };
 
 PPMSummaryList.propTypes = {
   shipments: arrayOf(ShipmentShape).isRequired,
   onUploadClick: func.isRequired,
   onDownloadError: func.isRequired,
+  setShowLoadingSpinner: func,
 };
 
 PPMSummaryListItem.propTypes = {
@@ -217,6 +227,7 @@ PPMSummaryListItem.propTypes = {
   hasMany: bool.isRequired,
   onUploadClick: func.isRequired,
   onDownloadError: func.isRequired,
+  setShowLoadingSpinner: func,
 };
 
 const mapDispatchToProps = {
