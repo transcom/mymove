@@ -159,8 +159,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
       validateOnChange
     >
       {({ isValid, isSubmitting, handleSubmit, setValues, values, errors, ...formikProps }) => {
-        // console.log('Formik values:', values);
-        // console.log('Formik errors:', errors);
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
@@ -447,6 +445,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             label="Yes"
                             name="hasSecondaryDestinationAddress"
                             value="true"
+                            title="Yes, I have a second delivery address"
                             checked={values.hasSecondaryDestinationAddress === 'true'}
                             disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
                             onChange={handleAddressToggleChange}
@@ -458,6 +457,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             label="No"
                             name="hasSecondaryDestinationAddress"
                             value="false"
+                            title="No, I do not have a second delivery address"
                             checked={values.hasSecondaryDestinationAddress === 'false'}
                             disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
                             onChange={handleAddressToggleChange}
