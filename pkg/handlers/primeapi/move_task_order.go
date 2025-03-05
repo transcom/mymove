@@ -332,9 +332,17 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 				moveOrderUploadType = services.MoveOrderAmendmentUpload
 			}
 
-			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, moveOrderUploadType, move, true)
+			dirName := uuid.Must(uuid.NewV4()).String()
+			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, moveOrderUploadType, move, true, dirName)
 
 			if err != nil {
+
+				cleanupErr := h.PrimeDownloadMoveUploadPDFGenerator.CleanupFile(outputFile)
+
+				if cleanupErr != nil {
+					appCtx.Logger().Warn("primeapi.DownloadMoveOrder warn", zap.Error(cleanupErr))
+				}
+
 				switch e := err.(type) {
 				case apperror.UnprocessableEntityError:
 					appCtx.Logger().Warn("primeapi.DownloadMoveOrder warn", zap.Error(err))
@@ -348,6 +356,14 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			}
 
 			payload := io.NopCloser(outputFile)
+
+			err = h.PrimeDownloadMoveUploadPDFGenerator.CleanupFile(outputFile)
+
+			if err != nil {
+				appCtx.Logger().Error("primeapi.DownloadMoveOrder error", zap.Error(err))
+				return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
+					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
 
 			// Build fileName in format: Customer-{type}-for-MTO-{locator}-{TIMESTAMP}.pdf
 			// example:
