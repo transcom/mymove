@@ -834,7 +834,7 @@ server_test:
     - make bin/swagger
     - echo "server test -- build gotestsum and run scripts for report"
     - make -j 2 bin/milmove bin/gotestsum
-    - make server_test for app
+    - make server_test
   allow_failure: true #leaving true until 5 tests failing tests are working
   artifacts:
     paths:
