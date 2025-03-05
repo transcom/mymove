@@ -1080,7 +1080,7 @@ integration_test_mtls:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   services:
-    - name: registry.csde.caci.com/milmove/mymove:e2e-localbuild
+    - name: registry.csde.caci.com/milmove/mymove:e2e-3ad28a8e
       alias: milmovelocal,officelocal,adminlocal,primelocal
     - name: $postgres
     - name: $redis
