@@ -43,7 +43,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlHHGUnpackPricer() {
 	})
 
 	suite.Run("invalid parameters to PriceUsingParams", func() {
-		paymentServiceItem := suite.setupIntlPackServiceItem()
+		paymentServiceItem, _ := suite.setupIntlPackServiceItem(models.ReServiceCodeIHPK)
 
 		// WeightBilled
 		paymentServiceItem.PaymentServiceItemParams[3].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean

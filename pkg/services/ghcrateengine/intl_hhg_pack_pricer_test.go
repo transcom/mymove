@@ -28,7 +28,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlHHGPackPricer() {
 	pricer := NewIntlHHGPackPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		paymentServiceItem := suite.setupIntlPackServiceItem()
+		paymentServiceItem, _ := suite.setupIntlPackServiceItem(models.ReServiceCodeIHPK)
 
 		totalCost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
@@ -44,7 +44,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlHHGPackPricer() {
 	})
 
 	suite.Run("invalid parameters to PriceUsingParams", func() {
-		paymentServiceItem := suite.setupIntlPackServiceItem()
+		paymentServiceItem, _ := suite.setupIntlPackServiceItem(models.ReServiceCodeIHPK)
 
 		// WeightBilled
 		paymentServiceItem.PaymentServiceItemParams[3].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
@@ -72,7 +72,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlHHGPackPricer() {
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) setupIntlPackServiceItem() models.PaymentServiceItem {
+func (suite *GHCRateEngineServiceSuite) setupIntlPackServiceItem(code models.ReServiceCode) (models.PaymentServiceItem, models.ReContract) {
 	contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 	startDate := time.Date(2018, time.January, 1, 12, 0, 0, 0, time.UTC)
 	endDate := time.Date(2018, time.December, 31, 12, 0, 0, 0, time.UTC)
@@ -86,9 +86,10 @@ func (suite *GHCRateEngineServiceSuite) setupIntlPackServiceItem() models.Paymen
 			EscalationCompounded: 1.0,
 		},
 	})
+	availableToPrimeAt := time.Date(2018, time.September, 14, 0, 0, 0, 0, time.UTC)
 	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
-		models.ReServiceCodeIHPK,
+		code,
 		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
@@ -110,6 +111,15 @@ func (suite *GHCRateEngineServiceSuite) setupIntlPackServiceItem() models.Paymen
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(ihpkTestWeight.Int()),
 			},
-		}, nil, nil,
-	)
+		}, []factory.Customization{{
+			// Available to prime is used to fetch market factors for moves
+			// The market factor can only be fetched if it's available to the Prime
+			// And if it isn't available to the Prime, then we shouldn't be processing the creation
+			// of this payment request
+			Model: models.Move{
+				AvailableToPrimeAt: &availableToPrimeAt,
+			},
+		},
+		}, nil,
+	), contract
 }
