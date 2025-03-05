@@ -367,7 +367,6 @@ class MtoShipmentForm extends Component {
                                   id="useCurrentResidenceCheckbox"
                                 />
                                 {fields}
-                                <h4>Second Pickup Address</h4>
                                 <FormGroup>
                                   <p>
                                     Do you want movers to pick up any belongings from a second address? (Must be near
@@ -399,12 +398,15 @@ class MtoShipmentForm extends Component {
                                   </div>
                                 </FormGroup>
                                 {hasSecondaryPickup === 'true' && (
-                                  <AddressFields
-                                    name="secondaryPickup.address"
-                                    labelHint="Required"
-                                    locationLookup
-                                    formikProps={formikProps}
-                                  />
+                                  <>
+                                    <h3>Second Pickup Address</h3>
+                                    <AddressFields
+                                      name="secondaryPickup.address"
+                                      labelHint="Required"
+                                      locationLookup
+                                      formikProps={formikProps}
+                                    />
+                                  </>
                                 )}
                                 {isTertiaryAddressEnabled && hasSecondaryPickup === 'true' && (
                                   <div>
@@ -536,7 +538,6 @@ class MtoShipmentForm extends Component {
                                 render={(fields) => (
                                   <>
                                     {fields}
-                                    <h4>Second Delivery Address</h4>
                                     <FormGroup>
                                       <p>
                                         Do you want the movers to deliver any belongings to a second address? (Must be
@@ -568,12 +569,15 @@ class MtoShipmentForm extends Component {
                                       </div>
                                     </FormGroup>
                                     {hasSecondaryDelivery === 'true' && (
-                                      <AddressFields
-                                        name="secondaryDelivery.address"
-                                        labelHint="Required"
-                                        locationLookup
-                                        formikProps={formikProps}
-                                      />
+                                      <>
+                                        <h3>Second Delivery Address</h3>
+                                        <AddressFields
+                                          name="secondaryDelivery.address"
+                                          labelHint="Required"
+                                          locationLookup
+                                          formikProps={formikProps}
+                                        />
+                                      </>
                                     )}
                                     {isTertiaryAddressEnabled && hasSecondaryDelivery === 'true' && (
                                       <div>
@@ -620,7 +624,7 @@ class MtoShipmentForm extends Component {
                                       hasTertiaryDelivery === 'true' &&
                                       hasSecondaryDelivery === 'true' && (
                                         <>
-                                          <h4>Third Delivery Address</h4>
+                                          <h3>Third Delivery Address</h3>
                                           <AddressFields
                                             name="tertiaryDelivery.address"
                                             labelHint="Required"
