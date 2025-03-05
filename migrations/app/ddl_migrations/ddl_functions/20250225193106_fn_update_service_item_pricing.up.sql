@@ -130,7 +130,7 @@ BEGIN
                 o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
 
                 -- Use IHPK for the escalated price for the INPK case
-                -- THis is because the scenario is iHHG -> iNTS
+                -- This is because the scenario is iHHG -> iNTS
                 escalated_price := calculate_escalated_price(
                     o_rate_area_id,
                     NULL,
@@ -146,7 +146,7 @@ BEGIN
                 declared_oconus_factor := get_market_code_factor_escalation(
                     o_rate_area_id,
                     declared_contract_id,
-                    (SELECT id FROM re_services WHERE code = ''INPK'' LIMIT 1)
+                    service_item.re_service_id
                 );
 
                 -- Okay, now that we have all of our numbers. We just gotta calc
