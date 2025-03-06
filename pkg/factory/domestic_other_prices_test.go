@@ -10,7 +10,7 @@ import (
 func (suite *FactorySuite) TestFetchOrMakeDomesticOtherPrice() {
 	suite.Run("Successful fetch of domestic other price", func() {
 
-		id, err := uuid.FromString("51393fa4-b31c-40fe-bedf-b692703c46eb")
+		id, err := uuid.FromString("070f7c82-fad0-4ae8-9a83-5de87a56472e")
 		suite.NoError(err)
 		reService := FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
 

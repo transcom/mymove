@@ -75,12 +75,10 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 }
 
 func (suite *ValidatePostalCodeTestSuite) buildContractYear(testYear int) models.ReContractYear {
-	reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 	reContractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
-			Contract:  reContract,
-			StartDate: time.Date(testYear, time.January, 1, 0, 0, 0, 0, time.UTC),
-			EndDate:   time.Date(testYear, time.December, 31, 0, 0, 0, 0, time.UTC),
+			StartDate: testdatagen.ContractStartDate,
+			EndDate:   testdatagen.ContractEndDate,
 		},
 	})
 
