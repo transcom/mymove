@@ -7,7 +7,7 @@ CREATE TABLE roles (
 );
 
 CREATE TABLE users_roles (
-	user_id uuid PRIMARY KEY NOT NULL,
+	user_id uuid NOT NULL,
 	role_id uuid NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES users (id),
 	FOREIGN KEY (role_id) REFERENCES roles (id),
@@ -18,7 +18,10 @@ CREATE TABLE users_roles (
 ALTER TABLE roles
     ADD CONSTRAINT unique_roles UNIQUE (role_type);
 
-INSERT INTO roles (id, role_type, created_at, updated_at)
+ALTER TABLE users_roles
+    ADD COLUMN id UUID PRIMARY KEY;
+
+INSERT INTO roles (id, role_type, created_at, updated_at, role_name)
 VALUES
   ('c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e','customer', now(), now(), 'Customer'),
   ('2b21e867-78c3-4980-95a1-c8242b78baba','task_ordering_officer', now(), now(), 'Task Ordering Officer'),
