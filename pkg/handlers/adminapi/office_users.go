@@ -1,9 +1,12 @@
 package adminapi
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -108,18 +111,23 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 // IndexOfficeUsersHandler returns a list of office users via GET /office_users
 type IndexOfficeUsersHandler struct {
 	handlers.HandlerConfig
-	services.ListFetcher
+	services.OfficeUserListFetcher
 	services.NewQueryFilter
 	services.NewPagination
 }
 
-var officeUserFilterConverters = map[string]func(string) []services.QueryFilter{
-	"search": func(content string) []services.QueryFilter {
-		nameSearch := fmt.Sprintf("%s%%", content)
-		return []services.QueryFilter{
-			query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", content)),
-			query.NewQueryFilter("first_name", "ILIKE", nameSearch),
-			query.NewQueryFilter("last_name", "ILIKE", nameSearch),
+var officeUserFilterConverters = map[string]func(string) func(*pop.Query){
+	"search": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			firstSearch, lastSearch, emailSearch := fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'APPROVED' OR office_users.email ILIKE ? AND office_users.status = 'APPROVED' OR office_users.last_name ILIKE ? AND office_users.status = 'APPROVED'", firstSearch, lastSearch, emailSearch)
+		}
+	},
+
+	"offices": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			nameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("transportation_offices.name ILIKE ? AND office_users.status = 'APPROVED'", nameSearch)
 		}
 	},
 }
@@ -128,27 +136,25 @@ var officeUserFilterConverters = map[string]func(string) []services.QueryFilter{
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, officeUserFilterConverters)
+			var filtersMap map[string]string
+			if params.Filter != nil && *params.Filter != "" {
+				err := json.Unmarshal([]byte(*params.Filter), &filtersMap)
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), errors.New("invalid filter format")), err
+				}
+			}
 
-			// Add a filter for approved status
-			queryFilters = append(queryFilters, query.NewQueryFilter("status", "=", "APPROVED"))
+			var filterFuncs []func(*pop.Query)
+			for key, filterFunc := range officeUserFilterConverters {
+				if filterValue, exists := filtersMap[key]; exists {
+					filterFuncs = append(filterFuncs, filterFunc(filterValue))
+				}
+			}
 
 			pagination := h.NewPagination(params.Page, params.PerPage)
 			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
-				query.NewQueryAssociation("User.Roles"),
-				query.NewQueryAssociation("User.Privileges"),
-			})
-
-			var officeUsers models.OfficeUsers
-			err := h.ListFetcher.FetchRecordList(appCtx, &officeUsers, queryFilters, queryAssociations, pagination, ordering)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			totalOfficeUsersCount, err := h.ListFetcher.FetchRecordCount(appCtx, &officeUsers, queryFilters)
+			officeUsers, count, err := h.OfficeUserListFetcher.FetchOfficeUsersList(appCtx, filterFuncs, pagination, ordering)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
@@ -161,7 +167,8 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 				payload[i] = payloadForOfficeUserModel(s)
 			}
 
-			return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload), nil
+
+			return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, count)).WithPayload(payload), nil
 		})
 }
 

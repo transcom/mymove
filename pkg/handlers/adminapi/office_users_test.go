@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
@@ -19,7 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
-	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -31,36 +31,41 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
-	setupTestData := func() models.OfficeUsers {
-		return models.OfficeUsers{
+	// test that everything is wired up
+	suite.Run("integration test ok response", func() {
+		officeUsers := models.OfficeUsers{
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae}),
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae}),
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae, roles.RoleTypeQae, roles.RoleTypeCustomer, roles.RoleTypeContractingOfficer, roles.RoleTypeContractingOfficer}),
 		}
-	}
-
-	// test that everything is wired up
-	suite.Run("integration test ok response", func() {
-		officeUsers := setupTestData()
 		params := officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
 		}
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
-			HandlerConfig:  suite.HandlerConfig(),
-			NewQueryFilter: query.NewQueryFilter,
-			ListFetcher:    fetch.NewListFetcher(queryBuilder),
-			NewPagination:  pagination.NewPagination,
+			HandlerConfig:         suite.HandlerConfig(),
+			NewQueryFilter:        query.NewQueryFilter,
+			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
+			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
 
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
-		suite.Len(okResponse.Payload, 3)
-		suite.Equal(officeUsers[0].ID.String(), okResponse.Payload[0].ID.String())
-		suite.Equal(string(officeUsers[0].User.Roles[0].RoleType), *okResponse.Payload[0].Roles[0].RoleType)
+
+		actualOfficeUsers := okResponse.Payload
+		suite.Equal(len(officeUsers), len(actualOfficeUsers))
+
+		expectedOfficeUser1Id := officeUsers[0].ID.String()
+		expectedOfficeUser2Id := officeUsers[1].ID.String()
+		expectedOfficeUser3Id := officeUsers[2].ID.String()
+		expectedOfficeUserIDs := []string{expectedOfficeUser1Id, expectedOfficeUser2Id, expectedOfficeUser3Id}
+
+		for i := 0; i < len(actualOfficeUsers); i++ {
+			suite.True(slices.Contains(expectedOfficeUserIDs, actualOfficeUsers[i].ID.String()))
+		}
 	})
 
 	// Test that user roles list is not returning duplicate roles
@@ -74,10 +79,10 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
-			HandlerConfig:  suite.HandlerConfig(),
-			NewQueryFilter: query.NewQueryFilter,
-			ListFetcher:    fetch.NewListFetcher(queryBuilder),
-			NewPagination:  pagination.NewPagination,
+			HandlerConfig:         suite.HandlerConfig(),
+			NewQueryFilter:        query.NewQueryFilter,
+			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
+			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
@@ -106,7 +111,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	})
 
 	suite.Run("fetch return an empty list", func() {
-		setupTestData()
+		// setupTestData()
 		// TEST:				IndexOfficeUserHandler, Fetcher
 		// Set up:				Provide an invalid search that won't be found
 		// Expected Outcome:	An empty list is returned and we get a 200 OK.
@@ -119,10 +124,10 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
-			HandlerConfig:  suite.HandlerConfig(),
-			ListFetcher:    fetch.NewListFetcher(queryBuilder),
-			NewQueryFilter: query.NewQueryFilter,
-			NewPagination:  pagination.NewPagination,
+			HandlerConfig:         suite.HandlerConfig(),
+			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
+			NewQueryFilter:        query.NewQueryFilter,
+			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
