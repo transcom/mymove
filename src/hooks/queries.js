@@ -704,7 +704,6 @@ export const usePaymentRequestQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
-    refetch,
   };
 };
 
