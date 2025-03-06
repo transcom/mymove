@@ -243,9 +243,6 @@ func ServiceParamLookupInitialize(
 	paramKeyLookups := InitializeLookups(appCtx, mtoShipment, mtoServiceItem)
 
 	for _, paramKeyName := range ServiceItemParamsWithLookups {
-		if paramKeyName == "ZipSITOriginHHGActualAddress" {
-			println(paramKeyName)
-		}
 		lookup, ok := paramKeyLookups[paramKeyName]
 		if !ok {
 			return nil, fmt.Errorf("no lookup was found for service item param key name %s", paramKeyName)
