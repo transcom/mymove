@@ -144,6 +144,12 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 				if verrs.HasAny() || createErr != nil {
 					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+					cleanupErr := h.WeightTicketGenerator.CleanupFile(aFile)
+
+					if cleanupErr != nil {
+						appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(cleanupErr), zap.String("verrs", verrs.Error()))
+						return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+					}
 					switch createErr.(type) {
 					case uploaderpkg.ErrTooLarge:
 						return uploadop.NewCreateUploadRequestEntityTooLarge(), rollbackErr
