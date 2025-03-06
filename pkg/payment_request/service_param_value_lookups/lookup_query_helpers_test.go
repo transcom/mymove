@@ -17,10 +17,8 @@ func (suite *ServiceParamValueLookupsSuite) TestLookupQueryHelpers() {
 
 	zip3 := testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 		ReZip3: models.ReZip3{
-			Contract:            domesticServiceArea.Contract,
-			ContractID:          domesticServiceArea.ContractID,
-			DomesticServiceArea: domesticServiceArea,
-			Zip3:                "350",
+			ContractID: domesticServiceArea.ContractID,
+			Zip3:       "350",
 		},
 	})
 	dsa, err := fetchDomesticServiceArea(suite.AppContextForTest(), zip3.Contract.Code, zip3.Zip3)

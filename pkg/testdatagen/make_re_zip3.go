@@ -47,7 +47,7 @@ func FetchOrMakeReZip3(db *pop.Connection, assertions Assertions) models.ReZip3 
 		contractYear = assertions.ReContractYear
 	}
 	var reZip3 models.ReZip3
-	err := db.Eager("Contract").Where("re_zip3s.contract_id = ? AND re_zip3s.zip3 = ?", contractYear.ContractID, reZip3.Zip3).First(&reZip3)
+	err := db.Where("re_zip3s.contract_id = ? AND re_zip3s.zip3 = ?", contractYear.ContractID, reZip3.Zip3).First(&reZip3)
 
 	if err != nil && err != sql.ErrNoRows {
 		log.Panic(err)
