@@ -1,6 +1,7 @@
 export const generalRoutes = {
   HOME_PATH: '/',
   SIGN_IN_PATH: '/sign-in',
+  SIGN_UP_PATH: '/sign-up',
   REQUEST_ACCOUNT: '/request-account',
   PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',
@@ -199,4 +200,5 @@ export const primeSimulatorRoutes = {
 
 export const adminRoutes = {
   HOME_PATH: '/',
+  REJECTED_OFFICE_USERS: '/system/rejected-office-users',
 };
