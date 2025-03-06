@@ -241,6 +241,7 @@ export const FEATURE_FLAG_KEYS = {
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
   ENABLE_ALASKA: 'enable_alaska',
   BULK_ASSIGNMENT: 'bulk_assignment',
+  CUSTOMER_REGISTRATION: 'customer_registration',
 };
 
 export const MOVE_DOCUMENT_TYPE = {

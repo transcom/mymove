@@ -589,8 +589,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		// nolint:staticcheck
 		pdf, dirPath, err := paymentPacketCreator.Generate(appCtx, ppmShipment.ID, true, false)
 		suite.FatalNil(err)
-
-		//nolint:staticcheck
+		// nolint:staticcheck
 		bookmarks := extractBookmarks(suite, *generator, pdf)
 		suite.T().Skip(`Skipping test - after HDT 2617 patched negative seeking
 		this now errors due to the context not having outlines which is likely from the
