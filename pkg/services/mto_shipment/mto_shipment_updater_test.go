@@ -4081,11 +4081,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 
 		suite.Error(err)
 		suite.Nil(updatedMTOShipment)
-		suite.Equal("Could not complete query related to object of type: mtoShipment.", err.Error())
-		suite.IsType(apperror.QueryError{}, err)
-		queryErr := err.(apperror.QueryError)
-		wrappedErr := queryErr.Unwrap()
-		suite.Equal(fmt.Sprintf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID), wrappedErr.Error())
+		suite.Equal(fmt.Sprintf("Invalid input found while updating the shipment. error fetching pickup rate area id for address ID: %s", pickupAddress.ID), err.Error())
 	})
 
 	suite.Run("errors when rate area for the destination address is not found", func() {
@@ -4185,10 +4181,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 
 		suite.Error(err)
 		suite.Nil(updatedMTOShipment)
-		suite.Equal("Could not complete query related to object of type: mtoShipment.", err.Error())
-		suite.IsType(apperror.QueryError{}, err)
-		queryErr := err.(apperror.QueryError)
-		wrappedErr := queryErr.Unwrap()
-		suite.Equal(fmt.Sprintf("error fetching destination rate area id for address ID: %s", destinationAddress.ID), wrappedErr.Error())
+		suite.Equal(fmt.Sprintf("Invalid input found while updating the shipment. error fetching destination rate area id for address ID: %s", destinationAddress.ID), err.Error())
 	})
 }
