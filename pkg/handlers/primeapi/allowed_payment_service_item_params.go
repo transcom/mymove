@@ -73,6 +73,9 @@ var (
 		models.ReServiceCodeIHPK: {
 			models.ServiceItemParamNameWeightBilled,
 		},
+		models.ReServiceCodeINPK: {
+			models.ServiceItemParamNameWeightBilled,
+		},
 		models.ReServiceCodeIHUPK: {
 			models.ServiceItemParamNameWeightBilled,
 		},

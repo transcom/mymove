@@ -18,7 +18,7 @@ type intlNTSHHGPackPricer struct {
 	basePricer services.IntlHHGPackPricer
 }
 
-func NewIntlNTSHHGPackPricer(basePricer services.IntlHHGPackPricer) services.IntlHHGPackPricer {
+func NewIntlNTSHHGPackPricer(basePricer services.IntlHHGPackPricer) services.IntlNTSHHGPackPricer {
 	return &intlNTSHHGPackPricer{
 		basePricer,
 	}
@@ -87,6 +87,7 @@ func (p *intlNTSHHGPackPricer) PriceUsingParams(
 	}
 
 	// Now we get the factor itself
+	// TODO: Make this a service param lookup
 	factor, err := models.FetchMarketFactor(appCtx, contract.ID, inpk.ID, "O")
 	if err != nil {
 		return 0, nil, err
