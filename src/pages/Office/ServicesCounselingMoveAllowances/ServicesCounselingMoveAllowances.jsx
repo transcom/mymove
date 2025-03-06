@@ -53,6 +53,18 @@ const validationSchema = Yup.object({
       otherwise: (schema) => schema.notRequired().nullable(),
     }),
   adminRestrictedWeightLocation: Yup.boolean().notRequired(),
+  ubWeightRestriction: Yup.number()
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .when('adminRestrictedUBWeightLocation', {
+      is: true,
+      then: (schema) =>
+        schema
+          .min(1, 'UB weight restriction must be greater than 0')
+          .max(2000, 'UB weight restriction cannot exceed 2,000 lbs')
+          .required('UB weight restriction is required when Admin Restricted UB Weight Location is enabled'),
+      otherwise: (schema) => schema.notRequired().nullable(),
+    }),
+  adminRestrictedUBWeightLocation: Yup.boolean().notRequired(),
 });
 const ServicesCounselingMoveAllowances = () => {
   const { moveCode } = useParams();
@@ -90,7 +102,6 @@ const ServicesCounselingMoveAllowances = () => {
     const {
       grade,
       agency,
-      dependentsAuthorized,
       proGearWeight,
       proGearWeightSpouse,
       requiredMedicalEquipmentWeight,
@@ -99,6 +110,8 @@ const ServicesCounselingMoveAllowances = () => {
       gunSafe,
       adminRestrictedWeightLocation,
       weightRestriction,
+      adminRestrictedUBWeightLocation,
+      ubWeightRestriction,
       accompaniedTour,
       dependentsTwelveAndOver,
       dependentsUnderTwelve,
@@ -112,7 +125,6 @@ const ServicesCounselingMoveAllowances = () => {
       reportByDate: order.report_by_date,
       grade,
       agency,
-      dependentsAuthorized,
       proGearWeight: Number(proGearWeight),
       proGearWeightSpouse: Number(proGearWeightSpouse),
       requiredMedicalEquipmentWeight: Number(requiredMedicalEquipmentWeight),
@@ -120,6 +132,7 @@ const ServicesCounselingMoveAllowances = () => {
       organizationalClothingAndIndividualEquipment,
       gunSafe,
       weightRestriction: adminRestrictedWeightLocation && weightRestriction ? Number(weightRestriction) : null,
+      ubWeightRestriction: adminRestrictedUBWeightLocation && ubWeightRestriction ? Number(ubWeightRestriction) : null,
       accompaniedTour,
       dependentsTwelveAndOver: Number(dependentsTwelveAndOver),
       dependentsUnderTwelve: Number(dependentsUnderTwelve),
@@ -129,13 +142,13 @@ const ServicesCounselingMoveAllowances = () => {
 
   const { entitlement, grade, agency } = order;
   const {
-    dependentsAuthorized,
     proGearWeight,
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
     gunSafe,
     weightRestriction,
+    ubWeightRestriction,
     storageInTransit,
     dependentsUnderTwelve,
     dependentsTwelveAndOver,
@@ -145,7 +158,6 @@ const ServicesCounselingMoveAllowances = () => {
   const initialValues = {
     grade,
     agency,
-    dependentsAuthorized,
     proGearWeight: `${proGearWeight}`,
     proGearWeightSpouse: `${proGearWeightSpouse}`,
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
@@ -153,6 +165,8 @@ const ServicesCounselingMoveAllowances = () => {
     gunSafe,
     adminRestrictedWeightLocation: weightRestriction > 0,
     weightRestriction: weightRestriction ? `${weightRestriction}` : '0',
+    adminRestrictedUBWeightLocation: ubWeightRestriction > 0,
+    ubWeightRestriction: ubWeightRestriction ? `${ubWeightRestriction}` : '0',
     organizationalClothingAndIndividualEquipment,
     accompaniedTour,
     dependentsUnderTwelve: `${dependentsUnderTwelve}`,
