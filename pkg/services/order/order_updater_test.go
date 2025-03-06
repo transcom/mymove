@@ -550,7 +550,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	})
 
 	suite.Run("Updating order grade to civilian changes submitted PPMs to PPM type ACTUAL_EXPENSE", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
