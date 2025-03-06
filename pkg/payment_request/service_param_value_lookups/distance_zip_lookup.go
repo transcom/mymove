@@ -135,17 +135,17 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		totalDistanceMiles = distanceMiles
 	} else if hasApprovedDestinationSIT {
 		// from pickup zip to delivery zip
-		totalDistanceMiles, err = planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, isInternationalShipment)
+		totalDistanceMiles, err = planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
 		if err != nil {
 			return "", err
 		}
 		// from pickup zip to Destination SIT zip
-		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip, isInternationalShipment)
+		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
 		if err != nil {
 			return "", err
 		}
 	} else {
-		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip, isInternationalShipment)
+		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
 		if err != nil {
 			return "", err
 		}
