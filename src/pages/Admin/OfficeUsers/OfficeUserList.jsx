@@ -69,7 +69,7 @@ const filterList = [
   <TextInput label="Email" source="email" />,
   <TextInput label="First Name" source="firstName" />,
   <TextInput label="Last Name" source="lastName" />,
-  <TextInput label="Office" source="offices" />,
+  <TextInput label="Office" source="office" />,
   <TextInput label="Active" source="active" placeholder="yes or no" />,
 ];
 

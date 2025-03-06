@@ -141,7 +141,7 @@ var officeUserFilterConverters = map[string]func(string) func(*pop.Query){
 			query.Where("office_users.last_name ILIKE ? AND office_users.status = 'APPROVED'", lastNameSearch)
 		}
 	},
-	"offices": func(content string) func(*pop.Query) {
+	"office": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
 			officeSearch := fmt.Sprintf("%%%s%%", content)
 			query.Where("transportation_offices.name ILIKE ? AND office_users.status = 'APPROVED'", officeSearch)
