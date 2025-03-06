@@ -903,6 +903,7 @@ commands:
             export FEATURE_FLAG_ENABLE_HAWAII=false
             export FEATURE_FLAG_BULK_ASSIGNMENT=false
             export FEATURE_FLAG_CUSTOMER_REGISTRATION=false
+            export FEATURE_FLAG_DODID_UNIQUE=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
@@ -948,6 +949,7 @@ commands:
             FEATURE_FLAG_ENABLE_ALASKA: 'false'
             FEATURE_FLAG_BULK_ASSIGNMENT: 'false'
             FEATURE_FLAG_CUSTOMER_REGISTRATION: 'false'
+            FEATURE_FLAG_DODID_UNIQUE: 'false'
 
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))

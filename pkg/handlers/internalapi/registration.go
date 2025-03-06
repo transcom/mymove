@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -48,48 +49,99 @@ func (h CustomerRegistrationHandler) Handle(params registrationop.CustomerRegist
 				return registrationop.NewCustomerRegistrationUnprocessableEntity().WithPayload(errPayload), apperror.NewSessionError("Error")
 			}
 
-			var serviceMember models.ServiceMember
 			transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 				oktaSub := oktaUser.ID
 				payload := params.Registration
-				user, userErr := models.CreateUser(appCtx.DB(), oktaSub, payload.Email)
+
+				var user *models.User
+				user, userErr := models.GetUserFromOktaID(appCtx.DB(), oktaSub)
 				if userErr != nil {
-					appCtx.Logger().Error("error creating user", zap.Error(userErr))
+					appCtx.Logger().Error("error fetching user", zap.Error(userErr))
 					return userErr
+				}
+
+				// if user doesn't exist, we need to create one
+				if user == nil {
+					user, userErr = models.CreateUser(appCtx.DB(), oktaSub, payload.Email)
+					if userErr != nil {
+						appCtx.Logger().Error("error creating user", zap.Error(userErr))
+						return userErr
+					}
 				}
 
 				userID := user.ID
 
-				// Create a new serviceMember using the userID
-				serviceMember = models.ServiceMember{
-					UserID:             userID,
-					Edipi:              payload.Edipi,
-					Emplid:             payload.Emplid,
-					Affiliation:        (*models.ServiceMemberAffiliation)(payload.Affiliation),
-					FirstName:          &payload.FirstName,
-					MiddleName:         payload.MiddleInitial,
-					LastName:           &payload.LastName,
-					Telephone:          &payload.Telephone,
-					SecondaryTelephone: &payload.SecondaryTelephone,
-					PersonalEmail:      &payload.Email,
-					PhoneIsPreferred:   &payload.PhoneIsPreferred,
-					EmailIsPreferred:   &payload.EmailIsPreferred,
-				}
-
-				// create the service member and save to the db
-				smVerrs, smErr := models.SaveServiceMember(appCtx, &serviceMember)
-				if smVerrs.HasAny() || smErr != nil {
+				// now we need to see if the service member exists based off of the user id we have now
+				existingServiceMember, smErr := models.FetchServiceMemberByUserID(appCtx.DB(), userID.String())
+				if smErr != sql.ErrNoRows && smErr != nil {
 					appCtx.Logger().Error("error creating service member", zap.Error(smErr))
 					return smErr
+				}
+
+				// evaluating feature flag to see if we need to check if the DODID exists already
+				var dodidUniqueFeatureFlag bool
+				featureFlagName := "dodid_unique"
+				flag, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "customer", featureFlagName, map[string]string{})
+				if err != nil {
+					appCtx.Logger().Error("Error fetching dodid_unique feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+					dodidUniqueFeatureFlag = false
+				} else {
+					dodidUniqueFeatureFlag = flag.Match
+				}
+
+				var serviceMembers []models.ServiceMember
+				if dodidUniqueFeatureFlag {
+					query := `SELECT service_members.edipi
+								FROM service_members
+								WHERE service_members.edipi = $1`
+					err := appCtx.DB().RawQuery(query, payload.Edipi).All(&serviceMembers)
+					if err != nil {
+						errorMsg := apperror.NewBadDataError("error when checking for existing service member")
+						return errorMsg
+					} else if len(serviceMembers) > 0 {
+						errorMsg := apperror.NewConflictError(h.GetTraceIDFromRequest(params.HTTPRequest), "Service member with this DODID already exists. Please use a different DODID number.")
+						return errorMsg
+					}
+				}
+
+				// if we do not have a service member, we can now create one
+				if existingServiceMember == nil {
+					serviceMember := models.ServiceMember{
+						UserID:             userID,
+						Edipi:              payload.Edipi,
+						Emplid:             payload.Emplid,
+						Affiliation:        (*models.ServiceMemberAffiliation)(payload.Affiliation),
+						FirstName:          &payload.FirstName,
+						MiddleName:         payload.MiddleInitial,
+						LastName:           &payload.LastName,
+						Telephone:          &payload.Telephone,
+						SecondaryTelephone: &payload.SecondaryTelephone,
+						PersonalEmail:      &payload.Email,
+						PhoneIsPreferred:   &payload.PhoneIsPreferred,
+						EmailIsPreferred:   &payload.EmailIsPreferred,
+					}
+					smVerrs, smErr := models.SaveServiceMember(appCtx, &serviceMember)
+					if smVerrs.HasAny() || smErr != nil {
+						appCtx.Logger().Error("error updating service member", zap.Error(smErr))
+						return smErr
+					}
+
+					return nil
 				}
 
 				return nil
 			})
 
 			if transactionError != nil {
+				appCtx.Logger().Error("error occurred while service member tried to register an account", zap.Error(transactionError))
+				errPayload := payloads.ValidationError(
+					transactionError.Error(),
+					h.GetTraceIDFromRequest(params.HTTPRequest),
+					nil,
+				)
 				switch transactionError.(type) {
 				case *pq.Error:
-					return registrationop.NewCustomerRegistrationUnprocessableEntity(), transactionError
+					return registrationop.NewCustomerRegistrationUnprocessableEntity().WithPayload(errPayload), transactionError
 				default:
 					return registrationop.NewCustomerRegistrationInternalServerError(), transactionError
 				}
@@ -99,7 +151,8 @@ func (h CustomerRegistrationHandler) Handle(params registrationop.CustomerRegist
 		})
 }
 
-// createOktaProfile sends a request to the Okta Users API
+// fetchOrCreateOktaProfile send some requests to the Okta Users API
+// handles seeing if an okta user already exists with the form data, if not - it will then create one
 // this creates a user in Okta assigned to the customer group (allowing access to the customer application)
 func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params registrationop.CustomerRegistrationParams) (*models.CreatedOktaUser, error) {
 	// setting viper so we can access the api key in the env vars
@@ -117,28 +170,13 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params registrationo
 	oktaPhone := payload.Telephone
 	oktaEdipi := payload.Edipi
 
-	// Creating the Profile struct
-	profile := models.Profile{
-		FirstName:   oktaFirstName,
-		LastName:    oktaLastName,
-		Email:       oktaEmail,
-		Login:       oktaEmail,
-		MobilePhone: oktaPhone,
-		CacEdipi:    *oktaEdipi,
-	}
-
-	// Creating the OktaUserPayload struct
-	oktaPayload := models.OktaUserPayload{
-		Profile:  profile,
-		GroupIds: []string{customerGroupID},
-	}
-
-	// getting okta domain url for request
+	// getting the right okta provider
 	provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
 	if err != nil {
 		return nil, err
 	}
 
+	// OKTA ACCOUNT FETCHING //
 	// build the search filter according to Okta's syntax
 	searchFilter := fmt.Sprintf(`profile.email eq "%s" or profile.cac_edipi eq "%s"`, oktaEmail, *oktaEdipi)
 	getUsersURL := provider.GetUsersURL()
@@ -185,8 +223,8 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params registrationo
 		return nil, err
 	}
 
-	// checking if we have existing or conflicts okta users in our organization based on form values
-	// existing edipi & email that match -> send back that okta user
+	// checking if we have existing or conflicts okta users in our organization based on submitted form values
+	// existing edipi & email that match -> send back that okta user, we don't need to create
 	// existing email but edipi doesn't match that profile -> send back an error
 	// existing edipi but email doesn't match that profile -> send back an error
 	if len(users) > 0 {
@@ -195,25 +233,30 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params registrationo
 		emailMatch := false
 		edipiMatch := false
 		for i, user := range users {
-			// check for an exact match (both email/edipi match on the okta account)
-			if user.Profile.Email == oktaEmail && *user.Profile.CacEdipi == *oktaEdipi {
-				exactMatch = true
-				oktaUser = &users[i]
-				break
+			if oktaEmail != "" && oktaEdipi != nil && user.Profile.Email != "" && user.Profile.CacEdipi != nil {
+				if user.Profile.Email == oktaEmail && *user.Profile.CacEdipi == *oktaEdipi {
+					exactMatch = true
+					oktaUser = &users[i]
+					break
+				}
 			}
-			if user.Profile.Email == oktaEmail {
-				emailMatch = true
+			if oktaEmail != "" && user.Profile.Email != "" {
+				if user.Profile.Email == oktaEmail {
+					emailMatch = true
+				}
 			}
-			if *user.Profile.CacEdipi == *oktaEdipi {
-				edipiMatch = true
+			if oktaEdipi != nil && user.Profile.CacEdipi != nil {
+				if *user.Profile.CacEdipi == *oktaEdipi {
+					edipiMatch = true
+				}
 			}
 		}
 
-		// if we found an exact match, return it
 		if exactMatch {
 			return oktaUser, nil
 		}
 
+		// if we get more than one result, we need to handle the error returns differently than if we just have one existing okta user but not an exact match
 		if emailMatch && !edipiMatch && len(users) > 1 {
 			return nil, fmt.Errorf("email and DoD IDs match different users - please open up a help desk ticket")
 		} else if emailMatch && !edipiMatch && len(users) == 1 {
@@ -226,13 +269,34 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params registrationo
 			return nil, fmt.Errorf("there is an existing okta account with that DoD ID (EDIPI) - please update the email in your okta profile to match your registration email and try registering again")
 		}
 
+		// if we get an email & edipi match on two different users and NOT an exact match, we need them to open a HDT
+		if emailMatch && edipiMatch && len(users) > 1 {
+			return nil, fmt.Errorf("there are multiple okta accounts with that email and DoD ID - please open up a help desk ticket")
+		}
+
 		return nil, fmt.Errorf("okta account creation error - please open up a help desk ticket")
 	}
 
-	// now we will create the okta account since it doesn't exist
-	// getting the api call url from provider.go
+	// OKTA ACCOUNT CREATION //
+	// now we will create the okta account since we now know it doesn't exist with our unique values (email/edipi)
+	// active = true meanas that the user will get an activation email from Okta
 	activate := "true"
 	baseURL := provider.GetCreateUserURL(activate)
+
+	profile := models.Profile{
+		FirstName:   oktaFirstName,
+		LastName:    oktaLastName,
+		Email:       oktaEmail,
+		Login:       oktaEmail,
+		MobilePhone: oktaPhone,
+		CacEdipi:    *oktaEdipi,
+	}
+
+	// okta needs a certain structure in the request, assigning the user to the customer app
+	oktaPayload := models.OktaUserPayload{
+		Profile:  profile,
+		GroupIds: []string{customerGroupID},
+	}
 
 	body, err := json.Marshal(oktaPayload)
 	if err != nil {
@@ -253,7 +317,6 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params registrationo
 	h.Add("Accept", "application/json")
 	h.Add("Content-Type", "application/json")
 
-	// now let the client send the request
 	client = &http.Client{}
 	resp, err = client.Do(req)
 	if err != nil {
@@ -261,7 +324,6 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params registrationo
 		return nil, err
 	}
 
-	// if all is well, should have a 200 response
 	response, err = io.ReadAll(resp.Body)
 	if err != nil {
 		appCtx.Logger().Error("could not read response body", zap.Error(err))

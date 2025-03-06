@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Grid, GridContainer, Alert, Button, Label } from '@trussworks/react-uswds';
 import { Form, Formik } from 'formik';
 import classNames from 'classnames';
@@ -25,6 +25,7 @@ import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/gene
 import RegistrationConfirmationModal from 'components/RegistrationConfirmationModal/RegistrationConfirmationModal';
 import { registerUser } from 'services/internalApi';
 import Hint from 'components/Hint';
+import { technicalHelpDeskURL } from 'shared/constants';
 
 export const SignUp = ({ setShowLoadingSpinner }) => {
   const navigate = useNavigate();
@@ -43,6 +44,8 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
 
   // timer that shows the CAC modal as soon as the component renders
   useEffect(() => {
+    setServerError(false);
+    setShowHint(false);
     setIsConfirmationModalVisible(false);
     const timer = setTimeout(() => {
       setIsCACModalVisible(true);
@@ -201,7 +204,7 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
               validateOnBlur
               validationSchema={validationSchema}
             >
-              {({ isValid, values, setValues, handleChange }) => {
+              {({ isSubmitting, isValid, values, setValues, handleChange }) => {
                 const handleBranchChange = (e) => {
                   if (e.target.value === departmentIndicators.COAST_GUARD) {
                     setShowEmplid(true);
@@ -237,6 +240,13 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                             <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
                               <strong> clicking this link</strong>.
                             </a>
+                            <br />
+                            <br />
+                            If you continue to have issues with registration <br />
+                            please contact the&nbsp;
+                            <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                              Technical Help Desk
+                            </Link>
                           </Hint>
                         )}
                       </div>
@@ -348,7 +358,7 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                     </SectionWrapper>
 
                     <div className={styles.buttonRow}>
-                      <Button type="submit" disabled={!isValid} data-testid="submitBtn">
+                      <Button type="submit" disabled={!isValid || isSubmitting} data-testid="submitBtn">
                         Submit
                       </Button>
                       <Button type="button" onClick={handleCancel} secondary data-testid="cancelBtn">
