@@ -13,7 +13,6 @@ func (suite *ServiceParamValueLookupsSuite) TestLookupQueryHelpers() {
 			ServiceArea:      "004",
 			ServicesSchedule: 2,
 		},
-		ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
 	})
 
 	zip3 := testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
