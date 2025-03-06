@@ -59,6 +59,11 @@ properties:
     type: integer
     x-formatting: weight
     x-nullable: true
+  ubWeightRestriction:
+    example: 1200
+    type: integer
+    x-formatting: weight
+    x-nullable: true
   eTag:
     type: string
     readOnly: true

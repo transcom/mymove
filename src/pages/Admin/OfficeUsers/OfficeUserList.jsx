@@ -52,7 +52,14 @@ const ListActions = () => {
     <TopToolbar>
       <CreateButton />
       <ImportOfficeUserButton resource={resource} />
-      <ExportButton disabled={total === 0} resource={resource} sort={sort} filter={filterValues} exporter={exporter} />
+      <ExportButton
+        disabled={total === 0}
+        resource={resource}
+        sort={sort}
+        filter={filterValues}
+        exporter={exporter}
+        maxResults={total}
+      />
     </TopToolbar>
   );
 };
