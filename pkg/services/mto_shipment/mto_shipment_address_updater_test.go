@@ -19,7 +19,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
@@ -91,6 +90,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				Type:     &factory.Addresses.DeliveryAddress,
 				LinkOnly: true,
 			},
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
 		}, nil)
 
 		threeMonthsAgo := time.Now().AddDate(0, -3, 0)
@@ -143,6 +147,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				Type:     &factory.Addresses.DeliveryAddress,
 				LinkOnly: true,
 			},
+			{
+				Model:    address,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
 		}, nil)
 
 		threeMonthsAgo := time.Now().AddDate(0, -3, 0)
@@ -170,7 +179,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(465, nil)
 		mtoServiceItems, _ := UpdateOriginSITServiceItemSITDeliveryMiles(planner, &externalShipment, &newAddress, &oldAddress, suite.AppContextForTest())
 		suite.Equal(2, len(*mtoServiceItems))

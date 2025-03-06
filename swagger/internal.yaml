@@ -2975,6 +2975,15 @@ definitions:
       - id
       - service_member_id
       - uploads
+  PPMType:
+    type: string
+    title: PPM Type
+    description: Defines a PPM type
+    readOnly: true
+    enum:
+      - INCENTIVE_BASED
+      - ACTUAL_EXPENSE
+      - SMALL_PACKAGE
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
@@ -3606,6 +3615,8 @@ definitions:
         format: uuid
         type: string
         readOnly: true
+      ppmType:
+        $ref: '#/definitions/PPMType'
       shipmentId:
         description: The id of the parent MTOShipment object
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
