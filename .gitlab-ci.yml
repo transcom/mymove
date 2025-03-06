@@ -928,7 +928,6 @@ client_test:
   script:
     - echo "client test coverage"
     - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false >> $CI_PROJECT_DIR/coverage.output
-  allow_failure: $CLIENT_TEST_ALLOW_FAILURE
   artifacts:
     when: always
     reports:
