@@ -6,6 +6,7 @@ import { mount } from 'enzyme';
 import moment from 'moment';
 import { generatePath, MemoryRouter } from 'react-router-dom';
 import { v4 } from 'uuid';
+import { Provider } from 'react-redux';
 
 import { Home } from './index';
 
@@ -24,6 +25,9 @@ import {
   createSubmittedPPMShipment,
 } from 'utils/test/factories/ppmShipment';
 import { downloadPPMAOAPacket } from 'services/internalApi';
+import { configureStore } from 'shared/store';
+
+const mockStore = configureStore({});
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -578,12 +582,20 @@ describe('Home component', () => {
       });
 
       it('renders Manage your PPM Step', () => {
-        render(<Home {...props} />);
+        render(
+          <MockProviders>
+            <Home {...props} />
+          </MockProviders>,
+        );
         expect(screen.getByText('Manage your PPM')).toBeInTheDocument();
       });
 
       it('add shipments button no longer present', () => {
-        render(<Home {...props} />);
+        render(
+          <MockProviders>
+            <Home {...props} />
+          </MockProviders>,
+        );
         expect(screen.queryByRole('button', { name: 'Add another shipment' })).not.toBeInTheDocument();
       });
     });
@@ -592,7 +604,11 @@ describe('Home component', () => {
       it('renders advance request submitted for PPM', () => {
         const mtoShipments = [submittedPPMShipment];
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
-        render(<Home {...props} />);
+        render(
+          <MockProviders>
+            <Home {...props} />
+          </MockProviders>,
+        );
         expect(screen.getByText('Advance request submitted')).toBeInTheDocument();
       });
 
@@ -601,7 +617,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -616,7 +634,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -631,7 +651,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -647,7 +669,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -671,7 +695,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -704,7 +730,9 @@ describe('Home component', () => {
 
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
 
@@ -819,12 +847,20 @@ describe('Home component', () => {
       });
 
       it('renders Manage your PPM Step', () => {
-        render(<Home {...props} />);
+        render(
+          <MockProviders>
+            <Home {...props} />
+          </MockProviders>,
+        );
         expect(screen.getByText('Manage your PPM')).toBeInTheDocument();
       });
 
       it('add shipments button no longer present', () => {
-        render(<Home {...props} />);
+        render(
+          <MockProviders>
+            <Home {...props} />
+          </MockProviders>,
+        );
         expect(screen.queryByRole('button', { name: 'Add another shipment' })).not.toBeInTheDocument();
       });
     });
@@ -970,7 +1006,10 @@ describe('Home component', () => {
           }),
         ],
       ])('will route the user to the %s', async (scenarioDescription, mtoShipments, expectedRoute) => {
-        renderWithRouterProp(<Home {...props} mtoShipments={mtoShipments} />, { navigate: mockNavigate });
+        renderWithRouterProp(<Home {...props} mtoShipments={mtoShipments} />, {
+          navigate: mockNavigate,
+          includeProviders: MockProviders,
+        });
 
         await userEvent.click(screen.getByRole('button', { name: 'Upload PPM Documents' }));
 
