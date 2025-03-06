@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { connect } from 'react-redux';
 import { GridContainer, Button } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
@@ -95,8 +95,6 @@ const TableQueue = ({
   const [isBulkAssignModalVisible, setIsBulkAssignModalVisible] = useState(false);
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
-
-  const prevFiltersRef = useRef();
 
   const gblocContext = useContext(SelectedGblocContext);
   const { selectedGbloc } =
@@ -199,10 +197,10 @@ const TableQueue = ({
 
       // Save to cache.
       setTableQueueFilterSessionStorageValue(sessionStorageKey, filters);
+
       setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));
-      prevFiltersRef.current = filters;
     }
   }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, isPageReload, sessionStorageKey]);
 
