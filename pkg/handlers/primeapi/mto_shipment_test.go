@@ -32,10 +32,12 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 	req := httptest.NewRequest("POST", "/mto-shipments/{mtoShipmentID}/shipment-address-updates", nil)
+	vLocationServices := address.NewVLocation()
 
 	makeSubtestData := func() mtoshipmentops.UpdateShipmentDestinationAddressParams {
 		contractorRemark := "This is a contractor remark"
@@ -57,12 +59,130 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		return params
 
 	}
+
+	suite.Run("POST failure - 500 Internal Server GetLocationsByZipCityState returns error", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+
+		expectedError := models.ErrFetchNotFound
+		vLocationFetcher := &mocks.VLocation{}
+		vLocationFetcher.On("GetLocationsByZipCityState",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, expectedError).Once()
+
+		handler := UpdateShipmentDestinationAddressHandler{
+			HandlerConfig:                  suite.HandlerConfig(),
+			ShipmentAddressUpdateRequester: &mockCreator,
+			VLocation:                      vLocationFetcher,
+		}
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressInternalServerError{}, response)
+	})
+
+	suite.Run("POST failure - 422 Unprocessable Entity Error Invalid Address", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		vLocationServices := address.NewVLocation()
+		handler := UpdateShipmentDestinationAddressHandler{
+			suite.HandlerConfig(),
+			&mockCreator,
+			vLocationServices,
+		}
+
+		subtestData.Body.NewAddress.City = handlers.FmtString("Bad City")
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
+	})
+
+	suite.Run("POST failure - 422 Unprocessable Entity Error Valid AK Address FF off", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		vLocationServices := address.NewVLocation()
+
+		// setting the AK flag to false and use a valid address
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		handler := UpdateShipmentDestinationAddressHandler{
+			handlerConfig,
+			&mockCreator,
+			vLocationServices,
+		}
+
+		subtestData.Body.NewAddress.City = handlers.FmtString("JUNEAU")
+		subtestData.Body.NewAddress.State = handlers.FmtString("AK")
+		subtestData.Body.NewAddress.PostalCode = handlers.FmtString("99801")
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
+	})
+
+	suite.Run("POST failure - 422 Unprocessable Entity Error Valid HI Address FF off", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		vLocationServices := address.NewVLocation()
+
+		// setting the AK flag to false and use a valid address
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_hawaii",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		handler := UpdateShipmentDestinationAddressHandler{
+			handlerConfig,
+			&mockCreator,
+			vLocationServices,
+		}
+
+		subtestData.Body.NewAddress.City = handlers.FmtString("HONOLULU")
+		subtestData.Body.NewAddress.State = handlers.FmtString("HI")
+		subtestData.Body.NewAddress.PostalCode = handlers.FmtString("96835")
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
+	})
+
 	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
+			vLocationServices,
 		}
 		// InvalidInputError should generate an UnprocessableEntity response error
 		// Need verrs incorporated to satisfy swagger validation
@@ -95,6 +215,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
+			vLocationServices,
 		}
 		// NewConflictError should generate a RequestConflict response error
 		err := apperror.NewConflictError(uuid.Nil, "unable to create ShipmentAddressUpdate")
@@ -125,6 +246,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
+			vLocationServices,
 		}
 		// NewNotFoundError should generate a RequestNotFound response error
 		err := apperror.NewNotFoundError(uuid.Nil, "unable to create ShipmentAddressUpdate")
@@ -155,6 +277,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
+			vLocationServices,
 		}
 		// NewQueryError should generate an InternalServerError response error
 		err := apperror.NewQueryError("", nil, "unable to reach database")
@@ -208,7 +331,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		false,
 	).Return(400, nil)
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
@@ -413,7 +536,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	setupTestData := func() DeleteMTOShipmentHandler {
 		builder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),

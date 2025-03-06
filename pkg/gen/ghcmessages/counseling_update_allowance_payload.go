@@ -26,9 +26,6 @@ type CounselingUpdateAllowancePayload struct {
 	// agency
 	Agency *Affiliation `json:"agency,omitempty"`
 
-	// dependents authorized
-	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
-
 	// Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
 	// Example: 3
 	DependentsTwelveAndOver *int64 `json:"dependentsTwelveAndOver,omitempty"`
@@ -70,6 +67,10 @@ type CounselingUpdateAllowancePayload struct {
 	// ub allowance
 	// Example: 500
 	UbAllowance *int64 `json:"ubAllowance,omitempty"`
+
+	// Indicates the UB weight restriction for the move to a particular location.
+	// Example: 1500
+	UbWeightRestriction *int64 `json:"ubWeightRestriction,omitempty"`
 
 	// Indicates the weight restriction for a move to a particular location.
 	// Example: 1500
