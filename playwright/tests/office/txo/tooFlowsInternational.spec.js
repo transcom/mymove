@@ -254,4 +254,78 @@ test.describe('TOO user', () => {
       requestedServiceItemCount = await getServiceItemsInTable(requestedServiceItemsTable).count();
     });
   });
+
+  test('approves a delivery address change request for an international HHG shipment', async ({ page, officePage }) => {
+    const originalStreet = 'Alaska Zone II St.';
+    const originalCity = 'North Pole';
+    const originalZip = '99705';
+    const updatedStreet = 'Another Cold St.';
+    const updatedCity = 'Juneau';
+    const updatedZip = '99811';
+    const move = await officePage.testHarness.buildIntlHHGMoveDestAddressRequestedAKZone2AirForce();
+    await officePage.signInAsNewTOOUser();
+    const moveLocator = move.locator;
+    tooFlowPage = new TooFlowPage(officePage, move);
+    await tooFlowPage.waitForLoading();
+    await officePage.tooNavigateToMove(moveLocator);
+
+    await expect(page.getByTestId('destinationAddress')).toContainText('Review required');
+
+    // Edit the shipment
+    await page.getByRole('button', { name: 'Edit shipment' }).click();
+    await expect(
+      page.getByTestId('alert').getByText('Request needs review. See delivery address to proceed.'),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByTestId('alert')
+        .getByText('Pending delivery address change request needs review. Review request to proceed.'),
+    ).toBeVisible();
+    const originalDeliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
+    await expect(originalDeliveryAddress.getByTestId('delivery.address.streetAddress1')).toHaveValue(originalStreet);
+    await expect(originalDeliveryAddress.getByTestId('City')).toHaveText(originalCity);
+    await expect(originalDeliveryAddress.getByTestId('State')).toHaveText('AK');
+    await expect(originalDeliveryAddress.getByTestId('ZIP')).toHaveText(originalZip);
+
+    // click to trigger review modal
+    await page.getByRole('button', { name: 'Review request' }).click();
+    await expect(page.getByTestId('modal')).toBeVisible();
+
+    await expect(page.getByTestId('two-line-address').nth(0)).toContainText(originalStreet);
+    await expect(page.getByTestId('two-line-address').nth(0)).toContainText(originalCity);
+    await expect(page.getByTestId('two-line-address').nth(0)).toContainText(originalZip);
+    await expect(page.getByTestId('two-line-address').nth(1)).toContainText(updatedStreet);
+    await expect(page.getByTestId('two-line-address').nth(1)).toContainText(updatedCity);
+    await expect(page.getByTestId('two-line-address').nth(1)).toContainText(updatedZip);
+
+    // Enter information in modal and submit
+    await page.getByTestId('modal').getByTestId('radio').getByText('Yes').click();
+    await page
+      .getByTestId('modal')
+      .locator('textarea')
+      .fill('Approved for test TOO user approves a delivery address change request for an international HHG shipment');
+
+    // Click save on the modal
+    await page.getByTestId('modal').getByRole('button', { name: 'Save' }).click();
+    await expect(page.getByTestId('modal')).not.toBeVisible();
+
+    await expect(page.getByText('Changes sent to contractor.')).toBeVisible();
+    const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
+    await expect(deliveryAddress.getByTestId('delivery.address.streetAddress1')).toHaveValue(updatedStreet);
+    await expect(deliveryAddress.getByTestId('City')).toHaveText(updatedCity);
+    await expect(deliveryAddress.getByTestId('State')).toHaveText('AK');
+    await expect(deliveryAddress.getByTestId('ZIP')).toHaveText(updatedZip);
+
+    // Click cancel on the Edit Shipment page
+    await page.getByRole('button', { name: 'Cancel' }).click();
+
+    await expect(page.getByText('Update request details')).not.toBeVisible();
+    await expect(page.getByText('Review required')).not.toBeVisible();
+    await expect(page.getByTestId('destinationAddress')).toContainText(updatedStreet);
+    await expect(page.getByTestId('destinationAddress')).toContainText(updatedCity);
+    await expect(page.getByTestId('destinationAddress')).toContainText(updatedZip);
+    await expect(page.getByText(originalStreet)).not.toBeVisible();
+    await expect(page.getByText(originalCity)).not.toBeVisible();
+    await expect(page.getByText(originalZip)).not.toBeVisible();
+  });
 });

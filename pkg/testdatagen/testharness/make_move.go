@@ -11072,8 +11072,7 @@ func makeIntlHHGMoveDestAddressRequested(
 	factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				MTOShipmentID: &shipmentAddressUpdate.Shipment.ID,
+				Status: models.MTOServiceItemStatusApproved,
 			},
 		},
 		{
