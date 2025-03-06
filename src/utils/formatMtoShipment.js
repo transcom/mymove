@@ -368,7 +368,7 @@ export function formatPpmShipmentForAPI(formValues) {
 
   return {
     shipmentType: 'PPM',
-    counselorRemarks: !formValues.counselorRemarks ? undefined : formValues.counselorRemarks,
+    counselorRemarks: formValues.counselorRemarks === undefined ? undefined : formValues.counselorRemarks,
     ppmShipment: ppmShipmentValues,
   };
 }
