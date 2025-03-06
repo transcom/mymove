@@ -311,6 +311,13 @@ export function formatPpmShipmentForAPI(formValues) {
     isActualExpenseReimbursement: formValues.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
   };
 
+  if (formValues.expectedDepartureDate !== undefined)
+    ppmShipmentValues.expectedDepartureDate = formatDateForSwagger(formValues.expectedDepartureDate);
+  if (formValues.pickup.address !== undefined)
+    ppmShipmentValues.pickupAddress = formatAddressForAPI(formValues.pickup.address);
+  if (formValues.destination.address !== undefined)
+    ppmShipmentValues.destinationAddress = formatAddressForAPI(formValues.destination.address);
+
   if (ppmShipmentValues.hasSecondaryPickupAddress) {
     ppmShipmentValues = {
       ...ppmShipmentValues,
@@ -370,7 +377,7 @@ export function formatPpmShipmentForAPI(formValues) {
 
   return {
     shipmentType: 'PPM',
-    counselorRemarks: formValues.counselorRemarks === undefined ? undefined : formValues.counselorRemarks,
+    counselorRemarks: !formValues.counselorRemarks ? undefined : formValues.counselorRemarks,
     ppmShipment: ppmShipmentValues,
   };
 }
