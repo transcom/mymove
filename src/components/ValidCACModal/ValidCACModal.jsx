@@ -16,9 +16,10 @@ export const ValidCACModal = ({ onClose, onSubmit }) => (
       <img src={smartCard} width="200" height="200" alt="" />
     </p>
     <p className={styles.center}>
-      CAC (ID Card) registration is required at first sign-in. <br />
+      Common Access Card (CAC) authentication is required at first sign-in. <br />
       If you do not have a CAC, do not request your account here. <br />
-      You must visit your nearest personal property office and they will assist you with creating your MilMove account.
+      You must visit your nearest personal property office where they will assist you with creating your MilMove
+      account.
     </p>
     <ModalActions autofocus="true">
       <Button data-focus="true" type="submit" data-testid="modalSubmitButton" onClick={() => onSubmit()}>
