@@ -1196,7 +1196,7 @@ integration_test_mtls:
     - source server_env
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     # - curl http://milmovelocal:4000
-    - make db_dev_create
+    - make bin/milmove
     - bin/milmove migrate
     - make bin/prime-api-client
     - echo "Running E2E mTLS tests"
