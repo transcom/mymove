@@ -3,6 +3,7 @@ package factory
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
@@ -336,6 +337,20 @@ func GetTraitRequestedOfficeUser() []Customization {
 		{
 			Model: models.OfficeUser{
 				Status: &requestedStatus,
+			},
+		},
+	}
+}
+
+// GetTraitRejectedOfficeUser sets the OfficeUser in an REJECTED status
+func GetTraitRejectedOfficeUser() []Customization {
+	rejectedStatus := models.OfficeUserStatusREJECTED
+	rejectedOn := time.Now()
+	return []Customization{
+		{
+			Model: models.OfficeUser{
+				Status:     &rejectedStatus,
+				RejectedOn: &rejectedOn,
 			},
 		},
 	}
