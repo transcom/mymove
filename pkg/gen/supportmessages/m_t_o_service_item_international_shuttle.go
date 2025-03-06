@@ -34,7 +34,7 @@ type MTOServiceItemInternationalShuttle struct {
 
 	statusField MTOServiceItemStatus
 
-	// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+	// Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT & IOSHUT) service items.
 	// Example: 4000
 	ActualWeight *int64 `json:"actualWeight"`
 
@@ -141,7 +141,7 @@ func (m *MTOServiceItemInternationalShuttle) SetStatus(val MTOServiceItemStatus)
 func (m *MTOServiceItemInternationalShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		// Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT & IOSHUT) service items.
 		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 
@@ -236,7 +236,7 @@ func (m MTOServiceItemInternationalShuttle) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		// Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT & IOSHUT) service items.
 		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 

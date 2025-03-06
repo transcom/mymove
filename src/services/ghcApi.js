@@ -146,6 +146,11 @@ export async function getBulkAssignmentData(queueType) {
   return makeGHCRequest('queues.getBulkAssignmentData', { queueType }, { normalize: false });
 }
 
+export async function saveBulkAssignmentData({ queueType, bulkAssignmentSavePayload }) {
+  const body = { queueType, ...bulkAssignmentSavePayload };
+  return makeGHCRequest('queues.saveBulkAssignmentData', { bulkAssignmentSavePayload: body }, { normalize: false });
+}
+
 export async function createCustomerSupportRemarkForMove({ body, locator }) {
   return makeGHCRequest('customerSupportRemarks.createCustomerSupportRemarkForMove', {
     body,
@@ -963,7 +968,7 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, ro
 }
 
 export async function checkForLockedMovesAndUnlock(key, officeUserID) {
-  return makeGHCRequest('move.checkForLockedMovesAndUnlock', {
+  return makeGHCRequestRaw('move.checkForLockedMovesAndUnlock', {
     officeUserID,
   });
 }

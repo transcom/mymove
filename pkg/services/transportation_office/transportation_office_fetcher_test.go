@@ -353,7 +353,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 			ServiceMemberID: serviceMember.ID,
 		})
 		suite.Nil(err)
-		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
+		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, serviceMember.ID)
 		suite.NotNil(departmentIndictor)
 		suite.Nil(err)
 		suite.NotNil(departmentIndictor.DepartmentIndicator)
@@ -460,4 +460,244 @@ func (suite *TransportationOfficeServiceSuite) Test_GetTransportationOffice() {
 	suite.Equal("OFFICE ONE", office1t.Name)
 	suite.Equal("OFFICE ONE", office1f.Name)
 	suite.Equal("OFFICE TWO", office2f.Name)
+}
+
+func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrimeCounseledCONUS() {
+	suite.toFetcher = NewTransportationOfficesFetcher()
+
+	address := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "32228",
+				IsOconus:   models.BoolPointer(false),
+			},
+		},
+	}, nil)
+	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: address, LinkOnly: true, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: false,
+			},
+		},
+		{
+			Model: models.TransportationOffice{
+				Name: "PPPO Holloman AFB - USAF",
+			},
+		},
+	}, nil)
+	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: address, LinkOnly: true, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
+		{
+			Model: models.TransportationOffice{
+				Name: "PPPO Jacksonville - USN",
+			},
+		},
+	}, nil)
+	origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: address, LinkOnly: true, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPPO Fort Moore - USA",
+				Gbloc:            "CNNQ",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: address, LinkOnly: true, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPPO Fort Meade - USA",
+				Gbloc:            "CNNQ",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+	armyAffliation := models.AffiliationARMY
+	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &armyAffliation,
+			},
+		},
+	}, nil)
+	offices, err := suite.toFetcher.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), origDutyLocation.ID, serviceMember.ID)
+	suite.NoError(err)
+	suite.Equal(offices.Name, "PPPO Jacksonville - USN")
+}
+
+func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrimeCounseledOCONUS() {
+	setupServiceMember := func(serviceMemberAffiliation models.ServiceMemberAffiliation) models.ServiceMember {
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{Model: models.ServiceMember{
+				Affiliation: &serviceMemberAffiliation,
+			}},
+		}, nil)
+
+		return serviceMember
+	}
+	setupDataForOconusSearchCounselingOffice := func(postalCode string, gbloc string) (models.ReRateArea, models.OconusRateArea, models.UsPostRegionCity, models.DutyLocation) {
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+		rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+			ReRateArea: models.ReRateArea{
+				ContractID: contract.ID,
+				IsOconus:   true,
+				Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+				Contract:   contract,
+			},
+		})
+		suite.NotNil(rateArea)
+		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NotNil(us_country)
+		suite.Nil(err)
+
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), postalCode)
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
+		oconusRateArea, err := models.FetchOconusRateAreaByCityId(suite.DB(), usprc.ID.String())
+		suite.NotNil(oconusRateArea)
+		suite.Nil(err)
+
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &usprc.ID,
+				},
+			},
+		}, nil)
+
+		origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					AddressID:                  address.ID,
+					ProvidesServicesCounseling: true,
+				},
+			},
+			{
+				Model: models.TransportationOffice{
+					Name:             "PPPO Fort Belvoir - USA",
+					Gbloc:            gbloc,
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
+		suite.MustSave(&origDutyLocation)
+		found_duty_location, _ := models.FetchDutyLocation(suite.DB(), origDutyLocation.ID)
+		return rateArea, *oconusRateArea, *usprc, found_duty_location
+	}
+
+	suite.Run("success - findOconusGblocDepartmentIndicator - returns default GBLOC for departmentAffiliation if no specific departmentAffilation mapping is defined", func() {
+		const fairbanksAlaskaPostalCode = "99790"
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(fairbanksAlaskaPostalCode, "JEAT")
+
+		// setup department affiliation to GBLOC mappings
+		jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "JEAT")
+		suite.NotNil(jppsoRegion)
+		suite.Nil(err)
+
+		gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorARMY.String())
+		suite.NotNil(gblocAors)
+		suite.Nil(err)
+
+		serviceMember := setupServiceMember(models.AffiliationARMY)
+		departmentIndictor, err := findOconusGblocDepartmentIndicator(suite.AppContextForTest(), dutylocation, serviceMember.ID)
+		suite.NotNil(departmentIndictor)
+		suite.Nil(err)
+		suite.Nil(departmentIndictor.DepartmentIndicator)
+		suite.Equal("JEAT", departmentIndictor.Gbloc)
+	})
+
+	suite.Run("success - findOconusGblocDepartmentIndicator - returns specific GBLOC for departmentAffiliation when a specific departmentAffilation mapping is defined -- simulate Zone 2 scenerio", func() {
+		const fairbanksAlaskaPostalCode = "99790"
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(fairbanksAlaskaPostalCode, "MBFL")
+
+		// setup department affiliation to GBLOC mappings
+		jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MBFL")
+		suite.NotNil(jppsoRegion)
+		suite.Nil(err)
+
+		gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorAIRANDSPACEFORCE.String())
+		suite.NotNil(gblocAors)
+		suite.Nil(err)
+
+		// loop through and make sure all branches are using it's own dedicated GBLOC and not default
+		serviceMember := setupServiceMember(models.AffiliationAIRFORCE)
+		suite.Nil(err)
+		departmentIndictor, err := findOconusGblocDepartmentIndicator(suite.AppContextForTest(), dutylocation, serviceMember.ID)
+		suite.NotNil(departmentIndictor)
+		suite.Nil(err)
+		suite.NotNil(departmentIndictor.DepartmentIndicator)
+		suite.Equal(models.DepartmentIndicatorAIRANDSPACEFORCE.String(), *departmentIndictor.DepartmentIndicator)
+		suite.Equal("MBFL", departmentIndictor.Gbloc)
+	})
+
+	suite.Run("failure - findOconusGblocDepartmentIndicator - returns error when find service member ID fails", func() {
+		_, _, _, dutylocation := setupDataForOconusSearchCounselingOffice("99714", "JEAT")
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			// create fake service member ID to raise NOT found error
+			ServiceMemberID: uuid.Must(uuid.NewV4()),
+		})
+
+		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
+		suite.Nil(departmentIndictor)
+		suite.NotNil(err)
+	})
+
+	suite.Run("failure - not found duty location returns error", func() {
+		_, oconusRateArea, _, _ := setupDataForOconusSearchCounselingOffice("99619", "MAPS")
+
+		// setup department affiliation to GBLOC mappings
+		jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MAPS")
+		suite.NotNil(jppsoRegion)
+		suite.Nil(err)
+		gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorARMY.String())
+		suite.NotNil(gblocAors)
+		suite.Nil(err)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: uuid.Must(uuid.NewV4()),
+		})
+		unknown_duty_location_id := uuid.Must(uuid.NewV4())
+		_, err = suite.toFetcher.FindCounselingOfficeForPrimeCounseled(appCtx, unknown_duty_location_id, appCtx.Session().ServiceMemberID)
+		suite.NotNil(err)
+	})
+
+	suite.Run("Should return closest counseling office based on service affiliation", func() {
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice("99619", "MAPS")
+
+		// setup department affiliation to GBLOC mappings
+		jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MAPS")
+		suite.NotNil(jppsoRegion)
+		suite.Nil(err)
+
+		gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorARMY.String())
+		suite.NotNil(gblocAors)
+		suite.Nil(err)
+
+		serviceMember := setupServiceMember(models.AffiliationAIRFORCE)
+		offices, err := suite.toFetcher.FindCounselingOfficeForPrimeCounseled(suite.AppContextForTest(), dutylocation.ID, serviceMember.ID)
+		suite.NotNil(offices)
+		suite.Nil(err)
+		suite.Equal(offices.Name, "PPPO Fort Belvoir - USA")
+	})
 }

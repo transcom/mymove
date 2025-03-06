@@ -496,6 +496,13 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 		order.Entitlement.WeightRestriction = nil
 	}
 
+	if payload.UbWeightRestriction != nil {
+		ubWeightRestriction := int(*payload.UbWeightRestriction)
+		order.Entitlement.UBWeightRestriction = &ubWeightRestriction
+	} else {
+		order.Entitlement.UBWeightRestriction = nil
+	}
+
 	if payload.AccompaniedTour != nil {
 		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
 	}
@@ -542,6 +549,7 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 
 	return order, nil
 }
+
 func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) (models.Order, error) {
 	order := existingOrder
 	waf := entitlements.NewWeightAllotmentFetcher()
@@ -600,6 +608,13 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 		order.Entitlement.WeightRestriction = &weightRestriction
 	} else {
 		order.Entitlement.WeightRestriction = nil
+	}
+
+	if payload.UbWeightRestriction != nil {
+		ubWeightRestriction := int(*payload.UbWeightRestriction)
+		order.Entitlement.UBWeightRestriction = &ubWeightRestriction
+	} else {
+		order.Entitlement.UBWeightRestriction = nil
 	}
 
 	if payload.AccompaniedTour != nil {
