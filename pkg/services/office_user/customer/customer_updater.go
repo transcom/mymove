@@ -80,6 +80,8 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 			if dbErr != nil {
 				return dbErr
 			}
+
+			existingCustomer.ResidentialAddressID = &existingCustomer.ResidentialAddress.ID
 		}
 
 		if backupAddress := customer.BackupMailingAddress; backupAddress != nil {
@@ -131,6 +133,8 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 			if dbErr != nil {
 				return dbErr
 			}
+
+			existingCustomer.BackupMailingAddressID = &existingCustomer.BackupMailingAddress.ID
 		}
 
 		if backupContacts := customer.BackupContacts; len(backupContacts) > 0 {
@@ -140,14 +144,20 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 				existingCustomer.BackupContacts[0].Email = backupContacts[0].Email
 				existingCustomer.BackupContacts[0].Phone = backupContacts[0].Phone
 			} else {
-				newBackupContact := models.BackupContact{
-					Name:       backupContacts[0].Name,
-					Email:      backupContacts[0].Email,
-					Phone:      backupContacts[0].Phone,
-					Permission: models.BackupContactPermissionNONE,
-				}
+				_, verrs, dbErr := existingCustomer.CreateBackupContact(
+					txnAppCtx.DB(),
+					backupContacts[0].Name,
+					backupContacts[0].Email,
+					backupContacts[0].Phone,
+					models.BackupContactPermissionNONE,
+				)
 
-				existingCustomer.BackupContacts = append(existingCustomer.BackupContacts, newBackupContact)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(customer.ID, dbErr, verrs, "")
+				}
+				if dbErr != nil {
+					return dbErr
+				}
 			}
 
 			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.BackupContacts)
