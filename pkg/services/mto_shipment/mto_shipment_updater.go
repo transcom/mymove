@@ -1052,7 +1052,6 @@ func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(appCtx appcontext.
 func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
-		shipment.ShipmentType != models.MTOShipmentTypeUnaccompaniedBaggage &&
 		(shipment.PrimeEstimatedWeight != nil || shipment.NTSRecordedWeight != nil) {
 
 		var pickupLocation *models.Address
