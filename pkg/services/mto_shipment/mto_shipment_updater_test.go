@@ -3504,7 +3504,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 	suite.Run("Skips calling check auto reweigh if actual weight was not provided in request", func() {
 		moveWeights := &mockservices.MoveWeights{}
-
 		mockSender := setUpMockNotificationSender()
 		addressUpdater := address.NewAddressUpdater()
 
@@ -3527,17 +3526,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 				},
 			},
 		}, nil)
-
-		moveWeights.On("CheckExcessWeight",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID"),
-			mock.AnythingOfType("models.MTOShipment"),
-		).Return(&primeShipment.MoveTaskOrder, nil, nil)
-
 		// there is a validator check about updating the status
 		primeShipment.Status = ""
 		estimatedWeight := unit.Pound(7200)
 		primeShipment.PrimeEstimatedWeight = &estimatedWeight
+
+		moveWeights.On("CheckExcessWeight", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("models.MTOShipment")).Return(&primeShipment.MoveTaskOrder, nil, nil)
 
 		session := auth.Session{}
 		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
