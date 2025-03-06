@@ -21,8 +21,8 @@ const wasillaAlaskaPostalCode = "99652"
 const beverlyHillsCAPostalCode = "90210"
 const sanDiegoCAPostalCode = "92075"
 const brooklynNYPostalCode = "11220"
-const rateArea1 = "US8190100"
-const rateArea2 = "US8101000"
+const rateAreaAK1 = "US8190100"
+const rateAreaAK2 = "US8101000"
 const rateAreaCA = "US88"
 
 func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
