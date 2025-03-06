@@ -5,9 +5,9 @@ export const initialState = {
   // Select the moveId that is set from clicking on Go To Move on the MultiMoveLandingPage
   moveId: '',
   canAddOrders: false,
+  refetchQueue: false,
   showLoadingSpinner: false,
   loadingSpinnerMessage: null,
-  refetchQueue: false,
 };
 
 const generalStateReducer = (state = initialState, action = {}) => {
@@ -25,17 +25,17 @@ const generalStateReducer = (state = initialState, action = {}) => {
         canAddOrders: action.payload,
       };
     }
+    case SET_REFETCH_QUEUE: {
+      return {
+        ...state,
+        refetchQueue: action.payload,
+      };
+    }
     case SET_SHOW_LOADING_SPINNER: {
       return {
         ...state,
         showLoadingSpinner: action.showSpinner,
         loadingSpinnerMessage: action.loadingSpinnerMessage,
-      };
-    }
-    case SET_REFETCH_QUEUE: {
-      return {
-        ...state,
-        refetchQueue: action.payload,
       };
     }
     default:

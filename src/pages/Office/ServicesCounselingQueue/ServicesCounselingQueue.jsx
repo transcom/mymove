@@ -48,12 +48,12 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import { selectLoggedInUser } from 'store/entities/selectors';
+import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import { milmoveLogger } from 'utils/milmoveLog';
 import handleQueueAssignment from 'utils/queues';
 import retryPageLoading from 'utils/retryPageLoading';
-import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
 export const counselingColumns = (
   moveLockFlag,
@@ -455,8 +455,8 @@ const ServicesCounselingQueue = ({
   isQueueManagementFFEnabled,
   officeUser,
   isBulkAssignmentFFEnabled,
-  activeRole,
   setRefetchQueue,
+  activeRole,
 }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();

@@ -28,6 +28,15 @@ describe('GeneralState actions', () => {
     expect(setCanAddOrders(true)).toEqual(expectedAction);
   });
 
+  it('setRefetchQueue returns the expected action', () => {
+    const expectedAction = {
+      type: SET_REFETCH_QUEUE,
+      payload: true,
+    };
+
+    expect(setRefetchQueue(true)).toEqual(expectedAction);
+  });
+
   it('setShowLoadingSpinner returns the expected action', () => {
     const expectedAction = {
       type: SET_SHOW_LOADING_SPINNER,
@@ -36,14 +45,5 @@ describe('GeneralState actions', () => {
     };
 
     expect(setShowLoadingSpinner(true, 'test message')).toEqual(expectedAction);
-  });
-
-  it('setRefetchQueue returns the expected action', () => {
-    const expectedAction = {
-      type: SET_REFETCH_QUEUE,
-      payload: true,
-    };
-
-    expect(setRefetchQueue(true)).toEqual(expectedAction);
   });
 });

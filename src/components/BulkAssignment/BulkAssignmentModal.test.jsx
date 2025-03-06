@@ -65,28 +65,24 @@ describe('BulkAssignmentModal', () => {
     expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment (6)' })).toBeInTheDocument();
   });
 
-  it('closes the modal when close icon is clicked', async () => {
-    render(
-      <MockProviders>
-        <BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />
-      </MockProviders>,
-    );
+  it('shows cancel confirmation modal when close icon is clicked', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     const closeButton = await screen.findByTestId('modalCloseButton');
 
     await userEvent.click(closeButton);
 
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('cancelModalYes')).toBeInTheDocument();
   });
 
-  it('closes the modal when the Cancel button is clicked', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+  it('shows cancel confirmation modal when the Cancel button is clicked', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
     await userEvent.click(cancelButton);
 
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('cancelModalYes')).toBeInTheDocument();
   });
 
   it('calls the submit function when Save button is clicked', async () => {
@@ -195,62 +191,34 @@ describe('BulkAssignmentModal', () => {
     });
   });
 
-  it('displays bulk re-assignment when switch is toggled', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(true);
+  it('closes the modal when the close is confirmed', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    await act(async () => {
-      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
-    });
+    const closeButton = await screen.findByTestId('modalCloseButton');
 
-    // Check the state of the modal before toggling the modal state
-    await waitFor(() => {
-      expect(screen.getByLabelText('BulkAssignmentModeSwitch')).toBeInTheDocument();
-      expect(screen.getByText('User')).toBeInTheDocument();
-      expect(screen.getByText('Current Workload')).toBeInTheDocument();
-      expect(screen.getByText('Assignment')).toBeInTheDocument();
-      expect(screen.getByTestId('selectDeselectAllButton')).toBeInTheDocument();
-      expect(screen.getByText('Equal Assign')).toBeInTheDocument();
-    });
+    await userEvent.click(closeButton);
 
-    const bulkReAssignToggleSwitch = screen.getByLabelText('BulkAssignmentModeSwitch');
-    // Click the switch inside act() to ensure React updates state
-    await act(async () => {
-      await fireEvent.click(bulkReAssignToggleSwitch);
-    });
+    const confirmButton = await screen.findByTestId('cancelModalYes');
+    await userEvent.click(confirmButton);
 
-    // Check the state of the modal after toggling the modal state
-    await waitFor(() => {
-      expect(screen.getByText('Bulk Re-Assignment', { exact: false })).toBeInTheDocument();
-      expect(screen.getByText('User')).toBeInTheDocument();
-      expect(screen.getByText('Current Workload')).toBeInTheDocument();
-      expect(screen.getByText('Assignment')).toBeInTheDocument();
-      expect(screen.getByText('Re-assign User')).toBeInTheDocument();
-      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
-    });
-    // Click again to revert back
-    await act(async () => {
-      await fireEvent.click(bulkReAssignToggleSwitch);
-    });
+    expect(onClose).toHaveBeenCalledTimes(2);
+  });
 
-    // Check the state of the modal after reverting toggling the modal state
-    await waitFor(() => {
-      expect(screen.getByLabelText('BulkAssignmentModeSwitch')).toBeInTheDocument();
-      expect(screen.getByText('User')).toBeInTheDocument();
-      expect(screen.getByText('Current Workload')).toBeInTheDocument();
-      expect(screen.getByText('Assignment')).toBeInTheDocument();
-      expect(screen.getByTestId('selectDeselectAllButton')).toBeInTheDocument();
-      expect(screen.getByText('Equal Assign')).toBeInTheDocument();
-    });
+  it('close confirmation goes away when clicking no', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
+
+    const closeButton = await screen.findByTestId('modalCloseButton');
+    await userEvent.click(closeButton);
+
+    const cancelModalNo = await screen.findByTestId('cancelModalNo');
+    await userEvent.click(cancelModalNo);
+
+    const confirmButton = await screen.queryByTestId('cancelModalYes');
+    expect(confirmButton).not.toBeInTheDocument();
   });
 
   it('only allows bulk re-assignment from one user at a time', async () => {
     isBooleanFlagEnabled.mockResolvedValue(true);
-    const expectedLabels = [
-      `Bulk Re-Assignment (${bulkAssignmentData.availableOfficeUsers[0].workload})`,
-      `Bulk Assignment (${bulkAssignmentData.availableOfficeUsers[0].workload})`,
-    ];
-
     await act(async () => {
       render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
     });

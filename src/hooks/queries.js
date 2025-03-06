@@ -574,7 +574,11 @@ export const useMovesQueueQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...movesQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...movesQueueQuery
+  } = useQuery(
     [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getMovesQueue(...queryKey),
   );
@@ -585,6 +589,7 @@ export const useMovesQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
@@ -683,7 +688,11 @@ export const usePaymentRequestQueueQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...paymentRequestsQueueQuery
+  } = useQuery(
     [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getPaymentRequestsQueue(...queryKey),
   );

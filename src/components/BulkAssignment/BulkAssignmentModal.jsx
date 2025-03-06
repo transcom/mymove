@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -9,9 +9,10 @@ import styles from './BulkAssignmentModal.module.scss';
 
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
-import { Form } from 'components/form';
 import { getBulkAssignmentData } from 'services/ghcApi';
 import { milmoveLogger } from 'utils/milmoveLog';
+import { userName } from 'utils/formatters';
+import { Form } from 'components/form';
 
 const initialValues = {
   userData: [],
@@ -26,6 +27,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   const [isBulkReAssignmentMode, setIsBulkReAssignmentMode] = useState(false);
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
   const [isSaveDisabled, setIsSaveDisabled] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [numberOfMoves, setNumberOfMoves] = useState(0);
   const [selectedUsers, setSelectedUsers] = useState({});
   const [selectedRadio, setSelectedRadio] = useState(null);
@@ -121,44 +123,39 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
     });
     setSelectedUsers(() => selectedOfficeUsers);
     initialValues.userData = officeUsers;
-    setIsLoading(false);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        getBulkAssignmentData(queueType).then((data) => {
-          setBulkAssignmentData(data);
-          initUserData(data?.availableOfficeUsers);
+  const fetchData = useCallback(async () => {
+    try {
+      const data = await getBulkAssignmentData(queueType);
+      setBulkAssignmentData(data);
+      initUserData(data?.availableOfficeUsers);
 
-          if (data.bulkAssignmentMoveIDs === undefined) {
-            setIsSaveDisabled(true);
-            setNumberOfMoves(0);
-          } else {
-            setNumberOfMoves(data.bulkAssignmentMoveIDs.length);
-          }
-        });
-      } catch (err) {
-        setBulkAssignmentData({});
-        milmoveLogger.error('Error fetching bulk assignment data:', err);
+      if (!data.bulkAssignmentMoveIDs) {
+        setIsSaveDisabled(true);
+        setNumberOfMoves(0);
+      } else {
+        setNumberOfMoves(data.bulkAssignmentMoveIDs.length);
+        setIsSaveDisabled(false);
       }
-    };
-
-    fetchData();
+    } catch (err) {
+      milmoveLogger.error('Error fetching bulk assignment data:', err);
+    }
   }, [queueType]);
 
-  // adds move data to the initialValues obj
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   initialValues.moveData = bulkAssignmentData?.bulkAssignmentMoveIDs;
 
   const validationSchema = Yup.object().shape({
     assignment: Yup.number().min(0).typeError('Assignment must be a number'),
   });
 
-  if (isLoading) return null;
-
   return (
-    <Modal>
-      <ModalClose handleClick={() => onClose()} />
+    <Modal className={styles.BulkModal}>
+      {!showCancelModal && <ModalClose handleClick={() => setShowCancelModal(true)} />}
       <ModalTitle>
         <h3 data-testid="modalTitleHeader">
           {isBulkReAssignmentMode ? bulkAssignmentSwitchLabels[1] : bulkAssignmentSwitchLabels[0]} ({numberOfMoves})
@@ -191,6 +188,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
         >
           {({ handleChange, setValues, values }) => {
             const handleAssignClick = () => {
+              setIsError(false);
               const totalMoves = bulkAssignmentData?.bulkAssignmentMoveIDs?.length;
               const numUsers = Object.keys(selectedUsers).filter((id) => selectedUsers[id]).length;
               const baseAssignments = Math.floor(totalMoves / numUsers);
@@ -211,7 +209,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
 
               setValues({
                 ...values,
-                ...newValues,
+                userData: newValues.userData,
               });
             };
 
@@ -258,9 +256,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                           )}
                         </td>
                         <td>
-                          <p data-testid="bulkAssignmentUser">
-                            {user.lastName}, {user.firstName}
-                          </p>
+                          <p data-testid="bulkAssignmentUser">{userName(user)}</p>
                         </td>
                         <td className={styles.BulkAssignmentDataCenter}>
                           <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
@@ -309,42 +305,56 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     );
                   })}
                 </table>
-                <ModalActions autofocus="true">
-                  <div className={styles.BulkAssignmentButtonsContainer}>
-                    <div>
+                {showCancelModal ? (
+                  <div className={styles.areYouSureSection}>
+                    <small className={styles.hint}>
+                      Any unsaved work will be lost. Are you sure you want to cancel?
+                    </small>
+                    <div className={styles.confirmButtons}>
                       <Button
-                        data-focus="true"
-                        className="usa-button--submit"
-                        type="submit"
-                        data-testid="modalSubmitButton"
-                        disabled={isSaveDisabled}
+                        className={styles.cancelNoButton}
+                        data-testid="cancelModalNo"
+                        onClick={() => setShowCancelModal(false)}
                       >
-                        {submitText}
+                        No
                       </Button>
-                      <button
-                        className={styles.backbutton}
-                        type="button"
-                        onClick={() => onClose()}
-                        data-testid="modalBackButton"
+                      <Button
+                        className={styles.cancelYesButton}
+                        data-testid="cancelModalYes"
+                        secondary
+                        onClick={onClose}
                       >
-                        {closeText}
-                      </button>
-                    </div>
-                    <div>
-                      {!isBulkReAssignmentMode && (
-                        <Button
-                          onClick={handleAssignClick}
-                          type="button"
-                          data-testid="modalEqualAssignButton"
-                          disabled={!Object.values(selectedUsers).some(Boolean)}
-                        >
-                          Equal Assign
-                        </Button>
-                      )}
+                        Discard Changes
+                      </Button>
                     </div>
                   </div>
-                </ModalActions>
-                {isError && <div className={styles.errorMessage}>{errorMessage}</div>}
+                ) : (
+                  <ModalActions autofocus="true">
+                    <Button disabled={isSaveDisabled} data-focus="true" type="submit" data-testid="modalSubmitButton">
+                      {submitText}
+                    </Button>
+                    <Button
+                      type="button"
+                      className={styles.button}
+                      unstyled
+                      onClick={() => setShowCancelModal(true)}
+                      data-testid="modalCancelButton"
+                    >
+                      {closeText}
+                    </Button>
+                    {!isBulkReAssignmentMode && (
+                      <Button
+                        onClick={handleAssignClick}
+                        type="button"
+                        data-testid="modalEqualAssignButton"
+                        disabled={!Object.values(selectedUsers).some(Boolean)}
+                      >
+                        Equal Assign
+                      </Button>
+                    )}
+                    {isError && <div className={styles.errorMessage}>{errorMessage}</div>}
+                  </ModalActions>
+                )}
               </Form>
             );
           }}
