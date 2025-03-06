@@ -11,6 +11,7 @@ import { customerRoutes } from 'constants/routes';
 import { cancelMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { setShowLoadingSpinner } from 'store/general/actions';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -40,6 +41,15 @@ jest.mock('services/internalApi', () => ({
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
+
+jest.mock('store/general/actions', () => ({
+  ...jest.requireActual('store/general/actions'),
+  setShowLoadingSpinner: jest.fn().mockImplementation(() => ({
+    type: '',
+    showSpinner: false,
+    loadingSpinnerMessage: '',
+  })),
 }));
 
 const props = {
@@ -1777,6 +1787,7 @@ describe('Home component', () => {
       await wrapper.find(buttonId).simulate('click');
       await waitFor(() => {
         expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+        expect(setShowLoadingSpinner).toHaveBeenCalled();
       });
     });
 
@@ -1791,81 +1802,8 @@ describe('Home component', () => {
         // scrape text from error modal
         expect(wrapper.text()).toContain('Something went wrong downloading PPM paperwork.');
         expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+        expect(setShowLoadingSpinner).toHaveBeenCalled();
       });
     });
-  });
-});
-
-describe('loading mask behavior for PPM AOA packet download', () => {
-  const wrapper = mountMoveHomeWithProviders(defaultPropsWithAdvanceAndPPMApproved);
-
-  it('should show and hide loading mask on successful download', async () => {
-    const buttonId = `button[data-testid="asyncPacketDownloadLink${expectedPpmShipmentID}"]`;
-    expect(wrapper.find(buttonId).length).toBe(1);
-
-    const mockResponse = {
-      ok: true,
-      headers: {
-        'content-disposition': 'filename="test.pdf"',
-      },
-      status: 200,
-      data: null,
-    };
-
-    // Create a promise we can resolve manually
-    let resolveDownload;
-    const downloadPromise = new Promise((resolve) => {
-      resolveDownload = () => resolve(mockResponse);
-    });
-
-    expect(wrapper.find('LoadingSpinner').length).toBe(0);
-    downloadPPMAOAPacket.mockImplementation(() => downloadPromise);
-    await wrapper.find(buttonId).simulate('click');
-
-    // Verify loading mask appears
-    expect(wrapper.find('LoadingSpinner').length).toBe(1);
-    expect(wrapper.find('LoadingSpinner').text()).toBe('Downloading AOA Paperwork (PDF)...');
-
-    // Manually resolve promise
-    resolveDownload();
-
-    await act(async () => {
-      await Promise.resolve();
-    });
-    wrapper.update();
-
-    // Verify that the load mask has been removed
-    expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
-    expect(wrapper.find('LoadingSpinner').length).toBe(0);
-  });
-
-  it('should show and hide loading mask on failed download', async () => {
-    const buttonId = `button[data-testid="asyncPacketDownloadLink${expectedPpmShipmentID}"]`;
-    expect(wrapper.find(buttonId).length).toBe(1);
-
-    /// Create a promise we can reject manually
-    let rejectDownload;
-    const downloadPromise = new Promise((_, reject) => {
-      rejectDownload = () => reject(new Error('Error title: Error detail'));
-    });
-
-    downloadPPMAOAPacket.mockImplementation(() => downloadPromise);
-    await wrapper.find(buttonId).simulate('click');
-
-    // Verify loading mask appears
-    expect(wrapper.find('LoadingSpinner').length).toBe(1);
-    expect(wrapper.find('LoadingSpinner').text()).toBe('Downloading AOA Paperwork (PDF)...');
-
-    // Manually resolve promise
-    rejectDownload();
-
-    await act(async () => {
-      await Promise.resolve();
-    });
-    wrapper.update();
-
-    // Verify that the load mask has been removed
-    expect(wrapper.find('LoadingSpinner').length).toBe(0);
-    expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
   });
 });

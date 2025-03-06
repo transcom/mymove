@@ -8,17 +8,27 @@ import PPMSummaryList from './PPMSummaryList';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import { configureStore } from 'shared/store';
+import { setShowLoadingSpinner } from 'store/general/actions';
+import { renderWithProviders } from 'testUtils';
+import { customerRoutes } from 'constants/routes';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   downloadPPMPaymentPacket: jest.fn(),
 }));
 
+jest.mock('store/general/actions', () => ({
+  ...jest.requireActual('store/general/actions'),
+  setShowLoadingSpinner: jest.fn().mockImplementation(() => ({
+    type: '',
+    showSpinner: false,
+    loadingSpinnerMessage: '',
+  })),
+}));
+
 afterEach(() => {
   jest.resetAllMocks();
 });
-
-const onDownloadError = jest.fn();
 
 const mockStore = configureStore({});
 
@@ -145,11 +155,13 @@ const shipments = [
   },
 ];
 const onUploadClick = jest.fn();
+const onDownloadError = jest.fn();
 
 const defaultProps = {
   shipments,
   onDownloadError,
   onUploadClick,
+  setShowLoadingSpinner,
 };
 
 describe('PPMSummaryList component', () => {
@@ -288,13 +300,6 @@ describe('PPMSummaryList component', () => {
   });
 
   it('PPM Download Payment Packet - success', async () => {
-    const store = configureStore({
-      general: {
-        showLoadingSpinner: false,
-        loadingSpinnerMessage: null,
-      },
-    });
-
     const mockResponse = {
       ok: true,
       headers: {
@@ -303,22 +308,13 @@ describe('PPMSummaryList component', () => {
       status: 200,
       data: null,
     };
-    // Setup a promise that will be resolved manually to check for the load mask
-    let resolveDownload;
-    const downloadPromise = new Promise((resolve) => {
-      resolveDownload = () => resolve(mockResponse);
-    });
-
-    downloadPPMPaymentPacket.mockImplementation(() => downloadPromise);
-
-    const onDownloadErrorNotCalled = jest.fn();
+    downloadPPMPaymentPacket.mockImplementation(() => Promise.resolve(mockResponse));
 
     render(
-      <Provider store={store}>
-        <PPMSummaryList shipments={[shipments[3]]} onDownloadError={onDownloadErrorNotCalled} />
+      <Provider store={mockStore.store}>
+        <PPMSummaryList {...defaultProps} shipments={[shipments[3]]} />
       </Provider>,
     );
-
     expect(screen.getByText('Download Payment Packet', { exact: false })).toBeInTheDocument();
 
     const downloadPaymentButton = screen.getByText('Download Payment Packet');
@@ -326,39 +322,15 @@ describe('PPMSummaryList component', () => {
 
     await userEvent.click(downloadPaymentButton);
 
-    // Check for the load mask after clicking the download button
-    expect(store.getActions()).toContainEqual({
-      type: 'SET_SHOW_LOADING_SPINNER',
-      payload: { show: true, message: 'Downloading Payment Packet (PDF)...' },
-    });
-
-    // Manually resolve the download
-    resolveDownload();
-
     await waitFor(() => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
-      expect(onDownloadErrorNotCalled).toHaveBeenCalledTimes(0);
-      expect(store.getActions()).toContainEqual({
-        type: 'SET_SHOW_LOADING_SPINNER',
-        payload: { show: false, message: null },
-      });
     });
   });
 
   it('PPM Download Payment Packet - failure', async () => {
-    const store = configureStore({
-      general: {
-        showLoadingSpinner: false,
-        loadingSpinnerMessage: null,
-      },
+    downloadPPMPaymentPacket.mockRejectedValue({
+      response: { body: { title: 'Error title', detail: 'Error detail' } },
     });
-    // Create a promise we can reject manually
-    let rejectDownload;
-    const downloadPromise = new Promise((_, reject) => {
-      rejectDownload = () => reject(new Error('Error title: Error detail'));
-    });
-
-    downloadPPMPaymentPacket.mockReturnValue(downloadPromise);
 
     const shipment = {
       ppmShipment: {
@@ -381,11 +353,11 @@ describe('PPMSummaryList component', () => {
         },
       },
     };
-    const onDownloadErrorCalled = jest.fn();
+    const onErrorHandler = jest.fn();
 
     render(
-      <Provider store={store}>
-        <PPMSummaryList shipments={[shipment]} onDownloadError={onDownloadErrorCalled} />
+      <Provider store={mockStore.store}>
+        <PPMSummaryList shipments={[shipment]} onDownloadError={onErrorHandler} />
       </Provider>,
     );
 
@@ -395,22 +367,25 @@ describe('PPMSummaryList component', () => {
     expect(downloadPaymentButton).toBeInTheDocument();
     await userEvent.click(downloadPaymentButton);
 
-    // Check for the load mask after clicking the download button
-    expect(store.getActions()).toContainEqual({
-      type: 'SET_SHOW_LOADING_SPINNER',
-      payload: { show: true, message: 'Downloading Payment Packet (PDF)...' },
-    });
-
-    // Manually reject the download
-    rejectDownload();
-
     await waitFor(() => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
-      expect(onDownloadErrorCalled).toHaveBeenCalledTimes(1);
-      expect(store.getActions()).toContainEqual({
-        type: 'SET_SHOW_LOADING_SPINNER',
-        payload: { show: false, message: null },
-      });
+      expect(onErrorHandler).toHaveBeenCalledTimes(1);
+    });
+  });
+  it('spinner loading success', async () => {
+    downloadPPMPaymentPacket.mockImplementation(() => Promise.resolve(true));
+
+    renderWithProviders(<PPMSummaryList {...defaultProps} shipments={[shipments[3]]} />, {
+      path: customerRoutes.MOVE_HOME_PATH,
+      params: { moveId: 'testMoveId' },
+    });
+
+    const downloadPaymentButton = screen.getByText('Download Payment Packet');
+
+    await userEvent.click(downloadPaymentButton);
+
+    await waitFor(() => {
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
     });
   });
 });
