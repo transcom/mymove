@@ -148,7 +148,10 @@ func ServiceParamLookupInitialize(
 			return nil, err
 		}
 		serviceItemDimensions = mtoServiceItem.Dimensions
-	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT,
+		models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC,
+		models.ReServiceCodeIDASIT, models.ReServiceCodeIDDSIT,
+		models.ReServiceCodeIDFSIT, models.ReServiceCodeIDSFSC:
 		// load destination address from final address on service item
 		if mtoServiceItem.SITDestinationFinalAddressID != nil && *mtoServiceItem.SITDestinationFinalAddressID != uuid.Nil {
 			err := appCtx.DB().Load(&mtoServiceItem, "SITDestinationFinalAddress")
@@ -240,6 +243,9 @@ func ServiceParamLookupInitialize(
 	paramKeyLookups := InitializeLookups(appCtx, mtoShipment, mtoServiceItem)
 
 	for _, paramKeyName := range ServiceItemParamsWithLookups {
+		if paramKeyName == "ZipSITOriginHHGActualAddress" {
+			println(paramKeyName)
+		}
 		lookup, ok := paramKeyLookups[paramKeyName]
 		if !ok {
 			return nil, fmt.Errorf("no lookup was found for service item param key name %s", paramKeyName)
@@ -605,7 +611,10 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 			}
 
 			switch siCopy.ReService.Code {
-			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT,
+				models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC,
+				models.ReServiceCodeIDASIT, models.ReServiceCodeIDDSIT,
+				models.ReServiceCodeIDFSIT, models.ReServiceCodeIDSFSC:
 				if shipmentCopy.DeliveryAddressUpdate != nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
 					if siCopy.ApprovedAt != nil && shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
 						return shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
