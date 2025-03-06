@@ -120,14 +120,36 @@ var officeUserFilterConverters = map[string]func(string) func(*pop.Query){
 	"search": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
 			firstSearch, lastSearch, emailSearch := fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content)
-			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'APPROVED' OR office_users.email ILIKE ? AND office_users.status = 'APPROVED' OR office_users.last_name ILIKE ? AND office_users.status = 'APPROVED'", firstSearch, lastSearch, emailSearch)
+			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'APPROVED' OR office_users.last_name ILIKE ? AND office_users.status = 'APPROVED' OR office_users.email ILIKE ? AND office_users.status = 'APPROVED'", firstSearch, lastSearch, emailSearch)
 		}
 	},
-
+	"email": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			emailSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.email ILIKE ? AND office_users.status = 'APPROVED'", emailSearch)
+		}
+	},
+	"firstName": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			firstNameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'APPROVED'", firstNameSearch)
+		}
+	},
+	"lastName": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			lastNameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.last_name ILIKE ? AND office_users.status = 'APPROVED'", lastNameSearch)
+		}
+	},
 	"offices": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
-			nameSearch := fmt.Sprintf("%%%s%%", content)
-			query.Where("transportation_offices.name ILIKE ? AND office_users.status = 'APPROVED'", nameSearch)
+			officeSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("transportation_offices.name ILIKE ? AND office_users.status = 'APPROVED'", officeSearch)
+		}
+	},
+	"active": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			query.Where("office_users.active = ? AND office_users.status = 'APPROVED'", content)
 		}
 	},
 }
@@ -166,7 +188,6 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 			for i, s := range officeUsers {
 				payload[i] = payloadForOfficeUserModel(s)
 			}
-
 
 			return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, count)).WithPayload(payload), nil
 		})
