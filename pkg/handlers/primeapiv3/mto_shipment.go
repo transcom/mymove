@@ -443,7 +443,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				default:
 					return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
-						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 			}
 			mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
