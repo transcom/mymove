@@ -1556,10 +1556,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	suite.NoError(err)
 	page1Data, page2Data, Page3Data, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd, false)
 	suite.NoError(err)
-	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
-	println(test.Name())           // ensures was generated with temp filesystem
-	suite.Equal(info.PageCount, 3) // ensures PDF is not corrupted
+	println(test.Name())                               // ensures was generated with temp filesystem
+	suite.Equal(info.PageCount, 3)                     // ensures PDF is not corrupted
+	err = generator.Cleanup(suite.AppContextForTest()) // cleanup the files from memory
+	suite.NoError(err)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursementCalculations() {
@@ -1669,7 +1671,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement) // Check that pre-tax remaining incentive has been set to 0
 
 	// Usual test checks to ensure PDF was generated properly
-	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())           // ensures was generated with temp filesystem
 	suite.Equal(info.PageCount, 3) // ensures PDF is not corrupted
@@ -1681,7 +1683,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
 
 	// Check PDF generation again
-	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
@@ -1703,7 +1705,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal(expectedDisbursementString(11500, 8500), page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
 
-	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
@@ -1713,7 +1715,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal("N/A", page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
 
-	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
@@ -1735,7 +1737,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal(expectedDisbursementString(11500, 3000), page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
 
-	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
@@ -1745,10 +1747,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal("N/A", page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
 
-	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
+	err = generator.Cleanup(suite.AppContextForTest()) // cleanup the files from memory
+	suite.NoError(err)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatMaxAdvance() {
