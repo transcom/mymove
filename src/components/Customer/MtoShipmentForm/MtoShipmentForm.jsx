@@ -399,7 +399,7 @@ class MtoShipmentForm extends Component {
                                 </FormGroup>
                                 {hasSecondaryPickup === 'true' && (
                                   <>
-                                    <h3>Second Pickup Address</h3>
+                                    <h4>Second Pickup Address</h4>
                                     <AddressFields
                                       name="secondaryPickup.address"
                                       labelHint="Required"
@@ -453,7 +453,7 @@ class MtoShipmentForm extends Component {
                                   hasTertiaryPickup === 'true' &&
                                   hasSecondaryPickup === 'true' && (
                                     <>
-                                      <h3>Third Pickup Address</h3>
+                                      <h4>Third Pickup Address</h4>
                                       <AddressFields
                                         name="tertiaryPickup.address"
                                         labelHint="Required"
@@ -570,7 +570,7 @@ class MtoShipmentForm extends Component {
                                     </FormGroup>
                                     {hasSecondaryDelivery === 'true' && (
                                       <>
-                                        <h3>Second Delivery Address</h3>
+                                        <h4 data-testid="oogabooga">Second Delivery Address</h4>
                                         <AddressFields
                                           name="secondaryDelivery.address"
                                           labelHint="Required"
@@ -624,7 +624,7 @@ class MtoShipmentForm extends Component {
                                       hasTertiaryDelivery === 'true' &&
                                       hasSecondaryDelivery === 'true' && (
                                         <>
-                                          <h3>Third Delivery Address</h3>
+                                          <h4>Third Delivery Address</h4>
                                           <AddressFields
                                             name="tertiaryDelivery.address"
                                             labelHint="Required"
