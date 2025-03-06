@@ -1649,10 +1649,10 @@ build_push_migrations_stg:
   needs:
     - compile_app_server
     - compile_app_client
-      - client_test_coverage
-      - server_test_coverage
-      - pre_test
-      - integration_tests
+    - client_test_coverage
+    - server_test_coverage
+    - pre_test
+    - integration_tests
   before_script:
     - *setup_aws_vars_stg
     - *setup_release_stg
@@ -1677,10 +1677,10 @@ build_push_tasks_stg:
   needs:
     - compile_app_server
     - compile_app_client
-      - client_test_coverage
-      - server_test_coverage
-      - pre_test
-      - integration_tests
+    - client_test_coverage
+    - server_test_coverage
+    - pre_test
+    - integration_tests
   before_script:
     - *setup_aws_vars_stg
     - *setup_release_stg
