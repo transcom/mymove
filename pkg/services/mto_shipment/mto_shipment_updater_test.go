@@ -3509,11 +3509,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 	suite.Run("Skips calling check auto reweigh if actual weight was not provided in request", func() {
 		moveWeights := &mockservices.MoveWeights{}
-		moveWeights.On("CheckAutoReweigh",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID"),
-			mock.AnythingOfType("*models.MTOShipment"),
-		).Return(models.MTOShipments{}, nil, nil)
 
 		mockSender := setUpMockNotificationSender()
 		addressUpdater := address.NewAddressUpdater()
@@ -3537,6 +3532,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 				},
 			},
 		}, nil)
+
+		moveWeights.On("CheckExcessWeight",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.MTOShipment"),
+		).Return(&primeShipment.MoveTaskOrder, nil, nil)
+
 		// there is a validator check about updating the status
 		primeShipment.Status = ""
 
@@ -3582,7 +3584,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
 			mock.AnythingOfType("models.MTOShipment"),
-		).Return(&models.Move{}, nil, nil)
+		).Return(&oldPrimeShipment.MoveTaskOrder, nil, nil)
 
 		newPrimeShipment := models.MTOShipment{
 			ID:                oldPrimeShipment.ID,
@@ -3921,6 +3923,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateDomesticServiceItems() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
