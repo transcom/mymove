@@ -421,7 +421,7 @@ golang_lint:
   interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
-  image: golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
+  image: harbor.csde.caci.com/docker.io/library/golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
   script:
     - golangci-lint run --print-issued-lines=false --timeout=25m --out-format code-climate:gl-code-quality-report.json,line-number
   artifacts:
