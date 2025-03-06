@@ -254,7 +254,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       </FormGroup>
                       {values.hasSecondaryPickupAddress === 'true' && (
                         <>
-                          <h3>Second Pickup Address</h3>
+                          <h4>Second Pickup Address</h4>
                           <AddressFields
                             labelHint="Required"
                             name="secondaryPickupAddress.address"
@@ -321,7 +321,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasSecondaryPickupAddress === 'true' &&
                         values.hasTertiaryPickupAddress === 'true' && (
                           <>
-                            <h3>Third Pickup Address</h3>
+                            <h4>Third Pickup Address</h4>
                             <AddressFields
                               labelHint="Required"
                               name="tertiaryPickupAddress.address"
@@ -389,7 +389,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       </FormGroup>
                       {values.hasSecondaryDestinationAddress === 'true' && (
                         <>
-                          <h3>Second Delivery Address</h3>
+                          <h4>Second Delivery Address</h4>
                           <AddressFields
                             name="secondaryDestinationAddress.address"
                             labelHint="Required"
@@ -457,7 +457,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasSecondaryDestinationAddress === 'true' &&
                         values.hasTertiaryDestinationAddress === 'true' && (
                           <>
-                            <h3>Third Delivery Address</h3>
+                            <h4>Third Delivery Address</h4>
                             <AddressFields
                               name="tertiaryDestinationAddress.address"
                               labelHint="Required"
