@@ -337,10 +337,16 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 	var movesWithCount []MoveWithCount
 
 	// getting the office user's GBLOC
-	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
-	officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
-	if gblocErr != nil {
-		return []models.Move{}, 0, gblocErr
+	var officeUserGbloc string
+	if params.ViewAsGBLOC != nil {
+		officeUserGbloc = *params.ViewAsGBLOC
+	} else {
+		var gblocErr error
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		officeUserGbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+		if gblocErr != nil {
+			return []models.Move{}, 0, gblocErr
+		}
 	}
 
 	// calling the database function with all passed in parameters
