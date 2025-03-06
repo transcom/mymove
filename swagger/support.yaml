@@ -957,6 +957,10 @@ definitions:
         example: 1500
         type: integer
         x-nullable: true
+      ubWeightRestriction:
+        example: 1200
+        type: integer
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
