@@ -1141,6 +1141,9 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 				reServiceCode: models.ReServiceCodeIDDSIT,
 			},
 		}
+		now := time.Now()
+		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+		later := nowDate.AddDate(0, 0, 3)
 		for _, tc := range testCases {
 			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
 				{
@@ -1154,7 +1157,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 				},
 				{
 					Model: models.MTOServiceItem{
-						SITEntryDate: &later,
+						SITEntryDate: &nowDate,
 					},
 				},
 			}, nil)
@@ -1175,11 +1178,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			suite.NoError(err)
 			if tc.reServiceCode == models.ReServiceCodeIOPSIT {
 				suite.True(mtoShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour).Equal(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
-				suite.True(newSITServiceItem.SITEntryDate.Truncate(24 * time.Hour).After(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
+				suite.True(newSITServiceItem.SITDepartureDate.Truncate(24 * time.Hour).After(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
 			}
 			if tc.reServiceCode == models.ReServiceCodeIDDSIT {
 				suite.True(mtoShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour).Equal(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
-				suite.True(newSITServiceItem.SITEntryDate.Truncate(24 * time.Hour).After(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
+				suite.True(newSITServiceItem.SITDepartureDate.Truncate(24 * time.Hour).After(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
 			}
 		}
 	})
@@ -1428,7 +1431,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			suite.NoError(err) // Just verrs
 			suite.True(serviceItemData.verrs.HasAny())
 			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
-			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before the SIT entry date.")
+			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before or equal to the SIT entry date.")
 		}
 	})
 
