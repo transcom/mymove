@@ -407,7 +407,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
@@ -660,7 +659,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(400, nil)
 		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -722,7 +720,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(400, nil)
 		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -859,7 +856,6 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 

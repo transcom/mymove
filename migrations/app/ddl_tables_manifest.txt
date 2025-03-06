@@ -2,5 +2,6 @@
 # If a migration is not recorded here, then it will error.
 # Naming convention: tbl_some_table.up.sql  running <generate-ddl-migration some_table tables> will create this file.
 20250221195354_tbl_alter_entitlements_B-22651.up.sql
+20250224162949_B-22706_tbl_update_moves.up.sql
 20250224200700_tbl_ppm_shipments.up.sql
 20250227211221_tbl_re_country_prn_divisions.up.sql
