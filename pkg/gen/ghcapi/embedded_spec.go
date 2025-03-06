@@ -2765,10 +2765,10 @@ func init() {
           "in": "body",
           "schema": {
             "required": [
-              "roleType"
+              "queueType"
             ],
             "properties": {
-              "roleType": {
+              "queueType": {
                 "type": "string"
               }
             }
@@ -4389,7 +4389,8 @@ func init() {
               "COUNSELING",
               "CLOSEOUT",
               "TASK_ORDER",
-              "PAYMENT_REQUEST"
+              "PAYMENT_REQUEST",
+              "DESTINATION_REQUESTS"
             ],
             "type": "string",
             "description": "A string corresponding to the queue type",
@@ -7152,14 +7153,14 @@ func init() {
       "type": "object",
       "required": [
         "officeUserId",
-        "roleType"
+        "queueType"
       ],
       "properties": {
         "officeUserId": {
           "type": "string",
           "format": "uuid"
         },
-        "roleType": {
+        "queueType": {
           "type": "string"
         }
       }
@@ -7390,7 +7391,8 @@ func init() {
             "COUNSELING",
             "CLOSEOUT",
             "TASK_ORDER",
-            "PAYMENT_REQUEST"
+            "PAYMENT_REQUEST",
+            "DESTINATION_REQUESTS"
           ]
         },
         "userData": {
@@ -10579,6 +10581,9 @@ func init() {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -19519,10 +19524,10 @@ func init() {
           "in": "body",
           "schema": {
             "required": [
-              "roleType"
+              "queueType"
             ],
             "properties": {
-              "roleType": {
+              "queueType": {
                 "type": "string"
               }
             }
@@ -21590,7 +21595,8 @@ func init() {
               "COUNSELING",
               "CLOSEOUT",
               "TASK_ORDER",
-              "PAYMENT_REQUEST"
+              "PAYMENT_REQUEST",
+              "DESTINATION_REQUESTS"
             ],
             "type": "string",
             "description": "A string corresponding to the queue type",
@@ -24801,14 +24807,14 @@ func init() {
       "type": "object",
       "required": [
         "officeUserId",
-        "roleType"
+        "queueType"
       ],
       "properties": {
         "officeUserId": {
           "type": "string",
           "format": "uuid"
         },
-        "roleType": {
+        "queueType": {
           "type": "string"
         }
       }
@@ -25039,7 +25045,8 @@ func init() {
             "COUNSELING",
             "CLOSEOUT",
             "TASK_ORDER",
-            "PAYMENT_REQUEST"
+            "PAYMENT_REQUEST",
+            "DESTINATION_REQUESTS"
           ]
         },
         "userData": {
@@ -28232,6 +28239,9 @@ func init() {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {

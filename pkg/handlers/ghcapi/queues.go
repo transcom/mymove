@@ -205,22 +205,23 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			}
 
 			ListOrderParams := services.ListOrderParams{
-				Branch:                  params.Branch,
-				Locator:                 params.Locator,
-				Edipi:                   params.Edipi,
-				Emplid:                  params.Emplid,
-				CustomerName:            params.CustomerName,
-				DestinationDutyLocation: params.DestinationDutyLocation,
-				OriginDutyLocation:      params.OriginDutyLocation,
-				AppearedInTOOAt:         handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
-				RequestedMoveDate:       params.RequestedMoveDate,
-				Status:                  params.Status,
-				Page:                    params.Page,
-				PerPage:                 params.PerPage,
-				Sort:                    params.Sort,
-				Order:                   params.Order,
-				TOOAssignedUser:         params.AssignedTo,
-				CounselingOffice:        params.CounselingOffice,
+				Branch:                     params.Branch,
+				Locator:                    params.Locator,
+				Edipi:                      params.Edipi,
+				Emplid:                     params.Emplid,
+				CustomerName:               params.CustomerName,
+				DestinationDutyLocation:    params.DestinationDutyLocation,
+				OriginDutyLocation:         params.OriginDutyLocation,
+				AppearedInTOOAt:            handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
+				RequestedMoveDate:          params.RequestedMoveDate,
+				Status:                     params.Status,
+				Page:                       params.Page,
+				PerPage:                    params.PerPage,
+				Sort:                       params.Sort,
+				Order:                      params.Order,
+				TOOAssignedUser:            params.AssignedTo,
+				CounselingOffice:           params.CounselingOffice,
+				TOODestinationAssignedUser: params.AssignedTo,
 			}
 
 			// we only care about moves in APPROVALS REQUESTED status
@@ -271,7 +272,29 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			}
 			officeUser.User.Privileges = privileges
 			officeUser.User.Roles = appCtx.Session().Roles
-
+			var officeUsers models.OfficeUsers
+			var officeUsersSafety models.OfficeUsers
+			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeTOO,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetMovesQueueInternalServerError(), err
+					}
+				}
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTOO,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching office users", zap.Error(err))
@@ -299,8 +322,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			}
 
 			var activeRole string
-			officeUsers := models.OfficeUsers{officeUser}
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, nil, activeRole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,

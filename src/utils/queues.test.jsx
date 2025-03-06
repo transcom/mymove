@@ -1,7 +1,7 @@
-import handleQueueAssignment from './queues';
+import { handleQueueAssignment } from './queues';
 
 import { deleteAssignedOfficeUserForMove, updateAssignedOfficeUserForMove } from 'services/ghcApi';
-import { roleTypes } from 'constants/userRoles';
+import { QUEUE_TYPES } from 'constants/queues';
 import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 jest.mock('services/ghcApi', () => ({
@@ -11,7 +11,7 @@ jest.mock('services/ghcApi', () => ({
 
 describe('handleQueueAssignment', () => {
   const moveID = 'PHISH4';
-  const roleType = roleTypes.SERVICES_COUNSELOR;
+  const queueType = QUEUE_TYPES.COUNSELING;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -20,9 +20,9 @@ describe('handleQueueAssignment', () => {
   it('calls deleteAssignedOfficeUserForMove when officeUserId is DEFAULT_EMPTY_VALUE', () => {
     const officeUserId = DEFAULT_EMPTY_VALUE;
 
-    handleQueueAssignment(moveID, officeUserId, roleType);
+    handleQueueAssignment(moveID, officeUserId, queueType);
 
-    expect(deleteAssignedOfficeUserForMove).toHaveBeenCalledWith({ moveID, roleType });
+    expect(deleteAssignedOfficeUserForMove).toHaveBeenCalledWith({ moveID, queueType });
 
     expect(updateAssignedOfficeUserForMove).not.toHaveBeenCalled();
   });
@@ -30,9 +30,9 @@ describe('handleQueueAssignment', () => {
   it('calls updateAssignedOfficeUserForMove when officeUserId is not DEFAULT_EMPTY_VALUE', () => {
     const officeUserId = '3466';
 
-    handleQueueAssignment(moveID, officeUserId, roleType);
+    handleQueueAssignment(moveID, officeUserId, queueType);
 
-    expect(updateAssignedOfficeUserForMove).toHaveBeenCalledWith({ moveID, officeUserId, roleType });
+    expect(updateAssignedOfficeUserForMove).toHaveBeenCalledWith({ moveID, officeUserId, queueType });
 
     expect(deleteAssignedOfficeUserForMove).not.toHaveBeenCalled();
   });

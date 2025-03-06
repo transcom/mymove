@@ -28,6 +28,9 @@ type Move struct {
 	// t o o assigned user
 	TOOAssignedUser *AssignedOfficeUser `json:"TOOAssignedUser,omitempty"`
 
+	// t o o destination assigned user
+	TOODestinationAssignedUser *AssignedOfficeUser `json:"TOODestinationAssignedUser,omitempty"`
+
 	// additional documents
 	AdditionalDocuments *Document `json:"additionalDocuments,omitempty"`
 
@@ -169,6 +172,10 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateTOOAssignedUser(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTOODestinationAssignedUser(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -335,6 +342,25 @@ func (m *Move) validateTOOAssignedUser(formats strfmt.Registry) error {
 				return ve.ValidateName("TOOAssignedUser")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("TOOAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) validateTOODestinationAssignedUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.TOODestinationAssignedUser) { // not required
+		return nil
+	}
+
+	if m.TOODestinationAssignedUser != nil {
+		if err := m.TOODestinationAssignedUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("TOODestinationAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("TOODestinationAssignedUser")
 			}
 			return err
 		}
@@ -735,6 +761,10 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateTOODestinationAssignedUser(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateAdditionalDocuments(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -836,6 +866,27 @@ func (m *Move) contextValidateTOOAssignedUser(ctx context.Context, formats strfm
 				return ve.ValidateName("TOOAssignedUser")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("TOOAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateTOODestinationAssignedUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TOODestinationAssignedUser != nil {
+
+		if swag.IsZero(m.TOODestinationAssignedUser) { // not required
+			return nil
+		}
+
+		if err := m.TOODestinationAssignedUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("TOODestinationAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("TOODestinationAssignedUser")
 			}
 			return err
 		}

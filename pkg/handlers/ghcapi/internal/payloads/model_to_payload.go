@@ -124,6 +124,7 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
+		TOODestinationAssignedUser:                     AssignedOfficeUser(move.TOODestinationAssignedUser),
 	}
 
 	return payload, nil
@@ -2385,6 +2386,10 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		}
 		if (activeRole == string(roles.RoleTypeTOO) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
+		}
+
+		if activeRole == string(roles.RoleTypeTOO) && move.TOODestinationAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.TOODestinationAssignedUser)
 		}
 
 		// these branches have their own closeout specific offices
