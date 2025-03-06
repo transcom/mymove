@@ -496,6 +496,13 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 		order.Entitlement.WeightRestriction = nil
 	}
 
+	if payload.UbWeightRestriction != nil {
+		ubWeightRestriction := int(*payload.UbWeightRestriction)
+		order.Entitlement.UBWeightRestriction = &ubWeightRestriction
+	} else {
+		order.Entitlement.UBWeightRestriction = nil
+	}
+
 	if payload.AccompaniedTour != nil {
 		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
 	}
@@ -600,6 +607,13 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 		order.Entitlement.WeightRestriction = &weightRestriction
 	} else {
 		order.Entitlement.WeightRestriction = nil
+	}
+
+	if payload.UbWeightRestriction != nil {
+		ubWeightRestriction := int(*payload.UbWeightRestriction)
+		order.Entitlement.UBWeightRestriction = &ubWeightRestriction
+	} else {
+		order.Entitlement.UBWeightRestriction = nil
 	}
 
 	if payload.AccompaniedTour != nil {

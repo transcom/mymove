@@ -748,7 +748,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-			false,
 		).Return(defaultZipDistance, nil)
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(

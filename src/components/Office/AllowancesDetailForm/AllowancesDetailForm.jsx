@@ -23,6 +23,9 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
   );
   const { values, setFieldValue } = useFormikContext();
   const [isAdminWeightLocationChecked, setIsAdminWeightLocationChecked] = useState(entitlements?.weightRestriction > 0);
+  const [isAdminUBWeightLocationChecked, setIsAdminUBWeightLocationChecked] = useState(
+    entitlements?.ubWeightRestriction > 0,
+  );
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
@@ -41,6 +44,12 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     }
   }, [setFieldValue, values.weightRestriction, isAdminWeightLocationChecked]);
 
+  useEffect(() => {
+    if (!isAdminUBWeightLocationChecked) {
+      setFieldValue('ubWeightRestriction', `${values.ubWeightRestriction}`);
+    }
+  }, [setFieldValue, values.ubWeightRestriction, isAdminUBWeightLocationChecked]);
+
   const handleAdminWeightLocationChange = (e) => {
     const isChecked = e.target.checked;
     setIsAdminWeightLocationChecked(isChecked);
@@ -51,6 +60,19 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
       setFieldValue('weightRestriction', `${values.weightRestriction}`);
     } else {
       setFieldValue('weightRestriction', null);
+    }
+  };
+
+  const handleAdminUBWeightLocationChange = (e) => {
+    const isChecked = e.target.checked;
+    setIsAdminUBWeightLocationChecked(isChecked);
+
+    if (!isChecked) {
+      setFieldValue('ubWeightRestriction', `${values.ubWeightRestriction}`);
+    } else if (isChecked && values.ubWeightRestriction) {
+      setFieldValue('ubWeightRestriction', `${values.ubWeightRestriction}`);
+    } else {
+      setFieldValue('ubWeightRestriction', null);
     }
   };
 
@@ -215,6 +237,40 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           isDisabled={formIsDisabled}
         />
       )}
+      <div className={styles.wrappedCheckbox}>
+        <CheckboxField
+          data-testid="adminUBWeightLocation"
+          id="adminUBWeightLocation"
+          name="adminRestrictedUBWeightLocation"
+          label="Admin restricted UB weight location"
+          isDisabled={formIsDisabled}
+          onChange={handleAdminUBWeightLocationChange}
+          checked={isAdminUBWeightLocationChecked}
+        />
+      </div>
+      {isAdminUBWeightLocationChecked && (
+        <MaskedTextField
+          data-testid="ubWeightRestrictionInput"
+          id="ubWeightRestrictionId"
+          name="ubWeightRestriction"
+          label="UB Weight Restriction (lbs)"
+          mask={Number}
+          scale={0}
+          signed={false}
+          thousandsSeparator=","
+          lazy={false}
+          isDisabled={formIsDisabled}
+        />
+      )}
+      <div className={styles.wrappedCheckbox}>
+        <CheckboxField
+          id="dependentsAuthorizedInput"
+          data-testid="dependentsAuthorizedInput"
+          name="dependentsAuthorized"
+          label="Dependents authorized"
+          isDisabled={formIsDisabled}
+        />
+      </div>
     </div>
   );
 };

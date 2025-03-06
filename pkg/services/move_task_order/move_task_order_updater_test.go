@@ -22,11 +22,12 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusServiceCounselingCompleted() {
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	queryBuilder := query.NewQueryBuilder()
 	planner := &routemocks.Planner{}
 	ppmEstimator := &mocks.PPMEstimator{}
@@ -80,7 +81,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 	mtoUpdater := mt.NewMoveTaskOrderUpdater(
 		queryBuilder,
@@ -387,14 +387,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCounselingInfo() {
 
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &routemocks.Planner{}
 	ppmEstimator := &mocks.PPMEstimator{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -555,14 +554,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Set up the necessary updater objects:
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &routemocks.Planner{}
 	ppmEstimator := &mocks.PPMEstimator{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -776,7 +774,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 	suite.Run("Service item creator is not called if move fails to get approved", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 		// Create move in DRAFT status, which should fail to get approved
 		move := factory.BuildMove(suite.DB(), nil, nil)
@@ -795,7 +793,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 	suite.Run("When ETag is stale", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 
 		move := factory.BuildSubmittedMove(suite.DB(), nil, nil)
@@ -810,13 +808,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 
 	suite.Run("Approves a move and creates Move management and Service counseling service items when both are specified", func() {
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(400, nil)
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
@@ -845,7 +842,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 	})
 	suite.Run("Approves a move and removes assigned TOO office user", func() {
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -872,13 +869,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 
 	suite.Run("Approves a move and only creates Move management when it's the only one specified", func() {
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(400, nil)
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
@@ -905,7 +901,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 
 	suite.Run("Approves a move and only creates CS service item when it's the only one specified", func() {
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
@@ -932,7 +928,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 
 	suite.Run("Does not create service items if neither CS nor MS are requested", func() {
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 
@@ -954,7 +950,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 	suite.Run("Does not approve a move if Order is missing required fields", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 
 		orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
@@ -1037,7 +1033,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	suite.Run("Successfully makes move available to Prime", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
@@ -1052,7 +1048,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	suite.Run("Does not update move that is already available to Prime", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 
 		now := time.Now()
@@ -1076,7 +1072,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	suite.Run("Returns error if move is not found", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 		moveID := uuid.Must(uuid.NewV4())
 
@@ -1118,7 +1114,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_BillableWeights
 	suite.Run("Service item creator is not called if move fails to get approved", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(move.UpdatedAt)
@@ -1132,7 +1128,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_BillableWeights
 	suite.Run("When ETag is stale", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 
 		move := factory.BuildSubmittedMove(suite.DB(), nil, nil)
@@ -1149,7 +1145,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_TIORemarks() {
 	mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 	ppmEstimator := &mocks.PPMEstimator{}
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
@@ -1224,14 +1220,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePPMType()
 
 	// Set up the necessary updater objects:
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &routemocks.Planner{}
 	ppmEstimator := &mocks.PPMEstimator{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {

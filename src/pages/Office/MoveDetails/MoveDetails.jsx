@@ -449,6 +449,7 @@ const MoveDetails = ({
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
     weightRestriction: allowances.weightRestriction,
+    ubWeightRestriction: allowances.ubWeightRestriction,
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,

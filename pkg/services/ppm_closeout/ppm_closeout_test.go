@@ -333,7 +333,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCloseout() {
 		appCtx := suite.AppContextForTest()
 
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"50309", "30813", false).Return(2294, nil)
+			"50309", "30813").Return(2294, nil)
 
 		mockedPaymentRequestHelper.On(
 			"FetchServiceParamsForServiceItems",
@@ -389,7 +389,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCloseout() {
 		appCtx := suite.AppContextForTest()
 
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"50309", "30813", false).Return(2294, nil)
+			"50309", "30813").Return(2294, nil)
 
 		mockedPaymentRequestHelper.On(
 			"FetchServiceParamsForServiceItems",

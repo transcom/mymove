@@ -37,6 +37,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -44,7 +45,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	fetcher := fetch.NewFetcher(builder)
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
@@ -59,7 +60,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 	vLocationServices := address.NewVLocation()
 

@@ -1500,7 +1500,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.DestinationAddress = destinationAddress
 		mockedPlanner := &routemocks.Planner{}
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813", false).Return(2294, nil)
+			"90210", "30813").Return(2294, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
 
@@ -1516,6 +1516,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		subtestData := setUpForTests(newFakeEstimatedIncentive, newFakeSITEstimatedCost, nil, nil)
 		sitLocationDestination := models.SITLocationTypeDestination
 		entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+		// we do not have a contract for this date
+		invalidDate := time.Date(2017, time.March, 15, 0, 0, 0, 0, time.UTC)
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
 		city := "Atco"
@@ -1538,7 +1540,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					ExpectedDepartureDate:     entryDate.Add(time.Hour * 24 * 30),
+					ExpectedDepartureDate:     invalidDate,
 					SITExpected:               models.BoolPointer(true),
 					SITLocation:               &sitLocationDestination,
 					SITEstimatedEntryDate:     &entryDate,
@@ -1556,7 +1558,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.DestinationAddress = destinationAddress
 		mockedPlanner := &routemocks.Planner{}
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813", false).Return(2294, nil)
+			"90210", "30813").Return(2294, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
 

@@ -50,7 +50,7 @@ func main() {
 	}
 
 	appCtx := appcontext.NewAppContext(nil, logger, nil)
-	path, err := generator.MergeImagesToPDF(appCtx, inputFiles)
+	path, err := generator.MergeImagesToPDF(appCtx, inputFiles, "")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

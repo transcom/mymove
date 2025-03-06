@@ -151,11 +151,13 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		const fairbanksAlaskaPostalCode = "99716"
 		const anchorageAlaskaPostalCode = "99521"
 		const wasillaAlaskaPostalCode = "99652"
+		const beverlyHillsCAPostalCode = "90210"
 
 		//clear MTOShipment and rebuild with specifics for test
 		newMove.MTOShipments = newMove.MTOShipments[:0]
 
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			MarketCode: models.MarketCodeInternational,
 			PickupAddress: &models.Address{
 				StreetAddress1: "123 Main St",
 				StreetAddress2: &streetAddress2,
@@ -175,6 +177,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			},
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			MarketCode: models.MarketCodeInternational,
 			PickupAddress: &models.Address{
 				StreetAddress1: "123 Main St",
 				StreetAddress2: &streetAddress2,
@@ -195,6 +198,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
 			ShipmentType: models.MTOShipmentTypePPM,
+			MarketCode:   models.MarketCodeInternational,
 			PPMShipment: &models.PPMShipment{
 				ID:                          uuid.Must(uuid.NewV4()),
 				ApprovedAt:                  models.TimePointer(time.Now()),
@@ -224,6 +228,8 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			},
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypePPM,
+			MarketCode:   models.MarketCodeDomestic,
 			PPMShipment: &models.PPMShipment{
 				ID:                          uuid.Must(uuid.NewV4()),
 				ApprovedAt:                  models.TimePointer(time.Now()),
@@ -240,7 +246,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					StreetAddress3: &streetAddress3,
 					City:           "Beverly Hills",
 					State:          "CA",
-					PostalCode:     "90210",
+					PostalCode:     beverlyHillsCAPostalCode,
 				},
 				DestinationAddress: &models.Address{
 					StreetAddress1: "123 Main St",
@@ -248,18 +254,19 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					StreetAddress3: &streetAddress3,
 					City:           "Beverly Hills",
 					State:          "CA",
-					PostalCode:     "90210",
+					PostalCode:     beverlyHillsCAPostalCode,
 				},
 			},
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			MarketCode: models.MarketCodeDomestic,
 			PickupAddress: &models.Address{
 				StreetAddress1:   "123 Main St",
 				StreetAddress2:   &streetAddress2,
 				StreetAddress3:   &streetAddress3,
 				City:             "Beverly Hills",
 				State:            "CA",
-				PostalCode:       "90210",
+				PostalCode:       beverlyHillsCAPostalCode,
 				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 			DestinationAddress: &models.Address{
@@ -268,7 +275,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 				StreetAddress3:   &streetAddress3,
 				City:             "Beverly Hills",
 				State:            "CA",
-				PostalCode:       "90210",
+				PostalCode:       beverlyHillsCAPostalCode,
 				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 		})
@@ -333,6 +340,14 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					ID:   uuid.Must(uuid.NewV4()),
 					Code: wasillaAlaskaPostalCode,
 					Name: wasillaAlaskaPostalCode,
+				},
+			},
+			{
+				PostalCode: beverlyHillsCAPostalCode,
+				RateArea: &models.ReRateArea{
+					ID:   uuid.Must(uuid.NewV4()),
+					Code: beverlyHillsCAPostalCode,
+					Name: beverlyHillsCAPostalCode,
 				},
 			},
 		}
@@ -546,6 +561,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			CreatedAt:           time.Now(),
 			UpdatedAt:           time.Now(),
 			WeightRestriction:   models.IntPointer(1000),
+			UBWeightRestriction: models.IntPointer(1200),
 		}
 
 		payload := Entitlement(&entitlement)
@@ -569,6 +585,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(int64(0), payload.TotalWeight)
 		suite.Equal(int64(0), *payload.UnaccompaniedBaggageAllowance)
 		suite.Equal(int64(1000), *payload.WeightRestriction)
+		suite.Equal(int64(1200), *payload.UbWeightRestriction)
 	})
 
 	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {

@@ -11,11 +11,12 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	sitExtensionDenier := NewSITExtensionDenier(moveRouter)
 
 	suite.Run("Returns an error when shipment is not found", func() {
