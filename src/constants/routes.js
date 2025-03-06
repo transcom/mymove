@@ -181,4 +181,5 @@ export const primeSimulatorRoutes = {
 
 export const adminRoutes = {
   HOME_PATH: '/',
+  REJECTED_OFFICE_USERS: '/system/rejected-office-users',
 };

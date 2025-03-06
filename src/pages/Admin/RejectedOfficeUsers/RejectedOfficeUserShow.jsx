@@ -14,10 +14,12 @@ import {
   Toolbar,
   Confirm,
 } from 'react-admin';
+import { useNavigate } from 'react-router';
 
 import styles from './RejectedOfficeUserShow.module.scss';
 
 import { deleteOfficeUser } from 'services/adminApi';
+import { adminRoutes } from 'constants/routes';
 
 const RejectedOfficeUserShowTitle = () => {
   const record = useRecordContext();
@@ -41,6 +43,7 @@ const RejectedOfficeUserShowRoles = () => {
 
 const RejectedOfficeUserShow = () => {
   const redirect = useRedirect();
+  const navigate = useNavigate();
   const [serverError, setServerError] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [userData, setUserData] = React.useState({});
@@ -53,7 +56,7 @@ const RejectedOfficeUserShow = () => {
   const deleteUser = async () => {
     await deleteOfficeUser(userData.id)
       .then(() => {
-        redirect('/');
+        navigate(adminRoutes.REJECTED_OFFICE_USERS);
       })
       .catch((error) => {
         setServerError(error);
