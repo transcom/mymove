@@ -106,13 +106,13 @@ const PPMSummaryStatus = (
   } = shipment;
 
   const handleDownloadSuccess = (response) => {
-    setShowLoadingSpinner(false, null);
     onPacketDownloadSuccessHandler(response);
+    setShowLoadingSpinner(false, null);
   };
 
   const handleDownloadFailure = () => {
-    setShowLoadingSpinner(false, null);
     onDownloadError();
+    setShowLoadingSpinner(false, null);
   };
 
   let actionButtons;
