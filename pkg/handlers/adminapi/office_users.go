@@ -120,13 +120,19 @@ var officeUserFilterConverters = map[string]func(string) func(*pop.Query){
 	"search": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
 			firstSearch, lastSearch, emailSearch := fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content)
-			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'APPROVED' OR office_users.last_name ILIKE ? AND office_users.status = 'APPROVED' OR office_users.email ILIKE ? AND office_users.status = 'APPROVED'", firstSearch, lastSearch, emailSearch)
+			query.Where("(office_users.first_name ILIKE ? OR office_users.last_name ILIKE ? OR office_users.email ILIKE ?) AND office_users.status = 'APPROVED'", firstSearch, lastSearch, emailSearch)
 		}
 	},
 	"email": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
 			emailSearch := fmt.Sprintf("%%%s%%", content)
 			query.Where("office_users.email ILIKE ? AND office_users.status = 'APPROVED'", emailSearch)
+		}
+	},
+	"phone": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			phoneSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.telephone ILIKE ? AND office_users.status = 'APPROVED'", phoneSearch)
 		}
 	},
 	"firstName": func(content string) func(*pop.Query) {

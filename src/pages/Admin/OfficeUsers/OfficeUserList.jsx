@@ -95,6 +95,7 @@ const ListActions = () => {
 const filterList = [
   <SearchInput source="search" alwaysOn />,
   <TextInput label="Email" source="email" />,
+  <TextInput label="Telephone" source="phone" />,
   <TextInput label="First Name" source="firstName" />,
   <TextInput label="Last Name" source="lastName" />,
   <TextInput label="Office" source="office" />,

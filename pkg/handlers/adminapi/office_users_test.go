@@ -148,6 +148,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 					LastName:  "Jolie",
 					Email:     "laraCroft@mail.mil",
 					Status:    &status,
+					Telephone: "555-555-5555",
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
@@ -158,6 +159,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 					LastName:  "Bob",
 					Email:     "bigBob@mail.mil",
 					Status:    &status,
+					Telephone: "555-555-5555",
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTIO})
@@ -168,6 +170,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 					LastName:  "Cage",
 					Email:     "conAirKilluh@mail.mil",
 					Status:    &status,
+					Telephone: "555-555-5555",
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
@@ -179,6 +182,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 					Email:                  "conAirKilluh2@mail.mil",
 					Status:                 &status,
 					TransportationOfficeID: transportationOffice.ID,
+					Telephone:              "415-555-5555",
 				},
 			},
 			{
@@ -228,6 +232,22 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		respEmail := *okResponse.Payload[0].Email
 		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
 		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
+
+		// telephone search
+		phoneSearch := "415-"
+		filterJSON = fmt.Sprintf("{\"phone\":\"%s\"}", phoneSearch)
+		params = officeuserop.IndexOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
+		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+
+		respPhone := *okResponse.Payload[0].Telephone
+		suite.Equal(phoneSearch, respPhone[0:len(phoneSearch)])
 
 		// firstName search
 		firstSearch := "Angelina"
