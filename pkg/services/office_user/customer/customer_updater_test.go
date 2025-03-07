@@ -27,7 +27,7 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 	})
 
 	suite.Run("Customer fields are updated", func() {
-		defaultCustomer := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
+		defaultCustomer := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 		var backupContacts []models.BackupContact
 		backupContact := models.BackupContact{
