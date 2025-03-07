@@ -287,7 +287,7 @@ test.describe('TOO user', () => {
     await expect(originalDeliveryAddress.getByTestId('State')).toHaveText('AK');
     await expect(originalDeliveryAddress.getByTestId('ZIP')).toHaveText(originalZip);
 
-    // click to trigger review modal
+    // Click to trigger review modal
     await page.getByRole('button', { name: 'Review request' }).click();
     await expect(page.getByTestId('modal')).toBeVisible();
 
