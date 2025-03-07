@@ -18,6 +18,12 @@ update addresses set city = 'Fort Bragg', us_post_region_cities_id = '5888ab84-a
 
 update transportation_offices set name = 'PPPO Fort Bragg - USA' where id = 'e3c44c50-ece0-4692-8aad-8c9600000000';
 
+update addresses set city = 'Fort Bragg', us_post_region_cities_id = 'c8898dc9-9ebb-4651-b9d4-6757a6a172fc', updated_at = now() where us_post_region_cities_id = 'd44e0431-11b1-42de-8a5e-4a0b5e4f4438';
+update addresses set city = 'Fort Bragg', us_post_region_cities_id = '5888ab84-a8c6-4e8d-b3e6-7975e981241d', updated_at = now() where us_post_region_cities_id = '641e7e91-5a13-42e7-8d4e-efab04db8bdb';
+
+delete from us_post_region_cities where id = 'd44e0431-11b1-42de-8a5e-4a0b5e4f4438';
+delete from us_post_region_cities where id = '641e7e91-5a13-42e7-8d4e-efab04db8bdb';
+delete from re_cities where id = 'ea00a8e0-677b-4005-aa3d-756c7d4547c0';
 
 --Fort Moore, GA to Fort Benning, GA
 
@@ -32,3 +38,7 @@ update addresses set city = 'Fort Benning', us_post_region_cities_id = '4a8ef8f0
 
 update transportation_offices set name = 'PPPO Fort Benning - USA' where id = '5a9ed15c-ed78-47e5-8afd-7583f3cc660d';
 
+update addresses set city = 'Fort Benning', us_post_region_cities_id = '4a8ef8f0-e986-4059-8bc8-4de0401d7009', updated_at = now() where us_post_region_cities_id = 'b57587f3-3b6c-4bbf-b48d-6a153ba6d75c';
+
+delete from us_post_region_cities where id = 'b57587f3-3b6c-4bbf-b48d-6a153ba6d75c';
+delete from re_cities where id = '7ca876e4-90f0-4f59-b448-29a61120b665';
