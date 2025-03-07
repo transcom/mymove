@@ -105,21 +105,6 @@ func init() {
               "$ref": "#/definitions/AcknowledgeMovesShipmentsSuccessResponse"
             }
           },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "409": {
-            "$ref": "#/responses/Conflict"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
           },
@@ -5398,36 +5383,6 @@ func init() {
             "description": "Successfully updated Move and Shipment Acknowledgements.",
             "schema": {
               "$ref": "#/definitions/AcknowledgeMovesShipmentsSuccessResponse"
-            }
-          },
-          "401": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "403": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "409": {
-            "description": "The request could not be processed because of conflict in the current state of the resource.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
