@@ -122,3 +122,11 @@ export function isBoatShipmentComplete(mtoShipment) {
 export function isMobileHomeShipmentComplete(mtoShipment) {
   return mtoShipment?.requestedPickupDate;
 }
+
+export function hasIncompleteWeightTicket(weightTickets) {
+  if (!weightTickets?.length) {
+    return false;
+  }
+
+  return !weightTickets?.every(isWeightTicketComplete);
+}
