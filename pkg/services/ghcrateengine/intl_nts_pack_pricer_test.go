@@ -23,6 +23,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlNTSHHGPackPricer() {
 		inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)
 		ntsMarketFactor, err := models.FetchMarketFactor(suite.AppContextForTest(), contract.ID, inpkReService.ID, "O")
 		suite.FatalNoError(err)
+		suite.FatalTrue(suite.NotEmpty(ntsMarketFactor))
 
 		// Multiply the IHPK price by the NTS markert factor to ensure it math'd properly
 		suite.Equal((float64(ihpkTestTotalCost) * ntsMarketFactor), float64(totalCost))

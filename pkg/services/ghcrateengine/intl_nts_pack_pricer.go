@@ -74,21 +74,7 @@ func (p *intlNTSHHGPackPricer) PriceUsingParams(
 		return 0, nil, err
 	}
 
-	// Now we get the info needed for the INPK market factor
-
-	contract, err := fetchContractFromParams(appCtx, params)
-	if err != nil {
-		return 0, nil, err
-	}
-
-	inpk, err := models.FetchReServiceByCode(appCtx.DB(), models.ReServiceCodeINPK)
-	if err != nil {
-		return 0, nil, err
-	}
-
-	// Now we get the factor itself
-	// TODO: Make this a service param lookup
-	factor, err := models.FetchMarketFactor(appCtx, contract.ID, inpk.ID, "O")
+	factor, err := getParamFloat(params, models.ServiceItemParamNameNTSPackingFactor)
 	if err != nil {
 		return 0, nil, err
 	}

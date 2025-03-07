@@ -111,6 +111,15 @@ func (suite *GHCRateEngineServiceSuite) setupIntlPackServiceItem(code models.ReS
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(ihpkTestWeight.Int()),
 			},
+			{
+				Key:     models.ServiceItemParamNameNTSPackingFactor,
+				KeyType: models.ServiceItemParamTypeDecimal,
+				// Note for a future dev
+				// If you are looking at line, the packing factor is probably breaking something
+				// If that is the case, this is supposed to match the non-truncated db value
+				// It shouldn't really ever change, but if it did just update it here to match
+				Value: strconv.FormatFloat(1.45, 'f', -1, 64),
+			},
 		}, []factory.Customization{{
 			// Available to prime is used to fetch market factors for moves
 			// The market factor can only be fetched if it's available to the Prime
