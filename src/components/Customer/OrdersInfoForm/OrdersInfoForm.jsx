@@ -482,19 +482,34 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
               {isCivilianTDYMove && (
                 <FormGroup>
-                  <MaskedTextField
-                    data-testid="civilianUBAllowance"
-                    warning={civilianTDYUBAllowanceWarning}
-                    defaultValue="0"
-                    name="civilian_ub_allowance"
-                    label="If your orders specify a specific UB weight allowance, enter it here"
-                    id="civilianUBAllowance"
-                    mask={Number}
-                    scale={0}
-                    signed={false}
-                    thousandsSeparator=","
-                    lazy={false}
-                  />
+                  <div>
+                    <MaskedTextField
+                      data-testid="civilianUBAllowance"
+                      warning={civilianTDYUBAllowanceWarning}
+                      defaultValue="0"
+                      name="civilian_ub_allowance"
+                      id="civilianUBAllowance"
+                      mask={Number}
+                      scale={0}
+                      signed={false}
+                      thousandsSeparator=","
+                      lazy={false}
+                      labelHint="Optional"
+                      label={
+                        <>
+                          If your orders specify a specific UB weight allowance, enter it here.
+                          <ToolTip
+                            text="If you do not specify a UB weight allowance, the default of  0 lbs will be used."
+                            position="right"
+                            icon="info-circle"
+                            color="blue"
+                            data-testid="civilianTDYUBAllowanceToolTip"
+                            closeOnLeave
+                          />
+                        </>
+                      }
+                    />
+                  </div>
                 </FormGroup>
               )}
             </SectionWrapper>
