@@ -148,6 +148,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 					LastName:  "Jolie",
 					Email:     "laraCroft@mail.mil",
 					Status:    &status,
+					Telephone: "555-555-5555",
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
@@ -158,6 +159,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 					LastName:  "Bob",
 					Email:     "bigBob@mail.mil",
 					Status:    &status,
+					Telephone: "555-555-5555",
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTIO})
@@ -168,6 +170,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 					LastName:  "Cage",
 					Email:     "conAirKilluh@mail.mil",
 					Status:    &status,
+					Telephone: "555-555-5555",
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
@@ -243,8 +246,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
 
-		respPhone := *okResponse.Payload[0].Email
-		suite.Equal(phoneSearch, respPhone[0:len(phoneSearch)])
+		respPhone := *okResponse.Payload[0].Telephone
 		suite.Equal(phoneSearch, respPhone[0:len(phoneSearch)])
 
 		// firstName search
