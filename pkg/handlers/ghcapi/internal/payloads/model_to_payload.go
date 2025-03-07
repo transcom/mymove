@@ -2423,6 +2423,18 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 					availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
 				}
 			}
+			if (activeRole == string(roles.RoleTypeTOO)) && (move.TOODestinationAssignedUser !=nil) {
+				userFound := false
+				for _, officeUser := range availableOfficeUsers {
+					if officeUser.ID == *move.TOODestinationAssignedID {
+						userFound = true
+						break
+					}
+				}
+				if !userFound {
+					availableOfficeUsers = append(availableOfficeUsers, *move.TOODestinationAssignedUser)
+				}
+			}
 
 			if activeRole == string(roles.RoleTypeServicesCounselor) {
 				availableOfficeUsers = servicesCounselorAvailableOfficeUsers(move, availableOfficeUsers, officeUser, ppmCloseoutGblocs, isCloseoutQueue)

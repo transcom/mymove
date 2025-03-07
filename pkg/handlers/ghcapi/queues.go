@@ -219,11 +219,14 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				PerPage:                    params.PerPage,
 				Sort:                       params.Sort,
 				Order:                      params.Order,
-				TOOAssignedUser:            params.AssignedTo,
-				CounselingOffice:           params.CounselingOffice,
 				TOODestinationAssignedUser: params.AssignedTo,
+				CounselingOffice:           params.CounselingOffice,
 			}
 
+			var activeRole string
+			if params.ActiveRole != nil {
+				activeRole = *params.ActiveRole
+			}
 			// we only care about moves in APPROVALS REQUESTED status
 			if params.Status == nil {
 				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVALSREQUESTED)}
@@ -321,7 +324,6 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				}
 			}
 
-			var activeRole string
 			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole)
 
 			result := &ghcmessages.QueueMovesResult{

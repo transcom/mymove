@@ -4858,6 +4858,12 @@ func init() {
           },
           {
             "type": "string",
+            "description": "user's actively logged in role.\n",
+            "name": "activeRole",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
             "in": "query"
@@ -22090,6 +22096,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this move.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role.\n",
+            "name": "activeRole",
             "in": "query"
           },
           {
