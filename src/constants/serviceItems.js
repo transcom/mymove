@@ -163,6 +163,7 @@ const SERVICE_ITEM_CODES = {
   POEFSC: 'POEFSC',
   PODFSC: 'PODFSC',
   IHPK: 'IHPK',
+  INPK: 'INPK',
   IHUPK: 'IHUPK',
   ISLH: 'ISLH',
 };
