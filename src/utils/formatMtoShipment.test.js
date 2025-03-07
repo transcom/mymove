@@ -692,6 +692,9 @@ describe('formatPpmShipmentForAPI', () => {
       advance: '2000',
 
       counselorRemarks: 'test remarks',
+      closeoutOffice: {
+        id: '3352efbd-10df-4f6d-8ba9-6109f12b51f6',
+      },
     };
 
     const { counselorRemarks, ppmShipment } = formatPpmShipmentForAPI(formValues);
@@ -720,6 +723,7 @@ describe('formatPpmShipmentForAPI', () => {
     expect(ppmShipment.advanceAmountRequested).toEqual(200000);
 
     expect(counselorRemarks).toEqual('test remarks');
+    expect(ppmShipment.closeoutOfficeID).toEqual('3352efbd-10df-4f6d-8ba9-6109f12b51f6');
   });
 
   it('converts minimal formValues to api values', () => {
