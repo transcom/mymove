@@ -14,7 +14,7 @@ import (
 type moveAndShipmentAcknowledgementUpdater struct {
 }
 
-// NewPortLocationFetcher returns a new port location fetcher
+// NewMoveAndShipmentAcknowledgementUpdater returns a new moveAndShipmentAcknowledgementUpdater
 func NewMoveAndShipmentAcknowledgementUpdater() services.MoveAndShipmentAcknowledgementUpdater {
 	return &moveAndShipmentAcknowledgementUpdater{}
 }
