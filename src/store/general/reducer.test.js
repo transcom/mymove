@@ -1,5 +1,5 @@
 import generalStateReducer, { initialState } from './reducer';
-import { setCanAddOrders, setMoveId, setShowLoadingSpinner, setRefetchQueue } from './actions';
+import { setCanAddOrders, setMoveId, setRefetchQueue, setShowLoadingSpinner } from './actions';
 
 describe('generalStateReducer', () => {
   it('returns the initial state by default', () => {
