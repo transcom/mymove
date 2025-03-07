@@ -32,8 +32,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	verifyAddressFields := func(address *models.Address, payload *primev3messages.Address) {
 		suite.Equal(address.ID.String(), payload.ID.String())
 		suite.Equal(address.StreetAddress1, *payload.StreetAddress1)
-		suite.Equal(*address.StreetAddress2, *payload.StreetAddress2)
-		suite.Equal(*address.StreetAddress3, *payload.StreetAddress3)
+		if address.StreetAddress2 != nil {
+			suite.Equal(*address.StreetAddress2, *payload.StreetAddress2)
+		}
+		if address.StreetAddress3 != nil {
+			suite.Equal(*address.StreetAddress3, *payload.StreetAddress3)
+		}
 		suite.Equal(address.City, *payload.City)
 		suite.Equal(address.State, *payload.State)
 		suite.Equal(address.PostalCode, *payload.PostalCode)
@@ -46,7 +50,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	setupDefaultTestHandler := func() GetMoveTaskOrderHandler {
 		mockShipmentRateAreaFinder := &mocks.ShipmentRateAreaFinder{}
-		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentOconusRateArea",
+		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.Move"),
 		).Return(nil, nil)
@@ -812,14 +816,24 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NoError(movePayload.Validate(strfmt.Default))
 
 		suite.Len(movePayload.PaymentRequests, 2)
-		paymentRequestPayload := movePayload.PaymentRequests[0]
-		suite.Equal(paymentRequest.ID.String(), paymentRequestPayload.ID.String())
-		suite.Equal(successMove.ID.String(), paymentRequestPayload.MoveTaskOrderID.String())
-		suite.Equal(paymentRequest.IsFinal, *paymentRequestPayload.IsFinal)
-		suite.Equal(*paymentRequest.RejectionReason, *paymentRequestPayload.RejectionReason)
-		suite.Equal(paymentRequest.Status.String(), string(paymentRequestPayload.Status))
-		suite.Equal(paymentRequest.PaymentRequestNumber, paymentRequestPayload.PaymentRequestNumber)
-		suite.Equal(paymentRequest.RecalculationOfPaymentRequestID.String(), paymentRequestPayload.RecalculationOfPaymentRequestID.String())
+		var matchingPR *primev3messages.PaymentRequest
+		for i := range movePayload.PaymentRequests {
+			pr := movePayload.PaymentRequests[i]
+			if pr.ID.String() == paymentRequest.ID.String() {
+				matchingPR = pr
+				break
+			}
+		}
+		paymentRequestPayload := matchingPR
+
+		suite.NotNil(matchingPR, "expected to find a payment request payload matching paymentRequest.ID")
+		suite.Equal(paymentRequest.ID.String(), matchingPR.ID.String())
+		suite.Equal(successMove.ID.String(), matchingPR.MoveTaskOrderID.String())
+		suite.Equal(paymentRequest.IsFinal, *matchingPR.IsFinal)
+		suite.Equal(*paymentRequest.RejectionReason, *matchingPR.RejectionReason)
+		suite.Equal(paymentRequest.Status.String(), string(matchingPR.Status))
+		suite.Equal(paymentRequest.PaymentRequestNumber, matchingPR.PaymentRequestNumber)
+		suite.Equal(paymentRequest.RecalculationOfPaymentRequestID.String(), matchingPR.RecalculationOfPaymentRequestID.String())
 
 		// verify paymentServiceItems
 		suite.Len(paymentRequestPayload.PaymentServiceItems, 2)
@@ -1169,7 +1183,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(payload.ETag())
 	})
 
-	suite.Run("Success - return all MTOServiceItemShuttle fields assoicated with the getMoveTaskOrder", func() {
+	suite.Run("Success - return all MTOServiceItemDomesticShuttle fields assoicated with the getMoveTaskOrder", func() {
 		handler := setupDefaultTestHandler()
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1233,14 +1247,14 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		json, err := json.Marshal(serviceItemPayload)
 		suite.NoError(err)
-		payload := primev3messages.MTOServiceItemShuttle{}
+		payload := primev3messages.MTOServiceItemDomesticShuttle{}
 		err = payload.UnmarshalJSON(json)
 		suite.NoError(err)
 
 		suite.Equal(serviceItem.MoveTaskOrderID.String(), payload.MoveTaskOrderID().String())
 		suite.Equal(serviceItem.MTOShipmentID.String(), payload.MtoShipmentID().String())
 		suite.Equal(serviceItem.ID.String(), payload.ID().String())
-		suite.Equal("MTOServiceItemShuttle", string(payload.ModelType()))
+		suite.Equal("MTOServiceItemDomesticShuttle", string(payload.ModelType()))
 		suite.Equal(string(serviceItem.ReService.Code), string(*payload.ReServiceCode))
 		suite.Equal(serviceItem.ReService.Name, payload.ReServiceName())
 		suite.Equal(string(serviceItem.Status), string(payload.Status()))
@@ -1459,7 +1473,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 		}
 
-		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentOconusRateArea",
+		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.Move"),
 		).Return(&shipmentPostalCodeRateArea, nil)
@@ -1484,6 +1498,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 					PrimeEstimatedWeightRecordedDate: &aWeekAgo,
 					RequiredDeliveryDate:             &nowDate,
 					ScheduledDeliveryDate:            &nowDate,
+					MarketCode:                       models.MarketCodeInternational,
 				},
 			},
 			{
@@ -1538,7 +1553,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		defaultAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentOconusRateArea",
+		mockShipmentRateAreaFinder.On("GetPrimeMoveShipmentRateAreas",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.Move"),
 		).Return(nil, apperror.InternalServerError{})

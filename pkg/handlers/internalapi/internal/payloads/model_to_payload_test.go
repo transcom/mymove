@@ -42,6 +42,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 
 	expectedPPMShipment := models.PPMShipment{
 		ID:                           ppmShipmentID,
+		PPMType:                      models.PPMTypeActualExpense,
 		PickupAddress:                &expectedAddress,
 		DestinationAddress:           &expectedAddress,
 		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
@@ -69,6 +70,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 
+		suite.Equal(internalmessages.PPMType(models.PPMTypeActualExpense), returnedPPMShipment.PpmType)
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
 	})
 }
@@ -119,37 +121,6 @@ func (suite *PayloadsSuite) TestVLocation() {
 		suite.Equal(state, payload.State, "Expected State to match")
 		suite.Equal(postalCode, payload.PostalCode, "Expected PostalCode to match")
 		suite.Equal(county, *(payload.County), "Expected County to match")
-	})
-}
-
-func (suite *PayloadsSuite) TestCounselingOffices() {
-	suite.Run("correctly maps transportaion offices to counseling offices payload", func() {
-		office1 := factory.BuildTransportationOffice(nil, []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					ID:   uuid.Must(uuid.NewV4()),
-					Name: "PPPO Fort Liberty",
-				},
-			},
-		}, nil)
-
-		office2 := factory.BuildTransportationOffice(nil, []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					ID:   uuid.Must(uuid.NewV4()),
-					Name: "PPPO Fort Walker",
-				},
-			},
-		}, nil)
-
-		offices := models.TransportationOffices{office1, office2}
-
-		payload := CounselingOffices(offices)
-
-		suite.IsType(payload, internalmessages.CounselingOffices{})
-		suite.Equal(2, len(payload))
-		suite.Equal(office1.ID.String(), payload[0].ID.String())
-		suite.Equal(office2.ID.String(), payload[1].ID.String())
 	})
 }
 
@@ -214,5 +185,36 @@ func (suite *PayloadsSuite) TestWeightTicket() {
 		suite.Equal(handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight), parsedWeightTicket.AdjustedNetWeight)
 		suite.Equal("Test remarks", *parsedWeightTicket.NetWeightRemarks)
 		suite.Equal(etag.GenerateEtag(weightTicket.UpdatedAt), parsedWeightTicket.ETag)
+	})
+}
+
+func (suite *PayloadsSuite) TestCounselingOffices() {
+	suite.Run("correctly maps transportaion offices to counseling offices payload", func() {
+		office1 := factory.BuildTransportationOffice(nil, []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Liberty",
+				},
+			},
+		}, nil)
+
+		office2 := factory.BuildTransportationOffice(nil, []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Walker",
+				},
+			},
+		}, nil)
+
+		offices := models.TransportationOffices{office1, office2}
+
+		payload := CounselingOffices(offices)
+
+		suite.IsType(payload, internalmessages.CounselingOffices{})
+		suite.Equal(2, len(payload))
+		suite.Equal(office1.ID.String(), payload[0].ID.String())
+		suite.Equal(office2.ID.String(), payload[1].ID.String())
 	})
 }

@@ -1666,6 +1666,57 @@ func init() {
         }
       }
     },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -3920,6 +3971,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -4486,6 +4540,18 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
+        },
+        "weight_restriction": {
+          "description": "Indicates the weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -6023,6 +6089,10 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -6037,6 +6107,10 @@ func init() {
         },
         "uploaded_orders": {
           "$ref": "#/definitions/Document"
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -6501,6 +6575,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -6673,6 +6750,16 @@ func init() {
         "CANCELED"
       ],
       "readOnly": true
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
+      ]
     },
     "PatchMovePayload": {
       "type": "object",
@@ -7826,6 +7913,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -10430,6 +10520,57 @@ func init() {
                 "$ref": "#/definitions/ValidationError"
               }
             }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
           },
           "500": {
             "description": "internal server error"
@@ -13047,6 +13188,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -13615,6 +13759,18 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
+        },
+        "weight_restriction": {
+          "description": "Indicates the weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -15154,6 +15310,10 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -15168,6 +15328,10 @@ func init() {
         },
         "uploaded_orders": {
           "$ref": "#/definitions/Document"
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -15633,6 +15797,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -15805,6 +15972,16 @@ func init() {
         "CANCELED"
       ],
       "readOnly": true
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
+      ]
     },
     "PatchMovePayload": {
       "type": "object",
@@ -16960,6 +17137,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",

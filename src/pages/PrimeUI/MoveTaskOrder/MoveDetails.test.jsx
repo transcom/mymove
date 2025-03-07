@@ -8,6 +8,7 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/primeApi';
 import { primeSimulatorRoutes } from 'constants/routes';
+import { formatWeight } from 'utils/formatters';
 
 const mockRequestedMoveCode = 'LN4T89';
 
@@ -178,7 +179,7 @@ const moveTaskOrder = {
       id: 'serviceItemPOEFSC',
       moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
       mtoShipmentID: '6',
-      reServiceName: 'International POD Fuel Surcharge',
+      reServiceName: 'International POD fuel surcharge',
       status: 'APPROVED',
     },
     {
@@ -187,13 +188,15 @@ const moveTaskOrder = {
       id: 'serviceItemPOEFSC',
       moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
       mtoShipmentID: '5',
-      reServiceName: 'International POE Fuel Surcharge',
+      reServiceName: 'International POE fuel surcharge',
       status: 'APPROVED',
     },
   ],
   order: {
     entitlement: {
       gunSafe: true,
+      weightRestriction: 500,
+      ubWeightRestriction: 350,
     },
   },
 };
@@ -224,6 +227,30 @@ const renderWithProviders = (component) => {
 };
 describe('PrimeUI MoveDetails page', () => {
   describe('check move details page load', () => {
+    it('renders move and entitlement detais on load', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+
+      renderWithProviders(<MoveDetails />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Move Code/)).toBeInTheDocument();
+        expect(screen.getByText(/Move Id/)).toBeInTheDocument();
+        const gunSafe = screen.getByText('Gun Safe:');
+        expect(gunSafe).toBeInTheDocument();
+        expect(gunSafe.nextElementSibling.textContent).toBe('yes');
+        const adminRestrictedWeight = screen.getByText('Admin Restricted Weight:');
+        expect(adminRestrictedWeight).toBeInTheDocument();
+        expect(adminRestrictedWeight.nextElementSibling.textContent).toBe(
+          formatWeight(moveTaskOrder.order.entitlement.weightRestriction),
+        );
+        const adminRestrictedUBWeight = screen.getByText('Admin Restricted UB Weight:');
+        expect(adminRestrictedUBWeight).toBeInTheDocument();
+        expect(adminRestrictedUBWeight.nextElementSibling.textContent).toBe(
+          formatWeight(moveTaskOrder.order.entitlement.ubWeightRestriction),
+        );
+      });
+    });
+
     it('displays payment requests information', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       renderWithProviders(<MoveDetails />);

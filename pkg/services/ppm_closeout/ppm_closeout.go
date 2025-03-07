@@ -212,7 +212,33 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 			return nil, apperror.NewQueryError("PPMShipment", err, "while looking for PPMShipment")
 		}
 	}
+
+	// the following checks are needed since we can't use "ExcludeDeletedScope()" in the big query above
+	// this is because not all of the tables being queried have "deleted_at" columns and this returns an error
+	if ppmShipment.WeightTickets != nil {
+		var filteredWeightTickets []models.WeightTicket
+		// We do not need to consider deleted weight tickets or uploads within them
+		for _, wt := range ppmShipment.WeightTickets {
+			if wt.DeletedAt == nil {
+				wt.EmptyDocument.UserUploads = wt.EmptyDocument.UserUploads.FilterDeleted()
+				wt.FullDocument.UserUploads = wt.FullDocument.UserUploads.FilterDeleted()
+				wt.ProofOfTrailerOwnershipDocument.UserUploads = wt.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
+				filteredWeightTickets = append(filteredWeightTickets, wt)
+			}
+		}
+		ppmShipment.WeightTickets = filteredWeightTickets
+	}
+	// We do not need to consider deleted moving expenses
+	if len(ppmShipment.MovingExpenses) > 0 {
+		ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
+	}
+	// We do not need to consider deleted progear weight tickets
+	if len(ppmShipment.ProgearWeightTickets) > 0 {
+		ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
+	}
+
 	var weightTicket models.WeightTicket
+
 	if len(ppmShipment.WeightTickets) >= 1 {
 		weightTicket = ppmShipment.WeightTickets[0]
 	}
@@ -248,7 +274,7 @@ func (p *ppmCloseoutFetcher) GetExpenseStoragePrice(appCtx appcontext.AppContext
 	}
 
 	for _, movingExpense := range expenseItems {
-		if movingExpense.MovingExpenseType != nil && *movingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage && *movingExpense.Status == models.PPMDocumentStatusApproved {
+		if movingExpense.MovingExpenseType != nil && movingExpense.Status != nil && *movingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage && *movingExpense.Status == models.PPMDocumentStatusApproved {
 			storageExpensePrice += *movingExpense.Amount
 		}
 	}

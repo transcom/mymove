@@ -4,6 +4,7 @@ package ghcapi
 
 import (
 	"crypto/tls"
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -64,6 +65,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 
 	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
+	api.TextEventStreamProducer = runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
+		return errors.NotImplemented("textEventStream producer has not yet been implemented")
+	})
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// uploads.CreateUploadMaxParseMemory = 32 << 20
@@ -247,6 +251,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation customer_support_remarks.GetCustomerSupportRemarksForMove has not yet been implemented")
 		})
 	}
+	if api.QueuesGetDestinationRequestsQueueHandler == nil {
+		api.QueuesGetDestinationRequestsQueueHandler = queues.GetDestinationRequestsQueueHandlerFunc(func(params queues.GetDestinationRequestsQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetDestinationRequestsQueue has not yet been implemented")
+		})
+	}
 	if api.GhcDocumentsGetDocumentHandler == nil {
 		api.GhcDocumentsGetDocumentHandler = ghc_documents.GetDocumentHandlerFunc(func(params ghc_documents.GetDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation ghc_documents.GetDocument has not yet been implemented")
@@ -397,6 +406,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
 		})
 	}
+	if api.UploadsGetUploadStatusHandler == nil {
+		api.UploadsGetUploadStatusHandler = uploads.GetUploadStatusHandlerFunc(func(params uploads.GetUploadStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUploadStatus has not yet been implemented")
+		})
+	}
 	if api.CalendarIsDateWeekendHolidayHandler == nil {
 		api.CalendarIsDateWeekendHolidayHandler = calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
 			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
@@ -450,6 +464,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ShipmentReviewShipmentAddressUpdateHandler == nil {
 		api.ShipmentReviewShipmentAddressUpdateHandler = shipment.ReviewShipmentAddressUpdateHandlerFunc(func(params shipment.ReviewShipmentAddressUpdateParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ReviewShipmentAddressUpdate has not yet been implemented")
+		})
+	}
+	if api.QueuesSaveBulkAssignmentDataHandler == nil {
+		api.QueuesSaveBulkAssignmentDataHandler = queues.SaveBulkAssignmentDataHandlerFunc(func(params queues.SaveBulkAssignmentDataParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.SaveBulkAssignmentData has not yet been implemented")
 		})
 	}
 	if api.EvaluationReportsSaveEvaluationReportHandler == nil {

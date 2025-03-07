@@ -1,9 +1,12 @@
 package adminapi
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/pop/v6"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -36,7 +39,10 @@ func payloadForRejectedOfficeUserModel(o models.OfficeUser) *adminmessages.Offic
 		RejectionReason:        handlers.FmtStringPtr(o.RejectionReason),
 		CreatedAt:              *handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              *handlers.FmtDateTime(o.UpdatedAt),
-		RejectedOn:             *handlers.FmtDateTime(*o.RejectedOn),
+	}
+
+	if o.RejectedOn != nil {
+		payload.RejectedOn = *handlers.FmtDateTime(*o.RejectedOn)
 	}
 
 	if o.UserID != nil {
@@ -59,13 +65,53 @@ type IndexRejectedOfficeUsersHandler struct {
 	services.NewPagination
 }
 
-var rejectedOfficeUserFilterConverters = map[string]func(string) []services.QueryFilter{
-	"search": func(content string) []services.QueryFilter {
-		nameSearch := fmt.Sprintf("%s%%", content)
-		return []services.QueryFilter{
-			query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", content)),
-			query.NewQueryFilter("first_name", "ILIKE", nameSearch),
-			query.NewQueryFilter("last_name", "ILIKE", nameSearch),
+var rejectedOfficeUserFilterConverters = map[string]func(string) func(*pop.Query){
+	"search": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			firstSearch, lastSearch, emailSearch := fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'REJECTED' OR office_users.email ILIKE ? AND office_users.status = 'REJECTED' OR office_users.last_name ILIKE ? AND office_users.status = 'REJECTED'", firstSearch, lastSearch, emailSearch)
+		}
+	},
+	"emails": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			emailSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.email ILIKE ? AND office_users.status = 'REJECTED'", emailSearch)
+		}
+	},
+	"firstName": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			firstNameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'REJECTED'", firstNameSearch)
+		}
+	},
+	"lastName": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			lastNameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.last_name ILIKE ? AND office_users.status = 'REJECTED'", lastNameSearch)
+		}
+	},
+	"offices": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			officeSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("transportation_offices.name ILIKE ? AND office_users.status = 'REJECTED'", officeSearch)
+		}
+	},
+	"rejectionReason": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			rejectionSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.rejection_reason ILIKE ? AND office_users.status = 'REJECTED'", rejectionSearch)
+		}
+	},
+	"rejectedOn": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			RejectedOnSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("TO_CHAR(office_users.rejected_on  , 'MM/DD/YYYY') ILIKE ? AND office_users.status = 'REJECTED'", RejectedOnSearch)
+		}
+	},
+	"roles": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			RoleSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("roles.role_name ILIKE ? AND office_users.status = 'REJECTED'", RoleSearch)
 		}
 	},
 }
@@ -75,27 +121,25 @@ func (h IndexRejectedOfficeUsersHandler) Handle(params rejected_office_users.Ind
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			// adding in filters for when a search or filtering is done
-			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, rejectedOfficeUserFilterConverters)
+			var filtersMap map[string]string
+			if params.Filter != nil && *params.Filter != "" {
+				err := json.Unmarshal([]byte(*params.Filter), &filtersMap)
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), errors.New("invalid filter format")), err
+				}
+			}
 
-			// We only want users that are in a REJECTED status
-			queryFilters = append(queryFilters, query.NewQueryFilter("status", "=", "REJECTED"))
+			var filterFuncs []func(*pop.Query)
+			for key, filterFunc := range rejectedOfficeUserFilterConverters {
+				if filterValue, exists := filtersMap[key]; exists {
+					filterFuncs = append(filterFuncs, filterFunc(filterValue))
+				}
+			}
 
-			// adding in pagination for the UI
 			pagination := h.NewPagination(params.Page, params.PerPage)
 			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-			// need to also get the user's roles
-			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
-				query.NewQueryAssociation("User.Roles"),
-			})
-
-			officeUsers, err := h.RejectedOfficeUserListFetcher.FetchRejectedOfficeUsersList(appCtx, queryFilters, queryAssociations, pagination, ordering)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			totalOfficeUsersCount, err := h.RejectedOfficeUserListFetcher.FetchRejectedOfficeUsersCount(appCtx, queryFilters)
+			officeUsers, count, err := h.RejectedOfficeUserListFetcher.FetchRejectedOfficeUsersList(appCtx, filterFuncs, pagination, ordering)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
@@ -104,11 +148,11 @@ func (h IndexRejectedOfficeUsersHandler) Handle(params rejected_office_users.Ind
 
 			payload := make(adminmessages.OfficeUsers, queriedOfficeUsersCount)
 
-			for i, s := range officeUsers {
-				payload[i] = payloadForRejectedOfficeUserModel(s)
+			for i, officeUser := range officeUsers {
+				payload[i] = payloadForRejectedOfficeUserModel(officeUser)
 			}
 
-			return rejected_office_users.NewIndexRejectedOfficeUsersOK().WithContentRange(fmt.Sprintf("rejected office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload), nil
+			return rejected_office_users.NewIndexRejectedOfficeUsersOK().WithContentRange(fmt.Sprintf("rejected office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, count)).WithPayload(payload), nil
 		})
 }
 

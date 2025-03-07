@@ -1,3 +1,4 @@
+import { Alert } from '@trussworks/react-uswds';
 import React from 'react';
 import {
   ArrayField,
@@ -8,7 +9,17 @@ import {
   SimpleShowLayout,
   TextField,
   useRecordContext,
+  useRedirect,
+  DeleteButton,
+  Toolbar,
+  Confirm,
 } from 'react-admin';
+import { useNavigate } from 'react-router';
+
+import styles from './RejectedOfficeUserShow.module.scss';
+
+import { deleteOfficeUser } from 'services/adminApi';
+import { adminRoutes } from 'constants/routes';
 
 const RejectedOfficeUserShowTitle = () => {
   const record = useRecordContext();
@@ -18,11 +29,11 @@ const RejectedOfficeUserShowTitle = () => {
 
 const RejectedOfficeUserShowRoles = () => {
   const record = useRecordContext();
-  if (!record?.roles) return <p>This user has not rejected any roles.</p>;
+  if (!record?.roles) return <p>This user has not requested any roles.</p>;
 
   return (
     <ArrayField source="roles">
-      <span>Rejected roles:</span>
+      <span>Roles Requested:</span>
       <Datagrid bulkActionButtons={false}>
         <TextField source="roleName" />
       </Datagrid>
@@ -31,8 +42,42 @@ const RejectedOfficeUserShowRoles = () => {
 };
 
 const RejectedOfficeUserShow = () => {
+  const redirect = useRedirect();
+  const navigate = useNavigate();
+  const [serverError, setServerError] = React.useState('');
+  const [open, setOpen] = React.useState(false);
+  const [userData, setUserData] = React.useState({});
+
+  const handleClick = () => setOpen(true);
+  const handleDialogClose = () => setOpen(false);
+
+  // hard deletes a user and associated roles/privileges
+  // cannot be undone, but the user is shown a confirmation modal to avoid oopsies
+  const deleteUser = async () => {
+    await deleteOfficeUser(userData.id)
+      .then(() => {
+        navigate(adminRoutes.REJECTED_OFFICE_USERS);
+      })
+      .catch((error) => {
+        setServerError(error);
+        redirect(false);
+      });
+  };
+
+  const handleConfirm = () => {
+    deleteUser();
+    setOpen(false);
+  };
+
   return (
     <Show title={<RejectedOfficeUserShowTitle />}>
+      <Confirm
+        isOpen={open}
+        title={`Delete requested office user ${userData.firstName} ${userData.lastName}?`}
+        content="Are you sure you want to delete this user? It will delete all associated roles, privileges, and user data. This action cannot be undone."
+        onConfirm={handleConfirm}
+        onClose={handleDialogClose}
+      />
       <SimpleShowLayout>
         <TextField source="id" />
         <TextField source="userId" label="User Id" />
@@ -50,6 +95,22 @@ const RejectedOfficeUserShow = () => {
         </ReferenceField>
         <DateField label="Account rejected at" source="createdAt" showTime />
       </SimpleShowLayout>
+      {serverError && (
+        <Alert type="error" slim className={styles.error}>
+          {serverError}
+        </Alert>
+      )}
+      <Toolbar sx={{ display: 'flex', gap: '10px' }}>
+        <DeleteButton
+          mutationOptions={{
+            onSuccess: async (data) => {
+              // setting user data so we can use it in the delete function
+              setUserData(data);
+              handleClick();
+            },
+          }}
+        />
+      </Toolbar>
     </Show>
   );
 };

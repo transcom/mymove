@@ -719,10 +719,6 @@ definitions:
         type: string
         format: date-time
         readOnly: true
-      deletedOn:
-        type: string
-        format: date-time
-        readOnly: true
     required:
       - id
       - firstName
@@ -1059,14 +1055,6 @@ definitions:
         type: string
         pattern: "^[A-Z]{4}$"
         example: JENQ
-      latitude:
-        type: number
-        format: float
-        example: 29.382973
-      longitude:
-        type: number
-        format: float
-        example: -98.62759
       createdAt:
         type: string
         format: date-time

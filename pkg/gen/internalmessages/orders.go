@@ -111,6 +111,9 @@ type Orders struct {
 	// Example: F8J1
 	Tac *string `json:"tac,omitempty"`
 
+	// ub weight restriction
+	UbWeightRestriction *int64 `json:"ubWeightRestriction,omitempty"`
+
 	// updated at
 	// Required: true
 	// Format: date-time
@@ -127,6 +130,9 @@ type Orders struct {
 	// uploaded orders
 	// Required: true
 	UploadedOrders *Document `json:"uploaded_orders"`
+
+	// weight restriction
+	WeightRestriction *int64 `json:"weightRestriction,omitempty"`
 }
 
 // Validate validates this orders

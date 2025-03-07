@@ -64,6 +64,14 @@ The following SIT service items can be resubmitted following a rejection:
 - DOFSIT
 - DDSFSC
 - DOSFSC
+- IDASIT
+- IDDSIT
+- IDFSIT
+- IOASIT
+- IOPSIT
+- IOFSIT
+- IDSFSC
+- IOSFSC
 
 The following Accessorial service items can be resubmitted following a rejection:
 - IOSHUT
@@ -94,6 +102,31 @@ Please see the example payload below:
 	  "modelType": "UpdateMTOServiceItemInternationalPortFSC",
 	  "portCode": "SEA",
 	  "reServiceCode": "POEFSC"
+	}
+
+```
+
+The following crating/uncrating service items can be resubmitted following a rejection:
+- ICRT
+- IUCRT
+
+At a MINIMUM, the payload for resubmitting a rejected crating/uncrating service item must look like this:
+```json
+
+	{
+	  "item": {
+	    "length": 10000,
+	    "width": 10000,
+	    "height": 10000
+	  },
+	  "crate": {
+	    "length": 20000,
+	    "width": 20000,
+	    "height": 20000
+	  },
+	  "updateReason": "A reason that differs from the previous reason",
+	  "modelType": "UpdateMTOServiceItemCrating",
+	  "requestApprovalsRequestedStatus": true
 	}
 
 ```

@@ -2889,11 +2889,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "deletedOn": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
         "edipi": {
           "type": "string"
         },
@@ -3413,16 +3408,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "latitude": {
-          "type": "number",
-          "format": "float",
-          "example": 29.382973
-        },
-        "longitude": {
-          "type": "number",
-          "format": "float",
-          "example": -98.62759
         },
         "name": {
           "type": "string",
@@ -6706,11 +6691,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "deletedOn": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
         "edipi": {
           "type": "string"
         },
@@ -7230,16 +7210,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "latitude": {
-          "type": "number",
-          "format": "float",
-          "example": 29.382973
-        },
-        "longitude": {
-          "type": "number",
-          "format": "float",
-          "example": -98.62759
         },
         "name": {
           "type": "string",

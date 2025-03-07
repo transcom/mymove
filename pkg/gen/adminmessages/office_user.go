@@ -31,11 +31,6 @@ type OfficeUser struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt"`
 
-	// deleted on
-	// Read Only: true
-	// Format: date-time
-	DeletedOn strfmt.DateTime `json:"deletedOn,omitempty"`
-
 	// edipi
 	// Required: true
 	Edipi *string `json:"edipi"`
@@ -122,10 +117,6 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDeletedOn(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -219,18 +210,6 @@ func (m *OfficeUser) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *OfficeUser) validateDeletedOn(formats strfmt.Registry) error {
-	if swag.IsZero(m.DeletedOn) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("deletedOn", "body", "date-time", m.DeletedOn.String(), formats); err != nil {
 		return err
 	}
 
@@ -514,10 +493,6 @@ func (m *OfficeUser) ContextValidate(ctx context.Context, formats strfmt.Registr
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateDeletedOn(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidatePrivileges(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -547,15 +522,6 @@ func (m *OfficeUser) ContextValidate(ctx context.Context, formats strfmt.Registr
 func (m *OfficeUser) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *OfficeUser) contextValidateDeletedOn(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "deletedOn", "body", strfmt.DateTime(m.DeletedOn)); err != nil {
 		return err
 	}
 

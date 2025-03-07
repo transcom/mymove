@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/go-openapi/loads"
+	"github.com/go-openapi/runtime"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi"
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
@@ -67,7 +68,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	moveLocker := movelocker.NewMoveLocker()
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -574,7 +575,21 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		move.NewMoveFetcherBulkAssignment(),
 	}
 
+	ghcAPI.QueuesSaveBulkAssignmentDataHandler = SaveBulkAssignmentDataHandler{
+		handlerConfig,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		move.NewMoveFetcher(),
+		move.NewMoveAssignerBulkAssignment(),
+	}
+
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
+		handlerConfig,
+		order.NewOrderFetcher(waf),
+		movelocker.NewMoveUnlocker(),
+		officeusercreator.NewOfficeUserFetcherPop(),
+	}
+
+	ghcAPI.QueuesGetDestinationRequestsQueueHandler = GetDestinationRequestsQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(waf),
 		movelocker.NewMoveUnlocker(),
@@ -718,6 +733,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
 	ghcAPI.UploadsUpdateUploadHandler = UpdateUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	ghcAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
+	ghcAPI.UploadsGetUploadStatusHandler = GetUploadStatusHandler{handlerConfig, upload.NewUploadInformationFetcher()}
+	ghcAPI.TextEventStreamProducer = runtime.ByteStreamProducer() // GetUploadStatus produces Event Stream
 
 	ghcAPI.CustomerSearchCustomersHandler = SearchCustomersHandler{
 		HandlerConfig:    handlerConfig,
