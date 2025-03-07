@@ -1,7 +1,6 @@
 import React from 'react';
 import { arrayOf, bool, func, number } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
-import { connect } from 'react-redux';
 
 import styles from './PPMSummaryList.module.scss';
 
@@ -14,7 +13,6 @@ import AsyncPacketDownloadLink, {
 } from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
 import { isFeedbackAvailable } from 'constants/ppmFeedback';
-import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 
 const toFromAddressDisplay = (pickupAddress, destinationAddress) => {
   return (
@@ -93,26 +91,17 @@ const paymentReviewed = (approvedAt, submittedAt, reviewedAt, pickupAddress, des
   );
 };
 
-const PPMSummaryStatus = (
-  shipment,
-  orderLabel,
-  onButtonClick,
-  onDownloadError,
-  onFeedbackClick,
-  setShowLoadingSpinner,
-) => {
+const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, onFeedbackClick) => {
   const {
     ppmShipment: { status, approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress },
   } = shipment;
 
   const handleDownloadSuccess = (response) => {
     onPacketDownloadSuccessHandler(response);
-    setShowLoadingSpinner(false, null);
   };
 
   const handleDownloadFailure = () => {
     onDownloadError();
-    setShowLoadingSpinner(false, null);
   };
 
   let actionButtons;
@@ -151,7 +140,6 @@ const PPMSummaryStatus = (
               asyncRetrieval={downloadPPMPaymentPacket}
               onSuccess={handleDownloadSuccess}
               onFailure={handleDownloadFailure}
-              onStart={() => setShowLoadingSpinner(true, 'Downloading Payment Packet (PDF)...')}
               className="styles.btn"
             />
           </div>,
@@ -163,7 +151,6 @@ const PPMSummaryStatus = (
           asyncRetrieval={downloadPPMPaymentPacket}
           onSuccess={handleDownloadSuccess}
           onFailure={handleDownloadFailure}
-          onStart={() => setShowLoadingSpinner(true, 'Downloading Payment Packet (PDF)...')}
           className="styles.btn"
         />
       );
@@ -183,7 +170,7 @@ const PPMSummaryStatus = (
   );
 };
 
-const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackClick, setShowLoadingSpinner }) => {
+const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackClick }) => {
   const { length } = shipments;
   return shipments.map((shipment, i) => {
     return (
@@ -195,30 +182,20 @@ const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackC
         onUploadClick={() => onUploadClick(shipment.id)}
         onDownloadError={onDownloadError}
         onFeedbackClick={() => onFeedbackClick(shipment.id)}
-        setShowLoadingSpinner={setShowLoadingSpinner}
       />
     );
   });
 };
 
-const PPMSummaryListItem = ({
-  shipment,
-  hasMany,
-  index,
-  onUploadClick,
-  onDownloadError,
-  onFeedbackClick,
-  setShowLoadingSpinner,
-}) => {
+const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick, onDownloadError, onFeedbackClick }) => {
   const orderLabel = hasMany ? `PPM ${index + 1}` : 'PPM';
-  return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick, setShowLoadingSpinner);
+  return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick);
 };
 
 PPMSummaryList.propTypes = {
   shipments: arrayOf(ShipmentShape).isRequired,
   onUploadClick: func.isRequired,
   onDownloadError: func.isRequired,
-  setShowLoadingSpinner: func,
 };
 
 PPMSummaryListItem.propTypes = {
@@ -227,11 +204,6 @@ PPMSummaryListItem.propTypes = {
   hasMany: bool.isRequired,
   onUploadClick: func.isRequired,
   onDownloadError: func.isRequired,
-  setShowLoadingSpinner: func,
 };
 
-const mapDispatchToProps = {
-  setShowLoadingSpinner: setShowLoadingSpinnerAction,
-};
-
-export default connect(() => ({}), mapDispatchToProps)(PPMSummaryList);
+export default PPMSummaryList;
