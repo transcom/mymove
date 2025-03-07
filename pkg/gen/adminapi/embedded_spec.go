@@ -955,6 +955,42 @@ func init() {
         }
       }
     },
+    "/office-users/roles-privileges": {
+      "get": {
+        "description": "This endpoint returns a list of unique role to privilege mappings. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Retrieve a list of unique role to privilege mappings.",
+        "operationId": "getRolesPrivileges",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of unique role privilege mappings",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RolePrivilege"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "No role-privilege mapping found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/office-users/{officeUserId}": {
       "get": {
         "description": "This endpoint returns a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
@@ -3236,6 +3272,36 @@ func init() {
         }
       }
     },
+    "RolePrivilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "463c2034-d197-4d9a-897e-8bbe64893a31"
+        },
+        "roleId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "ServiceMember": {
       "type": "object",
       "properties": {
@@ -4632,6 +4698,42 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/office-users/roles-privileges": {
+      "get": {
+        "description": "This endpoint returns a list of unique role to privilege mappings. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Retrieve a list of unique role to privilege mappings.",
+        "operationId": "getRolesPrivileges",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of unique role privilege mappings",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RolePrivilege"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "No role-privilege mapping found"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -6910,6 +7012,36 @@ func init() {
         "roleType": {
           "type": "string",
           "example": "customer"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "RolePrivilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "463c2034-d197-4d9a-897e-8bbe64893a31"
+        },
+        "roleId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e"
         },
         "updatedAt": {
           "type": "string",

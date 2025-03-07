@@ -23,3 +23,9 @@ func (f rolesFetcher) FetchRolesForUser(appCtx appcontext.AppContext, userID uui
 		All(&roles)
 	return roles, err
 }
+
+func (f rolesFetcher) FetchRolesPrivileges(appCtx appcontext.AppContext) ([]roles.RolePrivilege, error) {
+	var rolesPrivileges []roles.RolePrivilege
+	err := appCtx.DB().Q().All(&rolesPrivileges)
+	return rolesPrivileges, err
+}

@@ -46,6 +46,36 @@ func (_m *RoleAssociater) FetchRolesForUser(appCtx appcontext.AppContext, userID
 	return r0, r1
 }
 
+// FetchRolesPrivileges provides a mock function with given fields: appCtx
+func (_m *RoleAssociater) FetchRolesPrivileges(appCtx appcontext.AppContext) ([]roles.RolePrivilege, error) {
+	ret := _m.Called(appCtx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchRolesPrivileges")
+	}
+
+	var r0 []roles.RolePrivilege
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) ([]roles.RolePrivilege, error)); ok {
+		return rf(appCtx)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) []roles.RolePrivilege); ok {
+		r0 = rf(appCtx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]roles.RolePrivilege)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
+		r1 = rf(appCtx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewRoleAssociater creates a new instance of RoleAssociater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewRoleAssociater(t interface {

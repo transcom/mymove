@@ -12,4 +12,5 @@ import (
 //go:generate mockery --name RoleAssociater
 type RoleAssociater interface {
 	FetchRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Roles, error)
+	FetchRolesPrivileges(appCtx appcontext.AppContext) ([]roles.RolePrivilege, error)
 }
