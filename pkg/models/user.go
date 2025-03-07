@@ -55,15 +55,13 @@ func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
 
 // GetUserFromEmail loads the associated User from the DB using the user email
 func GetUserFromOktaID(db *pop.Connection, oktaId string) (*User, error) {
-	users := []User{}
-	err := db.Where("okta_id = $1", oktaId).All(&users)
-	if len(users) == 0 {
-		if err != nil {
-			return nil, errors.Wrapf(err, "Unable to find user by okta id %s", oktaId)
-		}
-		return nil, errors.Errorf("Unable to find user by okta id %s", oktaId)
+	var user User
+	err := db.Where("okta_id = $1", oktaId).First(&user)
+	if err != nil {
+		return nil, err
 	}
-	return &users[0], err
+
+	return &user, nil
 }
 
 // GetUserFromEmail loads the associated User from the DB using the user email
