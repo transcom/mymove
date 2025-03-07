@@ -74,7 +74,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
     dependents_twelve_and_over: showDependentAgeFields
       ? Yup.number().min(0).required('Required')
       : Yup.number().notRequired(),
-    civilian_ub_allowance: isCivilianTDYMove
+    civilian_tdy_ub_allowance: isCivilianTDYMove
       ? Yup.number()
           .transform((value) => (Number.isNaN(value) ? 0 : value))
           .min(0, 'UB weight allowance must be 0 or more')
@@ -235,7 +235,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
         // Conditionally set the civilian TDY UB allowance warning message based on entered weight weight being in the 351 to 2000 lb range
         const showcivilianTDYUBAllowanceWarning =
-          values.civilian_ub_allowance > 350 && values.civilian_ub_allowance <= 2000;
+          values.civilian_tdy_ub_allowance > 350 && values.civilian_tdy_ub_allowance <= 2000;
 
         const civilianTDYUBAllowanceWeightWarning =
           '350 lbs. is the maximum UB weight allowance for a civilian TDY unless stated otherwise on your orders.';
@@ -484,11 +484,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 <FormGroup>
                   <div>
                     <MaskedTextField
-                      data-testid="civilianUBAllowance"
+                      data-testid="civilianTDYUBAllowance"
                       warning={civilianTDYUBAllowanceWarning}
                       defaultValue="0"
-                      name="civilian_ub_allowance"
-                      id="civilianUBAllowance"
+                      name="civilian_tdy_ub_allowance"
+                      id="civilianTDYUBAllowance"
                       mask={Number}
                       scale={0}
                       signed={false}
@@ -542,7 +542,7 @@ OrdersInfoForm.propTypes = {
     dependents_twelve_and_over: PropTypes.string,
     accompanied_tour: PropTypes.string,
     counseling_office_id: PropTypes.string,
-    civilian_ub_allowance: PropTypes.string,
+    civilian_tdy_ub_allowance: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
