@@ -40,7 +40,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [hasDependents, setHasDependents] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
-
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);

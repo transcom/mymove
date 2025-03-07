@@ -66,10 +66,11 @@ func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, sea
 func (f moveFetcher) FetchMovesByIdArray(appCtx appcontext.AppContext, moveIds []ghcmessages.BulkAssignmentMoveData) (models.Moves, error) {
 	moves := models.Moves{}
 
-	err := appCtx.DB().Q().
-		Where("id in (?)", moveIds).
+	query := appCtx.DB().Q().EagerPreload("Orders").
 		Where("show = TRUE").
-		All(&moves)
+		Where("id in (?)", moveIds).
+		Order("ARRAY_POSITION(ARRAY[?]::uuid[], id)", moveIds)
+	err := query.All(&moves)
 
 	if err != nil {
 		return nil, err

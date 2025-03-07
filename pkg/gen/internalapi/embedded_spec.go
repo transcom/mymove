@@ -1666,6 +1666,57 @@ func init() {
         }
       }
     },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -3919,6 +3970,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
@@ -6705,8 +6759,7 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ],
-      "readOnly": true
+      ]
     },
     "PatchMovePayload": {
       "type": "object",
@@ -7860,6 +7913,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -10464,6 +10520,57 @@ func init() {
                 "$ref": "#/definitions/ValidationError"
               }
             }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
           },
           "500": {
             "description": "internal server error"
@@ -13080,6 +13187,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
@@ -15871,8 +15981,7 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ],
-      "readOnly": true
+      ]
     },
     "PatchMovePayload": {
       "type": "object",
@@ -17028,6 +17137,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",

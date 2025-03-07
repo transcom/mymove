@@ -484,6 +484,7 @@ export class Summary extends Component {
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}
+            streetAddress3={serviceMember.residential_address?.streetAddress3 || ''}
             telephone={serviceMember.telephone}
           />
         </SectionWrapper>
