@@ -74,6 +74,12 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
     dependents_twelve_and_over: showDependentAgeFields
       ? Yup.number().min(0).required('Required')
       : Yup.number().notRequired(),
+    civilian_ub_allowance: isCivilianTDYMove
+      ? Yup.number()
+          .transform((value) => (Number.isNaN(value) ? 0 : value))
+          .min(0, 'UB weight allowance must be 0 or more')
+          .max(2000, 'UB weight allowance cannot exceed 2000 lbs.')
+      : Yup.number().notRequired(),
   });
 
   useEffect(() => {
@@ -227,6 +233,17 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
           setPrevOrderType(value);
         };
 
+        // Conditionally set the civilian TDY UB allowance warning message based on entered weight weight being in the 351 to 2000 lb range
+        const showcivilianTDYUBAllowanceWarning =
+          values.civilian_ub_allowance > 350 && values.civilian_ub_allowance <= 2000;
+
+        const civilianTDYUBAllowanceWeightWarning =
+          '350 lbs. is the maximum UB weight allowance for a civilian TDY unless stated otherwise on your orders.';
+
+        let civilianTDYUBAllowanceWarning = '';
+        if (showcivilianTDYUBAllowanceWarning) {
+          civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
+        }
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
             <h1>Tell us about your move orders</h1>
@@ -467,6 +484,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 <FormGroup>
                   <MaskedTextField
                     data-testid="civilianUBAllowance"
+                    warning={civilianTDYUBAllowanceWarning}
                     defaultValue="0"
                     name="civilian_ub_allowance"
                     label="If your orders specify a specific UB weight allowance, enter it here"
@@ -509,6 +527,7 @@ OrdersInfoForm.propTypes = {
     dependents_twelve_and_over: PropTypes.string,
     accompanied_tour: PropTypes.string,
     counseling_office_id: PropTypes.string,
+    civilian_ub_allowance: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
