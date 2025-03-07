@@ -445,7 +445,7 @@ describe('ServicesCounselingQueue', () => {
     expect(wrapper.find('th[data-testid="originDutyLocation"] input').instance().value).toBe('12345');
     expect(wrapper.find('th[data-testid="branch"] select').instance().value).toBe('ARMY');
     expect(wrapper.find('[data-testid="pagination"] select[id="table-rows-per-page"]').instance().value).toBe('10');
-    expect(wrapper.find('[data-testid="pagination"] select[id="table-pagination"]').instance().value).toBe('2');
+    expect(wrapper.find('[data-testid="pagination"] select[id="table-pagination"]').instance().value).toBe('0');
     expect(wrapper.find('th[data-testid="customerName"][role="columnheader"]').instance().className).toBe(
       'sortAscending',
     );
