@@ -73,7 +73,7 @@ const RejectedOfficeUserShow = () => {
     <Show title={<RejectedOfficeUserShowTitle />}>
       <Confirm
         isOpen={open}
-        title={`Delete requested office user ${userData.firstName} ${userData.lastName}?`}
+        title={`Delete rejected office user ${userData.firstName} ${userData.lastName}?`}
         content="Are you sure you want to delete this user? It will delete all associated roles, privileges, and user data. This action cannot be undone."
         onConfirm={handleConfirm}
         onClose={handleDialogClose}
