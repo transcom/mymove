@@ -131,6 +131,16 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 				aFile, pdfInfo, err := h.WeightTicketGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
 
+				defer func() {
+					if params.WeightReceipt && isWeightEstimatorFile && aFile != nil {
+						cleanupErr := h.WeightTicketGenerator.CleanupFile(aFile)
+
+						if cleanupErr != nil {
+							appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(cleanupErr), zap.String("verrs", verrs.Error()))
+						}
+					}
+				}()
+
 				// Ensure weight receipt PDF is not corrupted
 				if err != nil || pdfInfo.PageCount != weightEstimatePages {
 					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
