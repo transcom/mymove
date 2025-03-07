@@ -92,6 +92,7 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameMarketDest,
 	models.ServiceItemParamNameMarketOrigin,
 	models.ServiceItemParamNameExternalCrate,
+	models.ServiceItemParamNameNTSPackingFactor,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
@@ -448,6 +449,10 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 	lookups[models.ServiceItemParamNamePerUnitCents] = PerUnitCentsLookup{
 		ServiceItem: serviceItem,
 		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameNTSPackingFactor] = ShipmentTypePriceLookup{
+		ServiceItem: serviceItem,
 	}
 
 	lookups[models.ServiceItemParamNamePortZip] = PortZipLookup{
