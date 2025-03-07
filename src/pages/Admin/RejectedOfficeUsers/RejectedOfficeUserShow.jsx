@@ -29,11 +29,11 @@ const RejectedOfficeUserShowTitle = () => {
 
 const RejectedOfficeUserShowRoles = () => {
   const record = useRecordContext();
-  if (!record?.roles) return <p>This user has not requested any roles.</p>;
+  if (!record?.roles) return <p>This user has not rejected any roles.</p>;
 
   return (
     <ArrayField source="roles">
-      <span>Roles Requested:</span>
+      <span>Rejected roles:</span>
       <Datagrid bulkActionButtons={false}>
         <TextField source="roleName" />
       </Datagrid>
@@ -97,7 +97,7 @@ const RejectedOfficeUserShow = () => {
     <Show title={<RejectedOfficeUserShowTitle />}>
       <Confirm
         isOpen={open}
-        title={`Delete requested office user ${userData.firstName} ${userData.lastName}?`}
+        title={`Delete rejected office user ${userData.firstName} ${userData.lastName}?`}
         content="Are you sure you want to delete this user? It will delete all associated roles, privileges, and user data. This action cannot be undone."
         onConfirm={handleConfirm}
         onClose={handleDialogClose}
