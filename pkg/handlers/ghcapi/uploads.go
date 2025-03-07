@@ -105,12 +105,14 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				isWeightEstimatorFile, err = weightticketparser.IsWeightEstimatorFile(appCtx, file)
 
 				if err != nil {
+					appCtx.Logger().Error("failed determining if file is weight estimate", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
 				}
 
 				_, err = file.Data.Seek(0, io.SeekStart)
 
 				if err != nil {
+					appCtx.Logger().Error("failed to start the reader for weight estimate file", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
 				}
 			}
@@ -122,7 +124,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
 				}
 
-				pdfFileName := strings.TrimSuffix(filenameWithoutTimestamp, filepath.Ext(filenameWithoutTimestamp)) + ".pdf" + "-" + timestamp
+				pdfFileName := strings.TrimSuffix(filenameWithoutTimestamp, filepath.Ext(filenameWithoutTimestamp)) + ".pdf"
+				if timestamp != "" {
+					pdfFileName = pdfFileName + "-" + timestamp
+				}
+
 				aFile, pdfInfo, err := h.WeightTicketGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
 
 				// Ensure weight receipt PDF is not corrupted
@@ -135,7 +141,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 					appCtx.Session().UserID,
 					h.FileStorer(),
 					uploaderpkg.File{File: aFile},
-					file.Header.Filename,
+					filepath.Base(aFile.Name()),
 					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
 					uploaderpkg.AllowedTypesPPMDocuments,
 					docID,
