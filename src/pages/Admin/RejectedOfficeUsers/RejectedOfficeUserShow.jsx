@@ -29,11 +29,11 @@ const RejectedOfficeUserShowTitle = () => {
 
 const RejectedOfficeUserShowRoles = () => {
   const record = useRecordContext();
-  if (!record?.roles) return <p>This user has not rejected any roles.</p>;
+  if (!record?.roles) return <p>This user has not requested any roles.</p>;
 
   return (
     <ArrayField source="roles">
-      <span>Rejected roles:</span>
+      <span>Roles requested:</span>
       <Datagrid bulkActionButtons={false}>
         <TextField source="roleName" />
       </Datagrid>
