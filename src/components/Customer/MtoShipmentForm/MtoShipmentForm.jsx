@@ -57,6 +57,7 @@ const blankAddress = {
   address: {
     streetAddress1: '',
     streetAddress2: '',
+    streetAddress3: '',
     city: '',
     state: '',
     postalCode: '',
@@ -252,6 +253,104 @@ class MtoShipmentForm extends Component {
               });
             }
           };
+          const handleAddressToggleChange = (e) => {
+            if (e.target.name === 'hasSecondaryPickup') {
+              if (e.target.value === 'false') {
+                setValues({
+                  ...values,
+                  hasSecondaryPickup: 'false',
+                  secondaryPickup: {
+                    blankAddress,
+                  },
+                });
+              } else if (e.target.value === 'true') {
+                setValues({
+                  ...values,
+                  hasSecondaryPickup: 'true',
+                  secondaryPickup: {
+                    ...values.secondaryPickup,
+                  },
+                });
+              }
+            }
+            if (e.target.name === 'hasTertiaryPickup') {
+              if (e.target.value === 'false') {
+                setValues({
+                  ...values,
+                  hasTertiaryPickup: 'false',
+                  tertiaryPickup: {
+                    blankAddress,
+                  },
+                });
+              } else if (e.target.value === 'true') {
+                setValues({
+                  ...values,
+                  hasTertiaryPickup: 'true',
+                  tertiaryPickup: {
+                    ...values.tertiaryPickup,
+                  },
+                });
+              }
+            }
+            if (e.target.name === 'hasDeliveryAddress') {
+              if (e.target.value === 'false') {
+                setValues({
+                  ...values,
+                  hasDeliveryAddress: 'false',
+                  delivery: {
+                    ...values.delivery,
+                    address: newDutyLocationAddress,
+                  },
+                });
+              } else if (e.target.value === 'true') {
+                setValues({
+                  ...values,
+                  hasDeliveryAddress: 'true',
+                  delivery: {
+                    ...values.delivery,
+                  },
+                });
+              }
+            }
+            if (e.target.name === 'hasSecondaryDelivery') {
+              if (e.target.value === 'false') {
+                setValues({
+                  ...values,
+                  hasSecondaryDelivery: 'false',
+                  secondaryDelivery: {
+                    blankAddress,
+                  },
+                });
+              } else if (e.target.value === 'true') {
+                setValues({
+                  ...values,
+                  hasSecondaryDelivery: 'true',
+                  secondaryDelivery: {
+                    ...values.secondaryDelivery,
+                  },
+                });
+              }
+            }
+            if (e.target.name === 'hasTertiaryDelivery') {
+              if (e.target.value === 'false') {
+                setValues({
+                  ...values,
+                  hasTertiaryDelivery: 'false',
+                  tertiaryDelivery: {
+                    blankAddress,
+                  },
+                });
+              } else if (e.target.value === 'true') {
+                setValues({
+                  ...values,
+                  hasTertiaryDelivery: 'true',
+                  tertiaryDelivery: {
+                    ...values.tertiaryDelivery,
+                  },
+                });
+              }
+            }
+          };
 
           const [isPreferredPickupDateAlertVisible, setIsPreferredPickupDateAlertVisible] = useState(false);
           const [isPreferredDeliveryDateAlertVisible, setIsPreferredDeliveryDateAlertVisible] = useState(false);
@@ -384,6 +483,7 @@ class MtoShipmentForm extends Component {
                                       title="Yes, I have a second pickup address"
                                       checked={hasSecondaryPickup === 'true'}
                                       disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                      onChange={handleAddressToggleChange}
                                     />
                                     <Field
                                       as={Radio}
@@ -395,6 +495,7 @@ class MtoShipmentForm extends Component {
                                       title="No, I do not have a second pickup address"
                                       checked={hasSecondaryPickup !== 'true'}
                                       disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                      onChange={handleAddressToggleChange}
                                     />
                                   </div>
                                 </FormGroup>
@@ -426,6 +527,7 @@ class MtoShipmentForm extends Component {
                                               values.secondaryPickup.address,
                                             )
                                           }
+                                          onChange={handleAddressToggleChange}
                                         />
                                         <Field
                                           as={Radio}
@@ -442,6 +544,7 @@ class MtoShipmentForm extends Component {
                                               values.secondaryPickup.address,
                                             )
                                           }
+                                          onChange={handleAddressToggleChange}
                                         />
                                       </div>
                                     </FormGroup>
@@ -514,6 +617,7 @@ class MtoShipmentForm extends Component {
                                     value="true"
                                     title="Yes, I know my delivery address"
                                     checked={hasDeliveryAddress === 'true'}
+                                    onChange={handleAddressToggleChange}
                                   />
                                   <Field
                                     as={Radio}
@@ -523,6 +627,7 @@ class MtoShipmentForm extends Component {
                                     value="false"
                                     title="No, I do not know my delivery address"
                                     checked={hasDeliveryAddress === 'false'}
+                                    onChange={handleAddressToggleChange}
                                   />
                                 </div>
                               </FormGroup>
@@ -553,6 +658,7 @@ class MtoShipmentForm extends Component {
                                           title="Yes, I have a second delivery address"
                                           checked={hasSecondaryDelivery === 'true'}
                                           disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
+                                          onChange={handleAddressToggleChange}
                                         />
                                         <Field
                                           as={Radio}
@@ -564,6 +670,7 @@ class MtoShipmentForm extends Component {
                                           title="No, I do not have a second delivery address"
                                           checked={hasSecondaryDelivery === 'false'}
                                           disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
+                                          onChange={handleAddressToggleChange}
                                         />
                                       </div>
                                     </FormGroup>
@@ -595,6 +702,7 @@ class MtoShipmentForm extends Component {
                                                   values.secondaryDelivery.address,
                                                 )
                                               }
+                                              onChange={handleAddressToggleChange}
                                             />
                                             <Field
                                               as={Radio}
@@ -611,6 +719,7 @@ class MtoShipmentForm extends Component {
                                                   values.secondaryDelivery.address,
                                                 )
                                               }
+                                              onChange={handleAddressToggleChange}
                                             />
                                           </div>
                                         </FormGroup>
