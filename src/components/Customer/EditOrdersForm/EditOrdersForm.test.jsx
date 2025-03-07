@@ -9,6 +9,7 @@ import EditOrdersForm from './EditOrdersForm';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { showCounselingOffices } from 'services/internalApi';
 import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { MockProviders } from 'testUtils';
 
 jest.setTimeout(60000);
 
@@ -265,7 +266,11 @@ describe('EditOrdersForm component', () => {
       [/Pay grade/, true, HTMLSelectElement],
       [/Current duty location/, false, HTMLInputElement],
     ])('rendering %s and is required is %s', async (formInput, required, inputType) => {
-      render(<EditOrdersForm {...testProps} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...testProps} />
+        </MockProviders>,
+      );
 
       expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
       if (required) {
@@ -276,7 +281,11 @@ describe('EditOrdersForm component', () => {
     it('rendering the upload area', async () => {
       showCounselingOffices.mockImplementation(() => Promise.resolve({}));
 
-      render(<EditOrdersForm {...testProps} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...testProps} />
+        </MockProviders>,
+      );
 
       expect(await screen.findByText(documentSizeLimitMsg)).toBeInTheDocument();
     });
@@ -294,7 +303,11 @@ describe('EditOrdersForm component', () => {
     ])('rendering the %s option', async (selectionOption, expectedValue) => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
-      render(<EditOrdersForm {...testProps} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...testProps} />
+        </MockProviders>,
+      );
 
       const ordersTypeDropdown = await screen.findByLabelText(/Orders type/);
       expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
@@ -309,33 +322,35 @@ describe('EditOrdersForm component', () => {
   it('allows new and current duty location to be the same', async () => {
     // Render the component
     render(
-      <EditOrdersForm
-        {...testProps}
-        initialValues={{
-          ...initialValues,
-          origin_duty_location: {
-            name: 'Luke AFB',
-            provides_services_counseling: false,
-            address: { isOconus: false },
-          },
-          new_duty_location: {
-            name: 'Luke AFB',
-            provides_services_counseling: false,
-            address: { isOconus: false },
-          },
-          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
-          uploaded_orders: [
-            {
-              id: '123',
-              createdAt: '2020-11-08',
-              bytes: 1,
-              url: 'url',
-              filename: 'Test Upload',
-              contentType: 'application/pdf',
+      <MockProviders>
+        <EditOrdersForm
+          {...testProps}
+          initialValues={{
+            ...initialValues,
+            origin_duty_location: {
+              name: 'Luke AFB',
+              provides_services_counseling: false,
+              address: { isOconus: false },
             },
-          ],
-        }}
-      />,
+            new_duty_location: {
+              name: 'Luke AFB',
+              provides_services_counseling: false,
+              address: { isOconus: false },
+            },
+            counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
+            uploaded_orders: [
+              {
+                id: '123',
+                createdAt: '2020-11-08',
+                bytes: 1,
+                url: 'url',
+                filename: 'Test Upload',
+                contentType: 'application/pdf',
+              },
+            ],
+          }}
+        />
+      </MockProviders>,
     );
 
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
@@ -361,7 +376,11 @@ describe('EditOrdersForm component', () => {
   });
 
   it('shows an error message if the form is invalid', async () => {
-    render(<EditOrdersForm {...testProps} initialValues={initialValues} />);
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} initialValues={initialValues} />
+      </MockProviders>,
+    );
     const submitButton = await screen.findByRole('button', { name: 'Save' });
 
     const ordersTypeDropdown = screen.getByLabelText(/Orders type/);
@@ -379,27 +398,29 @@ describe('EditOrdersForm component', () => {
   it('submits the form when its valid', async () => {
     // Not testing the upload interaction, so give uploaded orders to the props.
     render(
-      <EditOrdersForm
-        {...testProps}
-        initialValues={{
-          origin_duty_location: {
-            name: 'Altus AFB',
-            provides_services_counseling: true,
-            address: { isOconus: false },
-          },
-          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
-          uploaded_orders: [
-            {
-              id: '123',
-              createdAt: '2020-11-08',
-              bytes: 1,
-              url: 'url',
-              filename: 'Test Upload',
-              contentType: 'application/pdf',
+      <MockProviders>
+        <EditOrdersForm
+          {...testProps}
+          initialValues={{
+            origin_duty_location: {
+              name: 'Altus AFB',
+              provides_services_counseling: true,
+              address: { isOconus: false },
             },
-          ],
-        }}
-      />,
+            counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
+            uploaded_orders: [
+              {
+                id: '123',
+                createdAt: '2020-11-08',
+                bytes: 1,
+                url: 'url',
+                filename: 'Test Upload',
+                contentType: 'application/pdf',
+              },
+            ],
+          }}
+        />
+      </MockProviders>,
     );
 
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
@@ -470,7 +491,11 @@ describe('EditOrdersForm component', () => {
   });
 
   it('implements the onCancel handler when the Cancel button is clicked', async () => {
-    render(<EditOrdersForm {...testProps} />);
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
@@ -534,7 +559,11 @@ describe('EditOrdersForm component', () => {
     };
 
     it('pre-fills the inputs', async () => {
-      render(<EditOrdersForm {...testProps} initialValues={testInitialValues} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...testProps} initialValues={testInitialValues} />
+        </MockProviders>,
+      );
 
       expect(await screen.findByRole('form')).toHaveFormValues({
         new_duty_location: 'Yuma AFB',
@@ -552,7 +581,11 @@ describe('EditOrdersForm component', () => {
     });
 
     it('renders the uploads table with an existing upload', async () => {
-      render(<EditOrdersForm {...testProps} initialValues={testInitialValues} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...testProps} initialValues={testInitialValues} />
+        </MockProviders>,
+      );
 
       await waitFor(() => {
         expect(screen.queryByText('Test Upload')).toBeInTheDocument();
@@ -628,7 +661,11 @@ describe('EditOrdersForm component', () => {
 
       modifiedProps.initialValues[attributeName] = valueToReplaceIt;
 
-      render(<EditOrdersForm {...modifiedProps} />);
+      render(
+        <MockProviders>
+          <EditOrdersForm {...modifiedProps} />
+        </MockProviders>,
+      );
 
       const save = await screen.findByRole('button', { name: 'Save' });
       await waitFor(() => {
@@ -642,27 +679,29 @@ describe('EditOrdersForm component', () => {
   it('submits the form when temporary duty orders type is selected', async () => {
     // Not testing the upload interaction, so give uploaded orders to the props.
     render(
-      <EditOrdersForm
-        {...testProps}
-        initialValues={{
-          origin_duty_location: {
-            name: 'Altus AFB',
-            provides_services_counseling: true,
-            address: { isOconus: false },
-          },
-          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
-          uploaded_orders: [
-            {
-              id: '123',
-              createdAt: '2020-11-08',
-              bytes: 1,
-              url: 'url',
-              filename: 'Test Upload',
-              contentType: 'application/pdf',
+      <MockProviders>
+        <EditOrdersForm
+          {...testProps}
+          initialValues={{
+            origin_duty_location: {
+              name: 'Altus AFB',
+              provides_services_counseling: true,
+              address: { isOconus: false },
             },
-          ],
-        }}
-      />,
+            counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
+            uploaded_orders: [
+              {
+                id: '123',
+                createdAt: '2020-11-08',
+                bytes: 1,
+                url: 'url',
+                filename: 'Test Upload',
+                contentType: 'application/pdf',
+              },
+            ],
+          }}
+        />
+      </MockProviders>,
     );
 
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
@@ -702,8 +741,11 @@ describe('EditOrdersForm component', () => {
   it('has dependents is yes and disabled when order type is student travel', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
-    render(<EditOrdersForm {...testProps} />);
-
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
@@ -719,8 +761,11 @@ describe('EditOrdersForm component', () => {
   });
 
   it('has dependents is yes and disabled when order type is early return', async () => {
-    render(<EditOrdersForm {...testProps} />);
-
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
@@ -736,8 +781,11 @@ describe('EditOrdersForm component', () => {
   });
 
   it('has dependents becomes disabled and then re-enabled for order type student travel', async () => {
-    render(<EditOrdersForm {...testProps} />);
-
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     // set order type to perm change and verify the "has dependents" state
@@ -771,8 +819,11 @@ describe('EditOrdersForm component', () => {
   });
 
   it('has dependents becomes disabled and then re-enabled for order type early return', async () => {
-    render(<EditOrdersForm {...testProps} />);
-
+    render(
+      <MockProviders>
+        <EditOrdersForm {...testProps} />
+      </MockProviders>,
+    );
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     // set order type to perm change and verify the "has dependents" state

@@ -29,6 +29,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 	}{
 		"Successful Minimal Validation": {
 			ppmShipment: models.PPMShipment{
+				PPMType:               models.PPMTypeIncentiveBased,
 				ShipmentID:            uuid.Must(uuid.NewV4()),
 				ExpectedDepartureDate: testdatagen.PeakRateCycleStart,
 				Status:                models.PPMShipmentStatusDraft,
@@ -39,6 +40,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 		},
 		"Missing Required Fields": {
 			ppmShipment: models.PPMShipment{
+				PPMType:              models.PPMTypeIncentiveBased,
 				PickupAddressID:      models.UUIDPointer(uuid.Nil),
 				DestinationAddressID: models.UUIDPointer(uuid.Nil),
 			},
@@ -53,6 +55,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 		"Optional fields raise errors with invalid values": {
 			ppmShipment: models.PPMShipment{
 				// Setting up min required fields here so that we don't get these in our errors.
+				PPMType:               models.PPMTypeIncentiveBased,
 				ShipmentID:            uuid.Must(uuid.NewV4()),
 				ExpectedDepartureDate: testdatagen.PeakRateCycleStart,
 				Status:                models.PPMShipmentStatusDraft,

@@ -326,19 +326,46 @@ describe('MtoShipmentForm component', () => {
       await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
 
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
-      expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress1');
+      expect(streetAddress1.length).toBe(1);
+      expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.streetAddress1');
 
       const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
-      expect(streetAddress2[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress2');
+      expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
 
       const city = screen.getAllByTestId('City');
-      expect(city[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.city');
+      expect(city[0]).toHaveAttribute('aria-label', 'pickup.address.city');
 
       const state = screen.getAllByTestId(/State/);
-      expect(state[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.state');
+      expect(state[0]).toHaveAttribute('aria-label', 'pickup.address.state');
 
       const zip = screen.getAllByTestId(/ZIP/);
-      expect(zip[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.postalCode');
+      expect(zip[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
+    });
+
+    it('renders a second address fieldset when the user has a pickup address', async () => {
+      renderMtoShipmentForm();
+
+      await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+
+      const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
+      expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.streetAddress1');
+      expect(streetAddress1[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
+
+      const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
+      expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
+      expect(streetAddress2[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
+
+      const city = screen.getAllByTestId('City');
+      expect(city[0]).toHaveAttribute('aria-label', 'pickup.address.city');
+      expect(city[1]).toHaveAttribute('aria-label', 'delivery.address.city');
+
+      const state = screen.getAllByTestId('State');
+      expect(state[0]).toHaveAttribute('aria-label', 'pickup.address.state');
+      expect(state[1]).toHaveAttribute('aria-label', 'delivery.address.state');
+
+      const zip = screen.getAllByTestId('ZIP');
+      expect(zip[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
+      expect(zip[1]).toHaveAttribute('aria-label', 'delivery.address.postalCode');
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
@@ -388,24 +415,24 @@ describe('MtoShipmentForm component', () => {
       await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
 
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
-      expect(streetAddress1.length).toBe(3);
-      expect(streetAddress1[2]).toHaveAttribute('name', 'secondaryDelivery.address.streetAddress1');
+      expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.streetAddress1');
+      expect(streetAddress1[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
 
       const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
-      expect(streetAddress2.length).toBe(3);
-      expect(streetAddress2[2]).toHaveAttribute('name', 'secondaryDelivery.address.streetAddress2');
+      expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
+      expect(streetAddress2[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
 
       const city = screen.getAllByTestId('City');
-      expect(city.length).toBe(3);
-      expect(city[2]).toHaveAttribute('aria-label', 'secondaryDelivery.address.city');
+      expect(city[0]).toHaveAttribute('aria-label', 'pickup.address.city');
+      expect(city[1]).toHaveAttribute('aria-label', 'delivery.address.city');
 
       const state = await screen.getAllByTestId(/State/);
-      expect(state.length).toBe(3);
-      expect(state[2]).toHaveAttribute('aria-label', 'secondaryDelivery.address.state');
+      expect(state[0]).toHaveAttribute('aria-label', 'pickup.address.state');
+      expect(state[1]).toHaveAttribute('aria-label', 'delivery.address.state');
 
       const zip = await screen.getAllByTestId(/ZIP/);
-      expect(zip.length).toBe(3);
-      expect(zip[2]).toHaveAttribute('aria-label', 'secondaryDelivery.address.postalCode');
+      expect(zip[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
+      expect(zip[1]).toHaveAttribute('aria-label', 'delivery.address.postalCode');
     });
 
     it('goes back when the back button is clicked', async () => {
@@ -1134,25 +1161,25 @@ describe('MtoShipmentForm component', () => {
       });
     });
 
-    it('renders a second address fieldset when the user has a second pickup address', async () => {
+    it('renders a second address fieldset when the user has a pickup address', async () => {
       renderUBShipmentForm();
 
       await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
 
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
-      expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress1');
+      expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.streetAddress1');
 
       const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
-      expect(streetAddress2[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress2');
+      expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
 
       const city = screen.getAllByTestId('City');
-      expect(city[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.city');
+      expect(city[0]).toHaveAttribute('aria-label', 'pickup.address.city');
 
       const state = screen.getAllByTestId('State');
-      expect(state[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.state');
+      expect(state[0]).toHaveAttribute('aria-label', 'pickup.address.state');
 
       const zip = screen.getAllByTestId('ZIP');
-      expect(zip[1]).toHaveAttribute('aria-label', 'secondaryPickup.address.postalCode');
+      expect(zip[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
