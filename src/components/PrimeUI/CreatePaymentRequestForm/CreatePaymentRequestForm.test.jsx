@@ -43,6 +43,12 @@ describe('CreatePaymentRequestForm', () => {
       { id: '8', reServiceCode: 'ISLH' },
       { id: '8', reServiceCode: 'POEFSC' },
     ],
+    4: [
+      { id: '11', reServiceCode: 'PODFSC' },
+      { id: '12', reServiceCode: 'IUBPK' },
+      { id: '13', reServiceCode: 'IUBUPK' },
+      { id: '14', reServiceCode: 'UBP' },
+    ],
   };
 
   it('renders the form', async () => {
