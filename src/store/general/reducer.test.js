@@ -26,6 +26,7 @@ describe('generalStateReducer', () => {
       refetchQueue: true,
     });
   });
+
   it('handles the setShowLoadingSpinner action', () => {
     expect(generalStateReducer(initialState, setShowLoadingSpinner(true, 'test message'))).toEqual({
       ...initialState,
