@@ -198,10 +198,10 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
-			NewQueryFilter:                query.NewQueryFilter,
+			HandlerConfig:         suite.HandlerConfig(),
+			NewQueryFilter:        query.NewQueryFilter,
 			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
-			NewPagination:                 pagination.NewPagination,
+			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
