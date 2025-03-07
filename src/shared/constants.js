@@ -242,6 +242,7 @@ export const FEATURE_FLAG_KEYS = {
   ENABLE_ALASKA: 'enable_alaska',
   BULK_ASSIGNMENT: 'bulk_assignment',
   CUSTOMER_REGISTRATION: 'customer_registration',
+  COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
