@@ -100,8 +100,10 @@ const RejectedOfficeUserList = () => (
       </ReferenceField>
       <TextField source="status" />
       <TextField source="rejectionReason" label="Reason for rejection" />
-      <DateField showTime source="rejectedOn" label="Rejected date" />
-      <RejectedOfficeUserShowRoles sortable={false} source="roles" label="Rejected Roles" />
+      <DateField showTime source="rejectedOn" label="Rejected on" />
+      <ReferenceField label="Roles Requested" source="id" sortBy="role" reference="rejected-office-users" link={false}>
+        <RejectedOfficeUserShowRoles sortable={false} source="roles" label="Rejected Roles" />
+      </ReferenceField>
     </Datagrid>
   </List>
 );
