@@ -51,6 +51,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// payment_request.CreateUploadMaxParseMemory = 32 << 20
 
+	if api.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler == nil {
+		api.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler = move_task_order.AcknowledgeMovesAndShipmentsHandlerFunc(func(params move_task_order.AcknowledgeMovesAndShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.AcknowledgeMovesAndShipments has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderCreateExcessWeightRecordHandler == nil {
 		api.MoveTaskOrderCreateExcessWeightRecordHandler = move_task_order.CreateExcessWeightRecordHandlerFunc(func(params move_task_order.CreateExcessWeightRecordParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.CreateExcessWeightRecord has not yet been implemented")
