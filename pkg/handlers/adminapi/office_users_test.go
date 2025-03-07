@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
@@ -855,5 +856,91 @@ func (suite *HandlerSuite) TestDeleteOfficeUsersHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&officeuserop.DeleteOfficeUserUnauthorized{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
+	suite.Run("200 OK - successfully retrieve unique role privilege mappings", func() {
+		// Test:				GetOfficeUserHandler, Fetcher
+		// Set up:				Login as admin user
+		// Expected Outcome:	The list of unique role privlege mappings
+		params := officeuserop.GetRolesPrivilegesParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users/roles-privileges"),
+		}
+
+		// queryBuilder := query.NewQueryBuilder()
+		handler := GetRolesPrivilegesHandler{
+			suite.HandlerConfig(),
+			rolesservice.NewRolesFetcher(),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.GetRolesPrivilegesOK{}, response)
+		okResponse := response.(*officeuserop.GetRolesPrivilegesOK)
+		suite.Len(okResponse.Payload, 9)
+	})
+
+	suite.Run("401 ERROR - Unauthorized ", func() {
+		// Test:				GetOfficeUserHandler, Fetcher - Unauthorized
+		// Set up:				Run request when NOT logged in as admin user
+		// Expected Outcome:	Unauthorized response returned, no data
+		requestUser := factory.BuildOfficeUser(nil, nil, nil)
+		req := httptest.NewRequest("GET", "/office_users/roles-privileges", nil) // We never need to set a body this endpoint
+
+		params := officeuserop.GetRolesPrivilegesParams{
+			HTTPRequest: suite.AuthenticateOfficeRequest(req, requestUser),
+		}
+
+		handler := GetRolesPrivilegesHandler{
+			suite.HandlerConfig(),
+			rolesservice.NewRolesFetcher(),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.GetRolesPrivilegesUnauthorized{}, response)
+	})
+
+	suite.Run("404 ERROR - Not Found ", func() {
+		// Test:				GetOfficeUserHandler, Fetcher - Not Found
+		// Set up:				Run request when logged in as admin user
+		// Expected Outcome:	Not found response returned, no data
+		params := officeuserop.GetRolesPrivilegesParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users/roles-privileges"),
+		}
+
+		mockFetcher := mocks.RoleAssociater{}
+		mockFetcher.On("FetchRolesPrivileges", mock.AnythingOfType("*appcontext.appContext")).Return(nil, apperror.NotFoundError{})
+
+		handler := GetRolesPrivilegesHandler{
+			suite.HandlerConfig(),
+			&mockFetcher,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.GetRolesPrivilegesNotFound{}, response)
+	})
+
+	suite.Run("500 ERROR - Internal Server Error ", func() {
+		// Test:				GetOfficeUserHandler, Fetcher - Internal Server Error
+		// Set up:				Run request when logged in as admin user
+		// Expected Outcome:	Internal Server Error response returned, no data
+		params := officeuserop.GetRolesPrivilegesParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users/roles-privileges"),
+		}
+
+		mockFetcher := mocks.RoleAssociater{}
+		mockFetcher.On("FetchRolesPrivileges", mock.AnythingOfType("*appcontext.appContext")).Return(nil, apperror.InternalServerError{})
+
+		handler := GetRolesPrivilegesHandler{
+			suite.HandlerConfig(),
+			&mockFetcher,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.GetRolesPrivilegesInternalServerError{}, response)
 	})
 }
