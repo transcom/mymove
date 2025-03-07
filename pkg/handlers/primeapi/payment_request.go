@@ -136,8 +136,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 						return paymentrequestop.NewCreatePaymentRequestConflict().WithPayload(payload), err
 					}
 
-					if strings.Contains(e.Error(), "Failed to create service item param for param key <WeightBilled>") ||
-						strings.Contains(e.Error(), "Failed to create service item param for param key <WeightOriginal>") {
+					if strings.Contains(e.Error(), "Failed to create service item param for param key") {
 						errPayload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
 						return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload), err
 					}

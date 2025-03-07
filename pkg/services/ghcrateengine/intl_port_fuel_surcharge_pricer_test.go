@@ -108,12 +108,12 @@ func (suite *GHCRateEngineServiceSuite) TestIntlPortFuelSurchargePricer() {
 		// HHG weight less than 500
 		_, _, err = intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, 400, intlPortFscWeightDistanceMultiplier, intlPortFscFuelPrice, hhgShipmentType)
 		suite.Error(err)
-		suite.Equal("weight must be a minimum of 500", err.Error())
+		suite.Equal(fmt.Sprintf("weight must be a minimum of %d", minInternationalWeight), err.Error())
 
 		// UB weight less than 300
 		_, _, err = intlPortFuelSurchargePricer.Price(suite.AppContextForTest(), intlPortFscActualPickupDate, intlPortFscTestDistance, 200, intlPortFscWeightDistanceMultiplier, intlPortFscFuelPrice, ubShipmentType)
 		suite.Error(err)
-		suite.Equal("weight must be a minimum of 300", err.Error())
+		suite.Equal(fmt.Sprintf("weight must be a minimum of %d", minIntlWeightUB), err.Error())
 	})
 
 	suite.Run("PriceUsingParams validation errors", func() {
