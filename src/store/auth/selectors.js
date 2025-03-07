@@ -21,3 +21,11 @@ export const selectCacValidated = (serviceMember) => {
 export const selectUnderMaintenance = (state) => {
   return state.auth.underMaintenance;
 };
+
+export const selectShowLoadingSpinner = (state) => {
+  return state.generalState.showLoadingSpinner;
+};
+
+export const selectLoadingSpinnerMessage = (state) => {
+  return state.generalState.loadingSpinnerMessage;
+};

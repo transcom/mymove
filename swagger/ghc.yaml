@@ -5514,6 +5514,13 @@ definitions:
         example: 1500
         x-formatting: weight
         x-nullable: true
+      ubWeightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the UB weight restriction for the move to a particular
+          location.
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -6309,6 +6316,9 @@ definitions:
         type: boolean
         title: Are dependents included in your orders?
         x-nullable: true
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -6379,6 +6389,9 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
@@ -6390,9 +6403,6 @@ definitions:
     properties:
       grade:
         $ref: '#/definitions/Grade'
-      dependentsAuthorized:
-        type: boolean
-        x-nullable: true
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:
@@ -6466,6 +6476,13 @@ definitions:
         description: >-
           Indicates the weight restriction for the move to a particular
           location.
+      ubWeightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the UB weight restriction for the move to a particular
+          location.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6500,9 +6517,6 @@ definitions:
     properties:
       grade:
         $ref: '#/definitions/Grade'
-      dependentsAuthorized:
-        type: boolean
-        x-nullable: true
       agency:
         $ref: '#/definitions/Affiliation'
       proGearWeight:
@@ -6574,6 +6588,13 @@ definitions:
         type: integer
         x-nullable: true
         description: Indicates the weight restriction for a move to a particular location.
+      ubWeightRestriction:
+        example: 1500
+        type: integer
+        x-nullable: true
+        description: >-
+          Indicates the UB weight restriction for the move to a particular
+          location.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -9774,6 +9795,15 @@ definitions:
           given SIT service items for an instance of SIT (Either Origin or
           Destination), grouped by the date they went into SIT and service items
           limited explicitly to SIT related Re Service Codes.
+  PPMType:
+    type: string
+    title: PPM Type
+    description: Defines a PPM type
+    readOnly: true
+    enum:
+      - INCENTIVE_BASED
+      - ACTUAL_EXPENSE
+      - SMALL_PACKAGE
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
@@ -10399,6 +10429,8 @@ definitions:
         format: uuid
         type: string
         readOnly: true
+      ppmType:
+        $ref: '#/definitions/PPMType'
       shipmentId:
         description: The id of the parent MTOShipment object
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
