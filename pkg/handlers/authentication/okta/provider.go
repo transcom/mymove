@@ -277,6 +277,9 @@ func (op *Provider) GetJWKSURL() string {
 func (op *Provider) GetOpenIDConfigURL() string {
 	return op.orgURL + "/oauth2/default/.well-known/openid-configuration"
 }
+func (op *Provider) GetUsersURL() string {
+	return op.orgURL + "/api/v1/users/"
+}
 func (op *Provider) GetUserURL(oktaUserID string) string {
 	return op.orgURL + "/api/v1/users/" + oktaUserID
 }

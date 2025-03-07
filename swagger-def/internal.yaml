@@ -37,6 +37,7 @@ tags:
   - name: featureFlags
   - name: okta_profile
   - name: application_parameters
+  - name: registration
 definitions:
   ApplicationParameters:
     type: object
@@ -2489,6 +2490,31 @@ definitions:
       - id
       - name
 paths:
+  /open/register:
+    post:
+      summary: Self registration of a customer. This creates a MilMove and Okta profile using the information provided.
+      description: Creates an Okta profile and MilMove profile using the information provided.
+      operationId: customerRegistration
+      tags:
+        - registration
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: registration
+          required: true
+          description: registration information
+          schema:
+            $ref: 'definitions/CreateOktaAndMilMoveUser.yaml'
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: successfully registered service member
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          description: internal server error
   /open/feature-flags/boolean/{key}:
     post:
       summary: Determines if a feature flag is enabled. Only used for unauthenticated users.
