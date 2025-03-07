@@ -2,8 +2,17 @@
 
 <p>This is a confirmation that your counselor has approved move details for the assigned move code{{if .Locator}} {{.Locator}}{{end}}{{if .OriginDutyLocation}} from {{.OriginDutyLocation}}{{end}}{{if .DestinationLocation}} to {{.DestinationLocation}}{{end}} in the MilMove system.</p>
 
-{{if .WeightRestriction}}
-<p>Your move has been identified as going to an administratively restricted HHG weight location. Your weight restriction is {{.WeightRestriction}}lbs.</p>
+{{if and .UbWeightRestriction .WeightRestriction}}
+<p>Your move has been identified as going to an administratively restricted weight location. Your HHG weight restriction
+  is {{.WeightRestriction}} lbs and UB weight restriction is {{.UbWeightRestriction}} lbs.</p>
+<p>Be advised, you may be required to pay excess cost if you choose to move more than your weight restriction. </p>
+{{else if .WeightRestriction}}
+<p>Your move has been identified as going to an administratively restricted HHG weight location. Your weight restriction
+  is {{.WeightRestriction}} lbs.</p>
+<p>Be advised, you may be required to pay excess cost if you choose to move more than your weight restriction. </p>
+{{else if .UbWeightRestriction}}
+<p>Your move has been identified as going to an administratively restricted UB weight location. Your weight restriction
+  is {{.UbWeightRestriction}} lbs.</p>
 <p>Be advised, you may be required to pay excess cost if you choose to move more than your weight restriction. </p>
 {{end}}
 <p>What this means to you:</br>
