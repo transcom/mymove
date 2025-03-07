@@ -46,9 +46,9 @@ variables:
   RUNNER_TAG: &runner_tag milmove
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
 
-  postgres: &postgres postgres:16.4
+  postgres: &postgres harbor.csde.caci.com/docker.io/postgres:16.4
   #postgres: &postgres postgres:16.4
-  redis: &redis redis:5.0.6
+  redis: &redis harbor.csde.caci.com/docker.io/redis:5.0.6
 
 stages:
 - pre_checks
