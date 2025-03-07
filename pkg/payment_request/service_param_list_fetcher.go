@@ -7,14 +7,54 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// ResolveReServiceForLookup ensures that the correct ReService is used for parameter lookup
+// This is because some service items don't have parameters that can be looked up because they inherit the logic from existing items.
+// For example, INPK. INPK is for iHHG shipments going into non-temporary storage.
+// This means we are packing an iHHG shipment, so we price by IHPK, but with a special
+// pricer for INPK. INPK is iHHG -> iNTS. Prices by IHPK multiplied by NTS market factor
+func ResolveReServiceForLookup(appCtx appcontext.AppContext, mtoServiceItem models.MTOServiceItem) (models.ReService, error) {
+	var reService models.ReService
+
+	if mtoServiceItem.ReService.Code != "" {
+		reService = mtoServiceItem.ReService
+	} else {
+		reServicePtr, err := models.FetchReServiceByCode(appCtx.DB(), models.ReServiceCodeIHPK)
+		if err != nil {
+			return models.ReService{}, err
+		}
+		reService = *reServicePtr
+	}
+
+	// Handle special cases where we need to swap lookup services
+	switch reService.Code {
+	case models.ReServiceCodeINPK:
+		// INPK is priced using IHPK parameters but with an NTS market factor multiplier.
+		reServicePtr, err := models.FetchReServiceByCode(appCtx.DB(), models.ReServiceCodeIHPK)
+		if err != nil {
+			return models.ReService{}, fmt.Errorf("failed to fetch IHPK for INPK lookup: %w", err)
+		}
+		reService = *reServicePtr
+	}
+
+	return reService, nil
+}
+
 // FetchServiceParamList fetches the service param list.  Returns a slice of ServiceParam models, each with an
 // eagerly fetched ServiceItemParamKey association.
 func (p *RequestPaymentHelper) FetchServiceParamList(appCtx appcontext.AppContext, mtoServiceItem models.MTOServiceItem) (models.ServiceParams, error) {
+
+	// Resolve the ReService for our lookup
+	reServiceForLookup, err := ResolveReServiceForLookup(appCtx, mtoServiceItem)
+	if err != nil {
+		return nil, err
+	}
+
 	// Get all service item param keys that do not come from pricers
+	// using the ReService identified above
 	var serviceParams models.ServiceParams
-	err := appCtx.DB().Q().
+	err = appCtx.DB().Q().
 		InnerJoin("service_item_param_keys sipk", "service_params.service_item_param_key_id = sipk.id").
-		Where("service_id = ?", mtoServiceItem.ReServiceID).
+		Where("service_id = ?", reServiceForLookup.ID).
 		Where("sipk.origin <> ?", models.ServiceItemParamOriginPricer).
 		EagerPreload("ServiceItemParamKey").
 		All(&serviceParams)
