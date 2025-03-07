@@ -1435,6 +1435,9 @@ definitions:
       weightRestriction:
         type: integer
         x-nullable: true
+      ubWeightRestriction:
+        type: integer
+        x-nullable: true
     required:
       - id
       - service_member_id
@@ -1498,6 +1501,11 @@ definitions:
         example: 1500
         x-nullable: true
         description: Indicates the weight restricted to a specific location.
+      ub_weight_restriction:
+        type: integer
+        example: 1100
+        x-nullable: true
+        description: Indicates the UB weight restricted to a specific location.
   CreateUpdateOrders:
     type: object
     properties:
