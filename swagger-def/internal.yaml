@@ -586,11 +586,11 @@ definitions:
   TransportationOffices:
     type: array
     items:
-      $ref: "definitions/TransportationOffice.yaml"
+      $ref: 'definitions/TransportationOffice.yaml'
   VLocations:
     type: array
     items:
-      $ref: "definitions/VLocation.yaml"
+      $ref: 'definitions/VLocation.yaml'
   OfficeUser:
     type: object
     properties:
@@ -634,8 +634,8 @@ definitions:
       transportation_office:
         $ref: 'definitions/TransportationOffice.yaml'
       transportation_office_assignments:
-         type: array
-         items:
+        type: array
+        items:
           $ref: 'definitions/TransportationOfficeAssignment.yaml'
       created_at:
         type: string
@@ -1543,6 +1543,11 @@ definitions:
         example: 3
         x-nullable: true
         description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+      civilian_tdy_ub_allowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: The amount of weight in pounds set by the customer or counselor for a civilian TDY move is entitled to for shipment types of Unaccompanied Baggage.
     required:
       - service_member_id
       - issue_date
@@ -1994,7 +1999,7 @@ definitions:
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
       destinationAddress:
-        $ref: "definitions/PPMDestinationAddress.yaml"
+        $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       tertiaryDestinationAddress:
@@ -2059,7 +2064,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       destinationAddress:
-        $ref: "definitions/PPMDestinationAddress.yaml"
+        $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryDestinationAddress:
@@ -4445,15 +4450,15 @@ paths:
       tags:
         - addresses
       parameters:
-      - in: path
-        name: search
-        type: string
-        required: true
+        - in: path
+          name: search
+          type: string
+          required: true
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
           schema:
-            $ref: "#/definitions/VLocations"
+            $ref: '#/definitions/VLocations'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -4462,7 +4467,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  "/mto_shipments":
+  '/mto_shipments':
     post:
       summary: createMTOShipment
       description: |
