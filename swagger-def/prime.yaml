@@ -211,14 +211,14 @@ paths:
           name: body
           required: true
           schema:
-            $ref: 'definitions/prime/AcknowledgeMovesShipments.yaml#/definitions/AcknowledgeMoves'
+            $ref: 'definitions/prime/AcknowledgeMoves.yaml'
       tags:
         - moveTaskOrder
       responses:
         '200':
           description: Successfully updated Move and Shipment Acknowledgements.
           schema:
-            $ref: 'definitions/prime/AcknowledgeMovesShipments.yaml#/definitions/AcknowledgeMovesShipmentsSuccessResponse'
+            $ref: 'definitions/prime/AcknowledgeMovesShipmentsSuccessResponse.yaml'
         '422':
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
