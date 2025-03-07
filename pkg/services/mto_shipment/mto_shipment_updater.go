@@ -1259,8 +1259,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			}
 
 			if intlTransTime.UbTransitTime != nil {
-				dayAfterPickupDay := pickupDate.AddDate(0, 0, 1)
-				requiredDeliveryDate = dayAfterPickupDay.AddDate(0, 0, *intlTransTime.UbTransitTime)
+				requiredDeliveryDate = pickupDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
 			}
 		} else {
 			if destinationIsAlaska {
