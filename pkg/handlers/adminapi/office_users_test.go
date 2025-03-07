@@ -179,6 +179,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 					Email:                  "conAirKilluh2@mail.mil",
 					Status:                 &status,
 					TransportationOfficeID: transportationOffice.ID,
+					Telephone:              "415-555-5555",
 				},
 			},
 			{
@@ -228,6 +229,23 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		respEmail := *okResponse.Payload[0].Email
 		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
 		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
+
+		// telephone search
+		phoneSearch := "415-"
+		filterJSON = fmt.Sprintf("{\"phone\":\"%s\"}", phoneSearch)
+		params = officeuserop.IndexOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
+		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+
+		respPhone := *okResponse.Payload[0].Email
+		suite.Equal(phoneSearch, respPhone[0:len(phoneSearch)])
+		suite.Equal(phoneSearch, respPhone[0:len(phoneSearch)])
 
 		// firstName search
 		firstSearch := "Angelina"
