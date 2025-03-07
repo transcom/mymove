@@ -316,6 +316,36 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
   };
 };
 
+export const usePPMShipmentAndDocsOnlyQueries = (shipmentId) => {
+  const {
+    data: mtoShipment,
+    refetch: refetchMTOShipment,
+    ...mtoShipmentQuery
+  } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) => getMTOShipmentByID(...queryKey), {
+    refetchOnMount: true,
+    staleTime: 0,
+  });
+
+  const { data: documents, ...documentsQuery } = useQuery(
+    [DOCUMENTS, shipmentId],
+    ({ queryKey }) => getPPMDocuments(...queryKey),
+    {
+      enabled: !!shipmentId,
+    },
+  );
+
+  const { isLoading, isError, isSuccess, isFetching } = getQueriesStatus([mtoShipmentQuery, documentsQuery]);
+  return {
+    mtoShipment,
+    documents,
+    refetchMTOShipment,
+    isLoading,
+    isError,
+    isSuccess,
+    isFetching,
+  };
+};
+
 export const usePPMCloseoutQuery = (ppmShipmentId) => {
   const { data: ppmCloseout = {}, ...ppmCloseoutQuery } = useQuery([PPMCLOSEOUT, ppmShipmentId], ({ queryKey }) =>
     getPPMCloseout(...queryKey),
