@@ -65,6 +65,11 @@ type OfficeUser struct {
 	// privileges
 	Privileges []*Privilege `json:"privileges"`
 
+	// rejected on
+	// Read Only: true
+	// Format: date-time
+	RejectedOn strfmt.DateTime `json:"rejectedOn,omitempty"`
+
 	// rejection reason
 	// Required: true
 	RejectionReason *string `json:"rejectionReason"`
@@ -144,6 +149,10 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePrivileges(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRejectedOn(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -299,6 +308,18 @@ func (m *OfficeUser) validatePrivileges(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) validateRejectedOn(formats strfmt.Registry) error {
+	if swag.IsZero(m.RejectedOn) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("rejectedOn", "body", "date-time", m.RejectedOn.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -476,6 +497,10 @@ func (m *OfficeUser) ContextValidate(ctx context.Context, formats strfmt.Registr
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateRejectedOn(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRoles(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -523,6 +548,15 @@ func (m *OfficeUser) contextValidatePrivileges(ctx context.Context, formats strf
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) contextValidateRejectedOn(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "rejectedOn", "body", strfmt.DateTime(m.RejectedOn)); err != nil {
+		return err
 	}
 
 	return nil

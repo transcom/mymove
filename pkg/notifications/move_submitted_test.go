@@ -276,7 +276,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
   <strong>Your standard weight allowance: 7,999 pounds.</strong>
   That is how much combined weight the government will pay for all movements between authorized locations under your
   orders.</p>
-  <p>Be advised, if you are moving to an administratively restricted HHG weight location this amount could be less.</p>
+  <p>Be advised, if you are moving to an administratively restricted weight location this amount could be less.</p>
 
 
 <p>
@@ -389,7 +389,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
   <strong>Your standard weight allowance: 7,999 pounds.</strong>
   That is how much combined weight the government will pay for all movements between authorized locations under your
   orders.</p>
-  <p>Be advised, if you are moving to an administratively restricted HHG weight location this amount could be less.</p>
+  <p>Be advised, if you are moving to an administratively restricted weight location this amount could be less.</p>
 
 
 <p>
@@ -488,7 +488,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
   <strong>Your standard weight allowance: 7,999 pounds.</strong>
   That is how much combined weight the government will pay for all movements between authorized locations under your
   orders.</p>
-  <p>Be advised, if you are moving to an administratively restricted HHG weight location this amount could be less.</p>
+  <p>Be advised, if you are moving to an administratively restricted weight location this amount could be less.</p>
 
 
 <p>
@@ -581,7 +581,7 @@ We have assigned you a move code: abc123. You can use this code when talking to 
 
 To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your local transportation office (` + OneSourceTransportationOfficeLink + `) .
 
-Your standard weight allowance: 7,999 pounds. That is how much combined weight the government will pay for all movements between authorized locations under your orders. Be advised, if you are moving to an administratively restricted HHG weight location this amount could be less.
+Your standard weight allowance: 7,999 pounds. That is how much combined weight the government will pay for all movements between authorized locations under your orders. Be advised, if you are moving to an administratively restricted weight location this amount could be less.
 
 If you move more than 7,999 pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
 

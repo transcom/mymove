@@ -3,8 +3,10 @@
 package mocks
 
 import (
-	mock "github.com/stretchr/testify/mock"
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
+	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
+
+	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -39,6 +41,36 @@ func (_m *MoveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, s
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, *services.MoveFetcherParams) error); ok {
 		r1 = rf(appCtx, locator, searchParams)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FetchMovesByIdArray provides a mock function with given fields: appCtx, moveIds
+func (_m *MoveFetcher) FetchMovesByIdArray(appCtx appcontext.AppContext, moveIds []ghcmessages.BulkAssignmentMoveData) (models.Moves, error) {
+	ret := _m.Called(appCtx, moveIds)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchMovesByIdArray")
+	}
+
+	var r0 models.Moves
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []ghcmessages.BulkAssignmentMoveData) (models.Moves, error)); ok {
+		return rf(appCtx, moveIds)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []ghcmessages.BulkAssignmentMoveData) models.Moves); ok {
+		r0 = rf(appCtx, moveIds)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(models.Moves)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []ghcmessages.BulkAssignmentMoveData) error); ok {
+		r1 = rf(appCtx, moveIds)
 	} else {
 		r1 = ret.Error(1)
 	}
