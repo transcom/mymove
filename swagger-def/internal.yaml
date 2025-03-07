@@ -586,11 +586,11 @@ definitions:
   TransportationOffices:
     type: array
     items:
-      $ref: "definitions/TransportationOffice.yaml"
+      $ref: 'definitions/TransportationOffice.yaml'
   VLocations:
     type: array
     items:
-      $ref: "definitions/VLocation.yaml"
+      $ref: 'definitions/VLocation.yaml'
   OfficeUser:
     type: object
     properties:
@@ -634,8 +634,8 @@ definitions:
       transportation_office:
         $ref: 'definitions/TransportationOffice.yaml'
       transportation_office_assignments:
-         type: array
-         items:
+        type: array
+        items:
           $ref: 'definitions/TransportationOfficeAssignment.yaml'
       created_at:
         type: string
@@ -1411,6 +1411,9 @@ definitions:
       weightRestriction:
         type: integer
         x-nullable: true
+      ubWeightRestriction:
+        type: integer
+        x-nullable: true
     required:
       - id
       - service_member_id
@@ -1463,6 +1466,11 @@ definitions:
         example: 1500
         x-nullable: true
         description: Indicates the weight restricted to a specific location.
+      ub_weight_restriction:
+        type: integer
+        example: 1100
+        x-nullable: true
+        description: Indicates the UB weight restricted to a specific location.
   CreateUpdateOrders:
     type: object
     properties:
@@ -1984,6 +1992,8 @@ definitions:
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
+      ppmType:
+        $ref: 'definitions/PPMType.yaml'
       expectedDepartureDate:
         description: >
           Date the customer expects to move.
@@ -1994,7 +2004,7 @@ definitions:
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
       destinationAddress:
-        $ref: "definitions/PPMDestinationAddress.yaml"
+        $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       tertiaryDestinationAddress:
@@ -2025,6 +2035,8 @@ definitions:
   UpdatePPMShipment:
     type: object
     properties:
+      ppmType:
+        $ref: 'definitions/PPMType.yaml'
       expectedDepartureDate:
         description: >
           Date the customer expects to move.
@@ -2059,7 +2071,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       destinationAddress:
-        $ref: "definitions/PPMDestinationAddress.yaml"
+        $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryDestinationAddress:
@@ -2477,6 +2489,40 @@ definitions:
       - id
       - name
 paths:
+  /open/feature-flags/boolean/{key}:
+    post:
+      summary: Determines if a feature flag is enabled. Only used for unauthenticated users.
+      description: Determines if a feature flag is enabled.
+      operationId: booleanFeatureFlagUnauthenticated
+      tags:
+        - featureFlags
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: key
+          type: string
+          required: true
+          description: Feature Flag Key
+        - in: body
+          name: flagContext
+          required: true
+          description: context for the feature flag request
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Boolean Feature Flag Status
+          schema:
+            $ref: 'definitions/FeatureFlagBoolean.yaml'
+        '401':
+          description: request requires user authentication
+        '500':
+          description: internal server error
   /feature-flags/user-boolean/{key}:
     post:
       summary: Determines if a user has a feature flag enabled
@@ -4445,15 +4491,15 @@ paths:
       tags:
         - addresses
       parameters:
-      - in: path
-        name: search
-        type: string
-        required: true
+        - in: path
+          name: search
+          type: string
+          required: true
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
           schema:
-            $ref: "#/definitions/VLocations"
+            $ref: '#/definitions/VLocations'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -4462,7 +4508,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  "/mto_shipments":
+  '/mto_shipments':
     post:
       summary: createMTOShipment
       description: |
