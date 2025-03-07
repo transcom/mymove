@@ -64,4 +64,9 @@ BEGIN
 
 	END LOOP;
 END $$;
-					 
+
+--add duty loc San Diego, CA 92173
+INSERT INTO public.duty_locations
+(id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
+select 'ed793c9b-7e96-46f8-a845-e566f28062f1', 'San Diego, CA 92173', null, '04eaa871-9df8-45cc-86b6-f1e37a50390f'::uuid, now(),now(), null, true
+where not exists (select * from duty_locations where id = 'ed793c9b-7e96-46f8-a845-e566f28062f1');
