@@ -52,7 +52,7 @@ func (p *intlNTSHHGPackPricer) Price(
 	}
 
 	// Now we get the factor itself
-	factor, err := models.FetchMarketFactor(appCtx, contract.ID, inpk.ID, "O")
+	factor, err := models.FetchMarketFactor(appCtx, contract.ID, inpk.ID, models.MarketOconus.String())
 	if err != nil {
 		return 0, nil, err
 	}
