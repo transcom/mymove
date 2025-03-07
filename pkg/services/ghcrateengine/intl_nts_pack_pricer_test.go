@@ -25,7 +25,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlNTSHHGPackPricer() {
 		suite.FatalNoError(err)
 		suite.FatalTrue(suite.NotEmpty(ntsMarketFactor))
 
-		// Multiply the IHPK price by the NTS markert factor to ensure it math'd properly
+		// Multiply the IHPK price by the NTS market factor to ensure it math'd properly
 		suite.Equal((float64(ihpkTestTotalCost) * ntsMarketFactor), float64(totalCost))
 
 		expectedParams := services.PricingDisplayParams{
