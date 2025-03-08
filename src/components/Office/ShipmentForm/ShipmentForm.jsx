@@ -1733,11 +1733,13 @@ const ShipmentForm = (props) => {
                         />
                       </SectionWrapper>
                     )}
-                    <ShipmentCustomerSIT
-                      sitEstimatedWeight={mtoShipment.ppmShipment?.sitEstimatedWeight}
-                      sitEstimatedEntryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
-                      sitEstimatedDepartureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
-                    />
+                    {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                      <ShipmentCustomerSIT
+                        sitEstimatedWeight={mtoShipment.ppmShipment?.sitEstimatedWeight}
+                        sitEstimatedEntryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
+                        sitEstimatedDepartureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
+                      />
+                    )}
                     <ShipmentWeight
                       authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()}
                       onEstimatedWeightChange={updateEstimatedWeightValue}
