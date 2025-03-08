@@ -77,16 +77,7 @@ func (m PPMType) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this p p m type based on the context it is used
+// ContextValidate validates this p p m type based on context it is used
 func (m PPMType) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := validate.ReadOnly(ctx, "", "body", PPMType(m)); err != nil {
-		return err
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
