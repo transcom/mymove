@@ -285,6 +285,63 @@ const mockPPMShipment = {
   },
 };
 
+const mockPPMShipmentSmallPackage = {
+  ...mockMtoShipment,
+  ppmShipment: {
+    id: 'ppmShipmentID',
+    ppmType: PPM_TYPES.SMALL_PACKAGE,
+    shipmentId: 'shipment123',
+    status: ppmShipmentStatuses.SUBMITTED,
+    expectedDepartureDate: '2022-04-01',
+    hasSecondaryPickupAddress: true,
+    hasSecondaryDestinationAddress: true,
+    pickupAddress: {
+      streetAddress1: '111 Test Street',
+      streetAddress2: '222 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'ELIZABETHTOWN',
+      state: 'KY',
+      postalCode: '42701',
+      county: 'HARDIN',
+    },
+    secondaryPickupAddress: {
+      streetAddress1: '777 Test Street',
+      streetAddress2: '888 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'ELIZABETHTOWN',
+      state: 'KY',
+      postalCode: '42702',
+      county: 'HARDIN',
+    },
+    destinationAddress: {
+      streetAddress1: '222 Test Street',
+      streetAddress2: '333 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'BIG CLIFTY',
+      state: 'KY',
+      postalCode: '42712',
+      county: 'HARDIN',
+    },
+    secondaryDestinationAddress: {
+      streetAddress1: '444 Test Street',
+      streetAddress2: '555 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'ELIZABETHTOWN',
+      state: 'KY',
+      postalCode: '42701',
+      county: 'HARDIN',
+    },
+    sitExpected: false,
+    estimatedWeight: 4999,
+    hasProGear: false,
+    estimatedIncentive: 1234500,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 487500,
+    advanceStatus: 'APPROVED',
+    isActualExpenseReimbursement: false,
+  },
+};
+
 const mockRejectedPPMShipment = {
   ...mockMtoShipment,
   ppmShipment: {
@@ -1374,6 +1431,30 @@ describe('ShipmentForm component', () => {
         // verify required alert was not raised
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
       });
+    });
+
+    it('changes and hides relevant fields if PPM type is SMALL_PACKAGE', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipmentSmallPackage}
+          userRole={roleTypes.SERVICES_COUNSELOR}
+        />,
+      );
+
+      expect(screen.getByLabelText('When did the customer ship their package?')).toBeInTheDocument();
+
+      await waitFor(() => {
+        const smallPackageRadio = screen.getByTestId('isSmallPackage');
+        expect(smallPackageRadio).toBeInTheDocument();
+        expect(smallPackageRadio).toHaveAttribute('value', PPM_TYPES.SMALL_PACKAGE);
+        expect(screen.getAllByLabelText('Small Package Reimbursement')[0]).toBeChecked();
+      });
+
+      expect(screen.queryByText('Storage in transit')).not.toBeInTheDocument();
     });
   });
 
