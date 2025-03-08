@@ -882,8 +882,7 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 		if expense.MovingExpenseType == nil || expense.Amount == nil {
 			continue
 		} // Added quick nil check to ensure SSW returns while moving expenses are being added still
-		var nilPPMDocumentStatus *models.PPMDocumentStatus
-		if expense.Status != nilPPMDocumentStatus && (*expense.Status == models.PPMDocumentStatusRejected || *expense.Status == models.PPMDocumentStatusExcluded) {
+		if expense.Status == nil || *expense.Status != models.PPMDocumentStatusApproved {
 			continue
 		}
 		expenseType, addToTotal := getExpenseType(expense)
@@ -1225,7 +1224,7 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 }
 
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
-func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values, Page3Values services.Page3Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
+func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values, Page3Values services.Page3Values, dirName string) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
 	// header represents the header section of the JSON.
 	type header struct {
@@ -1317,12 +1316,12 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
-	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader, "")
+	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader, "", dirName)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	SSWWorksheet, err = SSWPPMGenerator.generator.LockPDFForm(SSWWorksheet, "")
+	SSWWorksheet, err = SSWPPMGenerator.generator.LockPDFForm(SSWWorksheet, "", dirName)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -577,41 +577,49 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		tollExpense := models.MovingExpenseReceiptTypeTolls
 		oilExpense := models.MovingExpenseReceiptTypeOil
 		amount := unit.Cents(10000)
+		statusApproved := models.PPMDocumentStatusApproved
 		movingExpenses := models.MovingExpenses{
 			{
 				MovingExpenseType: &tollExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCFalse,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &oilExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCFalse,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &oilExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCTrue,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &oilExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCFalse,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &tollExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCTrue,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &tollExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCTrue,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &tollExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCFalse,
+				Status:            &statusApproved,
 			},
 		}
 
@@ -886,12 +894,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalHHG() {
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestMemberPaidRemainingPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	amount := unit.Cents(10000)
+	statusApproved := models.PPMDocumentStatusApproved
 	movingExpenses := models.MovingExpenses{
 		{
 			MovingExpenseType:      &storageExpense,
 			Amount:                 &amount,
 			PaidWithGTCC:           models.BoolPointer(false),
 			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
+			Status:                 &statusApproved,
 		},
 	}
 
@@ -936,12 +946,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestMemberPaidRemainingPPMEnt
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPacketPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	amount := unit.Cents(10000)
+	statusApproved := models.PPMDocumentStatusApproved
 	movingExpenses := models.MovingExpenses{
 		{
 			MovingExpenseType:      &storageExpense,
 			Amount:                 &amount,
 			PaidWithGTCC:           models.BoolPointer(false),
 			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
+			Status:                 &statusApproved,
 		},
 	}
 
@@ -972,12 +984,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPacketPPMEntitlementFo
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestNullCheckForFinalIncentiveAndAOAPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	amount := unit.Cents(10000)
+	statusApproved := models.PPMDocumentStatusApproved
 	movingExpenses := models.MovingExpenses{
 		{
 			MovingExpenseType:      &storageExpense,
 			Amount:                 &amount,
 			PaidWithGTCC:           models.BoolPointer(false),
 			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
+			Status:                 &statusApproved,
 		},
 	}
 
@@ -1021,12 +1035,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestNullCheckForFinalIncentiv
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	amount := unit.Cents(10000)
+	statusApproved := models.PPMDocumentStatusApproved
 	movingExpenses := models.MovingExpenses{
 		{
 			MovingExpenseType:      &storageExpense,
 			Amount:                 &amount,
 			PaidWithGTCC:           models.BoolPointer(true),
 			SITReimburseableAmount: models.CentPointer(unit.Cents(20000)),
+			Status:                 &statusApproved,
 		},
 	}
 
@@ -1073,6 +1089,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	tollExpense := models.MovingExpenseReceiptTypeTolls
 	oilExpense := models.MovingExpenseReceiptTypeOil
 	amount := unit.Cents(10000)
+	statusApproved := models.PPMDocumentStatusApproved
 	testCases := []struct {
 		input    models.MovingExpenses
 		expected map[string]float64
@@ -1083,26 +1100,31 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 					MovingExpenseType: &tollExpense,
 					Amount:            &amount,
 					PaidWithGTCC:      &paidWithGTCC,
+					Status:            &statusApproved,
 				},
 				{
 					MovingExpenseType: &oilExpense,
 					Amount:            &amount,
 					PaidWithGTCC:      &paidWithGTCC,
+					Status:            &statusApproved,
 				},
 				{
 					MovingExpenseType: &oilExpense,
 					Amount:            &amount,
 					PaidWithGTCC:      &paidWithGTCC,
+					Status:            &statusApproved,
 				},
 				{
 					MovingExpenseType: &oilExpense,
 					Amount:            &amount,
 					PaidWithGTCC:      &paidWithGTCC,
+					Status:            &statusApproved,
 				},
 				{
 					MovingExpenseType: &tollExpense,
 					Amount:            &amount,
 					PaidWithGTCC:      &paidWithGTCC,
+					Status:            &statusApproved,
 				},
 			},
 			map[string]float64{
@@ -1556,10 +1578,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	suite.NoError(err)
 	page1Data, page2Data, Page3Data, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd, false)
 	suite.NoError(err)
-	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
-	println(test.Name())           // ensures was generated with temp filesystem
-	suite.Equal(info.PageCount, 3) // ensures PDF is not corrupted
+	println(test.Name())                               // ensures was generated with temp filesystem
+	suite.Equal(info.PageCount, 3)                     // ensures PDF is not corrupted
+	err = generator.Cleanup(suite.AppContextForTest()) // cleanup the files from memory
+	suite.NoError(err)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursementCalculations() {
@@ -1597,22 +1621,27 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	}
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	contractedExpense := models.MovingExpenseReceiptTypeContractedExpense
+	statusApproved := models.PPMDocumentStatusApproved
 	movingExpenses := models.MovingExpenses{
 		{
 			MovingExpenseType: &contractedExpense,
 			PaidWithGTCC:      models.BoolPointer(false),
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &contractedExpense,
 			PaidWithGTCC:      models.BoolPointer(true),
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &storageExpense,
 			PaidWithGTCC:      models.BoolPointer(false),
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &storageExpense,
 			PaidWithGTCC:      models.BoolPointer(true),
+			Status:            &statusApproved,
 		},
 	}
 
@@ -1669,7 +1698,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement) // Check that pre-tax remaining incentive has been set to 0
 
 	// Usual test checks to ensure PDF was generated properly
-	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())           // ensures was generated with temp filesystem
 	suite.Equal(info.PageCount, 3) // ensures PDF is not corrupted
@@ -1681,7 +1710,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
 
 	// Check PDF generation again
-	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
@@ -1703,7 +1732,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal(expectedDisbursementString(11500, 8500), page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
 
-	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
@@ -1713,7 +1742,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal("N/A", page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
 
-	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
@@ -1735,7 +1764,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal(expectedDisbursementString(11500, 3000), page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
 
-	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
@@ -1745,10 +1774,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	suite.Equal("N/A", page2Data.Disbursement)
 	suite.Equal("$0.00", page2Data.PPMRemainingEntitlement)
 
-	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data, "")
 	suite.NoError(err)
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
+	err = generator.Cleanup(suite.AppContextForTest()) // cleanup the files from memory
+	suite.NoError(err)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatMaxAdvance() {

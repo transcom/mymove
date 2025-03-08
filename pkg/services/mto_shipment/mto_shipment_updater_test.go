@@ -52,7 +52,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(1000, nil)
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
@@ -467,13 +466,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"99505",
-			true,
 		).Return(1000, nil)
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"97220",
 			"99505",
-			true,
 		).Return(1000, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -670,13 +667,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"99505",
-			true,
 		).Return(1000, nil)
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
 			"97220",
-			true,
 		).Return(1000, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -2194,7 +2189,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
-		false,
 	).Return(500, nil).Run(func(args mock.Arguments) {
 		TransitDistancePickupArg = args.Get(1).(string)
 		TransitDistanceDestinationArg = args.Get(2).(string)
@@ -3568,7 +3562,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
@@ -3716,6 +3709,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateDomesticServiceItems() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
