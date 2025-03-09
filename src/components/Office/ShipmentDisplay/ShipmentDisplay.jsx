@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { Checkbox, Tag } from '@trussworks/react-uswds';
@@ -10,7 +10,7 @@ import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, getPPMTypeLabel, PPM_TYPES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
@@ -21,6 +21,7 @@ import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import affiliation from 'content/serviceMemberAgencies';
 import { fieldValidationShape, objectIsMissingFieldWithCondition } from 'utils/displayFlags';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -45,6 +46,7 @@ const ShipmentDisplay = ({
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
   const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
+  const [ppmSprFF, setPpmSprFF] = useState(false);
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
     objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
@@ -64,6 +66,13 @@ const ShipmentDisplay = ({
 
   const errorModalMessage =
     "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setPpmSprFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR));
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
@@ -96,8 +105,11 @@ const ShipmentDisplay = ({
                 </label>
               </h3>
               <div className={styles.tagWrapper}>
-                {displayInfo.isActualExpenseReimbursement && (
-                  <Tag data-testid="actualReimbursementTag">actual expense reimbursement</Tag>
+                {ppmSprFF && displayInfo.ppmShipment?.ppmType === PPM_TYPES.SMALL_PACKAGE && (
+                  <Tag data-testid="smallPackageTag">{getPPMTypeLabel(displayInfo.ppmShipment.ppmType)}</Tag>
+                )}
+                {displayInfo.ppmShipment?.ppmType === PPM_TYPES.ACTUAL_EXPENSE && (
+                  <Tag data-testid="actualReimbursementTag">{getPPMTypeLabel(displayInfo.ppmShipment.ppmType)}</Tag>
                 )}
                 {displayInfo.isDiversion && <Tag className="usa-tag--diversion">diversion</Tag>}
                 {(displayInfo.shipmentStatus === shipmentStatuses.CANCELED ||

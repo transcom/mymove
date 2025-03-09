@@ -14,6 +14,7 @@ import { formatDate, formatCents, formatWeight } from 'utils/formatters';
 import { MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries, usePPMShipmentDocsQueries } from 'hooks/queries';
+import { PPM_TYPES } from 'shared/constants';
 
 export const sectionTypes = {
   incentives: 'incentives',
@@ -111,27 +112,36 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               )}
             </span>
           </div>
-          <div>
-            <Label>Planned Move Start Date</Label>
-            <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
-          </div>
-          <div>
-            <Label>Actual Move Start Date</Label>
-            <span data-testid="actualMoveDate" className={styles.light}>
-              {isFetchingItems && updatedItemName === 'actualMoveDate' ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                <>
-                  {formatDate(sectionInfo.actualMoveDate, null, 'DD-MMM-YYYY')}
-                  <OpenModalButton
-                    onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')}
-                    isDisabled={isFetchingItems || readOnly}
-                    ariaLabel="Edit actual move start date"
-                  />
-                </>
-              )}
-            </span>
-          </div>
+          {sectionInfo.ppmType !== PPM_TYPES.SMALL_PACKAGE ? (
+            <>
+              <div>
+                <Label>Planned Move Start Date</Label>
+                <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
+              </div>
+              <div>
+                <Label>Actual Move Start Date</Label>
+                <span data-testid="actualMoveDate" className={styles.light}>
+                  {isFetchingItems && updatedItemName === 'actualMoveDate' ? (
+                    <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                  ) : (
+                    <>
+                      {formatDate(sectionInfo.actualMoveDate, null, 'DD-MMM-YYYY')}
+                      <OpenModalButton
+                        onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')}
+                        isDisabled={isFetchingItems || readOnly}
+                        ariaLabel="Edit actual move start date"
+                      />
+                    </>
+                  )}
+                </span>
+              </div>
+            </>
+          ) : (
+            <div>
+              <Label>Shipped Date</Label>
+              <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
+            </div>
+          )}
           <div>
             <Label>Starting Address</Label>
             <span data-testid="pickupAddress" className={styles.light}>
