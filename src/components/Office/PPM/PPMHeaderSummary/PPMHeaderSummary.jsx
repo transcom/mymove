@@ -68,6 +68,7 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemN
 export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, showAllFields, readOnly }) {
   const [updatedItemName, setUpdatedItemName] = useState('');
   const shipmentInfo = {
+    ppmType: ppmShipmentInfo.ppmType,
     plannedMoveDate: ppmShipmentInfo.expectedDepartureDate,
     actualMoveDate: ppmShipmentInfo.actualMoveDate,
     pickupAddress: ppmShipmentInfo.pickupAddress

@@ -5,6 +5,8 @@ import { Button, ErrorMessage, Form, FormGroup, Radio, Label, Alert } from '@tru
 import { func, number } from 'prop-types';
 import * as Yup from 'yup';
 
+import SmallPackageForm from '../SmallPackageForm/SmallPackageForm';
+
 import styles from './ExpenseForm.module.scss';
 
 import { formatCents } from 'utils/formatters';
@@ -107,7 +109,7 @@ const ExpenseForm = ({
                       <h3>Description</h3>
                       <TextField label="What did you buy or rent?" id="description" name="description" />
                       <Hint>Add a brief description of the expense.</Hint>
-                      {values.expenseType === 'STORAGE' && (
+                      {values.expenseType === expenseTypes.STORAGE && (
                         <FormGroup>
                           <legend className="usa-label">Where did you store your items?</legend>
                           <Field
@@ -166,26 +168,31 @@ const ExpenseForm = ({
                       </Fieldset>
                     </FormGroup>
                     <FormGroup>
-                      <h3>Amount</h3>
-                      <MaskedTextField
-                        name="amount"
-                        label="Amount"
-                        id="amount"
-                        mask={Number}
-                        scale={2} // digits after point, 0 for integers
-                        signed={false} // disallow negative
-                        radix="." // fractional delimiter
-                        mapToRadix={['.']} // symbols to process as radix
-                        padFractionalZeros // if true, then pads zeros at end to the length of scale
-                        thousandsSeparator=","
-                        lazy={false} // immediate masking evaluation
-                        prefix="$"
-                        hintClassName={ppmStyles.innerHint}
-                      />
-                      <Hint>
-                        Enter the total unit price for all items on the receipt that you&apos;re claiming as part of
-                        your PPM moving expenses.
-                      </Hint>
+                      {values.expenseType !== expenseTypes.SMALL_PACKAGE ? (
+                        <>
+                          <MaskedTextField
+                            name="amount"
+                            label="Amount"
+                            id="amount"
+                            mask={Number}
+                            scale={2} // digits after point, 0 for integers
+                            signed={false} // disallow negative
+                            radix="." // fractional delimiter
+                            mapToRadix={['.']} // symbols to process as radix
+                            padFractionalZeros // if true, then pads zeros at end to the length of scale
+                            thousandsSeparator=","
+                            lazy={false} // immediate masking evaluation
+                            prefix="$"
+                            hintClassName={ppmStyles.innerHint}
+                          />
+                          <Hint>
+                            Enter the total unit price for all items on the receipt that you&apos;re claiming as part of
+                            your PPM moving expenses.
+                          </Hint>
+                        </>
+                      ) : (
+                        <SmallPackageForm />
+                      )}
                       <CheckboxField id="missingReceipt" name="missingReceipt" label="I don't have this receipt" />
                       {values.missingReceipt && (
                         <Alert type="info">

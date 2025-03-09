@@ -19,6 +19,7 @@ import { formatCentsTruncateWhole } from 'utils/formatters';
 import { requiredW2AddressSchema, requiredAddressSchema } from 'utils/validation';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
+import { PPM_TYPES } from 'shared/constants';
 
 const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
   const formFieldsName = 'w2Address';
@@ -45,6 +46,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
 
   const ppmShipment = mtoShipment?.ppmShipment || {};
   const {
+    ppmType,
     pickupAddress,
     secondaryPickupAddress,
     destinationAddress,
@@ -101,7 +103,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </p>
                 <AddressFields
                   name="pickupAddress"
-                  legend="Pickup Address"
+                  legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
                   labelHint="Required"
                   locationLookup
                   formikProps={formikProps}
