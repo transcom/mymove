@@ -150,6 +150,7 @@ func (f ppmShipmentFetcher) GetPPMShipment(
 	}
 
 	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterDeleted()
+	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterRejected()
 	ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
 	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
 
