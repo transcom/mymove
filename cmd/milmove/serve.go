@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -744,27 +745,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	pprofEnabled := v.GetBool(cli.PprofListenerFlag)
-	var pprofServer *server.NamedServer
-	if pprofEnabled {
-		serverName := "pprof"
-		pprofPort := v.GetInt(cli.PprofPortFlag)
-		pprofSite, err := routing.InitHealthRouting(serverName, appCtx, redisPool,
-			routingConfig, telemetryConfig)
-		if err != nil {
-			return err
-		}
 
-		pprofServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:        "pprof",
-			Host:        "127.0.0.1", // health server is always localhost only
-			Port:        pprofPort,
-			Logger:      logger,
-			HTTPHandler: pprofSite,
-		})
-		if err != nil {
-			logger.Fatal("error creating health server", zap.Error(err))
-		}
-		go startListener(pprofServer, logger, false)
+	if pprofEnabled {
+		logger.Info("starting pprof server")
+
+		go func() {
+			log.Println(http.ListenAndServe(":6060", nil))
+		}()
 	}
 
 	maintenanceFlag := v.GetBool(cli.MaintenanceFlag)
@@ -899,13 +886,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}()
 	}
 
-	if pprofEnabled {
-		wg.Add(1)
-		go func() {
-			shutdownErrors.Store(pprofServer, pprofServer.Shutdown(ctx))
-			wg.Done()
-		}()
-	}
+	// if pprofEnabled {
+	// 	wg.Add(1)
+	// 	go func() {
+	// 		shutdownErrors.Store(pprofServer, pprofServer.Shutdown(ctx))
+	// 		wg.Done()
+	// 	}()
+	// }
 
 	if healthEnabled {
 		wg.Add(1)
