@@ -110,6 +110,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	if err != nil {
 		log.Fatalln(err)
 	}
+	internalAPI.RegistrationCustomerRegistrationHandler = CustomerRegistrationHandler{handlerConfig}
+	internalAPI.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler = BooleanFeatureFlagsUnauthenticatedHandler{handlerConfig}
 	internalAPI.FeatureFlagsBooleanFeatureFlagForUserHandler = BooleanFeatureFlagsForUserHandler{handlerConfig}
 	internalAPI.FeatureFlagsVariantFeatureFlagForUserHandler = VariantFeatureFlagsForUserHandler{handlerConfig}
 
