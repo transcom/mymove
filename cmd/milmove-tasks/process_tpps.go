@@ -285,14 +285,7 @@ func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (str
 		return "", err
 	}
 
-	_, err = os.ReadFile(absoluteLocalFilePath)
-	if err != nil {
-		logger.Error("Failed to read tmp file contents", zap.Error(err))
-		return "", err
-	}
-
 	logger.Info(fmt.Sprintf("Successfully wrote S3 file contents to local file: %s", absoluteLocalFilePath))
-
 	logFileContents(logger, absoluteLocalFilePath)
 
 	return absoluteLocalFilePath, nil
