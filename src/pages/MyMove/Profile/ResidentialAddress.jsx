@@ -24,6 +24,7 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
     [formFieldsName]: {
       streetAddress1: serviceMember.residential_address?.streetAddress1 || '',
       streetAddress2: serviceMember.residential_address?.streetAddress2 || '',
+      streetAddress3: serviceMember.residential_address?.streetAddress3 || '',
       city: serviceMember.residential_address?.city || '',
       state: serviceMember.residential_address?.state || '',
       postalCode: serviceMember.residential_address?.postalCode || '',

@@ -7,6 +7,7 @@ import styles from './ShipmentCard.module.scss';
 
 import { formatCustomerDate } from 'utils/formatters';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { formatCustomerDestination } from 'utils/shipmentDisplay';
 
 const PickupDisplay = ({
   pickupLocation,
@@ -34,31 +35,19 @@ const PickupDisplay = ({
       {pickupLocation && (
         <div className={styles.row}>
           <dt>Pickup Address</dt>
-          <dd>
-            {pickupLocation.streetAddress1} {pickupLocation.streetAddress2}
-            <br />
-            {pickupLocation.city}, {pickupLocation.state} {pickupLocation.postalCode}
-          </dd>
+          <dd>{formatCustomerDestination(pickupLocation)}</dd>
         </div>
       )}
       {secondaryPickupAddress && (
         <div className={styles.row}>
           <dt>Second Pickup Address</dt>
-          <dd>
-            {secondaryPickupAddress.streetAddress1} {secondaryPickupAddress.streetAddress2}
-            <br />
-            {secondaryPickupAddress.city}, {secondaryPickupAddress.state} {secondaryPickupAddress.postalCode}
-          </dd>
+          <dd>{formatCustomerDestination(secondaryPickupAddress)}</dd>
         </div>
       )}
       {isTertiaryAddressEnabled && tertiaryPickupAddress && secondaryPickupAddress && (
         <div className={styles.row}>
           <dt>Third Pickup Address</dt>
-          <dd>
-            {tertiaryPickupAddress.streetAddress1} {tertiaryPickupAddress.streetAddress2}
-            <br />
-            {tertiaryPickupAddress.city}, {tertiaryPickupAddress.state} {tertiaryPickupAddress.postalCode}
-          </dd>
+          <dd>{formatCustomerDestination(tertiaryPickupAddress)}</dd>
         </div>
       )}
       {releasingAgent && (
