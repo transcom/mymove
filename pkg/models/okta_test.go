@@ -25,6 +25,28 @@ func (suite *ModelSuite) TestSearchForExistingOktaUsers() {
 	suite.Equal("fakeOktaID", users[0].ID)
 }
 
+func (suite *ModelSuite) TestSearchForExistingOktaUsersValidation() {
+	const milProviderName = "milProvider"
+	provider, err := factory.BuildOktaProvider(milProviderName)
+	suite.NoError(err)
+
+	// invalid email format
+	_, err = models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "invalid-email", nil)
+	suite.Error(err)
+	suite.Contains(err.Error(), "invalid email format")
+
+	// empty email
+	_, err = models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "", nil)
+	suite.Error(err)
+	suite.Contains(err.Error(), "email is required")
+
+	// invalid EDIPI format (not 10 digits)
+	invalidEdipi := "12345"
+	_, err = models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "test@example.com", &invalidEdipi)
+	suite.Error(err)
+	suite.Contains(err.Error(), "invalid EDIPI format")
+}
+
 func (suite *ModelSuite) TestCreateOktaUser() {
 	const milProviderName = "milProvider"
 	provider, err := factory.BuildOktaProvider(milProviderName)
