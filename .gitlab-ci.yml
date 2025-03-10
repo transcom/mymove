@@ -307,7 +307,7 @@ stages:
     export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
     export LOGIN_GOV_CALLBACK_PORT=4000
     export LOGIN_GOV_CALLBACK_PROTOCOL=http
-    make db_dev_create
+    make db_dev_create >> $CI_PROJECT_DIR/db_dev_create.txt
 
   # bin/milmove migrate
   # mkdir -p build
@@ -1214,10 +1214,10 @@ integration_test_mtls:
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     # - curl http://milmovelocal:4000
     - make bin/milmove
-    - bin/milmove migrate
+    - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.txt
     - make bin/prime-api-client
     - echo "Running E2E mTLS tests"
-    - ./scripts/run-e2e-mtls-test
+    - ./scripts/run-e2e-mtls-test >> $CI_PROJECT_DIR/e2e_mtls_test.txt
   artifacts:
     paths:
       - test-results/
