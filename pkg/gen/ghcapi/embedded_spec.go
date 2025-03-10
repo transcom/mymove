@@ -4858,14 +4858,14 @@ func init() {
           },
           {
             "type": "string",
-            "description": "user's actively logged in role.\n",
-            "name": "activeRole",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
             "type": "string",
-            "description": "filters using a counselingOffice name of the move",
-            "name": "counselingOffice",
+            "description": "user's actively logged in role.\n",
+            "name": "activeRole",
             "in": "query"
           }
         ],
@@ -22100,14 +22100,14 @@ func init() {
           },
           {
             "type": "string",
-            "description": "user's actively logged in role.\n",
-            "name": "activeRole",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
             "type": "string",
-            "description": "filters using a counselingOffice name of the move",
-            "name": "counselingOffice",
+            "description": "user's actively logged in role.\n",
+            "name": "activeRole",
             "in": "query"
           }
         ],

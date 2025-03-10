@@ -170,7 +170,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeTaskOrder))
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -257,24 +257,13 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
-			moves, count, err := h.OrderFetcher.ListDestinationRequestsOrders(
-				appCtx,
-				appCtx.Session().OfficeUserID,
-				roles.RoleTypeTOO,
-				&ListOrderParams,
-			)
-			if err != nil {
-				appCtx.Logger().
-					Error("error fetching destinaton queue for office user", zap.Error(err))
-				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
-			}
-
 			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
 			officeUser.User.Privileges = privileges
 			officeUser.User.Roles = appCtx.Session().Roles
+
 			var officeUsers models.OfficeUsers
 			var officeUsersSafety models.OfficeUsers
 			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
@@ -303,7 +292,18 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 					Error("error fetching office users", zap.Error(err))
 				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
 			}
+			moves, count, err := h.OrderFetcher.ListDestinationRequestsOrders(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				roles.RoleTypeTOO,
+				&ListOrderParams,
+			)
 
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching destinaton queue for office user", zap.Error(err))
+				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
+			}
 			// if the TOO is accessing the queue, we need to unlock move/moves they have locked
 			if appCtx.Session().IsOfficeUser() {
 				officeUserID := appCtx.Session().OfficeUserID
@@ -324,7 +324,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeDestinationRequest))
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -707,7 +707,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,

@@ -3907,14 +3907,14 @@ paths:
           description: |
             Used to illustrate which user is assigned to this move.
         - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
+        - in: query
           name: activeRole
           type: string
           description: |
             user's actively logged in role.
-        - in: query
-          name: counselingOffice
-          type: string
-          description: filters using a counselingOffice name of the move
       responses:
         '200':
           description: Successfully returned all moves matching the criteria

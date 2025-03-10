@@ -650,7 +650,7 @@ export async function getMovesQueue(
 
 export async function getDestinationRequestsQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
 ) {
   const operationPath = 'queues.getDestinationRequestsQueue';
   const paramFilters = {};
@@ -659,7 +659,7 @@ export async function getDestinationRequestsQueue(
   });
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, activeRole, ...paramFilters },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
