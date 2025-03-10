@@ -235,6 +235,11 @@ func getS3ObjectTags(s3Client S3API, bucket, key string) (string, map[string]str
 }
 
 func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (string, error) {
+	// check for evidence of path traversal
+	if strings.Contains(key, "..") {
+		return "", fmt.Errorf("invalid key: path traversal detected in %s", key)
+	}
+
 	response, err := s3Client.GetObject(context.Background(),
 		&s3.GetObjectInput{
 			Bucket: &bucket,
@@ -257,38 +262,25 @@ func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (str
 		return "", fmt.Errorf("tmp directory (%s) is not mutable, cannot write /tmp file for TPPS processing", tempDir)
 	}
 
-	localFilePath := filepath.Join(tempDir, filepath.Base(filepath.Clean(key)))
-	absoluteLocalFilePath, err := filepath.Abs(localFilePath)
+	tempFile, err := os.CreateTemp(tempDir, "*.csv")
+	if err != nil {
+		logger.Error("failed to create temporary file", zap.Error(err))
+		return "", err
+	}
+	defer tempFile.Close()
+
+	if _, err = io.Copy(tempFile, response.Body); err != nil {
+		logger.Error("failed to write S3 object to tmp file", zap.Error(err))
+		return "", err
+	}
+
+	absoluteLocalFilePath, err := filepath.Abs(tempFile.Name())
 	if err != nil {
 		return "", fmt.Errorf("failed to resolve absolute path: %w", err)
 	}
 
 	if !strings.HasPrefix(absoluteLocalFilePath, tempDir) {
 		return "", fmt.Errorf("path traversal detected, rejecting file: %s", absoluteLocalFilePath)
-	}
-
-	file, err := os.Create(absoluteLocalFilePath)
-	if err != nil {
-		logger.Error("Failed to create tmp file", zap.Error(err))
-		return "", err
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, response.Body)
-	if err != nil {
-		logger.Error("Failed to write S3 object to tmp file", zap.Error(err))
-		return "", err
-	}
-
-	if _, err := os.Stat(absoluteLocalFilePath); err != nil {
-		logger.Error("File does not exist or is inaccessible", zap.Error(err))
-		return "", err
-	}
-
-	_, err = os.ReadFile(absoluteLocalFilePath)
-	if err != nil {
-		logger.Error("Failed to read tmp file contents", zap.Error(err))
-		return "", err
 	}
 
 	logger.Info(fmt.Sprintf("Successfully wrote S3 file contents to local file: %s", absoluteLocalFilePath))
