@@ -305,6 +305,11 @@ definitions:
   AdminUserUpdate:
     type: object
     properties:
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
       firstName:
         type: string
         title: First Name
@@ -782,6 +787,11 @@ definitions:
   OfficeUserUpdate:
     type: object
     properties:
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
       firstName:
         type: string
         title: First Name
@@ -916,6 +926,7 @@ definitions:
       email:
         type: string
         example: user@userdomain.com
+        x-nullable: true
       telephone:
         type: string
         format: telephone

@@ -234,6 +234,7 @@ type Session struct {
 	Permissions     []string
 	AccessToken     string
 	ClientID        string
+	HTTPRequest     *http.Request
 	OktaSessionInfo OktaSessionInfo
 }
 

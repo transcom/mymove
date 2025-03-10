@@ -26,7 +26,7 @@ type RequestedOfficeUserUpdate struct {
 
 	// email
 	// Example: user@userdomain.com
-	Email string `json:"email,omitempty"`
+	Email *string `json:"email,omitempty"`
 
 	// First Name
 	FirstName *string `json:"firstName,omitempty"`

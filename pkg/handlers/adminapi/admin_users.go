@@ -171,6 +171,7 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 				return adminuserop.NewUpdateAdminUserForbidden(), err
 			}
 
+			appCtx.Session().HTTPRequest = params.HTTPRequest
 			updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(appCtx, adminUserID, payload)
 
 			if err != nil || verrs != nil {
