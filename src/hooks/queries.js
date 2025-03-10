@@ -604,7 +604,11 @@ export const useMovesQueueQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...movesQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...movesQueueQuery
+  } = useQuery(
     [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getMovesQueue(...queryKey),
   );
@@ -615,6 +619,7 @@ export const useMovesQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
@@ -649,7 +654,11 @@ export const useServicesCounselingQueuePPMQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...servicesCounselingQueueQuery
+  } = useQuery(
     [
       SERVICES_COUNSELING_QUEUE,
       { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true, viewAsGBLOC, activeRole },
@@ -664,6 +673,7 @@ export const useServicesCounselingQueuePPMQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
@@ -676,7 +686,11 @@ export const useServicesCounselingQueueQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...servicesCounselingQueueQuery
+  } = useQuery(
     [
       SERVICES_COUNSELING_QUEUE,
       { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false, viewAsGBLOC, activeRole },
@@ -691,6 +705,7 @@ export const useServicesCounselingQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
@@ -703,7 +718,11 @@ export const usePaymentRequestQueueQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...paymentRequestsQueueQuery
+  } = useQuery(
     [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getPaymentRequestsQueue(...queryKey),
   );
@@ -715,6 +734,7 @@ export const usePaymentRequestQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 

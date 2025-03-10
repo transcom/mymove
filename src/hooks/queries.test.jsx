@@ -917,6 +917,7 @@ describe('useMovesQueueQueries', () => {
       isLoading: false,
       isError: false,
       isSuccess: true,
+      refetch: result.current.refetch,
     });
   });
 });
@@ -947,6 +948,7 @@ describe('usePaymentRequestsQueueQueries', () => {
       isLoading: false,
       isError: false,
       isSuccess: true,
+      refetch: result.current.refetch,
     });
   });
 });
@@ -1029,6 +1031,7 @@ describe('useServicesCounselingQueuePPMQueries', () => {
       isLoading: false,
       isError: false,
       isSuccess: true,
+      refetch: result.current.refetch,
     });
   });
 });
