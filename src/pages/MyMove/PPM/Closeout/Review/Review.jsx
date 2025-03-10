@@ -39,6 +39,7 @@ import {
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
+import { PPM_TYPES } from 'shared/constants';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
   const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
@@ -89,6 +90,8 @@ const Review = () => {
   const [alert, setAlert] = useState(null);
   const { moveId, mtoShipmentId } = useParams();
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
+  const ppmShipment = mtoShipment?.ppmShipment || {};
+  const { ppmType } = ppmShipment;
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
   const proGear = mtoShipment?.ppmShipment?.proGearWeightTickets;
@@ -157,7 +160,9 @@ const Review = () => {
   const weightTicketsTotal = getTotalNetWeightForWeightTickets(weightTickets);
 
   const canAdvance =
-    hasCompletedAllWeightTickets(weightTickets) && hasCompletedAllExpenses(expenses) && hasCompletedAllProGear(proGear);
+    hasCompletedAllWeightTickets(weightTickets, ppmType) &&
+    hasCompletedAllExpenses(expenses) &&
+    hasCompletedAllProGear(proGear);
 
   const proGearContents = formatProGearItems(
     proGear,
@@ -214,22 +219,24 @@ const Review = () => {
             </SectionWrapper>
             <SectionWrapper>
               <h2>Documents</h2>
-              <ReviewItems
-                className={classnames(styles.reviewItems, 'reviewWeightTickets')}
-                heading={
-                  <>
-                    <h3>Weight moved</h3>
-                    <span>({formatWeight(weightTicketsTotal)})</span>
-                  </>
-                }
-                contents={weightTicketContents}
-                renderAddButton={() => (
-                  <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
-                    Add More Weight
-                  </Link>
-                )}
-                emptyMessage="No weight moved documented. At least one trip is required to continue."
-              />
+              {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                <ReviewItems
+                  className={classnames(styles.reviewItems, 'reviewWeightTickets')}
+                  heading={
+                    <>
+                      <h3>Weight moved</h3>
+                      <span>({formatWeight(weightTicketsTotal)})</span>
+                    </>
+                  }
+                  contents={weightTicketContents}
+                  renderAddButton={() => (
+                    <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
+                      Add More Weight
+                    </Link>
+                  )}
+                  emptyMessage="No weight moved documented. At least one trip is required to continue."
+                />
+              )}
               <ReviewItems
                 className={classnames(styles.reviewItems, 'progearSection')}
                 heading={
