@@ -74,7 +74,6 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 
 	switch p.ServiceItem.ReService.Code {
 	case models.ReServiceCodeIHPK, models.ReServiceCodeINPK:
-		var serviceID uuid.UUID
 		if p.ServiceItem.ReService.Code == models.ReServiceCodeINPK {
 			// If this is an iNTS iHHG packing scenario, we need to make sure to
 			// use the IHPK packing for reIntlOtherPrice fetching because INPK pricing doesn't exist
