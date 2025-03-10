@@ -4487,6 +4487,12 @@ func init() {
           "x-nullable": true,
           "example": 3
         },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
+        },
         "weight_restriction": {
           "description": "Indicates the weight restricted to a specific location.",
           "type": "integer",
@@ -6029,6 +6035,10 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -6511,6 +6521,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -6681,6 +6694,17 @@ func init() {
         "NEEDS_CLOSEOUT",
         "CLOSEOUT_COMPLETE",
         "CANCELED"
+      ],
+      "readOnly": true
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
       ],
       "readOnly": true
     },
@@ -13626,6 +13650,12 @@ func init() {
           "x-nullable": true,
           "example": 3
         },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
+        },
         "weight_restriction": {
           "description": "Indicates the weight restricted to a specific location.",
           "type": "integer",
@@ -15170,6 +15200,10 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -15653,6 +15687,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -15823,6 +15860,17 @@ func init() {
         "NEEDS_CLOSEOUT",
         "CLOSEOUT_COMPLETE",
         "CANCELED"
+      ],
+      "readOnly": true
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
       ],
       "readOnly": true
     },

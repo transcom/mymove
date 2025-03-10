@@ -489,8 +489,16 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		}
 	}
 
-	if pickupPostal[0:3] == destPostal[0:3] {
-		serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
+	// if the ZIPs are the same, we need to replace the DLH service item with DSH
+	if len(pickupPostal) >= 3 && len(destPostal) >= 3 && pickupPostal[:3] == destPostal[:3] {
+		if pickupPostal[0:3] == destPostal[0:3] {
+			for i, serviceItem := range serviceItemsToPrice {
+				if serviceItem.ReService.Code == models.ReServiceCodeDLH {
+					serviceItemsToPrice[i] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
+					break
+				}
+			}
+		}
 	}
 
 	// Get a list of all the pricing params needed to calculate the price for each service item
@@ -630,9 +638,15 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		destPostal = ppmShipment.DestinationAddress.PostalCode
 	}
 
+	// if the ZIPs are the same, we need to replace the DLH service item with DSH
 	if len(pickupPostal) >= 3 && len(destPostal) >= 3 && pickupPostal[:3] == destPostal[:3] {
 		if pickupPostal[0:3] == destPostal[0:3] {
-			serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
+			for i, serviceItem := range serviceItemsToPrice {
+				if serviceItem.ReService.Code == models.ReServiceCodeDLH {
+					serviceItemsToPrice[i] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
+					break
+				}
+			}
 		}
 	}
 
@@ -784,13 +798,13 @@ func (f *estimatePPM) CalculateOCONUSIncentive(appCtx appcontext.AppContext, ppm
 		mileage = 0
 	case isPickupOconus && !isDestinationOconus:
 		// OCONUS -> CONUS (port ZIP -> address ZIP)
-		mileage, err = f.planner.ZipTransitDistance(appCtx, ppmPort.UsPostRegionCity.UsprZipID, destinationAddress.PostalCode, true)
+		mileage, err = f.planner.ZipTransitDistance(appCtx, ppmPort.UsPostRegionCity.UsprZipID, destinationAddress.PostalCode)
 		if err != nil {
 			return nil, fmt.Errorf("failed to calculate OCONUS to CONUS mileage: %w", err)
 		}
 	case !isPickupOconus && isDestinationOconus:
 		// CONUS -> OCONUS (address ZIP -> port ZIP)
-		mileage, err = f.planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, ppmPort.UsPostRegionCity.UsprZipID, true)
+		mileage, err = f.planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, ppmPort.UsPostRegionCity.UsprZipID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to calculate CONUS to OCONUS mileage: %w", err)
 		}

@@ -196,6 +196,7 @@ const moveTaskOrder = {
     entitlement: {
       gunSafe: true,
       weightRestriction: 500,
+      ubWeightRestriction: 350,
     },
   },
 };
@@ -241,6 +242,11 @@ describe('PrimeUI MoveDetails page', () => {
         expect(adminRestrictedWeight).toBeInTheDocument();
         expect(adminRestrictedWeight.nextElementSibling.textContent).toBe(
           formatWeight(moveTaskOrder.order.entitlement.weightRestriction),
+        );
+        const adminRestrictedUBWeight = screen.getByText('Admin Restricted UB Weight:');
+        expect(adminRestrictedUBWeight).toBeInTheDocument();
+        expect(adminRestrictedUBWeight.nextElementSibling.textContent).toBe(
+          formatWeight(moveTaskOrder.order.entitlement.ubWeightRestriction),
         );
       });
     });
