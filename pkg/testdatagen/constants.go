@@ -7,7 +7,7 @@ import (
 )
 
 // TestYear is the default year for testing.
-var TestYear = 2018
+var TestYear = 2024
 
 // GHCTestYear is the default for GHC rate engine testing
 var GHCTestYear = 2024

@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -25,321 +26,321 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 	var ppmShipment models.PPMShipment
 	newFakeSITEstimatedCost := models.CentPointer(unit.Cents(25500))
 
-	// suite.PreloadData(func() {
-	// 	testdatagen.FetchOrMakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
-	// 		GHCDieselFuelPrice: models.GHCDieselFuelPrice{
-	// 			FuelPriceInMillicents: unit.Millicents(281400),
-	// 			PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
-	// 		},
-	// 	})
+	suite.PreloadData(func() {
+		testdatagen.FetchOrMakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
+			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
+				FuelPriceInMillicents: unit.Millicents(281400),
+				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
+			},
+		})
 
-	// 	contractYear := models.ReContractYear{
-	// 		StartDate: testdatagen.ContractStartDate,
-	// 		EndDate:   testdatagen.ContractEndDate,
-	// 	}
+		contractYear := models.ReContractYear{
+			StartDate: testdatagen.ContractStartDate,
+			EndDate:   testdatagen.ContractEndDate,
+		}
 
-	// 	contractYear = testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-	// 		ReContractYear: contractYear,
-	// 	})
+		contractYear = testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: contractYear,
+		})
 
-	// 	originDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceArea: models.ReDomesticServiceArea{
-	// 			ServiceArea:      "056",
-	// 			ServicesSchedule: 3,
-	// 			SITPDSchedule:    3,
-	// 			ContractID:       contractYear.ContractID,
-	// 		},
-	// 	})
+		originDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ServiceArea:      "056",
+				ServicesSchedule: 3,
+				SITPDSchedule:    3,
+				ContractID:       contractYear.ContractID,
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
-	// 		ReZip3: models.ReZip3{
-	// 			Contract:            contractYear.Contract,
-	// 			ContractID:          contractYear.ContractID,
-	// 			DomesticServiceArea: originDomesticServiceArea,
-	// 			Zip3:                "902",
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            contractYear.Contract,
+				ContractID:          contractYear.ContractID,
+				DomesticServiceArea: originDomesticServiceArea,
+				Zip3:                "902",
+			},
+		})
 
-	// 	destDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceArea: models.ReDomesticServiceArea{
-	// 			Contract:    contractYear.Contract,
-	// 			ContractID:  contractYear.ContractID,
-	// 			ServiceArea: "208",
-	// 		},
-	// 	})
+		destDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				Contract:    contractYear.Contract,
+				ContractID:  contractYear.ContractID,
+				ServiceArea: "208",
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
-	// 		ReZip3: models.ReZip3{
-	// 			Contract:            contractYear.Contract,
-	// 			ContractID:          contractYear.ContractID,
-	// 			DomesticServiceArea: destDomesticServiceArea,
-	// 			Zip3:                "308",
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            contractYear.Contract,
+				ContractID:          contractYear.ContractID,
+				DomesticServiceArea: destDomesticServiceArea,
+				Zip3:                "308",
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
-	// 			Contract:              originDomesticServiceArea.Contract,
-	// 			ContractID:            originDomesticServiceArea.ContractID,
-	// 			DomesticServiceArea:   originDomesticServiceArea,
-	// 			DomesticServiceAreaID: originDomesticServiceArea.ID,
-	// 			WeightLower:           unit.Pound(500),
-	// 			WeightUpper:           unit.Pound(4999),
-	// 			MilesLower:            2001,
-	// 			MilesUpper:            2500,
-	// 			PriceMillicents:       unit.Millicents(412400),
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+				Contract:              originDomesticServiceArea.Contract,
+				ContractID:            originDomesticServiceArea.ContractID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				WeightLower:           unit.Pound(500),
+				WeightUpper:           unit.Pound(4999),
+				MilesLower:            2001,
+				MilesUpper:            2500,
+				PriceMillicents:       unit.Millicents(412400),
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
-	// 			Contract:              originDomesticServiceArea.Contract,
-	// 			ContractID:            originDomesticServiceArea.ContractID,
-	// 			DomesticServiceArea:   originDomesticServiceArea,
-	// 			DomesticServiceAreaID: originDomesticServiceArea.ID,
-	// 			WeightLower:           unit.Pound(500),
-	// 			WeightUpper:           unit.Pound(4999),
-	// 			MilesLower:            2001,
-	// 			MilesUpper:            2500,
-	// 			IsPeakPeriod:          true,
-	// 			PriceMillicents:       unit.Millicents(437600),
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+				Contract:              originDomesticServiceArea.Contract,
+				ContractID:            originDomesticServiceArea.ContractID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				WeightLower:           unit.Pound(500),
+				WeightUpper:           unit.Pound(4999),
+				MilesLower:            2001,
+				MilesUpper:            2500,
+				IsPeakPeriod:          true,
+				PriceMillicents:       unit.Millicents(437600),
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
-	// 			Contract:              originDomesticServiceArea.Contract,
-	// 			ContractID:            originDomesticServiceArea.ContractID,
-	// 			DomesticServiceArea:   originDomesticServiceArea,
-	// 			DomesticServiceAreaID: originDomesticServiceArea.ID,
-	// 			WeightLower:           unit.Pound(5000),
-	// 			WeightUpper:           unit.Pound(9999),
-	// 			MilesLower:            2001,
-	// 			MilesUpper:            2500,
-	// 			PriceMillicents:       unit.Millicents(606800),
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+				Contract:              originDomesticServiceArea.Contract,
+				ContractID:            originDomesticServiceArea.ContractID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				WeightLower:           unit.Pound(5000),
+				WeightUpper:           unit.Pound(9999),
+				MilesLower:            2001,
+				MilesUpper:            2500,
+				PriceMillicents:       unit.Millicents(606800),
+			},
+		})
 
-	// 	dopService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+		dopService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            originDomesticServiceArea.ContractID,
-	// 			Contract:              originDomesticServiceArea.Contract,
-	// 			ServiceID:             dopService.ID,
-	// 			Service:               dopService,
-	// 			DomesticServiceAreaID: originDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   originDomesticServiceArea,
-	// 			IsPeakPeriod:          false,
-	// 			PriceCents:            unit.Cents(404),
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dopService.ID,
+				Service:               dopService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            unit.Cents(404),
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            originDomesticServiceArea.ContractID,
-	// 			Contract:              originDomesticServiceArea.Contract,
-	// 			ServiceID:             dopService.ID,
-	// 			Service:               dopService,
-	// 			DomesticServiceAreaID: originDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   originDomesticServiceArea,
-	// 			IsPeakPeriod:          true,
-	// 			PriceCents:            unit.Cents(465),
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dopService.ID,
+				Service:               dopService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            unit.Cents(465),
+			},
+		})
 
-	// 	ddpService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
+		ddpService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            destDomesticServiceArea.ContractID,
-	// 			Contract:              destDomesticServiceArea.Contract,
-	// 			ServiceID:             ddpService.ID,
-	// 			Service:               ddpService,
-	// 			DomesticServiceAreaID: destDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   destDomesticServiceArea,
-	// 			IsPeakPeriod:          false,
-	// 			PriceCents:            unit.Cents(832),
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddpService.ID,
+				Service:               ddpService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            unit.Cents(832),
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            destDomesticServiceArea.ContractID,
-	// 			Contract:              destDomesticServiceArea.Contract,
-	// 			ServiceID:             ddpService.ID,
-	// 			Service:               ddpService,
-	// 			DomesticServiceAreaID: destDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   destDomesticServiceArea,
-	// 			IsPeakPeriod:          true,
-	// 			PriceCents:            unit.Cents(957),
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddpService.ID,
+				Service:               ddpService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            unit.Cents(957),
+			},
+		})
 
-	// 	dpkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+		dpkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
 
-	// 	testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticOtherPrice: models.ReDomesticOtherPrice{
-	// 			ContractID:   originDomesticServiceArea.ContractID,
-	// 			Contract:     originDomesticServiceArea.Contract,
-	// 			ServiceID:    dpkService.ID,
-	// 			Service:      dpkService,
-	// 			IsPeakPeriod: false,
-	// 			Schedule:     3,
-	// 			PriceCents:   7395,
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   originDomesticServiceArea.ContractID,
+				Contract:     originDomesticServiceArea.Contract,
+				ServiceID:    dpkService.ID,
+				Service:      dpkService,
+				IsPeakPeriod: false,
+				Schedule:     3,
+				PriceCents:   7395,
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticOtherPrice: models.ReDomesticOtherPrice{
-	// 			ContractID:   originDomesticServiceArea.ContractID,
-	// 			Contract:     originDomesticServiceArea.Contract,
-	// 			ServiceID:    dpkService.ID,
-	// 			Service:      dpkService,
-	// 			IsPeakPeriod: true,
-	// 			Schedule:     3,
-	// 			PriceCents:   8000,
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   originDomesticServiceArea.ContractID,
+				Contract:     originDomesticServiceArea.Contract,
+				ServiceID:    dpkService.ID,
+				Service:      dpkService,
+				IsPeakPeriod: true,
+				Schedule:     3,
+				PriceCents:   8000,
+			},
+		})
 
-	// 	dupkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
+		dupkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
 
-	// 	testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticOtherPrice: models.ReDomesticOtherPrice{
-	// 			ContractID:   destDomesticServiceArea.ContractID,
-	// 			Contract:     destDomesticServiceArea.Contract,
-	// 			ServiceID:    dupkService.ID,
-	// 			Service:      dupkService,
-	// 			IsPeakPeriod: false,
-	// 			Schedule:     2,
-	// 			PriceCents:   597,
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   destDomesticServiceArea.ContractID,
+				Contract:     destDomesticServiceArea.Contract,
+				ServiceID:    dupkService.ID,
+				Service:      dupkService,
+				IsPeakPeriod: false,
+				Schedule:     2,
+				PriceCents:   597,
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticOtherPrice: models.ReDomesticOtherPrice{
-	// 			ContractID:   destDomesticServiceArea.ContractID,
-	// 			Contract:     destDomesticServiceArea.Contract,
-	// 			ServiceID:    dupkService.ID,
-	// 			Service:      dupkService,
-	// 			IsPeakPeriod: true,
-	// 			Schedule:     2,
-	// 			PriceCents:   650,
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   destDomesticServiceArea.ContractID,
+				Contract:     destDomesticServiceArea.Contract,
+				ServiceID:    dupkService.ID,
+				Service:      dupkService,
+				IsPeakPeriod: true,
+				Schedule:     2,
+				PriceCents:   650,
+			},
+		})
 
-	// 	dofsitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		dofsitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            originDomesticServiceArea.ContractID,
-	// 			Contract:              originDomesticServiceArea.Contract,
-	// 			ServiceID:             dofsitService.ID,
-	// 			Service:               dofsitService,
-	// 			DomesticServiceAreaID: originDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   originDomesticServiceArea,
-	// 			IsPeakPeriod:          false,
-	// 			PriceCents:            1153,
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dofsitService.ID,
+				Service:               dofsitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            1153,
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            originDomesticServiceArea.ContractID,
-	// 			Contract:              originDomesticServiceArea.Contract,
-	// 			ServiceID:             dofsitService.ID,
-	// 			Service:               dofsitService,
-	// 			DomesticServiceAreaID: originDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   originDomesticServiceArea,
-	// 			IsPeakPeriod:          true,
-	// 			PriceCents:            1326,
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dofsitService.ID,
+				Service:               dofsitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            1326,
+			},
+		})
 
-	// 	doasitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
+		doasitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            originDomesticServiceArea.ContractID,
-	// 			Contract:              originDomesticServiceArea.Contract,
-	// 			ServiceID:             doasitService.ID,
-	// 			Service:               doasitService,
-	// 			DomesticServiceAreaID: originDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   originDomesticServiceArea,
-	// 			IsPeakPeriod:          false,
-	// 			PriceCents:            46,
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             doasitService.ID,
+				Service:               doasitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            46,
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            originDomesticServiceArea.ContractID,
-	// 			Contract:              originDomesticServiceArea.Contract,
-	// 			ServiceID:             doasitService.ID,
-	// 			Service:               doasitService,
-	// 			DomesticServiceAreaID: originDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   originDomesticServiceArea,
-	// 			IsPeakPeriod:          true,
-	// 			PriceCents:            53,
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             doasitService.ID,
+				Service:               doasitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            53,
+			},
+		})
 
-	// 	ddfsitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		ddfsitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            destDomesticServiceArea.ContractID,
-	// 			Contract:              destDomesticServiceArea.Contract,
-	// 			ServiceID:             ddfsitService.ID,
-	// 			Service:               ddfsitService,
-	// 			DomesticServiceAreaID: destDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   destDomesticServiceArea,
-	// 			IsPeakPeriod:          false,
-	// 			PriceCents:            1612,
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddfsitService.ID,
+				Service:               ddfsitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            1612,
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            destDomesticServiceArea.ContractID,
-	// 			Contract:              destDomesticServiceArea.Contract,
-	// 			ServiceID:             ddfsitService.ID,
-	// 			Service:               ddfsitService,
-	// 			DomesticServiceAreaID: destDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   destDomesticServiceArea,
-	// 			IsPeakPeriod:          true,
-	// 			PriceCents:            1854,
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddfsitService.ID,
+				Service:               ddfsitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            1854,
+			},
+		})
 
-	// 	ddasitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
+		ddasitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            destDomesticServiceArea.ContractID,
-	// 			Contract:              destDomesticServiceArea.Contract,
-	// 			ServiceID:             ddasitService.ID,
-	// 			Service:               ddasitService,
-	// 			DomesticServiceAreaID: destDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   destDomesticServiceArea,
-	// 			IsPeakPeriod:          false,
-	// 			PriceCents:            55,
-	// 		},
-	// 	})
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddasitService.ID,
+				Service:               ddasitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            55,
+			},
+		})
 
-	// 	testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-	// 		ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-	// 			ContractID:            destDomesticServiceArea.ContractID,
-	// 			Contract:              destDomesticServiceArea.Contract,
-	// 			ServiceID:             ddasitService.ID,
-	// 			Service:               ddasitService,
-	// 			DomesticServiceAreaID: destDomesticServiceArea.ID,
-	// 			DomesticServiceArea:   destDomesticServiceArea,
-	// 			IsPeakPeriod:          true,
-	// 			PriceCents:            63,
-	// 		},
-	// 	})
-	// })
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddasitService.ID,
+				Service:               ddasitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            63,
+			},
+		})
+	})
 
 	setupData := func() {
 		sitLocationDestination := models.SITLocationTypeDestination
