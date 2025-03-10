@@ -309,6 +309,7 @@ export function formatPpmShipmentForAPI(formValues) {
     hasTertiaryPickupAddress: formValues.hasTertiaryPickup === 'true',
     hasTertiaryDestinationAddress: formValues.hasTertiaryDestination === 'true',
     isActualExpenseReimbursement: formValues.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
+    closeoutOfficeID: formValues.closeoutOffice?.id,
   };
 
   if (formValues.expectedDepartureDate !== undefined)

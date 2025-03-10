@@ -7537,6 +7537,10 @@ definitions:
         example: false
         x-omitempty: false
         x-nullable: true
+      closeoutOfficeID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
     required:
       - expectedDepartureDate
       - pickupAddress
