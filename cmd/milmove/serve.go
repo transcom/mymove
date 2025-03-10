@@ -744,16 +744,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		go startListener(healthServer, logger, false)
 	}
 
-	pprofEnabled := v.GetBool(cli.PprofListenerFlag)
-
-	if pprofEnabled {
-		logger.Info("starting pprof server")
-
-		go func() {
-			log.Println(http.ListenAndServe(":6060", nil))
-		}()
-	}
-
 	maintenanceFlag := v.GetBool(cli.MaintenanceFlag)
 	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
 	var noTLSServer *server.NamedServer
@@ -834,6 +824,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		go startListener(mutualTLSServer, logger, true)
 	}
 
+	go func() {
+		log.Println(http.ListenAndServe(":6060", nil))
+	}()
+
 	// make sure we flush any pending startup messages
 	loggerSync()
 
@@ -885,14 +879,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			wg.Done()
 		}()
 	}
-
-	// if pprofEnabled {
-	// 	wg.Add(1)
-	// 	go func() {
-	// 		shutdownErrors.Store(pprofServer, pprofServer.Shutdown(ctx))
-	// 		wg.Done()
-	// 	}()
-	// }
 
 	if healthEnabled {
 		wg.Add(1)
