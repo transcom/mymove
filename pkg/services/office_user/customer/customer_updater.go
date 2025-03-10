@@ -144,13 +144,14 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 				existingCustomer.BackupContacts[0].Email = backupContacts[0].Email
 				existingCustomer.BackupContacts[0].Phone = backupContacts[0].Phone
 			} else {
-				_, verrs, dbErr := existingCustomer.CreateBackupContact(
+				backupContact, verrs, dbErr := existingCustomer.CreateBackupContact(
 					txnAppCtx.DB(),
 					backupContacts[0].Name,
 					backupContacts[0].Email,
 					backupContacts[0].Phone,
 					models.BackupContactPermissionNONE,
 				)
+				existingCustomer.BackupContacts = append(existingCustomer.BackupContacts, backupContact)
 
 				if verrs != nil && verrs.HasAny() {
 					return apperror.NewInvalidInputError(customer.ID, dbErr, verrs, "")
