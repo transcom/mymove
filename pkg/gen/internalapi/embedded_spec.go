@@ -4493,6 +4493,12 @@ func init() {
           "x-nullable": true,
           "example": 3
         },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
+        },
         "weight_restriction": {
           "description": "Indicates the weight restricted to a specific location.",
           "type": "integer",
@@ -6034,6 +6040,10 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
+        },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
         },
         "updated_at": {
           "type": "string",
@@ -13652,6 +13662,12 @@ func init() {
           "x-nullable": true,
           "example": 3
         },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
+        },
         "weight_restriction": {
           "description": "Indicates the weight restricted to a specific location.",
           "type": "integer",
@@ -15195,6 +15211,10 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
+        },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
         },
         "updated_at": {
           "type": "string",
