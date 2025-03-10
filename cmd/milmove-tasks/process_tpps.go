@@ -257,9 +257,17 @@ func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (str
 		return "", fmt.Errorf("tmp directory (%s) is not mutable, cannot write /tmp file for TPPS processing", tempDir)
 	}
 
-	localFilePath := filepath.Join(tempDir, filepath.Base(key))
+	localFilePath := filepath.Join(tempDir, filepath.Base(filepath.Clean(key)))
+	absoluteLocalFilePath, err := filepath.Abs(localFilePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve absolute path: %w", err)
+	}
 
-	file, err := os.Create(localFilePath)
+	if !strings.HasPrefix(absoluteLocalFilePath, tempDir) {
+		return "", fmt.Errorf("path traversal detected, rejecting file: %s", absoluteLocalFilePath)
+	}
+
+	file, err := os.Create(absoluteLocalFilePath)
 	if err != nil {
 		logger.Error("Failed to create tmp file", zap.Error(err))
 		return "", err
@@ -272,17 +280,17 @@ func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (str
 		return "", err
 	}
 
-	_, err = os.ReadFile(localFilePath)
+	_, err = os.ReadFile(absoluteLocalFilePath)
 	if err != nil {
 		logger.Error("Failed to read tmp file contents", zap.Error(err))
 		return "", err
 	}
 
-	logger.Info(fmt.Sprintf("Successfully wrote S3 file contents to local file: %s", localFilePath))
+	logger.Info(fmt.Sprintf("Successfully wrote S3 file contents to local file: %s", absoluteLocalFilePath))
 
-	logFileContents(logger, localFilePath)
+	logFileContents(logger, absoluteLocalFilePath)
 
-	return localFilePath, nil
+	return absoluteLocalFilePath, nil
 }
 
 // convert to UTF-8 encoding
