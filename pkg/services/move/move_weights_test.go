@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/reweigh"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -917,5 +918,74 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		noAutoReweighShipments, err := moveWeights.CheckAutoReweigh(session, move2.ID, &shipment2)
 		suite.NoError(err)
 		suite.Equal(0, len(noAutoReweighShipments))
+	})
+
+	suite.Run("doesn't request a reweigh if one already exists for a shipment", func() {
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		now := time.Now()
+		//nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+
+		pickupDate := now.AddDate(0, 0, 10)
+		actualWeight := unit.Pound(3600)
+
+		existingShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+					PrimeActualWeight:   &actualWeight,
+				},
+			},
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
+			},
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		approvedShipment.PrimeActualWeight = &actualWeight
+
+		// Create an existing reweigh
+		approvedShipmentReweighModel := &models.Reweigh{
+			RequestedAt: time.Now(),
+			RequestedBy: models.ReweighRequesterPrime,
+			ShipmentID:  approvedShipment.ID,
+		}
+
+		existingShipmentReweighModel := &models.Reweigh{
+			RequestedAt: time.Now(),
+			RequestedBy: models.ReweighRequesterPrime,
+			ShipmentID:  existingShipment.ID,
+		}
+
+		reweighCreator := reweigh.NewReweighCreator()
+		approvedShipmentReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), approvedShipmentReweighModel)
+		suite.NoError(err)
+		existingShipmentReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), existingShipmentReweighModel)
+		suite.NoError(err)
+		suite.NotNil(approvedShipmentReweigh)
+		suite.NotNil(existingShipmentReweigh)
+
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		autoReweighShipments, err := moveWeights.CheckAutoReweigh(session, approvedMove.ID, &approvedShipment)
+		suite.NoError(err)
+		suite.Equal(len(autoReweighShipments), 0)
 	})
 }

@@ -289,6 +289,12 @@ func (w moveWeights) getAutoReweighShipments(appCtx appcontext.AppContext, move 
 	totalActualWeight := 0
 	totalEstimatedWeight := 0
 	for i := range move.MTOShipments {
+		currentShipmentReweigh, err := fetchReweigh(appCtx, move.MTOShipments[i].ID)
+		if err != nil {
+			return nil, err
+		} else if currentShipmentReweigh != nil { // Should only trigger reweights once, skip if one already exists
+			continue
+		}
 		if move.MTOShipments[i].ShipmentType != models.MTOShipmentTypePPM &&
 			availableShipmentStatus(move.MTOShipments[i].Status) &&
 			move.MTOShipments[i].DeletedAt == nil &&
@@ -365,4 +371,22 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 	}
 
 	return autoReweighShipments, nil
+}
+
+// fetchReweigh retrieves a reweigh for a given shipment id
+func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error) {
+	reweigh := &models.Reweigh{}
+	err := appCtx.DB().
+		Where("shipment_id = ?", shipmentID).
+		First(reweigh)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, nil
+		default:
+			return nil, err
+		}
+	}
+	return reweigh, nil
 }
