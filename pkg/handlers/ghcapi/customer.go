@@ -350,7 +350,7 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 	oktaPhone := payload.Telephone
 
 	// Creating the Profile struct
-	profile := models.Profile{
+	profile := models.OktaProfile{
 		FirstName:   oktaFirstName,
 		LastName:    oktaLastName,
 		Email:       oktaEmail,
