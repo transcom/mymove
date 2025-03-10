@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 
 	"go.uber.org/zap"
 
@@ -58,11 +59,43 @@ type CreatedOktaUser struct {
 	} `json:"profile"`
 }
 
+// ensures a valid email address
+func isValidEmail(email string) bool {
+	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	re := regexp.MustCompile(emailRegex)
+	return re.MatchString(email)
+}
+
+// ensures edipi is 10 digits
+func isValidEdipi(edipi string) bool {
+	edipiRegex := `^\d{10}$`
+	re := regexp.MustCompile(edipiRegex)
+	return re.MatchString(edipi)
+}
+
 // OKTA ACCOUNT FETCHING //
 // we need to first check if there is an existing okta user before creating one
 // email and edipi are unique in okta, so searching for those should be enough to ensure there isn't an existing account
 func SearchForExistingOktaUsers(appCtx appcontext.AppContext, provider *okta.Provider, apiKey, oktaEmail string, oktaEdipi *string) ([]CreatedOktaUser, error) {
-	searchFilter := fmt.Sprintf(`profile.email eq "%s" or profile.cac_edipi eq "%s"`, oktaEmail, *oktaEdipi)
+	if oktaEmail == "" {
+		return nil, fmt.Errorf("email is required and cannot be empty")
+	}
+	if !isValidEmail(oktaEmail) {
+		return nil, fmt.Errorf("invalid email format: %s", oktaEmail)
+	}
+
+	if oktaEdipi != nil {
+		if !isValidEdipi(*oktaEdipi) {
+			return nil, fmt.Errorf("invalid EDIPI format: %s", *oktaEdipi)
+		}
+	}
+
+	var searchFilter string
+	if oktaEdipi != nil {
+		searchFilter = fmt.Sprintf(`profile.email eq "%s" or profile.cac_edipi eq "%s"`, oktaEmail, *oktaEdipi)
+	} else {
+		searchFilter = fmt.Sprintf(`profile.email eq "%s"`, oktaEmail)
+	}
 	u, err := url.Parse(provider.GetUsersURL())
 	if err != nil {
 		return nil, err
