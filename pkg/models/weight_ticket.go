@@ -72,7 +72,7 @@ func (e WeightTickets) FilterRejected() WeightTickets {
 
 	validateWeightTickets := WeightTickets{}
 	for _, weightTicket := range e {
-		if weightTicket.Status != nil && *weightTicket.Status != PPMDocumentStatusRejected {
+		if weightTicket.Status == nil || *weightTicket.Status != PPMDocumentStatusRejected {
 			validateWeightTickets = append(validateWeightTickets, weightTicket)
 		}
 	}
