@@ -90,6 +90,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				Type:     &factory.Addresses.DeliveryAddress,
 				LinkOnly: true,
 			},
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
 		}, nil)
 
 		threeMonthsAgo := time.Now().AddDate(0, -3, 0)
@@ -140,6 +145,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			{
 				Model:    address,
 				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    address,
+				Type:     &factory.Addresses.PickupAddress,
 				LinkOnly: true,
 			},
 		}, nil)
