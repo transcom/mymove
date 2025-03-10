@@ -20,6 +20,7 @@ const MoveDocumentWrapper = () => {
   // this is to update the id when it is created to store amendedUpload data.
   const [amendedDocumentId, setAmendedDocumentId] = useState(amendedOrderDocumentId);
   const { amendedUpload } = useAmendedDocumentQueries(amendedDocumentId);
+  const [isFileUploading, setFileUploading] = useState(false);
 
   const updateAmendedDocument = (newId) => {
     setAmendedDocumentId(newId);
@@ -63,7 +64,7 @@ const MoveDocumentWrapper = () => {
     <div data-testid="doc-wrapper" className={styles.DocumentWrapper}>
       {documentsForViewer && (
         <div className={styles.embed}>
-          <DocumentViewer files={documentsForViewer} allowDownload />
+          <DocumentViewer isFileUploading={isFileUploading} files={documentsForViewer} allowDownload />
         </div>
       )}
       {showOrders ? (
@@ -72,6 +73,9 @@ const MoveDocumentWrapper = () => {
           files={documentsByTypes}
           amendedDocumentId={amendedDocumentId}
           updateAmendedDocument={updateAmendedDocument}
+          onAddFile={() => {
+            setFileUploading(true);
+          }}
         />
       ) : (
         <MoveAllowances moveCode={moveCode} />

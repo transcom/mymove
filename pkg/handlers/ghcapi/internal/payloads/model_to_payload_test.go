@@ -669,6 +669,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	authorizedWeight := 8000
 	ubAllowance := 300
 	weightRestriction := 1000
+	ubWeightRestriction := 1200
 
 	entitlement := &models.Entitlement{
 		ID:                             entitlementID,
@@ -687,6 +688,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		UpdatedAt:                      time.Now(),
 		UBAllowance:                    &ubAllowance,
 		WeightRestriction:              &weightRestriction,
+		UBWeightRestriction:            &ubWeightRestriction,
 	}
 
 	returnedEntitlement := Entitlement(entitlement)
@@ -709,6 +711,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
 	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
 	suite.Equal(weightRestriction, int(*returnedEntitlement.WeightRestriction))
+	suite.Equal(ubWeightRestriction, int(*returnedEntitlement.UbWeightRestriction))
 }
 
 func (suite *PayloadsSuite) TestCreateCustomer() {
@@ -905,7 +908,7 @@ func (suite *PayloadsSuite) TestReServiceItem() {
 		isAutoApproved := true
 		marketCodeInternational := models.MarketCodeInternational
 		reServiceCode := models.ReServiceCodePOEFSC
-		poefscServiceName := "International POE Fuel Surcharge"
+		poefscServiceName := "International POE fuel surcharge"
 		reService := models.ReService{
 			Code: reServiceCode,
 			Name: poefscServiceName,
@@ -937,8 +940,8 @@ func (suite *PayloadsSuite) TestReServiceItems() {
 		marketCodeDomestic := models.MarketCodeDomestic
 		poefscReServiceCode := models.ReServiceCodePOEFSC
 		podfscReServiceCode := models.ReServiceCodePODFSC
-		poefscServiceName := "International POE Fuel Surcharge"
-		podfscServiceName := "International POD Fuel Surcharge"
+		poefscServiceName := "International POE fuel surcharge"
+		podfscServiceName := "International POD fuel surcharge"
 		poefscService := models.ReService{
 			Code: poefscReServiceCode,
 			Name: poefscServiceName,

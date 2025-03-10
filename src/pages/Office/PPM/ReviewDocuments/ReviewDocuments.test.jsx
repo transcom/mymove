@@ -34,6 +34,12 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+global.EventSource = jest.fn().mockImplementation(() => ({
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  close: jest.fn(),
+}));
+
 const mockPatchWeightTicket = jest.fn();
 const mockPatchProGear = jest.fn();
 const mockPatchExpense = jest.fn();
