@@ -32,7 +32,9 @@ func (suite *AcknowledgeMovesAndShipmentsServiceSuite) TestUpdateMoveAcknowledge
 		move2 = models.Move{
 			ID: move2.ID,
 		}
-		suite.DB().EagerPreload("MTOShipments").Find(&move2, move2.ID)
+		err := suite.DB().EagerPreload("MTOShipments").Find(&move2, move2.ID)
+		suite.NoError(err)
+
 		move2.PrimeAcknowledgedAt = &threeDaysAgo
 		move2.MTOShipments[0].PrimeAcknowledgedAt = &twoDaysAgo
 		move2.MTOShipments[1].PrimeAcknowledgedAt = &yesterday
@@ -40,7 +42,7 @@ func (suite *AcknowledgeMovesAndShipmentsServiceSuite) TestUpdateMoveAcknowledge
 			move1,
 			move2,
 		}
-		err := moveAndShipmentAcknowledgementUpdater.AcknowledgeMovesAndShipments(suite.AppContextForTest(), &moves)
+		err = moveAndShipmentAcknowledgementUpdater.AcknowledgeMovesAndShipments(suite.AppContextForTest(), &moves)
 		suite.NoError(err)
 
 		dbMove1 := models.Move{}
