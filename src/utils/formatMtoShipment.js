@@ -296,9 +296,6 @@ export function formatMtoShipmentForDisplay({
 export function formatPpmShipmentForAPI(formValues) {
   let ppmShipmentValues = {
     ppmType: formValues.ppmType,
-    expectedDepartureDate: formatDateForSwagger(formValues.expectedDepartureDate),
-    pickupAddress: formatAddressForAPI(formValues.pickup.address),
-    destinationAddress: formatAddressForAPI(formValues.destination.address),
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
