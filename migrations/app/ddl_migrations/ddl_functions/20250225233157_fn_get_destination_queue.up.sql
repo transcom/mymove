@@ -103,7 +103,8 @@ BEGIN
             )::JSONB AS counseling_transportation_office,
             json_build_object(
                 ''first_name'', too_user.first_name,
-                ''last_name'', too_user.last_name
+                ''last_name'', too_user.last_name,
+				''id'', too_user.id
             )::JSONB AS too_destination_assigned,
             COUNT(*) OVER() AS total_count
         FROM moves
@@ -249,7 +250,8 @@ BEGIN
             origin_duty_locations.name,
             counseling_offices.name,
             too_user.first_name,
-            too_user.last_name';
+            too_user.last_name,
+			too_user.id';
     sql_query := sql_query || format(' ORDER BY %s %s ', sort_column, sort_order);
     sql_query := sql_query || ' LIMIT $13 OFFSET $14 ';
 
