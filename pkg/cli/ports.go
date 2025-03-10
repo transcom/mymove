@@ -17,6 +17,8 @@ const (
 	NoTLSPortFlag string = "no-tls-port"
 	// HealthPortFlag is the port that the health listener uses
 	HealthPortFlag = "health-port"
+	// PprofPortFlag is the port that pprof uses
+	PprofPortFlag = "pprof-port"
 
 	// MutualTLSPort is the default port for mTLS traffic
 	MutualTLSPort int = 9443
@@ -26,6 +28,8 @@ const (
 	NoTLSPort int = 8080
 	// HealthPort is the default port for the health listener
 	HealthPort int = 8765
+	// PprofPort is the default port for pprof
+	PprofPort int = 6060
 )
 
 type errInvalidPort struct {
@@ -42,6 +46,7 @@ func InitPortFlags(flag *pflag.FlagSet) {
 	flag.Int(TLSPortFlag, TLSPort, "the `port` for the server side TLS listener.")
 	flag.Int(NoTLSPortFlag, NoTLSPort, "the `port` for the listener not requiring any TLS.")
 	flag.Int(HealthPortFlag, HealthPort, "the `port` for the health check listener.")
+	flag.Int(PprofPortFlag, PprofPort, "the `port` for the pprof listener.")
 }
 
 // CheckPorts validates the Port command line flags
