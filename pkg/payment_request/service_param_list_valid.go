@@ -13,7 +13,7 @@ func (p *RequestPaymentHelper) ValidServiceParamList(appCtx appcontext.AppContex
 	hasError := false
 
 	// Resolve the ReService for our lookup
-	reServiceForLookup, err := ResolveReServiceForLookup(appCtx, mtoServiceItem)
+	reServiceForLookup, err := resolveReServiceForLookup(appCtx, mtoServiceItem)
 	if err != nil {
 		return true, err.Error()
 	}
