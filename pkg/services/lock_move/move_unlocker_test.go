@@ -104,4 +104,27 @@ func (suite *MoveLockerServiceSuite) TestCheckForLockedMovesAndUnlock() {
 		suite.Nil(moveThreeInDB.LockedByOfficeUser)
 		suite.Nil(moveThreeInDB.LockExpiresAt)
 	})
+
+	suite.Run("successfully unlock move without changing updated_at", func() {
+		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           tooUser.User.Roles,
+			OfficeUserID:    tooUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		})
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		lockedMove, err := moveLocker.LockMove(appCtx, &move, tooUser.ID)
+		suite.FatalNoError(err)
+		suite.Equal(move.ID, lockedMove.ID)
+		suite.Equal(lockedMove.LockedByOfficeUserID, &tooUser.ID)
+		suite.Equal(lockedMove.UpdatedAt, move.UpdatedAt)
+
+		unlockedMove, err := moveUnlocker.UnlockMove(appCtx, lockedMove, tooUser.ID)
+		suite.FatalNoError(err)
+		suite.Equal(unlockedMove.UpdatedAt, move.UpdatedAt)
+	})
 }
