@@ -35,6 +35,7 @@ const TextField = ({
   isDisabled,
   display,
   button,
+  disablePaste,
   ...inputProps
 }) => {
   const [fieldProps, metaProps] = useField({ name, validate, type });
@@ -45,10 +46,14 @@ const TextField = ({
     warning: showWarning,
   });
 
+  const pasteHandler = disablePaste ? (e) => e.preventDefault() : undefined;
+
   const getDisplay = (displayType) => {
     switch (displayType) {
       case 'textarea':
-        return <Textarea id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />;
+        return (
+          <Textarea id={id} name={name} disabled={isDisabled} onPaste={pasteHandler} {...fieldProps} {...inputProps} />
+        );
       case 'readonly':
         return (
           <label htmlFor={id || name} id={id} data-testid={label} aria-label={name}>
@@ -56,7 +61,9 @@ const TextField = ({
           </label>
         );
       default:
-        return <TextInput id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />;
+        return (
+          <TextInput id={id} name={name} disabled={isDisabled} onPaste={pasteHandler} {...fieldProps} {...inputProps} />
+        );
     }
   };
 
@@ -99,6 +106,7 @@ TextField.propTypes = {
   errorClassName: PropTypes.string,
   isDisabled: PropTypes.bool,
   button: PropTypes.node,
+  disablePaste: PropTypes.bool,
 };
 
 TextField.defaultProps = {
@@ -114,6 +122,7 @@ TextField.defaultProps = {
   isDisabled: false,
   display: 'input',
   button: undefined,
+  disablePaste: false,
 };
 
 export default TextField;
