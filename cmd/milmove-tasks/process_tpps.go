@@ -280,7 +280,12 @@ func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (str
 		return "", err
 	}
 
-	_, err = os.ReadFile(filepath.Clean(absoluteLocalFilePath))
+	if _, err := os.Stat(absoluteLocalFilePath); err != nil {
+		logger.Error("File does not exist or is inaccessible", zap.Error(err))
+		return "", err
+	}
+
+	_, err = os.ReadFile(absoluteLocalFilePath)
 	if err != nil {
 		logger.Error("Failed to read tmp file contents", zap.Error(err))
 		return "", err
