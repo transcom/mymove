@@ -1,7 +1,18 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AsyncPacketDownloadLink, { onPacketDownloadSuccessHandler } from './AsyncPacketDownloadLink';
+import { setShowLoadingSpinner } from 'store/general/actions';
+import { renderWithProviders } from 'testUtils';
+
+jest.mock('store/general/actions', () => ({
+  ...jest.requireActual('store/general/actions'),
+  setShowLoadingSpinner: jest.fn().mockImplementation(() => ({
+    type: '',
+    showSpinner: false,
+    loadingSpinnerMessage: '',
+  })),
+}));
 
 afterEach(() => {
   jest.resetAllMocks();
@@ -12,17 +23,15 @@ describe('AsyncPacketDownloadLink success', () => {
     const asyncRetrieval = jest.fn().mockImplementation(() => Promise.resolve());
     const onSuccessHandler = jest.fn();
     const onErrorHandler = jest.fn();
-    const onStartHandler = jest.fn();
     const expectedId = 'testID';
     const expectedLabel = 'test';
-    render(
+    renderWithProviders(
       <AsyncPacketDownloadLink
         id={expectedId}
         label={expectedLabel}
         asyncRetrieval={asyncRetrieval}
         onSuccess={onSuccessHandler}
         onFailure={onErrorHandler}
-        onStart={onStartHandler}
       />,
     );
     expect(screen.getByText(expectedLabel, { exact: false })).toBeInTheDocument();
@@ -35,7 +44,7 @@ describe('AsyncPacketDownloadLink success', () => {
       expect(asyncRetrieval).toHaveBeenCalledTimes(1);
       expect(onSuccessHandler).toHaveBeenCalledTimes(1);
       expect(onErrorHandler).toHaveBeenCalledTimes(0);
-      expect(onStartHandler).toHaveBeenCalledTimes(1);
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
     });
   });
 
@@ -43,17 +52,16 @@ describe('AsyncPacketDownloadLink success', () => {
     const asyncRetrieval = jest.fn().mockImplementation(() => Promise.reject());
     const onSuccessHandler = jest.fn();
     const onErrorHandler = jest.fn();
-    const onStartHandler = jest.fn();
     const expectedId = 'testID';
     const expectedLabel = 'test';
-    render(
+    renderWithProviders(
       <AsyncPacketDownloadLink
         id={expectedId}
         label={expectedLabel}
         asyncRetrieval={asyncRetrieval}
         onSucccess={onSuccessHandler}
         onFailure={onErrorHandler}
-        onStart={onStartHandler}
+        setShowLoadingSpinner={setShowLoadingSpinner}
       />,
     );
     expect(screen.getByText(expectedLabel, { exact: false })).toBeInTheDocument();
@@ -67,7 +75,6 @@ describe('AsyncPacketDownloadLink success', () => {
       expect(asyncRetrieval).toHaveBeenCalledWith(expectedId);
       expect(onSuccessHandler).toHaveBeenCalledTimes(0);
       expect(onErrorHandler).toHaveBeenCalledTimes(1);
-      expect(onStartHandler).toHaveBeenCalledTimes(1);
     });
   });
 

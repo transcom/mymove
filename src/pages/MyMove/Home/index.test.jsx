@@ -582,20 +582,12 @@ describe('Home component', () => {
       });
 
       it('renders Manage your PPM Step', () => {
-        render(
-          <MockProviders>
-            <Home {...props} />
-          </MockProviders>,
-        );
+        render(<Home {...props} />);
         expect(screen.getByText('Manage your PPM')).toBeInTheDocument();
       });
 
       it('add shipments button no longer present', () => {
-        render(
-          <MockProviders>
-            <Home {...props} />
-          </MockProviders>,
-        );
+        render(<Home {...props} />);
         expect(screen.queryByRole('button', { name: 'Add another shipment' })).not.toBeInTheDocument();
       });
     });
@@ -604,11 +596,7 @@ describe('Home component', () => {
       it('renders advance request submitted for PPM', () => {
         const mtoShipments = [submittedPPMShipment];
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
-        render(
-          <MockProviders>
-            <Home {...props} />
-          </MockProviders>,
-        );
+        render(<Home {...props} />);
         expect(screen.getByText('Advance request submitted')).toBeInTheDocument();
       });
 
@@ -847,20 +835,12 @@ describe('Home component', () => {
       });
 
       it('renders Manage your PPM Step', () => {
-        render(
-          <MockProviders>
-            <Home {...props} />
-          </MockProviders>,
-        );
+        render(<Home {...props} />);
         expect(screen.getByText('Manage your PPM')).toBeInTheDocument();
       });
 
       it('add shipments button no longer present', () => {
-        render(
-          <MockProviders>
-            <Home {...props} />
-          </MockProviders>,
-        );
+        render(<Home {...props} />);
         expect(screen.queryByRole('button', { name: 'Add another shipment' })).not.toBeInTheDocument();
       });
     });
@@ -1006,10 +986,7 @@ describe('Home component', () => {
           }),
         ],
       ])('will route the user to the %s', async (scenarioDescription, mtoShipments, expectedRoute) => {
-        renderWithRouterProp(<Home {...props} mtoShipments={mtoShipments} />, {
-          navigate: mockNavigate,
-          includeProviders: MockProviders,
-        });
+        renderWithRouterProp(<Home {...props} mtoShipments={mtoShipments} />, { navigate: mockNavigate });
 
         await userEvent.click(screen.getByRole('button', { name: 'Upload PPM Documents' }));
 

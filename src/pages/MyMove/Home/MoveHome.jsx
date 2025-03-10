@@ -17,9 +17,7 @@ import {
 } from './HomeHelpers';
 
 import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
-import AsyncPacketDownloadLink, {
-  onPacketDownloadSuccessHandler,
-} from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
@@ -71,7 +69,6 @@ import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -90,14 +87,7 @@ Description.defaultProps = {
   dataTestId: '',
 };
 
-const MoveHome = ({
-  serviceMemberMoves,
-  isProfileComplete,
-  serviceMember,
-  signedCertification,
-  updateAllMoves,
-  setShowLoadingSpinner,
-}) => {
+const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signedCertification, updateAllMoves }) => {
   // loading the moveId in params to select move details from serviceMemberMoves in state
   const { moveId } = useParams();
   const navigate = useNavigate();
@@ -404,11 +394,6 @@ const MoveHome = ({
     navigate(path);
   };
 
-  const handleDownloadSuccess = (response) => {
-    setShowLoadingSpinner(false, null);
-    onPacketDownloadSuccessHandler(response);
-  };
-
   // if the move has amended orders that aren't approved, it will display an info box at the top of the page
   const renderAlert = () => {
     if (hasUnapprovedAmendedOrders()) {
@@ -483,7 +468,6 @@ const MoveHome = ({
   };
 
   const togglePPMPacketErrorModal = () => {
-    setShowLoadingSpinner(false, null);
     setShowErrorAlert(!showErrorAlert);
   };
 
@@ -749,9 +733,7 @@ const MoveHome = ({
                                       id={shipment?.ppmShipment?.id}
                                       label="Download AOA Paperwork (PDF)"
                                       asyncRetrieval={downloadPPMAOAPacket}
-                                      onSuccess={handleDownloadSuccess}
                                       onFailure={togglePPMPacketErrorModal}
-                                      onStart={() => setShowLoadingSpinner(true, `Downloading AOA Paperwork (PDF)...`)}
                                     />
                                   </p>
                                 )}
@@ -819,9 +801,7 @@ const MoveHome = ({
                                       id={shipment?.ppmShipment?.id}
                                       label="Download AOA Paperwork (PDF)"
                                       asyncRetrieval={downloadPPMAOAPacket}
-                                      onSuccess={handleDownloadSuccess}
                                       onFailure={togglePPMPacketErrorModal}
-                                      onStart={() => setShowLoadingSpinner(true, `Downloading AOA Paperwork (PDF)...`)}
                                     />
                                   </p>
                                 )}
@@ -898,7 +878,6 @@ const mapDispatchToProps = {
   getSignedCertification: getSignedCertificationAction,
   updateShipmentList: updateMTOShipments,
   updateAllMoves: updateAllMovesAction,
-  setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
 // in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail

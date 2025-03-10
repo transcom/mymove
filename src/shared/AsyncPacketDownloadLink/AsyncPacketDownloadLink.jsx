@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -36,7 +35,6 @@ export const onPacketDownloadSuccessHandler = (response) => {
 
   // Clean up and remove the link
   link.parentNode.removeChild(link);
-  setShowLoadingSpinnerAction(false, null);
 };
 
 /**
@@ -62,8 +60,8 @@ const AsyncPacketDownloadLink = ({
   const handleClick = () => {
     asyncRetrieval(id)
       .then((response) => {
-        setShowLoadingSpinner(true, 'DOWNLOADING');
-        onSuccess(response);
+        setShowLoadingSpinner(true, 'downloading');
+        onSuccess(response, setShowLoadingSpinner);
       })
       .catch(() => {
         onFailure();

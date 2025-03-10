@@ -11,7 +11,6 @@ import { customerRoutes } from 'constants/routes';
 import { cancelMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { setShowLoadingSpinner } from 'store/general/actions';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -41,15 +40,6 @@ jest.mock('services/internalApi', () => ({
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
-}));
-
-jest.mock('store/general/actions', () => ({
-  ...jest.requireActual('store/general/actions'),
-  setShowLoadingSpinner: jest.fn().mockImplementation(() => ({
-    type: '',
-    showSpinner: false,
-    loadingSpinnerMessage: '',
-  })),
 }));
 
 const props = {
@@ -1787,7 +1777,6 @@ describe('Home component', () => {
       await wrapper.find(buttonId).simulate('click');
       await waitFor(() => {
         expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
-        expect(setShowLoadingSpinner).toHaveBeenCalled();
       });
     });
 
@@ -1802,7 +1791,6 @@ describe('Home component', () => {
         // scrape text from error modal
         expect(wrapper.text()).toContain('Something went wrong downloading PPM paperwork.');
         expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
-        expect(setShowLoadingSpinner).toHaveBeenCalled();
       });
     });
   });
