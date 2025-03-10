@@ -72,4 +72,5 @@ type ShipmentSummaryFormData struct {
 	SignedCertifications         []*SignedCertification
 	MaxSITStorageEntitlement     int
 	IsActualExpenseReimbursement bool
+	IsSmallPackageReimbursement  bool
 }

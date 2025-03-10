@@ -20,12 +20,18 @@ import ShipmentDisplay from './ShipmentDisplay';
 
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const errorIfMissingStorageFacility = ['storageFacility'];
@@ -336,10 +342,12 @@ describe('Shipment Container', () => {
       });
     });
     it('renders the Actual Expense Reimbursement & PPM status tags', () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+      ppmInfo.ppmShipment.ppmType = PPM_TYPES.ACTUAL_EXPENSE;
       render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
           <ShipmentDisplay
-            displayInfo={{ isActualExpenseReimbursement: true, ...ppmInfo }}
+            displayInfo={{ ...ppmInfo }}
             ordersLOA={ordersLOA}
             shipmentType={SHIPMENT_OPTIONS.PPM}
             isSubmitted
@@ -349,8 +357,29 @@ describe('Shipment Container', () => {
           />
         </MockProviders>,
       );
-      expect(screen.getByTestId('actualReimbursementTag')).toBeInTheDocument();
       expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
+      expect(screen.getByTestId('actualReimbursementTag')).toBeInTheDocument();
+    });
+    it('renders the Small Package Reimbursement (when FF is on) & PPM status tags', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      ppmInfo.ppmShipment.ppmType = PPM_TYPES.SMALL_PACKAGE;
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            displayInfo={{ ...ppmInfo }}
+            ordersLOA={ordersLOA}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            isSubmitted
+            allowApproval={false}
+            warnIfMissing={['counselorRemarks']}
+            reviewURL="/"
+          />
+        </MockProviders>,
+      );
+      expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('smallPackageTag')).toBeInTheDocument();
+      });
     });
   });
 });
