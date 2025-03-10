@@ -58,13 +58,15 @@ const AsyncPacketDownloadLink = ({
   const dataTestId = `asyncPacketDownloadLink${id}`;
 
   const handleClick = () => {
+    setShowLoadingSpinner(true, 'downloading');
     asyncRetrieval(id)
       .then((response) => {
-        setShowLoadingSpinner(true, 'downloading');
-        onSuccess(response, setShowLoadingSpinner);
+        onSuccess(response);
+        setShowLoadingSpinner(false, null);
       })
       .catch(() => {
         onFailure();
+        setShowLoadingSpinner(false, null);
       });
   };
 
