@@ -35,4 +35,25 @@ func (suite *MoveLockerServiceSuite) TestLockMove() {
 		suite.Equal(move.LockedByOfficeUser.TransportationOffice.Name, tooUser.TransportationOffice.Name)
 		suite.Equal(move.LockExpiresAt.Truncate(time.Minute), expirationTime)
 	})
+
+	suite.Run("locking a move doesn't change the moves updated_at value", func() {
+		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           tooUser.User.Roles,
+			OfficeUserID:    tooUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		})
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		actualMove, err := moveLocker.LockMove(appCtx, &move, tooUser.ID)
+		suite.FatalNoError(err)
+
+		suite.Equal(move.ID, actualMove.ID)
+		suite.Equal(move.LockedByOfficeUserID, &tooUser.ID)
+		suite.Equal(move.LockedByOfficeUser.TransportationOffice.Name, tooUser.TransportationOffice.Name)
+		suite.Equal(actualMove.UpdatedAt, move.UpdatedAt)
+	})
 }
