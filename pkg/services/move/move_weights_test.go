@@ -923,7 +923,6 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 	suite.Run("doesn't request a reweigh if one already exists for a shipment", func() {
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
-		//nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
 		pickupDate := now.AddDate(0, 0, 10)
 		actualWeight := unit.Pound(3600)
