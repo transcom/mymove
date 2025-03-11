@@ -47,9 +47,9 @@ BEGIN
                 RAISE WARNING ''%'', v_log_message;
             ELSE
                 v_log_message := format(''Successfully updated moves.prime_acknowledged_at value to %s for id %s'', v_move_prime_acknowledged_at, v_move_id);
-                RAISE NOTICE ''%'', v_log_message;   
+                RAISE NOTICE ''%'', v_log_message;
             END IF;
-        END IF; 
+        END IF;
 
         -- Check if mtoShipments exists and is an array
         IF jsonb_typeof(v_move_record->''mtoShipments'') = ''array'' THEN
@@ -78,7 +78,7 @@ BEGIN
                         RAISE WARNING ''%'', v_log_message;
                     ELSE
                         v_log_message := format(''Successfully updated mto_shipments.prime_acknowledged_at value to %s for id %s'', v_shipment_prime_acknowledged_at, v_shipment_id);
-                        RAISE NOTICE ''%'', v_log_message;       
+                        RAISE NOTICE ''%'', v_log_message;
                     END IF;
                 END IF;
             END LOOP;

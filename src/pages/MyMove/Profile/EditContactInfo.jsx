@@ -40,6 +40,7 @@ export const EditContactInfo = ({
     [residentialAddressName]: {
       streetAddress1: serviceMember.residential_address?.streetAddress1 || '',
       streetAddress2: serviceMember.residential_address?.streetAddress2 || '',
+      streetAddress3: serviceMember.residential_address?.streetAddress3 || '',
       city: serviceMember.residential_address?.city || '',
       state: serviceMember.residential_address?.state || '',
       postalCode: serviceMember.residential_address?.postalCode || '',
@@ -49,6 +50,7 @@ export const EditContactInfo = ({
     [backupAddressName]: {
       streetAddress1: serviceMember.backup_mailing_address?.streetAddress1 || '',
       streetAddress2: serviceMember.backup_mailing_address?.streetAddress2 || '',
+      streetAddress3: serviceMember.backup_mailing_address?.streetAddress3 || '',
       city: serviceMember.backup_mailing_address?.city || '',
       state: serviceMember.backup_mailing_address?.state || '',
       postalCode: serviceMember.backup_mailing_address?.postalCode || '',
