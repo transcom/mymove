@@ -703,23 +703,32 @@ func (suite *PayloadsSuite) TestValidationError() {
 
 func (suite *PayloadsSuite) TestMTOShipment() {
 	primeAcknowledgeAt := time.Now().AddDate(0, 0, -5)
-	legitMtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+	mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeAcknowledgedAt: &primeAcknowledgeAt,
+				Status:              models.MTOShipmentStatusApproved,
 			},
 		},
 	}, nil)
-	payload := MTOShipment(&legitMtoShipment)
+	payload := MTOShipment(&mtoShipment)
 	suite.NotNil(payload)
 	suite.Empty(payload.MtoServiceItems())
-	suite.Equal(handlers.FmtDateTimePtr(legitMtoShipment.PrimeAcknowledgedAt), payload.PrimeAcknowledgedAt)
+	suite.Equal(strfmt.UUID(mtoShipment.ID.String()), payload.ID)
+	suite.Equal(handlers.FmtDatePtr(mtoShipment.ActualPickupDate), payload.ActualPickupDate)
+	suite.Equal(handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate), payload.RequestedDeliveryDate)
+	suite.Equal(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate), payload.RequestedPickupDate)
+	suite.Equal(string(mtoShipment.Status), payload.Status)
+	suite.Equal(strfmt.DateTime(mtoShipment.UpdatedAt), payload.UpdatedAt)
+	suite.Equal(strfmt.DateTime(mtoShipment.CreatedAt), payload.CreatedAt)
+	suite.Equal(etag.GenerateEtag(mtoShipment.UpdatedAt), payload.ETag)
+	suite.Equal(handlers.FmtDateTimePtr(mtoShipment.PrimeAcknowledgedAt), payload.PrimeAcknowledgedAt)
 
-	mtoShipment := &models.MTOShipment{}
+	mtoShipment = models.MTOShipment{}
 	mtoShipment.MTOServiceItems = models.MTOServiceItems{
 		models.MTOServiceItem{},
 	}
-	payload = MTOShipment(mtoShipment)
+	payload = MTOShipment(&mtoShipment)
 	suite.NotNil(payload)
 	suite.NotEmpty(payload.MtoServiceItems())
 }
