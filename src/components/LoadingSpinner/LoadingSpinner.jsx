@@ -15,7 +15,7 @@ const LoadingSpinner = ({ message }) => (
         secondaryColor="#565c65"
         ariaLabel="Loading content, please wait"
       />
-      <p className={styles.message}>{message || 'Loading, please wait'}...</p>
+      <p className={styles.message}>{message || 'Loading, please wait...'}</p>
     </div>
   </div>
 );

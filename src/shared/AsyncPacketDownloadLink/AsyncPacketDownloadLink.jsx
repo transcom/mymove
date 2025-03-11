@@ -1,8 +1,10 @@
-import React from 'react';
 import { Button } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import styles from './AsyncPacketDownloadLink.module.scss';
+
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 
 export const onPacketDownloadSuccessHandler = (response) => {
   // dynamically update DOM to trigger browser to display SAVE AS download file modal
@@ -42,19 +44,29 @@ export const onPacketDownloadSuccessHandler = (response) => {
  * @param {Promise} asyncRetrieval asynch document retrieval
  * @param {func} onSuccess on success response handler
  * @param {func} onFailure on failure response handler
- * @param {func} onStart on start response handler
+ * @param {func} setShowLoadingSpinner used for loading spinner mask
  */
-const AsyncPacketDownloadLink = ({ id, label, asyncRetrieval, onSuccess, onFailure, onStart, className }) => {
+const AsyncPacketDownloadLink = ({
+  id,
+  label,
+  asyncRetrieval,
+  onSuccess,
+  onFailure,
+  className,
+  setShowLoadingSpinner,
+}) => {
   const dataTestId = `asyncPacketDownloadLink${id}`;
 
   const handleClick = () => {
-    onStart && onStart();
+    setShowLoadingSpinner(true, 'downloading');
     asyncRetrieval(id)
       .then((response) => {
         onSuccess(response);
+        setShowLoadingSpinner(false, null);
       })
       .catch(() => {
         onFailure();
+        setShowLoadingSpinner(false, null);
       });
   };
 
@@ -75,14 +87,18 @@ AsyncPacketDownloadLink.propTypes = {
   asyncRetrieval: PropTypes.func.isRequired,
   onSuccess: PropTypes.func.isRequired,
   onFailure: PropTypes.func.isRequired,
-  onStart: PropTypes.func,
   className: PropTypes.string,
+  setShowLoadingSpinner: PropTypes.func,
 };
 
 AsyncPacketDownloadLink.defaultProps = {
   onSuccess: onPacketDownloadSuccessHandler,
   onFailure: () => {},
-  onStart: () => {},
+  setShowLoadingSpinner: () => {},
 };
 
-export default AsyncPacketDownloadLink;
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => ({}), mapDispatchToProps)(AsyncPacketDownloadLink);

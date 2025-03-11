@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import PPMSummaryList from './PPMSummaryList';
 
-import { MockProviders } from 'testUtils';
+import { MockProviders, renderWithProviders } from 'testUtils';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 
@@ -16,8 +16,6 @@ jest.mock('services/internalApi', () => ({
 afterEach(() => {
   jest.resetAllMocks();
 });
-
-const onDownloadError = jest.fn();
 
 const shipments = [
   {
@@ -142,6 +140,7 @@ const shipments = [
   },
 ];
 const onUploadClick = jest.fn();
+const onDownloadError = jest.fn();
 
 const defaultProps = {
   shipments,
@@ -202,7 +201,7 @@ describe('PPMSummaryList component', () => {
 
   describe('payment docs reviewed', () => {
     it('should display reviewed date and enabled button with copy', () => {
-      render(<PPMSummaryList shipments={[shipments[3]]} />);
+      renderWithProviders(<PPMSummaryList shipments={[shipments[3]]} />);
       expect(screen.getByRole('button', { name: 'Download Payment Packet' })).toBeEnabled();
 
       expect(screen.queryByText(`PPM approved: 15 Apr 2022`)).toBeInTheDocument();
@@ -222,7 +221,7 @@ describe('PPMSummaryList component', () => {
     });
 
     it('should display button for feedback if any document is not approved', () => {
-      render(<PPMSummaryList shipments={[shipments[3]]} />);
+      renderWithProviders(<PPMSummaryList shipments={[shipments[3]]} />);
 
       expect(screen.getByRole('button', { name: 'View Closeout Feedback' })).toBeEnabled();
     });
@@ -242,7 +241,7 @@ describe('PPMSummaryList component', () => {
   });
   describe('there are multiple shipments', () => {
     it('should render numbers next to PPM', () => {
-      render(<PPMSummaryList {...defaultProps} />);
+      renderWithProviders(<PPMSummaryList {...defaultProps} />);
       expect(screen.queryByText('PPM 1')).toBeInTheDocument();
       expect(screen.queryByText('PPM 2')).toBeInTheDocument();
     });
@@ -257,19 +256,10 @@ describe('PPMSummaryList component', () => {
       status: 200,
       data: null,
     };
-    // Setup a promise that will be resolved manually to check for the load mask
-    let resolveDownload;
-    const downloadPromise = new Promise((resolve) => {
-      resolveDownload = () => resolve(mockResponse);
-    });
-
-    downloadPPMPaymentPacket.mockImplementation(() => downloadPromise);
-
-    const onDownloadErrorNotCalled = jest.fn();
-
+    downloadPPMPaymentPacket.mockImplementation(() => Promise.resolve(mockResponse));
     render(
       <MockProviders>
-        <PPMSummaryList shipments={[shipments[3]]} onDownloadError={onDownloadErrorNotCalled} />
+        <PPMSummaryList onDownloadError={onDownloadError} shipments={[shipments[3]]} />
       </MockProviders>,
     );
 
@@ -280,27 +270,15 @@ describe('PPMSummaryList component', () => {
 
     await userEvent.click(downloadPaymentButton);
 
-    // Check for the load mask after clicking the download button
-    expect(screen.getByText('Downloading Payment Packet (PDF)...')).toBeInTheDocument();
-
-    // Manually resolve the download
-    resolveDownload();
-
     await waitFor(() => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
-      expect(onDownloadErrorNotCalled).toHaveBeenCalledTimes(0);
-      expect(screen.queryByText('Downloading Payment Packet (PDF)...')).not.toBeInTheDocument();
     });
   });
 
   it('PPM Download Payment Packet - failure', async () => {
-    // Create a promise we can reject manually
-    let rejectDownload;
-    const downloadPromise = new Promise((_, reject) => {
-      rejectDownload = () => reject(new Error('Error title: Error detail'));
+    downloadPPMPaymentPacket.mockRejectedValue({
+      response: { body: { title: 'Error title', detail: 'Error detail' } },
     });
-
-    downloadPPMPaymentPacket.mockReturnValue(downloadPromise);
 
     const shipment = {
       ppmShipment: {
@@ -323,11 +301,10 @@ describe('PPMSummaryList component', () => {
         },
       },
     };
-    const onDownloadErrorCalled = jest.fn();
 
     render(
       <MockProviders>
-        <PPMSummaryList shipments={[shipment]} onDownloadError={onDownloadErrorCalled} />
+        <PPMSummaryList shipments={[shipment]} onDownloadError={onDownloadError} />
       </MockProviders>,
     );
 
@@ -337,16 +314,9 @@ describe('PPMSummaryList component', () => {
     expect(downloadPaymentButton).toBeInTheDocument();
     await userEvent.click(downloadPaymentButton);
 
-    // Check for the load mask after clicking the download button
-    expect(screen.getByText('Downloading Payment Packet (PDF)...')).toBeInTheDocument();
-
-    // Manually reject the download
-    rejectDownload();
-
     await waitFor(() => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
-      expect(onDownloadErrorCalled).toHaveBeenCalledTimes(1);
-      expect(screen.queryByText('Downloading Payment Packet (PDF)...')).not.toBeInTheDocument();
+      expect(onDownloadError).toHaveBeenCalledTimes(1);
     });
   });
 });

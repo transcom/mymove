@@ -14,13 +14,11 @@ describe('LoadingSpinner Component', () => {
   });
 
   test('renders the loading spinner with a custom message', () => {
-    const customMessage = 'Fetching data';
-    const ellipsis = '...';
-    const expectedMessage = customMessage + ellipsis;
+    const customMessage = 'Fetching data...';
     render(<LoadingSpinner message={customMessage} />);
 
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
 
-    expect(screen.getByText(expectedMessage)).toBeInTheDocument();
+    expect(screen.getByText(customMessage)).toBeInTheDocument();
   });
 });
