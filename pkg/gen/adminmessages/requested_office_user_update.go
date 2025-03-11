@@ -25,7 +25,7 @@ type RequestedOfficeUserUpdate struct {
 	Edipi string `json:"edipi,omitempty"`
 
 	// email
-	// Example: user@userdomain.com
+	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email,omitempty"`
 
 	// First Name
@@ -66,6 +66,10 @@ type RequestedOfficeUserUpdate struct {
 func (m *RequestedOfficeUserUpdate) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateEmail(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateRoles(formats); err != nil {
 		res = append(res, err)
 	}
@@ -85,6 +89,18 @@ func (m *RequestedOfficeUserUpdate) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *RequestedOfficeUserUpdate) validateEmail(formats strfmt.Registry) error {
+	if swag.IsZero(m.Email) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+		return err
+	}
+
 	return nil
 }
 

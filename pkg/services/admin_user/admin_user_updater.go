@@ -19,8 +19,8 @@ type adminUserUpdater struct {
 }
 
 func (o *adminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.AdminUserUpdate) (*models.AdminUser, *validate.Errors, error) {
+	updateUserAndOkta := false
 	var foundUser models.AdminUser
-	var updateUserAndOkta bool
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	err := o.builder.FetchOne(appCtx, &foundUser, filters)
 	if err != nil {
@@ -88,6 +88,9 @@ func (o *adminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uuid
 			existingOktaUser, err := models.GetOktaUser(appCtx, provider, oktaID, apiKey)
 			if err != nil {
 				return fmt.Errorf("error getting Okta user prior to updating: %w", err)
+			}
+			if existingOktaUser == nil {
+				return fmt.Errorf("okta user cannot be nil before updating okta email of admin user")
 			}
 			existingOktaUser.Profile.Email = existingUser.OktaEmail
 			existingOktaUser.Profile.Login = existingUser.OktaEmail

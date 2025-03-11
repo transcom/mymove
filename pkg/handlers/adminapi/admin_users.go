@@ -171,11 +171,11 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 				return adminuserop.NewUpdateAdminUserForbidden(), err
 			}
 
+			// saving the request here so we can use it in the service object if the Okta email is being updated
 			appCtx.Session().HTTPRequest = params.HTTPRequest
 			updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(appCtx, adminUserID, payload)
-
 			if err != nil || verrs != nil {
-				appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
+				appCtx.Logger().Error("Error updating admin user", zap.Error(err), zap.Error(verrs))
 				return adminuserop.NewUpdateAdminUserInternalServerError(), err
 			}
 

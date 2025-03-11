@@ -384,6 +384,8 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 			}
 
+			// saving the request here so we can use it in the service object if the Okta email is being updated
+			appCtx.Session().HTTPRequest = params.HTTPRequest
 			updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, payload, primaryTransportationOfficeID)
 
 			if err != nil || verrs != nil {

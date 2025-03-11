@@ -218,7 +218,7 @@ const RequestedOfficeUserEdit = () => {
       >
         <TextInput source="id" disabled />
         <TextInput source="userId" label="User Id" disabled />
-        <TextInput source="email" disabled />
+        <TextInput source="email" />
         <TextInput source="firstName" validate={required()} />
         <TextInput source="middleInitials" />
         <TextInput source="lastName" validate={required()} />
