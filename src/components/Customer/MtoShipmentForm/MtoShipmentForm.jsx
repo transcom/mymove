@@ -84,7 +84,6 @@ class MtoShipmentForm extends Component {
 
   submitMTOShipment = ({
     pickup,
-    hasDeliveryAddress,
     delivery,
     customerRemarks,
     hasSecondaryPickup,
@@ -106,18 +105,12 @@ class MtoShipmentForm extends Component {
 
     const { moveId } = params;
 
-    const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
-    const saveDeliveryAddress = hasDeliveryAddress === 'true' || isNTSR;
-
     const preformattedMtoShipment = {
       shipmentType,
       moveId,
       customerRemarks,
       pickup,
-      delivery: {
-        ...delivery,
-        address: saveDeliveryAddress ? delivery.address : undefined,
-      },
+      delivery,
       hasSecondaryPickup: hasSecondaryPickup === 'true',
       secondaryPickup: hasSecondaryPickup === 'true' ? secondaryPickup : {},
       hasSecondaryDelivery: hasSecondaryDelivery === 'true',
@@ -293,25 +286,39 @@ class MtoShipmentForm extends Component {
                 });
               }
             }
-            // if (name === 'hasDeliveryAddress') {
-            //   if (value === 'false') {
-            //     setValues({
-            //       ...values,
-            //       hasDeliveryAddress: 'false',
-            //       delivery: {
-            //         address: undefined,
-            //       },
-            //     });
-            //   } else if (value === 'true') {
-            //     setValues({
-            //       ...values,
-            //       hasDeliveryAddress: 'true',
-            //       delivery: {
-            //         ...values.delivery,
-            //       },
-            //     });
-            //   }
-            // }
+            if (e.target.name === 'hasDeliveryAddress') {
+              if (e.target.value === 'false') {
+                setValues({
+                  ...values,
+                  hasDeliveryAddress: 'false',
+                  delivery: {
+                    ...values.delivery,
+                    address: {
+                      streetAddress1: 'N/A',
+                      city: newDutyLocationAddress.city,
+                      state: newDutyLocationAddress.state,
+                      postalCode: newDutyLocationAddress.postalCode,
+                    },
+                  },
+                  hasSecondaryDelivery: 'false',
+                  secondaryDelivery: {
+                    blankAddress,
+                  },
+                  hasTertiaryDelivery: 'false',
+                  tertiaryDelivery: {
+                    blankAddress,
+                  },
+                });
+              } else if (e.target.value === 'true') {
+                setValues({
+                  ...values,
+                  hasDeliveryAddress: 'true',
+                  delivery: {
+                    ...values.delivery,
+                  },
+                });
+              }
+            }
             if (name === 'hasSecondaryDelivery') {
               if (value === 'false') {
                 setValues({
@@ -617,7 +624,7 @@ class MtoShipmentForm extends Component {
                                     value="true"
                                     title="Yes, I know my delivery address"
                                     checked={hasDeliveryAddress === 'true'}
-                                    // onChange={handleAddressToggleChange}
+                                    onChange={handleAddressToggleChange}
                                   />
                                   <Field
                                     as={Radio}
@@ -627,7 +634,7 @@ class MtoShipmentForm extends Component {
                                     value="false"
                                     title="No, I do not know my delivery address"
                                     checked={hasDeliveryAddress === 'false'}
-                                    // onChange={handleAddressToggleChange}
+                                    onChange={handleAddressToggleChange}
                                   />
                                 </div>
                               </FormGroup>

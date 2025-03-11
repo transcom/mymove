@@ -108,9 +108,17 @@ const mockMtoShipmentHHGWithDest = {
   createdAt: '2021-06-11T18:12:11.918Z',
   updatedAt,
   moveTaskOrderId: moveId,
+  customerRemarks: 'mock remarks',
   requestedPickupDate: '2021-06-07',
   requestedDeliveryDate: '2021-06-14',
+  newDutyLocationAddress: {
+    id: uuidv4(),
+    city: 'Fort Benning',
+    state: 'GA',
+    postalCode: '31905',
+  },
   pickupAddress: {
+    id: uuidv4(),
     streetAddress1: '812 S 129th St',
     streetAddress2: '#123',
     city: 'San Antonio',
@@ -820,7 +828,7 @@ describe('MtoShipmentForm component', () => {
       });
     });
 
-    it('does allow the user to save the form if the secondary address1 field is cleared but the toggle is switched to No', async () => {
+    it('allow the user to save the form if the secondary address1 field is cleared but the toggle is switched to No', async () => {
       const shipment = {
         ...mockMtoShipment,
         secondaryPickupAddress: {
@@ -878,7 +886,7 @@ describe('MtoShipmentForm component', () => {
       });
     });
 
-    it('does allow the user to save the form if the tertiary address1 field is cleared but the toggle is switched to No', async () => {
+    it('allow the user to save the form if the tertiary address1 field is cleared but the toggle is switched to No', async () => {
       const shipment = {
         ...mockMtoShipment,
         secondaryPickupAddress: {
@@ -1041,6 +1049,69 @@ describe('MtoShipmentForm component', () => {
       await waitFor(() => {
         expect(patchMTOShipment).toHaveBeenCalledWith(mockMtoShipment.id, expectedPayload, mockMtoShipment.eTag);
       });
+
+      expect(defaultProps.updateMTOShipment).toHaveBeenCalledWith(expectedUpdateResponse);
+
+      expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
+    });
+
+    it('collapses delivery address fieldset when the user says No to having a delivery address', async () => {
+      const blankSecondaryDelivery = {
+        secondaryDeliveryAddress: {
+          streetAddress1: '',
+          streetAddress2: '',
+          city: '',
+          state: '',
+          postalCode: '',
+        },
+      };
+
+      const newUpdatedAt = '2021-06-11T21:20:22.150Z';
+      const expectedUpdateResponse = {
+        ...mockMtoShipmentHHGWithDest,
+        destinationAddress: { ...mockMtoShipmentHHGWithDest.newDutyLocationAddress, streetAddress1: 'N/A' },
+        secondaryDeliveryAddress: blankSecondaryDelivery,
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        eTag: window.btoa(newUpdatedAt),
+        status: 'SUBMITTED',
+      };
+
+      patchMTOShipment.mockImplementation(() => Promise.resolve(expectedUpdateResponse));
+
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipmentHHGWithDest });
+
+      // verify second delivery has values
+      expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
+        mockMtoShipmentHHGWithDest.secondaryDeliveryAddress.streetAddress1,
+      );
+      expect(await screen.getAllByTestId('City')[2]).toHaveTextContent(
+        mockMtoShipmentHHGWithDest.secondaryDeliveryAddress.city,
+      );
+      expect(await screen.getAllByTestId('State')[2]).toHaveTextContent(
+        mockMtoShipmentHHGWithDest.secondaryDeliveryAddress.state,
+      );
+      expect(await screen.getAllByTestId('ZIP')[2]).toHaveTextContent(
+        mockMtoShipmentHHGWithDest.secondaryDeliveryAddress.postalCode,
+      );
+
+      await userEvent.click(screen.getByTitle('No, I do not know my delivery address'));
+
+      // No to delivery should also hide second delivery address fields, only pickup address left
+      const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
+      expect(streetAddress1.length).toBe(1);
+
+      const city = screen.getAllByTestId('City');
+      expect(city.length).toBe(1);
+
+      const state = screen.getAllByTestId('State');
+      expect(state.length).toBe(1);
+
+      const zip = screen.getAllByTestId('ZIP');
+      expect(zip.length).toBe(1);
+
+      const saveButton = await screen.findByRole('button', { name: 'Save' });
+      expect(saveButton).not.toBeDisabled();
+      await userEvent.click(saveButton);
 
       expect(defaultProps.updateMTOShipment).toHaveBeenCalledWith(expectedUpdateResponse);
 
