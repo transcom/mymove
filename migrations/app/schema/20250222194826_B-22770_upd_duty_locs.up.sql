@@ -43,7 +43,7 @@ update duty_locations set name = 'NAS Whidbey Island, WA 98278', updated_at = no
 DO $$
 DECLARE
 	i			record;
-	
+
 BEGIN
 
 	FOR i in (select duty_locations.id duty_loc_id,
