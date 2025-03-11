@@ -2554,3 +2554,111 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
 	})
 }
+
+func (suite *HandlerSuite) TestAcknowledgeMovesAndShipmentsHandler() {
+	suite.Run("Successful Acknowledge Moves and Shipments - 200", func() {
+		mockMoveAndShipmentAcknowledgementUpdater := mocks.MoveAndShipmentAcknowledgementUpdater{}
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		handlerConfig := suite.HandlerConfig()
+		handler := AcknowledgeMovesAndShipmentsHandler{
+			HandlerConfig:                         handlerConfig,
+			MoveAndShipmentAcknowledgementUpdater: &mockMoveAndShipmentAcknowledgementUpdater,
+		}
+
+		mockMoveAndShipmentAcknowledgementUpdater.On("AcknowledgeMovesAndShipments",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.Moves"),
+		).Return(nil)
+
+		requestUser := factory.BuildUser(nil, nil, nil)
+		request := httptest.NewRequest("PATCH", "/move-task-orders/acknowledge", nil)
+
+		acknowledgeShipment := primemessages.AcknowledgeShipment{
+			ID:                  strfmt.UUID(move.MTOShipments[0].ID.String()),
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+
+		payload := primemessages.AcknowledgeMoves{
+			&primemessages.AcknowledgeMove{
+				ID: strfmt.UUID(move.ID.String()),
+				MtoShipments: []*primemessages.AcknowledgeShipment{
+					&acknowledgeShipment,
+				},
+				PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -2)),
+			},
+		}
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.AcknowledgeMovesAndShipmentsParams{
+			HTTPRequest: request,
+			Body:        payload,
+		}
+		response := handler.Handle(params)
+		handlerResponse := response.(*movetaskorderops.AcknowledgeMovesAndShipmentsOK)
+		suite.Assertions.IsType(&movetaskorderops.AcknowledgeMovesAndShipmentsOK{}, handlerResponse)
+		suite.Equal("Successfully updated acknowledgement for moves and shipments", handlerResponse.Payload.Message)
+	})
+
+	suite.Run("Unsuccessful Acknowledge Moves and Shipments - 500", func() {
+		mockMoveAndShipmentAcknowledgementUpdater := mocks.MoveAndShipmentAcknowledgementUpdater{}
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		handlerConfig := suite.HandlerConfig()
+		handler := AcknowledgeMovesAndShipmentsHandler{
+			HandlerConfig:                         handlerConfig,
+			MoveAndShipmentAcknowledgementUpdater: &mockMoveAndShipmentAcknowledgementUpdater,
+		}
+
+		mockError := errors.New("error executing prime_acknowledge_moves_shipments procedure")
+		mockMoveAndShipmentAcknowledgementUpdater.On("AcknowledgeMovesAndShipments",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.Moves"),
+		).Return(mockError)
+
+		requestUser := factory.BuildUser(nil, nil, nil)
+		request := httptest.NewRequest("PATCH", "/move-task-orders/acknowledge", nil)
+
+		acknowledgeShipment := primemessages.AcknowledgeShipment{
+			ID:                  strfmt.UUID(move.MTOShipments[0].ID.String()),
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+
+		payload := primemessages.AcknowledgeMoves{
+			&primemessages.AcknowledgeMove{
+				ID: strfmt.UUID(move.ID.String()),
+				MtoShipments: []*primemessages.AcknowledgeShipment{
+					&acknowledgeShipment,
+				},
+				PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -2)),
+			},
+		}
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.AcknowledgeMovesAndShipmentsParams{
+			HTTPRequest: request,
+			Body:        payload,
+		}
+		response := handler.Handle(params)
+		handlerResponse := response.(*movetaskorderops.AcknowledgeMovesAndShipmentsInternalServerError)
+		suite.Assertions.IsType(&movetaskorderops.AcknowledgeMovesAndShipmentsInternalServerError{}, handlerResponse)
+	})
+
+	suite.Run("Unsuccessful Acknowledge Moves and Shipments - 422", func() {
+		mockMoveAndShipmentAcknowledgementUpdater := mocks.MoveAndShipmentAcknowledgementUpdater{}
+		handlerConfig := suite.HandlerConfig()
+		handler := AcknowledgeMovesAndShipmentsHandler{
+			HandlerConfig:                         handlerConfig,
+			MoveAndShipmentAcknowledgementUpdater: &mockMoveAndShipmentAcknowledgementUpdater,
+		}
+
+		requestUser := factory.BuildUser(nil, nil, nil)
+		request := httptest.NewRequest("PATCH", "/move-task-orders/acknowledge", nil)
+
+		payload := primemessages.AcknowledgeMoves{}
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.AcknowledgeMovesAndShipmentsParams{
+			HTTPRequest: request,
+			Body:        payload,
+		}
+		response := handler.Handle(params)
+		handlerResponse := response.(*movetaskorderops.AcknowledgeMovesAndShipmentsUnprocessableEntity)
+		suite.Assertions.IsType(&movetaskorderops.AcknowledgeMovesAndShipmentsUnprocessableEntity{}, handlerResponse)
+	})
+}
