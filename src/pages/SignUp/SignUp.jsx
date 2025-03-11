@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Grid, GridContainer, Alert, Button, Label } from '@trussworks/react-uswds';
 import { Form, Formik } from 'formik';
 import classNames from 'classnames';
@@ -23,17 +23,29 @@ import departmentIndicators from 'constants/departmentIndicators';
 import StyledLine from 'components/StyledLine/StyledLine';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import RegistrationConfirmationModal from 'components/RegistrationConfirmationModal/RegistrationConfirmationModal';
+import { registerUser } from 'services/internalApi';
+import Hint from 'components/Hint';
+import { technicalHelpDeskURL } from 'shared/constants';
 
 export const SignUp = ({ setShowLoadingSpinner }) => {
   const navigate = useNavigate();
-  const [serverError] = useState(null);
+  const [serverError, setServerError] = useState(null);
   const [showEmplid, setShowEmplid] = useState(false);
   const [isCACModalVisible, setIsCACModalVisible] = useState(false);
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
+
+  const hostname = window && window.location && window.location.hostname;
+  const oktaURL =
+    hostname === 'my.move.mil'
+      ? 'https://milmove.okta.mil/enduser/settings'
+      : 'https://test-milmove.okta.mil/enduser/settings';
 
   // timer that shows the CAC modal as soon as the component renders
   useEffect(() => {
+    setServerError(false);
+    setShowHint(false);
     setIsConfirmationModalVisible(false);
     const timer = setTimeout(() => {
       setIsCACModalVisible(true);
@@ -77,36 +89,47 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
     navigate(generalRoutes.SIGN_IN_PATH);
   };
 
-  const delay = (ms) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(), ms);
-    });
-  };
-
-  const handleAsyncSubmit = async (body) => {
-    setShowLoadingSpinner(true, `Creating MilMove Account for ${body.firstName} ${body.lastName}`);
-    await delay(2000);
-    setShowLoadingSpinner(true, `Creating Okta Account for ${body.firstName} ${body.lastName}`);
-    await delay(2000);
-    setShowLoadingSpinner(false, null);
-    setIsConfirmationModalVisible(true);
-  };
-
   const handleSubmit = async (values) => {
-    const body = {
+    if (values.firstName && values.lastName) {
+      setShowLoadingSpinner(true, `Creating MilMove Account for ${values.firstName} ${values.lastName}`);
+    } else {
+      setShowLoadingSpinner(true, `Creating MilMove Account`);
+    }
+    const payload = {
       affiliation: values.affiliation,
       edipi: values.edipi,
-      emplid: values.emplid,
+      emplid: values.emplid.trim() === '' ? null : values.emplid,
       firstName: values.firstName,
-      middleInitial: values.middleInitial,
+      middleInitial: values.middleInitial.trim() === '' ? null : values.middleInitial,
       lastName: values.lastName,
       email: values.email,
       telephone: values.telephone,
-      secondaryTelephone: values.secondaryTelephone,
+      secondaryTelephone: values.secondaryTelephone.trim() === '' ? null : values.secondaryTelephone,
       phoneIsPreferred: values.phoneIsPreferred,
       emailIsPreferred: values.emailIsPreferred,
     };
-    await handleAsyncSubmit(body);
+    await registerUser(payload)
+      .then(() => {
+        setShowLoadingSpinner(false, null);
+        setIsConfirmationModalVisible(true);
+      })
+      .catch((e) => {
+        const { response } = e;
+        let errorMessage = `There was an error creating your account`;
+        setShowLoadingSpinner(false, null);
+        if (response.body) {
+          const responseBody = response.body;
+          let responseMsg = '';
+
+          if (responseBody.detail) {
+            responseMsg += `${responseBody.detail}`;
+          }
+
+          errorMessage += `\n${responseMsg}`;
+        }
+        setServerError(errorMessage);
+        setShowHint(true);
+      });
   };
 
   const validationSchema = Yup.object().shape({
@@ -156,25 +179,23 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
     <div className={classNames('usa-prose grid-container')}>
       <ValidCACModal isOpen={isCACModalVisible} onClose={handleCACModalNo} onSubmit={handleCACModalYes} />
       <RegistrationConfirmationModal isOpen={isConfirmationModalVisible} onSubmit={handleConfirmationModalYes} />
+      <NotificationScrollToTop dependency={serverError} />
       <GridContainer>
-        <NotificationScrollToTop dependency={serverError} />
-
-        {serverError && (
-          <Grid row>
-            <Alert
-              data-testid="alert2"
-              type="error"
-              headingLevel="h4"
-              heading="An error occurred"
-              className={styles.error}
-            >
-              {serverError}
-            </Alert>
-          </Grid>
-        )}
-
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }} className={styles.formContainer}>
+            {serverError && (
+              <Grid row>
+                <Alert
+                  data-testid="alert2"
+                  type="error"
+                  headingLevel="h4"
+                  heading="An error occurred"
+                  className={styles.error}
+                >
+                  {serverError}
+                </Alert>
+              </Grid>
+            )}
             <Formik
               initialValues={initialValues}
               onSubmit={handleSubmit}
@@ -183,7 +204,7 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
               validateOnBlur
               validationSchema={validationSchema}
             >
-              {({ isValid, values, setValues, handleChange }) => {
+              {({ isSubmitting, isValid, values, setValues, handleChange }) => {
                 const handleBranchChange = (e) => {
                   if (e.target.value === departmentIndicators.COAST_GUARD) {
                     setShowEmplid(true);
@@ -210,7 +231,25 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                 return (
                   <Form className={formStyles.formSection}>
                     <SectionWrapper>
-                      <h2 className={styles.center}>MilMove Registration</h2>
+                      <div className={styles.centerColumn}>
+                        <h2>MilMove Registration</h2>
+                        {showHint && (
+                          <Hint className={styles.hint}>
+                            MilMove uses Okta for authentication. If you need to access an exsiting Okta account, you
+                            can access the Okta dashboard by{' '}
+                            <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
+                              <strong> clicking this link</strong>.
+                            </a>
+                            <br />
+                            <br />
+                            If you continue to have issues with registration <br />
+                            please contact the&nbsp;
+                            <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                              Technical Help Desk
+                            </Link>
+                          </Hint>
+                        )}
+                      </div>
                       <div className={styles.formSection}>
                         <DropdownInput
                           label="Branch of service"
@@ -319,7 +358,7 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                     </SectionWrapper>
 
                     <div className={styles.buttonRow}>
-                      <Button type="submit" disabled={!isValid} data-testid="submitBtn">
+                      <Button type="submit" disabled={!isValid || isSubmitting} data-testid="submitBtn">
                         Submit
                       </Button>
                       <Button type="button" onClick={handleCancel} secondary data-testid="cancelBtn">
