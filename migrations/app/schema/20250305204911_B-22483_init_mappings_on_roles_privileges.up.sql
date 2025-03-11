@@ -1,4 +1,4 @@
--- B-22483 - add initial mappings to roles_privileges table
+-- B-22483   Ryan McHugh   add initial mappings to roles_privileges table
 
 -- insert applicable roles for supervisor privilege
 INSERT INTO roles_privileges (id, role_id, privilege_id, created_at, updated_at) VALUES
@@ -12,6 +12,3 @@ INSERT INTO roles_privileges (id, role_id, privilege_id, created_at, updated_at)
     ('e62984fc-03d8-496e-8ba1-e4c979120f4a'::uuid,'72432922-bf2e-45de-8837-1a458f5d1011'::uuid,'463c2034-d197-4d9a-897e-8bbe64893a31'::uuid, now(), now()), -- Customer Service Representative
     ('e0d49f7a-96a8-4bde-874c-83bb322558f1'::uuid,'20d7deea-4010-424e-9f64-714a46e18c3c'::uuid,'463c2034-d197-4d9a-897e-8bbe64893a31'::uuid, now(), now()), -- Government Surveillance Representative
     ('1ed7973d-c022-48fa-9534-12278cb9d98c'::uuid,'0da36914-fcc1-4965-b49c-b4a0d447514c'::uuid,'463c2034-d197-4d9a-897e-8bbe64893a31'::uuid, now(), now()); -- Headquarters
-
-
-

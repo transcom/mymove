@@ -987,7 +987,7 @@ definitions:
         format: uuid
         example: c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e
       roleType:
-        type: string # change this to enum
+        type: string
         example: task_ordering_officer
       privilegeId:
         type: string

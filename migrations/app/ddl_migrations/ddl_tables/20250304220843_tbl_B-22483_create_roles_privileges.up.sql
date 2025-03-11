@@ -1,4 +1,4 @@
--- B-22483 - create roles_privileges table
+-- B-22483   Ryan McHugh   create roles_privileges table
 CREATE TABLE IF NOT EXISTS roles_privileges (
     id uuid NOT NULL,
     role_id uuid NOT NULL
