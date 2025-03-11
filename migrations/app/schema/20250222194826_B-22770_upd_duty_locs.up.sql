@@ -70,6 +70,11 @@ BEGIN
 END $$;
 
 --add duty loc San Diego, CA 92173
+INSERT INTO public.addresses
+(id, street_address_1, city, state, postal_code, created_at, updated_at, county, is_oconus, country_id, us_post_region_cities_id)
+select '04eaa871-9df8-45cc-86b6-f1e37a50390f'::uuid, 'n/a', 'San Diego', 'CA', '92173', now(),now(), 'SAN DIEGO', false, '791899e6-cd77-46f2-981b-176ecb8d7098'::uuid, '45e82027-81f6-48d2-b9c8-9e8a34537b3d'::uuid
+where not exists (select * from addresses where id = '04eaa871-9df8-45cc-86b6-f1e37a50390f');
+
 INSERT INTO public.duty_locations
 (id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
 select 'ed793c9b-7e96-46f8-a845-e566f28062f1', 'San Diego, CA 92173', null, '04eaa871-9df8-45cc-86b6-f1e37a50390f'::uuid, now(),now(), null, true
