@@ -171,6 +171,11 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 				LinkOnly: true,
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
+			{
+				Model: models.OfficeUser{
+					Active: true,
+				},
+			},
 		}, nil)
 		deletedAt := time.Now()
 		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
@@ -185,4 +190,5 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 		suite.NoError(err)
 		suite.Len(fetchedUsers, 0)
 	})
+
 }
