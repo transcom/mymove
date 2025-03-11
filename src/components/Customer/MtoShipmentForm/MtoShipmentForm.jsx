@@ -305,9 +305,15 @@ class MtoShipmentForm extends Component {
             <GridContainer>
               <Grid row>
                 <Grid col desktop={{ col: 8, offset: 2 }}>
-                  {errorMessage && (
+                  {errorMessage && !isUB && (
                     <Alert type="error" headingLevel="h4" heading="An error occurred">
                       {errorMessage}
+                    </Alert>
+                  )}
+
+                  {errorMessage && isUB && (
+                    <Alert type="error" headingLevel="h4" heading="An error occurred">
+                      At least one address for a UB shipment must be OCONUS
                     </Alert>
                   )}
 
