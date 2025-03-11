@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
+	models "github.com/transcom/mymove/pkg/models"
+
 	roles "github.com/transcom/mymove/pkg/models/roles"
 
 	uuid "github.com/gofrs/uuid"
@@ -39,6 +41,36 @@ func (_m *RoleAssociater) FetchRolesForUser(appCtx appcontext.AppContext, userID
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FetchRolesPrivileges provides a mock function with given fields: appCtx
+func (_m *RoleAssociater) FetchRolesPrivileges(appCtx appcontext.AppContext) ([]models.RolePrivilege, error) {
+	ret := _m.Called(appCtx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchRolesPrivileges")
+	}
+
+	var r0 []models.RolePrivilege
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) ([]models.RolePrivilege, error)); ok {
+		return rf(appCtx)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) []models.RolePrivilege); ok {
+		r0 = rf(appCtx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.RolePrivilege)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
+		r1 = rf(appCtx)
 	} else {
 		r1 = ret.Error(1)
 	}
