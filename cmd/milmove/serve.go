@@ -826,7 +826,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	pprofEnabled := v.GetBool(cli.PprofListenerFlag)
 	var pprofServer *http.Server
 
-	if pprofEnabled {
+	if pprofEnabled && isDevOrTest {
 		pprofServer = &http.Server{
 			Addr:              ":6060",
 			ReadHeaderTimeout: 3 * time.Second,
@@ -901,7 +901,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}()
 	}
 
-	if pprofEnabled {
+	// only use pprof in a dev or test environment and never in prod
+	if pprofEnabled && isDevOrTest {
 		wg.Add(1)
 		go func() {
 			shutdownErrors.Store(pprofServer, pprofServer.Shutdown(ctx))
