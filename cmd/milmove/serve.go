@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -823,11 +824,16 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		go startListener(mutualTLSServer, logger, true)
 	}
 
-	pprofEnabled := v.GetBool(cli.PprofListenerFlag)
 	var pprofServer *http.Server
+	pprofStr := os.Getenv("PPROF_ENABLED")
+	pprofEnabled, err := strconv.ParseBool(pprofStr)
+
+	if err != nil {
+		pprofEnabled = false
+	}
 
 	// only use pprof in a dev or test environment and never in prod
-	if pprofEnabled && isDevOrTest {
+	if pprofEnabled && dbEnv == "development" {
 		pprofServer = &http.Server{
 			Addr:              ":6060",
 			ReadHeaderTimeout: 3 * time.Second,
