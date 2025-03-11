@@ -4,6 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -24,8 +25,8 @@ func (f rolesFetcher) FetchRolesForUser(appCtx appcontext.AppContext, userID uui
 	return roles, err
 }
 
-func (f rolesFetcher) FetchRolesPrivileges(appCtx appcontext.AppContext) ([]roles.RolePrivilege, error) {
-	var rolesPrivileges []roles.RolePrivilege
-	err := appCtx.DB().Q().All(&rolesPrivileges)
+func (f rolesFetcher) FetchRolesPrivileges(appCtx appcontext.AppContext) ([]models.RolePrivilege, error) {
+	var rolesPrivileges []models.RolePrivilege
+	err := appCtx.DB().Q().EagerPreload("Role", "Privilege").All(&rolesPrivileges)
 	return rolesPrivileges, err
 }

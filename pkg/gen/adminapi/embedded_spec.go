@@ -3290,10 +3290,18 @@ func init() {
           "format": "uuid",
           "example": "463c2034-d197-4d9a-897e-8bbe64893a31"
         },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
         "roleId": {
           "type": "string",
           "format": "uuid",
           "example": "c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e"
+        },
+        "roleType": {
+          "type": "string",
+          "example": "task_ordering_officer"
         },
         "updatedAt": {
           "type": "string",
@@ -7038,10 +7046,18 @@ func init() {
           "format": "uuid",
           "example": "463c2034-d197-4d9a-897e-8bbe64893a31"
         },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
         "roleId": {
           "type": "string",
           "format": "uuid",
           "example": "c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e"
+        },
+        "roleType": {
+          "type": "string",
+          "example": "task_ordering_officer"
         },
         "updatedAt": {
           "type": "string",

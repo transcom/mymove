@@ -2,6 +2,7 @@
 
 -- insert applicable roles for supervisor privilege
 INSERT INTO roles_privileges (id, role_id, privilege_id, created_at, updated_at) VALUES
+    ('c261ca4c-185b-4a69-adfb-a8cce625d93e'::uuid,'c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e'::uuid,'463c2034-d197-4d9a-897e-8bbe64893a31'::uuid, now(), now()), -- Customer
     ('e20c1e39-fea8-43ef-a56c-7e276bb33c87'::uuid,'2b21e867-78c3-4980-95a1-c8242b78baba'::uuid,'463c2034-d197-4d9a-897e-8bbe64893a31'::uuid, now(), now()), -- Task Ordering Officer
     ('2d32e971-1350-46e9-931c-1a53b2e3af3b'::uuid,'c19a5d5f-d320-4972-b294-1d760ee4b899'::uuid,'463c2034-d197-4d9a-897e-8bbe64893a31'::uuid, now(), now()), -- Task Invoicing Officer
     ('66eaee36-311c-4184-aeb9-178b1d407c0a'::uuid,'5496a188-69dc-4ae4-9dab-ce6c063d648f'::uuid,'463c2034-d197-4d9a-897e-8bbe64893a31'::uuid, now(), now()), -- Contracting Officer

@@ -42,13 +42,15 @@ func payloadForPrivilege(p models.Privilege) *adminmessages.Privilege {
 	}
 }
 
-func payloadForRolePrivilege(p roles.RolePrivilege) *adminmessages.RolePrivilege {
+func payloadForRolePrivilege(p models.RolePrivilege) *adminmessages.RolePrivilege {
 	return &adminmessages.RolePrivilege{
-		ID:          *handlers.FmtUUID(p.ID),
-		RoleID:      *handlers.FmtUUID(p.RoleID),
-		PrivilegeID: *handlers.FmtUUID(p.PrivilegeID),
-		CreatedAt:   *handlers.FmtDateTime(p.CreatedAt),
-		UpdatedAt:   *handlers.FmtDateTime(p.UpdatedAt),
+		ID:            *handlers.FmtUUID(p.ID),
+		RoleID:        *handlers.FmtUUID(p.RoleID),
+		RoleType:      *handlers.FmtString(string(p.Role.RoleType)),
+		PrivilegeID:   *handlers.FmtUUID(p.PrivilegeID),
+		PrivilegeType: *handlers.FmtString(string(p.Privilege.PrivilegeType)),
+		CreatedAt:     *handlers.FmtDateTime(p.CreatedAt),
+		UpdatedAt:     *handlers.FmtDateTime(p.UpdatedAt),
 	}
 }
 
@@ -653,6 +655,7 @@ func (h GetRolesPrivilegesHandler) Handle(params officeuserop.GetRolesPrivileges
 				case apperror.NotFoundError:
 					return officeuserop.NewGetRolesPrivilegesNotFound(), err
 				default:
+					appCtx.Logger().Error(err.Error())
 					return officeuserop.NewGetRolesPrivilegesInternalServerError(), err
 				}
 			}

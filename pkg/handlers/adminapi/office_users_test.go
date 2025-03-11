@@ -868,17 +868,45 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users/roles-privileges"),
 		}
 
-		// queryBuilder := query.NewQueryBuilder()
 		handler := GetRolesPrivilegesHandler{
 			suite.HandlerConfig(),
 			rolesservice.NewRolesFetcher(),
 		}
 
+		rolesPrivs, err := handler.RoleAssociater.FetchRolesPrivileges(suite.AppContextForTest())
+
+		suite.NoError(err)
+
 		response := handler.Handle(params)
 
 		suite.IsType(&officeuserop.GetRolesPrivilegesOK{}, response)
 		okResponse := response.(*officeuserop.GetRolesPrivilegesOK)
-		suite.Len(okResponse.Payload, 9)
+		suite.Len(okResponse.Payload, len(rolesPrivs))
+
+		type rolePrivValidation struct {
+			RoleType      string
+			PrivilegeType string
+		}
+
+		rolePrivEntries := make(map[uuid.UUID]*rolePrivValidation)
+
+		for _, rolePriv := range rolesPrivs {
+			rolePrivEntries[rolePriv.ID] = &rolePrivValidation{
+				RoleType:      string(rolePriv.Role.RoleType),
+				PrivilegeType: string(rolePriv.Privilege.PrivilegeType),
+			}
+		}
+
+		for _, resRolePriv := range okResponse.Payload {
+			entryKey, err := uuid.FromString(resRolePriv.ID.String())
+			suite.NoError(err)
+			rolePriv, ok := rolePrivEntries[entryKey]
+			suite.NotNil(ok)
+			suite.Equal(rolePriv.RoleType, resRolePriv.RoleType)
+			suite.Equal(rolePriv.PrivilegeType, resRolePriv.PrivilegeType)
+
+			delete(rolePrivEntries, entryKey) // remove to ensure unique values
+		}
 	})
 
 	suite.Run("401 ERROR - Unauthorized ", func() {
