@@ -153,6 +153,7 @@ func (f ppmShipmentFetcher) GetPPMShipment(
 	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterRejected()
 	ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
 	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
+	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterRejected()
 
 	if postloadAssociations != nil {
 		postloadErr := f.PostloadAssociations(appCtx, &ppmShipment, postloadAssociations)
