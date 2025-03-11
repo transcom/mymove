@@ -275,7 +275,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		})
 	}
 
-	suite.Run("Can successfully create a PPMShipment as SC", func() {
+	suite.Run("Can successfully create and auto-approve a PPMShipment as SC", func() {
 		// Need a logged in user
 		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		identity, err := models.FetchUserIdentity(suite.DB(), scOfficeUser.User.OktaID)
