@@ -136,7 +136,7 @@ describe('BulkAssignmentModal', () => {
     const userTable = await screen.findByRole('table');
     expect(userTable).toBeInTheDocument();
     expect(screen.getByText('User')).toBeInTheDocument();
-    expect(screen.getByText('Workload')).toBeInTheDocument();
+    expect(screen.getByText('Current Workload')).toBeInTheDocument();
     expect(screen.getByText('Assignment')).toBeInTheDocument();
     await act(async () => {
       expect(await screen.getByText('user, sc')).toBeInTheDocument();
@@ -182,7 +182,7 @@ describe('BulkAssignmentModal', () => {
     const userTable = await screen.findByRole('table');
     expect(userTable).toBeInTheDocument();
     expect(screen.getByText('User')).toBeInTheDocument();
-    expect(screen.getByText('Workload')).toBeInTheDocument();
+    expect(screen.getByText('Current Workload')).toBeInTheDocument();
     expect(screen.getByText('Assignment')).toBeInTheDocument();
     await act(async () => {
       expect(await screen.getByText('user, sc')).toBeInTheDocument();
@@ -273,9 +273,9 @@ describe('BulkAssignmentModal', () => {
     await waitFor(() => {
       expect(screen.getByText('Bulk Re-Assignment (0)', { exact: false })).toBeInTheDocument();
       expect(screen.getByText('User')).toBeInTheDocument();
-      expect(screen.getByText('Workload')).toBeInTheDocument();
+      expect(screen.getByText('Current Workload')).toBeInTheDocument();
       expect(screen.getByText('Assignment')).toBeInTheDocument();
-      expect(screen.getByText('Re-assign User')).toBeInTheDocument();
+      expect(screen.getByText('Re-assign Workload')).toBeInTheDocument();
       expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
       expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
     });
@@ -313,9 +313,9 @@ describe('BulkAssignmentModal', () => {
     await waitFor(() => {
       expect(screen.getByText('Bulk Re-Assignment (0)', { exact: false })).toBeInTheDocument();
       expect(screen.getByText('User')).toBeInTheDocument();
-      expect(screen.getByText('Workload')).toBeInTheDocument();
+      expect(screen.getByText('Current Workload')).toBeInTheDocument();
       expect(screen.getByText('Assignment')).toBeInTheDocument();
-      expect(screen.getByText('Re-assign User')).toBeInTheDocument();
+      expect(screen.getByText('Re-assign Workload')).toBeInTheDocument();
       expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
       expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
     });
