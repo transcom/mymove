@@ -378,10 +378,10 @@ func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) 
 			payload := io.NopCloser(pdf)
 
 			// we have copied the created files into the payload so we can remove them from memory
-			if err = h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); err != nil {
-				appCtx.Logger().Error(fmt.Sprintf("internalapi.DownPaymentPacket InternalServerError failed to clean up payment packet files for ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
-				return ppmops.NewShowPaymentPacketInternalServerError(), err
-			}
+			// if err = h.PaymentPacketCreator.CleanupPaymentPacketDir(packetPath); err != nil {
+			// 	appCtx.Logger().Error(fmt.Sprintf("internalapi.DownPaymentPacket InternalServerError failed to clean up payment packet files for ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
+			// 	return ppmops.NewShowPaymentPacketInternalServerError(), err
+			// }
 
 			filename := fmt.Sprintf("inline; filename=\"ppm_payment_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
 

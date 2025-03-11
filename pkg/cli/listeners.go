@@ -16,6 +16,8 @@ const (
 	// HealthListenerFlag is whether a special listener for health
 	// checks should be enabled
 	HealthListenerFlag string = "health-server-enabled"
+	// PprofListenerFlag is whether the pprof tool should be enabled
+	PprofListenerFlag string = "pprof-enabled"
 )
 
 // InitListenerFlags initializes Listener command line flags
@@ -24,6 +26,7 @@ func InitListenerFlags(flag *pflag.FlagSet) {
 	flag.Bool(TLSListenerFlag, false, "enable the server side TLS listener.")
 	flag.Bool(NoTLSListenerFlag, false, "enable the listener not requiring any TLS.")
 	flag.Bool(HealthListenerFlag, false, "enable the listener for health checks.")
+	flag.Bool(PprofListenerFlag, true, "enable the listener for pprof.")
 }
 
 // CheckListeners validates the Listener command line flags
