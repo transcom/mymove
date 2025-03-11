@@ -71,6 +71,10 @@ export async function getMTOShipmentsForMove(moveTaskOrderID, normalize = true) 
 /** BELOW API CALLS ARE NOT NORMALIZED BY DEFAULT */
 
 /** SERVICE MEMBERS */
+export async function registerUser(payload) {
+  return makeInternalRequest('registration.customerRegistration', { registration: payload }, { normalize: false });
+}
+
 export async function createServiceMember(serviceMember = {}) {
   return makeInternalRequest(
     'service_members.createServiceMember',

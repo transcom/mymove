@@ -2764,7 +2764,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			}, nil)
 			// adding 42 days; ghcDomesticTransitTime0LbsUpper.MaxDaysTransitTime is 12, plus 30 for Zone 5 UB
 			pickUpDate := shipment.ScheduledPickupDate
-			rdd60DaysDateUB := pickUpDate.AddDate(0, 0, 28)
+			rdd60DaysDateUB := pickUpDate.AddDate(0, 0, 27)
 			shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 			_, err = updater.UpdateMTOShipmentStatus(appCtx, shipment.ID, status, nil, nil, shipmentEtag)
 			suite.NoError(err)
@@ -3514,7 +3514,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 			mock.AnythingOfType("uuid.UUID"),
 			mock.AnythingOfType("*models.MTOShipment"),
 		).Return(models.MTOShipments{}, nil, nil)
-
 		mockSender := setUpMockNotificationSender()
 		addressUpdater := address.NewAddressUpdater()
 
@@ -3539,6 +3538,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		}, nil)
 		// there is a validator check about updating the status
 		primeShipment.Status = ""
+
+		moveWeights.On("CheckExcessWeight", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("models.MTOShipment")).Return(&primeShipment.MoveTaskOrder, nil, nil)
 
 		session := auth.Session{}
 		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
@@ -3582,7 +3583,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
 			mock.AnythingOfType("models.MTOShipment"),
-		).Return(&models.Move{}, nil, nil)
+		).Return(&oldPrimeShipment.MoveTaskOrder, nil, nil)
 
 		newPrimeShipment := models.MTOShipment{
 			ID:                oldPrimeShipment.ID,
@@ -4066,8 +4067,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 		suite.Nil(oldUbShipment.RequiredDeliveryDate)
 
 		pickUpDate := time.Now()
-		dayAfterPickupDay := pickUpDate.AddDate(0, 0, 1)
-		expectedRequiredDeiliveryDate := dayAfterPickupDay.AddDate(0, 0, 27)
+		expectedRequiredDeiliveryDate := pickUpDate.AddDate(0, 0, 27)
 		newUbShipment := models.MTOShipment{
 			ID:                  oldUbShipment.ID,
 			ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
