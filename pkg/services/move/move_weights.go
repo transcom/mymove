@@ -409,7 +409,7 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 
 // fetchReweigh retrieves a reweigh for a given shipment id
 func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error) {
-	reweigh := &models.Reweigh{}
+	var reweigh models.Reweigh
 	err := appCtx.DB().
 		Where("shipment_id = ?", shipmentID).
 		First(reweigh)
@@ -417,10 +417,10 @@ func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.R
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, nil
+			return nil, nil // Not an error, expected to receive no results if no reweigh
 		default:
-			return nil, err
+			return nil, apperror.NewQueryError("Reweigh", err, "")
 		}
 	}
-	return reweigh, nil
+	return &reweigh, nil
 }
