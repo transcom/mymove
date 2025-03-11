@@ -1281,7 +1281,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
 			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before or equal to the SIT entry date.")
 		}
-
 	})
 
 	suite.Run("SITDepartureDate - errors when set before the SIT entry date - international", func() {
