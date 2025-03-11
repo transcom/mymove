@@ -26,7 +26,7 @@ func InitListenerFlags(flag *pflag.FlagSet) {
 	flag.Bool(TLSListenerFlag, false, "enable the server side TLS listener.")
 	flag.Bool(NoTLSListenerFlag, false, "enable the listener not requiring any TLS.")
 	flag.Bool(HealthListenerFlag, false, "enable the listener for health checks.")
-	flag.Bool(PprofListenerFlag, true, "enable the listener for pprof.")
+	flag.Bool(PprofListenerFlag, false, "enable the listener for pprof.") // WHEN ENABLING DON'T FORGET TO SET BACK TO FALSE WHEN DONE
 }
 
 // CheckListeners validates the Listener command line flags
