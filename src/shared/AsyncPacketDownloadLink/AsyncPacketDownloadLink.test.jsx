@@ -1,26 +1,18 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AsyncPacketDownloadLink, { onPacketDownloadSuccessHandler } from './AsyncPacketDownloadLink';
 import { setShowLoadingSpinner } from 'store/general/actions';
-import { configureStore } from 'shared/store';
-import { Provider } from 'react-redux';
+import { renderWithProviders } from 'testUtils';
 
-const defaultState = {
-  generalState: {
-    moveId: '',
-    showLoadingSpinner: false,
-    loadingSpinnerMessage: null,
-  },
-};
-
-afterEach(() => {
-  jest.resetAllMocks();
-});
-
-const mockStore = configureStore({
-  ...defaultState,
-});
+jest.mock('store/general/actions', () => ({
+  ...jest.requireActual('store/general/actions'),
+  setShowLoadingSpinner: jest.fn().mockImplementation(() => ({
+    type: '',
+    showSpinner: false,
+    loadingSpinnerMessage: '',
+  })),
+}));
 
 describe('AsyncPacketDownloadLink success', () => {
   it('success', async () => {
@@ -29,16 +21,15 @@ describe('AsyncPacketDownloadLink success', () => {
     const onErrorHandler = jest.fn();
     const expectedId = 'testID';
     const expectedLabel = 'test';
-    render(
-      <Provider store={mockStore.store}>
-        <AsyncPacketDownloadLink
-          id={expectedId}
-          label={expectedLabel}
-          asyncRetrieval={asyncRetrieval}
-          onSuccess={onSuccessHandler}
-          onFailure={onErrorHandler}
-        />
-      </Provider>,
+
+    renderWithProviders(
+      <AsyncPacketDownloadLink
+        id={expectedId}
+        label={expectedLabel}
+        asyncRetrieval={asyncRetrieval}
+        onSuccess={onSuccessHandler}
+        onFailure={onErrorHandler}
+      />,
     );
     expect(screen.getByText(expectedLabel, { exact: false })).toBeInTheDocument();
 
@@ -50,6 +41,7 @@ describe('AsyncPacketDownloadLink success', () => {
       expect(asyncRetrieval).toHaveBeenCalledTimes(1);
       expect(onSuccessHandler).toHaveBeenCalledTimes(1);
       expect(onErrorHandler).toHaveBeenCalledTimes(0);
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
     });
   });
 
@@ -59,17 +51,14 @@ describe('AsyncPacketDownloadLink success', () => {
     const onErrorHandler = jest.fn();
     const expectedId = 'testID';
     const expectedLabel = 'test';
-    render(
-      <Provider store={mockStore.store}>
-        <AsyncPacketDownloadLink
-          id={expectedId}
-          label={expectedLabel}
-          asyncRetrieval={asyncRetrieval}
-          onSucccess={onSuccessHandler}
-          onFailure={onErrorHandler}
-          setShowLoadingSpinner={setShowLoadingSpinner}
-        />
-      </Provider>,
+    renderWithProviders(
+      <AsyncPacketDownloadLink
+        id={expectedId}
+        label={expectedLabel}
+        asyncRetrieval={asyncRetrieval}
+        onSucccess={onSuccessHandler}
+        onFailure={onErrorHandler}
+      />,
     );
     expect(screen.getByText(expectedLabel, { exact: false })).toBeInTheDocument();
 
@@ -82,6 +71,7 @@ describe('AsyncPacketDownloadLink success', () => {
       expect(asyncRetrieval).toHaveBeenCalledWith(expectedId);
       expect(onSuccessHandler).toHaveBeenCalledTimes(0);
       expect(onErrorHandler).toHaveBeenCalledTimes(1);
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
     });
   });
 
