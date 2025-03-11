@@ -254,8 +254,9 @@ class MtoShipmentForm extends Component {
             }
           };
           const handleAddressToggleChange = (e) => {
-            if (e.target.name === 'hasSecondaryPickup') {
-              if (e.target.value === 'false') {
+            const { name, value } = e.target;
+            if (name === 'hasSecondaryPickup') {
+              if (value === 'false') {
                 setValues({
                   ...values,
                   hasSecondaryPickup: 'false',
@@ -263,7 +264,7 @@ class MtoShipmentForm extends Component {
                     blankAddress,
                   },
                 });
-              } else if (e.target.value === 'true') {
+              } else if (value === 'true') {
                 setValues({
                   ...values,
                   hasSecondaryPickup: 'true',
@@ -273,8 +274,8 @@ class MtoShipmentForm extends Component {
                 });
               }
             }
-            if (e.target.name === 'hasTertiaryPickup') {
-              if (e.target.value === 'false') {
+            if (name === 'hasTertiaryPickup') {
+              if (value === 'false') {
                 setValues({
                   ...values,
                   hasTertiaryPickup: 'false',
@@ -282,7 +283,7 @@ class MtoShipmentForm extends Component {
                     blankAddress,
                   },
                 });
-              } else if (e.target.value === 'true') {
+              } else if (value === 'true') {
                 setValues({
                   ...values,
                   hasTertiaryPickup: 'true',
@@ -292,28 +293,27 @@ class MtoShipmentForm extends Component {
                 });
               }
             }
-            if (e.target.name === 'hasDeliveryAddress') {
-              if (e.target.value === 'false') {
-                setValues({
-                  ...values,
-                  hasDeliveryAddress: 'false',
-                  delivery: {
-                    ...values.delivery,
-                    address: newDutyLocationAddress,
-                  },
-                });
-              } else if (e.target.value === 'true') {
-                setValues({
-                  ...values,
-                  hasDeliveryAddress: 'true',
-                  delivery: {
-                    ...values.delivery,
-                  },
-                });
-              }
-            }
-            if (e.target.name === 'hasSecondaryDelivery') {
-              if (e.target.value === 'false') {
+            // if (name === 'hasDeliveryAddress') {
+            //   if (value === 'false') {
+            //     setValues({
+            //       ...values,
+            //       hasDeliveryAddress: 'false',
+            //       delivery: {
+            //         address: undefined,
+            //       },
+            //     });
+            //   } else if (value === 'true') {
+            //     setValues({
+            //       ...values,
+            //       hasDeliveryAddress: 'true',
+            //       delivery: {
+            //         ...values.delivery,
+            //       },
+            //     });
+            //   }
+            // }
+            if (name === 'hasSecondaryDelivery') {
+              if (value === 'false') {
                 setValues({
                   ...values,
                   hasSecondaryDelivery: 'false',
@@ -321,7 +321,7 @@ class MtoShipmentForm extends Component {
                     blankAddress,
                   },
                 });
-              } else if (e.target.value === 'true') {
+              } else if (value === 'true') {
                 setValues({
                   ...values,
                   hasSecondaryDelivery: 'true',
@@ -331,8 +331,8 @@ class MtoShipmentForm extends Component {
                 });
               }
             }
-            if (e.target.name === 'hasTertiaryDelivery') {
-              if (e.target.value === 'false') {
+            if (name === 'hasTertiaryDelivery') {
+              if (value === 'false') {
                 setValues({
                   ...values,
                   hasTertiaryDelivery: 'false',
@@ -340,7 +340,7 @@ class MtoShipmentForm extends Component {
                     blankAddress,
                   },
                 });
-              } else if (e.target.value === 'true') {
+              } else if (value === 'true') {
                 setValues({
                   ...values,
                   hasTertiaryDelivery: 'true',
@@ -617,7 +617,7 @@ class MtoShipmentForm extends Component {
                                     value="true"
                                     title="Yes, I know my delivery address"
                                     checked={hasDeliveryAddress === 'true'}
-                                    onChange={handleAddressToggleChange}
+                                    // onChange={handleAddressToggleChange}
                                   />
                                   <Field
                                     as={Radio}
@@ -627,7 +627,7 @@ class MtoShipmentForm extends Component {
                                     value="false"
                                     title="No, I do not know my delivery address"
                                     checked={hasDeliveryAddress === 'false'}
-                                    onChange={handleAddressToggleChange}
+                                    // onChange={handleAddressToggleChange}
                                   />
                                 </div>
                               </FormGroup>

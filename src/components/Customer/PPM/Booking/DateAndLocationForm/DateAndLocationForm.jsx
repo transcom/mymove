@@ -202,8 +202,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
         };
 
         const handleAddressToggleChange = (e) => {
-          if (e.target.name === 'hasSecondaryPickupAddress') {
-            if (e.target.value === 'false') {
+          const { name, value } = e.target;
+          if (name === 'hasSecondaryPickupAddress') {
+            if (value === 'false') {
               setValues({
                 ...values,
                 hasSecondaryPickupAddress: 'false',
@@ -211,7 +212,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'true') {
+            } else if (value === 'true') {
               setValues({
                 ...values,
                 hasSecondaryPickupAddress: 'true',
@@ -221,8 +222,8 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
               });
             }
           }
-          if (e.target.name === 'hasTertiaryPickupAddress') {
-            if (e.target.value === 'false') {
+          if (name === 'hasTertiaryPickupAddress') {
+            if (value === 'false') {
               setValues({
                 ...values,
                 hasTertiaryPickupAddress: 'false',
@@ -230,7 +231,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'true') {
+            } else if (value === 'true') {
               setValues({
                 ...values,
                 hasTertiaryPickupAddress: 'true',
@@ -240,8 +241,8 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
               });
             }
           }
-          if (e.target.name === 'hasSecondaryDestinationAddress') {
-            if (e.target.value === 'false') {
+          if (name === 'hasSecondaryDestinationAddress') {
+            if (value === 'false') {
               setValues({
                 ...values,
                 hasSecondaryDestinationAddress: 'false',
@@ -249,7 +250,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'true') {
+            } else if (value === 'true') {
               setValues({
                 ...values,
                 hasSecondaryDestinationAddress: 'true',
@@ -259,8 +260,8 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
               });
             }
           }
-          if (e.target.name === 'hasTertiaryDestinationAddress') {
-            if (e.target.value === 'false') {
+          if (name === 'hasTertiaryDestinationAddress') {
+            if (value === 'false') {
               setValues({
                 ...values,
                 hasTertiaryDestinationAddress: 'false',
@@ -268,7 +269,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'true') {
+            } else if (value === 'true') {
               setValues({
                 ...values,
                 hasTertiaryDestinationAddress: 'true',

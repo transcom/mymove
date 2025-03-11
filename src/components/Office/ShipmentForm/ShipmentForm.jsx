@@ -776,8 +776,9 @@ const ShipmentForm = (props) => {
         };
 
         const handleAddressToggleChange = (e) => {
-          if (e.target.name === 'hasSecondaryPickup') {
-            if (e.target.value === 'false') {
+          const { name, value } = e.target;
+          if (name === 'hasSecondaryPickup') {
+            if (value === 'false') {
               setValues({
                 ...values,
                 hasSecondaryPickup: 'false',
@@ -785,7 +786,7 @@ const ShipmentForm = (props) => {
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'true') {
+            } else if (value === 'true') {
               setValues({
                 ...values,
                 hasSecondaryPickup: 'true',
@@ -795,8 +796,8 @@ const ShipmentForm = (props) => {
               });
             }
           }
-          if (e.target.name === 'hasTertiaryPickup') {
-            if (e.target.value === 'false') {
+          if (name === 'hasTertiaryPickup') {
+            if (value === 'false') {
               setValues({
                 ...values,
                 hasTertiaryPickup: 'false',
@@ -804,7 +805,7 @@ const ShipmentForm = (props) => {
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'true') {
+            } else if (value === 'true') {
               setValues({
                 ...values,
                 hasTertiaryPickup: 'true',
@@ -814,8 +815,8 @@ const ShipmentForm = (props) => {
               });
             }
           }
-          if (e.target.name === 'hasDeliveryAddress') {
-            if (e.target.value === 'false') {
+          if (name === 'hasDeliveryAddress') {
+            if (value === 'false') {
               setValues({
                 ...values,
                 hasDeliveryAddress: 'false',
@@ -823,7 +824,7 @@ const ShipmentForm = (props) => {
                   address: newDutyLocationAddress,
                 },
               });
-            } else if (e.target.value === 'true') {
+            } else if (value === 'true') {
               setValues({
                 ...values,
                 hasDeliveryAddress: 'true',
@@ -833,8 +834,8 @@ const ShipmentForm = (props) => {
               });
             }
           }
-          if (e.target.name === 'hasSecondaryDelivery') {
-            if (e.target.value === 'false') {
+          if (name === 'hasSecondaryDelivery') {
+            if (value === 'false') {
               setValues({
                 ...values,
                 hasSecondaryDelivery: 'false',
@@ -842,7 +843,7 @@ const ShipmentForm = (props) => {
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'true') {
+            } else if (value === 'true') {
               setValues({
                 ...values,
                 hasSecondaryDelivery: 'true',
@@ -852,8 +853,8 @@ const ShipmentForm = (props) => {
               });
             }
           }
-          if (e.target.name === 'hasTertiaryDelivery') {
-            if (e.target.value === 'false') {
+          if (name === 'hasTertiaryDelivery') {
+            if (value === 'false') {
               setValues({
                 ...values,
                 hasTertiaryDelivery: 'false',
@@ -861,7 +862,7 @@ const ShipmentForm = (props) => {
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'true') {
+            } else if (value === 'true') {
               setValues({
                 ...values,
                 hasTertiaryDelivery: 'true',
@@ -871,8 +872,8 @@ const ShipmentForm = (props) => {
               });
             }
           }
-          if (e.target.name === 'hasSecondaryDestination') {
-            if (e.target.value === 'false') {
+          if (name === 'hasSecondaryDestination') {
+            if (value === 'false') {
               setValues({
                 ...values,
                 hasSecondaryDestination: 'false',
@@ -880,7 +881,7 @@ const ShipmentForm = (props) => {
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'true') {
+            } else if (value === 'true') {
               setValues({
                 ...values,
                 hasSecondaryDestination: 'true',
@@ -890,8 +891,8 @@ const ShipmentForm = (props) => {
               });
             }
           }
-          if (e.target.name === 'hasTertiaryDestination') {
-            if (e.target.value === 'false') {
+          if (name === 'hasTertiaryDestination') {
+            if (value === 'false') {
               setValues({
                 ...values,
                 hasTertiaryDestination: 'false',
@@ -899,7 +900,7 @@ const ShipmentForm = (props) => {
                   blankAddress,
                 },
               });
-            } else if (e.target.value === 'true') {
+            } else if (value === 'true') {
               setValues({
                 ...values,
                 hasTertiaryDestination: 'true',
