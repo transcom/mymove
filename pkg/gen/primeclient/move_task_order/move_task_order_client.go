@@ -31,6 +31,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	AcknowledgeMovesAndShipments(params *AcknowledgeMovesAndShipmentsParams, opts ...ClientOption) (*AcknowledgeMovesAndShipmentsOK, error)
+
 	CreateExcessWeightRecord(params *CreateExcessWeightRecordParams, opts ...ClientOption) (*CreateExcessWeightRecordCreated, error)
 
 	DownloadMoveOrder(params *DownloadMoveOrderParams, writer io.Writer, opts ...ClientOption) (*DownloadMoveOrderOK, error)
@@ -42,6 +44,49 @@ type ClientService interface {
 	UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams, opts ...ClientOption) (*UpdateMTOPostCounselingInformationOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+	AcknowledgeMovesAndShipments acknowledges moves and shipments
+
+	### Functionality
+
+This endpoint **updates** the Moves and Shipments to indicate that the Prime has acknowledged the Moves and Shipments have been received.
+The Move and Shipment data is expected to be sent in the request body.
+*/
+func (a *Client) AcknowledgeMovesAndShipments(params *AcknowledgeMovesAndShipmentsParams, opts ...ClientOption) (*AcknowledgeMovesAndShipmentsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAcknowledgeMovesAndShipmentsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "acknowledgeMovesAndShipments",
+		Method:             "PATCH",
+		PathPattern:        "/move-task-orders/acknowledge",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &AcknowledgeMovesAndShipmentsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AcknowledgeMovesAndShipmentsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for acknowledgeMovesAndShipments: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
