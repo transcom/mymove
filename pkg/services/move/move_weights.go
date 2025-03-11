@@ -412,7 +412,7 @@ func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.R
 	var reweigh models.Reweigh
 	err := appCtx.DB().
 		Where("shipment_id = ?", shipmentID).
-		First(reweigh)
+		First(&reweigh)
 
 	if err != nil {
 		switch err {
