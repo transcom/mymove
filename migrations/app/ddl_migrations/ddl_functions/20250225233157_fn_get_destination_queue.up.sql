@@ -27,12 +27,12 @@ RETURNS TABLE (
     orders_id UUID,
     status TEXT,
     locked_by UUID,
-    too_assigned_id UUID,
+    too_destination_assigned_id UUID,
     counseling_transportation_office_id UUID,
     orders JSONB,
     mto_shipments JSONB,
     counseling_transportation_office JSONB,
-    too_assigned JSONB,
+    too_destination_assigned JSONB,
     total_count BIGINT
 ) AS $$
 DECLARE
@@ -60,7 +60,7 @@ BEGIN
             moves.orders_id AS orders_id,
             moves.status::TEXT AS status,
             moves.locked_by AS locked_by,
-            moves.too_assigned_id AS too_assigned_id,
+            moves.too_destination_assigned_id AS too_destination_assigned_id,
             moves.counseling_transportation_office_id AS counseling_transportation_office_id,
             json_build_object(
                 ''id'', orders.id,
@@ -103,8 +103,9 @@ BEGIN
             )::JSONB AS counseling_transportation_office,
             json_build_object(
                 ''first_name'', too_user.first_name,
-                ''last_name'', too_user.last_name
-            )::JSONB AS too_assigned,
+                ''last_name'', too_user.last_name,
+				''id'', too_user.id
+            )::JSONB AS too_destination_assigned,
             COUNT(*) OVER() AS total_count
         FROM moves
         JOIN orders ON moves.orders_id = orders.id
@@ -115,7 +116,7 @@ BEGIN
         JOIN service_members ON orders.service_member_id = service_members.id
         JOIN duty_locations AS new_duty_locations ON orders.new_duty_location_id = new_duty_locations.id
         JOIN duty_locations AS origin_duty_locations ON orders.origin_duty_location_id = origin_duty_locations.id
-        LEFT JOIN office_users AS too_user ON moves.too_assigned_id = too_user.id
+        LEFT JOIN office_users AS too_user ON moves.too_destination_assigned_id = too_user.id
         LEFT JOIN office_users AS locked_user ON moves.locked_by = locked_user.id
         LEFT JOIN transportation_offices AS counseling_offices
             ON moves.counseling_transportation_office_id = counseling_offices.id
@@ -234,7 +235,7 @@ BEGIN
             moves.orders_id,
             moves.status,
             moves.locked_by,
-            moves.too_assigned_id,
+            moves.too_destination_assigned_id,
             moves.counseling_transportation_office_id,
             mto_shipments.requested_pickup_date,
             mto_shipments.requested_delivery_date,
@@ -248,8 +249,8 @@ BEGIN
             service_members.affiliation,
             origin_duty_locations.name,
             counseling_offices.name,
-            too_user.first_name,
-            too_user.last_name';
+            too_user.last_name,
+			too_user.id';
     sql_query := sql_query || format(' ORDER BY %s %s ', sort_column, sort_order);
 	IF sort_column <> 'moves.locator' THEN
         sql_query := sql_query || ', moves.locator ASC ';

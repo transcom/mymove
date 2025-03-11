@@ -1093,12 +1093,12 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 
 		officeUserID := strfmt.UUID(officeUser.ID.String())
 		moveID := strfmt.UUID(move.ID.String())
-		roleType := string(roles.RoleTypeServicesCounselor)
+		queueType := string(models.QueueTypeCounseling)
 		params := moveops.UpdateAssignedOfficeUserParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.AssignOfficeUserBody{
 				OfficeUserID: &officeUserID,
-				RoleType:     &roleType,
+				QueueType:    &queueType,
 			},
 			MoveID: moveID,
 		}
@@ -1116,12 +1116,12 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 
 		officeUserID := strfmt.UUID(officeUser.ID.String())
 		moveID := strfmt.UUID(move.ID.String())
-		roleType := string(roles.RoleTypeTOO)
+		queueType := string(models.QueueTypeTaskOrder)
 		params := moveops.UpdateAssignedOfficeUserParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.AssignOfficeUserBody{
 				OfficeUserID: &officeUserID,
-				RoleType:     &roleType,
+				QueueType:    &queueType,
 			},
 			MoveID: moveID,
 		}
@@ -1139,12 +1139,12 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 
 		officeUserID := strfmt.UUID(officeUser.ID.String())
 		moveID := strfmt.UUID(move.ID.String())
-		roleType := string(roles.RoleTypeTIO)
+		queueType := string(models.QueueTypeCloseout)
 		params := moveops.UpdateAssignedOfficeUserParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.AssignOfficeUserBody{
 				OfficeUserID: &officeUserID,
-				RoleType:     &roleType,
+				QueueType:    &queueType,
 			},
 			MoveID: moveID,
 		}
@@ -1169,11 +1169,11 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		}
 
 		moveID := strfmt.UUID(move.ID.String())
-		roleType := string(roles.RoleTypeTIO)
+		queueType := string(models.QueueTypePaymentRequest)
 		params := moveops.DeleteAssignedOfficeUserParams{
 			HTTPRequest: req,
 			Body: moveops.DeleteAssignedOfficeUserBody{
-				RoleType: &roleType,
+				QueueType: &queueType,
 			},
 			MoveID: moveID,
 		}
