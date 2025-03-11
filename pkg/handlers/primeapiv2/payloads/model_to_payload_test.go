@@ -22,6 +22,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	ordersID, _ := uuid.NewV4()
 	referenceID := "testID"
 	primeTime := time.Now()
+	primeAcknowledgedAt := time.Now().AddDate(0, 0, -3)
 	submittedAt := time.Now()
 	excessWeightQualifiedAt := time.Now()
 	excessUnaccompaniedBaggageWeightQualifiedAt := time.Now()
@@ -77,6 +78,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		ShipmentGBLOC: models.MoveToGBLOCs{
 			models.MoveToGBLOC{GBLOC: &shipmentGBLOC},
 		},
+		PrimeAcknowledgedAt: &primeAcknowledgedAt,
 	}
 
 	suite.Run("Success - Returns a basic move payload with no payment requests, service items or shipments", func() {
@@ -107,6 +109,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Name, returnedModel.Order.Customer.BackupContact.Name)
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Phone, returnedModel.Order.Customer.BackupContact.Phone)
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Email, returnedModel.Order.Customer.BackupContact.Email)
+		suite.Equal(handlers.FmtDateTimePtr(basicMove.PrimeAcknowledgedAt), returnedModel.PrimeAcknowledgedAt)
 	})
 }
 
@@ -441,13 +444,20 @@ func (suite *PayloadsSuite) TestValidationError() {
 }
 
 func (suite *PayloadsSuite) TestMTOShipment() {
-	mtoShipment := &models.MTOShipment{}
-
-	mtoShipment.MTOServiceItems = nil
-	payload := MTOShipment(mtoShipment)
+	primeAcknowledgeAt := time.Now().AddDate(0, 0, -5)
+	legitMtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeAcknowledgedAt: &primeAcknowledgeAt,
+			},
+		},
+	}, nil)
+	payload := MTOShipment(&legitMtoShipment)
 	suite.NotNil(payload)
 	suite.Empty(payload.MtoServiceItems())
+	suite.Equal(handlers.FmtDateTimePtr(legitMtoShipment.PrimeAcknowledgedAt), payload.PrimeAcknowledgedAt)
 
+	mtoShipment := &models.MTOShipment{}
 	mtoShipment.MTOServiceItems = models.MTOServiceItems{
 		models.MTOServiceItem{},
 	}

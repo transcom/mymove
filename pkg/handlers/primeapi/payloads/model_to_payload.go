@@ -63,6 +63,7 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 		MtoShipments:                                   *mtoShipments,
 		UpdatedAt:                                      strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:                                           etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		PrimeAcknowledgedAt:                            handlers.FmtDateTimePtr(moveTaskOrder.PrimeAcknowledgedAt),
 	}
 
 	if moveTaskOrder.PPMType != nil {
@@ -626,6 +627,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessa
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
 		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
+		PrimeAcknowledgedAt:              handlers.FmtDateTimePtr(mtoShipment.PrimeAcknowledgedAt),
 	}
 
 	// Set up address payloads
