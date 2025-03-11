@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -824,9 +823,23 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		go startListener(mutualTLSServer, logger, true)
 	}
 
-	go func() {
-		log.Println(http.ListenAndServe(":6060", nil))
-	}()
+	pprofEnabled := v.GetBool(cli.PprofListenerFlag)
+	var pprofServer *http.Server
+
+	if pprofEnabled {
+		pprofServer = &http.Server{
+			Addr:              ":6060",
+			ReadHeaderTimeout: 3 * time.Second,
+		}
+
+		go func() {
+			logger.Info("Starting pprof listener")
+
+			if err := pprofServer.ListenAndServe(); err != http.ErrServerClosed {
+				logger.Info("Failed to start pprof listener", zap.Error(err))
+			}
+		}()
+	}
 
 	// make sure we flush any pending startup messages
 	loggerSync()
@@ -884,6 +897,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		wg.Add(1)
 		go func() {
 			shutdownErrors.Store(healthServer, healthServer.Shutdown(ctx))
+			wg.Done()
+		}()
+	}
+
+	if pprofEnabled {
+		wg.Add(1)
+		go func() {
+			shutdownErrors.Store(pprofServer, pprofServer.Shutdown(ctx))
 			wg.Done()
 		}()
 	}
