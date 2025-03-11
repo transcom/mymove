@@ -235,7 +235,7 @@ describe('BulkAssignmentModal', () => {
       expect(screen.getByText('User')).toBeInTheDocument();
       expect(screen.getByText('Current Workload')).toBeInTheDocument();
       expect(screen.getByText('Assignment')).toBeInTheDocument();
-      expect(screen.getByText('Re-assign User')).toBeInTheDocument();
+      expect(screen.getByText('Re-assign Workload')).toBeInTheDocument();
       expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
       expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
     });
@@ -275,7 +275,7 @@ describe('BulkAssignmentModal', () => {
       expect(screen.getByText('User')).toBeInTheDocument();
       expect(screen.getByText('Current Workload')).toBeInTheDocument();
       expect(screen.getByText('Assignment')).toBeInTheDocument();
-      expect(screen.getByText('Re-assign User')).toBeInTheDocument();
+      expect(screen.getByText('Re-assign Workload')).toBeInTheDocument();
       expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
       expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
     });

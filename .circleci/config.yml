@@ -902,7 +902,6 @@ commands:
             export FEATURE_FLAG_ENABLE_ALASKA=false
             export FEATURE_FLAG_ENABLE_HAWAII=false
             export FEATURE_FLAG_BULK_ASSIGNMENT=false
-            export FEATURE_FLAG_BULK_RE_ASSIGNMENT=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false

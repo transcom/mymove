@@ -239,6 +239,7 @@ export const FEATURE_FLAG_KEYS = {
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
   ENABLE_ALASKA: 'enable_alaska',
   BULK_ASSIGNMENT: 'bulk_assignment',
+  BULK_RE_ASSIGNMENT: 'bulk_re_assignment',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
