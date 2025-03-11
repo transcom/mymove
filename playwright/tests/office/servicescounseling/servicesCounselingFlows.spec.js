@@ -9,6 +9,7 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
+const completePPMCloseoutForCustomerEnabled = process.env.FEATURE_FLAG_COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER;
 const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
 const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
@@ -547,6 +548,45 @@ test.describe('Services counselor user', () => {
       fullPpmMoveLocator = fullPpmMove.locator;
       await scPage.searchForCloseoutMove(fullPpmMoveLocator);
       await expect(page.getByTestId('ppmType-0')).toContainText('Full');
+    });
+
+    test.describe('Complete PPM closeout on behalf of customer', () => {
+      test.skip(completePPMCloseoutForCustomerEnabled === 'false', 'Skip if FF is disabled.');
+      test('can complete PPM About page', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildApprovedMoveWithPPM();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByRole('button', { name: /Complete PPM on behalf of the Customer/i })).toBeVisible();
+        await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+        // fill out About PPM page
+        await expect(page.getByRole('heading', { name: 'About your PPM' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'How to complete your PPM' })).toBeVisible();
+        await scPage.fillOutAboutPage();
+
+        await expect(page.getByRole('heading', { name: 'How to complete your PPM' })).not.toBeVisible();
+      });
+
+      test('can navigate to PPM review page and edit About PPM page', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByRole('button', { name: /Complete PPM on behalf of the Customer/i })).toBeVisible();
+        await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+        // Review page
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Documents' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Weight moved' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Pro-gear' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Expenses' })).toBeVisible();
+
+        // Edit About PPM page
+        await page.locator('[data-testid="aboutYourPPM"] a').getByText('Edit').click();
+        await expect(page.getByRole('heading', { name: 'About your PPM' })).toBeVisible();
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+      });
     });
   });
 
