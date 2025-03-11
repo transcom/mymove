@@ -117,6 +117,7 @@ func ListMove(move *models.Move, appCtx appcontext.AppContext, moveOrderAmendmen
 			Total:          handlers.FmtInt64(0),
 			AvailableSince: handlers.FmtInt64(0),
 		},
+		PrimeAcknowledgedAt: handlers.FmtDateTimePtr(move.PrimeAcknowledgedAt),
 	}
 
 	if move.PPMType != nil {

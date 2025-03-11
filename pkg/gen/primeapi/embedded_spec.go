@@ -2105,6 +2105,12 @@ func init() {
             "PARTIAL"
           ]
         },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "referenceId": {
           "type": "string",
           "example": "1001-3456"
@@ -7762,6 +7768,12 @@ func init() {
             "FULL",
             "PARTIAL"
           ]
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "referenceId": {
           "type": "string",
