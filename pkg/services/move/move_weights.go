@@ -289,10 +289,9 @@ func (w moveWeights) getAutoReweighShipments(appCtx appcontext.AppContext, move 
 	totalActualWeight := 0
 	totalEstimatedWeight := 0
 	for i := range move.MTOShipments {
-		currentShipmentReweigh, err := fetchReweigh(appCtx, move.MTOShipments[i].ID)
 		if err != nil {
 			return nil, err
-		} else if currentShipmentReweigh != nil { // Should only trigger reweights once, skip if one already exists
+		} else if move.MTOShipments[i].Reweigh != nil { // Should only trigger reweights once, skip if one already exists
 			continue
 		}
 		if move.MTOShipments[i].ShipmentType != models.MTOShipmentTypePPM &&
@@ -336,7 +335,7 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 	}
 
 	var move models.Move
-	err := appCtx.DB().Eager("MTOShipments", "Orders", "Orders.Entitlement", "MTOShipments.ShipmentType", "MTOShipments.Status", "MTOShipments.DeletedAt", "MTOShipments.PrimeActualWeight", "MTOShipments.PrimeEstimatedWeight").Find(&move, moveID)
+	err := appCtx.DB().EagerPreload("MTOShipments", "Orders", "Orders.Entitlement", "MTOShipments.Reweigh", "MTOShipments.ShipmentType", "MTOShipments.Status", "MTOShipments.DeletedAt", "MTOShipments.PrimeActualWeight", "MTOShipments.PrimeEstimatedWeight").Find(&move, moveID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -371,22 +370,4 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 	}
 
 	return autoReweighShipments, nil
-}
-
-// fetchReweigh retrieves a reweigh for a given shipment id
-func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error) {
-	var reweigh models.Reweigh
-	err := appCtx.DB().
-		Where("shipment_id = ?", shipmentID).
-		First(&reweigh)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, nil // Not an error, expected to receive no results if no reweigh
-		default:
-			return nil, apperror.NewQueryError("Reweigh", err, "")
-		}
-	}
-	return &reweigh, nil
 }
