@@ -1159,7 +1159,7 @@ const ShipmentForm = (props) => {
                                 <>
                                   <h4>Third Delivery Address</h4>
                                   <FormGroup>
-                                    <p>Do you want the movers to deliver any belongings from a third address?</p>
+                                    <p>Do you want the movers to deliver any belongings to a third address?</p>
                                     <div className={formStyles.radioGroup}>
                                       <Field
                                         as={Radio}
@@ -1334,9 +1334,7 @@ const ShipmentForm = (props) => {
                                         <>
                                           <h4>Third Delivery Address</h4>
                                           <FormGroup>
-                                            <p>
-                                              Do you want the movers to deliver any belongings from a third address?
-                                            </p>
+                                            <p>Do you want the movers to deliver any belongings to a third address?</p>
                                             <div className={formStyles.radioGroup}>
                                               <Field
                                                 as={Radio}
