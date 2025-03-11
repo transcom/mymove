@@ -296,9 +296,6 @@ export function formatMtoShipmentForDisplay({
 export function formatPpmShipmentForAPI(formValues) {
   let ppmShipmentValues = {
     ppmType: formValues.ppmType,
-    expectedDepartureDate: formatDateForSwagger(formValues.expectedDepartureDate),
-    pickupAddress: formatAddressForAPI(formValues.pickup.address),
-    destinationAddress: formatAddressForAPI(formValues.destination.address),
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
@@ -309,6 +306,7 @@ export function formatPpmShipmentForAPI(formValues) {
     hasTertiaryPickupAddress: formValues.hasTertiaryPickup === 'true',
     hasTertiaryDestinationAddress: formValues.hasTertiaryDestination === 'true',
     isActualExpenseReimbursement: formValues.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
+    closeoutOfficeID: formValues.closeoutOffice?.id,
   };
 
   if (formValues.expectedDepartureDate !== undefined)
