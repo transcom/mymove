@@ -96,33 +96,34 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uu
 				return verrs
 			}
 
-			apiKey := models.GetOktaAPIKey()
-			oktaID := existingUser.OktaID
-			req := appCtx.Session().HTTPRequest
-			if req == nil {
-				return fmt.Errorf("failed to retrieve HTTP request from session")
-			}
+			if existingUser.OktaID != "" {
+				apiKey := models.GetOktaAPIKey()
+				oktaID := existingUser.OktaID
+				req := appCtx.Session().HTTPRequest
+				if req == nil {
+					return fmt.Errorf("failed to retrieve HTTP request from session")
+				}
 
-			// Use the HTTP request to get the Okta provider
-			provider, err := okta.GetOktaProviderForRequest(req)
-			if err != nil {
-				return fmt.Errorf("error retrieving Okta provider: %w", err)
-			}
+				provider, err := okta.GetOktaProviderForRequest(req)
+				if err != nil {
+					return fmt.Errorf("error retrieving Okta provider: %w", err)
+				}
 
-			// verifying the okta user exists but we also need all the okta profile info prior to updating
-			existingOktaUser, err := models.GetOktaUser(appCtx, provider, oktaID, apiKey)
-			if err != nil {
-				return fmt.Errorf("error getting Okta user prior to updating: %w", err)
-			}
-			if existingOktaUser == nil {
-				return fmt.Errorf("okta user cannot be nil before updating okta email of office user")
-			}
-			existingOktaUser.Profile.Email = existingUser.OktaEmail
-			existingOktaUser.Profile.Login = existingUser.OktaEmail
+				// verifying the okta user exists but we also need all the okta profile info prior to updating
+				existingOktaUser, err := models.GetOktaUser(appCtx, provider, oktaID, apiKey)
+				if err != nil {
+					return fmt.Errorf("error getting Okta user prior to updating: %w", err)
+				}
+				if existingOktaUser == nil {
+					return fmt.Errorf("okta user cannot be nil before updating okta email of office user")
+				}
+				existingOktaUser.Profile.Email = existingUser.OktaEmail
+				existingOktaUser.Profile.Login = existingUser.OktaEmail
 
-			_, err = models.UpdateOktaUser(appCtx, provider, oktaID, apiKey, *existingOktaUser)
-			if err != nil {
-				return err
+				_, err = models.UpdateOktaUser(appCtx, provider, oktaID, apiKey, *existingOktaUser)
+				if err != nil {
+					return err
+				}
 			}
 		}
 		return nil

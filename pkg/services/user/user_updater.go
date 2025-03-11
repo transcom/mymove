@@ -108,12 +108,11 @@ func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, use
 		}
 
 		// if the user email is being updated, we need to also update the Okta profile
-		if updatingEmail {
+		if updatingEmail && foundUser.OktaEmail != "" {
 			req := appCtx.Session().HTTPRequest
 			if req == nil {
 				return fmt.Errorf("failed to retrieve HTTP request from session")
 			}
-
 			provider, err := okta.GetOktaProviderForRequest(req)
 			if err != nil {
 				return fmt.Errorf("error retrieving Okta provider: %w", err)
