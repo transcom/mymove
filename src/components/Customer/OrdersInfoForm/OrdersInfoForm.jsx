@@ -496,7 +496,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                       lazy={false}
                       labelHint="Optional"
                       label={
-                        <>
+                        <span className={styles.labelwithToolTip}>
                           If your orders specify a specific UB weight allowance, enter it here.
                           <ToolTip
                             text="If you do not specify a UB weight allowance, the default of  0 lbs will be used."
@@ -506,7 +506,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                             data-testid="civilianTDYUBAllowanceToolTip"
                             closeOnLeave
                           />
-                        </>
+                        </span>
                       }
                     />
                   </div>
