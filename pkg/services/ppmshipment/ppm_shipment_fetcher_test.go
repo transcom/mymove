@@ -819,6 +819,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 }
 
 func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
+	fetcher := NewPPMShipmentFetcher()
 	suite.Run("FindPPMShipmentWithDocument - document belongs to weight ticket", func() {
 		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
@@ -1132,5 +1133,65 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		suite.Len(actualShipment.WeightTickets, 1)
 		suite.Len(actualShipment.ProgearWeightTickets, 1)
 		suite.Len(actualShipment.MovingExpenses, 1)
+	})
+
+	suite.Run("GetPPMShipment filters rejected weight tickets", func() {
+		ppmShipment := factory.BuildPPMShipmentWithAllDocTypesApproved(suite.DB(), nil)
+		rejectedStatus := models.PPMDocumentStatusRejected
+		rejectedWeightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model: models.WeightTicket{
+					Status: &rejectedStatus,
+				},
+			},
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		result, err := fetcher.GetPPMShipment(
+			suite.AppContextForTest(),
+			ppmShipment.ID,
+			nil,
+			nil,
+		)
+
+		suite.NoError(err)
+		suite.NotNil(result)
+		for _, wt := range result.WeightTickets {
+			suite.NotEqual(rejectedWeightTicket.ID, wt.ID)
+			suite.NotEqual(models.PPMDocumentStatusRejected, *wt.Status)
+		}
+	})
+	suite.Run("GetPPMShipment filters rejected moving expenses", func() {
+		ppmShipment := factory.BuildPPMShipmentWithAllDocTypesApproved(suite.DB(), nil)
+
+		rejectedStatus := models.PPMDocumentStatusRejected
+		rejectedMovingExpense := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model: models.MovingExpense{
+					Status: &rejectedStatus,
+				},
+			},
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		result, err := fetcher.GetPPMShipment(
+			suite.AppContextForTest(),
+			ppmShipment.ID,
+			nil,
+			nil,
+		)
+
+		suite.NoError(err)
+		suite.NotNil(result)
+		for _, exp := range result.MovingExpenses {
+			suite.NotEqual(rejectedMovingExpense.ID, exp.ID)
+			suite.NotEqual(models.PPMDocumentStatusRejected, *exp.Status)
+		}
 	})
 }
