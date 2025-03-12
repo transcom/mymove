@@ -2401,7 +2401,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 
 			// if the assigned user is not in the returned list of available users append them to the end
-			if activeRole == string(roles.RoleTypeTOO) || activeRole == string(roles.RoleTypeServicesCounselor) {
+			if (activeRole == string(roles.RoleTypeTOO) || activeRole == string(roles.RoleTypeServicesCounselor)) && (move.TOOAssignedUser != nil || move.SCAssignedUser != nil) {
 				var assignedUser *models.OfficeUser
 				var assignedID *uuid.UUID
 
@@ -2414,17 +2414,15 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 					assignedID = move.SCAssignedID
 				}
 
-				if assignedUser != nil {
-					userFound := false
-					for _, officeUser := range availableOfficeUsers {
-						if assignedID != nil && officeUser.ID == *assignedID {
-							userFound = true
-							break
-						}
+				userFound := false
+				for _, officeUser := range availableOfficeUsers {
+					if assignedID != nil && officeUser.ID == *assignedID {
+						userFound = true
+						break
 					}
-					if !userFound {
-						availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
-					}
+				}
+				if !userFound {
+					availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
 				}
 			}
 			if activeRole == string(roles.RoleTypeServicesCounselor) {
