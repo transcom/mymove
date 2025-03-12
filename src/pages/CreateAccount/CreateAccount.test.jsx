@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import SignUp from './SignUp';
+import CreateAccount from './CreateAccount';
 
 import { MockProviders } from 'testUtils';
 
@@ -14,11 +14,11 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-describe('SignUp Component', () => {
+describe('CreateAccount Component', () => {
   const renderComponent = () =>
     render(
       <MockProviders>
-        <SignUp setShowLoadingSpinner={dummySetShowLoadingSpinner} />
+        <CreateAccount setShowLoadingSpinner={dummySetShowLoadingSpinner} />
       </MockProviders>,
     );
 

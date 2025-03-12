@@ -819,6 +819,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 }
 
 func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
+	fetcher := NewPPMShipmentFetcher()
 	suite.Run("FindPPMShipmentWithDocument - document belongs to weight ticket", func() {
 		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
 
@@ -1136,7 +1137,6 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 
 	suite.Run("GetPPMShipment filters rejected weight tickets", func() {
 		ppmShipment := factory.BuildPPMShipmentWithAllDocTypesApproved(suite.DB(), nil)
-
 		rejectedStatus := models.PPMDocumentStatusRejected
 		rejectedWeightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
 			{
@@ -1150,9 +1150,11 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 			},
 		}, nil)
 
-		result, err := FindPPMShipmentByMTOID(
+		result, err := fetcher.GetPPMShipment(
 			suite.AppContextForTest(),
 			ppmShipment.ID,
+			nil,
+			nil,
 		)
 
 		suite.NoError(err)
@@ -1178,9 +1180,11 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 			},
 		}, nil)
 
-		result, err := FindPPMShipmentByMTOID(
+		result, err := fetcher.GetPPMShipment(
 			suite.AppContextForTest(),
 			ppmShipment.ID,
+			nil,
+			nil,
 		)
 
 		suite.NoError(err)
