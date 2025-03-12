@@ -832,7 +832,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		pprofEnabled = false
 	}
 
-	// only use pprof in a dev or test environment and never in prod
+	// only use pprof in a dev environment and never in prod
 	if pprofEnabled && dbEnv == "development" {
 		pprofServer = &http.Server{
 			Addr:              ":6060",
