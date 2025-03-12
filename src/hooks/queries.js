@@ -632,7 +632,11 @@ export const useDestinationRequestsQueueQueries = ({
   viewAsGBLOC,
   activeRole,
 }) => {
-  const { data = {}, ...movesQueueQuery } = useQuery(
+  const {
+    refetch,
+    data = {},
+    ...movesQueueQuery
+  } = useQuery(
     [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getDestinationRequestsQueue(...queryKey),
   );
@@ -643,6 +647,7 @@ export const useDestinationRequestsQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
