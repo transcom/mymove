@@ -145,11 +145,19 @@ BEGIN
 			        WHERE id = service_item.id;
                 END IF;
 
-            WHEN service_code IN (''IOASIT'') THEN
+            WHEN service_code IN (''IOASIT'', ''IDASIT'') THEN
                 contract_id := get_contract_id(shipment.requested_pickup_date);
-                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
-                days_in_sit := (SELECT (service_item.sit_departure_date::date - (service_item.sit_entry_date::date + 1)) as days);
+
+                IF service_code = ''IOASIT'' THEN
+                    o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
+                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                ELSE
+                    d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
+                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                END IF;
+
+                days_in_sit := (SELECT (service_item.sit_departure_date::date - (service_item.sit_entry_date::date)) as days);
+                RAISE NOTICE ''days_in_sit = % (sit_departure_date: % - sit_entry_date: %)'', days_in_sit, service_item.sit_departure_date, service_item.sit_entry_date;
 
                 IF escalated_price IS NOT NULL AND days_in_sit IS NOT NULL AND days_in_sit >= 0 THEN
                     RAISE NOTICE ''escalated_price = $% cents'', escalated_price;
@@ -164,24 +172,6 @@ BEGIN
 			        WHERE id = service_item.id;
                 END IF;
 
-            WHEN service_code IN (''IDASIT'') THEN
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
-                days_in_sit := (SELECT (service_item.sit_departure_date::date - (service_item.sit_entry_date::date + 1)) as days);
-
-                IF escalated_price IS NOT NULL AND days_in_sit IS NOT NULL AND days_in_sit >= 0 THEN
-                    RAISE NOTICE ''escalated_price = $% cents'', escalated_price;
-
-                    -- multiply by 110% of estimated weight
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100) * days_in_sit, 2) * 100;
-                    RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100) * %) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight, days_in_sit;
-
-                    -- update the pricing_estimate value in mto_service_items
-			        UPDATE mto_service_items
-			        SET pricing_estimate = estimated_price
-			        WHERE id = service_item.id;
-                END IF;
             ELSE
                 -- DEFAULT HERE
         END CASE;
