@@ -41,22 +41,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
     fetchData();
   }, []);
 
-  const handleRadioChange = (index) => {
-    setSelectedRadio(index);
-
-    setSelectedUsers((prev) => ({
-      ...prev,
-      [index]: false,
-    }));
-
-    if (isBulkReAssignmentMode) {
-      const reAssignableMoves = bulkAssignmentData.availableOfficeUsers.find(
-        (user) => user.officeUserId === index,
-      ).workload;
-      setNumberOfMoves(reAssignableMoves);
-    }
-  };
-
   const handleCheckboxChange = (userId) => {
     setSelectedUsers((prev) => ({
       ...prev,
@@ -145,6 +129,29 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
           initialValues={initialValues}
         >
           {({ handleChange, setValues, values }) => {
+            const handleRadioChange = (index) => {
+              setSelectedRadio(index);
+
+              setSelectedUsers((prev) => ({
+                ...prev,
+                [index]: false,
+              }));
+
+              if (isBulkReAssignmentMode) {
+                const reAssignableMoves = bulkAssignmentData.availableOfficeUsers.find(
+                  (user) => user.officeUserId === index,
+                ).workload;
+                setNumberOfMoves(reAssignableMoves);
+
+                // need to reset assignment entries between form mode changes
+                const newValues = { ...initialValues };
+                newValues.userData.find((u) => u.ID === selectedRadio).moveAssignments = 0;
+                setValues({
+                  ...values,
+                  ...newValues,
+                });
+              }
+            };
             const handleAssignmentModeChange = (event) => {
               setIsBulkReAssignmentMode(event.target.checked);
               if (event.target.checked && selectedRadio != null) {
@@ -275,7 +282,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                               id={user.officeUserId}
                               data-testid="assignment"
                               min={0}
-                              max={setMaxForEditBox(user.officeUserId)}
                               value={values.userData[i]?.moveAssignments || 0}
                               disabled={
                                 selectedRadio === user.officeUserId || (isBulkReAssignmentMode && selectedRadio == null)
