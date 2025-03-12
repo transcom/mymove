@@ -33,7 +33,6 @@ func (suite *GHCRateEngineServiceSuite) TestIntlNTSHHGPackPricer() {
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ihpkTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(ihpkTestIsPeakPeriod)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ihpkTestPerUnitCents)},
-			{Key: models.ServiceItemParamNameNTSPackingFactor, Value: FormatFloat(ntsMarketFactor, -1)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})

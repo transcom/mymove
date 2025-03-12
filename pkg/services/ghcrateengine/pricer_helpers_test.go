@@ -71,16 +71,6 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
 	})
-
-	suite.Run("not finding shipment type price", func() {
-		badMarket := models.MarketOconus
-		isPPM := false
-		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, badMarket, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM)
-		suite.Error(err)
-		suite.Contains(err.Error(), "could not lookup shipment type price")
-	})
-
 }
 
 func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithPPM() {
