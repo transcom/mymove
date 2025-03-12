@@ -69,7 +69,6 @@ const exporter = async (data) => {
 
 // Overriding the default toolbar
 const ListActions = () => {
-  // return <TopToolbar />;
   const { total, resource, sort, filterValues } = useListController();
 
   return (
