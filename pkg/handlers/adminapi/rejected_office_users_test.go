@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		}
 	})
 
-	suite.Run("able to search by name & email", func() {
+	suite.Run("able to search by name and filter", func() {
 		status := models.OfficeUserStatusREJECTED
 		rejectionReason := "Test rejection Reason"
 		rejectedOn := time.Date(2025, 03, 05, 1, 1, 1, 1, time.Local)
