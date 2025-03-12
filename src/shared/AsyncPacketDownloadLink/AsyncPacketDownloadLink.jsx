@@ -45,6 +45,7 @@ export const onPacketDownloadSuccessHandler = (response) => {
  * @param {func} onSuccess on success response handler
  * @param {func} onFailure on failure response handler
  * @param {func} setShowLoadingSpinner used for loading spinner mask
+ * @param {string} loadingMessage used for setting the loading message on spinner mask
  */
 const AsyncPacketDownloadLink = ({
   id,
@@ -54,11 +55,12 @@ const AsyncPacketDownloadLink = ({
   onFailure,
   className,
   setShowLoadingSpinner,
+  loadingMessage,
 }) => {
   const dataTestId = `asyncPacketDownloadLink${id}`;
 
   const handleClick = () => {
-    setShowLoadingSpinner(true, 'downloading');
+    setShowLoadingSpinner(true, loadingMessage);
     asyncRetrieval(id)
       .then((response) => {
         onSuccess(response);
@@ -89,12 +91,14 @@ AsyncPacketDownloadLink.propTypes = {
   onFailure: PropTypes.func.isRequired,
   className: PropTypes.string,
   setShowLoadingSpinner: PropTypes.func,
+  loadingMessage: PropTypes.string,
 };
 
 AsyncPacketDownloadLink.defaultProps = {
   onSuccess: onPacketDownloadSuccessHandler,
   onFailure: () => {},
   setShowLoadingSpinner: () => {},
+  loadingMessage: null,
 };
 
 const mapDispatchToProps = {

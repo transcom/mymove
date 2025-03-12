@@ -8,9 +8,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatAddressShort } from 'utils/formatters';
-import AsyncPacketDownloadLink, {
-  onPacketDownloadSuccessHandler,
-} from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
 import { isFeedbackAvailable } from 'constants/ppmFeedback';
 
@@ -96,10 +94,6 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
     ppmShipment: { status, approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress },
   } = shipment;
 
-  const handleDownloadSuccess = (response) => {
-    onPacketDownloadSuccessHandler(response);
-  };
-
   const handleDownloadFailure = () => {
     onDownloadError();
   };
@@ -138,9 +132,9 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
               id={shipment?.ppmShipment?.id}
               label="Download Payment Packet"
               asyncRetrieval={downloadPPMPaymentPacket}
-              onSuccess={handleDownloadSuccess}
               onFailure={handleDownloadFailure}
               className="styles.btn"
+              loadingMessage="Downloading Payment Packet (PDF)..."
             />
           </div>,
         ]
@@ -149,9 +143,9 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
           id={shipment?.ppmShipment?.id}
           label="Download Payment Packet"
           asyncRetrieval={downloadPPMPaymentPacket}
-          onSuccess={handleDownloadSuccess}
           onFailure={handleDownloadFailure}
           className="styles.btn"
+          loadingMessage="Downloading Payment Packet (PDF)..."
         />
       );
 
