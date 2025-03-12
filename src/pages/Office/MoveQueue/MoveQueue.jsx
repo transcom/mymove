@@ -36,7 +36,13 @@ import { handleQueueAssignment, getQueue } from 'utils/queues';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
-export const columns = (moveLockFlag, isQueueManagementEnabled, setRefetchQueue, showBranchFilter = true) => {
+export const columns = (
+  moveLockFlag,
+  isQueueManagementEnabled,
+  queueType,
+  setRefetchQueue,
+  showBranchFilter = true,
+) => {
   const cols = [
     createHeader('ID', 'id', { id: 'id' }),
     createHeader(
@@ -170,7 +176,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, setRefetchQueue,
               <Dropdown
                 key={row.id}
                 onChange={(e) => {
-                  handleQueueAssignment(row.id, e.target.value, getQueue(setRefetchQueue));
+                  handleQueueAssignment(row.id, e.target.value, getQueue(queueType));
                   setRefetchQueue(true);
                 }}
                 title="Assigned dropdown"

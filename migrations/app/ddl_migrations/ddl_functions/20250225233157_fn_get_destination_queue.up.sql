@@ -1,6 +1,8 @@
 -- B-22294 - Alex Lusk - Migrating get_destination_queue function to ddl_migrations
 -- database function that returns a list of moves that have destination requests
 -- this includes shipment address update requests, destination SIT, & destination shuttle
+-- B-21824 - Samay Sofo replaced too_assigned_id with too_destination_assigned_id for destination assigned queue
+DROP FUNCTION IF EXISTS get_destination_queue;
 CREATE OR REPLACE FUNCTION get_destination_queue(
     user_gbloc TEXT DEFAULT NULL,
     customer_name TEXT DEFAULT NULL,

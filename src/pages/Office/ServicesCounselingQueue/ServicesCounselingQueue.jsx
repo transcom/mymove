@@ -59,6 +59,7 @@ export const counselingColumns = (
   moveLockFlag,
   originLocationList,
   supervisor,
+  queueType,
   isQueueManagementEnabled,
   setRefetchQueue,
 ) => {
@@ -214,7 +215,7 @@ export const counselingColumns = (
               <Dropdown
                 key={row.id}
                 onChange={(e) => {
-                  handleQueueAssignment(row.id, e.target.value, getQueue(setRefetchQueue));
+                  handleQueueAssignment(row.id, e.target.value, getQueue(queueType));
                   setRefetchQueue(true);
                 }}
                 title="Assigned dropdown"
@@ -250,6 +251,7 @@ export const closeoutColumns = (
   ppmCloseoutGBLOC,
   ppmCloseoutOriginLocationList,
   supervisor,
+  queueType,
   isQueueManagementEnabled,
   setRefetchQueue,
 ) => {
@@ -418,7 +420,7 @@ export const closeoutColumns = (
             <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
               <Dropdown
                 onChange={(e) => {
-                  handleQueueAssignment(row.id, e.target.value, getQueue(setRefetchQueue));
+                  handleQueueAssignment(row.id, e.target.value, getQueue(queueType));
                   setRefetchQueue(true);
                 }}
                 title="Assigned dropdown"
