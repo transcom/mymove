@@ -4180,7 +4180,7 @@ func init() {
           "example": true
         },
         "civilian_tdy_ub_allowance": {
-          "description": "The amount of weight in pounds set by the customer or counselor for a civilian TDY move is entitled to for shipment types of Unaccompanied Baggage.",
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
           "type": "integer",
           "x-nullable": true,
           "example": 3
@@ -13347,7 +13347,7 @@ func init() {
           "example": true
         },
         "civilian_tdy_ub_allowance": {
-          "description": "The amount of weight in pounds set by the customer or counselor for a civilian TDY move is entitled to for shipment types of Unaccompanied Baggage.",
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
           "type": "integer",
           "x-nullable": true,
           "example": 3
