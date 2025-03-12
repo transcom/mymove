@@ -233,7 +233,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
           setPrevOrderType(value);
         };
 
-        // Conditionally set the civilian TDY UB allowance warning message based on entered weight weight being in the 351 to 2000 lb range
+        // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
         const showcivilianTDYUBAllowanceWarning =
           values.civilian_tdy_ub_allowance > 350 && values.civilian_tdy_ub_allowance <= 2000;
 
