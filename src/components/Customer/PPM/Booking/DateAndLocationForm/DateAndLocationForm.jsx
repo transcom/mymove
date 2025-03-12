@@ -316,6 +316,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             title="Yes, I have a second pickup address"
                             checked={values.hasSecondaryPickupAddress === 'true'}
                             disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
+                            onChange={handleAddressToggleChange}
                           />
                           <Field
                             as={Radio}
@@ -327,6 +328,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             title="No, I do not have a second pickup address"
                             checked={values.hasSecondaryPickupAddress === 'false'}
                             disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
+                            onChange={handleAddressToggleChange}
                           />
                         </Fieldset>
                       </FormGroup>
