@@ -674,41 +674,49 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		tollExpense := models.MovingExpenseReceiptTypeTolls
 		oilExpense := models.MovingExpenseReceiptTypeOil
 		amount := unit.Cents(10000)
+		statusApproved := models.PPMDocumentStatusApproved
 		movingExpenses := models.MovingExpenses{
 			{
 				MovingExpenseType: &tollExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCFalse,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &oilExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCFalse,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &oilExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCTrue,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &oilExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCFalse,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &tollExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCTrue,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &tollExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCTrue,
+				Status:            &statusApproved,
 			},
 			{
 				MovingExpenseType: &tollExpense,
 				Amount:            &amount,
 				PaidWithGTCC:      &paidWithGTCCFalse,
+				Status:            &statusApproved,
 			},
 		}
 

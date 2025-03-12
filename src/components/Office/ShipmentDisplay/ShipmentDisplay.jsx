@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import { Checkbox, Tag } from '@trussworks/react-uswds';
+import { Checkbox, Tag, Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
@@ -32,6 +32,7 @@ const ShipmentDisplay = ({
   allowApproval,
   editURL,
   reviewURL,
+  completePpmForCustomerURL,
   viewURL,
   ordersLOA,
   warnIfMissing,
@@ -46,6 +47,7 @@ const ShipmentDisplay = ({
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
   const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
+  const [enableCompletePPMCloseoutForCustomer, setEnableCompletePPMCloseoutForCustomer] = useState(false);
   const [ppmSprFF, setPpmSprFF] = useState(false);
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
@@ -66,6 +68,15 @@ const ShipmentDisplay = ({
 
   const errorModalMessage =
     "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableCompletePPMCloseoutForCustomer(
+        await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER),
+      );
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -174,6 +185,19 @@ const ShipmentDisplay = ({
               secondary
               disabled={isMoveLocked}
             />
+          )}
+          {completePpmForCustomerURL && enableCompletePPMCloseoutForCustomer && (
+            <Button
+              onClick={() => {
+                navigate(completePpmForCustomerURL);
+              }}
+              className={styles.editButton}
+              data-testid="completePpmForCustomerBtn"
+              secondary
+              disabled={isMoveLocked}
+            >
+              Complete PPM on behalf of the Customer
+            </Button>
           )}
         </Restricted>
         {viewURL && (
