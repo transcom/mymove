@@ -89,12 +89,5 @@ func (p *intlNTSHHGPackPricer) PriceUsingParams(
 	// Now we multiply the IHPK base price by the NTS factor
 	finalPrice := unit.Cents(math.Round(float64(basePrice) * factor))
 
-	// Append the factor to the params
-	factorParam := services.PricingDisplayParam{
-		Key:   models.ServiceItemParamNameNTSPackingFactor,
-		Value: FormatFloat(factor, -1),
-	}
-	displayParams = append(displayParams, factorParam)
-
 	return finalPrice, displayParams, nil
 }
