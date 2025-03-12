@@ -487,6 +487,8 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		SubmittedAmount:      handlers.FmtCost(movingExpense.SubmittedAmount),
 		MissingReceipt:       movingExpense.MissingReceipt,
 		ETag:                 etag.GenerateEtag(movingExpense.UpdatedAt),
+		TrackingNumber:       movingExpense.TrackingNumber,
+		WeightShipped:        handlers.FmtPoundPtr(movingExpense.WeightShipped),
 	}
 	if movingExpense.MovingExpenseType != nil {
 		movingExpenseType := internalmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)

@@ -53,6 +53,12 @@ type UpdateMovingExpense struct {
 	// Format: date
 	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`
 
+	// Tracking number for a small package expense
+	TrackingNumber *string `json:"trackingNumber"`
+
+	// The total weight shipped for a small package
+	WeightShipped int64 `json:"weightShipped,omitempty"`
+
 	// The total weight stored in PPM SIT
 	WeightStored int64 `json:"weightStored,omitempty"`
 }

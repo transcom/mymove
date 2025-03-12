@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
+import { GridContainer, Grid, Button, Radio, Label } from '@trussworks/react-uswds';
 import { Link, useParams, generatePath } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import classnames from 'classnames';
@@ -88,6 +88,9 @@ const Review = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState();
   const [alert, setAlert] = useState(null);
+  const [hasExpense, setHasExpense] = useState(false);
+  const [hasProGear, setHasProGear] = useState(false);
+  const [hasFinished, setHasFinished] = useState(false);
   const { moveId, mtoShipmentId } = useParams();
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const ppmShipment = mtoShipment?.ppmShipment || {};
@@ -185,6 +188,22 @@ const Review = () => {
 
   const expensesTotal = calculateTotalMovingExpensesAmount(expenses);
 
+  const handleExpenseChange = (event) => {
+    if (event.target.value === 'yes') {
+      setHasExpense(true);
+    }
+  };
+
+  const handleProGearChange = (event) => {
+    if (event.target.value === 'yes') {
+      setHasProGear(true);
+      setHasFinished(true);
+    } else {
+      setHasProGear(false);
+      setHasFinished(true);
+    }
+  };
+
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>
       <GridContainer>
@@ -218,7 +237,68 @@ const Review = () => {
               <ReviewItems heading={<h2>About Your PPM</h2>} contents={aboutYourPPM} />
             </SectionWrapper>
             <SectionWrapper>
-              <h2>Documents</h2>
+              <h2>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Small Package Expenses' : 'Documents'}</h2>
+              <div>
+                <Label className={styles.Label} htmlFor="sitExpected">
+                  {expensesTotal > 0 || proGearTotal > 0
+                    ? 'Do you have an additional expense?'
+                    : 'Are you ready to add an expense?'}
+                </Label>
+                <div className="grid-row grid-gap">
+                  <Radio
+                    id="hasExpenseYes"
+                    label="Yes"
+                    name="hasExpense"
+                    value="yes"
+                    title="Yes"
+                    onChange={handleExpenseChange}
+                  />
+                  <Radio
+                    id="hasExpenseNo"
+                    label="No"
+                    name="hasExpense"
+                    value="no"
+                    title="No"
+                    onChange={handleExpenseChange}
+                  />
+                </div>
+              </div>
+              <div>
+                {hasExpense && (
+                  <div>
+                    <Label htmlFor="proGear">Is this expense pro gear?</Label>
+                    <div className="grid-row grid-gap">
+                      <Radio
+                        id="proGearYes"
+                        label="Yes"
+                        name="proGear"
+                        value="yes"
+                        title="Yes"
+                        onChange={handleProGearChange}
+                      />
+                      <Radio
+                        id="proGearNo"
+                        label="No"
+                        name="proGear"
+                        value="no"
+                        title="No"
+                        onChange={handleProGearChange}
+                      />
+                    </div>
+                    {hasFinished && (
+                      <div className={styles.continueBtn}>
+                        <Link
+                          className={classnames('usa-button', 'usa-button--secondary')}
+                          to={hasProGear ? proGearCreatePath : expensesCreatePath}
+                          data-testid="reviewReturnToHomepageLink"
+                        >
+                          Continue
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
               {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
                 <ReviewItems
                   className={classnames(styles.reviewItems, 'reviewWeightTickets')}
@@ -246,11 +326,13 @@ const Review = () => {
                   </>
                 }
                 contents={proGearContents}
-                renderAddButton={() => (
-                  <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
-                    Add Pro-gear Weight
-                  </Link>
-                )}
+                renderAddButton={() =>
+                  ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                    <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
+                      Add Pro-gear Weight
+                    </Link>
+                  )
+                }
                 emptyMessage="No pro-gear weight documented."
               />
               <ReviewItems
@@ -262,11 +344,13 @@ const Review = () => {
                   </>
                 }
                 contents={expenseContents}
-                renderAddButton={() => (
-                  <Link className="usa-button usa-button--secondary" to={expensesCreatePath}>
-                    Add Expenses
-                  </Link>
-                )}
+                renderAddButton={() =>
+                  ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                    <Link className="usa-button usa-button--secondary" to={expensesCreatePath}>
+                      Add Expenses
+                    </Link>
+                  )
+                }
                 emptyMessage="No receipts uploaded."
               />
             </SectionWrapper>

@@ -546,6 +546,8 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 		SITStartDate:      handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
 		SITEndDate:        handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
 		WeightStored:      handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored),
+		WeightShipped:     handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightShipped),
+		TrackingNumber:    handlers.FmtStringPtr(movingExpense.TrackingNumber),
 	}
 
 	if movingExpense.PaidWithGTCC != nil {

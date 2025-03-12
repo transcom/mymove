@@ -203,6 +203,10 @@ func mergeMovingExpense(updatedMovingExpense models.MovingExpense, originalMovin
 	mergedMovingExpense.Amount = services.SetNoNilOptionalCentField(updatedMovingExpense.Amount, mergedMovingExpense.Amount)
 	mergedMovingExpense.PaidWithGTCC = services.SetNoNilOptionalBoolField(updatedMovingExpense.PaidWithGTCC, mergedMovingExpense.PaidWithGTCC)
 	mergedMovingExpense.MissingReceipt = services.SetNoNilOptionalBoolField(updatedMovingExpense.MissingReceipt, mergedMovingExpense.MissingReceipt)
+	mergedMovingExpense.TrackingNumber = services.SetOptionalStringField(updatedMovingExpense.TrackingNumber, mergedMovingExpense.TrackingNumber)
+	if *updatedMovingExpense.WeightShipped != 0 {
+		mergedMovingExpense.WeightShipped = services.SetOptionalPoundField(updatedMovingExpense.WeightShipped, mergedMovingExpense.WeightShipped)
+	}
 
 	// TBD may be able to use the updater service for soft deleting instead of adding a dedicated one
 	mergedMovingExpense.DeletedAt = services.SetOptionalDateTimeField(updatedMovingExpense.DeletedAt, mergedMovingExpense.DeletedAt)

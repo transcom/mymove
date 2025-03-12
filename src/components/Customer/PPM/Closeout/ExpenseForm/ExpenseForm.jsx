@@ -25,6 +25,7 @@ import { uploadShape } from 'types/uploads';
 import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
 import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZoneLabelMobile } from 'content/uploads';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
+import { PPM_TYPES } from 'shared/constants';
 
 const validationSchema = Yup.object().shape({
   expenseType: Yup.string().required('Required'),
@@ -56,6 +57,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const ExpenseForm = ({
+  ppmType,
   expense,
   receiptNumber,
   onBack,
@@ -75,10 +77,13 @@ const ExpenseForm = ({
     sitEndDate,
     sitLocation,
     weightStored,
+    trackingNumber,
+    weightShipped,
   } = expense || {};
 
   const initialValues = {
-    expenseType: movingExpenseType || '',
+    expenseType:
+      !movingExpenseType && ppmType === PPM_TYPES.SMALL_PACKAGE ? expenseTypes.SMALL_PACKAGE : movingExpenseType,
     description: description || '',
     paidWithGTCC: paidWithGtcc ? 'true' : 'false',
     amount: amount ? `${formatCents(amount)}` : '',
@@ -88,9 +93,16 @@ const ExpenseForm = ({
     sitEndDate: sitEndDate || '',
     sitLocation: sitLocation || undefined,
     sitWeight: weightStored ? `${weightStored}` : '',
+    trackingNumber: trackingNumber || '',
+    weightShipped: weightShipped ? `${weightShipped}` : '',
   };
 
   const documentRef = createRef();
+
+  const availableExpenseTypes =
+    ppmType === PPM_TYPES.SMALL_PACKAGE
+      ? [{ value: 'Small package reimbursement', key: 'SMALL_PACKAGE' }]
+      : ppmExpenseTypes;
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -101,7 +113,13 @@ const ExpenseForm = ({
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>{`Receipt ${receiptNumber}`}</h2>
                 <FormGroup>
-                  <DropdownInput label="Select type" name="expenseType" options={ppmExpenseTypes} id="expenseType" />
+                  <DropdownInput
+                    label="Select type"
+                    name="expenseType"
+                    options={availableExpenseTypes}
+                    id="expenseType"
+                    isDisabled={ppmType === PPM_TYPES.SMALL_PACKAGE}
+                  />
                 </FormGroup>
                 {values.expenseType && (
                   <>

@@ -113,11 +113,17 @@ type MovingExpense struct {
 	// Format: date
 	SubmittedSitStartDate *strfmt.Date `json:"submittedSitStartDate"`
 
+	// Tracking number for a small package expense
+	TrackingNumber *string `json:"trackingNumber"`
+
 	// Timestamp when a property of this moving expense object was last modified (UTC)
 	// Required: true
 	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt"`
+
+	// The total weight shipped for a small package
+	WeightShipped *int64 `json:"weightShipped"`
 
 	// The total weight stored in PPM SIT
 	WeightStored *int64 `json:"weightStored"`

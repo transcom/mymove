@@ -11262,11 +11262,23 @@ func init() {
           "x-omitempty": false,
           "example": "2022-04-26"
         },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -13097,6 +13109,12 @@ func init() {
         "document"
       ],
       "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean",
@@ -13177,6 +13195,12 @@ func init() {
         "submittedWeight": {
           "description": "Customer submitted weight of the pro-gear.",
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -28914,11 +28938,23 @@ func init() {
           "x-omitempty": false,
           "example": "2022-04-26"
         },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -30823,6 +30859,12 @@ func init() {
         "document"
       ],
       "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean",
@@ -30904,6 +30946,12 @@ func init() {
           "description": "Customer submitted weight of the pro-gear.",
           "type": "integer",
           "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
