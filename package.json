@@ -78,7 +78,7 @@
     "reselect": "^4.1.8",
     "sass": "^1.77.6",
     "swagger-client": "^3.18.5",
-    "swagger-ui-dist": "^5.18.2",
+    "swagger-ui-dist": "^5.2.0",
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
     "webpack": "5",
@@ -101,7 +101,8 @@
     "semver": "^7.5.2",
     "url-parse": "^1.5.1",
     "y18n": "^5.0.5",
-    "follow-redirects": "^1.15.4"
+    "follow-redirects": "^1.15.4",
+    "jsonpath-plus" : "^10.3.0"
   },
   "name": "client",
   "private": true,
@@ -136,7 +137,7 @@
     "@faker-js/faker": "^8.4.1",
     "@jackfranklin/test-data-bot": "^2.1.0",
     "@playwright/test": "1.39",
-    "@stoplight/spectral-cli": "^6.10.0",
+    "@stoplight/spectral-cli": "^6.14.2",
     "@storybook/addon-a11y": "^7.2.0",
     "@storybook/addon-actions": "^7.2.0",
     "@storybook/addon-essentials": "^7.2.0",

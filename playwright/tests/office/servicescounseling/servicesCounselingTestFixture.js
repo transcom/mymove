@@ -171,9 +171,8 @@ export class ServiceCounselorPage extends OfficePage {
     await this.page.getByLabel('Requested delivery date').fill('20 Mar 2022');
     await this.page.getByLabel('Requested delivery date').blur();
 
-    // Delivery location
+    // Delivery Address
     const DeliveryLocationLookup = 'MONTGOMERY, AL 36101 (MONTGOMERY)';
-
     const deliveryLocation = this.page.getByRole('group', { name: 'Delivery Address' });
     await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
@@ -187,6 +186,43 @@ export class ServiceCounselorPage extends OfficePage {
     // Save the shipment, progress back to the move details page, and verify it's been created
     await this.page.getByRole('button', { name: 'Save' }).click();
     await this.waitForPage.moveDetails();
+  }
+
+  /**
+   * @param {Object} options
+   * @param {boolean} [options.selectAdvance=false]
+   * returns {Promise<void>}
+   */
+  async fillOutAboutPage(options = { selectAdvance: false }) {
+    // editing this field with the keyboard instead of the date picker runs async validators for pre-filled postal codes
+    // this helps debounce the API calls that would be triggered in quick succession
+    await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
+
+    const LocationLookup = 'YUMA, AZ 85369 (YUMA)';
+
+    await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
+    await this.page.locator('input[id="pickupAddress-location-input"]').fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
+
+    await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
+    await this.page.locator('input[id="destinationAddress-location-input"]').fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
+
+    if (options?.selectAdvance) {
+      await this.page.locator('label[for="yes-has-received-advance"]').click();
+      await this.page.locator('input[name="advanceAmountReceived"]').fill('5000');
+    } else {
+      await this.page.locator('label[for="no-has-received-advance"]').click();
+    }
+
+    await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
+    await this.page.locator('input[id="w2Address-location-input"]').fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
+
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
   }
 }
 
