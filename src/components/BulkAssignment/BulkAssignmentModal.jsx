@@ -41,22 +41,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
     fetchData();
   }, []);
 
-  const handleRadioChange = (index) => {
-    setSelectedRadio(index);
-
-    setSelectedUsers((prev) => ({
-      ...prev,
-      [index]: false,
-    }));
-
-    if (isBulkReAssignmentMode) {
-      const reAssignableMoves = bulkAssignmentData.availableOfficeUsers.find(
-        (user) => user.officeUserId === index,
-      ).workload;
-      setNumberOfMoves(reAssignableMoves);
-    }
-  };
-
   const handleCheckboxChange = (userId) => {
     setSelectedUsers((prev) => ({
       ...prev,
@@ -151,6 +135,31 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
             initialValues={initialValues}
           >
             {({ handleChange, setValues, values }) => {
+              const handleRadioChange = (index) => {
+                // to avoid confusion between current and previous selections
+                const newSelection = index;
+                setSelectedRadio(newSelection);
+
+                setSelectedUsers((prev) => ({
+                  ...prev,
+                  [newSelection]: false,
+                }));
+
+                if (isBulkReAssignmentMode) {
+                  const reAssignableMoves = bulkAssignmentData.availableOfficeUsers.find(
+                    (user) => user.officeUserId === newSelection,
+                  ).workload;
+                  setNumberOfMoves(reAssignableMoves);
+
+                  // need to reset assignment entries between re-assignment changes
+                  const newValues = { ...values };
+                  newValues.userData.find((u) => u.ID === newSelection).moveAssignments = 0;
+                  setValues({
+                    ...values,
+                    ...newValues,
+                  });
+                }
+              };
               const handleAssignmentChange = (event, user, i) => {
                 handleChange(event);
                 setIsError(false);
