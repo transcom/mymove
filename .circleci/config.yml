@@ -2785,3 +2785,4 @@ experimental:
   notify:
     branches:
       only:
+        - main
