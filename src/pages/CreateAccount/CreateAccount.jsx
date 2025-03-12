@@ -8,7 +8,7 @@ import * as Yup from 'yup';
 
 import ValidCACModal from '../../components/ValidCACModal/ValidCACModal';
 
-import styles from './SignUp.module.scss';
+import styles from './CreateAccount.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -24,7 +24,7 @@ import StyledLine from 'components/StyledLine/StyledLine';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import RegistrationConfirmationModal from 'components/RegistrationConfirmationModal/RegistrationConfirmationModal';
 
-export const SignUp = ({ setShowLoadingSpinner }) => {
+export const CreateAccount = ({ setShowLoadingSpinner }) => {
   const navigate = useNavigate();
   const [serverError] = useState(null);
   const [showEmplid, setShowEmplid] = useState(false);
@@ -341,4 +341,4 @@ const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(SignUp);
+export default connect(() => ({}), mapDispatchToProps)(CreateAccount);
