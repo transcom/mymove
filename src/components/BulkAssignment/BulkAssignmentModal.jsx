@@ -53,13 +53,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
     return selectedIds.length > 0 && selectedIds.every((id) => selectedUsers[id]);
   };
 
-  const setMaxForEditBox = (officeUserId) => {
-    if (isBulkReAssignmentMode) {
-      return numberOfMoves - initialValues.userData[officeUserId];
-    }
-    return null;
-  };
-
   const initUserData = (availableOfficeUsers) => {
     const officeUsers = [];
     const selectedOfficeUsers = {};
@@ -130,22 +123,24 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
         >
           {({ handleChange, setValues, values }) => {
             const handleRadioChange = (index) => {
-              setSelectedRadio(index);
+              // to avoid confusion between current and previous selections
+              const newSelection = index;
+              setSelectedRadio(newSelection);
 
               setSelectedUsers((prev) => ({
                 ...prev,
-                [index]: false,
+                [newSelection]: false,
               }));
 
               if (isBulkReAssignmentMode) {
                 const reAssignableMoves = bulkAssignmentData.availableOfficeUsers.find(
-                  (user) => user.officeUserId === index,
+                  (user) => user.officeUserId === newSelection,
                 ).workload;
                 setNumberOfMoves(reAssignableMoves);
 
-                // need to reset assignment entries between form mode changes
-                const newValues = { ...initialValues };
-                newValues.userData.find((u) => u.ID === selectedRadio).moveAssignments = 0;
+                // need to reset assignment entries between re-assignment changes
+                const newValues = { ...values };
+                newValues.userData.find((u) => u.ID === newSelection).moveAssignments = 0;
                 setValues({
                   ...values,
                   ...newValues,

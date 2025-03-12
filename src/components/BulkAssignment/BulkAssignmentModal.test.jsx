@@ -26,13 +26,13 @@ const bulkAssignmentData = {
       firstName: 'test1',
       lastName: 'person',
       officeUserId: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42a',
-      workload: 0,
+      workload: 6,
     },
     {
       firstName: 'test2',
       lastName: 'person',
       officeUserId: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42c',
-      workload: 0,
+      workload: 4,
     },
   ],
   bulkAssignmentMoveIDs: [
@@ -240,20 +240,46 @@ describe('BulkAssignmentModal', () => {
       expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
     });
     // Select a user to re-assign from
-    const radios = screen.getAllByRole('radio');
-    const radioToReAssign = radios[0];
+    const radioButtons = screen.getAllByRole('radio');
+    radioButtons.forEach((radioButton) => {
+      expect(radioButton).not.toBeChecked();
+    });
     const assignmentBoxes = screen.getAllByRole('spinbutton');
+    assignmentBoxes.forEach((assignmentBox) => {
+      expect(assignmentBox).toBeDisabled();
+    });
+    const radioToReAssign = radioButtons[0];
     const reAssignBox = assignmentBoxes[0];
 
     await act(async () => {
       await fireEvent.click(radioToReAssign);
     });
     // Verify that assignment box is disabled
-    expect(screen.getByText('Bulk Re-Assignment (1)', { exact: false })).toBeInTheDocument();
-    expect(radioToReAssign).toBeChecked();
-    expect(reAssignBox).toBeDisabled();
-    expect(assignmentBoxes[1]).toBeEnabled();
-    expect(assignmentBoxes[2]).toBeEnabled();
+    await waitFor(() => {
+      expect(screen.getByText('Bulk Re-Assignment (1)', { exact: false })).toBeInTheDocument();
+      expect(radioToReAssign).toBeChecked();
+      expect(reAssignBox.value).toEqual('0');
+      expect(reAssignBox).toBeDisabled();
+      expect(assignmentBoxes[1]).toBeEnabled();
+      expect(assignmentBoxes[2]).toBeEnabled();
+    });
+
+    // select another user and verify that row's assignment box only is disabled
+    const radioToReAssign2 = radioButtons[2];
+    const reAssignBox2 = assignmentBoxes[2];
+
+    await act(async () => {
+      await fireEvent.click(radioToReAssign2);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Bulk Re-Assignment (4)', { exact: false })).toBeInTheDocument();
+      expect(radioToReAssign2).toBeChecked();
+      expect(reAssignBox2.value).toEqual('0');
+      expect(reAssignBox2).toBeDisabled();
+      expect(assignmentBoxes[0]).toBeEnabled();
+      expect(assignmentBoxes[1]).toBeEnabled();
+    });
   });
 
   it('cannot save if more reassignments are made than available', async () => {
@@ -298,5 +324,71 @@ describe('BulkAssignmentModal', () => {
     await userEvent.click(saveButton);
 
     expect(screen.getByText('Cannot assign more moves than are available.')).toBeInTheDocument();
+  });
+
+  it('does not persist unsaved assignment values while mode switching', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    await act(async () => {
+      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    });
+
+    const assignmentBoxesPreSwitch = screen.getAllByRole('spinbutton');
+    const bulkReAssignToggleSwitch = screen.getByLabelText('BulkAssignmentModeSwitch');
+
+    // check initial state
+    await waitFor(() => {
+      assignmentBoxesPreSwitch.forEach((assignmentBox) => {
+        expect(assignmentBox.value).toEqual('0');
+      });
+    });
+    // type some values
+    await waitFor(async () => {
+      await userEvent.type(assignmentBoxesPreSwitch[0], '2');
+      await userEvent.type(assignmentBoxesPreSwitch[1], '4');
+      await userEvent.type(assignmentBoxesPreSwitch[2], '6');
+    });
+
+    // first switch to bulk re assignment
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    const assignmentBoxesFirstSwitch = screen.getAllByRole('spinbutton');
+
+    await waitFor(() => {
+      assignmentBoxesFirstSwitch.forEach((assignmentBox) => {
+        expect(assignmentBox.value).toEqual('0');
+      });
+    });
+    await waitFor(async () => {
+      await userEvent.type(assignmentBoxesFirstSwitch[0], '2');
+      await userEvent.type(assignmentBoxesFirstSwitch[1], '4');
+      await userEvent.type(assignmentBoxesFirstSwitch[2], '6');
+    });
+
+    // switch back to bulk assignment
+    const assignmentBoxesSecondSwitch = screen.getAllByRole('spinbutton');
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    await waitFor(() => {
+      assignmentBoxesSecondSwitch.forEach((assignmentBox) => {
+        expect(assignmentBox.value).toEqual('0');
+      });
+    });
+
+    // second switch to bulk re assignment
+    const assignmentBoxesLastSwitch = screen.getAllByRole('spinbutton');
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    await waitFor(() => {
+      assignmentBoxesLastSwitch.forEach((assignmentBox) => {
+        expect(assignmentBox.value).toEqual('0');
+      });
+    });
   });
 });
