@@ -1551,6 +1551,11 @@ definitions:
         example: 3
         x-nullable: true
         description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+      civilian_tdy_ub_allowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: The amount of weight in pounds set by the customer or counselor for a civilian TDY move is entitled to for shipment types of Unaccompanied Baggage.
     required:
       - service_member_id
       - issue_date
