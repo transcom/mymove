@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -1736,7 +1737,6 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(400, nil)
 
 		setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -1821,7 +1821,6 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(400, nil)
 
 		setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -2030,6 +2029,8 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 	uri := "/moves/%s/documents"
 	paramTypeAll := "ALL"
+	fs := afero.NewMemMapFs()
+
 	suite.Run("Successful DownloadMoveOrder - 200", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
@@ -2057,12 +2058,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
 		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, nil)
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, nil)
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2107,12 +2115,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
 		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("error"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("error"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2292,12 +2307,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, apperror.NewUnprocessableEntityError("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, apperror.NewUnprocessableEntityError("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2338,12 +2360,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2385,12 +2414,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUploadAll, //Verify ALL enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2432,12 +2468,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUpload, //Verify Order only enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2456,7 +2499,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
 	})
 
-	suite.Run("DownloadMoveOrder: Orders Only - service returns unprocess entity - 422", func() {
+	suite.Run("DownloadMoveOrder: Amendments Only - service returns unprocess entity - 422", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
 		mockPrimeDownloadMoveUploadPDFGenerator := mocks.PrimeDownloadMoveUploadPDFGenerator{}
@@ -2480,12 +2523,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderAmendmentUpload, //Verify Amendment only enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2502,5 +2552,113 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderInternalServerError)
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
+	})
+}
+
+func (suite *HandlerSuite) TestAcknowledgeMovesAndShipmentsHandler() {
+	suite.Run("Successful Acknowledge Moves and Shipments - 200", func() {
+		mockMoveAndShipmentAcknowledgementUpdater := mocks.MoveAndShipmentAcknowledgementUpdater{}
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		handlerConfig := suite.HandlerConfig()
+		handler := AcknowledgeMovesAndShipmentsHandler{
+			HandlerConfig:                         handlerConfig,
+			MoveAndShipmentAcknowledgementUpdater: &mockMoveAndShipmentAcknowledgementUpdater,
+		}
+
+		mockMoveAndShipmentAcknowledgementUpdater.On("AcknowledgeMovesAndShipments",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.Moves"),
+		).Return(nil)
+
+		requestUser := factory.BuildUser(nil, nil, nil)
+		request := httptest.NewRequest("PATCH", "/move-task-orders/acknowledge", nil)
+
+		acknowledgeShipment := primemessages.AcknowledgeShipment{
+			ID:                  strfmt.UUID(move.MTOShipments[0].ID.String()),
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+
+		payload := primemessages.AcknowledgeMoves{
+			&primemessages.AcknowledgeMove{
+				ID: strfmt.UUID(move.ID.String()),
+				MtoShipments: []*primemessages.AcknowledgeShipment{
+					&acknowledgeShipment,
+				},
+				PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -2)),
+			},
+		}
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.AcknowledgeMovesAndShipmentsParams{
+			HTTPRequest: request,
+			Body:        payload,
+		}
+		response := handler.Handle(params)
+		handlerResponse := response.(*movetaskorderops.AcknowledgeMovesAndShipmentsOK)
+		suite.Assertions.IsType(&movetaskorderops.AcknowledgeMovesAndShipmentsOK{}, handlerResponse)
+		suite.Equal("Successfully updated acknowledgement for moves and shipments", handlerResponse.Payload.Message)
+	})
+
+	suite.Run("Unsuccessful Acknowledge Moves and Shipments - 500", func() {
+		mockMoveAndShipmentAcknowledgementUpdater := mocks.MoveAndShipmentAcknowledgementUpdater{}
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		handlerConfig := suite.HandlerConfig()
+		handler := AcknowledgeMovesAndShipmentsHandler{
+			HandlerConfig:                         handlerConfig,
+			MoveAndShipmentAcknowledgementUpdater: &mockMoveAndShipmentAcknowledgementUpdater,
+		}
+
+		mockError := errors.New("error executing prime_acknowledge_moves_shipments procedure")
+		mockMoveAndShipmentAcknowledgementUpdater.On("AcknowledgeMovesAndShipments",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.Moves"),
+		).Return(mockError)
+
+		requestUser := factory.BuildUser(nil, nil, nil)
+		request := httptest.NewRequest("PATCH", "/move-task-orders/acknowledge", nil)
+
+		acknowledgeShipment := primemessages.AcknowledgeShipment{
+			ID:                  strfmt.UUID(move.MTOShipments[0].ID.String()),
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+
+		payload := primemessages.AcknowledgeMoves{
+			&primemessages.AcknowledgeMove{
+				ID: strfmt.UUID(move.ID.String()),
+				MtoShipments: []*primemessages.AcknowledgeShipment{
+					&acknowledgeShipment,
+				},
+				PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -2)),
+			},
+		}
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.AcknowledgeMovesAndShipmentsParams{
+			HTTPRequest: request,
+			Body:        payload,
+		}
+		response := handler.Handle(params)
+		handlerResponse := response.(*movetaskorderops.AcknowledgeMovesAndShipmentsInternalServerError)
+		suite.Assertions.IsType(&movetaskorderops.AcknowledgeMovesAndShipmentsInternalServerError{}, handlerResponse)
+	})
+
+	suite.Run("Unsuccessful Acknowledge Moves and Shipments - 422", func() {
+		mockMoveAndShipmentAcknowledgementUpdater := mocks.MoveAndShipmentAcknowledgementUpdater{}
+		handlerConfig := suite.HandlerConfig()
+		handler := AcknowledgeMovesAndShipmentsHandler{
+			HandlerConfig:                         handlerConfig,
+			MoveAndShipmentAcknowledgementUpdater: &mockMoveAndShipmentAcknowledgementUpdater,
+		}
+
+		requestUser := factory.BuildUser(nil, nil, nil)
+		request := httptest.NewRequest("PATCH", "/move-task-orders/acknowledge", nil)
+
+		payload := primemessages.AcknowledgeMoves{}
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.AcknowledgeMovesAndShipmentsParams{
+			HTTPRequest: request,
+			Body:        payload,
+		}
+		response := handler.Handle(params)
+		handlerResponse := response.(*movetaskorderops.AcknowledgeMovesAndShipmentsUnprocessableEntity)
+		suite.Assertions.IsType(&movetaskorderops.AcknowledgeMovesAndShipmentsUnprocessableEntity{}, handlerResponse)
 	})
 }

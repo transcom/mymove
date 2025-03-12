@@ -39,7 +39,10 @@ func payloadForRejectedOfficeUserModel(o models.OfficeUser) *adminmessages.Offic
 		RejectionReason:        handlers.FmtStringPtr(o.RejectionReason),
 		CreatedAt:              *handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              *handlers.FmtDateTime(o.UpdatedAt),
-		RejectedOn:             *handlers.FmtDateTime(*o.RejectedOn),
+	}
+
+	if o.RejectedOn != nil {
+		payload.RejectedOn = *handlers.FmtDateTime(*o.RejectedOn)
 	}
 
 	if o.UserID != nil {
@@ -65,8 +68,50 @@ type IndexRejectedOfficeUsersHandler struct {
 var rejectedOfficeUserFilterConverters = map[string]func(string) func(*pop.Query){
 	"search": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
-			nameSearch := fmt.Sprintf("%%%s%%", content)
-			query.Where("roles.role_name ILIKE ? AND office_users.status = 'REJECTED' OR transportation_offices.name ILIKE ? AND office_users.status = 'REJECTED' OR office_users.email ILIKE ? AND office_users.status = 'REJECTED' OR office_users.first_name ILIKE ? AND office_users.status = 'REJECTED' OR office_users.last_name ILIKE ? AND office_users.status = 'REJECTED'", nameSearch, nameSearch, nameSearch, nameSearch, nameSearch)
+			firstSearch, lastSearch, emailSearch := fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'REJECTED' OR office_users.email ILIKE ? AND office_users.status = 'REJECTED' OR office_users.last_name ILIKE ? AND office_users.status = 'REJECTED'", firstSearch, lastSearch, emailSearch)
+		}
+	},
+	"emails": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			emailSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.email ILIKE ? AND office_users.status = 'REJECTED'", emailSearch)
+		}
+	},
+	"firstName": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			firstNameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'REJECTED'", firstNameSearch)
+		}
+	},
+	"lastName": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			lastNameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.last_name ILIKE ? AND office_users.status = 'REJECTED'", lastNameSearch)
+		}
+	},
+	"offices": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			officeSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("transportation_offices.name ILIKE ? AND office_users.status = 'REJECTED'", officeSearch)
+		}
+	},
+	"rejectionReason": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			rejectionSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.rejection_reason ILIKE ? AND office_users.status = 'REJECTED'", rejectionSearch)
+		}
+	},
+	"rejectedOn": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			RejectedOnSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("TO_CHAR(office_users.rejected_on  , 'MM/DD/YYYY') ILIKE ? AND office_users.status = 'REJECTED'", RejectedOnSearch)
+		}
+	},
+	"roles": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			RoleSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("roles.role_name ILIKE ? AND office_users.status = 'REJECTED'", RoleSearch)
 		}
 	},
 }
@@ -103,8 +148,8 @@ func (h IndexRejectedOfficeUsersHandler) Handle(params rejected_office_users.Ind
 
 			payload := make(adminmessages.OfficeUsers, queriedOfficeUsersCount)
 
-			for i, s := range officeUsers {
-				payload[i] = payloadForRejectedOfficeUserModel(s)
+			for i, officeUser := range officeUsers {
+				payload[i] = payloadForRejectedOfficeUserModel(officeUser)
 			}
 
 			return rejected_office_users.NewIndexRejectedOfficeUsersOK().WithContentRange(fmt.Sprintf("rejected office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, count)).WithPayload(payload), nil

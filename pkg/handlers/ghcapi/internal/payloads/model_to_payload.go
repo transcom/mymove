@@ -987,6 +987,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	payloadPPMShipment := &ghcmessages.PPMShipment{
 		ID:                             *handlers.FmtUUID(ppmShipment.ID),
+		PpmType:                        ghcmessages.PPMType(ppmShipment.PPMType),
 		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
 		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
 		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
@@ -2644,13 +2645,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
-		numShipments := 0
-
-		for _, shipment := range move.MTOShipments {
-			if shipment.Status != models.MTOShipmentStatusDraft {
-				numShipments++
-			}
-		}
+		numShipments := len(move.MTOShipments)
 
 		var pickupDate, deliveryDate *strfmt.Date
 
