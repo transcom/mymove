@@ -1364,7 +1364,7 @@ paths:
           ]
         ```
 
-                **IUBUPK - International UB Unpack**
+        **IUBUPK - International UB Unpack**
         ```json
           "params": [
             {
@@ -1374,7 +1374,7 @@ paths:
           ]
         ```
 
-                **UBP - International UB**
+        **UBP - International UB**
         ```json
           "params": [
             {
