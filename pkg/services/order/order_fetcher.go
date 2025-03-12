@@ -902,7 +902,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 // Adding a secondary sort ensures a consistent order within the primary sort column
 func secondarySortOrder(sort *string) QueryOption {
 	return func(query *pop.Query) {
-		if sort == nil || (sort != nil && *sort != "locator") {
+		if sort == nil || *sort != "locator" {
 			query.Order("moves.locator asc")
 		}
 	}
