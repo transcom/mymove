@@ -2406,7 +2406,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 
 			// if the assigned user is not in the returned list of available users append them to the end
-			if (activeRole == string(roles.RoleTypeTOO) || activeRole == string(roles.RoleTypeServicesCounselor)) && (move.TOOAssignedUser != nil || move.SCAssignedUser != nil) {
+			if (activeRole == string(roles.RoleTypeTOO) && move.TOOAssignedUser != nil) || (activeRole == string(roles.RoleTypeServicesCounselor) && move.SCAssignedUser != nil) {
 				var assignedUser *models.OfficeUser
 				var assignedID *uuid.UUID
 
