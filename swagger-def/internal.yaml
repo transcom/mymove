@@ -1556,7 +1556,7 @@ definitions:
         type: integer
         example: 3
         x-nullable: true
-        description: The amount of weight in pounds set by the customer or counselor for a civilian TDY move is entitled to for shipment types of Unaccompanied Baggage.
+        description: The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.
     required:
       - service_member_id
       - issue_date
