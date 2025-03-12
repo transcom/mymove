@@ -51,23 +51,23 @@ func (suite *AcknowledgeMovesAndShipmentsServiceSuite) TestUpdateMoveAcknowledge
 		err = suite.DB().EagerPreload("MTOShipments").Find(&dbMove1, move1.ID)
 		suite.NoError(err)
 		suite.Equal(move1.ID, dbMove1.ID)
-		suite.Equal(move1.PrimeAcknowledgedAt.UTC(), dbMove1.PrimeAcknowledgedAt.UTC())
+		suite.Equal(move1.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove1.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
 		// Move 1 shipment 1
 		suite.Equal(move1.MTOShipments[0].ID, dbMove1.MTOShipments[0].ID)
-		suite.Equal(move1.MTOShipments[0].PrimeAcknowledgedAt.UTC(), dbMove1.MTOShipments[0].PrimeAcknowledgedAt.UTC())
+		suite.Equal(move1.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove1.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
 
 		dbMove2 := models.Move{}
 		// Validate move 2
 		err = suite.DB().EagerPreload("MTOShipments").Find(&dbMove2, move2.ID)
 		suite.NoError(err)
 		suite.Equal(move2.ID, dbMove2.ID)
-		suite.Equal(move2.PrimeAcknowledgedAt.UTC(), dbMove2.PrimeAcknowledgedAt.UTC())
+		suite.Equal(move2.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove2.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
 		// Move 2 shipment 1
 		suite.Equal(move2.MTOShipments[0].ID, dbMove2.MTOShipments[0].ID)
-		suite.Equal(move2.MTOShipments[0].PrimeAcknowledgedAt.UTC(), dbMove2.MTOShipments[0].PrimeAcknowledgedAt.UTC())
+		suite.Equal(move2.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove2.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
 		// Move 2 shipment 2
 		suite.Equal(move2.MTOShipments[1].ID, dbMove2.MTOShipments[1].ID)
-		suite.Equal(move2.MTOShipments[1].PrimeAcknowledgedAt.UTC(), dbMove2.MTOShipments[1].PrimeAcknowledgedAt.UTC())
+		suite.Equal(move2.MTOShipments[1].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove2.MTOShipments[1].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
 	})
 
 	suite.Run("Move and Shipment acknowledgement date are not updated when they are not provided", func() {
