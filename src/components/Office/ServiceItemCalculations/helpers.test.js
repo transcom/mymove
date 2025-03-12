@@ -87,6 +87,12 @@ function testData(code) {
       'Price escalation factor': '1.033',
     };
   }
+  if (code.includes('INPK')) {
+    result = {
+      ...result,
+      'NTS packing factor': '1.35',
+    };
+  }
   if (code.includes('FSC')) {
     result = {
       ...result,
@@ -343,6 +349,12 @@ describe('DomesticDestinationSITDelivery', () => {
   it('returns correct data for IHPK', () => {
     const result = makeCalculations('IHPK', 99999, testParams.InternationalHHGPack);
     const expected = testData('IHPK');
+    testAB(result, expected);
+  });
+
+  it('returns correct data for INPK', () => {
+    const result = makeCalculations('INPK', 99999, [...testParams.InternationalHHGPack, testParams.NTSPackingFactor]);
+    const expected = testData('INPK');
     testAB(result, expected);
   });
 

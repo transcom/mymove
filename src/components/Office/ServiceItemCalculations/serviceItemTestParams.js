@@ -970,6 +970,7 @@ const testParams = {
     DimensionHeight,
     DimensionLength,
   ],
+  NTSPackingFactor,
   additionalCratingDataDCRT: {
     reServiceCode: 'DCRT',
     description: 'Grand piano',

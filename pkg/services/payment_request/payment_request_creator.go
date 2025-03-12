@@ -50,7 +50,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 
 		err = validatePaymentRequest(appCtx, *paymentRequestArg, nil, checks...)
 		if err != nil {
-			return apperror.NewInvalidCreateInputError(nil, "Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create")
+			return apperror.NewInvalidCreateInputError(nil, fmt.Sprintf("Invalid Create Input Error: %s", err.Error()))
 		}
 		// Gather information for logging
 		mtoMessageString := " MTO ID <" + paymentRequestArg.MoveTaskOrderID.String() + ">"
