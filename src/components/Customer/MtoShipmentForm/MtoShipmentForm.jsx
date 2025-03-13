@@ -379,7 +379,7 @@ class MtoShipmentForm extends Component {
                                       title="Yes, I have a second pickup address"
                                       checked={hasSecondaryPickup === 'true'}
                                       disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
-                                      onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                      onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                     />
                                     <Field
                                       as={Radio}
@@ -391,7 +391,7 @@ class MtoShipmentForm extends Component {
                                       title="No, I do not have a second pickup address"
                                       checked={hasSecondaryPickup !== 'true'}
                                       disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
-                                      onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                      onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                     />
                                   </div>
                                 </FormGroup>
@@ -423,7 +423,9 @@ class MtoShipmentForm extends Component {
                                               values.secondaryPickup.address,
                                             )
                                           }
-                                          onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                         <Field
                                           as={Radio}
@@ -440,7 +442,9 @@ class MtoShipmentForm extends Component {
                                               values.secondaryPickup.address,
                                             )
                                           }
-                                          onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                       </div>
                                     </FormGroup>
@@ -513,7 +517,7 @@ class MtoShipmentForm extends Component {
                                     value="true"
                                     title="Yes, I know my delivery address"
                                     checked={hasDeliveryAddress === 'true'}
-                                    onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                    onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                   />
                                   <Field
                                     as={Radio}
@@ -556,7 +560,9 @@ class MtoShipmentForm extends Component {
                                           title="Yes, I have a second delivery address"
                                           checked={hasSecondaryDelivery === 'true'}
                                           disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
-                                          onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                         <Field
                                           as={Radio}
@@ -568,7 +574,9 @@ class MtoShipmentForm extends Component {
                                           title="No, I do not have a second delivery address"
                                           checked={hasSecondaryDelivery === 'false'}
                                           disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
-                                          onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                       </div>
                                     </FormGroup>
@@ -600,7 +608,9 @@ class MtoShipmentForm extends Component {
                                                   values.secondaryDelivery.address,
                                                 )
                                               }
-                                              onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                              onChange={(e) =>
+                                                handleAddressToggleChange(e, values, setValues, blankAddress)
+                                              }
                                             />
                                             <Field
                                               as={Radio}
@@ -617,7 +627,9 @@ class MtoShipmentForm extends Component {
                                                   values.secondaryDelivery.address,
                                                 )
                                               }
-                                              onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                              onChange={(e) =>
+                                                handleAddressToggleChange(e, values, setValues, blankAddress)
+                                              }
                                             />
                                           </div>
                                         </FormGroup>

@@ -971,7 +971,7 @@ const ShipmentForm = (props) => {
                                     title="Yes, I have a second pickup address"
                                     checked={hasSecondaryPickup === 'true'}
                                     disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
-                                    onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                    onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                   />
                                   <Field
                                     as={Radio}
@@ -983,7 +983,7 @@ const ShipmentForm = (props) => {
                                     title="No, I do not have a second pickup address"
                                     checked={hasSecondaryPickup !== 'true'}
                                     disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
-                                    onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                    onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                   />
                                 </div>
                               </FormGroup>
@@ -1015,7 +1015,9 @@ const ShipmentForm = (props) => {
                                                 values.secondaryPickup.address,
                                               )
                                             }
-                                            onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                            onChange={(e) =>
+                                              handleAddressToggleChange(e, values, setValues, blankAddress)
+                                            }
                                           />
                                           <Field
                                             as={Radio}
@@ -1032,7 +1034,9 @@ const ShipmentForm = (props) => {
                                                 values.secondaryPickup.address,
                                               )
                                             }
-                                            onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                            onChange={(e) =>
+                                              handleAddressToggleChange(e, values, setValues, blankAddress)
+                                            }
                                           />
                                         </div>
                                       </FormGroup>
@@ -1140,7 +1144,7 @@ const ShipmentForm = (props) => {
                                 title="Yes, I have a second destination location"
                                 checked={hasSecondaryDelivery === 'true'}
                                 disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                               <Field
                                 as={Radio}
@@ -1152,7 +1156,7 @@ const ShipmentForm = (props) => {
                                 title="No, I do not have a second destination location"
                                 checked={hasSecondaryDelivery !== 'true'}
                                 disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                             </div>
                           </FormGroup>
@@ -1184,7 +1188,7 @@ const ShipmentForm = (props) => {
                                             values.secondaryDelivery.address,
                                           )
                                         }
-                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                       />
                                       <Field
                                         as={Radio}
@@ -1201,7 +1205,7 @@ const ShipmentForm = (props) => {
                                             values.secondaryDelivery.address,
                                           )
                                         }
-                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                       />
                                     </div>
                                   </FormGroup>
@@ -1273,7 +1277,7 @@ const ShipmentForm = (props) => {
                                 value="true"
                                 title="Yes, I know my delivery address"
                                 checked={hasDeliveryAddress === 'true'}
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                               <Field
                                 as={Radio}
@@ -1321,7 +1325,7 @@ const ShipmentForm = (props) => {
                                         disabled={
                                           !isPreceedingAddressComplete(hasDeliveryAddress, values.delivery.address)
                                         }
-                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                       />
                                       <Field
                                         as={Radio}
@@ -1335,7 +1339,7 @@ const ShipmentForm = (props) => {
                                         disabled={
                                           !isPreceedingAddressComplete(hasDeliveryAddress, values.delivery.address)
                                         }
-                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                       />
                                     </div>
                                   </FormGroup>
@@ -1369,7 +1373,9 @@ const ShipmentForm = (props) => {
                                                     values.secondaryDelivery.address,
                                                   )
                                                 }
-                                                onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                                onChange={(e) =>
+                                                  handleAddressToggleChange(e, values, setValues, blankAddress)
+                                                }
                                               />
                                               <Field
                                                 as={Radio}
@@ -1386,7 +1392,9 @@ const ShipmentForm = (props) => {
                                                     values.secondaryDelivery.address,
                                                   )
                                                 }
-                                                onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                                onChange={(e) =>
+                                                  handleAddressToggleChange(e, values, setValues, blankAddress)
+                                                }
                                               />
                                             </div>
                                           </FormGroup>
@@ -1517,7 +1525,7 @@ const ShipmentForm = (props) => {
                                   title="Yes, there is a second pickup address"
                                   checked={hasSecondaryPickup === 'true'}
                                   disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
-                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                                 <Field
                                   as={Radio}
@@ -1529,7 +1537,7 @@ const ShipmentForm = (props) => {
                                   title="No, there is not a second pickup address"
                                   checked={hasSecondaryPickup !== 'true'}
                                   disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
-                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                               </div>
                             </FormGroup>
@@ -1564,7 +1572,9 @@ const ShipmentForm = (props) => {
                                               values.secondaryPickup.address,
                                             )
                                           }
-                                          onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                         <Field
                                           as={Radio}
@@ -1581,7 +1591,9 @@ const ShipmentForm = (props) => {
                                               values.secondaryPickup.address,
                                             )
                                           }
-                                          onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                       </div>
                                     </FormGroup>
@@ -1625,7 +1637,7 @@ const ShipmentForm = (props) => {
                                   title="Yes, there is a second destination location"
                                   checked={hasSecondaryDestination === 'true'}
                                   disabled={!isPreceedingAddressComplete('true', values.destination.address)}
-                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                                 <Field
                                   as={Radio}
@@ -1637,7 +1649,7 @@ const ShipmentForm = (props) => {
                                   title="No, there is not a second destination location"
                                   checked={hasSecondaryDestination !== 'true'}
                                   disabled={!isPreceedingAddressComplete('true', values.destination.address)}
-                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                               </div>
                             </FormGroup>
@@ -1672,7 +1684,9 @@ const ShipmentForm = (props) => {
                                               values.secondaryDestination.address,
                                             )
                                           }
-                                          onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                         <Field
                                           as={Radio}
@@ -1689,7 +1703,9 @@ const ShipmentForm = (props) => {
                                               values.secondaryDestination.address,
                                             )
                                           }
-                                          onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                       </div>
                                     </FormGroup>

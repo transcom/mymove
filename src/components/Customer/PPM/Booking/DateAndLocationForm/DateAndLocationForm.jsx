@@ -237,7 +237,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             title="Yes, I have a second pickup address"
                             checked={values.hasSecondaryPickupAddress === 'true'}
                             disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
-                            onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                            onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                           />
                           <Field
                             as={Radio}
@@ -249,7 +249,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             title="No, I do not have a second pickup address"
                             checked={values.hasSecondaryPickupAddress === 'false'}
                             disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
-                            onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                            onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                           />
                         </Fieldset>
                       </FormGroup>
@@ -295,7 +295,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                     values.secondaryPickupAddress.address,
                                   )
                                 }
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                               <Field
                                 as={Radio}
@@ -312,7 +312,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                     values.secondaryPickupAddress.address,
                                   )
                                 }
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                             </Fieldset>
                           </FormGroup>
@@ -370,7 +370,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             title="Yes, I have a second delivery address"
                             checked={values.hasSecondaryDestinationAddress === 'true'}
                             disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
-                            onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                            onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                           />
                           <Field
                             as={Radio}
@@ -382,7 +382,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             title="No, I do not have a second delivery address"
                             checked={values.hasSecondaryDestinationAddress === 'false'}
                             disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
-                            onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                            onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                           />
                         </Fieldset>
                       </FormGroup>
@@ -429,7 +429,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                     values.secondaryDestinationAddress.address,
                                   )
                                 }
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                               <Field
                                 as={Radio}
@@ -446,7 +446,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                     values.secondaryDestinationAddress.address,
                                   )
                                 }
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, null)}
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                             </Fieldset>
                           </FormGroup>
