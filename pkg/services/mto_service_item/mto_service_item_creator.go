@@ -323,10 +323,10 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 			serviceItem.ReService.Code == models.ReServiceCodeIOASIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeIOSFSC ||
 			serviceItem.ReService.Code == models.ReServiceCodeIOPSIT {
-			// Determine distance calculation only if pickup address is CONUS if shipment is OCONUS.
+			// IOSFSC: Determine distance calculation only if pickup address is CONUS.
 			if serviceItem.SITOriginHHGOriginalAddress != nil &&
 				serviceItem.SITOriginHHGActualAddress != nil &&
-				!(*serviceItem.SITOriginHHGOriginalAddress.IsOconus) {
+				(serviceItem.ReService.Code != models.ReServiceCodeIOSFSC || (serviceItem.ReService.Code == models.ReServiceCodeIOSFSC && !(*serviceItem.SITOriginHHGOriginalAddress.IsOconus))) {
 				distance, err = o.planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGOriginalAddress.PostalCode, serviceItem.SITOriginHHGActualAddress.PostalCode)
 			}
 		}
@@ -336,10 +336,10 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 			serviceItem.ReService.Code == models.ReServiceCodeIDASIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeIDSFSC ||
 			serviceItem.ReService.Code == models.ReServiceCodeIDDSIT {
-			// Determine distance calculation only if destination address is CONUS if shipment is OCONUS.
+			// IDSFSC: Determine distance calculation only if destination address is CONUS.
 			if mtoShipment.DestinationAddress != nil &&
 				serviceItem.SITDestinationFinalAddress != nil &&
-				!(*mtoShipment.DestinationAddress.IsOconus) {
+				(serviceItem.ReService.Code != models.ReServiceCodeIDSFSC || (serviceItem.ReService.Code == models.ReServiceCodeIDSFSC && !(*mtoShipment.DestinationAddress.IsOconus))) {
 				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 			}
 		}
