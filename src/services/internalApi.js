@@ -50,6 +50,11 @@ export async function getBooleanFeatureFlagForUser(key, flagContext) {
   return makeInternalRequest('featureFlags.booleanFeatureFlagForUser', { key, flagContext }, { normalize });
 }
 
+export async function getBooleanFeatureFlagUnauthenticated(key, flagContext) {
+  const normalize = false;
+  return makeInternalRequest('featureFlags.booleanFeatureFlagUnauthenticated', { key, flagContext }, { normalize });
+}
+
 export async function getVariantFeatureFlagForUser(key, flagContext) {
   const normalize = false;
   return makeInternalRequest('featureFlags.variantFeatureFlagForUser', { key, flagContext }, { normalize });
@@ -66,6 +71,10 @@ export async function getMTOShipmentsForMove(moveTaskOrderID, normalize = true) 
 /** BELOW API CALLS ARE NOT NORMALIZED BY DEFAULT */
 
 /** SERVICE MEMBERS */
+export async function registerUser(payload) {
+  return makeInternalRequest('registration.customerRegistration', { registration: payload }, { normalize: false });
+}
+
 export async function createServiceMember(serviceMember = {}) {
   return makeInternalRequest(
     'service_members.createServiceMember',
