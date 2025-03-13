@@ -94,6 +94,23 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 			return err
 		}
 
+		// write the SSW calculated values out to the ppm_closeouts table
+		ppmCloseoutSummary, err := p.convertSSWValuesToPPMCloseoutSummary(appCtx, ppmShipmentID)
+
+		if err != nil {
+			return err
+		}
+
+		verrs, err = appCtx.DB().ValidateAndCreate(ppmCloseoutSummary)
+
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(ppmCloseoutSummary.ID, nil, verrs, "")
+		}
+
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 
@@ -101,38 +118,35 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 		return nil, txErr
 	}
 
-	err = p.writeSSWValuesToPPMCloseoutTable(appCtx, ppmShipmentID)
-
-	if err != nil {
-		return nil, err
-	}
-
 	return &updatedPPMShipment, nil
 }
 
 // Fetch SSW Data and populate the data into the PPM Closeout table
-func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error {
+func (p *ppmShipmentReviewDocuments) convertSSWValuesToPPMCloseoutSummary(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseoutSummary, error) {
 	var ppmCloseoutSummary models.PPMCloseoutSummary
 	ssfd, err := p.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// we currently only need data from pages 1 and 2 and not page 3
 	page1Data, page2Data, _, err := p.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, true)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// write the values to model then the ppm_closeouts table
+	ppmCloseoutSummary.ID = uuid.Must(uuid.NewV4())
+	ppmCloseoutSummary.PPMShipmentID = ppmShipmentID
+
 	// values are in dollar format with $ need to convert to cents without $
 	if page1Data.MaxObligationGCCMaxAdvance != "" {
 		maxAdvance, err := priceToCents(page1Data.MaxObligationGCCMaxAdvance)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.MaxAdvance = (*unit.Cents)(&maxAdvance)
@@ -142,7 +156,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		memberExpense, err := priceToCents(page2Data.ContractedExpenseMemberPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.MemberPaidContractedExpense = (*unit.Cents)(&memberExpense)
@@ -152,7 +166,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		gtccExpense, err := priceToCents(page2Data.ContractedExpenseGTCCPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.GTCCPaidContractedExpense = (*unit.Cents)(&gtccExpense)
@@ -162,7 +176,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		memberPackingMaterials, err := priceToCents(page2Data.PackingMaterialsMemberPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.MemberPaidPackingMaterials = (*unit.Cents)(&memberPackingMaterials)
@@ -172,7 +186,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		gtccPackingMaterials, err := priceToCents(page2Data.PackingMaterialsGTCCPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.GTCCPaidPackingMaterials = (*unit.Cents)(&gtccPackingMaterials)
@@ -182,7 +196,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		memberWeighingFee, err := priceToCents(page2Data.WeighingFeesMemberPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.MemberPaidWeighingFee = (*unit.Cents)(&memberWeighingFee)
@@ -192,7 +206,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		gtccWeighingFee, err := priceToCents(page2Data.WeighingFeesGTCCPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.GTCCPaidWeighingFee = (*unit.Cents)(&gtccWeighingFee)
@@ -202,7 +216,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		memberRental, err := priceToCents(page2Data.RentalEquipmentMemberPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.MemberPaidRentalEquipment = (*unit.Cents)(&memberRental)
@@ -212,7 +226,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		gtccRental, err := priceToCents(page2Data.RentalEquipmentGTCCPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.GTCCPaidRentalEquipment = (*unit.Cents)(&gtccRental)
@@ -222,7 +236,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		memberTolls, err := priceToCents(page2Data.TollsMemberPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.MemberPaidTolls = (*unit.Cents)(&memberTolls)
@@ -232,7 +246,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		gtccTolls, err := priceToCents(page2Data.TollsGTCCPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.GTCCPaidTolls = (*unit.Cents)(&gtccTolls)
@@ -242,7 +256,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		memberOil, err := priceToCents(page2Data.OilMemberPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.MemberPaidOil = (*unit.Cents)(&memberOil)
@@ -252,7 +266,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		gtccOil, err := priceToCents(page2Data.OilGTCCPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.GTCCPaidOil = (*unit.Cents)(&gtccOil)
@@ -262,7 +276,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		memberOther, err := priceToCents(page2Data.OtherMemberPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.MemberPaidOther = (*unit.Cents)(&memberOther)
@@ -272,7 +286,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		gtccOther, err := priceToCents(page2Data.OtherGTCCPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.GTCCPaidOther = (*unit.Cents)(&gtccOther)
@@ -282,7 +296,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		totalMember, err := priceToCents(page2Data.TotalMemberPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.TotalMemberPaidExpenses = (*unit.Cents)(&totalMember)
@@ -292,17 +306,17 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		totalGtcc, err := priceToCents(page2Data.TotalGTCCPaid)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.TotalGTCCPaidExpenses = (*unit.Cents)(&totalGtcc)
 	}
 
 	if page2Data.TotalMemberPaidSIT != "" {
-		memberSIT, err := priceToCents(page2Data.TotalMemberPaid)
+		memberSIT, err := priceToCents(page2Data.TotalMemberPaidSIT)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.MemberPaidSIT = (*unit.Cents)(&memberSIT)
@@ -312,7 +326,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		gtccSIT, err := priceToCents(page2Data.TotalGTCCPaidSIT)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.GTCCPaidSIT = (*unit.Cents)(&gtccSIT)
@@ -322,7 +336,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 		remainingIncentive, err := priceToCents(page2Data.PPMRemainingEntitlement)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ppmCloseoutSummary.RemainingIncentive = (*unit.Cents)(&remainingIncentive)
@@ -330,7 +344,8 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 
 	if page2Data.Disbursement != "" {
 		if page2Data.Disbursement != "N/A" {
-			// GTCC and Member disbursement are displayed as one value on the SSW in this format "GTCC: $0.00 Member: $0.00"
+			// GTCC and Member disbursement are displayed as one value on the SSW
+			// example: "GTCC: $1,000.00\nMember: $300.00"
 			// we need to parse each value out of the Disbursement string.
 			disbursement := strings.Split(page2Data.Disbursement, "\n")
 			gtccDisbursementStr := strings.Split(disbursement[0], "GTCC: ")
@@ -339,7 +354,7 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 			memberDisbursement, err := priceToCents(memberDisbursementStr[1])
 
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			ppmCloseoutSummary.MemberDisbursement = (*unit.Cents)(&memberDisbursement)
@@ -347,14 +362,14 @@ func (p *ppmShipmentReviewDocuments) writeSSWValuesToPPMCloseoutTable(appCtx app
 			gtccDisbursement, err := priceToCents(gtccDisbursementStr[1])
 
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			ppmCloseoutSummary.GTCCDisbursement = (*unit.Cents)(&gtccDisbursement)
 		}
 	}
 
-	return nil
+	return &ppmCloseoutSummary, err
 }
 
 func getPriceParts(rawPrice string, expectedDecimalPlaces int) (int, int, error) {
