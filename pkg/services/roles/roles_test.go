@@ -38,3 +38,39 @@ func (suite *RolesServiceSuite) TestFetchRoles() {
 	suite.NoError(err)
 	suite.Len(frs, 2)
 }
+
+func (suite *RolesServiceSuite) TestFetchRolesPrivileges() {
+	// Initialize the roles fetcher
+	rf := NewRolesFetcher()
+
+	// Fetch role privileges
+	rolesPrivileges, err := rf.FetchRolesPrivileges(suite.AppContextForTest())
+
+	// Check for errors or empty tables
+	suite.NoError(err, "Fetching role privileges should not return an error")
+	suite.NotEmpty(rolesPrivileges, "Expected role-privileges to be pre-populated in the database")
+
+	supervisorPrivilegeID := "463c2034-d197-4d9a-897e-8bbe64893a31"
+
+	// Initialize expected supervisor roles
+	expectedSupervisorRoles := map[string]bool{
+		"customer":                        true,
+		"task_ordering_officer":           true,
+		"task_invoicing_officer":          true,
+		"contracting_officer":             true,
+		"services_counselor":              true,
+		"prime_simulator":                 true,
+		"qae":                             true,
+		"customer_service_representative": true,
+		"gsr":                             true,
+		"headquarters":                    true,
+	}
+
+	// Assert that the expected supervisor roles match with the actual supervisor roles
+	for _, rp := range rolesPrivileges {
+		if rp.Privilege.ID.String() == supervisorPrivilegeID {
+			_, exists := expectedSupervisorRoles[string(rp.Role.RoleType)]
+			suite.True(exists, "Role %s should have supervisor privilege", rp.Role.RoleType)
+		}
+	}
+}
