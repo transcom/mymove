@@ -147,6 +147,23 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                 });
               }
             };
+            const handleAssignmentChange = (event, user, i) => {
+              handleChange(event);
+              setIsError(false);
+
+              const newUserAssignment = {
+                ID: user.officeUserId,
+                moveAssignments: event.target.value ? +event.target.value : 0,
+              };
+
+              const newUserData = [...values.userData];
+              newUserData[i] = newUserAssignment;
+
+              setValues({
+                ...values,
+                userData: newUserData,
+              });
+            };
             const handleAssignmentModeChange = (event) => {
               setIsBulkReAssignmentMode(event.target.checked);
               if (event.target.checked && selectedRadio != null) {
@@ -154,7 +171,11 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                   (user) => user.officeUserId === selectedRadio,
                 ).workload;
                 setNumberOfMoves(reAssignableMoves);
-              } else if (event.target.checked && selectedRadio == null) {
+              } else if (
+                // to catch when initially switching to bulk re-assign or if there is a data issue
+                (event.target.checked && selectedRadio == null) ||
+                !bulkAssignmentData.bulkAssignmentMoveIDs
+              ) {
                 setNumberOfMoves(0);
               } else {
                 setNumberOfMoves(bulkAssignmentData.bulkAssignmentMoveIDs.length);
@@ -282,20 +303,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                                 selectedRadio === user.officeUserId || (isBulkReAssignmentMode && selectedRadio == null)
                               }
                               onChange={(event) => {
-                                handleChange(event);
-
-                                const newUserAssignment = {
-                                  ID: user.officeUserId,
-                                  moveAssignments: event.target.value ? +event.target.value : 0,
-                                };
-
-                                const newUserData = [...values.userData];
-                                newUserData[i] = newUserAssignment;
-
-                                setValues({
-                                  ...values,
-                                  userData: newUserData,
-                                });
+                                handleAssignmentChange(event, user, i);
                               }}
                             />
                           </td>
