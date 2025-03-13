@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { Alert, Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
@@ -38,6 +38,16 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   const isAllSelected = () => {
     const selectedIds = Object.keys(selectedUsers);
     return selectedIds.length > 0 && selectedIds.every((id) => selectedUsers[id]);
+  };
+
+  const isFormUnchanged = (values) => {
+    return values.userData.every((user) => user.moveAssignments === 0);
+  };
+
+  const handleCancelClick = (values) => () => {
+    setIsError(false);
+    if (isFormUnchanged(values)) onClose();
+    else setShowCancelModal(true);
   };
 
   const initUserData = (availableOfficeUsers) => {
@@ -84,16 +94,14 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   return (
     <div>
       <Modal className={styles.BulkModal}>
-        {!showCancelModal && <ModalClose handleClick={() => setShowCancelModal(true)} />}
-        <ModalTitle>
-          <h3>
-            {title} ({numberOfMoves})
-          </h3>
-        </ModalTitle>
         <div className={styles.BulkAssignmentTable}>
           <Formik
             onSubmit={(values) => {
               const totalAssignment = values?.userData?.reduce((sum, item) => sum + item.moveAssignments, 0);
+              if (totalAssignment === 0) {
+                onClose();
+                return;
+              }
 
               if (totalAssignment > numberOfMoves) {
                 setIsError(true);
@@ -150,100 +158,137 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
               };
 
               return (
-                <Form>
-                  <table>
-                    <tr>
-                      <th>
-                        <input
-                          data-testId="selectDeselectAllButton"
-                          type="checkbox"
-                          checked={isAllSelected()}
-                          onChange={() => {
-                            const allSelected = Object.keys(selectedUsers).every((id) => selectedUsers[id]);
-                            const newSelectedUsers = {};
+                <>
+                  {!showCancelModal && <ModalClose handleClick={handleCancelClick(values)} />}
+                  <ModalTitle>
+                    <h3>
+                      {title} ({numberOfMoves})
+                    </h3>
+                  </ModalTitle>
+                  <Form>
+                    <table>
+                      <tr>
+                        <th>
+                          <input
+                            data-testId="selectDeselectAllButton"
+                            type="checkbox"
+                            checked={isAllSelected()}
+                            onChange={() => {
+                              const allSelected = Object.keys(selectedUsers).every((id) => selectedUsers[id]);
+                              const newSelectedUsers = {};
 
-                            bulkAssignmentData.availableOfficeUsers.forEach((user) => {
-                              newSelectedUsers[user.officeUserId] = !allSelected;
-                            });
+                              bulkAssignmentData.availableOfficeUsers.forEach((user) => {
+                                newSelectedUsers[user.officeUserId] = !allSelected;
+                              });
 
-                            setSelectedUsers(newSelectedUsers);
-                          }}
-                        />
-                      </th>
-                      <th>User</th>
-                      <th>Workload</th>
-                      <th>Assignment</th>
-                    </tr>
-                    {bulkAssignmentData?.availableOfficeUsers?.map((user, i) => {
-                      return (
-                        <tr key={user.officeUserId}>
-                          <td>
-                            <input
-                              data-testid="bulkAssignmentUserCheckbox"
-                              type="checkbox"
-                              checked={!!selectedUsers[user.officeUserId]}
-                              onChange={() => handleCheckboxChange(user.officeUserId)}
-                            />
-                          </td>
-                          <td>
-                            <p data-testid="bulkAssignmentUser" className={styles.officeUserFormattedName}>
-                              {user.lastName}, {user.firstName}
-                            </p>
-                          </td>
-                          <td className={styles.BulkAssignmentDataCenter}>
-                            <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
-                          </td>
-                          <td className={styles.BulkAssignmentDataCenter}>
-                            <input
-                              className={styles.BulkAssignmentAssignment}
-                              type="number"
-                              name={`userData.${i}.moveAssignments`}
-                              id={user.officeUserId}
-                              data-testid="assignment"
-                              min={0}
-                              value={values.userData[i]?.moveAssignments || 0}
-                              onChange={(event) => handleAssignmentChange(event, user, i)}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </table>
-                  <ModalActions autofocus="true">
-                    <div className={styles.BulkAssignmentButtonsContainer}>
-                      <div>
-                        <Button
-                          data-focus="true"
-                          className="usa-button--submit"
-                          type="submit"
-                          data-testid="modalSubmitButton"
-                          disabled={isDisabled}
-                        >
-                          {submitText}
-                        </Button>
-                        <button
-                          className={styles.backbutton}
-                          type="button"
-                          onClick={() => onClose()}
-                          data-testid="modalBackButton"
-                        >
-                          {closeText}
-                        </button>
+                              setSelectedUsers(newSelectedUsers);
+                            }}
+                          />
+                        </th>
+                        <th className={styles.UserNameHeader}>User</th>
+                        <th>Workload</th>
+                        <th>Assignment</th>
+                      </tr>
+                      {bulkAssignmentData?.availableOfficeUsers?.map((user, i) => {
+                        return (
+                          <tr key={user}>
+                            <td>
+                              <input
+                                data-testid="bulkAssignmentUserCheckbox"
+                                type="checkbox"
+                                checked={!!selectedUsers[user.officeUserId]}
+                                onChange={() => handleCheckboxChange(user.officeUserId)}
+                              />
+                            </td>
+                            <td>
+                              <p data-testid="bulkAssignmentUser" className={styles.officeUserFormattedName}>
+                                {userName(user)}
+                              </p>
+                            </td>
+                            <td className={styles.BulkAssignmentDataCenter}>
+                              <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
+                            </td>
+                            <td className={styles.BulkAssignmentDataCenter}>
+                              <input
+                                className={styles.BulkAssignmentAssignment}
+                                type="number"
+                                name={`userData.${i}.moveAssignments`}
+                                id={user.officeUserId}
+                                data-testid="assignment"
+                                min={0}
+                                value={values.userData[i]?.moveAssignments || 0}
+                                onChange={(event) => handleAssignmentChange(event, user, i)}
+                              />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </table>
+                    {showCancelModal ? (
+                      <div className={styles.areYouSureSection}>
+                        <small className={styles.hint}>
+                          Any unsaved work will be lost. Are you sure you want to cancel?
+                        </small>
+                        <div className={styles.confirmButtons}>
+                          <Button
+                            className={styles.cancelNoButton}
+                            data-testid="cancelModalNo"
+                            onClick={() => setShowCancelModal(false)}
+                          >
+                            No
+                          </Button>
+                          <Button
+                            className={styles.cancelYesButton}
+                            data-testid="cancelModalYes"
+                            secondary
+                            onClick={onClose}
+                          >
+                            Discard Changes
+                          </Button>
+                        </div>
                       </div>
-                      <div>
-                        <Button
-                          onClick={handleEqualAssignClick}
-                          type="button"
-                          data-testid="modalEqualAssignButton"
-                          disabled={!Object.values(selectedUsers).some(Boolean)}
-                        >
-                          Equal Assign
-                        </Button>
-                      </div>
-                    </div>
-                  </ModalActions>
-                  {isError && <div className={styles.errorMessage}>{errorMessage}</div>}
-                </Form>
+                    ) : (
+                      <ModalActions autofocus="true">
+                        <div className={styles.BulkAssignmentButtonsContainer}>
+                          <div>
+                            <Button
+                              disabled={isDisabled || isFormUnchanged(values)}
+                              data-focus="true"
+                              type="submit"
+                              data-testid="modalSubmitButton"
+                            >
+                              {submitText}
+                            </Button>
+                            <Button
+                              type="button"
+                              className={styles.button}
+                              unstyled
+                              onClick={handleCancelClick(values)}
+                              data-testid="modalCancelButton"
+                            >
+                              {closeText}
+                            </Button>
+                          </div>
+                          <div>
+                            <Button
+                              onClick={handleEqualAssignClick}
+                              type="button"
+                              data-testid="modalEqualAssignButton"
+                              disabled={!Object.values(selectedUsers).some(Boolean) || isDisabled}
+                            >
+                              Equal Assign
+                            </Button>
+                          </div>
+                        </div>
+                      </ModalActions>
+                    )}
+                    {isError && (
+                      <Alert type="error" headingLevel="h4" slim>
+                        {errorMessage}
+                      </Alert>
+                    )}
+                  </Form>
+                </>
               );
             }}
           </Formik>
