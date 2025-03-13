@@ -35,8 +35,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   };
 
   const isAllSelected = () => {
-    const selectedIds = Object.keys(selectedUsers);
-    return selectedIds.length > 0 && selectedIds.every((id) => selectedUsers[id]);
+    return Object.keys(selectedUsers).every((id) => selectedUsers[id]);
   };
 
   const isFormUnchanged = (values) => {

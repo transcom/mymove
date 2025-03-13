@@ -14,7 +14,6 @@ describe('When given a move that has been assigned', () => {
     },
     oldValues: {
       sc_assigned_id: null,
-      status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
     },
     context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
   };
@@ -34,9 +33,13 @@ describe('When given a move that has been assigned', () => {
   describe('displays the proper details for', () => {
     it('services counselor', () => {
       const template = getTemplate(historyRecord);
+      historyRecord.oldValues = {
+        sc_assigned_id: null,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
 
       render(template.getDetails(historyRecord));
-      expect(screen.getByText('Closeout counselor assigned')).toBeInTheDocument();
+      expect(screen.getByText('Counselor assigned')).toBeInTheDocument();
       expect(screen.getByText(': Daniels, Jayden')).toBeInTheDocument();
     });
     it('closeout counselor', () => {
