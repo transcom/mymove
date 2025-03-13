@@ -68,6 +68,12 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		suite.Equal(updatedCustomer.BackupContacts[0].Phone, actualCustomer.BackupContacts[0].Phone)
 		suite.Equal(updatedCustomer.BackupContacts[0].Email, actualCustomer.BackupContacts[0].Email)
 		suite.Equal(updatedCustomer.CacValidated, actualCustomer.CacValidated)
+
+		updatedCustomer.BackupContacts[0].Name = "Updated Backup Contact"
+		expectedETag = etag.GenerateEtag(actualCustomer.UpdatedAt)
+		actualCustomer, err = customerUpdater.UpdateCustomer(suite.AppContextForTest(), expectedETag, updatedCustomer)
+		suite.NoError(err)
+		suite.Equal(actualCustomer.BackupContacts[0].Name, "Updated Backup Contact")
 	})
 
 	suite.Run("Empty customer is updated", func() {
