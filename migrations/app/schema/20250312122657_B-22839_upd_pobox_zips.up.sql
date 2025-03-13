@@ -1,6 +1,9 @@
 --set PO box only zips
 --Tacoma, WA 98464
 --Columbia, SC 29230
+--Lexington, KY 40512
+--Las Vegas, NV 89137
+--Petaluma, CA 94953
 
 DO $$
 DECLARE
@@ -15,7 +18,7 @@ BEGIN
 					 v_locations
 			   where duty_locations.address_id = addresses.id
 				 and addresses.us_post_region_cities_id = v_locations.uprc_id
-				 and v_locations.uspr_zip_id in ('98464','29230')
+				 and v_locations.uspr_zip_id in ('98464','29230','40512','89137','94953')
 			)
 	LOOP
 
