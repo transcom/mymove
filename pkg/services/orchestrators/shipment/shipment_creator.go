@@ -5,6 +5,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -87,6 +88,13 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 			_, err = s.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
 			if err != nil {
 				return err
+			}
+
+			if txnAppCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				err = s.moveTaskOrderUpdater.SignCertificationPPMCounselingCompleted(txnAppCtx, mtoShipment.MoveTaskOrderID, mtoShipment.PPMShipment.ID)
+				if err != nil {
+					return err
+				}
 			}
 
 			// Update PPMType once shipment gets created.
