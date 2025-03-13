@@ -130,3 +130,55 @@ export function hasIncompleteWeightTicket(weightTickets) {
 
   return !weightTickets?.every(isWeightTicketComplete);
 }
+
+export const blankAddress = {
+  address: {
+    streetAddress1: '',
+    streetAddress2: '',
+    streetAddress3: '',
+    city: '',
+    state: '',
+    postalCode: '',
+  },
+};
+
+const updateAddressToggle = (setValues, fieldName, value, fieldKey, blankValue) => {
+  setValues((prevValues) => ({
+    ...prevValues,
+    [fieldName]: value,
+    [fieldKey]: value === 'false' ? blankValue : { ...prevValues[fieldKey] },
+  }));
+};
+
+export const handleAddressToggleChange = (e, values, setValues, newDutyLocationAddress) => {
+  const { name, value } = e.target;
+
+  const fieldMap = {
+    hasSecondaryPickup: { key: 'secondaryPickup', blankValue: { blankAddress } },
+    hasSecondaryPickupAddress: { key: 'secondaryPickupAddress', blankValue: { blankAddress } },
+    hasTertiaryPickup: { key: 'tertiaryPickup', blankValue: { blankAddress } },
+    hasTertiaryPickupAddress: { key: 'tertiaryPickupAddress', blankValue: { blankAddress } },
+    hasDeliveryAddress: {
+      key: 'delivery',
+      blankValue: {
+        ...values.delivery,
+        address: {
+          streetAddress1: 'N/A',
+          city: newDutyLocationAddress.city,
+          state: newDutyLocationAddress.state,
+          postalCode: newDutyLocationAddress.postalCode,
+        },
+      },
+    },
+    hasSecondaryDelivery: { key: 'secondaryDelivery', blankValue: { blankAddress } },
+    hasSecondaryDestination: { key: 'secondaryDestination', blankValue: { blankAddress } },
+    hasSecondaryDestinationAddress: { key: 'secondaryDestinationAddress', blankValue: { blankAddress } },
+    hasTertiaryDelivery: { key: 'tertiaryDelivery', blankValue: { blankAddress } },
+    hasTertiaryDestination: { key: 'tertiaryDestination', blankValue: { blankAddress } },
+    hasTertiaryDestinationAddress: { key: 'tertiaryDestinationAddress', blankValue: { blankAddress } },
+  };
+
+  if (fieldMap[name]) {
+    updateAddressToggle(setValues, name, value, fieldMap[name].key, fieldMap[name].blankValue);
+  }
+};
