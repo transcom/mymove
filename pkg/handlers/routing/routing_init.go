@@ -495,6 +495,9 @@ func mountInternalAPI(appCtx appcontext.AppContext, routingConfig *Config, site 
 				rAuth.Use(customerAPIAuthMiddleware)
 				tracingMiddleware := middleware.OpenAPITracing(api)
 				rAuth.Mount("/", api.Serve(tracingMiddleware))
+				r.Route("/open", func(rOpen chi.Router) {
+					rOpen.Mount("/", api.Serve(tracingMiddleware))
+				})
 			})
 		})
 	}
