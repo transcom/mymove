@@ -18,6 +18,8 @@ import (
 )
 
 func (suite *PPMShipmentSuite) TestReviewDocuments() {
+	mockSSWPPMComputer := mocks.SSWPPMComputer{}
+
 	setUpPPMShipperRouterMock := func(returnValue ...interface{}) services.PPMShipmentRouter {
 		mockRouter := &mocks.PPMShipmentRouter{}
 
@@ -57,7 +59,8 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 
 	suite.Run("Returns an error if PPM ID is invalid", func() {
 		submitter := NewPPMShipmentReviewDocuments(
-			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil),
+			setUpSignedCertificationUpdaterMock(nil, nil), &mockSSWPPMComputer,
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -75,9 +78,9 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 
 	suite.Run("Returns an error if PPM shipment does not exist", func() {
 		nonexistentPPMShipmentID := uuid.Must(uuid.NewV4())
-
 		submitter := NewPPMShipmentReviewDocuments(
-			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil),
+			setUpSignedCertificationUpdaterMock(nil, nil), &mockSSWPPMComputer,
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -109,7 +112,8 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 		)
 
 		submitter := NewPPMShipmentReviewDocuments(
-			setUpPPMShipperRouterMock(fakeErr), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			setUpPPMShipperRouterMock(fakeErr), setUpSignedCertificationCreatorMock(nil, nil),
+			setUpSignedCertificationUpdaterMock(nil, nil), &mockSSWPPMComputer,
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -181,7 +185,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			})
 
 		submitter := NewPPMShipmentReviewDocuments(
-			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(),
+			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(), &mockSSWPPMComputer,
 		)
 
 		txErr := session.NewTransaction(func(txAppCtx appcontext.AppContext) error {
