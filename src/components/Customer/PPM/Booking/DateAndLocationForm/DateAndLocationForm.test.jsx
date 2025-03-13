@@ -477,7 +477,7 @@ describe('validates form fields and displays error messages', () => {
       });
 
       // verify 2nd pickup is populated
-      expect(screen.getByRole('heading', { level: 3, name: 'Second Pickup Address' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 4, name: 'Second Pickup Address' })).toBeInTheDocument();
       expect(address1[1]).toHaveValue('777 Test Street');
       expect(city[1]).toHaveTextContent('ELIZABETHTOWN');
       expect(state[1]).toHaveTextContent('KY');
@@ -498,7 +498,7 @@ describe('validates form fields and displays error messages', () => {
         expect(county[3]).toBeInstanceOf(HTMLLabelElement);
       });
       // verify 2nd delivery address is populated
-      expect(screen.getByRole('heading', { level: 3, name: 'Second Delivery Address' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
       expect(address1[3]).toHaveValue('68 West Elm');
       expect(city[3]).toHaveTextContent('Fort Benning');
       expect(state[3]).toHaveTextContent('GA');

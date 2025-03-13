@@ -227,35 +227,38 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         <Fieldset>
                           <legend className="usa-label">Will you add items to your PPM from a second address?</legend>
                           <RequiredTag />
-                          <Field
-                            as={Radio}
-                            data-testid="yes-secondary-pickup-address"
-                            id="yes-secondary-pickup-address"
-                            label="Yes"
-                            name="hasSecondaryPickupAddress"
-                            value="true"
-                            title="Yes, I have a second pickup address"
-                            checked={values.hasSecondaryPickupAddress === 'true'}
-                            disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
-                            onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
-                          />
-                          <Field
-                            as={Radio}
-                            data-testid="no-secondary-pickup-address"
-                            id="no-secondary-pickup-address"
-                            label="No"
-                            name="hasSecondaryPickupAddress"
-                            value="false"
-                            title="No, I do not have a second pickup address"
-                            checked={values.hasSecondaryPickupAddress === 'false'}
-                            disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
-                            onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
-                          />
+
+                          <div className={formStyles.radioGroup}>
+                            <Field
+                              as={Radio}
+                              data-testid="yes-secondary-pickup-address"
+                              id="yes-secondary-pickup-address"
+                              label="Yes"
+                              name="hasSecondaryPickupAddress"
+                              value="true"
+                              title="Yes, I have a second pickup address"
+                              checked={values.hasSecondaryPickupAddress === 'true'}
+                              disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
+                              onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                            />
+                            <Field
+                              as={Radio}
+                              data-testid="no-secondary-pickup-address"
+                              id="no-secondary-pickup-address"
+                              label="No"
+                              name="hasSecondaryPickupAddress"
+                              value="false"
+                              title="No, I do not have a second pickup address"
+                              checked={values.hasSecondaryPickupAddress === 'false'}
+                              disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
+                              onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                            />
+                          </div>
                         </Fieldset>
                       </FormGroup>
                       {values.hasSecondaryPickupAddress === 'true' && (
                         <>
-                          <h3>Second Pickup Address</h3>
+                          <h4>Second Pickup Address</h4>
                           <AddressFields
                             labelHint="Required"
                             name="secondaryPickupAddress.address"
@@ -280,40 +283,42 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             <legend className="usa-label">Will you add items to your PPM from a third address?</legend>
                             <RequiredTag />
                             <Fieldset>
-                              <Field
-                                as={Radio}
-                                id="yes-tertiary-pickup-address"
-                                data-testid="yes-tertiary-pickup-address"
-                                label="Yes"
-                                name="hasTertiaryPickupAddress"
-                                value="true"
-                                title="Yes, I have a third pickup address"
-                                checked={values.hasTertiaryPickupAddress === 'true'}
-                                disabled={
-                                  !isPreceedingAddressComplete(
-                                    values.hasSecondaryPickupAddress,
-                                    values.secondaryPickupAddress.address,
-                                  )
-                                }
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
-                              />
-                              <Field
-                                as={Radio}
-                                id="no-tertiary-pickup-address"
-                                data-testid="no-tertiary-pickup-address"
-                                label="No"
-                                name="hasTertiaryPickupAddress"
-                                value="false"
-                                title="No, I do not have a third pickup address"
-                                checked={values.hasTertiaryPickupAddress === 'false'}
-                                disabled={
-                                  !isPreceedingAddressComplete(
-                                    values.hasSecondaryPickupAddress,
-                                    values.secondaryPickupAddress.address,
-                                  )
-                                }
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
-                              />
+                              <div className={formStyles.radioGroup}>
+                                <Field
+                                  as={Radio}
+                                  id="yes-tertiary-pickup-address"
+                                  data-testid="yes-tertiary-pickup-address"
+                                  label="Yes"
+                                  name="hasTertiaryPickupAddress"
+                                  value="true"
+                                  title="Yes, I have a third pickup address"
+                                  checked={values.hasTertiaryPickupAddress === 'true'}
+                                  disabled={
+                                    !isPreceedingAddressComplete(
+                                      values.hasSecondaryPickupAddress,
+                                      values.secondaryPickupAddress.address,
+                                    )
+                                  }
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                />
+                                <Field
+                                  as={Radio}
+                                  id="no-tertiary-pickup-address"
+                                  data-testid="no-tertiary-pickup-address"
+                                  label="No"
+                                  name="hasTertiaryPickupAddress"
+                                  value="false"
+                                  title="No, I do not have a third pickup address"
+                                  checked={values.hasTertiaryPickupAddress === 'false'}
+                                  disabled={
+                                    !isPreceedingAddressComplete(
+                                      values.hasSecondaryPickupAddress,
+                                      values.secondaryPickupAddress.address,
+                                    )
+                                  }
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                />
+                              </div>
                             </Fieldset>
                           </FormGroup>
                         </div>
@@ -322,7 +327,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasSecondaryPickupAddress === 'true' &&
                         values.hasTertiaryPickupAddress === 'true' && (
                           <>
-                            <h3>Third Pickup Address</h3>
+                            <h4>Third Pickup Address</h4>
                             <AddressFields
                               labelHint="Required"
                               name="tertiaryPickupAddress.address"
@@ -357,38 +362,44 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       />
                       {fields}
                       <FormGroup>
-                        <Fieldset>
-                          <legend className="usa-label">Will you deliver part of your PPM to a second address?</legend>
-                          <RequiredTag />
-                          <Field
-                            as={Radio}
-                            data-testid="yes-secondary-destination-address"
-                            id="hasSecondaryDestinationAddressYes"
-                            label="Yes"
-                            name="hasSecondaryDestinationAddress"
-                            value="true"
-                            title="Yes, I have a second delivery address"
-                            checked={values.hasSecondaryDestinationAddress === 'true'}
-                            disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
-                            onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
-                          />
-                          <Field
-                            as={Radio}
-                            data-testid="no-secondary-destination-address"
-                            id="hasSecondaryDestinationAddressNo"
-                            label="No"
-                            name="hasSecondaryDestinationAddress"
-                            value="false"
-                            title="No, I do not have a second delivery address"
-                            checked={values.hasSecondaryDestinationAddress === 'false'}
-                            disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
-                            onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
-                          />
-                        </Fieldset>
+                        <div className={formStyles.radioGroup}>
+                          <Fieldset>
+                            <legend className="usa-label">
+                              Will you deliver part of your PPM to a second address?
+                            </legend>
+                            <RequiredTag />
+                            <div className={formStyles.radioGroup}>
+                              <Field
+                                as={Radio}
+                                data-testid="yes-secondary-destination-address"
+                                id="hasSecondaryDestinationAddressYes"
+                                label="Yes"
+                                name="hasSecondaryDestinationAddress"
+                                value="true"
+                                title="Yes, I have a second delivery address"
+                                checked={values.hasSecondaryDestinationAddress === 'true'}
+                                disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                              />
+                              <Field
+                                as={Radio}
+                                data-testid="no-secondary-destination-address"
+                                id="hasSecondaryDestinationAddressNo"
+                                label="No"
+                                name="hasSecondaryDestinationAddress"
+                                value="false"
+                                title="No, I do not have a second delivery address"
+                                checked={values.hasSecondaryDestinationAddress === 'false'}
+                                disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                              />
+                            </div>
+                          </Fieldset>
+                        </div>
                       </FormGroup>
                       {values.hasSecondaryDestinationAddress === 'true' && (
                         <>
-                          <h3>Second Delivery Address</h3>
+                          <h4>Second Delivery Address</h4>
                           <AddressFields
                             name="secondaryDestinationAddress.address"
                             labelHint="Required"
@@ -414,40 +425,42 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             <legend className="usa-label">Will you deliver part of your PPM to a third address?</legend>
                             <RequiredTag />
                             <Fieldset>
-                              <Field
-                                as={Radio}
-                                id="has-tertiary-delivery"
-                                data-testid="yes-tertiary-destination-address"
-                                label="Yes"
-                                name="hasTertiaryDestinationAddress"
-                                value="true"
-                                title="Yes, I have a third delivery address"
-                                checked={values.hasTertiaryDestinationAddress === 'true'}
-                                disabled={
-                                  !isPreceedingAddressComplete(
-                                    values.hasSecondaryDestinationAddress,
-                                    values.secondaryDestinationAddress.address,
-                                  )
-                                }
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
-                              />
-                              <Field
-                                as={Radio}
-                                id="no-tertiary-delivery"
-                                data-testid="no-tertiary-destination-address"
-                                label="No"
-                                name="hasTertiaryDestinationAddress"
-                                value="false"
-                                title="No, I do not have a third delivery address"
-                                checked={values.hasTertiaryDestinationAddress === 'false'}
-                                disabled={
-                                  !isPreceedingAddressComplete(
-                                    values.hasSecondaryDestinationAddress,
-                                    values.secondaryDestinationAddress.address,
-                                  )
-                                }
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
-                              />
+                              <div className={formStyles.radioGroup}>
+                                <Field
+                                  as={Radio}
+                                  id="has-tertiary-delivery"
+                                  data-testid="yes-tertiary-destination-address"
+                                  label="Yes"
+                                  name="hasTertiaryDestinationAddress"
+                                  value="true"
+                                  title="Yes, I have a third delivery address"
+                                  checked={values.hasTertiaryDestinationAddress === 'true'}
+                                  disabled={
+                                    !isPreceedingAddressComplete(
+                                      values.hasSecondaryDestinationAddress,
+                                      values.secondaryDestinationAddress.address,
+                                    )
+                                  }
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                />
+                                <Field
+                                  as={Radio}
+                                  id="no-tertiary-delivery"
+                                  data-testid="no-tertiary-destination-address"
+                                  label="No"
+                                  name="hasTertiaryDestinationAddress"
+                                  value="false"
+                                  title="No, I do not have a third delivery address"
+                                  checked={values.hasTertiaryDestinationAddress === 'false'}
+                                  disabled={
+                                    !isPreceedingAddressComplete(
+                                      values.hasSecondaryDestinationAddress,
+                                      values.secondaryDestinationAddress.address,
+                                    )
+                                  }
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                />
+                              </div>
                             </Fieldset>
                           </FormGroup>
                         </div>
@@ -456,7 +469,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasSecondaryDestinationAddress === 'true' &&
                         values.hasTertiaryDestinationAddress === 'true' && (
                           <>
-                            <h3>Third Delivery Address</h3>
+                            <h4>Third Delivery Address</h4>
                             <AddressFields
                               name="tertiaryDestinationAddress.address"
                               labelHint="Required"
