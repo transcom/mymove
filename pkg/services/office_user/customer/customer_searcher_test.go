@@ -220,9 +220,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		suite.Len(customers, 1)
 		suite.Equal(serviceMember1.Edipi, customers[0].Edipi)
 		suite.NotNil(serviceMember1)
-
 		suite.NotNil(safetyServiceMember)
-		// suite.Equal(serviceMember.Edipi, customers[1].Edipi)
 
 	})
 
