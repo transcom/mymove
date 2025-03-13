@@ -2384,10 +2384,10 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		if (activeRole == string(roles.RoleTypeServicesCounselor) || activeRole == string(roles.RoleTypeHQ)) && move.SCAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.SCAssignedUser)
 		}
-		if (queueType == string(models.QueueTypeTaskOrder) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
+		if ((activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeTaskOrder)) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
 		}
-		if queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
+		if activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOODestinationAssignedUser)
 		}
 		// these branches have their own closeout specific offices

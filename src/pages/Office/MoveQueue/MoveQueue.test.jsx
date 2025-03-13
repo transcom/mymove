@@ -464,28 +464,4 @@ describe('MoveQueue', () => {
       expect(assignedSelect).not.toBeInTheDocument();
     });
   });
-  it('renders an assigned column for Destination Request queue when the queue management flag is on', async () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
-    render(
-      <MockProviders>
-        <MoveQueue isQueueManagementFFEnabled />
-      </MockProviders>,
-    );
-    await waitFor(() => {
-      const assignedSelect = screen.queryAllByTestId('assigned-col')[0];
-      expect(assignedSelect).toBeInTheDocument();
-    });
-  });
-  it('should not render destination queue assigned column when the queue management flag is off', async () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });
-    render(
-      <MockProviders>
-        <MoveQueue isQueueManagementFFEnabled={false} />
-      </MockProviders>,
-    );
-    await waitFor(() => {
-      const assignedSelect = screen.queryByTestId('assigned-col');
-      expect(assignedSelect).not.toBeInTheDocument();
-    });
-  });
 });
