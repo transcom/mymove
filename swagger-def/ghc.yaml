@@ -6054,6 +6054,11 @@ definitions:
       dependentsAuthorized:
         type: boolean
         x-nullable: true
+      civilianTdyUbAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.
     required:
       - issueDate
       - reportByDate
@@ -6125,6 +6130,11 @@ definitions:
       dependentsAuthorized:
         type: boolean
         x-nullable: true
+      civilianTdyUbAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.
     required:
       - issueDate
       - reportByDate
