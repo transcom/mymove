@@ -1,0 +1,83 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  userId:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  edipi:
+    type: string
+    format: edipi
+    example: '5789345789'
+    pattern: '^\d{10}$'
+    minLength: 10
+    maxLength: 10
+    x-nullable: true
+    title: DoD ID number
+  emplid:
+    type: string
+    pattern: '^\d{7}$'
+    minLength: 7
+    maxLength: 7
+    example: '5789345'
+    x-nullable: true
+    title: USCG EMPLID
+  affiliation:
+    $ref: 'Affiliation.yaml'
+    title: Branch
+  grade:
+    $ref: 'OrderPayGrade.yaml'
+    title: Grade
+  firstName:
+    type: string
+    example: John
+    x-nullable: true
+    title: First name
+  middleInitial:
+    type: string
+    example: L.
+    x-nullable: true
+    title: Middle initial
+  lastName:
+    type: string
+    example: Donut
+    x-nullable: true
+    title: Last name
+  telephone:
+    type: string
+    format: telephone
+    pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+    example: 212-555-5555
+    x-nullable: true
+    title: Best contact phone
+  secondaryTelephone:
+    type: string
+    format: telephone
+    pattern: '^([2-9]\d{2}-\d{3}-\d{4})?$'
+    example: 212-555-5555
+    x-nullable: true
+    title: Secondary Phone
+  email:
+    type: string
+    format: x-email
+    pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    example: john_bob@example.com
+    x-nullable: true
+    title: Personal Email Address
+  phoneIsPreferred:
+    type: boolean
+    x-nullable: true
+    title: Telephone
+  emailIsPreferred:
+    type: boolean
+    x-nullable: true
+    title: Email
+  createdAt:
+    type: string
+    format: date-time
+  updatedAt:
+    type: string
+    format: date-time
