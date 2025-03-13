@@ -188,6 +188,43 @@ export class ServiceCounselorPage extends OfficePage {
     await this.page.getByRole('button', { name: 'Save' }).click();
     await this.waitForPage.moveDetails();
   }
+
+  /**
+   * @param {Object} options
+   * @param {boolean} [options.selectAdvance=false]
+   * returns {Promise<void>}
+   */
+  async fillOutAboutPage(options = { selectAdvance: false }) {
+    // editing this field with the keyboard instead of the date picker runs async validators for pre-filled postal codes
+    // this helps debounce the API calls that would be triggered in quick succession
+    await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
+
+    const LocationLookup = 'YUMA, AZ 85369 (YUMA)';
+
+    await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
+    await this.page.locator('input[id="pickupAddress-location-input"]').fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
+
+    await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
+    await this.page.locator('input[id="destinationAddress-location-input"]').fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
+
+    if (options?.selectAdvance) {
+      await this.page.locator('label[for="yes-has-received-advance"]').click();
+      await this.page.locator('input[name="advanceAmountReceived"]').fill('5000');
+    } else {
+      await this.page.locator('label[for="no-has-received-advance"]').click();
+    }
+
+    await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
+    await this.page.locator('input[id="w2Address-location-input"]').fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
+
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+  }
 }
 
 /**
