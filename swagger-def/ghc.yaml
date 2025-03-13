@@ -1733,24 +1733,24 @@ paths:
           description: If the upload is a Weight Receipt
           required: true
       responses:
-        "201":
+        '201':
           description: created upload
           schema:
-            $ref: "#/definitions/Upload"
-        "400":
+            $ref: '#/definitions/Upload'
+        '400':
           description: invalid request
           schema:
-            $ref: "#/definitions/InvalidRequestResponsePayload"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "413":
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '413':
           description: payload is too large
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket:
     post:
       summary: Creates a weight ticket document
@@ -1759,24 +1759,24 @@ paths:
       tags:
         - ppm
       parameters:
-        - $ref: "parameters/ppmShipmentId.yaml"
+        - $ref: 'parameters/ppmShipmentId.yaml'
       responses:
-        "200":
+        '200':
           description: returns new weight ticket object
           schema:
-            $ref: "definitions/WeightTicket.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/WeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'
@@ -1831,7 +1831,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - $ref: "parameters/ppmShipmentId.yaml"
+        - $ref: 'parameters/ppmShipmentId.yaml'
         - description: ID of the weight ticket to be deleted
           in: path
           name: weightTicketId
@@ -1839,22 +1839,22 @@ paths:
           format: uuid
           type: string
       responses:
-        "204":
+        '204':
           description: Successfully soft deleted the weight ticket
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'
