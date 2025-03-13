@@ -221,7 +221,6 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		suite.Equal(serviceMember1.Edipi, customers[0].Edipi)
 		suite.NotNil(serviceMember1)
 		suite.NotNil(safetyServiceMember)
-
 	})
 
 	suite.Run("search as HQ role", func() {
