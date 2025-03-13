@@ -52,13 +52,10 @@ describe('getQueue', () => {
     expect(getQueue('Ppm-Closeout')).toBe(QUEUE_TYPES.CLOSEOUT);
   });
 
-  it('should throw an error for invalid queue names', () => {
-    expect(() => getQueue('invalid-queue')).toThrow('Invalid queue name: invalid-queue');
-  });
-
   it('should throw an error for null or undefined queue names and empty queue names', () => {
     expect(() => getQueue('')).toThrow('Invalid queue name:');
     expect(() => getQueue(null)).toThrow('Invalid queue name: null');
     expect(() => getQueue(undefined)).toThrow('Invalid queue name: undefined');
+    expect(() => getQueue('invalid-queue')).toThrow('Invalid queue name: invalid-queue');
   });
 });
