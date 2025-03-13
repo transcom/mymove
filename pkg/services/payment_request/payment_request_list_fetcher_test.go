@@ -658,7 +658,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			},
 			{
 				Model: models.Move{
-					Locator: "AAAA",
+					Locator: "AA1234",
 				},
 			},
 			{
@@ -679,7 +679,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 			},
 			{
 				Model: models.Move{
-					Locator: "ZZZZ",
+					Locator: "ZZ1234",
 				},
 			},
 			{
@@ -960,6 +960,124 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		suite.Equal(2, len(paymentRequests))
 		suite.Equal(expectedOriginDutyLocation[0], string(paymentRequests[1].MoveTaskOrder.Orders.OriginDutyLocation.Name))
 		suite.Equal(expectedOriginDutyLocation[1], string(paymentRequests[0].MoveTaskOrder.Orders.OriginDutyLocation.Name))
+	})
+
+	suite.Run("Check secondary sort column (move code) is applied when sorted by a column with non-unique values", func() {
+
+		expectedMove3 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					LastName:  models.StringPointer("Spacemen"),
+					FirstName: models.StringPointer("Lena"),
+				},
+			},
+			{
+				Model: models.Move{
+					Locator: "BB9876",
+				},
+			},
+		}, nil)
+
+		expectedMove4 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Leo"),
+					LastName:  models.StringPointer("Spacemen"),
+				},
+			},
+			{
+				Model: models.Move{
+					Locator: "BB1234",
+				},
+			},
+		}, nil)
+
+		// Fake this as a day and a half in the past so floating point age values can be tested
+		prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status:    models.PaymentRequestStatusPending,
+					CreatedAt: prevCreatedAt,
+				},
+			},
+			{
+				Model:    expectedMove3,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+			{
+				Model:    expectedMove4,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Sort by a column with non-unique values
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("branch"), Order: models.StringPointer("asc")}
+		expectedPaymentRequests, paymentRequestCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(4, len(paymentRequests))
+		suite.Equal(4, paymentRequestCount)
+
+		// Verify primary sort
+		suite.Equal(models.AffiliationARMY, *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation)
+		suite.Equal(models.AffiliationARMY, *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Affiliation)
+		suite.Equal(models.AffiliationARMY, *paymentRequests[2].MoveTaskOrder.Orders.ServiceMember.Affiliation)
+		suite.Equal(models.AffiliationNAVY, *paymentRequests[3].MoveTaskOrder.Orders.ServiceMember.Affiliation)
+
+		// Verify secondary sort
+		suite.Equal("BB1234", paymentRequests[0].MoveTaskOrder.Locator)
+		suite.Equal("BB9876", paymentRequests[1].MoveTaskOrder.Locator)
+		suite.Equal("ZZ1234", paymentRequests[2].MoveTaskOrder.Locator)
+		suite.Equal("AA1234", paymentRequests[3].MoveTaskOrder.Locator)
+
+		// Sort by a column with non-unique values
+		params = services.FetchPaymentRequestListParams{Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		expectedPaymentRequests, paymentRequestCount, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests = *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(4, len(paymentRequests))
+		suite.Equal(4, paymentRequestCount)
+
+		// Verify primary sort
+		suite.Equal("Lena", *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Lena", *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Leo", *paymentRequests[2].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Leo", *paymentRequests[3].MoveTaskOrder.Orders.ServiceMember.FirstName)
+
+		// Verify secondary sort
+		suite.Equal("AA1234", paymentRequests[0].MoveTaskOrder.Locator)
+		suite.Equal("BB9876", paymentRequests[1].MoveTaskOrder.Locator)
+		suite.Equal("BB1234", paymentRequests[2].MoveTaskOrder.Locator)
+		suite.Equal("ZZ1234", paymentRequests[3].MoveTaskOrder.Locator)
+
+		// Verify page size does not affect sort order
+		params = services.FetchPaymentRequestListParams{Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc"), PerPage: models.Int64Pointer(3)}
+		expectedPaymentRequests, paymentRequestCount, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests = *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(3, len(paymentRequests))
+		suite.Equal(4, paymentRequestCount)
+
+		// Verify primary sort
+		suite.Equal("Lena", *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Lena", *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Leo", *paymentRequests[2].MoveTaskOrder.Orders.ServiceMember.FirstName)
+
+		// Verify secondary sort
+		suite.Equal("AA1234", paymentRequests[0].MoveTaskOrder.Locator)
+		suite.Equal("BB9876", paymentRequests[1].MoveTaskOrder.Locator)
+		suite.Equal("BB1234", paymentRequests[2].MoveTaskOrder.Locator)
 	})
 }
 
