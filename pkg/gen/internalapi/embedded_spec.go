@@ -1666,6 +1666,57 @@ func init() {
         }
       }
     },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -4487,6 +4538,12 @@ func init() {
           "x-nullable": true,
           "example": 3
         },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
+        },
         "weight_restriction": {
           "description": "Indicates the weight restricted to a specific location.",
           "type": "integer",
@@ -6028,6 +6085,10 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
+        },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
         },
         "updated_at": {
           "type": "string",
@@ -10461,6 +10522,57 @@ func init() {
         }
       }
     },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -13640,6 +13752,12 @@ func init() {
           "x-nullable": true,
           "example": 3
         },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
+        },
         "weight_restriction": {
           "description": "Indicates the weight restricted to a specific location.",
           "type": "integer",
@@ -15183,6 +15301,10 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
+        },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
         },
         "updated_at": {
           "type": "string",
