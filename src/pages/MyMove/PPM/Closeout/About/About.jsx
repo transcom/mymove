@@ -19,6 +19,7 @@ import { getResponseError, patchMTOShipment, getMTOShipmentsForMove } from 'serv
 import { updateMTOShipment } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isWeightTicketComplete } from 'utils/shipments';
+import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 
 const About = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -83,6 +84,14 @@ const About = () => {
       },
     };
 
+    const handleErrorMessage = (error) => {
+      if (error?.response?.status === 412) {
+        setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
+      } else {
+        setErrorMessage(getResponseError(error.response, 'Failed to update MTO shipment due to server error.'));
+      }
+    };
+
     patchMTOShipment(mtoShipment.id, payload, mtoShipment.eTag)
       .then((response) => {
         setSubmitting(false);
@@ -111,7 +120,7 @@ const About = () => {
       })
       .catch((err) => {
         setSubmitting(false);
-        setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
+        handleErrorMessage(err);
       });
   };
 
