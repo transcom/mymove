@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
 import { Link, useParams, generatePath, useNavigate } from 'react-router-dom';
 import classnames from 'classnames';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from './Review.module.scss';
 
@@ -37,6 +38,8 @@ import {
 } from 'utils/shipments';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { deleteWeightTicket } from 'services/ghcApi';
+import { DOCUMENTS } from 'constants/queryKeys';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
   const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
@@ -71,6 +74,7 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
 const Review = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState();
+  const [isDeleting, setIsDeleting] = useState();
   const [alert, setAlert] = useState(null);
   const { moveCode, shipmentId } = useParams();
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
@@ -79,6 +83,15 @@ const Review = () => {
   const proGear = documents?.ProGearWeightTickets ?? [];
   const expenses = documents?.MovingExpenses ?? [];
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { mutate: mutateWeightTicket } = useMutation(deleteWeightTicket, {
+    onSuccess: () => {
+      setIsDeleteModalVisible(false);
+      queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+      setIsDeleting(false);
+    },
+  });
 
   const weightTicketCreatePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
     moveCode,
@@ -110,10 +123,23 @@ const Review = () => {
   };
 
   const onDeleteSubmit = (itemType, itemId, itemNumber) => {
-    const ppmShipmentId = mtoShipment.ppmShipment.id;
+    if (isDeleting) return;
+
+    const ppmShipmentId = mtoShipment.ppmShipment?.id;
     if (itemType === 'weightTicket') {
-      // TODO
-      if (ppmShipmentId && itemId) setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }); // remove this line and add in the logic for deleting weightTicket
+      setIsDeleting(true);
+      mutateWeightTicket(
+        { ppmShipmentId, weightTicketId: itemId },
+        {
+          onSuccess: () => {
+            setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` });
+          },
+          onError: () => {
+            setIsDeleting(false);
+            setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` });
+          },
+        },
+      );
     }
     if (itemType === 'proGear') {
       // TODO
@@ -182,7 +208,7 @@ const Review = () => {
 
   return (
     <div className={ppmPageStyles.tabContent}>
-      <div className={ppmPageStyles.container}>
+      <div className={classnames(ppmPageStyles.container, styles.PPMReview)}>
         <GridContainer className={ppmPageStyles.gridContainer}>
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>

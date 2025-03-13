@@ -25,14 +25,22 @@ const About = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { moveCode, shipmentId } = useParams();
-  const { mtoShipment, isLoading, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
+  const { mtoShipment, documents, isLoading, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
 
   const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       queryClient.setQueryData([MTO_SHIPMENT, updatedMTOShipment.moveTaskOrderID, false], updatedMTOShipment);
       queryClient.invalidateQueries([MTO_SHIPMENT, updatedMTOShipment.moveTaskOrderID]);
 
-      const path = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_REVIEW_PATH, { moveCode, shipmentId });
+      let path;
+      if (documents?.WeightTickets?.length === 0) {
+        path = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
+          moveCode,
+          shipmentId,
+        });
+      } else {
+        path = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_REVIEW_PATH, { moveCode, shipmentId });
+      }
       navigate(path);
     },
   });
