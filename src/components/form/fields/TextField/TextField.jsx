@@ -5,6 +5,8 @@ import classnames from 'classnames';
 import { useField } from 'formik';
 import { FormGroup, Label, TextInput, Textarea, ErrorMessage } from '@trussworks/react-uswds';
 
+import styles from './TextField.module.scss';
+
 import { OptionalTag } from 'components/form/OptionalTag';
 import Hint from 'components/Hint';
 
@@ -36,6 +38,7 @@ const TextField = ({
   display,
   button,
   disablePaste,
+  showRequiredAsterisk,
   ...inputProps
 }) => {
   const [fieldProps, metaProps] = useField({ name, validate, type });
@@ -52,7 +55,15 @@ const TextField = ({
     switch (displayType) {
       case 'textarea':
         return (
-          <Textarea id={id} name={name} disabled={isDisabled} onPaste={pasteHandler} {...fieldProps} {...inputProps} />
+          <Textarea
+            id={id}
+            name={name}
+            disabled={isDisabled}
+            onPaste={pasteHandler}
+            {...fieldProps}
+            {...inputProps}
+            aria-describedby={showError ? `${id}-error` : undefined}
+          />
         );
       case 'readonly':
         return (
@@ -62,7 +73,15 @@ const TextField = ({
         );
       default:
         return (
-          <TextInput id={id} name={name} disabled={isDisabled} onPaste={pasteHandler} {...fieldProps} {...inputProps} />
+          <TextInput
+            id={id}
+            name={name}
+            disabled={isDisabled}
+            onPaste={pasteHandler}
+            {...fieldProps}
+            {...inputProps}
+            aria-describedby={showError ? `${id}-error` : undefined}
+          />
         );
     }
   };
@@ -72,12 +91,17 @@ const TextField = ({
       <div className="labelWrapper">
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
           {label}
+          {showRequiredAsterisk && (
+            <span data-testid="requiredAsterisk" className={styles.requiredAsterisk}>
+              *
+            </span>
+          )}
         </Label>
         {optional && <OptionalTag />}
       </div>
 
       {showError && (
-        <ErrorMessage display={showError} className={errorClassName}>
+        <ErrorMessage id={`${id}-error`} role="alert" aria-live="assertive" className={errorClassName}>
           {metaProps.error ? metaProps.error : errorMessage}
         </ErrorMessage>
       )}

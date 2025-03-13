@@ -116,3 +116,20 @@ export const TextFieldReadOnly = () => (
     )}
   </Formik>
 );
+
+export const TextFieldWithRequiredAsterisk = () => (
+  <Formik initialValues={{}}>
+    {() => (
+      <Form>
+        <TextField
+          id="input-type-text"
+          label="Text input label"
+          hint={labelHint}
+          name="input-type-text"
+          type="text"
+          showRequiredAsterisk
+        />
+      </Form>
+    )}
+  </Formik>
+);
