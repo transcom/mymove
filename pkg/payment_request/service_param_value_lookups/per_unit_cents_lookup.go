@@ -94,7 +94,7 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 
 	case models.ReServiceCodeIHUPK:
 		// IHUPK: Need rate area ID for the destination address
-		rateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.MTOShipment.PickupAddressID, &serviceID, contractID)
+		rateAreaID, err := models.FetchRateAreaID(appCtx.DB(), destinationAddressID, &serviceID, contractID)
 		if err != nil {
 			return "", fmt.Errorf("error fetching rate area id for shipment ID: %s and service ID %s: %s", shipmentID, serviceID, err)
 		}
