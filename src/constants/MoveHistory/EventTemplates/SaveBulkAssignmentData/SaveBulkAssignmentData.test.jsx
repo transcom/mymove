@@ -36,7 +36,7 @@ describe('When given a move that has been assigned', () => {
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));
-      expect(screen.getByText('Counselor assigned')).toBeInTheDocument();
+      expect(screen.getByText('Closeout counselor assigned')).toBeInTheDocument();
       expect(screen.getByText(': Daniels, Jayden')).toBeInTheDocument();
     });
     it('closeout counselor', () => {

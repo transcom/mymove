@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -7,9 +7,10 @@ import * as Yup from 'yup';
 import styles from './BulkAssignmentModal.module.scss';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
-import { Form } from 'components/form';
 import { getBulkAssignmentData } from 'services/ghcApi';
 import { milmoveLogger } from 'utils/milmoveLog';
+import { userName } from 'utils/formatters';
+import { Form } from 'components/form';
 
 const initialValues = {
   userData: [],
@@ -21,8 +22,9 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
-  const [isSaveDisabled, setIsSaveDisabled] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
   const [numberOfMoves, setNumberOfMoves] = useState(0);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const errorMessage = 'Cannot assign more moves than are available.';
 
@@ -51,45 +53,38 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
     });
     setSelectedUsers(() => selectedOfficeUsers);
     initialValues.userData = officeUsers;
-    setIsLoading(false);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        getBulkAssignmentData(queueType).then((data) => {
-          setBulkAssignmentData(data);
-          initUserData(data?.availableOfficeUsers);
-
-          if (data.bulkAssignmentMoveIDs === undefined) {
-            setIsSaveDisabled(true);
-            setNumberOfMoves(0);
-          } else {
-            setNumberOfMoves(data.bulkAssignmentMoveIDs.length);
-          }
-        });
-      } catch (err) {
-        setBulkAssignmentData({});
-        milmoveLogger.error('Error fetching bulk assignment data:', err);
+  const fetchData = useCallback(async () => {
+    try {
+      const data = await getBulkAssignmentData(queueType);
+      setBulkAssignmentData(data);
+      initUserData(data?.availableOfficeUsers);
+      if (!data.bulkAssignmentMoveIDs) {
+        setIsDisabled(true);
+        setNumberOfMoves(0);
+      } else {
+        setNumberOfMoves(data.bulkAssignmentMoveIDs.length);
       }
-    };
-
-    fetchData();
+    } catch (err) {
+      milmoveLogger.error('Error fetching bulk assignment data:', err);
+    }
   }, [queueType]);
 
-  // adds move data to the initialValues obj
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   initialValues.moveData = bulkAssignmentData?.bulkAssignmentMoveIDs;
 
   const validationSchema = Yup.object().shape({
     assignment: Yup.number().min(0).typeError('Assignment must be a number'),
   });
 
-  if (isLoading) return null;
-
   return (
     <div>
-      <Modal>
-        <ModalClose handleClick={() => onClose()} />
+      <Modal className={styles.BulkModal}>
+        {!showCancelModal && <ModalClose handleClick={() => setShowCancelModal(true)} />}
         <ModalTitle>
           <h3>
             {title} ({numberOfMoves})
@@ -222,7 +217,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                           className="usa-button--submit"
                           type="submit"
                           data-testid="modalSubmitButton"
-                          disabled={isSaveDisabled}
+                          disabled={isDisabled}
                         >
                           {submitText}
                         </Button>

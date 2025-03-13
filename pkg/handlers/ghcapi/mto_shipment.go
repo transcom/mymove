@@ -175,6 +175,7 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 					"DestinationAddress",
 					"SecondaryPickupAddress",
 					"SecondaryDestinationAddress",
+					"W2Address",
 				}
 
 				ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
@@ -188,6 +189,7 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				mtoShipment.PPMShipment.DestinationAddress = ppmShipment.DestinationAddress
 				mtoShipment.PPMShipment.SecondaryPickupAddress = ppmShipment.SecondaryPickupAddress
 				mtoShipment.PPMShipment.SecondaryDestinationAddress = ppmShipment.SecondaryDestinationAddress
+				mtoShipment.PPMShipment.W2Address = ppmShipment.W2Address
 			}
 
 			var agents []models.MTOAgent

@@ -179,7 +179,7 @@ const moveTaskOrder = {
       id: 'serviceItemPOEFSC',
       moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
       mtoShipmentID: '6',
-      reServiceName: 'International POD Fuel Surcharge',
+      reServiceName: 'International POD fuel surcharge',
       status: 'APPROVED',
     },
     {
@@ -188,7 +188,7 @@ const moveTaskOrder = {
       id: 'serviceItemPOEFSC',
       moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
       mtoShipmentID: '5',
-      reServiceName: 'International POE Fuel Surcharge',
+      reServiceName: 'International POE fuel surcharge',
       status: 'APPROVED',
     },
   ],
@@ -196,6 +196,7 @@ const moveTaskOrder = {
     entitlement: {
       gunSafe: true,
       weightRestriction: 500,
+      ubWeightRestriction: 350,
     },
   },
 };
@@ -241,6 +242,11 @@ describe('PrimeUI MoveDetails page', () => {
         expect(adminRestrictedWeight).toBeInTheDocument();
         expect(adminRestrictedWeight.nextElementSibling.textContent).toBe(
           formatWeight(moveTaskOrder.order.entitlement.weightRestriction),
+        );
+        const adminRestrictedUBWeight = screen.getByText('Admin Restricted UB Weight:');
+        expect(adminRestrictedUBWeight).toBeInTheDocument();
+        expect(adminRestrictedUBWeight.nextElementSibling.textContent).toBe(
+          formatWeight(moveTaskOrder.order.entitlement.ubWeightRestriction),
         );
       });
     });

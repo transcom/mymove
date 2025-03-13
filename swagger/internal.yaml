@@ -1434,6 +1434,9 @@ definitions:
       weightRestriction:
         type: integer
         x-nullable: true
+      ubWeightRestriction:
+        type: integer
+        x-nullable: true
     required:
       - id
       - service_member_id
@@ -1497,6 +1500,11 @@ definitions:
         example: 1500
         x-nullable: true
         description: Indicates the weight restricted to a specific location.
+      ub_weight_restriction:
+        type: integer
+        example: 1100
+        x-nullable: true
+        description: Indicates the UB weight restricted to a specific location.
   CreateUpdateOrders:
     type: object
     properties:
@@ -2967,6 +2975,15 @@ definitions:
       - id
       - service_member_id
       - uploads
+  PPMType:
+    type: string
+    title: PPM Type
+    description: Defines a PPM type
+    readOnly: true
+    enum:
+      - INCENTIVE_BASED
+      - ACTUAL_EXPENSE
+      - SMALL_PACKAGE
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
@@ -3598,6 +3615,8 @@ definitions:
         format: uuid
         type: string
         readOnly: true
+      ppmType:
+        $ref: '#/definitions/PPMType'
       shipmentId:
         description: The id of the parent MTOShipment object
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -4361,6 +4380,42 @@ definitions:
       - state
       - postalCode
 paths:
+  /open/feature-flags/boolean/{key}:
+    post:
+      summary: >-
+        Determines if a feature flag is enabled. Only used for unauthenticated
+        users.
+      description: Determines if a feature flag is enabled.
+      operationId: booleanFeatureFlagUnauthenticated
+      tags:
+        - featureFlags
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: key
+          type: string
+          required: true
+          description: Feature Flag Key
+        - in: body
+          name: flagContext
+          required: true
+          description: context for the feature flag request
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Boolean Feature Flag Status
+          schema:
+            $ref: '#/definitions/FeatureFlagBoolean'
+        '401':
+          description: request requires user authentication
+        '500':
+          description: internal server error
   /feature-flags/user-boolean/{key}:
     post:
       summary: Determines if a user has a feature flag enabled

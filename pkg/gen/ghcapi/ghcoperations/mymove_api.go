@@ -7,6 +7,7 @@ package ghcoperations
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -70,6 +71,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
+		TextEventStreamProducer: runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
+			return errors.NotImplemented("textEventStream producer has not yet been implemented")
+		}),
 
 		OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler: order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandlerFunc(func(params order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessUnaccompaniedBaggageWeightRisk has not yet been implemented")
@@ -176,6 +180,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler: customer_support_remarks.GetCustomerSupportRemarksForMoveHandlerFunc(func(params customer_support_remarks.GetCustomerSupportRemarksForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.GetCustomerSupportRemarksForMove has not yet been implemented")
 		}),
+		QueuesGetDestinationRequestsQueueHandler: queues.GetDestinationRequestsQueueHandlerFunc(func(params queues.GetDestinationRequestsQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetDestinationRequestsQueue has not yet been implemented")
+		}),
 		GhcDocumentsGetDocumentHandler: ghc_documents.GetDocumentHandlerFunc(func(params ghc_documents.GetDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation ghc_documents.GetDocument has not yet been implemented")
 		}),
@@ -265,6 +272,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		UploadsGetUploadHandler: uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
+		}),
+		UploadsGetUploadStatusHandler: uploads.GetUploadStatusHandlerFunc(func(params uploads.GetUploadStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUploadStatus has not yet been implemented")
 		}),
 		CalendarIsDateWeekendHolidayHandler: calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
 			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
@@ -449,6 +459,9 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
+	// TextEventStreamProducer registers a producer for the following mime types:
+	//   - text/event-stream
+	TextEventStreamProducer runtime.Producer
 
 	// OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler sets the operation handler for the acknowledge excess unaccompanied baggage weight risk operation
 	OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler
@@ -520,6 +533,8 @@ type MymoveAPI struct {
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler sets the operation handler for the get customer support remarks for move operation
 	CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler customer_support_remarks.GetCustomerSupportRemarksForMoveHandler
+	// QueuesGetDestinationRequestsQueueHandler sets the operation handler for the get destination requests queue operation
+	QueuesGetDestinationRequestsQueueHandler queues.GetDestinationRequestsQueueHandler
 	// GhcDocumentsGetDocumentHandler sets the operation handler for the get document operation
 	GhcDocumentsGetDocumentHandler ghc_documents.GetDocumentHandler
 	// MoveTaskOrderGetEntitlementsHandler sets the operation handler for the get entitlements operation
@@ -580,6 +595,8 @@ type MymoveAPI struct {
 	TransportationOfficeGetTransportationOfficesOpenHandler transportation_office.GetTransportationOfficesOpenHandler
 	// UploadsGetUploadHandler sets the operation handler for the get upload operation
 	UploadsGetUploadHandler uploads.GetUploadHandler
+	// UploadsGetUploadStatusHandler sets the operation handler for the get upload status operation
+	UploadsGetUploadStatusHandler uploads.GetUploadStatusHandler
 	// CalendarIsDateWeekendHolidayHandler sets the operation handler for the is date weekend holiday operation
 	CalendarIsDateWeekendHolidayHandler calendar.IsDateWeekendHolidayHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
@@ -754,6 +771,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
+	if o.TextEventStreamProducer == nil {
+		unregistered = append(unregistered, "TextEventStreamProducer")
+	}
 
 	if o.OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler == nil {
 		unregistered = append(unregistered, "order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler")
@@ -860,6 +880,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.GetCustomerSupportRemarksForMoveHandler")
 	}
+	if o.QueuesGetDestinationRequestsQueueHandler == nil {
+		unregistered = append(unregistered, "queues.GetDestinationRequestsQueueHandler")
+	}
 	if o.GhcDocumentsGetDocumentHandler == nil {
 		unregistered = append(unregistered, "ghc_documents.GetDocumentHandler")
 	}
@@ -949,6 +972,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.UploadsGetUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.GetUploadHandler")
+	}
+	if o.UploadsGetUploadStatusHandler == nil {
+		unregistered = append(unregistered, "uploads.GetUploadStatusHandler")
 	}
 	if o.CalendarIsDateWeekendHolidayHandler == nil {
 		unregistered = append(unregistered, "calendar.IsDateWeekendHolidayHandler")
@@ -1140,6 +1166,8 @@ func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produce
 			result["application/pdf"] = o.BinProducer
 		case "application/json":
 			result["application/json"] = o.JSONProducer
+		case "text/event-stream":
+			result["text/event-stream"] = o.TextEventStreamProducer
 		}
 
 		if p, ok := o.customProducers[mt]; ok {
@@ -1323,6 +1351,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/queues/destination-requests"] = queues.NewGetDestinationRequestsQueue(o.context, o.QueuesGetDestinationRequestsQueueHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/documents/{documentId}"] = ghc_documents.NewGetDocument(o.context, o.GhcDocumentsGetDocumentHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1440,6 +1472,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/uploads/get"] = uploads.NewGetUpload(o.context, o.UploadsGetUploadHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/uploads/{uploadID}/status"] = uploads.NewGetUploadStatus(o.context, o.UploadsGetUploadStatusHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
