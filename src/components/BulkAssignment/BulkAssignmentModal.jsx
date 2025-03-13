@@ -184,7 +184,11 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                     (user) => user.officeUserId === selectedRadio,
                   ).workload;
                   setNumberOfMoves(reAssignableMoves);
-                } else if (event.target.checked && selectedRadio == null) {
+                } else if (
+                  // to catch when initially switching to bulk re-assign or if there is a data issue
+                  (event.target.checked && selectedRadio == null) ||
+                  !bulkAssignmentData.bulkAssignmentMoveIDs
+                ) {
                   setNumberOfMoves(0);
                 } else {
                   setNumberOfMoves(bulkAssignmentData.bulkAssignmentMoveIDs.length);
@@ -318,19 +322,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                                 }
                                 onChange={(event) => {
                                   handleAssignmentChange(event, user, i);
-
-                                  const newUserAssignment = {
-                                    ID: user.officeUserId,
-                                    moveAssignments: event.target.value ? +event.target.value : 0,
-                                  };
-
-                                  const newUserData = [...values.userData];
-                                  newUserData[i] = newUserAssignment;
-
-                                  setValues({
-                                    ...values,
-                                    userData: newUserData,
-                                  });
                                 }}
                               />
                             </td>
