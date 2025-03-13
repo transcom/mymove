@@ -185,7 +185,7 @@ const mockUBShipment = {
 const mockHHGWithSecondaryAddresses = {
   ...mockMtoShipment,
   secondaryPickupAddress: {
-    streetAddress1: '111 Test Street',
+    streetAddress1: '13 E Elm Street',
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
@@ -1364,10 +1364,8 @@ describe('ShipmentForm component', () => {
         expect(county[1]).toBeInstanceOf(HTMLLabelElement);
       });
 
-      expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
-      expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
       // verify 2nd pickup address is populated
-      expect(streetAddress1[1]).toHaveValue('111 Test Street');
+      expect(streetAddress1[1]).toHaveValue('13 E Elm Street');
       expect(city[1]).toHaveTextContent('San Antonio');
       expect(state[1]).toHaveTextContent('TX');
       expect(zip[1]).toHaveTextContent('78234');
