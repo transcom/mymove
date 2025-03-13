@@ -6246,7 +6246,7 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
-      civilian_tdy_ub_allowance:
+      civilianTdyUbAllowance:
         type: integer
         example: 3
         x-nullable: true
