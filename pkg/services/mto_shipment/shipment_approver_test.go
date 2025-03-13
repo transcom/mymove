@@ -1712,7 +1712,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimat
 				mock.AnythingOfType("*appcontext.appContext"),
 				mock.AnythingOfType("string"),
 				mock.AnythingOfType("string"),
-				true,
 			).Return(500, nil)
 
 			// Aprove the shipment to trigger the estimate pricing proc on INPK
