@@ -18,11 +18,10 @@ const initialValues = {
 };
 
 export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
-  const [selectedUsers, setSelectedUsers] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
-  const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
+  const [selectedUsers, setSelectedUsers] = useState({});
   const [numberOfMoves, setNumberOfMoves] = useState(0);
   const [showCancelModal, setShowCancelModal] = useState(false);
 
@@ -216,7 +215,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                                 id={user.officeUserId}
                                 data-testid="assignment"
                                 min={0}
-                                value={values.userData[i]?.moveAssignments || 0}
+                                value={values.userData[i]?.moveAssignments.toString() || 0}
                                 onChange={(event) => handleAssignmentChange(event, user, i)}
                               />
                             </td>
@@ -250,7 +249,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                     ) : (
                       <ModalActions autofocus="true">
                         <div className={styles.BulkAssignmentButtonsContainer}>
-                          <div>
+                          <div className={styles.BulkAssignmentButtonsLeft}>
                             <Button
                               disabled={isDisabled || isFormUnchanged(values)}
                               data-focus="true"

@@ -111,4 +111,9 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+
+  .BulkAssignmentButtonsLeft {
+    display: flex;
+    flex-direction: row;
+  }
 }
