@@ -107,7 +107,10 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                 return;
               }
 
-              const bulkAssignmentSavePayload = values;
+              const bulkAssignmentSavePayload = {
+                moveData: values.moveData,
+                userData: values.userData.filter((user) => user.moveAssignments > 0),
+              };
               onSubmit({ bulkAssignmentSavePayload });
               onClose();
             }}
@@ -115,6 +118,24 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
             initialValues={initialValues}
           >
             {({ handleChange, setValues, values }) => {
+              const handleAssignmentChange = (event, user, i) => {
+                handleChange(event);
+                setIsError(false);
+
+                const newUserAssignment = {
+                  ID: user.officeUserId,
+                  moveAssignments: event.target.value ? +event.target.value : 0,
+                };
+
+                const newUserData = [...values.userData];
+                newUserData[i] = newUserAssignment;
+
+                setValues({
+                  ...values,
+                  userData: newUserData,
+                });
+              };
+
               const handleEqualAssignClick = () => {
                 const totalMoves = bulkAssignmentData?.bulkAssignmentMoveIDs?.length;
                 const numUsers = Object.keys(selectedUsers).filter((id) => selectedUsers[id]).length;
@@ -136,23 +157,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                 setValues({
                   ...values,
                   ...newValues,
-                });
-              };
-              const handleAssignmentChange = (event, user, i) => {
-                handleChange(event);
-                setIsError(false);
-
-                const newUserAssignment = {
-                  ID: user.officeUserId,
-                  moveAssignments: event.target.value ? +event.target.value : 0,
-                };
-
-                const newUserData = [...values.userData];
-                newUserData[i] = newUserAssignment;
-
-                setValues({
-                  ...values,
-                  userData: newUserData,
                 });
               };
 
