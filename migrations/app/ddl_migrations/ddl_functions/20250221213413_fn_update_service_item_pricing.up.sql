@@ -143,6 +143,8 @@ BEGIN
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
 			        WHERE id = service_item.id;
+                ELSE
+                    RAISE NOTICE ''service_code: % - Failed to compute pricing[estimated_fsc_multiplier: %, distance: %]'', service_code, estimated_fsc_multiplier, distance;
                 END IF;
 
             WHEN service_code IN (''IOASIT'', ''IDASIT'') THEN
@@ -170,6 +172,8 @@ BEGIN
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
 			        WHERE id = service_item.id;
+                ELSE
+                    RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, days_in_sit: %]'', service_code, escalated_price, days_in_sit;
                 END IF;
 
             ELSE
