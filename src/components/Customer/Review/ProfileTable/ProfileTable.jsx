@@ -19,6 +19,7 @@ const ProfileTable = ({
   state,
   streetAddress1,
   streetAddress2,
+  streetAddress3,
   telephone,
 }) => {
   const containerClassNames = classnames(reviewStyles['review-container'], reviewStyles['profile-container']);
@@ -68,7 +69,7 @@ const ProfileTable = ({
           <tr>
             <th scope="row">Current address</th>
             <td>
-              {streetAddress1} {streetAddress2}
+              {streetAddress1} {streetAddress2} {streetAddress3}
               <br />
               {city}, {state} {postalCode}
             </td>

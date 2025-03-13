@@ -20,6 +20,8 @@ const defaultProps = {
   marketCode: 'i',
   pickupLocation: {
     streetAddress1: '17 8th St',
+    streetAddress2: 'second',
+    streetAddress3: 'third',
     city: 'New York',
     state: 'NY',
     postalCode: '11111',
@@ -69,6 +71,8 @@ function mountNTSShipmentCard(props) {
 const secondaryPickupAddress = {
   secondaryPickupAddress: {
     streetAddress1: 'Some Other Street Name',
+    streetAddress2: '',
+    streetAddress3: '',
     city: 'New York',
     state: 'NY',
     postalCode: '111111',
@@ -79,7 +83,7 @@ describe('NTSShipmentCard component', () => {
   it('renders component with all fields', () => {
     const wrapper = mountNTSShipmentCard();
     const tableHeaders = ['Requested pickup date', 'Pickup Address', 'Releasing agent', 'Remarks'];
-    const { streetAddress1, city, state, postalCode } = defaultProps.pickupLocation;
+    const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = defaultProps.pickupLocation;
     const {
       firstName: releasingFirstName,
       lastName: releasingLastName,
@@ -88,7 +92,7 @@ describe('NTSShipmentCard component', () => {
     } = defaultProps.releasingAgent;
     const tableData = [
       formatCustomerDate(defaultProps.requestedPickupDate),
-      `${streetAddress1} ${city}, ${state} ${postalCode}`,
+      `${streetAddress1} ${streetAddress2} ${streetAddress3}${city}, ${state} ${postalCode}`,
       `${releasingFirstName} ${releasingLastName} ${releasingTelephone} ${releasingEmail}`,
     ];
 
@@ -105,10 +109,10 @@ describe('NTSShipmentCard component', () => {
   it('should render without releasing/receiving agents and remarks', () => {
     const wrapper = mountNTSShipmentCard({ ...defaultProps, releasingAgent: null, remarks: '' });
     const tableHeaders = ['Requested pickup date', 'Pickup Address'];
-    const { streetAddress1, city, state, postalCode } = defaultProps.pickupLocation;
+    const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = defaultProps.pickupLocation;
     const tableData = [
       formatCustomerDate(defaultProps.requestedPickupDate),
-      `${streetAddress1} ${city}, ${state} ${postalCode}`,
+      `${streetAddress1} ${streetAddress2} ${streetAddress3}${city}, ${state} ${postalCode}`,
     ];
     tableHeaders.forEach((label, index) => expect(wrapper.find('dt').at(index).text()).toBe(label));
     tableData.forEach((label, index) => expect(wrapper.find('dd').at(index).text()).toBe(label));
