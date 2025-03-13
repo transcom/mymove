@@ -76,6 +76,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		FeatureFlagsBooleanFeatureFlagForUserHandler: feature_flags.BooleanFeatureFlagForUserHandlerFunc(func(params feature_flags.BooleanFeatureFlagForUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagForUser has not yet been implemented")
 		}),
+		FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler: feature_flags.BooleanFeatureFlagUnauthenticatedHandlerFunc(func(params feature_flags.BooleanFeatureFlagUnauthenticatedParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagUnauthenticated has not yet been implemented")
+		}),
 		OfficeCancelMoveHandler: office.CancelMoveHandlerFunc(func(params office.CancelMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.CancelMove has not yet been implemented")
 		}),
@@ -330,6 +333,8 @@ type MymoveAPI struct {
 	OfficeApproveReimbursementHandler office.ApproveReimbursementHandler
 	// FeatureFlagsBooleanFeatureFlagForUserHandler sets the operation handler for the boolean feature flag for user operation
 	FeatureFlagsBooleanFeatureFlagForUserHandler feature_flags.BooleanFeatureFlagForUserHandler
+	// FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler sets the operation handler for the boolean feature flag unauthenticated operation
+	FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler feature_flags.BooleanFeatureFlagUnauthenticatedHandler
 	// OfficeCancelMoveHandler sets the operation handler for the cancel move operation
 	OfficeCancelMoveHandler office.CancelMoveHandler
 	// DocumentsCreateDocumentHandler sets the operation handler for the create document operation
@@ -555,6 +560,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.FeatureFlagsBooleanFeatureFlagForUserHandler == nil {
 		unregistered = append(unregistered, "feature_flags.BooleanFeatureFlagForUserHandler")
+	}
+	if o.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler == nil {
+		unregistered = append(unregistered, "feature_flags.BooleanFeatureFlagUnauthenticatedHandler")
 	}
 	if o.OfficeCancelMoveHandler == nil {
 		unregistered = append(unregistered, "office.CancelMoveHandler")
@@ -861,6 +869,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/feature-flags/user-boolean/{key}"] = feature_flags.NewBooleanFeatureFlagForUser(o.context, o.FeatureFlagsBooleanFeatureFlagForUserHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/open/feature-flags/boolean/{key}"] = feature_flags.NewBooleanFeatureFlagUnauthenticated(o.context, o.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
