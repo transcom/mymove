@@ -598,6 +598,12 @@ export const constructSCOrderOconusFields = (values) => {
           Number(values.dependentsTwelveAndOver) ?? 0
         : // If CONUS or no dependents, omit this field altogether
           null,
+    civilianTdyUbAllowance: isOconus
+      ? // If OCONUS
+        // then provide the civilian TDY UB allowance. Default to 0 if not present
+        Number(values.civilianTdyUbAllowance) ?? 0
+      : // If CONUS, omit this field altogether
+        null,
   };
 };
 
