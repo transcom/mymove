@@ -152,7 +152,7 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 						return err
 					}
 
-					err = o.signCertificationPPMCounselingCompleted(appCtx, move.ID, move.MTOShipments[i].PPMShipment.ID)
+					err = o.SignCertificationPPMCounselingCompleted(appCtx, move.ID, move.MTOShipments[i].PPMShipment.ID)
 					if err != nil {
 						return err
 					}
@@ -527,7 +527,7 @@ func (o moveTaskOrderUpdater) UpdatePPMType(appCtx appcontext.AppContext, moveTa
 	return updatedMove, nil
 }
 
-func (o moveTaskOrderUpdater) signCertificationPPMCounselingCompleted(appCtx appcontext.AppContext, moveID uuid.UUID, ppmShipmentID uuid.UUID) error {
+func (o moveTaskOrderUpdater) SignCertificationPPMCounselingCompleted(appCtx appcontext.AppContext, moveID uuid.UUID, ppmShipmentID uuid.UUID) error {
 	// Retrieve if PPM has certificate
 	signedCertifications, err := models.FetchSignedCertificationPPMByType(appCtx.DB(), appCtx.Session(), moveID, ppmShipmentID, models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT)
 	if err != nil {

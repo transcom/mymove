@@ -457,7 +457,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(screen.getAllByLabelText('Address 1')[5]).toHaveValue('');
 
     expect(
-      screen.getByText('Will the movers deliver any belongings from a third address?', {
+      screen.getByText('Will the movers deliver any belongings to a third address?', {
         exact: false,
       }),
     ).toBeInTheDocument();
