@@ -172,6 +172,8 @@ BEGIN
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
 			        WHERE id = service_item.id;
+                ELSE
+                    RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, days_in_sit: %]'', service_code, escalated_price, days_in_sit;
                 END IF;
 
             ELSE
