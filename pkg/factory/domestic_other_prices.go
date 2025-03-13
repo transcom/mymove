@@ -22,12 +22,19 @@ func FetchOrMakeDomesticOtherPrice(db *pop.Connection, customs []Customization, 
 		}
 	}
 
+	contractYear := testdatagen.FetchOrMakeReContractYear(db, testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			StartDate: testdatagen.ContractStartDate,
+			EndDate:   testdatagen.ContractEndDate,
+		},
+	})
+
 	// fetch first before creating
 	// the contractID, serviceID, peak, and schedule need to be unique
 	var reDomesticOtherPrice models.ReDomesticOtherPrice
-	if cReDomesticOtherPrice.ContractID != uuid.Nil && cReDomesticOtherPrice.ServiceID != uuid.Nil && cReDomesticOtherPrice.Schedule != 0 {
+	if contractYear.ContractID != uuid.Nil && cReDomesticOtherPrice.ServiceID != uuid.Nil && cReDomesticOtherPrice.Schedule != 0 {
 		err := db.Where("contract_id = ? AND service_id = ? AND is_peak_period = ? AND schedule = ?",
-			cReDomesticOtherPrice.ContractID,
+			contractYear.ContractID,
 			cReDomesticOtherPrice.ServiceID,
 			cReDomesticOtherPrice.IsPeakPeriod,
 			cReDomesticOtherPrice.Schedule).

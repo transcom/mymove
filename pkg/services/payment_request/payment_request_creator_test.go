@@ -133,82 +133,75 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusRejected},
 			},
 		}, nil)
-		serviceItemParamKey1 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey1 = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
-					Key:         models.ServiceItemParamNameWeightEstimated,
-					Description: "estimated weight",
-					Type:        models.ServiceItemParamTypeInteger,
-					Origin:      models.ServiceItemParamOriginPrime,
+					Key:    models.ServiceItemParamNameWeightEstimated,
+					Type:   models.ServiceItemParamTypeInteger,
+					Origin: models.ServiceItemParamOriginPrime,
 				},
 			},
 		}, nil)
-		serviceItemParamKey2 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey2 = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
-					Key:         models.ServiceItemParamNameRequestedPickupDate,
-					Description: "requested pickup date",
-					Type:        models.ServiceItemParamTypeDate,
-					Origin:      models.ServiceItemParamOriginPrime,
+					Key:    models.ServiceItemParamNameRequestedPickupDate,
+					Type:   models.ServiceItemParamTypeDate,
+					Origin: models.ServiceItemParamOriginPrime,
 				},
 			},
 		}, nil)
-		serviceItemParamKey3 = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey3 = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
-					Key:         models.ServiceItemParamNameZipPickupAddress,
-					Description: "zip pickup address",
-					Type:        models.ServiceItemParamTypeString,
-					Origin:      models.ServiceItemParamOriginPrime,
-				},
-			},
-		}, nil)
-
-		serviceItemParamKey4 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceItemParamKey{
-					Key:         models.ServiceItemParamNameEscalationCompounded,
-					Description: "escalation factor",
-					Type:        models.ServiceItemParamTypeDecimal,
-					Origin:      models.ServiceItemParamOriginPricer,
+					Key:    models.ServiceItemParamNameZipPickupAddress,
+					Type:   models.ServiceItemParamTypeString,
+					Origin: models.ServiceItemParamOriginPrime,
 				},
 			},
 		}, nil)
 
-		serviceItemParamKey5 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey4 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
-					Key:         models.ServiceItemParamNameContractYearName,
-					Description: "contract year name",
-					Type:        models.ServiceItemParamTypeString,
-					Origin:      models.ServiceItemParamOriginPricer,
+					Key:    models.ServiceItemParamNameEscalationCompounded,
+					Type:   models.ServiceItemParamTypeDecimal,
+					Origin: models.ServiceItemParamOriginPricer,
 				},
 			},
 		}, nil)
 
-		serviceItemParamKey6 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey5 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
-					Key:         models.ServiceItemParamNameIsPeak,
-					Description: "is peak",
-					Type:        models.ServiceItemParamTypeBoolean,
-					Origin:      models.ServiceItemParamOriginPricer,
+					Key:    models.ServiceItemParamNameContractYearName,
+					Type:   models.ServiceItemParamTypeString,
+					Origin: models.ServiceItemParamOriginPricer,
 				},
 			},
 		}, nil)
 
-		serviceItemParamKey7 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		serviceItemParamKey6 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
-					Key:         models.ServiceItemParamNamePriceRateOrFactor,
-					Description: "Price, rate, or factor used in calculation",
-					Type:        models.ServiceItemParamTypeDecimal,
-					Origin:      models.ServiceItemParamOriginPricer,
+					Key:    models.ServiceItemParamNameIsPeak,
+					Type:   models.ServiceItemParamTypeBoolean,
+					Origin: models.ServiceItemParamOriginPricer,
 				},
 			},
 		}, nil)
 
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		serviceItemParamKey7 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceItemParamKey{
+					Key:    models.ServiceItemParamNamePriceRateOrFactor,
+					Type:   models.ServiceItemParamTypeDecimal,
+					Origin: models.ServiceItemParamOriginPricer,
+				},
+			},
+		}, nil)
+
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -223,7 +216,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}, nil)
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -233,7 +226,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -243,7 +236,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -253,7 +246,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -263,7 +256,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem1.ReService,
 				LinkOnly: true,
@@ -274,7 +267,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}, nil)
 
-		factory.BuildServiceParam(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem2.ReService,
 				LinkOnly: true,
@@ -367,8 +360,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal(expectedSequenceNumber, paymentRequestReturn.SequenceNumber)
 		suite.NotEqual(paymentRequestReturn.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequestReturn.PaymentServiceItems), "PaymentServiceItems expect 2")
-		suite.Equal(6, len(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 6")
-		suite.Equal(5, len(paymentRequestReturn.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
+		suite.Equal(15, len(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 15")
+		suite.Equal(13, len(paymentRequestReturn.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 13")
 
 		if suite.Len(paymentRequestReturn.PaymentServiceItems, 2) {
 			for _, paymentServiceItem := range paymentRequestReturn.PaymentServiceItems {

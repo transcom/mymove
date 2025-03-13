@@ -28,7 +28,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticPackPricer() {
 	pricer := NewDomesticPackPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents)
 		paymentServiceItem := suite.setupDomesticPackServiceItem()
 
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)

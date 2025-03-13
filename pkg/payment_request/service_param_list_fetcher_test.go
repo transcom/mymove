@@ -11,23 +11,23 @@ func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 	dopService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
 
 	// Make a few keys
-	contractCodeKey := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	requestedPickupDateKey := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
-				Key:    models.ServiceItemParamNameContractCode,
+				Key:    models.ServiceItemParamNameRequestedPickupDate,
 				Origin: models.ServiceItemParamOriginSystem,
 			},
 		},
 	}, nil)
-	contractYearNameKey := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	requestedPickupDateNameKey := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
-				Key:    models.ServiceItemParamNameContractYearName,
+				Key:    models.ServiceItemParamNameRequestedPickupDate,
 				Origin: models.ServiceItemParamOriginPricer,
 			},
 		},
 	}, nil)
-	weightEstimatedKey := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	weightEstimatedKey := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:    models.ServiceItemParamNameWeightEstimated,
@@ -41,13 +41,13 @@ func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 		service models.ReService
 		keys    models.ServiceItemParamKeys
 	}{
-		{dlhService, models.ServiceItemParamKeys{contractCodeKey, contractYearNameKey}},
-		{dopService, models.ServiceItemParamKeys{contractYearNameKey, weightEstimatedKey}},
+		{dlhService, models.ServiceItemParamKeys{requestedPickupDateKey, requestedPickupDateNameKey}},
+		{dopService, models.ServiceItemParamKeys{requestedPickupDateNameKey, weightEstimatedKey}},
 	}
 
 	for _, serviceKey := range serviceKeysAssociation {
 		for _, key := range serviceKey.keys {
-			factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 				{
 					Model:    serviceKey.service,
 					LinkOnly: true,
@@ -72,11 +72,11 @@ func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 	serviceParams, err := helper.FetchServiceParamList(suite.AppContextForTest(), dlhServiceItem)
 	suite.NoError(err)
 
-	// We should get back only the contract code key since the contract year has origin of pricer
-	if suite.Len(serviceParams, 1) {
+	// We should get back all params applicable to DLH where origin is not PRICER
+	if suite.Len(serviceParams, 13) {
 		suite.Equal(dlhService.ID, serviceParams[0].ServiceID)
-		suite.Equal(contractCodeKey.ID, serviceParams[0].ServiceItemParamKeyID)
+		suite.Equal(requestedPickupDateKey.ID, serviceParams[0].ServiceItemParamKeyID)
 		// Make sure we can read something off the ServiceItemParamKey association since it should have loaded
-		suite.Equal(contractCodeKey.Key, serviceParams[0].ServiceItemParamKey.Key)
+		suite.Equal(requestedPickupDateKey.Key, serviceParams[0].ServiceItemParamKey.Key)
 	}
 }

@@ -107,6 +107,9 @@ const DefaultContractCode = "HTC711-22-D-R002"
 // DefaultContractName name used for contractor in testing
 const DefaultContractName = "Global HHG Relocation Services"
 
+// DefaultContractYearName name used for contractor in testing
+const DefaultContractYearName = "Base Period Year 1"
+
 // DefaultContractType default prime type is Prime for testing
 const DefaultContractType = "Prime"
 

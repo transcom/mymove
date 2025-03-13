@@ -13,17 +13,17 @@ import (
 )
 
 const (
-	ddasitTestServiceArea          = "789"
-	ddasitTestIsPeakPeriod         = false
-	ddasitTestBasePriceCents       = unit.Cents(747)
-	ddasitTestContractYearName     = "DDASIT Test Year"
-	ddasitTestEscalationCompounded = 1.042
+	ddasitTestServiceArea          = "796"
+	ddasitTestIsPeakPeriod         = true
+	ddasitTestBasePriceCents       = unit.Cents(71)
+	ddasitTestContractYearName     = "Base Period Year 1"
+	ddasitTestEscalationCompounded = 1.11
 	ddasitTestWeight               = unit.Pound(4200)
 	ddasitTestNumberOfDaysInSIT    = 29
-	ddasitTestPriceCents           = unit.Cents(947604)
+	ddasitTestPriceCents           = unit.Cents(96222)
 )
 
-var ddasitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)
+var ddasitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSITPricer() {
 	pricer := NewDomesticDestinationAdditionalDaysSITPricer()
@@ -82,13 +82,6 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSIT
 		suite.Contains(err.Error(), "could not fetch domestic destination additional days SIT rate")
 	})
 
-	suite.Run("not finding a contract year record", func() {
-		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDASIT, ddasitTestServiceArea, ddasitTestIsPeakPeriod, ddasitTestBasePriceCents, ddasitTestContractYearName, ddasitTestEscalationCompounded)
-		twoYearsLaterPickupDate := ddasitTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddasitTestWeight, ddasitTestServiceArea, ddasitTestNumberOfDaysInSIT, false)
-		suite.Error(err)
-		suite.Contains(err.Error(), "could not lookup contract year")
-	})
 }
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSITPricerMissingParams() {

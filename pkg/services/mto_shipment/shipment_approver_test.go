@@ -161,7 +161,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
 			StartDate: testdatagen.ContractStartDate,
-			EndDate:   testdatagen.NextValidMoveDate,
+			EndDate:   testdatagen.ContractEndDate,
 		},
 	})
 
@@ -179,7 +179,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		},
 	})
 
-	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+	baseLinehaulPrice := testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
 			ContractID:            contractYear.Contract.ID,
 			Contract:              contractYear.Contract,
@@ -189,7 +189,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		},
 	})
 
-	_ = testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+	_ = testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
 			ContractID:            contractYear.Contract.ID,
 			Contract:              contractYear.Contract,

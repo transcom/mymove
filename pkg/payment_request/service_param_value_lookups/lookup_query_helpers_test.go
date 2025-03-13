@@ -15,13 +15,13 @@ func (suite *ServiceParamValueLookupsSuite) TestLookupQueryHelpers() {
 		},
 	})
 
-	zip3 := testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+	reZip3 := testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 		ReZip3: models.ReZip3{
-			ContractID: domesticServiceArea.ContractID,
-			Zip3:       "350",
+			Zip3: "350",
 		},
 	})
-	dsa, err := fetchDomesticServiceArea(suite.AppContextForTest(), zip3.Contract.Code, zip3.Zip3)
+
+	dsa, err := fetchDomesticServiceArea(suite.AppContextForTest(), reZip3.Contract.Code, reZip3.Zip3)
 	suite.FatalNoError(err)
 	suite.Equal(strfmt.UUID(domesticServiceArea.ID.String()), strfmt.UUID(dsa.ID.String()))
 

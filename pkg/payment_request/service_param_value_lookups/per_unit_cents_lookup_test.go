@@ -315,12 +315,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	})
 
 	suite.Run("failure - no requested pickup date on shipment", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
+
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{

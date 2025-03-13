@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	dnpkTestEscalationCompounded   = 1.0407
+	dnpkTestEscalationCompounded   = 1.11
 	dnpkTestIsPeakPeriod           = true
 	dnpkTestWeight                 = unit.Pound(2100)
 	dnpkTestServicesScheduleOrigin = 1
-	dnpkTestContractYearName       = "DNPK Test Year"
+	dnpkTestContractYearName       = "Base Period Year 1"
 	dnpkTestBasePriceCents         = unit.Cents(6544)
 	dnpkTestFactor                 = 1.35
 	dnpkTestPriceCents             = unit.Cents(193064)

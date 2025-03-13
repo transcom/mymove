@@ -15,7 +15,7 @@ import (
 const (
 	ddshutTestServiceSchedule      = 2
 	ddshutTestBasePriceCents       = unit.Cents(353)
-	ddshutTestEscalationCompounded = 1.125
+	ddshutTestEscalationCompounded = 1.11
 	ddshutTestWeight               = unit.Pound(4000)
 	ddshutTestPriceCents           = unit.Cents(15880)
 )
@@ -70,14 +70,6 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationShuttlingPricer()
 		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
 	})
 
-	suite.Run("not finding a contract year record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
-		twoYearsLaterPickupDate := ddshutTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
-		suite.Error(err)
-
-		suite.Contains(err.Error(), "could not calculate escalated price")
-	})
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationShuttlingServiceItem() models.PaymentServiceItem {

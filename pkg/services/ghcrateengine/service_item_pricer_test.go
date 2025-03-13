@@ -105,7 +105,7 @@ func (suite *GHCRateEngineServiceSuite) setupPriceServiceItemData() {
 
 func (suite *GHCRateEngineServiceSuite) setupPriceServiceItem() models.PaymentServiceItem {
 	// This ParamKey doesn't need to be connected to the PaymentServiceItem yet, so we'll create it separately
-	factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:    models.ServiceItemParamNamePriceRateOrFactor,

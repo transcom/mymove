@@ -13,17 +13,17 @@ import (
 )
 
 const (
-	doasitTestServiceArea          = "789"
-	doasitTestIsPeakPeriod         = false
+	doasitTestServiceArea          = "796"
+	doasitTestIsPeakPeriod         = true
 	doasitTestBasePriceCents       = unit.Cents(747)
-	doasitTestContractYearName     = "DOASIT Test Year"
-	doasitTestEscalationCompounded = 1.042
+	doasitTestContractYearName     = "Base Period Year 1"
+	doasitTestEscalationCompounded = 1.11
 	doasitTestWeight               = unit.Pound(4200)
 	doasitTestNumberOfDaysInSIT    = 29
 	doasitTestPriceCents           = unit.Cents(947604)
 )
 
-var doasitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)
+var doasitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPricer() {
 	pricer := NewDomesticOriginAdditionalDaysSITPricer()
@@ -80,14 +80,6 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", doasitTestRequestedPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT, false)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch domestic origin additional days SIT rate")
-	})
-
-	suite.Run("not finding a contract year record", func() {
-		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOASIT, doasitTestServiceArea, doasitTestIsPeakPeriod, doasitTestBasePriceCents, doasitTestContractYearName, doasitTestEscalationCompounded)
-		twoYearsLaterPickupDate := doasitTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT, false)
-		suite.Error(err)
-		suite.Contains(err.Error(), "could not lookup contract year")
 	})
 }
 

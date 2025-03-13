@@ -43,7 +43,7 @@ func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServ
 	suite.MustSave(&taskOrderFee)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReServiceCode, schedule int, isPeakPeriod bool, priceCents unit.Cents, contractYearName string, escalationCompounded float64) {
+func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReServiceCode, schedule int, isPeakPeriod bool, priceCents unit.Cents) {
 	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{

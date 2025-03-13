@@ -19,8 +19,8 @@ const (
 	dlhTestMilesLower           = 1001
 	dlhTestMilesUpper           = 1500
 	dlhTestBasePriceMillicents  = unit.Millicents(388600)
-	dlhTestContractYearName     = "DLH Test Year"
-	dlhTestEscalationCompounded = 1.04071
+	dlhTestContractYearName     = "Base Period Year 1"
+	dlhTestEscalationCompounded = 1.11
 	dlhTestDistance             = unit.Miles(1201)
 	dlhTestWeight               = unit.Pound(4001)
 	dlhPriceCents               = unit.Cents(19432233)

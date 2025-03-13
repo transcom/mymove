@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 		testdatagen.FetchOrMakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
 			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
 				FuelPriceInMillicents: unit.Millicents(281400),
-				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
+				PublicationDate:       time.Date(2024, time.March, 9, 0, 0, 0, 0, time.UTC),
 			},
 		})
 
@@ -52,13 +52,14 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		})
 
+		reZip3 := models.ReZip3{
+			ContractID: contractYear.Contract.ID,
+			Zip3:       "902",
+			Contract:   contractYear.Contract,
+		}
+
 		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
-			ReZip3: models.ReZip3{
-				Contract:            contractYear.Contract,
-				ContractID:          contractYear.ContractID,
-				DomesticServiceArea: originDomesticServiceArea,
-				Zip3:                "902",
-			},
+			ReZip3: reZip3,
 		})
 
 		destDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
@@ -69,13 +70,14 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		})
 
+		reZip3a := models.ReZip3{
+			ContractID: contractYear.Contract.ID,
+			Zip3:       "308",
+			Contract:   contractYear.Contract,
+		}
+
 		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
-			ReZip3: models.ReZip3{
-				Contract:            contractYear.Contract,
-				ContractID:          contractYear.ContractID,
-				DomesticServiceArea: destDomesticServiceArea,
-				Zip3:                "308",
-			},
+			ReZip3: reZip3a,
 		})
 
 		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{

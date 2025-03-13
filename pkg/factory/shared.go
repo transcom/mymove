@@ -21,7 +21,7 @@ import (
 // CONSTANTS
 
 // DefaultContractCode is the default contract code for testing
-const DefaultContractCode = "TRUSS_TEST"
+const DefaultContractCode = "HTC711-22-D-R002"
 
 // Customization type is the building block for passing in customizations and traits
 type Customization struct {
