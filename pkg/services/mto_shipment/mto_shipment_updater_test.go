@@ -156,9 +156,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		eTag := etag.GenerateEtag(time.Now())
 
-		var testScheduledPickupDate time.Time
-		mtoShipment.ScheduledPickupDate = &testScheduledPickupDate
-
 		session := auth.Session{}
 		_, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment, eTag, "test")
 		suite.Error(err)
@@ -256,8 +253,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		primeEstimatedWeight = unit.Pound(9000)
 
 		eTag := etag.GenerateEtag(oldMTOShipment.UpdatedAt)
-		var testScheduledPickupDate time.Time
-		mtoShipment.ScheduledPickupDate = &testScheduledPickupDate
 
 		session := auth.Session{}
 		updatedMTOShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &mtoShipment, eTag, "test")
@@ -278,13 +273,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.Run("Updater can handle optional queries set as nil", func() {
 		setupTestData()
-		var testScheduledPickupDate time.Time
 
 		oldMTOShipment2 := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		mtoShipment2 := models.MTOShipment{
-			ID:                  oldMTOShipment2.ID,
-			ShipmentType:        "UNACCOMPANIED_BAGGAGE",
-			ScheduledPickupDate: &testScheduledPickupDate,
+			ID:           oldMTOShipment2.ID,
+			ShipmentType: "UNACCOMPANIED_BAGGAGE",
 		}
 
 		eTag := etag.GenerateEtag(oldMTOShipment2.UpdatedAt)
