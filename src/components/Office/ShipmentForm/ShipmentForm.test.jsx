@@ -2286,6 +2286,16 @@ describe('ShipmentForm component', () => {
     });
   });
 
+  describe('creating a new PPM shipment', () => {
+    it('renders the PPM shipment form correctly', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.PPM} isCreatePage />);
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+      expect(await screen.findByText('PPM')).toBeInTheDocument();
+      expect(await screen.findByTestId('scPPMCreateWarning')).toBeInTheDocument();
+    });
+  });
+
   describe('creating a new Boat shipment', () => {
     it('renders the Boat shipment form correctly', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.BOAT_HAUL_AWAY} isCreatePage />);
