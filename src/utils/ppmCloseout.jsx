@@ -133,17 +133,27 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
 
 export const formatExpenseItems = (expenses, editPath, editParams, handleDelete) => {
   return expenses?.map((expense, i) => {
+    const isSmallPackageExpense = expense.movingExpenseType === expenseTypes.SMALL_PACKAGE;
     const expenseType = {
       id: 'expenseType',
       label: 'Type:',
       value: expenseTypeLabels[expense.movingExpenseType],
     };
-    const description = { id: 'description', label: 'Description:', value: expense.description };
+    const description =
+      expense.movingExpenseType !== expenseTypes.SMALL_PACKAGE
+        ? { id: 'description', label: 'Description:', value: expense.description }
+        : null;
+
     const contents = {
       id: expense.id,
       isComplete: isExpenseComplete(expense),
       draftMessage: 'This receipt is missing required information.',
-      subheading: <h4 className="text-bold">Receipt {i + 1}</h4>,
+      subheading: (
+        <h4 className="text-bold">
+          {!isSmallPackageExpense ? 'Receipt ' : 'Package '}
+          {i + 1}
+        </h4>
+      ),
       rows: [{ id: 'amount', label: 'Amount:', value: `$${formatCents(expense.amount)}` }],
       renderEditLink: () => <Link to={generatePath(editPath, { ...editParams, expenseId: expense.id })}>Edit</Link>,
       onDelete: () => handleDelete('expense', expense.id, expense.eTag, `Receipt ${i + 1}`),
@@ -157,11 +167,29 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
       });
     }
 
-    // expense type and description will either both be empty or both have values
+    if (isSmallPackageExpense) {
+      contents.rows.push({
+        id: 'isProGear',
+        label: 'Pro-gear:',
+        value: expense.isProGear === true ? 'Yes' : 'No',
+      });
+      if (expense.isProGear === true) {
+        contents.rows.push({
+          id: 'proGearBelongsToSelf',
+          label: 'Spouse Pro-gear:',
+          value: expense.proGearBelongsToSelf === true ? 'No' : 'Yes',
+        });
+      }
+    }
+
     if (expense.movingExpenseType) {
       contents.rows.splice(0, 0, expenseType);
+    }
+
+    if (description) {
       contents.rows.splice(1, 0, description);
     }
+
     return contents;
   });
 };

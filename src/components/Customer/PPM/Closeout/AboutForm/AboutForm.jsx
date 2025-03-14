@@ -88,19 +88,29 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
           <div className={classnames(ppmStyles.formContainer, styles.AboutForm)}>
             <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2Address)} data-testid="aboutForm">
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                <h2>Departure date</h2>
+                <h2>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped Date' : 'Departure date'}</h2>
                 <DatePickerInput
                   disabledDays={{ after: today }}
                   className={classnames(styles.actualMoveDate, 'usa-input')}
                   name="actualMoveDate"
-                  label="When did you leave your origin?"
+                  label={
+                    ppmType === PPM_TYPES.SMALL_PACKAGE
+                      ? 'When did you ship your packcage?'
+                      : 'When did you leave your origin?'
+                  }
                 />
-                <Hint className={ppmStyles.hint}>If it took you more than one day to move out, use the first day.</Hint>
+                <Hint className={ppmStyles.hint}>
+                  {ppmType === PPM_TYPES.SMALL_PACKAGE
+                    ? 'If you shipped multiple packages, use the first day.'
+                    : 'If it took you more than one day to move out, use the first day.'}
+                </Hint>
                 <h2>Locations</h2>
-                <p>
-                  If you picked things up or dropped things off from other places a long way from your start or end
-                  ZIPs, ask your counselor if you should add another PPM shipment.
-                </p>
+                {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                  <p>
+                    If you picked things up or dropped things off from other places a long way from your start or end
+                    ZIPs, ask your counselor if you should add another PPM shipment.
+                  </p>
+                )}
                 <AddressFields
                   name="pickupAddress"
                   legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}

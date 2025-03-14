@@ -145,6 +145,11 @@ const Expenses = () => {
       SITLocation: values.sitLocation,
       weightShipped: parseInt(values.weightShipped, 10),
       trackingNumber: values.trackingNumber,
+      isProGear: values.isProGear === 'true',
+      ...(values.isProGear === 'true' && {
+        proGearBelongsToSelf: values.proGearBelongsToSelf === 'true',
+        proGearDescription: values.proGearDescription,
+      }),
     };
 
     patchMovingExpense(mtoShipment?.ppmShipment?.id, currentExpense.id, payload, currentExpense.eTag)

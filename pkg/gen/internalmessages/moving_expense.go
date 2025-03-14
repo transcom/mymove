@@ -53,6 +53,9 @@ type MovingExpense struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
 
+	// Indicates if the customer is claiming an expense as pro gear or not
+	IsProGear *bool `json:"isProGear,omitempty"`
+
 	// Indicates if the service member is missing the receipt with the proof of expense amount
 	MissingReceipt *bool `json:"missingReceipt"`
 
@@ -68,6 +71,12 @@ type MovingExpense struct {
 	// Read Only: true
 	// Format: uuid
 	PpmShipmentID strfmt.UUID `json:"ppmShipmentId"`
+
+	// Indicates if the pro-gear belongs to the customer or their spouse
+	ProGearBelongsToSelf *bool `json:"proGearBelongsToSelf,omitempty"`
+
+	// A brief description of the pro-gear
+	ProGearDescription string `json:"proGearDescription,omitempty"`
 
 	// reason
 	Reason *PPMDocumentStatusReason `json:"reason"`

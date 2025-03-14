@@ -76,6 +76,9 @@ type MovingExpense struct {
 	SITReimburseableAmount     *unit.Cents               `json:"sit_reimburseable_amount" db:"sit_reimburseable_amount"`
 	TrackingNumber             *string                   `json:"tracking_number" db:"tracking_number"`
 	WeightShipped              *unit.Pound               `json:"weight_shipped" db:"weight_shipped"`
+	IsProGear                  *bool                     `json:"is_pro_gear" db:"is_pro_gear"`
+	ProGearBelongsToSelf       *bool                     `json:"pro_gear_belongs_to_self" db:"pro_gear_belongs_to_self"`
+	ProGearDescription         *string                   `json:"pro_gear_description" db:"pro_gear_description"`
 }
 
 // TableName overrides the table name used by Pop.

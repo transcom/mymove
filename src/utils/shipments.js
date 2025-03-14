@@ -77,8 +77,9 @@ export function isExpenseComplete(expense) {
   const hasADocumentUpload = expense.document.uploads.length > 0;
   const hasValidSITDates =
     expense.movingExpenseType !== expenseTypes.STORAGE || (expense.sitStartDate && expense.sitEndDate);
+  const requiresDescription = expense.movingExpenseType !== expenseTypes.SMALL_PACKAGE;
   return !!(
-    expense.description &&
+    (requiresDescription ? expense.description : true) &&
     expense.movingExpenseType &&
     expense.amount &&
     hasADocumentUpload &&

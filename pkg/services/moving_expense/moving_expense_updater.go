@@ -204,6 +204,14 @@ func mergeMovingExpense(updatedMovingExpense models.MovingExpense, originalMovin
 	mergedMovingExpense.PaidWithGTCC = services.SetNoNilOptionalBoolField(updatedMovingExpense.PaidWithGTCC, mergedMovingExpense.PaidWithGTCC)
 	mergedMovingExpense.MissingReceipt = services.SetNoNilOptionalBoolField(updatedMovingExpense.MissingReceipt, mergedMovingExpense.MissingReceipt)
 	mergedMovingExpense.TrackingNumber = services.SetOptionalStringField(updatedMovingExpense.TrackingNumber, mergedMovingExpense.TrackingNumber)
+	mergedMovingExpense.IsProGear = services.SetNoNilOptionalBoolField(updatedMovingExpense.IsProGear, mergedMovingExpense.IsProGear)
+
+	if updatedMovingExpense.ProGearBelongsToSelf != nil {
+		mergedMovingExpense.ProGearBelongsToSelf = updatedMovingExpense.ProGearBelongsToSelf
+	}
+	if updatedMovingExpense.ProGearDescription != nil {
+		mergedMovingExpense.ProGearDescription = updatedMovingExpense.ProGearDescription
+	}
 	if *updatedMovingExpense.WeightShipped != 0 {
 		mergedMovingExpense.WeightShipped = services.SetOptionalPoundField(updatedMovingExpense.WeightShipped, mergedMovingExpense.WeightShipped)
 	}

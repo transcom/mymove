@@ -26,6 +26,7 @@ export const expenseTypeLabels = {
   OIL: 'Oil',
   PACKING_MATERIALS: 'Packing materials',
   RENTAL_EQUIPMENT: 'Rental equipment',
+  SMALL_PACKAGE: 'Small package reimbursement',
   STORAGE: 'Storage',
   TOLLS: 'Tolls',
   WEIGHING_FEE: 'Weighing fee',

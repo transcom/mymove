@@ -29,18 +29,25 @@ import { PPM_TYPES } from 'shared/constants';
 
 const validationSchema = Yup.object().shape({
   expenseType: Yup.string().required('Required'),
-  description: Yup.string().required('Required'),
+  description: Yup.string().when('expenseType', {
+    is: (expenseType) => expenseType !== expenseTypes.SMALL_PACKAGE,
+    then: (schema) => schema.required('Required'),
+  }),
   paidWithGTCC: Yup.boolean().required('Required'),
   amount: Yup.string().notOneOf(['0', '0.00'], 'Please enter a non-zero amount').required('Required'),
   missingReceipt: Yup.boolean().required('Required'),
   document: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   sitStartDate: Yup.date()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === '' ? null : value))
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
       is: expenseTypes.STORAGE,
       then: (schema) => schema.required('Required').max(Yup.ref('sitEndDate'), 'Start date must be before end date.'),
     }),
   sitEndDate: Yup.date()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === '' ? null : value))
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
       is: expenseTypes.STORAGE,
@@ -50,9 +57,32 @@ const validationSchema = Yup.object().shape({
     is: expenseTypes.STORAGE,
     then: (schema) => schema.required('Required'),
   }),
-  sitWeight: Yup.number().when('expenseType', {
-    is: expenseTypes.STORAGE,
-    then: (schema) => schema.required('Required').moreThan(0, 'Weight stored must be at least 1 lb.'),
+  sitWeight: Yup.number()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === '' ? null : value))
+    .when('expenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) => schema.required('Required').moreThan(0, 'Weight stored must be at least 1 lb.'),
+    }),
+  weightShipped: Yup.number().when('expenseType', {
+    is: expenseTypes.SMALL_PACKAGE,
+    then: (schema) => schema.required('Required').min(0, 'Weight shipped must be at least 1 lb.'),
+  }),
+  isProGear: Yup.string().when('expenseType', {
+    is: expenseTypes.SMALL_PACKAGE,
+    then: (schema) => schema.required('Required'),
+  }),
+  proGearBelongsToSelf: Yup.string()
+    .nullable()
+    .when('isProGear', {
+      is: 'true',
+      then: (schema) => schema.required('Required'),
+      otherwise: (schema) => schema.strip(),
+    }),
+  proGearDescription: Yup.string().when('isProGear', {
+    is: 'true',
+    then: (schema) => schema.required('Required'),
+    otherwise: (schema) => schema.strip(),
   }),
 });
 
@@ -79,6 +109,9 @@ const ExpenseForm = ({
     weightStored,
     trackingNumber,
     weightShipped,
+    isProGear,
+    proGearBelongsToSelf,
+    proGearDescription,
   } = expense || {};
 
   const initialValues = {
@@ -95,6 +128,11 @@ const ExpenseForm = ({
     sitWeight: weightStored ? `${weightStored}` : '',
     trackingNumber: trackingNumber || '',
     weightShipped: weightShipped ? `${weightShipped}` : '',
+    isProGear: isProGear ? 'true' : 'false',
+    ...(isProGear && {
+      proGearBelongsToSelf: proGearBelongsToSelf ? 'true' : 'false',
+      proGearDescription: proGearDescription || '',
+    }),
   };
 
   const documentRef = createRef();
@@ -111,7 +149,10 @@ const ExpenseForm = ({
           <div className={classnames(ppmStyles.formContainer)}>
             <Form className={classnames(formStyles.form, ppmStyles.form, styles.ExpenseForm)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                <h2>{`Receipt ${receiptNumber}`}</h2>
+                <h2>
+                  {ppmType !== PPM_TYPES.SMALL_PACKAGE ? `Receipt ` : `Package `}
+                  {receiptNumber}
+                </h2>
                 <FormGroup>
                   <DropdownInput
                     label="Select type"
@@ -124,9 +165,13 @@ const ExpenseForm = ({
                 {values.expenseType && (
                   <>
                     <FormGroup>
-                      <h3>Description</h3>
-                      <TextField label="What did you buy or rent?" id="description" name="description" />
-                      <Hint>Add a brief description of the expense.</Hint>
+                      {values.expenseType !== expenseTypes.SMALL_PACKAGE && (
+                        <>
+                          <h3>Description</h3>
+                          <TextField label="What did you buy or rent?" id="description" name="description" />
+                          <Hint>Add a brief description of the expense.</Hint>
+                        </>
+                      )}
                       {values.expenseType === expenseTypes.STORAGE && (
                         <FormGroup>
                           <legend className="usa-label">Where did you store your items?</legend>
@@ -214,7 +259,9 @@ const ExpenseForm = ({
                       <CheckboxField id="missingReceipt" name="missingReceipt" label="I don't have this receipt" />
                       {values.missingReceipt && (
                         <Alert type="info">
-                          {`If you can, get a replacement copy of your receipt and upload that. \nIf that is not possible, write and sign a statement that explains why this receipt is missing. Include details about where and when you purchased this item. Upload that statement. Your reimbursement for this expense will be based on the information you provide.`}
+                          {values.expenseType !== expenseTypes.SMALL_PACKAGE
+                            ? 'If you can, get a replacement copy of your receipt and upload that. \nIf that is not possible, write and sign a statement that explains why this receipt is missing. Include details about where and when you purchased this item. Upload that statement. Your reimbursement for this expense will be based on the information you provide.'
+                            : 'If you do not upload legible package receipts your PPM reimbursement could be affected.'}
                         </Alert>
                       )}
                       <div className={styles.labelWrapper}>

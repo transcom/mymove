@@ -62,7 +62,8 @@ func checkAdditionalRequiredFields() movingExpenseValidator {
 			}
 		}
 
-		if newMovingExpense.Description == nil || *newMovingExpense.Description == "" {
+		if *newMovingExpense.MovingExpenseType != models.MovingExpenseReceiptTypeSmallPackage &&
+			(newMovingExpense.Description == nil || (newMovingExpense.Description != nil && *newMovingExpense.Description == "")) {
 			verrs.Add("Description", "Description must have a value of at least 0")
 		}
 

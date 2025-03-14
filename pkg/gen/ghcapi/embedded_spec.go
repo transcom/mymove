@@ -11161,6 +11161,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the service member is missing the receipt with the proof of expense amount",
           "type": "boolean",
@@ -11182,6 +11187,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string"
         },
         "reason": {
           "$ref": "#/definitions/PPMDocumentStatusReason"
@@ -28837,6 +28851,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the service member is missing the receipt with the proof of expense amount",
           "type": "boolean",
@@ -28858,6 +28877,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string"
         },
         "reason": {
           "$ref": "#/definitions/PPMDocumentStatusReason"
