@@ -14,7 +14,9 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PPMShipmentSuite) TestReviewDocuments() {
@@ -184,8 +186,11 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 				return nil
 			})
 
+		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+		SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
+		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000), nil)
 		submitter := NewPPMShipmentReviewDocuments(
-			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(), &mockSSWPPMComputer,
+			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(), SSWPPMComputer,
 		)
 
 		txErr := session.NewTransaction(func(txAppCtx appcontext.AppContext) error {
