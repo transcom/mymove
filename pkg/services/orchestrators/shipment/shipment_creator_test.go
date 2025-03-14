@@ -136,6 +136,54 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		return subtestData
 	}
 
+	suite.Run("Checks for reweighs if the shipment was created by the Prime", func() {
+		// Since subtestData uses an actual MoveWeights , had to re do a bunch of the setup here in order to use a mocked version for CheckAutoReweigh
+		mockMTOShipmentCreator := mocks.MTOShipmentCreator{}
+		mockPPMShipmentCreator := mocks.PPMShipmentCreator{}
+		mockBoatShipmentCreator := mocks.BoatShipmentCreator{}
+		mockMobileHomeShipmentCreator := mocks.MobileHomeShipmentCreator{}
+		mockMoveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
+
+		mockMTOShipmentCreator.
+			On(
+				createMTOShipmentMethodName,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.MTOShipment")).
+			Return(
+				func(_ appcontext.AppContext, ship *models.MTOShipment) *models.MTOShipment {
+					ship.ID = uuid.Must(uuid.NewV4())
+
+					return ship
+				},
+				func(_ appcontext.AppContext, _ *models.MTOShipment) error {
+					return nil
+				},
+			)
+
+		mockMoveTaskOrderUpdater.
+			On(
+				updatePPMTypeMethodName,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("uuid.UUID"),
+			).
+			Return(nil, nil)
+
+		moveWeights := &mocks.MoveWeights{}
+		shipmentCreatorOrchestrator := NewShipmentCreator(&mockMTOShipmentCreator, &mockPPMShipmentCreator, &mockBoatShipmentCreator, &mockMobileHomeShipmentCreator, mtoshipment.NewShipmentRouter(), &mockMoveTaskOrderUpdater, moveWeights)
+
+		shipment := models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeHHG,
+		}
+
+		moveWeights.On("CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("*models.MTOShipment")).Return(nil)
+		mtoShipment, err := shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &shipment, true)
+
+		moveWeights.AssertCalled(suite.T(), "CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("*models.MTOShipment"))
+
+		suite.NotNil(mtoShipment)
+		suite.NoError(err)
+	})
+
 	suite.Run("Returns an InvalidInputError if there is an error with the shipment info that was input", func() {
 		subtestData := makeSubtestData(false, false)
 
