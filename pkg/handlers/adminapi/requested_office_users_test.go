@@ -3,6 +3,8 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -58,41 +60,67 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 		suite.True(user2ExistsInResponse)
 	})
 
-	suite.Run("able to search by name & email", func() {
-		requestedStatus := models.OfficeUserStatusREQUESTED
-		officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+	suite.Run("able to search by name and filter", func() {
+		status := models.OfficeUserStatusREQUESTED
+		created := time.Date(2005, 03, 05, 1, 1, 1, 1, time.Local)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name: "JPPO Test Office",
+				},
+			},
+		}, nil)
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
 					FirstName: "Angelina",
 					LastName:  "Jolie",
 					Email:     "laraCroft@mail.mil",
-					Status:    &requestedStatus,
+					Status:    &status,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
-		officeUser2 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
 					FirstName: "Billy",
 					LastName:  "Bob",
 					Email:     "bigBob@mail.mil",
-					Status:    &requestedStatus,
+					Status:    &status,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTIO})
-		officeUser3 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
 					FirstName: "Nick",
 					LastName:  "Cage",
 					Email:     "conAirKilluh@mail.mil",
-					Status:    &requestedStatus,
+					Status:    &status,
 				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName:              "Nick",
+					LastName:               "Cage",
+					Email:                  "conAirKilluh2@mail.mil",
+					Status:                 &status,
+					TransportationOfficeID: transportationOffice.ID,
+					CreatedAt:              created,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		// partial first name search
-		filterJSON := "{\"search\":\"Angel\"}"
+		nameSearch := "Nick"
+		filterJSON := fmt.Sprintf("{\"search\":\"%s\"}", nameSearch)
 		params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
 			Filter:      &filterJSON,
@@ -110,24 +138,13 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
 		okResponse := response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
-		suite.Len(okResponse.Payload, 1)
-		suite.Equal(officeUser1.ID.String(), okResponse.Payload[0].ID.String())
-
-		// search by first name
-		filterJSON = "{\"search\":\"Bill\"}"
-		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
-			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
-			Filter:      &filterJSON,
-		}
-		response = handler.Handle(params)
-
-		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
-		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
-		suite.Len(okResponse.Payload, 1)
-		suite.Equal(officeUser2.ID.String(), okResponse.Payload[0].ID.String())
+		suite.Len(okResponse.Payload, 2)
+		suite.Equal(nameSearch, *okResponse.Payload[0].FirstName)
+		suite.Equal(nameSearch, *okResponse.Payload[1].FirstName)
 
 		// email search
-		filterJSON = "{\"search\":\"conAir\"}"
+		emailSearch := "conAirKilluh2"
+		filterJSON = fmt.Sprintf("{\"email\":\"%s\"}", emailSearch)
 		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
 			Filter:      &filterJSON,
@@ -137,7 +154,92 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
 		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
-		suite.Equal(officeUser3.ID.String(), okResponse.Payload[0].ID.String())
+
+		respEmail := *okResponse.Payload[0].Email
+		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
+		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
+
+		// firstName search
+		firstSearch := "Angelina"
+		filterJSON = fmt.Sprintf("{\"firstName\":\"%s\"}", firstSearch)
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(firstSearch, *okResponse.Payload[0].FirstName)
+
+		// lastName search
+		lastSearch := "Cage"
+		filterJSON = fmt.Sprintf("{\"lastName\":\"%s\"}", lastSearch)
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 2)
+		suite.Equal(lastSearch, *okResponse.Payload[0].LastName)
+		suite.Equal(lastSearch, *okResponse.Payload[1].LastName)
+
+		// transportation office search
+		filterJSON = "{\"office\":\"JPPO\"}"
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(strfmt.UUID(transportationOffice.ID.String()), *okResponse.Payload[0].TransportationOfficeID)
+
+		// requestedOn search
+		requestedOnSearch := "2005"
+		filterJSON = fmt.Sprintf("{\"requestedOn\":\"%s\"}", requestedOnSearch)
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Equal(1, len(okResponse.Payload))
+
+		requestedOnResp := okResponse.Payload[0].CreatedAt.String()
+		actualYear := strings.Split(requestedOnResp, "-")[0]
+		actualMonth, err := strconv.Atoi(strings.Split(requestedOnResp, "-")[1])
+
+		expectedYear := strconv.Itoa(created.Year())
+		expectedMonth := int(created.Month())
+
+		suite.NoError(err)
+		suite.Equal(expectedYear, actualYear)
+		suite.Equal(expectedMonth, actualMonth)
+
+		// roles search
+		roleSearch := "Services Counselor"
+		filterJSON = fmt.Sprintf("{\"roles\":\"%s\"}", roleSearch)
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 2)
+		suite.Equal(roleSearch, *okResponse.Payload[0].Roles[0].RoleName)
+		suite.Equal(roleSearch, *okResponse.Payload[1].Roles[0].RoleName)
+
 	})
 
 	suite.Run("test the return of sorted requested office users in asc order", func() {
@@ -288,7 +390,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
 		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
 
-		filterJSON := "{\"offices\":\"Tinker\"}"
+		filterJSON := "{\"office\":\"Tinker\"}"
 		params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
 			Filter:      &filterJSON,
