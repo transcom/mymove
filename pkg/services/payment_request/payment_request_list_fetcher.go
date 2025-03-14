@@ -106,10 +106,11 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
+	secondaryOrderQuery := secondarySortOrder(params.Sort)
 	tioAssignedUserQuery := tioAssignedUserFilter(params.TIOAssignedUser)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 
-	options := [13]QueryOption{branchQuery, locatorQuery, dodIDQuery, customerNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery, tioAssignedUserQuery, counselingQuery}
+	options := [14]QueryOption{branchQuery, locatorQuery, dodIDQuery, customerNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, secondaryOrderQuery, emplidQuery, tioAssignedUserQuery, counselingQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -305,6 +306,16 @@ func sortOrder(sort *string, order *string) QueryOption {
 			}
 		} else {
 			query.Order("payment_requests.created_at asc")
+		}
+	}
+}
+
+// When a queue is sorted by a non-unique value (ex: status, branch) the order within each vlaue is inconsistent at different page sizes
+// Adding a secondary sort ensures a consistent order within the primary sort column
+func secondarySortOrder(sort *string) QueryOption {
+	return func(query *pop.Query) {
+		if sort == nil || *sort != "locator" {
+			query.Order("moves.locator asc")
 		}
 	}
 }

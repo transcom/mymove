@@ -17,6 +17,7 @@ import { FEATURE_FLAG_KEYS, isDevelopment } from 'shared/constants';
 import { useTitle } from 'hooks/custom';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
+import { generalRoutes } from 'constants/routes';
 
 const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
   const location = useLocation();
@@ -54,7 +55,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
           if (isSigningIn) {
             window.location.href = '/auth/okta';
           } else if (isSigningUp) {
-            navigate('/sign-up');
+            navigate(generalRoutes.CREATE_ACCOUNT_PATH);
           }
         }}
         closeModal={() => setShowEula(false)}
@@ -144,9 +145,9 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
               </Button>
               {siteName === 'my.move.mil' && customerRegistrationFF ? (
                 <Button
-                  aria-label="Sign Up"
+                  aria-label="Create account"
                   className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
-                  data-testid="signUp"
+                  data-testid="createAccount"
                   onClick={() => {
                     setIsSigningIn(false);
                     setIsSigningUp(true);
@@ -154,7 +155,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
                   }}
                   type="button"
                 >
-                  Sign up
+                  Create Account
                 </Button>
               ) : null}
 

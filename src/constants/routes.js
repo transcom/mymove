@@ -1,7 +1,7 @@
 export const generalRoutes = {
   HOME_PATH: '/',
   SIGN_IN_PATH: '/sign-in',
-  SIGN_UP_PATH: '/sign-up',
+  CREATE_ACCOUNT_PATH: '/create-account',
   REQUEST_ACCOUNT: '/request-account',
   PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',

@@ -124,10 +124,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	scAssignedUserQuery := scAssignedUserFilter(params.SCAssignedUser)
 	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
+	secondarySortOrderQuery := secondarySortOrder(params.Sort)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 	tooDestinationRequestsQuery := tooQueueOriginRequestsFilter(role)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
+	options := [22]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, secondarySortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -899,6 +900,16 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 			}
 		} else {
 			query.Order("moves.status desc")
+		}
+	}
+}
+
+// When a queue is sorted by a non-unique value (ex: status, branch) the order within each value is inconsistent at different page sizes
+// Adding a secondary sort ensures a consistent order within the primary sort column
+func secondarySortOrder(sort *string) QueryOption {
+	return func(query *pop.Query) {
+		if sort == nil || *sort != "locator" {
+			query.Order("moves.locator asc")
 		}
 	}
 }
