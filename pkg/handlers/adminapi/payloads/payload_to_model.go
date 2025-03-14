@@ -16,7 +16,8 @@ func UserModel(user *adminmessages.UserUpdate, id uuid.UUID, userOriginalActive 
 		return nil, fmt.Errorf("User payload is nil")
 	}
 	model := &models.User{
-		ID: uuid.FromStringOrNil(id.String()),
+		ID:        uuid.FromStringOrNil(id.String()),
+		OktaEmail: *user.OktaEmail,
 	}
 
 	if user.Active == nil { // active status was nil in payload

@@ -128,7 +128,7 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 			dbUser := models.User{}
 			err = appCtx.DB().Find(&dbUser, userID)
 			if err != nil {
-				appCtx.Logger().Error("updateUserHandler Error", zap.Error(fmt.Errorf("No user found for ID: %s", params.UserID.String())))
+				appCtx.Logger().Error("updateUserHandler Error", zap.Error(fmt.Errorf("no user found for ID: %s", params.UserID.String())))
 				return userop.NewUpdateUserNotFound(), err
 			}
 
@@ -142,9 +142,12 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 				return userop.NewUpdateUserUnprocessableEntity(), err
 			}
 
+			// saving the request here so we can use it in the service object if the Okta email is being updated
+			appCtx.Session().HTTPRequest = params.HTTPRequest
 			_, verrs, err := h.UpdateUser(appCtx, userID, user)
 			if verrs != nil || err != nil {
 				appCtx.Logger().Error(fmt.Sprintf("Error updating user %s", params.UserID.String()), zap.Error(err))
+				return userop.NewUpdateUserInternalServerError(), err
 			}
 			// We don't return because we should still try to revoke sessions
 

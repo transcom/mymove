@@ -2,12 +2,18 @@ package officeuser
 
 import (
 	"database/sql"
+	"fmt"
+	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	"github.com/jarcoal/httpmock"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
 )
@@ -15,6 +21,10 @@ import (
 func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	queryBuilder := query.NewQueryBuilder()
 	updater := NewOfficeUserUpdater(queryBuilder)
+
+	oktaProvider := okta.NewOktaProvider(suite.Logger())
+	err := oktaProvider.RegisterOktaProvider("adminProvider", "OrgURL", "CallbackURL", "fakeToken", "secret", []string{"openid", "profile", "email"})
+	suite.NoError(err)
 
 	// Happy path
 	suite.Run("If the user is updated successfully it should be returned", func() {
@@ -77,4 +87,103 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 		suite.Error(err)
 		suite.Equal(sql.ErrNoRows.Error(), err.Error())
 	})
+
+	suite.Run("updating office user also updates the associated user email", func() {
+		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					Email:  "officeUser@mail.mil",
+				},
+			},
+			{
+				Model: models.User{
+					Active:    true,
+					OktaEmail: "officeUser@mail.mil",
+				},
+			},
+		}, nil)
+		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
+		primaryOffice := true
+
+		mockAndActivateOktaGETEndpointNoError(officeUser.User.OktaID)
+		mockAndActivateOktaPOSTEndpointNoError(officeUser.User.OktaID)
+
+		request := httptest.NewRequest("PATCH", fmt.Sprintf("/office-users/%s", officeUser.UserID.String()), nil)
+
+		session := &auth.Session{
+			ApplicationName: auth.AdminApp,
+			Hostname:        "adminlocal",
+		}
+
+		ctx := auth.SetSessionInRequestContext(request, session)
+		request = request.WithContext(ctx)
+		session.HTTPRequest = request
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session)
+
+		payload := &adminmessages.OfficeUserUpdate{
+			Email: models.StringPointer("newEmail@mail.mil"),
+			TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+				{
+					TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+					PrimaryOffice:          &primaryOffice,
+				},
+			},
+		}
+
+		updatedOfficeUser, verrs, err := updater.UpdateOfficeUser(appCtx, officeUser.ID, payload, uuid.Nil)
+		suite.NoError(err)
+		suite.Nil(verrs)
+
+		updatedUser := models.User{}
+		err = suite.DB().Find(&updatedUser, updatedOfficeUser.UserID)
+		suite.NoError(err)
+		suite.Equal(updatedUser.OktaEmail, updatedOfficeUser.Email)
+	})
+}
+
+func mockAndActivateOktaGETEndpointNoError(oktaID string) {
+	httpmock.Activate()
+	getUsersEndpoint := "OrgURL/api/v1/users/" + oktaID
+	response := fmt.Sprintf(`{
+			"id": "%s",
+			"status": "ACTIVE",
+			"created": "2025-02-07T20:39:47.000Z",
+			"activated": "2025-02-07T20:39:47.000Z",
+			"profile": {
+				"firstName": "First",
+				"lastName": "Last",
+				"mobilePhone": "555-555-5555",
+				"secondEmail": "",
+				"login": "email@email.com",
+				"email": "email@email.com",
+				"cac_edipi": "1234567890"
+			}
+		}`, oktaID)
+
+	httpmock.RegisterResponder("GET", getUsersEndpoint,
+		httpmock.NewStringResponder(200, response))
+}
+
+func mockAndActivateOktaPOSTEndpointNoError(oktaID string) {
+	httpmock.Activate()
+	updateUsersEndpoint := "OrgURL/api/v1/users/" + oktaID
+	response := fmt.Sprintf(`{
+			"id": "%s",
+			"status": "ACTIVE",
+			"created": "2025-02-07T20:39:47.000Z",
+			"activated": "2025-02-07T20:39:47.000Z",
+			"profile": {
+				"firstName": "First",
+				"lastName": "Last",
+				"mobilePhone": "555-555-5555",
+				"secondEmail": "",
+				"login": "email@email.com",
+				"email": "email@email.com",
+				"cac_edipi": "1234567890"
+			}
+		}`, oktaID)
+
+	httpmock.RegisterResponder("POST", updateUsersEndpoint,
+		httpmock.NewStringResponder(200, response))
 }

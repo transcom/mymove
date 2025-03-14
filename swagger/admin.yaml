@@ -305,6 +305,11 @@ definitions:
   AdminUserUpdate:
     type: object
     properties:
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
       firstName:
         type: string
         title: First Name
@@ -782,6 +787,11 @@ definitions:
   OfficeUserUpdate:
     type: object
     properties:
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
       firstName:
         type: string
         title: First Name
@@ -900,6 +910,11 @@ definitions:
   RequestedOfficeUserUpdate:
     type: object
     properties:
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
       firstName:
         type: string
         title: First Name
@@ -913,9 +928,6 @@ definitions:
         type: string
         title: Last Name
         x-nullable: true
-      email:
-        type: string
-        example: user@userdomain.com
       telephone:
         type: string
         format: telephone
@@ -1191,6 +1203,11 @@ definitions:
   UserUpdate:
     type: object
     properties:
+      oktaEmail:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
       revokeAdminSession:
         type: boolean
         x-nullable: true
