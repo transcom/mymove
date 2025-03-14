@@ -641,7 +641,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		ppmshipment.NewPPMShipmentReviewDocuments(
 			ppmshipment.NewPPMShipmentRouter(mtoshipment.NewShipmentRouter()),
-			signedCertificationCreator, signedCertificationUpdater,
+			signedCertificationCreator, signedCertificationUpdater, SSWPPMComputer,
 		),
 	}
 
