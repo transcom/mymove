@@ -45,6 +45,18 @@ func payloadForPrivilege(p models.Privilege) *adminmessages.Privilege {
 	}
 }
 
+func payloadForRolePrivilege(p models.RolePrivilege) *adminmessages.RolePrivilege {
+	return &adminmessages.RolePrivilege{
+		ID:            *handlers.FmtUUID(p.ID),
+		RoleID:        *handlers.FmtUUID(p.RoleID),
+		RoleType:      *handlers.FmtString(string(p.Role.RoleType)),
+		PrivilegeID:   *handlers.FmtUUID(p.PrivilegeID),
+		PrivilegeType: *handlers.FmtString(string(p.Privilege.PrivilegeType)),
+		CreatedAt:     *handlers.FmtDateTime(p.CreatedAt),
+		UpdatedAt:     *handlers.FmtDateTime(p.UpdatedAt),
+	}
+}
+
 func payloadForTransportationOfficeAssignment(toa models.TransportationOfficeAssignment) *adminmessages.TransportationOfficeAssignment {
 	return &adminmessages.TransportationOfficeAssignment{
 		OfficeUserID:           *handlers.FmtUUID(toa.ID),
@@ -652,5 +664,41 @@ func (h DeleteOfficeUserHandler) Handle(params officeuserop.DeleteOfficeUserPara
 			}
 
 			return officeuserop.NewDeleteOfficeUserNoContent(), nil
+		})
+}
+
+// GetRolesPrivilegesHandler retrieves a list of unique role to privilege mappings via GET /office_users/roles-privileges
+type GetRolesPrivilegesHandler struct {
+	handlers.HandlerConfig
+	services.RoleAssociater
+}
+
+func (h GetRolesPrivilegesHandler) Handle(params officeuserop.GetRolesPrivilegesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			// we only allow this to be called from the admin app
+			if !appCtx.Session().IsAdminApp() {
+				return officeuserop.NewGetRolesPrivilegesUnauthorized(), nil
+			}
+
+			rolesPrivileges, err := h.RoleAssociater.FetchRolesPrivileges(appCtx)
+
+			if err != nil {
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return officeuserop.NewGetRolesPrivilegesNotFound(), err
+				default:
+					appCtx.Logger().Error(err.Error())
+					return officeuserop.NewGetRolesPrivilegesInternalServerError(), err
+				}
+			}
+
+			var payload []*adminmessages.RolePrivilege
+			for _, rolePriv := range rolesPrivileges {
+				payload = append(payload, payloadForRolePrivilege(rolePriv))
+			}
+
+			return officeuserop.NewGetRolesPrivilegesOK().WithPayload(payload), nil
 		})
 }
