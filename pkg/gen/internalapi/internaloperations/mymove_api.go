@@ -37,6 +37,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/registration"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
@@ -120,6 +121,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveDocsCreateWeightTicketDocumentHandler: move_docs.CreateWeightTicketDocumentHandlerFunc(func(params move_docs.CreateWeightTicketDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.CreateWeightTicketDocument has not yet been implemented")
+		}),
+		RegistrationCustomerRegistrationHandler: registration.CustomerRegistrationHandlerFunc(func(params registration.CustomerRegistrationParams) middleware.Responder {
+			return middleware.NotImplemented("operation registration.CustomerRegistration has not yet been implemented")
 		}),
 		MoveDocsDeleteMoveDocumentHandler: move_docs.DeleteMoveDocumentHandlerFunc(func(params move_docs.DeleteMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.DeleteMoveDocument has not yet been implemented")
@@ -363,6 +367,8 @@ type MymoveAPI struct {
 	PpmCreateWeightTicketHandler ppm.CreateWeightTicketHandler
 	// MoveDocsCreateWeightTicketDocumentHandler sets the operation handler for the create weight ticket document operation
 	MoveDocsCreateWeightTicketDocumentHandler move_docs.CreateWeightTicketDocumentHandler
+	// RegistrationCustomerRegistrationHandler sets the operation handler for the customer registration operation
+	RegistrationCustomerRegistrationHandler registration.CustomerRegistrationHandler
 	// MoveDocsDeleteMoveDocumentHandler sets the operation handler for the delete move document operation
 	MoveDocsDeleteMoveDocumentHandler move_docs.DeleteMoveDocumentHandler
 	// PpmDeleteMovingExpenseHandler sets the operation handler for the delete moving expense operation
@@ -605,6 +611,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveDocsCreateWeightTicketDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.CreateWeightTicketDocumentHandler")
+	}
+	if o.RegistrationCustomerRegistrationHandler == nil {
+		unregistered = append(unregistered, "registration.CustomerRegistrationHandler")
 	}
 	if o.MoveDocsDeleteMoveDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.DeleteMoveDocumentHandler")
@@ -929,6 +938,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/weight_ticket"] = move_docs.NewCreateWeightTicketDocument(o.context, o.MoveDocsCreateWeightTicketDocumentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/open/register"] = registration.NewCustomerRegistration(o.context, o.RegistrationCustomerRegistrationHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
