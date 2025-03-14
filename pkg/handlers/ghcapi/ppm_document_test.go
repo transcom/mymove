@@ -22,6 +22,8 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
+	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -481,19 +483,19 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+	setUpSignedCertificationCreatorMock := func(signedCert models.SignedCertification) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
 
 		mockCreator.On(
 			"CreateSignedCertification",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.SignedCertification"),
-		).Return(returnValue...)
+		).Return(&signedCert, nil)
 
 		return mockCreator
 	}
 
-	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+	setUpSignedCertificationUpdaterMock := func(signedCert models.SignedCertification) services.SignedCertificationUpdater {
 		mockUpdater := &mocks.SignedCertificationUpdater{}
 
 		mockUpdater.On(
@@ -501,14 +503,17 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.SignedCertification"),
 			mock.AnythingOfType("string"),
-		).Return(returnValue...)
+		).Return(&signedCert, nil)
 
 		return mockUpdater
 	}
-	mockSSWPPMComputer := mocks.SSWPPMComputer{}
-	reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &mockSSWPPMComputer)
 
-	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, officeUser models.OfficeUser) (ppmdocumentops.FinishDocumentReviewParams, FinishDocumentReviewHandler) {
+	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
+	mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000), nil)
+
+	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, officeUser models.OfficeUser, signedCert models.SignedCertification) (ppmdocumentops.FinishDocumentReviewParams, FinishDocumentReviewHandler) {
+		reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter, setUpSignedCertificationCreatorMock(signedCert), setUpSignedCertificationUpdaterMock(signedCert), SSWPPMComputer)
 		endpoint := fmt.Sprintf(
 			"/ppm-shipments/%s/finish-document-review",
 			ppmShipment.ID.String(),
@@ -536,7 +541,15 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			ID: uuid.Must(uuid.NewV4()),
 		}
 
-		params, handler := setUpParamsAndHandler(shipmentWithUnknownID, officeUser)
+		certType := models.SignedCertificationTypePPMPAYMENT
+		signedCert := models.SignedCertification{
+			CertificationType: &certType,
+			CertificationText: "LEGAL",
+			Signature:         "ACCEPT",
+			Date:              time.Now(),
+		}
+
+		params, handler := setUpParamsAndHandler(shipmentWithUnknownID, officeUser, signedCert)
 
 		response := handler.Handle(params)
 
@@ -547,8 +560,14 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 		draftPpmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 		draftPpmShipment.Status = models.PPMShipmentStatusDraft
 		suite.NoError(suite.DB().Save(&draftPpmShipment))
-
-		params, handler := setUpParamsAndHandler(draftPpmShipment, officeUser)
+		certType := models.SignedCertificationTypePPMPAYMENT
+		signedCert := models.SignedCertification{
+			CertificationType: &certType,
+			CertificationText: "LEGAL",
+			Signature:         "ACCEPT",
+			Date:              time.Now(),
+		}
+		params, handler := setUpParamsAndHandler(draftPpmShipment, officeUser, signedCert)
 
 		response := handler.Handle(params)
 
@@ -557,8 +576,33 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 	suite.Run("Can successfully submit a PPM shipment for close out", func() {
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+		certType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
 
-		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
+		signedCert := models.SignedCertification{
+			PpmID:             &ppmShipment.ID,
+			MoveID:            ppmShipment.Shipment.MoveTaskOrderID,
+			CertificationType: &certType,
+			CertificationText: "LEGAL",
+			Signature:         "ACCEPT",
+			CreatedAt:         time.Now(),
+			UpdatedAt:         time.Now(),
+			Date:              time.Now(),
+		}
+		shipmentCert := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment.Shipment.MoveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SignedCertification{
+					PpmID:             &ppmShipment.ID,
+					CertificationType: &certType,
+				},
+			},
+		}, nil)
+		ppmShipment.SignedCertification = &shipmentCert
+		suite.NoError(suite.DB().Save(&ppmShipment))
+		params, handler := setUpParamsAndHandler(ppmShipment, officeUser, signedCert)
 
 		response := handler.Handle(params)
 
@@ -575,10 +619,33 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 	suite.Run("Sets PPM to CLOSEOUT COMPLETE if there are rejected documents", func() {
 		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil, nil)
+		certType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+		signedCert := models.SignedCertification{
+			PpmID:             &ppmShipment.ID,
+			MoveID:            ppmShipment.Shipment.MoveTaskOrderID,
+			CertificationType: &certType,
+			CertificationText: "LEGAL",
+			Signature:         "ACCEPT",
+			CreatedAt:         time.Now(),
+			UpdatedAt:         time.Now(),
+			Date:              time.Now(),
+		}
+		shipmentCert := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment.Shipment.MoveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SignedCertification{
+					PpmID:             &ppmShipment.ID,
+					CertificationType: &certType,
+				},
+			},
+		}, nil)
+		ppmShipment.SignedCertification = &shipmentCert
 		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		suite.NoError(suite.DB().Save(&ppmShipment))
-
-		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
+		params, handler := setUpParamsAndHandler(ppmShipment, officeUser, signedCert)
 
 		response := handler.Handle(params)
 

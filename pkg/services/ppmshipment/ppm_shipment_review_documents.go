@@ -95,7 +95,7 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 		}
 
 		// write the SSW calculated values out to the ppm_closeouts table
-		ppmCloseoutSummary, err := p.convertSSWValuesToPPMCloseoutSummary(appCtx, ppmShipmentID)
+		ppmCloseoutSummary, err := p.convertSSWValuesToPPMCloseoutSummary(appCtx, updatedPPMShipment.ID)
 
 		if err != nil {
 			return err
@@ -433,7 +433,8 @@ func (p *ppmShipmentReviewDocuments) signCertificationPPMCloseout(appCtx appcont
 			Signature:         signatureText,
 			Date:              now,
 		}
-		_, err := p.SignedCertificationCreator.CreateSignedCertification(appCtx, signedCertification)
+		cert, err := p.SignedCertificationCreator.CreateSignedCertification(appCtx, signedCertification)
+		fmt.Println(cert)
 		if err != nil {
 			return err
 		}
