@@ -28,22 +28,19 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalDestinationSITFuel
 	pricer := NewInternationalDestinationSITFuelSurchargePricer()
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		isPPM := false
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
 		suite.NoError(err)
 		suite.Equal(idsfscPriceCents, priceCents)
 	})
 
 	suite.Run("success without PaymentServiceItemParams when shipment is PPM with < 500 lb weight", func() {
-		isPPM := true
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), idsfscActualPickupDate, idsfscTestDistance, unit.Pound(250), idsfscWeightDistanceMultiplier, idsfscFuelPrice, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), idsfscActualPickupDate, idsfscTestDistance, unit.Pound(250), idsfscWeightDistanceMultiplier, idsfscFuelPrice)
 		suite.NoError(err)
 		suite.Equal(idsfscPriceCents, priceCents)
 	})
 
 	suite.Run("IDSFSC is negative if fuel price from EIA is below $2.50", func() {
-		isPPM := false
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, 242400, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, 242400)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(-721), priceCents)
 	})
@@ -55,7 +52,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalDestinationSITFuel
 			weight                           unit.Pound
 			fscWeightBasedDistanceMultiplier float64
 			eiaFuelPrice                     unit.Millicents
-			isPPM                            bool
 		}
 
 		testCases := map[string]struct {
@@ -69,7 +65,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalDestinationSITFuel
 					weight:                           idsfscTestWeight,
 					fscWeightBasedDistanceMultiplier: idsfscWeightDistanceMultiplier,
 					eiaFuelPrice:                     idsfscFuelPrice,
-					isPPM:                            false,
 				},
 				errorMessage: "ActualPickupDate is required",
 			},
@@ -80,7 +75,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalDestinationSITFuel
 					weight:                           unit.Pound(0),
 					fscWeightBasedDistanceMultiplier: idsfscWeightDistanceMultiplier,
 					eiaFuelPrice:                     idsfscFuelPrice,
-					isPPM:                            false,
 				},
 				errorMessage: fmt.Sprintf("Weight must be a minimum of %d", minInternationalWeight),
 			},
@@ -91,7 +85,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalDestinationSITFuel
 					weight:                           idsfscTestWeight,
 					fscWeightBasedDistanceMultiplier: 0,
 					eiaFuelPrice:                     idsfscFuelPrice,
-					isPPM:                            false,
 				},
 				errorMessage: "WeightBasedDistanceMultiplier is required",
 			},
@@ -102,7 +95,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalDestinationSITFuel
 					weight:                           idsfscTestWeight,
 					fscWeightBasedDistanceMultiplier: idsfscWeightDistanceMultiplier,
 					eiaFuelPrice:                     0,
-					isPPM:                            false,
 				},
 				errorMessage: "EIAFuelPrice is required",
 			},
@@ -113,7 +105,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalDestinationSITFuel
 					weight:                           idsfscTestWeight,
 					fscWeightBasedDistanceMultiplier: idsfscWeightDistanceMultiplier,
 					eiaFuelPrice:                     idsfscFuelPrice,
-					isPPM:                            false,
 				},
 				errorMessage: "Distance must be greater than 0",
 			},
@@ -121,7 +112,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalDestinationSITFuel
 
 		for name, testcase := range testCases {
 			suite.Run(name, func() {
-				_, _, err := pricer.Price(suite.AppContextForTest(), testcase.priceArgs.actualPickupDate, testcase.priceArgs.distance, testcase.priceArgs.weight, testcase.priceArgs.fscWeightBasedDistanceMultiplier, testcase.priceArgs.eiaFuelPrice, testcase.priceArgs.isPPM)
+				_, _, err := pricer.Price(suite.AppContextForTest(), testcase.priceArgs.actualPickupDate, testcase.priceArgs.distance, testcase.priceArgs.weight, testcase.priceArgs.fscWeightBasedDistanceMultiplier, testcase.priceArgs.eiaFuelPrice)
 				suite.Error(err)
 				suite.Equal(testcase.errorMessage, err.Error())
 			})

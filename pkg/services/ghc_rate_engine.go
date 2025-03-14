@@ -233,7 +233,7 @@ type DomesticDestinationSITFuelSurchargePricer interface {
 //
 //go:generate mockery --name InternationalDestinationSITFuelSurchargePricer
 type InternationalDestinationSITFuelSurchargePricer interface {
-	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -268,7 +268,6 @@ type InternationalOriginSITFuelSurchargePricer interface {
 		weight unit.Pound,
 		fscWeightBasedDistanceMultiplier float64,
 		eiaFuelPrice unit.Millicents,
-		isPPM bool,
 	) (
 		unit.Cents,
 		PricingDisplayParams,

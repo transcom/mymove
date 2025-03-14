@@ -283,7 +283,7 @@ func priceIntlCratingUncrating(appCtx appcontext.AppContext, cratingUncratingCod
 	return totalCost, displayParams, nil
 }
 
-func priceIntlFuelSurcharge(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func priceIntlFuelSurcharge(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
@@ -291,7 +291,7 @@ func priceIntlFuelSurcharge(_ appcontext.AppContext, actualPickupDate time.Time,
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}
-	if !isPPM && weight < minInternationalWeight {
+	if weight < minInternationalWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minInternationalWeight)
 	}
 	if fscWeightBasedDistanceMultiplier == 0 {
