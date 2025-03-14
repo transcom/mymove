@@ -93,12 +93,15 @@ func MoveTaskOrderWithShipmentRateAreas(appCtx appcontext.AppContext, moveTaskOr
 		}
 		// Origin/Destination RateArea will be present on root shipment level for all non-PPM shipment types
 		for _, shipment := range payload.MtoShipments {
-			if shipment.PpmShipment != nil {
-				shipment.PpmShipment.OriginRateArea = PostalCodeToRateArea(shipment.PpmShipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
-				shipment.PpmShipment.DestinationRateArea = PostalCodeToRateArea(shipment.PpmShipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
-			} else {
-				shipment.OriginRateArea = PostalCodeToRateArea(shipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
-				shipment.DestinationRateArea = PostalCodeToRateArea(shipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+			// B-22767: We want both domestic and international rate area info but only for international shipments
+			if shipment.MarketCode == string(models.MarketCodeInternational) {
+				if shipment.PpmShipment != nil {
+					shipment.PpmShipment.OriginRateArea = PostalCodeToRateArea(shipment.PpmShipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+					shipment.PpmShipment.DestinationRateArea = PostalCodeToRateArea(shipment.PpmShipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+				} else {
+					shipment.OriginRateArea = PostalCodeToRateArea(shipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+					shipment.DestinationRateArea = PostalCodeToRateArea(shipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+				}
 			}
 		}
 	}
@@ -223,6 +226,10 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 	if entitlement.WeightRestriction != nil {
 		weightRestriction = int64(*entitlement.WeightRestriction)
 	}
+	var ubWeightRestriction int64
+	if entitlement.UBWeightRestriction != nil {
+		ubWeightRestriction = int64(*entitlement.UBWeightRestriction)
+	}
 	return &primev3messages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -234,11 +241,12 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
 		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		StorageInTransit:  sit,
-		TotalDependents:   totalDependents,
-		TotalWeight:       totalWeight,
-		WeightRestriction: &weightRestriction,
-		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
+		StorageInTransit:    sit,
+		TotalDependents:     totalDependents,
+		TotalWeight:         totalWeight,
+		WeightRestriction:   &weightRestriction,
+		UbWeightRestriction: &ubWeightRestriction,
+		ETag:                etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 

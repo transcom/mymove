@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { connect } from 'react-redux';
-import { GridContainer, Button } from '@trussworks/react-uswds';
+import { GridContainer, Button, Grid, Alert } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
 import { useMutation } from '@tanstack/react-query';
@@ -27,9 +27,9 @@ import {
   getTableQueueSortParamSessionStorageValue,
   getSelectionOptionLabel,
 } from 'components/Table/utils';
-import { roleTypes } from 'constants/userRoles';
 import { saveBulkAssignmentData } from 'services/ghcApi';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
+import { roleTypes } from 'constants/userRoles';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -142,7 +142,15 @@ const TableQueue = ({
     [],
   );
 
-  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {});
+  const [successMessageEnabled, setSuccessMessageEnabled] = useState(false);
+
+  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
+    onSuccess: async () => {
+      await refetch();
+
+      setSuccessMessageEnabled(true);
+    },
+  });
 
   useEffect(() => {
     if (refetchQueue)
@@ -215,6 +223,10 @@ const TableQueue = ({
       setPageCount(Math.ceil(totalCount / pageSize));
     }
   }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, isPageReload, sessionStorageKey]);
+
+  useEffect(() => {
+    gotoPage(0);
+  }, [filters, gotoPage]);
 
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -330,8 +342,6 @@ const TableQueue = ({
   };
 
   const handleCloseBulkAssignModal = () => {
-    refetch();
-
     setIsBulkAssignModalVisible(false);
   };
 
@@ -341,6 +351,14 @@ const TableQueue = ({
 
   return (
     <div className={styles.tabContent}>
+      {successMessageEnabled && (
+        <Grid col={12} className={styles.alertContainer}>
+          <Alert headingLevel="h4" slim type="success">
+            Moves assigned successfully
+          </Alert>
+        </Grid>
+      )}
+
       <div className={styles.container}>
         {isBulkAssignModalVisible && (
           <BulkAssignmentModal
@@ -370,7 +388,6 @@ const TableQueue = ({
                   totalCount={totalCount}
                   paramSort={paramSort}
                   paramFilters={paramFilters}
-                  isHeadquartersUser={activeRole === roleTypes.HQ}
                 />
               )}
             </div>

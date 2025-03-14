@@ -396,8 +396,7 @@ Just like domestic shipments & service items, if `WeightBilled` is not provided 
 
 ```
 
-	**IUBUPK - International UB Unpack**
-
+**IUBUPK - International UB Unpack**
 ```json
 
 	"params": [
@@ -409,8 +408,7 @@ Just like domestic shipments & service items, if `WeightBilled` is not provided 
 
 ```
 
-	**UBP - International UB**
-
+**UBP - International UB**
 ```json
 
 	"params": [

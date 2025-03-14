@@ -29,6 +29,8 @@ const (
 	MovingExpenseReceiptTypeTolls MovingExpenseReceiptType = "TOLLS"
 	// MovingExpenseReceiptTypeWeighingFee captures enum value "WEIGHING_FEE"
 	MovingExpenseReceiptTypeWeighingFee MovingExpenseReceiptType = "WEIGHING_FEE"
+	// MovingExpenseReceiptTypeSmallPackage captures enum value "SMALL_PACKAGE"
+	MovingExpenseReceiptTypeSmallPackage MovingExpenseReceiptType = "SMALL_PACKAGE"
 	// MovingExpenseReceiptTypeOther captures enum value "OTHER"
 	MovingExpenseReceiptTypeOther MovingExpenseReceiptType = "OTHER"
 )
@@ -93,6 +95,22 @@ func (e MovingExpenses) FilterDeleted() MovingExpenses {
 	}
 
 	return nonDeletedExpenses
+}
+
+func (e MovingExpenses) FilterRejected() MovingExpenses {
+	if len(e) == 0 {
+		return e
+	}
+
+	validExpense := MovingExpenses{}
+	for _, expense := range e {
+		if expense.Status == nil || *expense.Status != PPMDocumentStatusRejected {
+			validExpense = append(validExpense, expense)
+		}
+	}
+
+	return validExpense
+
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,
