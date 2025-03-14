@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -26,11 +27,12 @@ const AutoReweighRequestThreshold = .9
 type moveWeights struct {
 	ReweighRequestor       services.ShipmentReweighRequester
 	WeightAllotmentFetcher services.WeightAllotmentFetcher
+	Sender                 notifications.NotificationSender
 }
 
 // NewMoveWeights creates a new moveWeights service
-func NewMoveWeights(reweighRequestor services.ShipmentReweighRequester, weightAllotmentFetcher services.WeightAllotmentFetcher) services.MoveWeights {
-	return &moveWeights{ReweighRequestor: reweighRequestor, WeightAllotmentFetcher: weightAllotmentFetcher}
+func NewMoveWeights(reweighRequestor services.ShipmentReweighRequester, weightAllotmentFetcher services.WeightAllotmentFetcher, sender notifications.NotificationSender) services.MoveWeights {
+	return &moveWeights{ReweighRequestor: reweighRequestor, WeightAllotmentFetcher: weightAllotmentFetcher, Sender: sender}
 }
 
 func validateAndSave(appCtx appcontext.AppContext, move *models.Move) (*validate.Errors, error) {
@@ -262,8 +264,8 @@ func calculateSumOfWeights(move models.Move, updatedShipment *models.MTOShipment
 	return sumOfWeights
 }
 
-// getAutoReweighShipments returns all shipments that need to be reweighed
-func (w moveWeights) getAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
+// getAutoReweighShipments returns all shipments that need to be reweighed (made public just for testing)
+func (w moveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
 	if move == nil {
 		return nil, apperror.NewBadDataError("received a nil move, a move must be supplied for checking reweighs")
 	}
@@ -288,11 +290,11 @@ func (w moveWeights) getAutoReweighShipments(appCtx appcontext.AppContext, move 
 
 	totalActualWeight := 0
 	totalEstimatedWeight := 0
+	reweighActiveForMove := false // Reweighs should be active for all shipments in a move
 	for i := range move.MTOShipments {
-		if err != nil {
-			return nil, err
-		} else if move.MTOShipments[i].Reweigh != nil { // Should only trigger reweights once, skip if one already exists
-			continue
+		if move.MTOShipments[i].Reweigh != nil { // Should only trigger reweights once, skip if one already exists
+			reweighActiveForMove = true // Also set var so we know to apply reweigh to any shipments in move that don't yet have one
+			break
 		}
 		if move.MTOShipments[i].ShipmentType != models.MTOShipmentTypePPM &&
 			availableShipmentStatus(move.MTOShipments[i].Status) &&
@@ -316,6 +318,21 @@ func (w moveWeights) getAutoReweighShipments(appCtx appcontext.AppContext, move 
 		}
 	}
 
+	// If reweigh active , restart and make sure that each shipment without a reweigh gets a reweigh request
+	if reweighActiveForMove {
+		results = models.MTOShipments{}
+		for i := range move.MTOShipments {
+			if move.MTOShipments[i].Reweigh == nil && availableShipmentStatus(move.MTOShipments[i].Status) {
+				results = append(results, move.MTOShipments[i])
+			}
+		}
+	}
+
+	// If there was a shipment added after a reweigh was originally requested, we need to send that reqweigh request regardless of weight
+	if reweighActiveForMove {
+		return results, nil
+	}
+
 	// Check actual weight first
 	if int(totalActualWeight) >= maxWeight {
 		return results, nil
@@ -329,9 +346,9 @@ func (w moveWeights) getAutoReweighShipments(appCtx appcontext.AppContext, move 
 	return models.MTOShipments{}, nil
 }
 
-func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
+func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) error {
 	if updatedShipment == nil {
-		return nil, apperror.NewBadDataError("received a nil MTO shipment, an MTO shipment must be supplied for checking reweighs")
+		return apperror.NewBadDataError("received a nil MTO shipment, an MTO shipment must be supplied for checking reweighs")
 	}
 
 	var move models.Move
@@ -339,35 +356,45 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(moveID, "looking for Move")
+			return apperror.NewNotFoundError(moveID, "looking for Move")
 		default:
-			return nil, apperror.NewQueryError("Move", err, "")
+			return apperror.NewQueryError("Move", err, "")
 		}
 	}
 
 	if move.Orders.Grade == nil {
-		return nil, errors.New("could not determine excess weight entitlement without grade")
+		return errors.New("could not determine excess weight entitlement without grade")
 	}
 
 	if move.Orders.Entitlement.DependentsAuthorized == nil {
-		return nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
+		return errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	autoReweighShipments, err := w.getAutoReweighShipments(appCtx, &move, updatedShipment)
+	autoReweighShipments, err := w.GetAutoReweighShipments(appCtx, &move, updatedShipment)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if len(autoReweighShipments) > 0 {
 		for _, shipment := range autoReweighShipments {
 			reweigh, err := w.ReweighRequestor.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
 			if err != nil {
-				return nil, err
+				return err
+			}
+
+			/* Don't send emails to BLUEBARK moves */
+			if shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() {
+				err := w.Sender.SendNotification(appCtx,
+					notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
+				)
+				if err != nil {
+					return err
+				}
 			}
 
 			shipment.Reweigh = reweigh
 		}
 	}
 
-	return autoReweighShipments, nil
+	return nil
 }

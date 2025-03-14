@@ -9,7 +9,7 @@ import (
 //
 //go:generate mockery --name ShipmentCreator
 type ShipmentCreator interface {
-	CreateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOShipment, error)
+	CreateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, createdByPrime bool) (*models.MTOShipment, error)
 }
 
 // ShipmentUpdater updates a shipment, taking into account different shipment types and their needs.

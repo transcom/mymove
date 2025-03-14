@@ -262,7 +262,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 
 			var err error
-			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
+			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment, false)
 
 			if err != nil {
 				return handleError(err)
@@ -766,6 +766,31 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 					})
 					if err != nil {
 						appCtx.Logger().Error("ghcapi.ApproveShipmentsHandlerFunc could not generate the event")
+					}
+				}
+
+				// If there are existing reweighs for a move and this move was just approved and sent to Prime, apply a reweigh request to this one as well
+				reweighActiveForMove := false
+				for i := range move.MTOShipments {
+					if move.MTOShipments[i].Reweigh != nil {
+						reweighActiveForMove = true
+						break
+					}
+				}
+
+				if reweighActiveForMove {
+					reweighRequester := mtoshipment.NewShipmentReweighRequester()
+					for i := range move.MTOShipments {
+						shipment := move.MTOShipments[i]
+						if (shipment.Status == models.MTOShipmentStatusApproved ||
+							shipment.Status == models.MTOShipmentStatusDiversionRequested ||
+							shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
+							shipment.Reweigh.ID == uuid.Nil {
+							_, err := reweighRequester.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
+							if err != nil {
+								return nil, err
+							}
+						}
 					}
 				}
 			}

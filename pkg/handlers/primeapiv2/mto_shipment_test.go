@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -86,7 +87,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
+	mockSender := suite.TestNotificationSender()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 	mockCreator := mocks.ShipmentCreator{}
 
 	var pickupAddress primev2messages.Address
@@ -178,7 +182,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.Run("Successful POST - Integration Test", func() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:   Create an mto shipment on an available move
-		// Expected:   Successful submission, status should be SUBMITTED
+		// Expected:   Successful submission, status should be Approved
 		handler, move := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
@@ -208,15 +212,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Validate outgoing payload
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
-		// check that the mto shipment status is Submitted
-		suite.Require().Equal(createMTOShipmentPayload.Status, primev2messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
+		// check that the mto shipment status is Approved
+		suite.Require().Equal(createMTOShipmentPayload.Status, primev2messages.MTOShipmentWithoutServiceItemsStatusAPPROVED, "MTO Shipment should have been approved")
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
 	suite.Run("Successful POST - Integration Test - Unaccompanied Baggage", func() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:   Create an mto shipment on an available move
-		// Expected:   Successful submission, status should be SUBMITTED
+		// Expected:   Successful submission, status should be APPROVED
 
 		suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", "true") // Set to true in order to test UB shipments can be created with UB flag on
 
@@ -249,16 +253,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Validate outgoing payload
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
-		// check that the mto shipment status is Submitted
-		suite.Require().Equal(createMTOShipmentPayload.ShipmentType, primev2messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE, "MTO Shipment should have been submitted")
-		suite.Require().Equal(createMTOShipmentPayload.Status, primev2messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
+		// check that the mto shipment status is Approved
+		suite.Require().Equal(createMTOShipmentPayload.ShipmentType, primev2messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE, "MTO Shipment type should have been Unaccompanied Baggage")
+		suite.Require().Equal(createMTOShipmentPayload.Status, primev2messages.MTOShipmentWithoutServiceItemsStatusAPPROVED, "MTO Shipment should have been approved")
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
 	suite.Run("Successful POST - Integration Test (PPM)", func() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:      Create a PPM shipment on an available move
-		// Expected:   Successful submission, status should be SUBMITTED
+		// Expected:   Successful submission, status should be APPROVED
 		handler, move := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
@@ -346,7 +350,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.Run("Successful POST with Shuttle service items without primeEstimatedWeight - Integration Test", func() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:   Create an mto shipment on an available move
-		// Expected:   Successful submission, status should be SUBMITTED
+		// Expected:   Successful submission, status should be APPROVED
 		handler, move := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
@@ -396,8 +400,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Validate outgoing payload
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
-		// check that the mto shipment status is Submitted
-		suite.Require().Equal(createMTOShipmentPayload.Status, primev2messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
+		// check that the mto shipment status is Approved
+		suite.Require().Equal(createMTOShipmentPayload.Status, primev2messages.MTOShipmentWithoutServiceItemsStatusAPPROVED, "MTO Shipment should have been approved")
 	})
 
 	suite.Run("POST failure - 500", func() {
@@ -416,6 +420,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mockCreator.On("CreateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.MTOShipment"),
+			mock.AnythingOfType("bool"),
 		).Return(nil, err)
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
