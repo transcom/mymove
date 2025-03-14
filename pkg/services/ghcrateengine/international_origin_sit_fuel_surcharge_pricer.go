@@ -21,8 +21,8 @@ func NewInternationalOriginSITFuelSurchargePricer() services.InternationalOrigin
 }
 
 // Price determines the price for International Origin SIT Fuel Surcharges
-func (p internationalOriginFuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceIntlFuelSurcharge(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, isPPM)
+func (p internationalOriginFuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceIntlFuelSurcharge(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 }
 
 func (p internationalOriginFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
@@ -67,13 +67,5 @@ func (p internationalOriginFuelSurchargePricer) PriceUsingParams(appCtx appconte
 		return unit.Cents(0), nil, err
 	}
 
-	var isPPM = false
-	if params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypePPM {
-		// PPMs do not require minimums for a shipment's weight
-		// this flag is passed into the Price function to ensure the weight min
-		// are not enforced for PPMs
-		isPPM = true
-	}
-
-	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), isPPM)
+	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
 }

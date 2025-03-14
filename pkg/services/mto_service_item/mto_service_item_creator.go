@@ -337,10 +337,10 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 			serviceItem.ReService.Code == models.ReServiceCodeIDSFSC ||
 			serviceItem.ReService.Code == models.ReServiceCodeIDDSIT {
 			// IDSFSC: Determine distance calculation only if destination address is CONUS.
-			if mtoShipment.DestinationAddress != nil &&
+			if serviceItem.SITDestinationOriginalAddress != nil &&
 				serviceItem.SITDestinationFinalAddress != nil &&
-				(serviceItem.ReService.Code != models.ReServiceCodeIDSFSC || (serviceItem.ReService.Code == models.ReServiceCodeIDSFSC && !(*mtoShipment.DestinationAddress.IsOconus))) {
-				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
+				(serviceItem.ReService.Code != models.ReServiceCodeIDSFSC || (serviceItem.ReService.Code == models.ReServiceCodeIDSFSC && !(*serviceItem.SITDestinationOriginalAddress.IsOconus))) {
+				distance, err = o.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationOriginalAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 			}
 		}
 	}
