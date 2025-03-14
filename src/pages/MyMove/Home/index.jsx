@@ -276,7 +276,7 @@ export class Home extends Component {
           )}
           {orders?.entitlement?.ub_weight_restriction > 0 && (
             <div className={styles.subheaderSubsection}>
-              <dt>UB Weight restriction</dt>
+              <dt>UB weight restriction</dt>
               <dd>{formatWeight(orders?.entitlement?.ub_weight_restriction)}</dd>
             </div>
           )}
