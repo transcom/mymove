@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
@@ -50,6 +51,11 @@ type CreateUploadParams struct {
 	  In: formData
 	*/
 	File io.ReadCloser
+	/*If the upload is a Weight Receipt
+	  Required: true
+	  In: query
+	*/
+	WeightReceipt bool
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -84,6 +90,11 @@ func (o *CreateUploadParams) BindRequest(r *http.Request, route *middleware.Matc
 		res = append(res, err)
 	} else {
 		o.File = &runtime.File{Data: file, Header: fileHeader}
+	}
+
+	qWeightReceipt, qhkWeightReceipt, _ := qs.GetOK("weightReceipt")
+	if err := o.bindWeightReceipt(qWeightReceipt, qhkWeightReceipt, route.Formats); err != nil {
+		res = append(res, err)
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
@@ -132,5 +143,31 @@ func (o *CreateUploadParams) validateDocumentID(formats strfmt.Registry) error {
 //
 // The only supported validations on files are MinLength and MaxLength
 func (o *CreateUploadParams) bindFile(file multipart.File, header *multipart.FileHeader) error {
+	return nil
+}
+
+// bindWeightReceipt binds and validates parameter WeightReceipt from query.
+func (o *CreateUploadParams) bindWeightReceipt(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("weightReceipt", "query", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// AllowEmptyValue: false
+
+	if err := validate.RequiredString("weightReceipt", "query", raw); err != nil {
+		return err
+	}
+
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("weightReceipt", "query", "bool", raw)
+	}
+	o.WeightReceipt = value
+
 	return nil
 }

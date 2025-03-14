@@ -141,6 +141,17 @@ func (s *ServiceMember) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
+// FetchServiceMemberByUserID finds the service member based off of the user_id value
+func FetchServiceMemberByUserID(db *pop.Connection, userId string) (*ServiceMember, error) {
+	var serviceMember ServiceMember
+	err := db.Where("user_id = $1", userId).First(&serviceMember)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serviceMember, nil
+}
+
 // FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.
 // This method is thereby a useful way of performing access control checks.
 func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {

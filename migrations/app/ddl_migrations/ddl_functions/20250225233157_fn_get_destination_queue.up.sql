@@ -251,6 +251,9 @@ BEGIN
             too_user.first_name,
             too_user.last_name';
     sql_query := sql_query || format(' ORDER BY %s %s ', sort_column, sort_order);
+	IF sort_column <> 'moves.locator' THEN
+        sql_query := sql_query || ', moves.locator ASC ';
+    END IF;
     sql_query := sql_query || ' LIMIT $13 OFFSET $14 ';
 
     RETURN QUERY EXECUTE sql_query
