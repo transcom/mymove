@@ -124,6 +124,7 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
+		TOODestinationAssignedUser:                     AssignedOfficeUser(move.TOODestinationAssignedUser),
 	}
 
 	return payload, nil
@@ -2309,7 +2310,7 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string, queueType string) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -2384,10 +2385,12 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		if (activeRole == string(roles.RoleTypeServicesCounselor) || activeRole == string(roles.RoleTypeHQ)) && move.SCAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.SCAssignedUser)
 		}
-		if (activeRole == string(roles.RoleTypeTOO) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
+		if ((activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeTaskOrder)) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
 		}
-
+		if activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.TOODestinationAssignedUser)
+		}
 		// these branches have their own closeout specific offices
 		ppmCloseoutGblocs := closeoutLocation == "NAVY" || closeoutLocation == "TVCB" || closeoutLocation == "USCG"
 		// requestedPpmStatus also represents if we are viewing the closeout queue
@@ -2406,29 +2409,42 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 				availableOfficeUsers = officeUsersSafety
 			}
 
+			taskOrderQueueCheck := activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeTaskOrder) && move.TOOAssignedUser != nil
+			destinationRequestQueueCheck := activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil
+			serviceCounselorQueueCheck := activeRole == string(roles.RoleTypeServicesCounselor) && move.SCAssignedUser != nil
 			// if the assigned user is not in the returned list of available users append them to the end
-			if (activeRole == string(roles.RoleTypeTOO) && move.TOOAssignedUser != nil) || (activeRole == string(roles.RoleTypeServicesCounselor) && move.SCAssignedUser != nil) {
+			if taskOrderQueueCheck || destinationRequestQueueCheck || serviceCounselorQueueCheck {
 				var assignedUser *models.OfficeUser
 				var assignedID *uuid.UUID
 
+				// Determine the assigned user and ID based on active role and queue type
 				switch activeRole {
 				case string(roles.RoleTypeTOO):
-					assignedUser = move.TOOAssignedUser
-					assignedID = move.TOOAssignedID
+					switch queueType {
+					case string(models.QueueTypeTaskOrder):
+						assignedUser = move.TOOAssignedUser
+						assignedID = move.TOOAssignedID
+					case string(models.QueueTypeDestinationRequest):
+						assignedUser = move.TOODestinationAssignedUser
+						assignedID = move.TOODestinationAssignedID
+					}
 				case string(roles.RoleTypeServicesCounselor):
 					assignedUser = move.SCAssignedUser
 					assignedID = move.SCAssignedID
 				}
 
-				userFound := false
-				for _, officeUser := range availableOfficeUsers {
-					if assignedID != nil && officeUser.ID == *assignedID {
-						userFound = true
-						break
+				// Ensure assignedUser and assignedID are not nil before proceeding
+				if assignedUser != nil && assignedID != nil {
+					userFound := false
+					for _, officeUser := range availableOfficeUsers {
+						if officeUser.ID == *assignedID {
+							userFound = true
+							break
+						}
 					}
-				}
-				if !userFound {
-					availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
+					if !userFound {
+						availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
+					}
 				}
 			}
 			if activeRole == string(roles.RoleTypeServicesCounselor) {

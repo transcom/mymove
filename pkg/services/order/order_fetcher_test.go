@@ -1321,7 +1321,7 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	createdMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 	createdMove.SCAssignedID = &scUser.ID
 	createdMove.SCAssignedUser = &scUser
-	_, updateError := assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, createdMove.ID, &scUser, roles.RoleTypeServicesCounselor)
+	_, updateError := assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, createdMove.ID, &scUser, models.QueueTypeCounseling)
 
 	moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, roles.RoleTypeServicesCounselor, &services.ListOrderParams{
 		SCAssignedUser: &scUser.LastName,
