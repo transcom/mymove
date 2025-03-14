@@ -28,22 +28,19 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalOriginSITFuelSurch
 	pricer := NewInternationalOriginSITFuelSurchargePricer()
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		isPPM := false
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), iosfscActualPickupDate, iosfscTestDistance, iosfscTestWeight, iosfscWeightDistanceMultiplier, iosfscFuelPrice, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), iosfscActualPickupDate, iosfscTestDistance, iosfscTestWeight, iosfscWeightDistanceMultiplier, iosfscFuelPrice)
 		suite.NoError(err)
 		suite.Equal(iosfscPriceCents, priceCents)
 	})
 
 	suite.Run("success without PaymentServiceItemParams when shipment is PPM with < 500 lb weight", func() {
-		isPPM := true
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), iosfscActualPickupDate, iosfscTestDistance, unit.Pound(250), iosfscWeightDistanceMultiplier, iosfscFuelPrice, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), iosfscActualPickupDate, iosfscTestDistance, unit.Pound(250), iosfscWeightDistanceMultiplier, iosfscFuelPrice)
 		suite.NoError(err)
 		suite.Equal(iosfscPriceCents, priceCents)
 	})
 
 	suite.Run("IOSFSC is negative if fuel price from EIA is below $2.50", func() {
-		isPPM := false
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), iosfscActualPickupDate, iosfscTestDistance, iosfscTestWeight, iosfscWeightDistanceMultiplier, 242400, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), iosfscActualPickupDate, iosfscTestDistance, iosfscTestWeight, iosfscWeightDistanceMultiplier, 242400)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(-721), priceCents)
 	})
@@ -121,7 +118,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalOriginSITFuelSurch
 
 		for name, testcase := range testCases {
 			suite.Run(name, func() {
-				_, _, err := pricer.Price(suite.AppContextForTest(), testcase.priceArgs.actualPickupDate, testcase.priceArgs.distance, testcase.priceArgs.weight, testcase.priceArgs.fscWeightBasedDistanceMultiplier, testcase.priceArgs.eiaFuelPrice, testcase.priceArgs.isPPM)
+				_, _, err := pricer.Price(suite.AppContextForTest(), testcase.priceArgs.actualPickupDate, testcase.priceArgs.distance, testcase.priceArgs.weight, testcase.priceArgs.fscWeightBasedDistanceMultiplier, testcase.priceArgs.eiaFuelPrice)
 				suite.Error(err)
 				suite.Equal(testcase.errorMessage, err.Error())
 			})
