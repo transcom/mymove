@@ -1103,6 +1103,15 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
+    // Unaccompanied Baggage Price
+    case SERVICE_ITEM_CODES.UBP:
+      result = [
+        billableWeight(params),
+        unaccompaniedBaggagePrice(params, shipmentType),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
     // International crating
     case SERVICE_ITEM_CODES.ICRT:
       result = [
@@ -1128,15 +1137,6 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         cratingSize(params, mtoParams),
         unCratingPriceIntl(params),
         priceEscalationFactorWithoutContractYear(params),
-        totalAmountRequested(totalAmount),
-      ];
-      break;
-    // Unaccompanied Baggage Price
-    case SERVICE_ITEM_CODES.UBP:
-      result = [
-        billableWeight(params),
-        unaccompaniedBaggagePrice(params, shipmentType),
-        priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
       break;
