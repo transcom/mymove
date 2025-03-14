@@ -102,7 +102,10 @@ func (u *UserUploader) CreateUserUploadForDocument(appCtx appcontext.AppContext,
 	}
 
 	defer func() {
-		err := u.uploader.Storer.TempFileSystem().Remove(file.Name())
+		if file.File != nil {
+			file.File.Close()
+		}
+		err := u.uploader.Storer.TempFileSystem().Remove(file.File.Name())
 
 		if err != nil {
 			appCtx.Logger().Error("error removing file from memory", zap.Error(err))
