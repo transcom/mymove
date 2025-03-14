@@ -102,6 +102,11 @@ type GetDestinationRequestsQueueParams struct {
 	  In: query
 	*/
 	Status []string
+	/*Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
+
+	  In: query
+	*/
+	ViewAsGBLOC *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -192,6 +197,11 @@ func (o *GetDestinationRequestsQueueParams) BindRequest(r *http.Request, route *
 
 	qStatus, qhkStatus, _ := qs.GetOK("status")
 	if err := o.bindStatus(qStatus, qhkStatus, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qViewAsGBLOC, qhkViewAsGBLOC, _ := qs.GetOK("viewAsGBLOC")
+	if err := o.bindViewAsGBLOC(qViewAsGBLOC, qhkViewAsGBLOC, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -585,5 +595,23 @@ func (o *GetDestinationRequestsQueueParams) validateStatus(formats strfmt.Regist
 	if err := validate.UniqueItems("status", "query", o.Status); err != nil {
 		return err
 	}
+	return nil
+}
+
+// bindViewAsGBLOC binds and validates parameter ViewAsGBLOC from query.
+func (o *GetDestinationRequestsQueueParams) bindViewAsGBLOC(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.ViewAsGBLOC = &raw
+
 	return nil
 }

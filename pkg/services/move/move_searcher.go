@@ -105,6 +105,12 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	if err != nil {
 		return models.Moves{}, 0, apperror.NewQueryError("Move", err, "")
 	}
+
+	for i := range moves {
+		if moves[i].MTOShipments != nil {
+			moves[i].MTOShipments = models.FilterDeletedRejectedCanceledMtoShipments(moves[i].MTOShipments)
+		}
+	}
 	return moves, query.Paginator.TotalEntriesSize, nil
 }
 

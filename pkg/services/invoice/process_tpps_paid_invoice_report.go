@@ -281,11 +281,13 @@ func (t *tppsPaidInvoiceReportProcessor) StoreTPPSPaidInvoiceReportInDatabase(ap
 				if isForeignKeyConstraintViolation(err) {
 					appCtx.Logger().Warn(fmt.Sprintf("skipping entry due to missing foreign key reference for invoice number %s", tppsEntry.InvoiceNumber))
 					failedEntries = append(failedEntries, fmt.Errorf("invoice number %s: foreign key constraint violation", tppsEntry.InvoiceNumber))
+					errorProcessingRowCount += 1
 					return fmt.Errorf("rolling back transaction to prevent blocking")
 				}
 
 				appCtx.Logger().Error(fmt.Sprintf("failed to save entry for invoice number %s", tppsEntry.InvoiceNumber), zap.Error(err))
 				failedEntries = append(failedEntries, fmt.Errorf("invoice number %s: %v", tppsEntry.InvoiceNumber, err))
+				errorProcessingRowCount += 1
 				return fmt.Errorf("rolling back transaction to prevent blocking")
 			}
 
