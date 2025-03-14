@@ -130,3 +130,71 @@ export function hasIncompleteWeightTicket(weightTickets) {
 
   return !weightTickets?.every(isWeightTicketComplete);
 }
+
+export const blankAddress = {
+  address: {
+    streetAddress1: '',
+    streetAddress2: '',
+    streetAddress3: '',
+    city: '',
+    state: '',
+    postalCode: '',
+  },
+};
+
+const updateAddressToggle = (setValues, fieldName, value, fieldKey, fieldValue) => {
+  if (fieldName === 'hasDeliveryAddress' && value === 'false') {
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: fieldValue,
+      hasSecondaryDelivery: 'false',
+      secondaryDelivery: {
+        address: blankAddress,
+      },
+      hasTertiaryDelivery: 'false',
+      tertiaryDelivery: {
+        address: blankAddress,
+      },
+    }));
+  } else {
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: value === 'false' ? fieldValue : { ...prevValues[fieldKey] },
+    }));
+  }
+};
+
+export const handleAddressToggleChange = (e, values, setValues, newDutyLocationAddress) => {
+  const { name, value } = e.target;
+
+  const fieldMap = {
+    hasSecondaryPickup: { key: 'secondaryPickup', updateValue: { blankAddress } },
+    hasSecondaryPickupAddress: { key: 'secondaryPickupAddress', updateValue: { blankAddress } },
+    hasTertiaryPickup: { key: 'tertiaryPickup', updateValue: { blankAddress } },
+    hasTertiaryPickupAddress: { key: 'tertiaryPickupAddress', updateValue: { blankAddress } },
+    hasDeliveryAddress: {
+      key: 'delivery',
+      updateValue: {
+        ...values.delivery,
+        address: {
+          streetAddress1: 'N/A',
+          city: newDutyLocationAddress.city,
+          state: newDutyLocationAddress.state,
+          postalCode: newDutyLocationAddress.postalCode,
+        },
+      },
+    },
+    hasSecondaryDelivery: { key: 'secondaryDelivery', updateValue: { blankAddress } },
+    hasSecondaryDestination: { key: 'secondaryDestination', updateValue: { blankAddress } },
+    hasSecondaryDestinationAddress: { key: 'secondaryDestinationAddress', updateValue: { blankAddress } },
+    hasTertiaryDelivery: { key: 'tertiaryDelivery', updateValue: { blankAddress } },
+    hasTertiaryDestination: { key: 'tertiaryDestination', updateValue: { blankAddress } },
+    hasTertiaryDestinationAddress: { key: 'tertiaryDestinationAddress', updateValue: { blankAddress } },
+  };
+
+  if (fieldMap[name]) {
+    updateAddressToggle(setValues, name, value, fieldMap[name].key, fieldMap[name].updateValue);
+  }
+};
