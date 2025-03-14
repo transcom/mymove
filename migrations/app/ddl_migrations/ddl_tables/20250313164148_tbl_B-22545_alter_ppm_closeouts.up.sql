@@ -1,4 +1,0 @@
--- Dropping these columns because we do not need them
---ALTER TABLE ppm_closeouts
-  --  DROP COLUMN IF EXISTS gtcc_paid_storage,
-  --  DROP COLUMN IF EXISTS member_paid_storage;
