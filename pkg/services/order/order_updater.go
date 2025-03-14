@@ -540,8 +540,9 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 	} else if order.HasDependents {
 		hasDepedents = true
 	}
+	civilianTDYUBAllowance := 0 // TODO in B-22605
 	if order.Entitlement != nil {
-		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, &hasDepedents, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, &hasDepedents, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver, &civilianTDYUBAllowance)
 		if err == nil {
 			order.Entitlement.UBAllowance = &unaccompaniedBaggageAllowance
 		}
@@ -649,8 +650,9 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	}
 
 	// Recalculate UB allowance of order entitlement
+	civilianTDYUBAllowance := 0 // TODO in B-22605
 	if order.Entitlement != nil {
-		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, order.Entitlement.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, order.Entitlement.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver, &civilianTDYUBAllowance)
 		if err != nil {
 			return models.Order{}, err
 		}
@@ -825,9 +827,10 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		order.DestinationGBLOC = newDestinationGBLOC
 	}
 
+	civilianTDYUBAllowance := 0 // TODO in B-22605
 	// Recalculate UB allowance of order entitlement
 	if order.Entitlement != nil {
-		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, order.Entitlement.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, order.Entitlement.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver, &civilianTDYUBAllowance)
 		if err == nil {
 			order.Entitlement.UBAllowance = &unaccompaniedBaggageAllowance
 		}
