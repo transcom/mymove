@@ -102,7 +102,6 @@ func (u *UserUploader) CreateUserUploadForDocument(appCtx appcontext.AppContext,
 	}
 
 	defer func() {
-		// check if afile is not nil then remove.
 		err := u.uploader.Storer.TempFileSystem().Remove(file.Name())
 
 		if err != nil {
