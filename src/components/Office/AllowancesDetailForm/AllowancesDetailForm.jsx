@@ -14,7 +14,7 @@ import { EntitlementShape } from 'types/order';
 import { formatWeight } from 'utils/formatters';
 import Hint from 'components/Hint';
 
-const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisabled }) => {
+const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisabled, civilianTDYUBMove }) => {
   const [enableUB, setEnableUB] = useState(false);
   const renderOconusFields = !!(
     entitlements?.accompaniedTour ||
@@ -75,6 +75,12 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
       setFieldValue('ubWeightRestriction', null);
     }
   };
+
+  useEffect(() => {
+    if (civilianTDYUBMove) {
+      setFieldValue('ubAllowance', `${entitlements.unaccompaniedBaggageAllowance}`);
+    }
+  }, [setFieldValue, entitlements.unaccompaniedBaggageAllowance, civilianTDYUBMove]);
 
   return (
     <div className={styles.AllowancesDetailForm}>
@@ -194,6 +200,21 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
         <dt>Standard weight allowance</dt>
         <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
       </dl>
+      {enableUB && civilianTDYUBMove && (
+        <MaskedTextField
+          data-testid="civilianTdyUbAllowance"
+          defaultValue="0"
+          name="ubAllowance"
+          label="Civilian TDY UB Allowance"
+          id="civilianTdyUbAllowance"
+          mask={Number}
+          scale={0}
+          signed={false}
+          thousandsSeparator=","
+          lazy={false}
+          isDisabled={formIsDisabled}
+        />
+      )}
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
           data-testid="ocieInput"
@@ -279,11 +300,13 @@ AllowancesDetailForm.propTypes = {
   branchOptions: DropdownArrayOf.isRequired,
   header: PropTypes.string,
   formIsDisabled: PropTypes.bool,
+  civilianTDYUBMove: PropTypes.bool,
 };
 
 AllowancesDetailForm.defaultProps = {
   header: null,
   formIsDisabled: false,
+  civilianTDYUBMove: false,
 };
 
 export default AllowancesDetailForm;

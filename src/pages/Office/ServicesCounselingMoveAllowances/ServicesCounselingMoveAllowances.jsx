@@ -11,7 +11,7 @@ import AllowancesDetailForm from '../../../components/Office/AllowancesDetailFor
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -136,6 +136,7 @@ const ServicesCounselingMoveAllowances = () => {
       accompaniedTour,
       dependentsTwelveAndOver: Number(dependentsTwelveAndOver),
       dependentsUnderTwelve: Number(dependentsUnderTwelve),
+      ubAllowance: Number(values.ubAllowance),
     };
     return mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
@@ -173,6 +174,11 @@ const ServicesCounselingMoveAllowances = () => {
     dependentsTwelveAndOver: `${dependentsTwelveAndOver}`,
   };
 
+  const civilianTDYUBMove =
+    order.order_type === ORDERS_TYPE.TEMPORARY_DUTY &&
+    order.grade === 'CIVILIAN_EMPLOYEE' &&
+    (order.originDutyLocation?.address?.isOconus || order.destinationDutyLocation?.address?.isOconus);
+
   return (
     <div className={styles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -203,6 +209,7 @@ const ServicesCounselingMoveAllowances = () => {
                   entitlements={order.entitlement}
                   branchOptions={branchDropdownOption}
                   header="Counseling"
+                  civilianTDYUBMove={civilianTDYUBMove}
                 />
               </div>
               <div className={styles.bottom}>
