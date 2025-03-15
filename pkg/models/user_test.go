@@ -313,3 +313,15 @@ func (suite *ModelSuite) TestGetUser() {
 		suite.Equal(alice.ID, user2.ID)
 	}
 }
+
+func (suite *ModelSuite) TestGetUserFromOktaID() {
+	user := factory.BuildDefaultUser(suite.DB())
+
+	foundUser, err := m.GetUserFromOktaID(suite.DB(), user.OktaID)
+	suite.Nil(err)
+	suite.NotNil(foundUser)
+	if err == nil && foundUser != nil {
+		suite.Equal(user.ID, foundUser.ID)
+		suite.Equal(user.OktaEmail, foundUser.OktaEmail)
+	}
+}

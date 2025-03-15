@@ -874,7 +874,15 @@ const ShipmentForm = (props) => {
                   </Button>
                 )}
               </div>
-
+              {isPPM && !isAdvancePage && isServiceCounselor && (
+                <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+                  <Alert type="warning" aria-live="polite" headingLevel="h4" data-testid="scPPMCreateWarning">
+                    Creating a PPM as a Service Counselor will automatically approve the PPM shipment and send it to the
+                    customer. Please ensure all information is correct. After creation you will not be able to edit the
+                    shipment.
+                  </Alert>
+                </SectionWrapper>
+              )}
               <SectionWrapper className={styles.weightAllowance}>
                 {isUB ? (
                   <p data-testid="ubWeightAllowance">
@@ -1159,7 +1167,7 @@ const ShipmentForm = (props) => {
                                 <>
                                   <h4>Third Delivery Address</h4>
                                   <FormGroup>
-                                    <p>Do you want the movers to deliver any belongings from a third address?</p>
+                                    <p>Do you want the movers to deliver any belongings to a third address?</p>
                                     <div className={formStyles.radioGroup}>
                                       <Field
                                         as={Radio}
@@ -1334,9 +1342,7 @@ const ShipmentForm = (props) => {
                                         <>
                                           <h4>Third Delivery Address</h4>
                                           <FormGroup>
-                                            <p>
-                                              Do you want the movers to deliver any belongings from a third address?
-                                            </p>
+                                            <p>Do you want the movers to deliver any belongings to a third address?</p>
                                             <div className={formStyles.radioGroup}>
                                               <Field
                                                 as={Radio}
