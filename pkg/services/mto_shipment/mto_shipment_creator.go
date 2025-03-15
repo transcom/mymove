@@ -332,7 +332,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		//assign status to shipment draft by default
-		if shipment.Status != models.MTOShipmentStatusSubmitted {
+		// Also allow for approved, prime created shipments need to be approved so that reweighs can be requested immediately upon creation if needed
+		if shipment.Status != models.MTOShipmentStatusSubmitted && shipment.Status != models.MTOShipmentStatusApproved {
 			shipment.Status = models.MTOShipmentStatusDraft
 		}
 
