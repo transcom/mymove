@@ -19,6 +19,7 @@ import { formatCentsTruncateWhole } from 'utils/formatters';
 import { requiredW2AddressSchema, requiredAddressSchema } from 'utils/validation';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
+import { PPM_TYPES } from 'shared/constants';
 
 const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted }) => {
   const formFieldsName = 'w2Address';
@@ -45,6 +46,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted }) => {
 
   const ppmShipment = mtoShipment?.ppmShipment || {};
   const {
+    ppmType,
     pickupAddress,
     secondaryPickupAddress,
     destinationAddress,
@@ -86,12 +88,16 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted }) => {
           <div className={classnames(ppmStyles.formContainer, styles.AboutForm)}>
             <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2Address)} data-testid="aboutForm">
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                <h2>Departure date</h2>
+                <h2>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped Date' : 'Departure date'}</h2>
                 <DatePickerInput
                   disabledDays={{ after: today }}
                   className={classnames(styles.actualMoveDate, 'usa-input')}
                   name="actualMoveDate"
-                  label="When did you leave your origin?"
+                  label={
+                    ppmType === PPM_TYPES.SMALL_PACKAGE
+                      ? 'When did you ship your packcage?'
+                      : 'When did you leave your origin?'
+                  }
                 />
                 <Hint className={ppmStyles.hint}>If it took you more than one day to move out, use the first day.</Hint>
                 <h2>Locations</h2>
