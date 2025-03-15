@@ -3,6 +3,7 @@ package primeapi
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
@@ -133,6 +134,11 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 						appCtx.Logger().Error("Payment Request",
 							zap.Any("payload", payload))
 						return paymentrequestop.NewCreatePaymentRequestConflict().WithPayload(payload), err
+					}
+
+					if strings.Contains(e.Error(), "Failed to create service item param for param key") {
+						errPayload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
+						return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload), err
 					}
 
 					appCtx.Logger().Error("Payment Request",

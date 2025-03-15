@@ -18,6 +18,9 @@ const minInternationalWeight = unit.Pound(500)
 // minIntlExternalCrateBilledCubicFeet is the minimum billed cubic feet used in international external crate
 const minIntlExternalCrateBilledCubicFeet = 4.00
 
+// minIntlWeightUB is the minimum weight used in intl UB calculations (weights below this are upgraded to the min)
+const minIntlWeightUB = unit.Pound(300)
+
 // dateInYear represents a specific date in a year (without caring what year it is)
 type dateInYear struct {
 	month time.Month
