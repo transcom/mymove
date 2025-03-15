@@ -27,6 +27,7 @@ import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
+import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -86,6 +87,14 @@ const WeightTickets = () => {
     const moves = getAllMoves(serviceMemberId);
     dispatch(updateAllMoves(moves));
   }, [weightTicketId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
+
+  const handleErrorMessage = (error) => {
+    if (error?.response?.status === 412) {
+      setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
+    } else {
+      setErrorMessage('Failed to save updated trip record');
+    }
+  };
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
@@ -173,9 +182,9 @@ const WeightTickets = () => {
         navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
         dispatch(updateMTOShipment(mtoShipment));
       })
-      .catch(() => {
+      .catch((error) => {
         setSubmitting(false);
-        setErrorMessage('Failed to save updated trip record');
+        handleErrorMessage(error);
       });
   };
 
