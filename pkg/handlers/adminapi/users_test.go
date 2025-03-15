@@ -208,6 +208,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 				RevokeAdminSession:  models.BoolPointer(false),
 				RevokeOfficeSession: models.BoolPointer(true),
 				Active:              nil,
+				OktaEmail:           &user.OktaEmail,
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
@@ -246,6 +247,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 				Active:              models.BoolPointer(false),
 				RevokeMilSession:    models.BoolPointer(true),
 				RevokeOfficeSession: models.BoolPointer(true),
+				OktaEmail:           &user.OktaEmail,
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
@@ -281,7 +283,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
 			User: &adminmessages.UserUpdate{
-				Active: models.BoolPointer(false),
+				Active:    models.BoolPointer(false),
+				OktaEmail: &user.OktaEmail,
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
@@ -325,7 +328,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
 			User: &adminmessages.UserUpdate{
-				Active: models.BoolPointer(true),
+				Active:    models.BoolPointer(true),
+				OktaEmail: &user.OktaEmail,
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
@@ -360,7 +364,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		params := userop.UpdateUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/users/%s", user.ID)),
 			User: &adminmessages.UserUpdate{
-				Active: models.BoolPointer(false),
+				Active:    models.BoolPointer(false),
+				OktaEmail: &user.OktaEmail,
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
@@ -388,16 +393,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		suite.Equal(false, foundUser.Active)
 	})
 
-	suite.Run("Successful update with RevokeUserSession, failed update with userUpdater", func() {
-		// Under test: UserSessionRevocation
-		// Mocked: UserUpdater
-		// Set up:     The session revocation succeeds, and updateUser
-		// 			   returns an error.
-		// Expected outcome:
-		//             Active status is unchanged and true.
-		// 			   User sessions are revoked.
-
-		// Create a fresh user to reset all values
+	suite.Run("failed update with userUpdater", func() {
 		user := factory.BuildUser(suite.DB(), nil, []factory.Trait{
 			activeUserTrait,
 		})
@@ -409,6 +405,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 				RevokeAdminSession:  models.BoolPointer(true),
 				RevokeMilSession:    models.BoolPointer(true),
 				RevokeOfficeSession: models.BoolPointer(true),
+				OktaEmail:           &user.OktaEmail,
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
@@ -429,14 +426,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		suite.NoError(params.User.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
-		foundUser, _ := models.GetUser(suite.DB(), user.ID)
-
-		// Session update succeeds, active update fails
-		suite.IsType(&userop.UpdateUserOK{}, response)
-		suite.Equal("", foundUser.CurrentMilSessionID)
-		suite.Equal("", foundUser.CurrentAdminSessionID)
-		suite.Equal("", foundUser.CurrentOfficeSessionID)
-		suite.Equal(true, foundUser.Active)
+		suite.IsType(&userop.UpdateUserInternalServerError{}, response)
 	})
 
 	suite.Run("Failed update with both RevokeUserSession and userUpdater", func() {
@@ -458,6 +448,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 				RevokeAdminSession:  models.BoolPointer(true),
 				RevokeMilSession:    models.BoolPointer(true),
 				RevokeOfficeSession: models.BoolPointer(true),
+				OktaEmail:           &user.OktaEmail,
 			},
 			UserID: strfmt.UUID(user.ID.String()),
 		}
