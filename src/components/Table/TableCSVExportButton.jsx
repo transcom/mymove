@@ -18,7 +18,6 @@ const TableCSVExportButton = ({
   paramSort,
   paramFilters,
   className,
-  isHeadquartersUser,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [csvRows, setCsvRows] = useState([]);
@@ -26,7 +25,7 @@ const TableCSVExportButton = ({
   const { id: sortColumn, desc: sortOrder } = paramSort.length ? paramSort[0] : {};
 
   const gblocContext = useContext(SelectedGblocContext);
-  const { selectedGbloc } = isHeadquartersUser && gblocContext ? gblocContext : { selectedGbloc: undefined };
+  const { selectedGbloc } = gblocContext || { selectedGbloc: undefined };
 
   const formatDataForExport = (data, columns = tableColumns) => {
     const formattedData = [];
@@ -111,8 +110,6 @@ TableCSVExportButton.propTypes = {
   paramSort: PropTypes.array,
   // paramSort is the filter columns and values currently applied to the queue
   paramFilters: PropTypes.array,
-  // isHeadquartersUser identifies if the active role is a headquarters user to allow switching GBLOCs
-  isHeadquartersUser: PropTypes.bool,
 };
 
 TableCSVExportButton.defaultProps = {
@@ -121,7 +118,6 @@ TableCSVExportButton.defaultProps = {
   hiddenColumns: [],
   paramSort: [],
   paramFilters: [],
-  isHeadquartersUser: false,
 };
 
 export default TableCSVExportButton;
