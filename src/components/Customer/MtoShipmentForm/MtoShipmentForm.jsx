@@ -52,18 +52,7 @@ import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { isPreceedingAddressComplete } from 'shared/utils';
-import { handleAddressToggleChange } from 'utils/shipments';
-
-const blankAddress = {
-  address: {
-    streetAddress1: '',
-    streetAddress2: '',
-    streetAddress3: '',
-    city: '',
-    state: '',
-    postalCode: '',
-  },
-};
+import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 
 class MtoShipmentForm extends Component {
   constructor(props) {
