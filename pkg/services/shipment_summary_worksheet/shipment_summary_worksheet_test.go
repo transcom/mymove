@@ -442,41 +442,49 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	tollExpense := models.MovingExpenseReceiptTypeTolls
 	oilExpense := models.MovingExpenseReceiptTypeOil
 	amount := unit.Cents(10000)
+	statusApproved := models.PPMDocumentStatusApproved
 	movingExpenses := models.MovingExpenses{
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
 			PaidWithGTCC:      &paidWithGTCCFalse,
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &oilExpense,
 			Amount:            &amount,
 			PaidWithGTCC:      &paidWithGTCCFalse,
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &oilExpense,
 			Amount:            &amount,
 			PaidWithGTCC:      &paidWithGTCCTrue,
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &oilExpense,
 			Amount:            &amount,
 			PaidWithGTCC:      &paidWithGTCCFalse,
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
 			PaidWithGTCC:      &paidWithGTCCTrue,
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
 			PaidWithGTCC:      &paidWithGTCCTrue,
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
 			PaidWithGTCC:      &paidWithGTCCFalse,
+			Status:            &statusApproved,
 		},
 	}
 
@@ -661,12 +669,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalHHG() {
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestMemberPaidRemainingPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	amount := unit.Cents(10000)
+	statusApproved := models.PPMDocumentStatusApproved
 	movingExpenses := models.MovingExpenses{
 		{
 			MovingExpenseType:      &storageExpense,
 			Amount:                 &amount,
 			PaidWithGTCC:           models.BoolPointer(false),
 			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
+			Status:                 &statusApproved,
 		},
 	}
 
@@ -711,12 +721,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestMemberPaidRemainingPPMEnt
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPacketPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	amount := unit.Cents(10000)
+	statusApproved := models.PPMDocumentStatusApproved
 	movingExpenses := models.MovingExpenses{
 		{
 			MovingExpenseType:      &storageExpense,
 			Amount:                 &amount,
 			PaidWithGTCC:           models.BoolPointer(false),
 			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
+			Status:                 &statusApproved,
 		},
 	}
 
@@ -747,12 +759,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPacketPPMEntitlementFo
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestNullCheckForFinalIncentiveAndAOAPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	amount := unit.Cents(10000)
+	statusApproved := models.PPMDocumentStatusApproved
 	movingExpenses := models.MovingExpenses{
 		{
 			MovingExpenseType:      &storageExpense,
 			Amount:                 &amount,
 			PaidWithGTCC:           models.BoolPointer(false),
 			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
+			Status:                 &statusApproved,
 		},
 	}
 
@@ -796,12 +810,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestNullCheckForFinalIncentiv
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	amount := unit.Cents(10000)
+	statusApproved := models.PPMDocumentStatusApproved
 	movingExpenses := models.MovingExpenses{
 		{
 			MovingExpenseType:      &storageExpense,
 			Amount:                 &amount,
 			PaidWithGTCC:           models.BoolPointer(true),
 			SITReimburseableAmount: models.CentPointer(unit.Cents(20000)),
+			Status:                 &statusApproved,
 		},
 	}
 
@@ -848,6 +864,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	tollExpense := models.MovingExpenseReceiptTypeTolls
 	oilExpense := models.MovingExpenseReceiptTypeOil
 	amount := unit.Cents(10000)
+	statusApproved := models.PPMDocumentStatusApproved
 	testCases := []struct {
 		input    models.MovingExpenses
 		expected map[string]float64
@@ -858,26 +875,31 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 					MovingExpenseType: &tollExpense,
 					Amount:            &amount,
 					PaidWithGTCC:      &paidWithGTCC,
+					Status:            &statusApproved,
 				},
 				{
 					MovingExpenseType: &oilExpense,
 					Amount:            &amount,
 					PaidWithGTCC:      &paidWithGTCC,
+					Status:            &statusApproved,
 				},
 				{
 					MovingExpenseType: &oilExpense,
 					Amount:            &amount,
 					PaidWithGTCC:      &paidWithGTCC,
+					Status:            &statusApproved,
 				},
 				{
 					MovingExpenseType: &oilExpense,
 					Amount:            &amount,
 					PaidWithGTCC:      &paidWithGTCC,
+					Status:            &statusApproved,
 				},
 				{
 					MovingExpenseType: &tollExpense,
 					Amount:            &amount,
 					PaidWithGTCC:      &paidWithGTCC,
+					Status:            &statusApproved,
 				},
 			},
 			map[string]float64{
@@ -1374,22 +1396,27 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	}
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	contractedExpense := models.MovingExpenseReceiptTypeContractedExpense
+	statusApproved := models.PPMDocumentStatusApproved
 	movingExpenses := models.MovingExpenses{
 		{
 			MovingExpenseType: &contractedExpense,
 			PaidWithGTCC:      models.BoolPointer(false),
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &contractedExpense,
 			PaidWithGTCC:      models.BoolPointer(true),
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &storageExpense,
 			PaidWithGTCC:      models.BoolPointer(false),
+			Status:            &statusApproved,
 		},
 		{
 			MovingExpenseType: &storageExpense,
 			PaidWithGTCC:      models.BoolPointer(true),
+			Status:            &statusApproved,
 		},
 	}
 
@@ -1968,7 +1995,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatDisbursement() {
 
 	// Test case 1: GTCC calculation B is less than GTCC calculation A
 	// Additionally, Member should not be less than 0
-	expectedResult := "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(100.00)
+	expectedResult := "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(0.00)
 	expensesMap["TotalGTCCPaid"] = 200.00
 	expensesMap["StorageGTCCPaid"] = 300.00
 	ppmRemainingEntitlement := 60.00
@@ -1977,7 +2004,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatDisbursement() {
 	suite.Equal(expectedResult, result)
 
 	// Test case 2: GTCC calculation A is less than GTCC calculation B
-	expectedResult = "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(500.00)
+	expectedResult = "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(400.00)
 	expensesMap = make(map[string]float64)
 	expensesMap["TotalGTCCPaid"] = 60.00
 	expensesMap["StorageGTCCPaid"] = 40.00
