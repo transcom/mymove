@@ -840,7 +840,8 @@ const ServicesCounselingMoveDetails = ({
                         {allowedShipmentOptions()}
                       </ButtonDropdown>
                     )
-                  : !isMoveLocked && (
+                  : !isMoveLocked &&
+                    counselorCanCancelMove && (
                       <ButtonDropdown
                         ariaLabel="Add a new shipment"
                         data-testid="addShipmentButton"
