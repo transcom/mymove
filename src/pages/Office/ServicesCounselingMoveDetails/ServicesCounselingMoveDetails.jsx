@@ -123,7 +123,56 @@ const ServicesCounselingMoveDetails = ({
     ],
   };
   const errorIfMissing = {
-    HHG_OUTOF_NTS: [{ fieldName: 'storageFacility' }],
+    HHG: [
+      {
+        fieldName: 'requestedPickupDate',
+        condition: (shipment) =>
+          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
+      },
+    ],
+    HHG_INTO_NTS: [
+      {
+        fieldName: 'requestedPickupDate',
+        condition: (shipment) =>
+          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
+      },
+    ],
+    HHG_OUTOF_NTS: [
+      { fieldName: 'storageFacility' },
+      {
+        fieldName: 'requestedPickupDate',
+        condition: (shipment) =>
+          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
+      },
+    ],
+    MOBILE_HOME: [
+      {
+        fieldName: 'requestedPickupDate',
+        condition: (shipment) =>
+          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
+      },
+    ],
+    BOAT_HAUL_AWAY: [
+      {
+        fieldName: 'requestedPickupDate',
+        condition: (shipment) =>
+          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
+      },
+    ],
+    BOAT_TOW_AWAY: [
+      {
+        fieldName: 'requestedPickupDate',
+        condition: (shipment) =>
+          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
+      },
+    ],
+    UNACCOMPANIED_BAGGAGE: [
+      {
+        fieldName: 'requestedPickupDate',
+        condition: (shipment) =>
+          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
+      },
+    ],
     PPM: [
       {
         fieldName: 'advanceStatus',
@@ -190,7 +239,7 @@ const ServicesCounselingMoveDetails = ({
 
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
-    errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
+    errorIfMissing.HHG.push([{ fieldName: 'destinationType' }]);
     errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
   }
 
@@ -342,6 +391,7 @@ const ServicesCounselingMoveDetails = ({
         displayInfo.agency = customerData.agency;
         displayInfo.closeoutOffice = closeoutOffice;
       }
+
       const errorIfMissingList = errorIfMissing[shipment.shipmentType];
 
       if (errorIfMissingList) {
