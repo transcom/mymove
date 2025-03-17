@@ -681,6 +681,10 @@ const ServicesCounselingMoveDetails = ({
     );
   };
 
+  const alwaysAllowedShipmentOptions = () => {
+    return <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>;
+  };
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -826,19 +830,31 @@ const ServicesCounselingMoveDetails = ({
           <div className={styles.section} id="shipments">
             <DetailsPanel
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) &&
-                !isMoveLocked && (
-                  <ButtonDropdown
-                    ariaLabel="Add a new shipment"
-                    data-testid="addShipmentButton"
-                    onChange={handleButtonDropdownChange}
-                  >
-                    <option value="" label="Add a new shipment">
-                      Add a new shipment
-                    </option>
-                    {allowedShipmentOptions()}
-                  </ButtonDropdown>
-                )
+                counselorCanEdit || counselorCanEditNonPPM
+                  ? !isMoveLocked && (
+                      <ButtonDropdown
+                        ariaLabel="Add a new shipment"
+                        data-testid="addShipmentButton"
+                        onChange={handleButtonDropdownChange}
+                      >
+                        <option value="" label="Add a new shipment">
+                          Add a new shipment
+                        </option>
+                        {allowedShipmentOptions()}
+                      </ButtonDropdown>
+                    )
+                  : !isMoveLocked && (
+                      <ButtonDropdown
+                        ariaLabel="Add a new shipment"
+                        data-testid="addShipmentButton"
+                        onChange={handleButtonDropdownChange}
+                      >
+                        <option value="" label="Add a new shipment">
+                          Add a new shipment
+                        </option>
+                        {alwaysAllowedShipmentOptions()}
+                      </ButtonDropdown>
+                    )
               }
               reviewButton={
                 counselorCanReview &&
