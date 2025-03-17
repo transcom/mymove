@@ -125,8 +125,7 @@ BEGIN
             WHEN service_code IN (''IOSFSC'', ''IDSFSC'') THEN
                 distance = service_item.sit_delivery_miles;
 
-                -- getting FSC multiplier from re_fsc_multipliers. inflate estimated weight by 10%.
-                estimated_fsc_multiplier := get_fsc_multiplier(CAST((shipment.prime_estimated_weight * 1.1) as INTEGER));
+                estimated_fsc_multiplier := get_fsc_multiplier(shipment.prime_estimated_weight);
 
                 fuel_price := get_fuel_price(shipment.requested_pickup_date);
 
@@ -177,7 +176,7 @@ BEGIN
                 END IF;
 
             ELSE
-                -- DEFAULT HERE
+                RAISE warning ''Unsupported service code: %'', service_code;
         END CASE;
     END LOOP;
 END;
