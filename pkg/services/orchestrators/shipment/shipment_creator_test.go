@@ -11,9 +11,9 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -280,7 +280,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 				Roles:           roles.Roles{},
 			}
 
-			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &tc.shipment, false)
+			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), &tc.shipment, false)
 
 			suite.Nil(err)
 
@@ -310,7 +310,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		session.Roles = append(session.Roles, identity.Roles...)
 		appCtx := suite.AppContextWithSessionForTest(session)
 
-		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment)
+		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment, false)
 
 		suite.Nil(err)
 

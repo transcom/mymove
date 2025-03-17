@@ -772,7 +772,7 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 				// If there are existing reweighs for a move and this move was just approved and sent to Prime, apply a reweigh request to this one as well
 				reweighActiveForMove := false
 				for i := range move.MTOShipments {
-					if move.MTOShipments[i].Reweigh != nil {
+					if move.MTOShipments[i].Reweigh != nil && move.MTOShipments[i].Reweigh.ID != uuid.Nil {
 						reweighActiveForMove = true
 						break
 					}

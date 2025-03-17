@@ -293,7 +293,7 @@ func (w moveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move 
 	totalEstimatedWeight := 0
 	reweighActiveForMove := false // Reweighs should be active for all shipments in a move
 	for i := range move.MTOShipments {
-		if move.MTOShipments[i].Reweigh != nil { // Should only trigger reweights once, skip if one already exists
+		if move.MTOShipments[i].Reweigh != nil && move.MTOShipments[i].Reweigh.ID != uuid.Nil { // Should only trigger reweights once, skip if one already exists
 			reweighActiveForMove = true // Also set var so we know to apply reweigh to any shipments in move that don't yet have one
 			break
 		}
