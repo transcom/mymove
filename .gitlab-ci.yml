@@ -1288,17 +1288,21 @@ integration_test_admin:
     - echo "TODO Add steps"
     - echo "integration_test_admin"
     - echo "Running integration tests for Admin"
+    - npm install
+    - npx playwright install --with-deps
     - ./node_modules/.bin/playwright test playwright/tests/admin \
         --reporter=html,junit \
         --trace=on \
-        --workers=1 >> $CI_PROJECT_DIR/playwright_test_admin.ouput 2>&1
+        --shard="${CI_NODE_INDEX}/${CI_NODE_TOTAL}" \
+        --workers=1 >> $CI_PROJECT_DIR/playwright_test_admin.output 2>&1
   artifacts:
     paths:
       - playwright-report/
       - complete-playwright-report.zip
       - playwright-results.xml
-      - $CI_PROJECT_DIR/playwright_test_admin.ouput
+      - $CI_PROJECT_DIR/playwright_test_admin.output
     when: always
+  parallel: 6
   after_script:
     - *announce_failure
   rules:
