@@ -14,39 +14,67 @@ import {
   TopToolbar,
   useListController,
   downloadCSV,
+  useDataProvider,
 } from 'react-admin';
 import * as jsonexport from 'jsonexport/dist';
 
 import styles from './OfficeUserList.module.scss';
 
+import { OFFICE_USER_EXPORT_HEADERS } from 'constants/adminApp';
 import ImportOfficeUserButton from 'components/Admin/ImportOfficeUserButton';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
-// Custom exporter to flatten out role and privilege types
-const exporter = (data) => {
-  const usersForExport = data.map((rowData) => {
-    const { roles, privileges, ...otherRowData } = rowData;
-
-    const flattenedRoles = roles ? roles.map((role) => role.roleType).join(',') : '';
-    const flattenedPrivileges = privileges ? privileges.map((privilege) => privilege.privilegeType).join(',') : '';
-
-    return {
-      ...otherRowData,
-      roles: flattenedRoles,
-      privileges: flattenedPrivileges,
-    };
+// Function to transform rowData based on headers
+const transformRowData = (rowData, officeObjects) => {
+  const transformedData = {};
+  OFFICE_USER_EXPORT_HEADERS.forEach(({ key, header }) => {
+    switch (key) {
+      case 'roles':
+        transformedData[header] = rowData[key] ? rowData[key].map((role) => role.roleType).join(',') : '';
+        break;
+      case 'privileges':
+        transformedData[header] = rowData[key]
+          ? rowData[key].map((privilege) => privilege.privilegeType).join(',')
+          : '';
+        break;
+      case 'primaryTransportationOffice':
+        transformedData[header] = officeObjects[rowData.transportationOfficeId]?.name || '';
+        break;
+      default:
+        transformedData[header] = rowData[key] !== undefined ? rowData[key] : '';
+        break;
+    }
   });
-
-  // convert data to csv and download
-  jsonexport(usersForExport, {}, (err, csv) => {
-    if (err) throw err;
-    downloadCSV(csv, 'office-users');
-  });
+  return transformedData;
 };
 
-// Overriding the default toolbar to add import button
+// Overriding the default toolbar for customizations
 const ListActions = () => {
   const { total, resource, sort, filterValues } = useListController();
+  const dataProvider = useDataProvider();
+  const exporter = async (data) => {
+    // Fetch the offices asynchronously
+    const officesResponse = await dataProvider.getMany('offices');
+    const officeObjects = {};
+
+    // Map office data into officeObjects using the office id as the key
+    officesResponse.data.forEach((office) => {
+      if (!officeObjects[`${office.id}`]) {
+        officeObjects[`${office.id}`] = office;
+      }
+    });
+
+    // Process the user data using the transformation function
+    const usersForExport = data.map((rowData) => transformRowData(rowData, officeObjects));
+
+    // Extract header names for jsonexport
+    const headersMap = OFFICE_USER_EXPORT_HEADERS.map((h) => h.header);
+    // Convert the data to CSV and trigger the download
+    jsonexport(usersForExport, { headersMap }, (err, csv) => {
+      if (err) throw err;
+      downloadCSV(csv, 'office-users');
+    });
+  };
 
   return (
     <TopToolbar>
@@ -98,6 +126,7 @@ const OfficeUserList = () => (
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" />
       <TextField source="email" />
+      <TextField source="telephone" />
       <TextField source="firstName" />
       <TextField source="lastName" />
       <ReferenceField
