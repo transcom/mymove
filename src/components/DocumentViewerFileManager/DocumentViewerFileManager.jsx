@@ -121,6 +121,9 @@ const DocumentViewerFileManager = ({
   const handleCreateUpload = async (file, weightReceipt) => {
     const newFile = appendTimestampToFilename(file);
     createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, newFile, weightReceipt)
+      .then(() => {
+        queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
+      })
       .catch((e) => {
         const { response } = e;
         const error = `Failed to upload due to server error: ${response?.body?.detail}`;
@@ -219,6 +222,10 @@ const DocumentViewerFileManager = ({
       uploadSupportingDocuments(file);
     } else if (documentType === DOCUMENT_TYPES.WEIGHT_TICKET) {
       handleCreateUpload(file, true);
+    } else if (documentType === DOCUMENT_TYPES.MOVING_EXPENSE) {
+      handleCreateUpload(file, false);
+    } else if (documentType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+      handleCreateUpload(file, false);
     }
   };
 
