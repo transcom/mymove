@@ -382,6 +382,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       destinationAddress: addressSchema,
       scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
       actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+      scheduledDeliveryDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+      actualDeliveryDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
     });
   }
 
