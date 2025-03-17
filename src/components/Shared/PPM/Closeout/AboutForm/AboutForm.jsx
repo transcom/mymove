@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 
 import styles from './AboutForm.module.scss';
 
-import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
+import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -18,9 +18,11 @@ import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole } from 'utils/formatters';
 import { requiredW2AddressSchema, requiredAddressSchema } from 'utils/validation';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
-import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
+import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validationSchemas';
+import { APP_NAME } from 'shared/constants';
 
-const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
+const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
+  const isCustomerPage = appName === APP_NAME.MYMOVE;
   const formFieldsName = 'w2Address';
   const today = new Date();
 
@@ -251,15 +253,19 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                   formikProps={formikProps}
                 />
               </SectionWrapper>
-              <div className={ppmStyles.buttonContainer}>
+              <div
+                className={`${
+                  isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
+                }`}
+              >
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                  Return To Homepage
+                  {`${isCustomerPage ? 'Return To Homepage' : 'Cancel'}`}
                 </Button>
                 <Button
                   className={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
-                  disabled={!isValid || isSubmitting}
+                  disabled={!isValid || isSubmitted || isSubmitting}
                 >
                   Save & Continue
                 </Button>

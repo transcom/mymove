@@ -24,10 +24,11 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
-import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
+import WeightTicketForm from 'components/Shared/PPM/Closeout/WeightTicketForm/WeightTicketForm';
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
+import { APP_NAME } from 'shared/constants';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -49,6 +50,7 @@ const WeightTickets = () => {
   const toggleErrorModal = () => {
     setIsErrorModalVisible((prev) => !prev);
   };
+  const appName = APP_NAME.MYMOVE;
 
   const errorModalMessage =
     "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ";
@@ -229,6 +231,7 @@ const WeightTickets = () => {
               onUploadDelete={handleUploadDelete}
               onSubmit={handleSubmit}
               onBack={handleBack}
+              appName={appName}
             />
             <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
           </Grid>

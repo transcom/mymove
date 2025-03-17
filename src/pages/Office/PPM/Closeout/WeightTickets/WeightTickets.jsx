@@ -11,7 +11,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import closingPageStyles from 'pages/Office/PPM/Closeout/Closeout.module.scss';
-import WeightTicketForm from 'components/Office/PPM/Closeout/WeightTicketForm/WeightTicketForm';
+import WeightTicketForm from 'components/Shared/PPM/Closeout/WeightTicketForm/WeightTicketForm';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import {
   createWeightTicket,
@@ -20,6 +20,7 @@ import {
   deleteUploadForDocument,
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
+import { APP_NAME } from 'shared/constants';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -29,6 +30,7 @@ const WeightTickets = () => {
   const { moveCode, shipmentId, weightTicketId } = useParams();
 
   const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
+  const appName = APP_NAME.OFFICE;
   const ppmShipment = mtoShipment?.ppmShipment;
   const weightTickets = documents?.WeightTickets ?? [];
 
@@ -196,6 +198,7 @@ const WeightTickets = () => {
                   onSubmit={handleSubmit}
                   onBack={handleBack}
                   isSubmitted={isSubmitted}
+                  appName={appName}
                 />
               </div>
             </Grid>

@@ -7,11 +7,11 @@ import { func, number } from 'prop-types';
 
 import styles from './WeightTicketForm.module.scss';
 
-import ppmStyles from 'components/Office/PPM/Closeout/PPM.module.scss';
+import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import formStyles from 'styles/form.module.scss';
 import WeightTicketUpload, {
   acceptableFileTypes,
-} from 'components/Office/PPM/Closeout/WeightTicketUpload/WeightTicketUpload';
+} from 'components/Shared/PPM/Closeout/WeightTicketUpload/WeightTicketUpload';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { CheckboxField } from 'components/form/fields';
 import Hint from 'components/Hint';
@@ -24,6 +24,7 @@ import { formatWeight } from 'utils/formatters';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZoneLabelMobile } from 'content/uploads';
 import { uploadShape } from 'types/uploads';
+import { APP_NAME } from 'shared/constants';
 
 const validationSchema = Yup.object().shape({
   vehicleDescription: Yup.string().required('Required'),
@@ -58,6 +59,7 @@ const WeightTicketForm = ({
   onBack,
   onSubmit,
   isSubmitted,
+  appName,
 }) => {
   const {
     vehicleDescription,
@@ -88,6 +90,7 @@ const WeightTicketForm = ({
   const emptyDocumentRef = createRef();
   const fullDocumentRef = createRef();
   const proofOfTrailerOwnershipDocumentRef = createRef();
+  const isCustomerPage = appName === APP_NAME.MYMOVE;
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -290,9 +293,13 @@ const WeightTicketForm = ({
                   )}
                 </FormGroup>
               </SectionWrapper>
-              <div className={`${formStyles.formActions} ${ppmStyles.buttonGroup}`}>
+              <div
+                className={`${
+                  isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
+                }`}
+              >
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                  Cancel
+                  {`${isCustomerPage ? 'Return To Homepage' : 'Cancel'}`}
                 </Button>
                 <Button
                   className={ppmStyles.saveButton}

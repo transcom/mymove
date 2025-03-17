@@ -3,8 +3,9 @@ import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
-import AboutForm from 'components/Office/PPM/Closeout/AboutForm/AboutForm';
+import AboutForm from 'components/Shared/PPM/Closeout/AboutForm/AboutForm';
 import { configureStore } from 'shared/store';
+import { APP_NAME } from 'shared/constants';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -72,10 +73,44 @@ const mockStore = configureStore({});
 
 describe('AboutForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load', async () => {
+    it('renders blank form on load - Customer Page', async () => {
       render(
         <Provider store={mockStore.store}>
-          <AboutForm {...defaultProps} />
+          <AboutForm {...defaultProps} appName={APP_NAME.MYMOVE} />
+        </Provider>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { level: 2, name: 'Departure date' })).toBeInTheDocument();
+      });
+      expect(screen.getByLabelText('When did you leave your origin?')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByRole('heading', { level: 2, name: 'Locations' })).toBeInTheDocument();
+
+      expect(screen.getByRole('heading', { level: 2, name: 'Advance (AOA)' })).toBeInTheDocument();
+      expect(screen.getByTestId('yes-has-received-advance')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTestId('no-has-received-advance')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTestId('no-has-received-advance')).toBeChecked();
+
+      expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByTestId('City')[0]).toHaveTextContent('');
+      expect(screen.getAllByTestId('State')[0]).toHaveTextContent('');
+      expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent('');
+
+      expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.getAllByTestId('City')[1]).toHaveTextContent('');
+      expect(screen.getAllByTestId('State')[1]).toHaveTextContent('');
+      expect(screen.getAllByTestId('ZIP')[1]).toHaveTextContent('');
+
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+    });
+
+    it('renders blank form on load - Office Page', async () => {
+      render(
+        <Provider store={mockStore.store}>
+          <AboutForm {...defaultProps} appName={APP_NAME.OFFICE} />
         </Provider>,
       );
 
@@ -232,10 +267,24 @@ describe('AboutForm component', () => {
     });
 
     describe('calls button event handlers', () => {
-      it('calls onBack handler when "Cancel" is pressed', async () => {
+      it('calls onBack handler when "Return To Homepage" is pressed - Customer page', async () => {
         render(
           <Provider store={mockStore.store}>
-            <AboutForm {...defaultProps} />
+            <AboutForm {...defaultProps} appName={APP_NAME.MYMOVE} />
+          </Provider>,
+        );
+
+        await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+
+        await waitFor(() => {
+          expect(defaultProps.onBack).toHaveBeenCalled();
+        });
+      });
+
+      it('calls onBack handler when "Cancel" is pressed - Office page', async () => {
+        render(
+          <Provider store={mockStore.store}>
+            <AboutForm {...defaultProps} appName={APP_NAME.OFFICE} />
           </Provider>,
         );
 

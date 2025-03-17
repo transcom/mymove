@@ -9,7 +9,7 @@ import closingPageStyles from 'pages/Office/PPM/Closeout/Closeout.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { shipmentTypes } from 'constants/shipments';
-import AboutForm from 'components/Office/PPM/Closeout/AboutForm/AboutForm';
+import AboutForm from 'components/Shared/PPM/Closeout/AboutForm/AboutForm';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
@@ -17,6 +17,7 @@ import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateMTOShipment } from 'services/ghcApi';
 import { MTO_SHIPMENT } from 'constants/queryKeys';
+import { APP_NAME } from 'shared/constants';
 
 const About = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -26,6 +27,7 @@ const About = () => {
   const queryClient = useQueryClient();
   const { moveCode, shipmentId } = useParams();
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
+  const appName = APP_NAME.OFFICE;
 
   const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
@@ -149,6 +151,7 @@ const About = () => {
                   onSubmit={handleSubmit}
                   onBack={handleBack}
                   isSubmitted={isSubmitted}
+                  appName={appName}
                 />
               </div>
             </Grid>
