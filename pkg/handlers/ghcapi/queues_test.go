@@ -2526,3 +2526,670 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueuesHandler() {
 	suite.Len(payload.QueueMoves, 1)
 	suite.Equal(move.ID.String(), result.ID.String())
 }
+
+func (suite *HandlerSuite) TestGetDestinationRequestsQueueHandler1() {
+	// Setup common dependencies
+	waf := entitlements.NewWeightAllotmentFetcher()
+	// Test 1: Successful retrieval of destination requests queue
+	suite.Run("Successfully retrieves destination requests queue for TOO user", func() {
+		// Setup office user with TOO role
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeTOO,
+		})
+
+		// Setup GBLOC mapping
+		postalCode := "90210"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "KKFA")
+
+		// Create a move with APPROVALS REQUESTED status
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		// Create destination address and shipment
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: postalCode},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		// Create destination service item
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		// Setup request and handler
+		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetDestinationRequestsQueueParams{
+			HTTPRequest: request,
+		}
+		handlerConfig := suite.HandlerConfig()
+		mockUnlocker := movelocker.NewMoveUnlocker()
+		handler := GetDestinationRequestsQueueHandler{
+			handlerConfig,
+			order.NewOrderFetcher(waf),
+			mockUnlocker,
+			officeusercreator.NewOfficeUserFetcherPop(),
+		}
+
+		// Execute the handler
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetDestinationRequestsQueueOK{}, response)
+		payload := response.(*queues.GetDestinationRequestsQueueOK).Payload
+
+		// Validate the response
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.QueueMoves, 1)
+		result := payload.QueueMoves[0]
+		suite.Equal(move.ID.String(), result.ID.String())
+		suite.Equal(move.Locator, result.Locator)
+		suite.Equal(ghcmessages.MoveStatus(models.MoveStatusAPPROVALSREQUESTED), result.Status)
+		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 1)
+		suite.Equal(officeUser.ID.String(), payload.QueueMoves[0].AvailableOfficeUsers[0].OfficeUserID.String())
+	})
+
+	// Test 2: Unauthorized access (non-TOO user)
+	suite.Run("Returns forbidden error for non-TOO user", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
+
+		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetDestinationRequestsQueueParams{
+			HTTPRequest: request,
+		}
+		handlerConfig := suite.HandlerConfig()
+		mockUnlocker := movelocker.NewMoveUnlocker()
+		handler := GetDestinationRequestsQueueHandler{
+			handlerConfig,
+			order.NewOrderFetcher(waf),
+			mockUnlocker,
+			officeusercreator.NewOfficeUserFetcherPop(),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetDestinationRequestsQueueForbidden{}, response)
+		payload := response.(*queues.GetDestinationRequestsQueueForbidden).Payload
+		suite.Nil(payload)
+	})
+
+	// Test 3: Unauthorized access (non-office user)
+	suite.Run("Returns forbidden error for non-office user", func() {
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		serviceMember.User.Roles = append(serviceMember.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeCustomer,
+		})
+
+		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
+		request = suite.AuthenticateRequest(request, serviceMember)
+		params := queues.GetDestinationRequestsQueueParams{
+			HTTPRequest: request,
+		}
+		handlerConfig := suite.HandlerConfig()
+		mockUnlocker := movelocker.NewMoveUnlocker()
+		handler := GetDestinationRequestsQueueHandler{
+			handlerConfig,
+			order.NewOrderFetcher(waf),
+			mockUnlocker,
+			officeusercreator.NewOfficeUserFetcherPop(),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetDestinationRequestsQueueForbidden{}, response)
+		payload := response.(*queues.GetDestinationRequestsQueueForbidden).Payload
+		suite.Nil(payload)
+	})
+
+	// Test 4: Error fetching office user
+	suite.Run("Returns internal server error when office user fetch fails", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeTOO,
+		})
+		// Mock OfficeUserFetcher to return an error
+		// mockOfficeUserFetcher := &mocks.mockOfficeUserFetcher{}
+		// mockOfficeUserFetcher.On("FetchOfficeUserByIDWithTransportationOfficeAssignments",
+		// 	mock.AnythingOfType("*appcontext.appContext"),
+		// 	officeUser.ID,
+		// ).Return(models.OfficeUser{}, errors.New("database error"))
+
+		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetDestinationRequestsQueueParams{
+			HTTPRequest: request,
+		}
+		handlerConfig := suite.HandlerConfig()
+		mockUnlocker := movelocker.NewMoveUnlocker()
+		handler := GetDestinationRequestsQueueHandler{
+			handlerConfig,
+			order.NewOrderFetcher(waf),
+			mockUnlocker,
+			officeusercreator.NewOfficeUserFetcherPop(),
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&queues.GetDestinationRequestsQueueInternalServerError{}, response)
+		payload := response.(*queues.GetDestinationRequestsQueueInternalServerError).Payload
+		suite.Nil(payload)
+	})
+
+	// Test 5: Filtering by branch
+	suite.Run("Filters moves by branch", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeTOO,
+		})
+
+		postalCode := "90210"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "KKFA")
+
+		// Create a move with ARMY affiliation
+		armyAffiliation := models.AffiliationARMY
+
+		armyMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					Affiliation: &armyAffiliation,
+				},
+			},
+		}, nil)
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: postalCode},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    armyMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    armyMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		// Create a move with NAVY affiliation
+		navyMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					Affiliation: &armyAffiliation,
+				},
+			},
+		}, nil)
+
+		navyShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    navyMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDSHUT,
+				},
+			},
+			{
+				Model:    navyMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    navyShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		// Request with branch filter for ARMY
+		request := httptest.NewRequest("GET", "/queues/destination-requests?branch=ARMY", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetDestinationRequestsQueueParams{
+			HTTPRequest: request,
+			Branch:      models.StringPointer("ARMY"),
+		}
+		handlerConfig := suite.HandlerConfig()
+		mockUnlocker := movelocker.NewMoveUnlocker()
+		handler := GetDestinationRequestsQueueHandler{
+			handlerConfig,
+			order.NewOrderFetcher(waf),
+			mockUnlocker,
+			officeusercreator.NewOfficeUserFetcherPop(),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetDestinationRequestsQueueOK{}, response)
+		payload := response.(*queues.GetDestinationRequestsQueueOK).Payload
+
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.QueueMoves, 1)
+		suite.Equal(armyMove.ID.String(), payload.QueueMoves[0].ID.String())
+		suite.Equal("ARMY", payload.QueueMoves[0].Customer.Agency)
+	})
+
+	// Test 6: ViewAsGBLOC functionality
+	// suite.Run("ViewAsGBLOC works for HQ role", func() {
+	// 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
+	// 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+	// 		RoleType: roles.RoleTypeTOO,
+	// 	})
+
+	// 	postalCode := "90210"
+	// 	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "KKFA")
+
+	// 	move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model: models.Move{
+	// 				Status: models.MoveStatusAPPROVALSREQUESTED,
+	// 				Show:   models.BoolPointer(true),
+	// 			},
+	// 		},
+	// 	}, nil)
+
+	// 	destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model: models.Address{PostalCode: postalCode},
+	// 		},
+	// 	}, nil)
+	// 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model: models.MTOShipment{
+	// 				Status: models.MTOShipmentStatusApproved,
+	// 			},
+	// 		},
+	// 		{
+	// 			Model:    move,
+	// 			LinkOnly: true,
+	// 		},
+	// 		{
+	// 			Model:    destinationAddress,
+	// 			LinkOnly: true,
+	// 			Type:     &factory.Addresses.DeliveryAddress,
+	// 		},
+	// 	}, nil)
+
+	// 	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model: models.ReService{
+	// 				Code: models.ReServiceCodeDDFSIT,
+	// 			},
+	// 		},
+	// 		{
+	// 			Model:    move,
+	// 			LinkOnly: true,
+	// 		},
+	// 		{
+	// 			Model:    shipment,
+	// 			LinkOnly: true,
+	// 		},
+	// 		{
+	// 			Model: models.MTOServiceItem{
+	// 				Status: models.MTOServiceItemStatusSubmitted,
+	// 			},
+	// 		},
+	// 	}, nil)
+
+	// 	// Request with ViewAsGBLOC
+	// 	viewAsGBLOC := "KKFA"
+	// 	request := httptest.NewRequest("GET", "/queues/destination-requests?viewAsGBLOC=KKFA", nil)
+	// 	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	// 	params := queues.GetDestinationRequestsQueueParams{
+	// 		HTTPRequest:  request,
+	// 		ViewAsGBLOC: &viewAsGBLOC,
+	// 	}
+	// 	handlerConfig := suite.HandlerConfig()
+	// 	mockUnlocker := movelocker.NewMoveUnlocker()
+	// 	handler := GetDestinationRequestsQueueHandler{
+	// 		handlerConfig,
+	// 		order.NewOrderFetcher(waf),
+	// 		mockUnlocker,
+	// 		officeusercreator.NewOfficeUserFetcherPop(),
+	// 	}
+
+	// 	response := handler.Handle(params)
+	// 	suite.IsNotErrResponse(response)
+	// 	suite.IsType(&queues.GetDestinationRequestsQueueOK{}, response)
+	// 	payload := response.(*queues.GetDestinationRequestsQueueOK).Payload
+
+	// 	suite.NoError(payload.Validate(strfmt.Default))
+	// 	suite.Len(payload.QueueMoves, 1)
+	// 	suite.Equal(move.ID.String(), payload.QueueMoves[0].ID.String())
+	// })
+
+	// Test 7: Unlock move functionality
+	suite.Run("Unlocks moves locked by the current office user", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeTOO,
+		})
+
+		postalCode := "90210"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "KKFA")
+
+		// Create a move that's locked by the office user
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:               models.MoveStatusAPPROVALSREQUESTED,
+					Show:                 models.BoolPointer(true),
+					LockedByOfficeUserID: &officeUser.ID,
+				},
+			},
+		}, nil)
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: postalCode},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		// Mock UnlockMove to return the unlocked move
+		mockUnlocker := &mocks.MoveUnlocker{}
+		unlockedMove := move
+		unlockedMove.LockedByOfficeUserID = nil
+		mockUnlocker.On("UnlockMove",
+			mock.AnythingOfType("*appcontext.appContext"),
+			&move,
+			officeUser.ID,
+		).Return(&unlockedMove, nil)
+
+		mockUnlocker.On("CheckForLockedMovesAndUnlock",
+			mock.AnythingOfType("*appcontext.appContext"),
+			officeUser.ID,
+		).Return(nil)
+
+		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetDestinationRequestsQueueParams{
+			HTTPRequest: request,
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := GetDestinationRequestsQueueHandler{
+			handlerConfig,
+			order.NewOrderFetcher(waf),
+			mockUnlocker,
+			officeusercreator.NewOfficeUserFetcherPop(),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetDestinationRequestsQueueOK{}, response)
+		payload := response.(*queues.GetDestinationRequestsQueueOK).Payload
+
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.QueueMoves, 1)
+		suite.Equal(move.ID.String(), payload.QueueMoves[0].ID.String())
+	})
+
+	// Test 8: Pagination parameters
+	suite.Run("Handles pagination parameters correctly", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeTOO,
+		})
+
+		postalCode := "90210"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "KKFA")
+
+		// Create two moves
+		for i := 0; i < 2; i++ {
+			move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+				{
+					Model: models.Move{
+						Status: models.MoveStatusAPPROVALSREQUESTED,
+						Show:   models.BoolPointer(true),
+					},
+				},
+			}, nil)
+
+			destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{PostalCode: postalCode},
+				},
+			}, nil)
+			shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						Status: models.MTOShipmentStatusApproved,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    destinationAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.DeliveryAddress,
+				},
+			}, nil)
+
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDDFSIT,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    shipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						Status: models.MTOServiceItemStatusSubmitted,
+					},
+				},
+			}, nil)
+		}
+
+		// Request with pagination parameters
+		page := int64(1)
+		perPage := int64(1)
+		request := httptest.NewRequest("GET", "/queues/destination-requests?page=1&perPage=1", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetDestinationRequestsQueueParams{
+			HTTPRequest: request,
+			Page:        &page,
+			PerPage:     &perPage,
+		}
+		handlerConfig := suite.HandlerConfig()
+		mockUnlocker := movelocker.NewMoveUnlocker()
+		handler := GetDestinationRequestsQueueHandler{
+			handlerConfig,
+			order.NewOrderFetcher(waf),
+			mockUnlocker,
+			officeusercreator.NewOfficeUserFetcherPop(),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetDestinationRequestsQueueOK{}, response)
+		payload := response.(*queues.GetDestinationRequestsQueueOK).Payload
+
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.QueueMoves, 1)          // Should return only 1 move due to perPage=1
+		suite.Equal(int64(2), payload.TotalCount) // Total should be 2
+		suite.Equal(page, payload.Page)
+		suite.Equal(perPage, payload.PerPage)
+	})
+
+	// Test 9: Empty results
+	suite.Run("Returns empty results when no matching moves", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeTOO,
+		})
+
+		// Create a move with a different status that shouldn't be included
+		factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusSUBMITTED,
+					Show:   models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetDestinationRequestsQueueParams{
+			HTTPRequest: request,
+		}
+		handlerConfig := suite.HandlerConfig()
+		mockUnlocker := movelocker.NewMoveUnlocker()
+		handler := GetDestinationRequestsQueueHandler{
+			handlerConfig,
+			order.NewOrderFetcher(waf),
+			mockUnlocker,
+			officeusercreator.NewOfficeUserFetcherPop(),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetDestinationRequestsQueueOK{}, response)
+		payload := response.(*queues.GetDestinationRequestsQueueOK).Payload
+
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.QueueMoves, 0)
+		suite.Equal(int64(0), payload.TotalCount)
+	})
+}
