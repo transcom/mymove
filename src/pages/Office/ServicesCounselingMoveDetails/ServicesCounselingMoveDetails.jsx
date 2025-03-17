@@ -98,6 +98,7 @@ const ServicesCounselingMoveDetails = ({
   let counselorCanEdit;
   let counselorCanCancelMove;
   let counselorCanEditNonPPM;
+  let isMoveCancelled;
 
   const sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
@@ -289,6 +290,7 @@ const ServicesCounselingMoveDetails = ({
     counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
+    isMoveCancelled = move.status !== MOVE_STATUSES.CANCELED;
 
     shipmentsInfo = submittedShipmentsNonPPMNeedsCloseout.map((shipment) => {
       const editURL =
@@ -841,7 +843,7 @@ const ServicesCounselingMoveDetails = ({
                       </ButtonDropdown>
                     )
                   : !isMoveLocked &&
-                    counselorCanCancelMove && (
+                    isMoveCancelled && (
                       <ButtonDropdown
                         ariaLabel="Add a new shipment"
                         data-testid="addShipmentButton"
