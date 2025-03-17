@@ -21,7 +21,7 @@ import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/valid
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import RequiredTag from 'components/form/RequiredTag';
-import { isPreceedingAddressComplete } from 'shared/utils';
+import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
 import { handleAddressToggleChange } from 'utils/shipments';
 
 let meta = '';
@@ -378,7 +378,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 value="true"
                                 title="Yes, I have a second delivery address"
                                 checked={values.hasSecondaryDestinationAddress === 'true'}
-                                disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
+                                disabled={
+                                  !isPreceedingAddressPPMPrimaryDestinationComplete(values.destinationAddress.address)
+                                }
                                 onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                               <Field
@@ -390,7 +392,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 value="false"
                                 title="No, I do not have a second delivery address"
                                 checked={values.hasSecondaryDestinationAddress === 'false'}
-                                disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
+                                disabled={
+                                  !isPreceedingAddressPPMPrimaryDestinationComplete(values.destinationAddress.address)
+                                }
                                 onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                             </div>
