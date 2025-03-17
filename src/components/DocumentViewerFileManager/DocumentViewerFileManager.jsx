@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './DocumentViewerFileManager.module.scss';
 
@@ -35,6 +36,7 @@ const DocumentViewerFileManager = ({
   title,
   mtoShipment,
   onShowButtonPress,
+  useChevron,
 }) => {
   const queryClient = useQueryClient();
   const filePondEl = useRef();
@@ -45,6 +47,7 @@ const DocumentViewerFileManager = ({
   const [showUpload, setShowUpload] = useState(false);
   const [isExpandedView, setIsExpandedView] = useState(false);
   const [buttonHeaderText, setButtonHeaderText] = useState(title !== null ? title : 'Manage Documents');
+  const [buttonHeaderChevron, setButtonHeaderChevron] = useState('chevron-up');
 
   const moveId = move?.id;
   const moveCode = move?.locator;
@@ -80,6 +83,16 @@ const DocumentViewerFileManager = ({
       setShowUpload(true);
     }
   }, [documentType, fileUploadRequired]);
+
+  useEffect(() => {
+    if (showUpload) {
+      setButtonHeaderChevron('chevron-up');
+      setButtonHeaderText(`Hide ${title}`);
+    } else {
+      setButtonHeaderChevron('chevron-down');
+      setButtonHeaderText(`Show ${title}`);
+    }
+  }, [showUpload, title]);
 
   const closeDeleteFileModal = () => {
     setCurrentFile(null);
@@ -197,6 +210,12 @@ const DocumentViewerFileManager = ({
       .then(() => {
         if (documentType === MOVE_DOCUMENT_TYPE.SUPPORTING) {
           queryClient.invalidateQueries([MOVES, moveCode]);
+        } else if (documentType === DOCUMENT_TYPES.WEIGHT_TICKET) {
+          queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
+        } else if (documentType === DOCUMENT_TYPES.MOVING_EXPENSE) {
+          queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
+        } else if (documentType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+          queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
         } else {
           queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
         }
@@ -253,7 +272,13 @@ const DocumentViewerFileManager = ({
         />
       )}
       {!isExpandedView && (
-        <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
+        <Button
+          icon={buttonHeaderChevron}
+          disabled={isFileProcessing || fileUploadRequired}
+          onClick={toggleUploadVisibility}
+        >
+          {useChevron && <FontAwesomeIcon icon={buttonHeaderChevron} />}
+          &nbsp;
           {buttonHeaderText}
         </Button>
       )}
@@ -303,12 +328,14 @@ DocumentViewerFileManager.propTypes = {
   title: PropTypes.string,
   mtoShipment: ShipmentShape,
   onShowButtonPress: PropTypes.func,
+  useChevron: PropTypes.bool,
 };
 
 DocumentViewerFileManager.defaultProps = {
   title: null,
   mtoShipment: null,
   onShowButtonPress: null,
+  useChevron: false,
 };
 
 export default DocumentViewerFileManager;

@@ -14,7 +14,7 @@ import styles from './ReviewDocumentsSidePanel.module.scss';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { OrderShape } from 'types/order';
 import { patchPPMDocumentsSetStatus } from 'services/ghcApi';
-import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, ShipmentShape, WeightTicketShape } from 'types/shipment';
+import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape } from 'types/shipment';
 import formStyles from 'styles/form.module.scss';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import PPMDocumentsStatus from 'constants/ppms';

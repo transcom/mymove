@@ -206,9 +206,6 @@ export const ReviewDocuments = ({ readOnly }) => {
     currentDocumentSet?.categoryIndex != null ? currentDocumentSet.categoryIndex + 1 : 0;
 
   useEffect(() => {
-    setCurrentMtoShipments(mtoShipments);
-  }, [isFileUploading]);
-  useEffect(() => {
     if (currentTotalWeight === 0 && documentSets[documentSetIndex]?.documentSet.status !== 'REJECTED') {
       updateTotalWeight(ppmActualWeight?.actualWeight || 0);
     }
@@ -278,7 +275,7 @@ export const ReviewDocuments = ({ readOnly }) => {
             {!readOnly && !showOverview && currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
               <>
                 <DocumentViewerFileManager
-                  title="Manage Full Weight Documents"
+                  title="Full Weight Documents"
                   orderId={order.orderId}
                   documentId={currentDocumentSet.documentSet.emptyDocumentId}
                   files={currentDocumentSet.documentSet.emptyDocument.uploads}
@@ -287,9 +284,10 @@ export const ReviewDocuments = ({ readOnly }) => {
                     setFileUploading(true);
                   }}
                   mtoShipment={mtoShipment}
+                  useChevron
                 />
                 <DocumentViewerFileManager
-                  title="Manage Empty Weight Documents"
+                  title="Empty Weight Documents"
                   orderId={order.orderId}
                   documentId={currentDocumentSet.documentSet.fullDocumentId}
                   files={currentDocumentSet.documentSet.fullDocument.uploads}
@@ -298,12 +296,13 @@ export const ReviewDocuments = ({ readOnly }) => {
                     setFileUploading(true);
                   }}
                   mtoShipment={mtoShipment}
+                  useChevron
                 />
               </>
             )}
             {!readOnly && !showOverview && currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
               <DocumentViewerFileManager
-                title="Manage Moving Expense Documents"
+                title="Moving Expense Documents"
                 orderId={order.orderId}
                 documentId={currentDocumentSet.documentSet.documentId}
                 files={currentDocumentSet.documentSet.document.uploads}
@@ -312,13 +311,14 @@ export const ReviewDocuments = ({ readOnly }) => {
                   setFileUploading(true);
                 }}
                 mtoShipment={mtoShipment}
+                useChevron
               />
             )}
             {!readOnly &&
               !showOverview &&
               currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
                 <DocumentViewerFileManager
-                  title="Manage Pro Gear Documents"
+                  title="Pro Gear Documents"
                   orderId={order.orderId}
                   documentId={currentDocumentSet.documentSet.documentId}
                   files={currentDocumentSet.documentSet.document.uploads}
@@ -327,6 +327,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     setFileUploading(true);
                   }}
                   mtoShipment={mtoShipment}
+                  useChevron
                 />
               )}
             {!readOnly &&
@@ -336,7 +337,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                   return (
                     <>
                       <DocumentViewerFileManager
-                        title="Manage Full Weight Documents"
+                        title="Full Weight Documents"
                         orderId={order.orderId}
                         documentId={documentSet.documentSet.emptyDocumentId}
                         files={documentSet.documentSet.emptyDocument.uploads}
@@ -345,9 +346,10 @@ export const ReviewDocuments = ({ readOnly }) => {
                           setFileUploading(true);
                         }}
                         mtoShipment={mtoShipment}
+                        useChevron
                       />
                       <DocumentViewerFileManager
-                        title="Manage Empty Weight Documents"
+                        title="Empty Weight Documents"
                         orderId={order.orderId}
                         documentId={documentSet.documentSet.fullDocumentId}
                         files={documentSet.documentSet.fullDocument.uploads}
@@ -356,6 +358,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                           setFileUploading(true);
                         }}
                         mtoShipment={mtoShipment}
+                        useChevron
                       />
                     </>
                   );
@@ -363,7 +366,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                 if (documentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
                   return (
                     <DocumentViewerFileManager
-                      title="Manage Pro Gear Documents"
+                      title="Pro Gear Documents"
                       orderId={order.orderId}
                       documentId={documentSet.documentSet.documentId}
                       files={documentSet.documentSet.document.uploads}
@@ -372,12 +375,13 @@ export const ReviewDocuments = ({ readOnly }) => {
                         setFileUploading(true);
                       }}
                       mtoShipment={mtoShipment}
+                      useChevron
                     />
                   );
                 }
                 return (
                   <DocumentViewerFileManager
-                    title="Manage Moving Expense Documents"
+                    title="Moving Expense Documents"
                     orderId={order.orderId}
                     documentId={documentSet.documentSet.documentId}
                     files={documentSet.documentSet.document.uploads}
@@ -386,6 +390,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                       setFileUploading(true);
                     }}
                     mtoShipment={mtoShipment}
+                    useChevron
                   />
                 );
               })}
