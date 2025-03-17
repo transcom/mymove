@@ -1235,7 +1235,7 @@ integration_test_mtls:
    - *check_integration_mtls_ignore_branch
 
 integration_test_admin:
-  stage: pre_checks
+  stage: pre_pre_checks
   interruptible: true
   cache:
     - <<: *yarn_cache
