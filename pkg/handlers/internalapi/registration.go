@@ -201,18 +201,18 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params registrationo
 		if emailMatch && !edipiMatch && len(users) > 1 {
 			return nil, fmt.Errorf("email and DoD IDs match different users - please open up a help desk ticket")
 		} else if emailMatch && !edipiMatch && len(users) == 1 {
-			return nil, fmt.Errorf("there is an existing okta account with that email - please update the DoD ID (EDIPI) in your okta profile to match your registration DoD ID and try registering again")
+			return nil, fmt.Errorf("there is an existing Okta account with that email - please update the DoD ID (EDIPI) in your Okta profile to match your registration DoD ID and try registering again")
 		}
 
 		if !emailMatch && edipiMatch && len(users) > 1 {
 			return nil, fmt.Errorf("email and DoD IDs match different users - please open up a help desk ticket")
 		} else if !emailMatch && edipiMatch && len(users) == 1 {
-			return nil, fmt.Errorf("there is an existing okta account with that DoD ID (EDIPI) - please update the email in your okta profile to match your registration email and try registering again")
+			return nil, fmt.Errorf("there is an existing Okta account with that DoD ID (EDIPI) - please update the email in your Okta profile to match your registration email and try registering again")
 		}
 
 		// if we get an email & edipi match on two different users and NOT an exact match, we need them to open a HDT
 		if emailMatch && edipiMatch && len(users) > 1 {
-			return nil, fmt.Errorf("there are multiple okta accounts with that email and DoD ID - please open up a help desk ticket")
+			return nil, fmt.Errorf("there are multiple Okta accounts with that email and DoD ID - please open up a help desk ticket")
 		}
 	}
 

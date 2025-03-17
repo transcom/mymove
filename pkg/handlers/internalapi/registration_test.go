@@ -198,7 +198,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 
 		errResponse, ok := response.(*registrationop.CustomerRegistrationUnprocessableEntity)
 		suite.True(ok)
-		suite.Contains(*errResponse.Payload.Detail, "there is an existing okta account with that email - please update the DoD ID (EDIPI) in your okta profile to match your registration DoD ID and try registering again")
+		suite.Contains(*errResponse.Payload.Detail, "there is an existing Okta account with that email - please update the DoD ID (EDIPI) in your Okta profile to match your registration DoD ID and try registering again")
 	})
 
 	suite.Run("Fail when email matches but EDIPI does not - two okta users", func() {
@@ -280,7 +280,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 
 		errResponse, ok := response.(*registrationop.CustomerRegistrationUnprocessableEntity)
 		suite.True(ok)
-		suite.Contains(*errResponse.Payload.Detail, "there is an existing okta account with that DoD ID (EDIPI) - please update the email in your okta profile to match your registration email and try registering again")
+		suite.Contains(*errResponse.Payload.Detail, "there is an existing Okta account with that DoD ID (EDIPI) - please update the email in your Okta profile to match your registration email and try registering again")
 	})
 
 	suite.Run("Fail when email matches but EDIPI does not - two okta users", func() {
@@ -362,7 +362,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 
 		errResponse, ok := response.(*registrationop.CustomerRegistrationUnprocessableEntity)
 		suite.True(ok)
-		suite.Contains(*errResponse.Payload.Detail, "there are multiple okta accounts with that email and DoD ID - please open up a help desk ticket")
+		suite.Contains(*errResponse.Payload.Detail, "there are multiple Okta accounts with that email and DoD ID - please open up a help desk ticket")
 	})
 
 	suite.Run("Error when Okta user creation fails", func() {
