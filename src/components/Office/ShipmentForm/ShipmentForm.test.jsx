@@ -2020,13 +2020,27 @@ describe('ShipmentForm component', () => {
     });
   });
 
-  describe('creating a new PPM shipment', () => {
-    it('renders the PPM shipment form correctly', async () => {
+  describe('creating a new PPM shipment as SC', () => {
+    it('renders the PPM shipment form correctly with warning', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.PPM} isCreatePage />);
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
       expect(await screen.findByText('PPM')).toBeInTheDocument();
       expect(await screen.findByTestId('scPPMCreateWarning')).toBeInTheDocument();
+    });
+  });
+
+  describe('editing a PPM shipment as SC', () => {
+    it('renders the PPM shipment form correctly without warning', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.PPM} isCreatePage={false} />);
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+      expect(await screen.findByText('PPM')).toBeInTheDocument();
+      expect(
+        screen.queryByText(
+          'Creating a PPM as a Service Counselor will automatically approve the PPM shipment and send it to the customer.',
+        ),
+      ).not.toBeInTheDocument();
     });
   });
 

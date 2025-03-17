@@ -871,7 +871,7 @@ const ShipmentForm = (props) => {
                   </Button>
                 )}
               </div>
-              {isPPM && !isAdvancePage && isServiceCounselor && (
+              {isPPM && !isAdvancePage && isServiceCounselor && isCreatePage && (
                 <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                   <Alert type="warning" aria-live="polite" headingLevel="h4" data-testid="scPPMCreateWarning">
                     Creating a PPM as a Service Counselor will automatically approve the PPM shipment and send it to the
