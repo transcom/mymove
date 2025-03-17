@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -60,6 +58,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 	suite.Run("able to search by name and filter", func() {
 		status := models.OfficeUserStatusREJECTED
 		rejectionReason := "Test rejection Reason"
+		rejectionReason2 := "Test rejection2 Reason"
 		rejectedOn := time.Date(2025, 03, 05, 1, 1, 1, 1, time.Local)
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
@@ -68,33 +67,46 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 				},
 			},
 		}, nil)
+		transportationOffice2 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name: "PPO Rome Test Office",
+				},
+			},
+		}, nil)
 		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Angelina",
-					LastName:  "Jolie",
-					Email:     "laraCroft@mail.mil",
-					Status:    &status,
+					FirstName:              "Angelina",
+					LastName:               "Jolie",
+					Email:                  "laraCroft@mail.mil",
+					Status:                 &status,
+					TransportationOfficeID: transportationOffice2.ID,
+					RejectionReason:        &rejectionReason2,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
 		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Billy",
-					LastName:  "Bob",
-					Email:     "bigBob@mail.mil",
-					Status:    &status,
+					FirstName:              "Billy",
+					LastName:               "Bob",
+					Email:                  "bigBob@mail.mil",
+					Status:                 &status,
+					TransportationOfficeID: transportationOffice2.ID,
+					RejectionReason:        &rejectionReason,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTIO})
 		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Nick",
-					LastName:  "Cage",
-					Email:     "conAirKilluh@mail.mil",
-					Status:    &status,
+					FirstName:              "Nick",
+					LastName:               "Cage",
+					Email:                  "conAirKilluh@mail.mil",
+					Status:                 &status,
+					TransportationOfficeID: transportationOffice2.ID,
+					RejectionReason:        &rejectionReason,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
@@ -117,8 +129,8 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		// partial first name search
-		nameSearch := "Nick"
+		// partial search
+		nameSearch := "ic"
 		filterJSON := fmt.Sprintf("{\"search\":\"%s\"}", nameSearch)
 		params := rejectedofficeuserop.IndexRejectedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/rejected_office_users"),
@@ -138,11 +150,11 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		suite.IsType(&rejectedofficeuserop.IndexRejectedOfficeUsersOK{}, response)
 		okResponse := response.(*rejectedofficeuserop.IndexRejectedOfficeUsersOK)
 		suite.Len(okResponse.Payload, 2)
-		suite.Equal(nameSearch, *okResponse.Payload[0].FirstName)
-		suite.Equal(nameSearch, *okResponse.Payload[1].FirstName)
+		suite.Contains(*okResponse.Payload[0].FirstName, nameSearch)
+		suite.Contains(*okResponse.Payload[1].FirstName, nameSearch)
 
 		// email search
-		emailSearch := "conAirKilluh2"
+		emailSearch := "AirKilluh2"
 		filterJSON = fmt.Sprintf("{\"emails\":\"%s\"}", emailSearch)
 		params = rejectedofficeuserop.IndexRejectedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/rejected_office_users"),
@@ -153,13 +165,10 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		suite.IsType(&rejectedofficeuserop.IndexRejectedOfficeUsersOK{}, response)
 		okResponse = response.(*rejectedofficeuserop.IndexRejectedOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
-
-		respEmail := *okResponse.Payload[0].Email
-		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
-		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
+		suite.Contains(*okResponse.Payload[0].Email, emailSearch)
 
 		// firstName search
-		firstSearch := "Angelina"
+		firstSearch := "Angel"
 		filterJSON = fmt.Sprintf("{\"firstName\":\"%s\"}", firstSearch)
 		params = rejectedofficeuserop.IndexRejectedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/rejected_office_users"),
@@ -170,10 +179,10 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		suite.IsType(&rejectedofficeuserop.IndexRejectedOfficeUsersOK{}, response)
 		okResponse = response.(*rejectedofficeuserop.IndexRejectedOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
-		suite.Equal(firstSearch, *okResponse.Payload[0].FirstName)
+		suite.Contains(*okResponse.Payload[0].FirstName, firstSearch)
 
 		// lastName search
-		lastSearch := "Cage"
+		lastSearch := "Jo"
 		filterJSON = fmt.Sprintf("{\"lastName\":\"%s\"}", lastSearch)
 		params = rejectedofficeuserop.IndexRejectedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/rejected_office_users"),
@@ -183,12 +192,11 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 
 		suite.IsType(&rejectedofficeuserop.IndexRejectedOfficeUsersOK{}, response)
 		okResponse = response.(*rejectedofficeuserop.IndexRejectedOfficeUsersOK)
-		suite.Len(okResponse.Payload, 2)
-		suite.Equal(lastSearch, *okResponse.Payload[0].LastName)
-		suite.Equal(lastSearch, *okResponse.Payload[1].LastName)
+		suite.Len(okResponse.Payload, 1)
+		suite.Contains(*okResponse.Payload[0].LastName, lastSearch)
 
 		// transportation office search
-		filterJSON = "{\"offices\":\"JPPO\"}"
+		filterJSON = "{\"offices\":\"JP\"}"
 		params = rejectedofficeuserop.IndexRejectedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/rejected_office_users"),
 			Filter:      &filterJSON,
@@ -201,7 +209,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		suite.Equal(strfmt.UUID(transportationOffice.ID.String()), *okResponse.Payload[0].TransportationOfficeID)
 
 		// rejection reason search
-		reasonSearch := "Test rejection"
+		reasonSearch := "n2"
 		filterJSON = fmt.Sprintf("{\"rejectionReason\":\"%s\"}", reasonSearch)
 		params = rejectedofficeuserop.IndexRejectedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/rejected_office_users"),
@@ -209,11 +217,10 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		}
 		response = handler.Handle(params)
 
-		respRejection := *okResponse.Payload[0].RejectionReason
 		suite.IsType(&rejectedofficeuserop.IndexRejectedOfficeUsersOK{}, response)
 		okResponse = response.(*rejectedofficeuserop.IndexRejectedOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
-		suite.Equal(reasonSearch, respRejection[0:len(reasonSearch)])
+		suite.Contains(*okResponse.Payload[0].RejectionReason, reasonSearch)
 
 		// rejectedOn search
 		rejectedOnSearch := "03"
@@ -227,17 +234,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		suite.IsType(&rejectedofficeuserop.IndexRejectedOfficeUsersOK{}, response)
 		okResponse = response.(*rejectedofficeuserop.IndexRejectedOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
-
-		rejectedOnResp := okResponse.Payload[0].RejectedOn.String()
-		actualYear := strings.Split(rejectedOnResp, "-")[0]
-		actualMonth, err := strconv.Atoi(strings.Split(rejectedOnResp, "-")[1])
-
-		expectedYear := strconv.Itoa(rejectedOn.Year())
-		expectedMonth := int(rejectedOn.Month())
-
-		suite.NoError(err)
-		suite.Equal(expectedYear, actualYear)
-		suite.Equal(expectedMonth, actualMonth)
+		suite.Contains(okResponse.Payload[0].RejectedOn.String(), rejectedOnSearch)
 
 		// roles search
 		roleSearch := "Services Counselor"
@@ -251,8 +248,8 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		suite.IsType(&rejectedofficeuserop.IndexRejectedOfficeUsersOK{}, response)
 		okResponse = response.(*rejectedofficeuserop.IndexRejectedOfficeUsersOK)
 		suite.Len(okResponse.Payload, 2)
-		suite.Equal(roleSearch, *okResponse.Payload[0].Roles[0].RoleName)
-		suite.Equal(roleSearch, *okResponse.Payload[1].Roles[0].RoleName)
+		suite.Contains(*okResponse.Payload[0].Roles[0].RoleName, roleSearch)
+		suite.Contains(*okResponse.Payload[1].Roles[0].RoleName, roleSearch)
 
 	})
 }
