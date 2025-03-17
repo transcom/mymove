@@ -331,6 +331,7 @@ stages:
      echo "Installing Playwright dependencies"
      yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
      ./node_modules/.bin/playwright install
+     ./node_modules/.bin/playwright install --with-deps
 
 
 sast:
@@ -1288,8 +1289,6 @@ integration_test_admin:
     - echo "TODO Add steps"
     - echo "integration_test_admin"
     - echo "Running integration tests for Admin"
-    - npm install
-    - npx playwright install --with-deps
     - ./node_modules/.bin/playwright test playwright/tests/admin \
         --reporter=html,junit \
         --trace=on \
