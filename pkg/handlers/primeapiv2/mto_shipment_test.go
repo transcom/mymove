@@ -31,6 +31,7 @@ import (
 	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -38,7 +39,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	fetcher := fetch.NewFetcher(builder)
 	addressCreator := address.NewAddressCreator()
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV2(builder, fetcher, moveRouter, addressCreator)
@@ -52,8 +53,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
+	vLocationServices := address.NewVLocation()
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
@@ -142,6 +143,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			handlerConfig,
 			shipmentCreator,
 			mtoChecker,
+			vLocationServices,
 		}
 
 		// Make stubbed addresses just to collect address data for payload
@@ -440,6 +442,47 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
 
 		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
+	})
+
+	suite.Run("POST failure - 500 GetLocationsByZipCityState", func() {
+		// Under Test: CreateMTOShipment handler code
+		// Setup:   Create an mto shipment on an available move
+		// Expected:   Failure GetLocationsByZipCityState returns internal server error
+		handler, move := setupTestData(false)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev2messages.CreateMTOShipment{
+				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
+				Agents:               nil,
+				CustomerRemarks:      nil,
+				PointOfContact:       "John Doe",
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev2messages.Address }{destinationAddress},
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		expectedError := models.ErrFetchNotFound
+		vLocationFetcher := &mocks.VLocation{}
+		vLocationFetcher.On("GetLocationsByZipCityState",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, expectedError).Once()
+
+		handler.VLocation = vLocationFetcher
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
 	})
 
 	suite.Run("POST failure - 422 -- Bad agent IDs set on shipment", func() {
