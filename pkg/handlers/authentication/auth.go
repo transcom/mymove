@@ -3,6 +3,7 @@ package authentication
 import (
 	"context"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -1020,7 +1021,30 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, oktaUser m
 		// In this case, we found an existing user associated with the
 		// unique okta.mil UUID (aka OID_User, aka openIDUser.UserID,
 		// aka models.User.okta_id)
-		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization", zap.String("OID_User", oktaUser.Sub), zap.String("OID_Email", oktaUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.okta_email", userIdentity.Email))
+		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization",
+			zap.String("OID_User", oktaUser.Sub),
+			zap.String("OID_Email", oktaUser.Email),
+			zap.String("user.id", userIdentity.ID.String()),
+			zap.String("user.okta_email", userIdentity.Email))
+
+		// check the application the user is logging into
+		// we allow users to use the same user for customer/office/admin
+		// if they have an existing identity and are accessing an application that they don't have an account for
+		// then we need to authorize them like we don't know them
+		if appCtx.Session().IsMilApp() && userIdentity.ServiceMemberID == nil {
+			appCtx.Logger().Info("User is logging into MilApp but has no Service Member record, treating as unknown")
+			return authorizeUnknownUser(ctx, appCtx, oktaUser, sessionManager, notificationSender)
+		}
+
+		if appCtx.Session().IsOfficeApp() && userIdentity.OfficeUserID == nil {
+			appCtx.Logger().Info("User is logging into OfficeApp but has no Office User record, treating as unknown")
+			return authorizeUnknownUser(ctx, appCtx, oktaUser, sessionManager, notificationSender)
+		}
+
+		if appCtx.Session().IsAdminApp() && userIdentity.AdminUserID == nil {
+			appCtx.Logger().Info("User is logging into AdminApp but has no Admin User record, treating as unknown")
+			return authorizeUnknownUser(ctx, appCtx, oktaUser, sessionManager, notificationSender)
+		}
 
 		result := AuthorizeKnownUser(ctx, appCtx, userIdentity, sessionManager)
 		appCtx.Logger().Info("Known user authorization",
@@ -1246,7 +1270,14 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 	}
 
 	if appCtx.Session().IsMilApp() {
-		user, err = models.CreateUser(appCtx.DB(), oktaUser.Sub, oktaUser.Email)
+		user, err = models.GetUserFromOktaID(appCtx.DB(), oktaUser.Sub)
+		if err == sql.ErrNoRows {
+			user, err = models.CreateUser(appCtx.DB(), oktaUser.Sub, oktaUser.Email)
+		}
+		if err != sql.ErrNoRows && err != nil {
+			appCtx.Logger().Error("Authorization error getting user from Okta ID", zap.Error(err))
+			return authorizationResultError
+		}
 		if err == nil {
 			sysAdminEmail := notifications.GetSysAdminEmail(notificationSender)
 			appCtx.Logger().Info(
