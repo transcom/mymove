@@ -70,7 +70,7 @@ import { validateDate } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { datePickerFormat, formatDate } from 'shared/dates';
-import { isPreceedingAddressComplete } from 'shared/utils';
+import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
 import { handleAddressToggleChange } from 'utils/shipments';
 
 const ShipmentForm = (props) => {
@@ -527,7 +527,6 @@ const ShipmentForm = (props) => {
 
     const {
       pickup,
-      hasDeliveryAddress,
       delivery,
       customerRemarks,
       counselorRemarks,
@@ -548,10 +547,10 @@ const ShipmentForm = (props) => {
       destinationType,
     } = formValues;
 
-    const deliveryDetails = delivery;
-    if (hasDeliveryAddress === 'false' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
-      delete deliveryDetails.address;
-    }
+    // const deliveryDetails = delivery;
+    // if (hasDeliveryAddress === 'false' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
+    //   delete deliveryDetails.address;
+    // }
 
     let nullableTacType = tacType;
     let nullableSacType = sacType;
@@ -566,7 +565,7 @@ const ShipmentForm = (props) => {
       customerRemarks,
       counselorRemarks,
       pickup,
-      delivery: deliveryDetails,
+      delivery,
       ntsRecordedWeight,
       tacType: nullableTacType,
       sacType: nullableSacType,
@@ -1636,7 +1635,9 @@ const ShipmentForm = (props) => {
                                   value="true"
                                   title="Yes, there is a second destination location"
                                   checked={hasSecondaryDestination === 'true'}
-                                  disabled={!isPreceedingAddressComplete('true', values.destination.address)}
+                                  disabled={
+                                    !isPreceedingAddressPPMPrimaryDestinationComplete(values.destination.address)
+                                  }
                                   onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                                 <Field
@@ -1648,7 +1649,9 @@ const ShipmentForm = (props) => {
                                   value="false"
                                   title="No, there is not a second destination location"
                                   checked={hasSecondaryDestination !== 'true'}
-                                  disabled={!isPreceedingAddressComplete('true', values.destination.address)}
+                                  disabled={
+                                    !isPreceedingAddressPPMPrimaryDestinationComplete(values.destination.address)
+                                  }
                                   onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                               </div>

@@ -583,7 +583,7 @@ class MtoShipmentForm extends Component {
                                     </FormGroup>
                                     {hasSecondaryDelivery === 'true' && (
                                       <>
-                                        <h4 data-testid="oogabooga">Second Delivery Address</h4>
+                                        <h4>Second Delivery Address</h4>
                                         <AddressFields
                                           name="secondaryDelivery.address"
                                           labelHint="Required"
