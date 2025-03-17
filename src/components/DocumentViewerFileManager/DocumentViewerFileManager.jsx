@@ -12,13 +12,15 @@ import {
   createUploadForSupportingDocuments,
   deleteUploadForDocument,
   getOrder,
+  createUploadForPPMDocument,
 } from 'services/ghcApi';
-import { ORDERS_DOCUMENTS, MOVES, ORDERS } from 'constants/queryKeys';
+import { ORDERS_DOCUMENTS, MOVES, ORDERS, DOCUMENTS } from 'constants/queryKeys';
 import FileUpload from 'components/FileUpload/FileUpload';
 import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import DeleteDocumentFileConfirmationModal from 'components/ConfirmationModals/DeleteDocumentFileConfirmationModal';
-import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { DOCUMENT_TYPES, MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { ShipmentShape } from 'types';
 
 const DocumentViewerFileManager = ({
   className,
@@ -30,6 +32,9 @@ const DocumentViewerFileManager = ({
   updateAmendedDocument,
   fileUploadRequired,
   onAddFile,
+  title,
+  mtoShipment,
+  onShowButtonPress,
 }) => {
   const queryClient = useQueryClient();
   const filePondEl = useRef();
@@ -39,7 +44,7 @@ const DocumentViewerFileManager = ({
   const [serverError, setServerError] = useState('');
   const [showUpload, setShowUpload] = useState(false);
   const [isExpandedView, setIsExpandedView] = useState(false);
-  const [buttonHeaderText, setButtonHeaderText] = useState('Manage Documents');
+  const [buttonHeaderText, setButtonHeaderText] = useState(title !== null ? title : 'Manage Documents');
 
   const moveId = move?.id;
   const moveCode = move?.locator;
@@ -85,6 +90,9 @@ const DocumentViewerFileManager = ({
     e.preventDefault();
     setShowUpload((show) => !show);
     setServerError('');
+    if (onShowButtonPress) {
+      onShowButtonPress();
+    }
   };
 
   const openDeleteFileModal = (uploadId) => {
@@ -106,6 +114,20 @@ const DocumentViewerFileManager = ({
       })
       .finally(() => {
         queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
+        setIsFileProcessing(false);
+      });
+  };
+
+  const handleCreateUpload = async (file, weightReceipt) => {
+    const newFile = appendTimestampToFilename(file);
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, newFile, weightReceipt)
+      .catch((e) => {
+        const { response } = e;
+        const error = `Failed to upload due to server error: ${response?.body?.detail}`;
+        setServerError(error);
+      })
+      .finally(() => {
+        queryClient.invalidateQueries([DOCUMENTS, mtoShipment.Id]);
         setIsFileProcessing(false);
       });
   };
@@ -195,6 +217,8 @@ const DocumentViewerFileManager = ({
       uploadAmdendedOrders(file);
     } else if (documentType === MOVE_DOCUMENT_TYPE.SUPPORTING) {
       uploadSupportingDocuments(file);
+    } else if (documentType === DOCUMENT_TYPES.WEIGHT_TICKET) {
+      handleCreateUpload(file, true);
     }
   };
 
@@ -269,6 +293,15 @@ DocumentViewerFileManager.propTypes = {
   documentId: PropTypes.string.isRequired,
   files: PropTypes.array.isRequired,
   documentType: PropTypes.string.isRequired,
+  title: PropTypes.string,
+  mtoShipment: ShipmentShape,
+  onShowButtonPress: PropTypes.func,
+};
+
+DocumentViewerFileManager.defaultProps = {
+  title: null,
+  mtoShipment: null,
+  onShowButtonPress: null,
 };
 
 export default DocumentViewerFileManager;

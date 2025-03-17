@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import classNames from 'classnames';
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -20,19 +21,16 @@ import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
 import { roleTypes } from 'constants/userRoles';
 import { calculateWeightRequested } from 'hooks/custom';
-
-// TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
-//  this here for now.
-const DOCUMENT_TYPES = {
-  WEIGHT_TICKET: 'WEIGHT_TICKET',
-  PROGEAR_WEIGHT_TICKET: 'PROGEAR_WEIGHT_TICKET',
-  MOVING_EXPENSE: 'MOVING_EXPENSE',
-};
+import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
+import { DOCUMENT_TYPES } from 'shared/constants';
 
 export const ReviewDocuments = ({ readOnly }) => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
   const { mtoShipment, documents, ppmActualWeight, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+
+  const [isFileUploading, setFileUploading] = useState(false);
+  const [showOverview, setShowOverview] = useState(false);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
@@ -51,32 +49,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
-  useEffect(() => {
-    if (currentTotalWeight === 0 && documentSets[documentSetIndex]?.documentSet.status !== 'REJECTED') {
-      updateTotalWeight(ppmActualWeight?.actualWeight || 0);
-    }
-  }, [currentMtoShipments, ppmActualWeight?.actualWeight, currentTotalWeight, documentSets, documentSetIndex]);
-  useEffect(() => {
-    const totalMoveWeight = calculateWeightRequested(currentMtoShipments);
-    setMoveHasExcessWeight(totalMoveWeight > order.entitlement.totalWeight);
-  }, [currentMtoShipments, order.entitlement.totalWeight, currentTotalWeight]);
-  useEffect(() => {
-    setCurrentAllowableWeight(currentAllowableWeight);
-  }, [currentAllowableWeight]);
-  useEffect(() => {
-    setCurrentMtoShipments(mtoShipments);
-  }, [mtoShipments]);
-
-  useEffect(() => {
-    if (mtoShipment) {
-      const updatedPpmShipmentInfo = {
-        ...mtoShipment.ppmShipment,
-        miles: mtoShipment.distance,
-        actualWeight: currentTotalWeight,
-      };
-      setPpmShipmentInfo(updatedPpmShipmentInfo);
-    }
-  }, [mtoShipment, currentTotalWeight]);
 
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
@@ -156,7 +128,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   const mainRef = useRef();
 
   const [serverError, setServerError] = useState(null);
-  const [showOverview, setShowOverview] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -189,12 +160,6 @@ export const ReviewDocuments = ({ readOnly }) => {
     }
   };
 
-  const getAllUploads = () => {
-    return documentSets.reduce((acc, documentSet) => {
-      return acc.concat(documentSet.uploads);
-    }, []);
-  };
-
   const onError = () => {
     setServerError('There was an error submitting the form. Please try again later.');
   };
@@ -216,9 +181,6 @@ export const ReviewDocuments = ({ readOnly }) => {
     }
   };
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
-
   const currentDocumentSet = documentSets[documentSetIndex];
   const updateDocumentSetAllowableWeight = (newWeight) => {
     currentDocumentSet.documentSet.allowableWeight = newWeight;
@@ -232,9 +194,6 @@ export const ReviewDocuments = ({ readOnly }) => {
 
   const reviewShipmentWeightsLink = <a href={reviewShipmentWeightsURL}>Review shipment weights</a>;
 
-  const currentTripNumber = currentDocumentSet.tripNumber + 1;
-  const currentDocumentCategoryIndex = currentDocumentSet.categoryIndex + 1;
-
   const formatDocumentSetDisplay = documentSetIndex + 1;
 
   let nextButton = 'Continue';
@@ -242,10 +201,55 @@ export const ReviewDocuments = ({ readOnly }) => {
     nextButton = readOnly ? 'Close' : 'Confirm';
   }
 
+  const currentTripNumber = currentDocumentSet?.tripNumber != null ? currentDocumentSet.tripNumber + 1 : 0;
+  const currentDocumentCategoryIndex =
+    currentDocumentSet?.categoryIndex != null ? currentDocumentSet.categoryIndex + 1 : 0;
+
+  useEffect(() => {
+    setCurrentMtoShipments(mtoShipments);
+  }, [isFileUploading]);
+  useEffect(() => {
+    if (currentTotalWeight === 0 && documentSets[documentSetIndex]?.documentSet.status !== 'REJECTED') {
+      updateTotalWeight(ppmActualWeight?.actualWeight || 0);
+    }
+  }, [currentMtoShipments, ppmActualWeight?.actualWeight, currentTotalWeight, documentSets, documentSetIndex]);
+  useEffect(() => {
+    const totalMoveWeight = calculateWeightRequested(currentMtoShipments);
+    setMoveHasExcessWeight(totalMoveWeight > order.entitlement.totalWeight);
+  }, [currentMtoShipments, order.entitlement.totalWeight, currentTotalWeight]);
+  useEffect(() => {
+    setCurrentAllowableWeight(currentAllowableWeight);
+  }, [currentAllowableWeight]);
+  useEffect(() => {
+    setCurrentMtoShipments(mtoShipments);
+  }, [mtoShipments]);
+
+  useEffect(() => {
+    if (mtoShipment) {
+      const updatedPpmShipmentInfo = {
+        ...mtoShipment.ppmShipment,
+        miles: mtoShipment.distance,
+        actualWeight: currentTotalWeight,
+      };
+      setPpmShipmentInfo(updatedPpmShipmentInfo);
+    }
+  }, [mtoShipment, currentTotalWeight]);
+
+  const getAllUploads = () => {
+    return documentSets.reduce((acc, documentSet) => {
+      return acc.concat(documentSet.uploads);
+    }, []);
+  };
+
+  const uploads = showOverview ? getAllUploads() : currentDocumentSet?.uploads;
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
+
   return (
     <div data-testid="ReviewDocuments test" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
-        <DocumentViewer files={showOverview ? getAllUploads() : currentDocumentSet.uploads} allowDownload />
+        <DocumentViewer files={uploads} allowDownload isFileUploading={isFileUploading} />
       </div>
       <DocumentViewerSidebar
         title={readOnly ? 'View documents' : 'Review documents'}
@@ -270,6 +274,123 @@ export const ReviewDocuments = ({ readOnly }) => {
           <ErrorMessage className={styles.errorMessage} display={!!serverError}>
             {serverError}
           </ErrorMessage>
+          <div className={classNames(styles.top, styles.noBottomBorder)}>
+            {!readOnly && !showOverview && currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
+              <>
+                <DocumentViewerFileManager
+                  title="Manage Full Weight Documents"
+                  orderId={order.orderId}
+                  documentId={currentDocumentSet.documentSet.emptyDocumentId}
+                  files={currentDocumentSet.documentSet.emptyDocument.uploads}
+                  documentType={DOCUMENT_TYPES.WEIGHT_TICKET}
+                  onAddFile={() => {
+                    setFileUploading(true);
+                  }}
+                  mtoShipment={mtoShipment}
+                />
+                <DocumentViewerFileManager
+                  title="Manage Empty Weight Documents"
+                  orderId={order.orderId}
+                  documentId={currentDocumentSet.documentSet.fullDocumentId}
+                  files={currentDocumentSet.documentSet.fullDocument.uploads}
+                  documentType={DOCUMENT_TYPES.WEIGHT_TICKET}
+                  onAddFile={() => {
+                    setFileUploading(true);
+                  }}
+                  mtoShipment={mtoShipment}
+                />
+              </>
+            )}
+            {!readOnly && !showOverview && currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
+              <DocumentViewerFileManager
+                title="Manage Moving Expense Documents"
+                orderId={order.orderId}
+                documentId={currentDocumentSet.documentSet.documentId}
+                files={currentDocumentSet.documentSet.document.uploads}
+                documentType={DOCUMENT_TYPES.MOVING_EXPENSE}
+                onAddFile={() => {
+                  setFileUploading(true);
+                }}
+                mtoShipment={mtoShipment}
+              />
+            )}
+            {!readOnly &&
+              !showOverview &&
+              currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
+                <DocumentViewerFileManager
+                  title="Manage Pro Gear Documents"
+                  orderId={order.orderId}
+                  documentId={currentDocumentSet.documentSet.documentId}
+                  files={currentDocumentSet.documentSet.document.uploads}
+                  documentType={DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET}
+                  onAddFile={() => {
+                    setFileUploading(true);
+                  }}
+                  mtoShipment={mtoShipment}
+                />
+              )}
+            {!readOnly &&
+              showOverview &&
+              documentSets.map((documentSet) => {
+                if (documentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET) {
+                  return (
+                    <>
+                      <DocumentViewerFileManager
+                        title="Manage Full Weight Documents"
+                        orderId={order.orderId}
+                        documentId={documentSet.documentSet.emptyDocumentId}
+                        files={documentSet.documentSet.emptyDocument.uploads}
+                        documentType={DOCUMENT_TYPES.WEIGHT_TICKET}
+                        onAddFile={() => {
+                          setFileUploading(true);
+                        }}
+                        mtoShipment={mtoShipment}
+                      />
+                      <DocumentViewerFileManager
+                        title="Manage Empty Weight Documents"
+                        orderId={order.orderId}
+                        documentId={documentSet.documentSet.fullDocumentId}
+                        files={documentSet.documentSet.fullDocument.uploads}
+                        documentType={DOCUMENT_TYPES.WEIGHT_TICKET}
+                        onAddFile={() => {
+                          setFileUploading(true);
+                        }}
+                        mtoShipment={mtoShipment}
+                      />
+                    </>
+                  );
+                }
+                if (documentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+                  return (
+                    <DocumentViewerFileManager
+                      title="Manage Pro Gear Documents"
+                      orderId={order.orderId}
+                      documentId={documentSet.documentSet.documentId}
+                      files={documentSet.documentSet.document.uploads}
+                      documentType={DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET}
+                      onAddFile={() => {
+                        setFileUploading(true);
+                      }}
+                      mtoShipment={mtoShipment}
+                    />
+                  );
+                }
+                return (
+                  <DocumentViewerFileManager
+                    title="Manage Moving Expense Documents"
+                    orderId={order.orderId}
+                    documentId={documentSet.documentSet.documentId}
+                    files={documentSet.documentSet.document.uploads}
+                    documentType={DOCUMENT_TYPES.MOVING_EXPENSE}
+                    onAddFile={() => {
+                      setFileUploading(true);
+                    }}
+                    mtoShipment={mtoShipment}
+                  />
+                );
+              })}
+          </div>
+          <br />
           {documentSets &&
             (showOverview ? (
               <ReviewDocumentsSidePanel
