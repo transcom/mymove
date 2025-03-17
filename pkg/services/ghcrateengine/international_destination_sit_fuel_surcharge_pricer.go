@@ -21,7 +21,7 @@ func NewInternationalDestinationSITFuelSurchargePricer() services.InternationalD
 }
 
 func (p internationalDestinationSITFuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceIntlFuelSurcharge(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+	return priceIntlFuelSurcharge(appCtx, models.ReServiceCodeIDSFSC, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 }
 
 func (p internationalDestinationSITFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
