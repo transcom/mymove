@@ -33,12 +33,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalOriginSITFuelSurch
 		suite.Equal(iosfscPriceCents, priceCents)
 	})
 
-	suite.Run("success without PaymentServiceItemParams when shipment is PPM with < 500 lb weight", func() {
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), iosfscActualPickupDate, iosfscTestDistance, unit.Pound(250), iosfscWeightDistanceMultiplier, iosfscFuelPrice)
-		suite.NoError(err)
-		suite.Equal(iosfscPriceCents, priceCents)
-	})
-
 	suite.Run("IOSFSC is negative if fuel price from EIA is below $2.50", func() {
 		priceCents, _, err := pricer.Price(suite.AppContextForTest(), iosfscActualPickupDate, iosfscTestDistance, iosfscTestWeight, iosfscWeightDistanceMultiplier, 242400)
 		suite.NoError(err)
@@ -270,17 +264,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsIOSFSCBelowMinimumWe
 		return paymentServiceItem
 	}
 
-	suite.Run("success using PaymentServiceItemParams with below minimum weight for a PPM shipment", func() {
-		paymentServiceItem := setupTestData()
-		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
-		paramsWithBelowMinimumWeight[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
-
-		priceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
-		suite.NoError(err)
-		suite.Equal(iosfscPriceCents, priceCents)
-
-	})
-
 	suite.Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilled", func() {
 		paymentServiceItem := setupTestData()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
@@ -291,5 +274,4 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsIOSFSCBelowMinimumWe
 			suite.Equal(unit.Cents(0), priceCents)
 		}
 	})
-
 }
