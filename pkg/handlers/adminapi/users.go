@@ -142,8 +142,6 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 				return userop.NewUpdateUserUnprocessableEntity(), err
 			}
 
-			// saving the request here so we can use it in the service object if the Okta email is being updated
-			appCtx.Session().HTTPRequest = params.HTTPRequest
 			_, verrs, err := h.UpdateUser(appCtx, userID, user)
 			if verrs != nil || err != nil {
 				appCtx.Logger().Error(fmt.Sprintf("Error updating user %s", params.UserID.String()), zap.Error(err))

@@ -97,8 +97,7 @@ func (suite *AdminUserServiceSuite) TestUpdateAdminUser() {
 
 		ctx := auth.SetSessionInRequestContext(request, session)
 		request = request.WithContext(ctx)
-		session.HTTPRequest = request
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session)
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session, request)
 
 		payload := &adminmessages.AdminUserUpdate{
 			FirstName: &firstName,

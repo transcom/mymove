@@ -54,7 +54,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 
 	suite.Run("Deactivate a user successfully", func() {
 		// This case should send an email to sys admins
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		user := factory.BuildDefaultUser(suite.DB())
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
@@ -80,7 +80,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//            	to update the office_users table. Both tables have an ACTIVE
 		//				status set to False.
 
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
@@ -125,7 +125,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//            	to update the admin_users table. Both tables have an ACTIVE
 		//				status set to False.
 
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		adminUser := factory.BuildAdminUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.AdminUser{
@@ -183,9 +183,9 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 
 		ctx := auth.SetSessionInRequestContext(request, session)
 		request = request.WithContext(ctx)
-		session.HTTPRequest = request
+		// session.HTTPRequest = request
 
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session)
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session, request)
 
 		// these mocked endpoints fetch an exact user
 		mockAndActivateOktaGETEndpointNoError(adminUser.User.OktaID)
@@ -231,9 +231,9 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 
 		ctx := auth.SetSessionInRequestContext(request, session)
 		request = request.WithContext(ctx)
-		session.HTTPRequest = request
+		// session.HTTPRequest = request
 
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session)
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session, request)
 
 		// these mocked endpoints fetch an exact user
 		mockAndActivateOktaGETEndpointNoError(officeUser.User.OktaID)
@@ -278,9 +278,9 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 
 		ctx := auth.SetSessionInRequestContext(request, session)
 		request = request.WithContext(ctx)
-		session.HTTPRequest = request
+		// session.HTTPRequest = request
 
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session)
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session, request)
 
 		// mocking return responses from okta
 		mockAndActivateOktaGETEndpointNoError(serviceMember.User.OktaID)
@@ -307,7 +307,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		// Expected outcome:
 		//           	updateUser updates the user to active
 		//              A notification is sent to sys admins
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		// Make an inactive user
 		user := factory.BuildUser(suite.DB(), nil, nil)
 
@@ -333,7 +333,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		// Expected outcome:
 		//           	updateUser returns the active user
 		//              A notification is NOT sent to sys admins
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		user := factory.BuildUser(suite.DB(), nil,
 			[]factory.Trait{
 				factory.GetTraitActiveUser,
@@ -359,7 +359,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		// Expected outcome:
 		//           	updateUser returns the inactive user
 		//              A notification is NOT sent to sys admins
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
 

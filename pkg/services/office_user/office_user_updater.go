@@ -99,7 +99,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uu
 			if existingUser.OktaID != "" {
 				apiKey := models.GetOktaAPIKey()
 				oktaID := existingUser.OktaID
-				req := appCtx.Session().HTTPRequest
+				req := appCtx.HTTPRequest()
 				if req == nil {
 					return fmt.Errorf("failed to retrieve HTTP request from session")
 				}
