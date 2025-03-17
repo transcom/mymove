@@ -22,21 +22,9 @@ import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/valid
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import RequiredTag from 'components/form/RequiredTag';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
-import { handleAddressToggleChange } from 'utils/shipments';
+import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 
 let meta = '';
-
-const blankAddress = {
-  address: {
-    streetAddress1: '',
-    streetAddress2: '',
-    streetAddress3: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    usPostRegionCitiesID: '',
-  },
-};
 
 let validationShape = {
   useCurrentResidence: Yup.boolean(),

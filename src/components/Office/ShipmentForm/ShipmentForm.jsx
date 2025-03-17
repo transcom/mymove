@@ -71,7 +71,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { datePickerFormat, formatDate } from 'shared/dates';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
-import { handleAddressToggleChange } from 'utils/shipments';
+import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 
 const ShipmentForm = (props) => {
   const {
@@ -98,18 +98,6 @@ const ShipmentForm = (props) => {
 
   const updateEstimatedWeightValue = (value) => {
     setEstimatedWeightValue(value);
-  };
-
-  const blankAddress = {
-    address: {
-      streetAddress1: '',
-      streetAddress2: '',
-      streetAddress3: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      county: '',
-    },
   };
 
   const { moveCode } = useParams();
