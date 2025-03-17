@@ -11,7 +11,7 @@ import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { shipmentTypes } from 'constants/shipments';
-import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
+import AboutForm from 'components/Shared/PPM/Closeout/AboutForm/AboutForm';
 import { customerRoutes } from 'constants/routes';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { formatDateForSwagger } from 'shared/dates';
@@ -20,6 +20,7 @@ import { updateMTOShipment } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isWeightTicketComplete } from 'utils/shipments';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
+import { APP_NAME } from 'shared/constants';
 
 const About = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -31,6 +32,7 @@ const About = () => {
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const [multiMove, setMultiMove] = useState(false);
+  const appName = APP_NAME.MYMOVE;
 
   useEffect(() => {
     getMTOShipmentsForMove(moveId)
@@ -88,7 +90,7 @@ const About = () => {
       if (error?.response?.status === 412) {
         setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
       } else {
-        setErrorMessage(getResponseError(error.response, 'Failed to update MTO shipment due to server error.'));
+        setErrorMessage(getResponseError(error.response, 'Failed to update PPM shipment due to server error.'));
       }
     };
 
@@ -166,7 +168,7 @@ const About = () => {
                 eligible operating expenses.)
               </p>
             </div>
-            <AboutForm mtoShipment={mtoShipment} onSubmit={handleSubmit} onBack={handleBack} />
+            <AboutForm mtoShipment={mtoShipment} onSubmit={handleSubmit} onBack={handleBack} appName={appName} />
           </Grid>
         </Grid>
       </GridContainer>

@@ -6,6 +6,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from './Review.module.scss';
 
+import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import formStyles from 'styles/form.module.scss';
 import Alert from 'shared/Alert';
 import ppmPageStyles from 'pages/Office/PPM/PPM.module.scss';
@@ -13,7 +14,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { servicesCounselingRoutes } from 'constants/routes';
-import ReviewItems from 'components/Office/PPM/Closeout/ReviewItems/ReviewItems';
+import ReviewItems from 'components/Shared/PPM/Closeout/ReviewItems/ReviewItems';
 import {
   calculateTotalMovingExpensesAmount,
   formatAboutYourPPMItem,
@@ -29,7 +30,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatWeight } from 'utils/formatters';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
-import ppmStyles from 'components/Office/PPM/Closeout/PPM.module.scss';
 import {
   hasCompletedAllWeightTickets,
   hasCompletedAllExpenses,

@@ -13,7 +13,7 @@ import { shipmentTypes } from 'constants/shipments';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectMTOShipmentById, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-import ReviewItems from 'components/Customer/PPM/Closeout/ReviewItems/ReviewItems';
+import ReviewItems from 'components/Shared/PPM/Closeout/ReviewItems/ReviewItems';
 import {
   calculateTotalMovingExpensesAmount,
   formatAboutYourPPMItem,

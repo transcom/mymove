@@ -2,7 +2,8 @@ import React from 'react';
 import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import WeightTicketForm from 'components/Office/PPM/Closeout/WeightTicketForm/WeightTicketForm';
+import WeightTicketForm from 'components/Shared/PPM/Closeout/WeightTicketForm/WeightTicketForm';
+import { APP_NAME } from 'shared/constants';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -150,8 +151,51 @@ const constructedWeightTrailerProps = {
 
 describe('WeightTicketForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load with defaults', async () => {
-      render(<WeightTicketForm {...defaultProps} />);
+    it('renders blank form on load with defaults - Customer page', async () => {
+      render(<WeightTicketForm {...defaultProps} appName={APP_NAME.MYMOVE} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { level: 2, name: 'Trip 2' })).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole('heading', { level: 3, name: 'Vehicle' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Vehicle description')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByText('Car make and model, type of truck or van, etc.')).toBeInTheDocument();
+
+      expect(screen.getByRole('heading', { level: 3, name: 'Empty weight' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Empty weight')).toBeInstanceOf(HTMLInputElement);
+      const missingWeightInput = screen.getAllByLabelText("I don't have this weight ticket");
+      expect(missingWeightInput[0]).toBeInstanceOf(HTMLInputElement);
+      expect(missingWeightInput[0]).not.toBeChecked();
+      // getByLabelText will fail because the file upload input adds an aria-labeledby that points to the container text
+      expect(screen.getByText('Upload empty weight ticket')).toBeInstanceOf(HTMLLabelElement);
+      const uploadFileTypeHints = screen.getAllByText('Maximum file size 25 MB. Each page must be clear and legible.', {
+        exact: false,
+      });
+      expect(uploadFileTypeHints[0]).toBeInTheDocument();
+
+      expect(screen.getByRole('heading', { level: 3, name: 'Full weight' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Full weight')).toBeInstanceOf(HTMLInputElement);
+      expect(missingWeightInput[1]).toBeInstanceOf(HTMLInputElement);
+      expect(missingWeightInput[1]).not.toBeChecked();
+      // getByLabelText will fail because the file upload input adds an aria-labeledby that points to the container text
+      expect(screen.getByText('Upload full weight ticket')).toBeInstanceOf(HTMLLabelElement);
+      expect(uploadFileTypeHints[1]).toBeInTheDocument();
+
+      expect(screen.getByRole('heading', { level: 3, name: 'Trip weight:' })).toBeInTheDocument();
+
+      expect(screen.getByRole('heading', { level: 3, name: 'Trailer' })).toBeInTheDocument();
+      expect(screen.getByText('On this trip, were you using a trailer that you own?')).toBeInstanceOf(
+        HTMLLegendElement,
+      );
+      expect(screen.getByLabelText('No')).toBeChecked();
+
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+    });
+
+    it('renders blank form on load with defaults - Office Page', async () => {
+      render(<WeightTicketForm {...defaultProps} appName={APP_NAME.OFFICE} />);
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 2, name: 'Trip 2' })).toBeInTheDocument();
@@ -193,8 +237,8 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
-    it('populates edit form with existing weight ticket values', async () => {
-      render(<WeightTicketForm {...defaultProps} {...weightTicketRequiredProps} />);
+    it('populates edit form with existing weight ticket values - Office Page', async () => {
+      render(<WeightTicketForm {...defaultProps} {...weightTicketRequiredProps} appName={APP_NAME.OFFICE} />);
 
       await waitFor(() => {
         expect(screen.getByLabelText('Empty weight')).toHaveDisplayValue('3,999');
@@ -221,7 +265,7 @@ describe('WeightTicketForm component', () => {
     });
 
     it('populates edit form with the rental agreement and constructed weight and trailer values', async () => {
-      render(<WeightTicketForm {...defaultProps} {...constructedWeightTrailerProps} />);
+      render(<WeightTicketForm {...defaultProps} {...constructedWeightTrailerProps} appName={APP_NAME.MYMOVE} />);
 
       let missingWeightInput;
       await waitFor(() => {
@@ -262,7 +306,7 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByText('200KB')).toBeInTheDocument();
       expect(screen.getByText('Uploaded 24 Jun 2022 11:25 PM')).toBeInTheDocument();
 
-      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
   });
@@ -411,8 +455,18 @@ describe('WeightTicketForm component', () => {
         );
       });
     });
-    it('calls the onBack prop when the Cancel button is clicked', async () => {
-      render(<WeightTicketForm {...defaultProps} />);
+    it('calls the onBack prop when the Return To Homepage button is clicked - Customer page', async () => {
+      render(<WeightTicketForm {...defaultProps} appName={APP_NAME.MYMOVE} />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+
+      await waitFor(() => {
+        expect(defaultProps.onBack).toHaveBeenCalled();
+      });
+    });
+
+    it('calls the onBack prop when the Cancel button is clicked - Office page', async () => {
+      render(<WeightTicketForm {...defaultProps} appName={APP_NAME.OFFICE} />);
 
       await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
-import WeightTicketForm from 'components/Office/PPM/Closeout/WeightTicketForm/WeightTicketForm';
+import WeightTicketForm from 'components/Shared/PPM/Closeout/WeightTicketForm/WeightTicketForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {
-  title: 'Office Components / PPM Closeout / Weight Ticket Form',
+  title: 'Shared Components / PPM Closeout / Weight Ticket Form',
   component: WeightTicketForm,
   decorators: [
     (Story) => (
