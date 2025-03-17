@@ -7404,7 +7404,8 @@ func init() {
             "COUNSELING",
             "CLOSEOUT",
             "TASK_ORDER",
-            "PAYMENT_REQUEST"
+            "PAYMENT_REQUEST",
+            "DESTINATION_REQUESTS"
           ]
         },
         "userData": {
@@ -25080,7 +25081,8 @@ func init() {
             "COUNSELING",
             "CLOSEOUT",
             "TASK_ORDER",
-            "PAYMENT_REQUEST"
+            "PAYMENT_REQUEST",
+            "DESTINATION_REQUESTS"
           ]
         },
         "userData": {
