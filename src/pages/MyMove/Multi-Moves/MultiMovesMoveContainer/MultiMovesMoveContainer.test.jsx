@@ -6,7 +6,23 @@ import { mockMovesPCS, mockMovesPPMWithAdvanceOptions } from '../MultiMovesTestD
 
 import MultiMovesMoveContainer from './MultiMovesMoveContainer';
 
+import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/internalApi';
 import { MockProviders } from 'testUtils';
+import { setShowLoadingSpinner } from 'store/general/actions';
+
+jest.mock('store/general/actions', () => ({
+  ...jest.requireActual('store/general/actions'),
+  setShowLoadingSpinner: jest.fn().mockImplementation(() => ({
+    type: '',
+    showSpinner: false,
+    loadingSpinnerMessage: '',
+  })),
+}));
+
+jest.mock('services/internalApi', () => ({
+  downloadPPMPaymentPacket: jest.fn(),
+  downloadPPMAOAPacket: jest.fn(),
+}));
 
 describe('MultiMovesMoveContainer', () => {
   const mockCurrentMoves = mockMovesPCS.currentMove;
@@ -181,5 +197,53 @@ describe('MultiMovesMoveContainer', () => {
     );
 
     expect(screen.getByText('Canceled')).toBeInTheDocument();
+  });
+  it('shows and hides spinner when downloading a PPM Packet', async () => {
+    const mockMove = mockMovesPPMWithAdvanceOptions.currentMove;
+    downloadPPMPaymentPacket.mockResolvedValueOnce({ data: 'fake-data' });
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={mockMove} />
+      </MockProviders>,
+    );
+
+    fireEvent.click(screen.getByTestId('expand-icon'));
+    await waitFor(() => expect(screen.getByText('Shipments')).toBeInTheDocument());
+
+    const downloadButtons = screen.getAllByRole('button', { name: 'Download' });
+    fireEvent.click(downloadButtons[0]);
+
+    const ppmOption = await screen.findByText('PPM Packet');
+    fireEvent.click(ppmOption);
+
+    expect(setShowLoadingSpinner).toHaveBeenCalledWith(true, 'Downloading Payment Packet (PDF)...');
+
+    await waitFor(() => expect(downloadPPMPaymentPacket).toHaveBeenCalled());
+
+    expect(setShowLoadingSpinner).toHaveBeenCalledWith(false, null);
+  });
+  it('shows and hides spinner when downloading an AOA Packet download ', async () => {
+    const mockMove = mockMovesPPMWithAdvanceOptions.currentMove;
+    downloadPPMAOAPacket.mockResolvedValueOnce({ data: 'fake-data' });
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={mockMove} />
+      </MockProviders>,
+    );
+
+    fireEvent.click(screen.getByTestId('expand-icon'));
+    await waitFor(() => expect(screen.getByText('Shipments')).toBeInTheDocument());
+
+    const downloadButtons = screen.getAllByRole('button', { name: 'Download' });
+    fireEvent.click(downloadButtons[0]);
+
+    const aoaOption = await screen.findByText('AOA Packet');
+    fireEvent.click(aoaOption);
+
+    expect(setShowLoadingSpinner).toHaveBeenCalledWith(true, 'Downloading AOA Paperwork (PDF)...');
+
+    await waitFor(() => expect(downloadPPMPaymentPacket).toHaveBeenCalled());
+
+    expect(setShowLoadingSpinner).toHaveBeenCalledWith(false, null);
   });
 });
