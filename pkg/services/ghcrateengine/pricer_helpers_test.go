@@ -544,7 +544,7 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 	suite.Run("destination golden path", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents)
 
 		priceCents, displayParams, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDOSHUT, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 		suite.NoError(err)
@@ -559,7 +559,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 	})
 
 	suite.Run("invalid service code", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents)
 		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeCS, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 
 		suite.Error(err)
@@ -567,7 +567,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 	})
 
 	suite.Run("invalid weight", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents)
 
 		badWeight := unit.Pound(250)
 		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDOSHUT, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, badWeight, doshutTestServiceSchedule)
@@ -577,7 +577,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 	})
 
 	suite.Run("not finding a rate record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents)
 
 		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDOSHUT, "BOGUS", doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 
@@ -586,7 +586,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 	})
 
 	suite.Run("not finding a contract year record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents)
 
 		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDDSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
@@ -598,7 +598,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 	suite.Run("crating golden path", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents)
 
 		priceCents, displayParams, err := priceDomesticCrating(suite.AppContextForTest(), models.ReServiceCodeDCRT, testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 		suite.NoError(err)
@@ -614,7 +614,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 	})
 
 	suite.Run("crating golden path with truncation", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents)
 		priceCents, displayParams, err := priceDomesticCrating(suite.AppContextForTest(), models.ReServiceCodeDCRT, testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, unit.CubicFeet(8.90625), dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(23049), priceCents)
@@ -629,7 +629,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 	})
 
 	suite.Run("invalid service code", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents)
 		_, _, err := priceDomesticCrating(suite.AppContextForTest(), models.ReServiceCodeCS, testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 
 		suite.Error(err)
@@ -637,7 +637,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 	})
 
 	suite.Run("invalid crate size", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents)
 
 		badSize := unit.CubicFeet(1.0)
 		_, _, err := priceDomesticCrating(suite.AppContextForTest(), models.ReServiceCodeDCRT, testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, badSize, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
@@ -647,7 +647,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 	})
 
 	suite.Run("not finding a rate record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents)
 
 		_, _, err := priceDomesticCrating(suite.AppContextForTest(), models.ReServiceCodeDCRT, "BOGUS", dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 

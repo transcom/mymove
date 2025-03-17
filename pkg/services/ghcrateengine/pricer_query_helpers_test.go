@@ -70,7 +70,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchDomServiceAreaPrice() {
 
 func (suite *GHCRateEngineServiceSuite) Test_fetchAccessorialPrice() {
 	suite.Run("golden path", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents)
 		domAccessorialPrice, err := fetchAccessorialPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule)
 
 		suite.NoError(err)

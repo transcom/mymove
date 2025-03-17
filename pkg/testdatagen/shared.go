@@ -77,6 +77,7 @@ type Assertions struct {
 	ReDomesticOtherPrice                     models.ReDomesticOtherPrice
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	ReDomesticServiceAreaPrice               models.ReDomesticServiceAreaPrice
+	ReTaskOrderFee                           models.ReTaskOrderFee
 	Reimbursement                            models.Reimbursement
 	Report                                   models.EvaluationReport
 	ReportViolation                          models.ReportViolation

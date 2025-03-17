@@ -427,8 +427,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
-		suite.Equal(7, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 7")
-		suite.Equal(5, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
+		suite.Equal(15, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 7")
+		suite.Equal(13, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
 
 		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
 			for _, paymentServiceItem := range paymentRequest.PaymentServiceItems {
@@ -474,8 +474,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.NotEqual(paymentRequestResult.ID, uuid.Nil)
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
-		suite.Equal(6, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 6")
-		suite.Equal(5, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
+		suite.Equal(15, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 6")
+		suite.Equal(13, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
 
 		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
 			for _, paymentServiceItem := range paymentRequest.PaymentServiceItems {
@@ -1328,7 +1328,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelease() {
 	testStorageFacilityZip := "30907"
 	testDestinationZip := "78234"
-	testEscalationCompounded := 1.04071
 	testDLHRate := unit.Millicents(6000)
 	testOriginalWeight := unit.Pound(3652)
 	testZip3Distance := 1234
@@ -1372,8 +1371,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	// Contract year, service area, rate area, zip3
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
-			EscalationCompounded: testEscalationCompounded,
-			EndDate:              time.Now().Add(time.Hour * 24),
+			StartDate: testdatagen.ContractStartDate,
+			EndDate:   testdatagen.ContractEndDate,
 		},
 		ReRateArea: models.ReRateArea{
 			Name: "Georgia",

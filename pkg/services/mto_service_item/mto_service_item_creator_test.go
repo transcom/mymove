@@ -526,12 +526,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		})
 
 		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
-		csTaskOrderFee := models.ReTaskOrderFee{
-			ContractYearID: contractYear.ID,
-			ServiceID:      reServiceCS.ID,
-			PriceCents:     90000,
-		}
-		suite.MustSave(&csTaskOrderFee)
+		testdatagen.FetchOrMakeReTaskOrderFees(suite.DB(), testdatagen.Assertions{
+			ReTaskOrderFee: models.ReTaskOrderFee{
+				ContractYearID: contractYear.ID,
+				ServiceID:      reServiceCS.ID,
+			},
+		})
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
@@ -560,12 +560,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
 
 		reServiceMS := factory.FetchReServiceByCode(suite.DB(), "MS")
-		msTaskOrderFee := models.ReTaskOrderFee{
-			ContractYearID: contractYear.ID,
-			ServiceID:      reServiceMS.ID,
-			PriceCents:     90000,
-		}
-		suite.MustSave(&msTaskOrderFee)
+		testdatagen.FetchOrMakeReTaskOrderFees(suite.DB(), testdatagen.Assertions{
+			ReTaskOrderFee: models.ReTaskOrderFee{
+				ContractYearID: contractYear.ID,
+				ServiceID:      reServiceMS.ID,
+			},
+		})
 
 		serviceItemMS := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
@@ -597,12 +597,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		})
 
 		reServiceMS := factory.FetchReServiceByCode(suite.DB(), "MS")
-		msTaskOrderFee := models.ReTaskOrderFee{
-			ContractYearID: contractYear.ID,
-			ServiceID:      reServiceMS.ID,
-			PriceCents:     90000,
-		}
-		suite.MustSave(&msTaskOrderFee)
+		testdatagen.FetchOrMakeReTaskOrderFees(suite.DB(), testdatagen.Assertions{
+			ReTaskOrderFee: models.ReTaskOrderFee{
+				ContractYearID: contractYear.ID,
+				ServiceID:      reServiceMS.ID,
+			},
+		})
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -652,12 +652,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		})
 
 		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
-		csTaskOrderFee := models.ReTaskOrderFee{
-			ContractYearID: contractYear.ID,
-			ServiceID:      reServiceCS.ID,
-			PriceCents:     90000,
-		}
-		suite.MustSave(&csTaskOrderFee)
+		testdatagen.FetchOrMakeReTaskOrderFees(suite.DB(), testdatagen.Assertions{
+			ReTaskOrderFee: models.ReTaskOrderFee{
+				ContractYearID: contractYear.ID,
+				ServiceID:      reServiceCS.ID,
+			},
+		})
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -685,12 +685,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Contains(err.Error(), "cannot create fee for service item CS: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment")
 
 		reServiceMS := factory.FetchReServiceByCode(suite.DB(), "MS")
-		msTaskOrderFee := models.ReTaskOrderFee{
-			ContractYearID: contractYear.ID,
-			ServiceID:      reServiceMS.ID,
-			PriceCents:     90000,
-		}
-		suite.MustSave(&msTaskOrderFee)
+		testdatagen.FetchOrMakeReTaskOrderFees(suite.DB(), testdatagen.Assertions{
+			ReTaskOrderFee: models.ReTaskOrderFee{
+				ContractYearID: contractYear.ID,
+				ServiceID:      reServiceMS.ID,
+			},
+		})
 
 		serviceItemMS := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
@@ -711,20 +711,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Set up:     Create an approved move with a PPM shipment that has an expected departure date
 		//             Success, CS can be created
 
-		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: testdatagen.ContractStartDate,
-				EndDate:   testdatagen.ContractEndDate,
-			},
-		})
-
 		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
-		csTaskOrderFee := models.ReTaskOrderFee{
-			ContractYearID: contractYear.ID,
-			ServiceID:      reServiceCS.ID,
-			PriceCents:     90000,
-		}
-		suite.MustSave(&csTaskOrderFee)
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
@@ -758,32 +745,17 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		})
 
-		contractYear2 := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: testdatagen.ContractStartDate,
-				EndDate:   testdatagen.ContractEndDate,
+		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
+		csTaskOrderFee := testdatagen.FetchOrMakeReTaskOrderFees(suite.DB(), testdatagen.Assertions{
+			ReTaskOrderFee: models.ReTaskOrderFee{
+				ContractYearID: contractYear.ID,
+				ServiceID:      reServiceCS.ID,
 			},
 		})
 
-		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
-		csTaskOrderFee := models.ReTaskOrderFee{
-			ContractYearID: contractYear.ID,
-			ServiceID:      reServiceCS.ID,
-			PriceCents:     90000,
-		}
-		suite.MustSave(&csTaskOrderFee)
-
-		// creating second fee that we will test against
-		csTaskOrderFee2 := models.ReTaskOrderFee{
-			ContractYearID: contractYear2.ID,
-			ServiceID:      reServiceCS.ID,
-			PriceCents:     100000,
-		}
-		suite.MustSave(&csTaskOrderFee2)
-
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		// going to link a shipment that has a requested pickup date falling under the second contract period
-		pickupDate := time.Date(2024, time.July, 1, 12, 0, 0, 0, time.UTC)
+		pickupDate := time.Date(2021, time.July, 1, 12, 0, 0, 0, time.UTC)
 		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -806,21 +778,15 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.NoError(err)
 		createdServiceItemCSList := *createdServiceItemsCS
 		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
-		suite.Equal(*createdServiceItemCSList[0].LockedPriceCents, csTaskOrderFee2.PriceCents)
+		suite.Equal(*createdServiceItemCSList[0].LockedPriceCents, csTaskOrderFee.PriceCents)
 
 		reServiceMS := factory.FetchReServiceByCode(suite.DB(), "MS")
-		msTaskOrderFee := models.ReTaskOrderFee{
-			ContractYearID: contractYear.ID,
-			ServiceID:      reServiceMS.ID,
-			PriceCents:     90000,
-		}
-		suite.MustSave(&msTaskOrderFee)
-		msTaskOrderFee2 := models.ReTaskOrderFee{
-			ContractYearID: contractYear2.ID,
-			ServiceID:      reServiceMS.ID,
-			PriceCents:     100000,
-		}
-		suite.MustSave(&msTaskOrderFee2)
+		msTaskOrderFee := testdatagen.FetchOrMakeReTaskOrderFees(suite.DB(), testdatagen.Assertions{
+			ReTaskOrderFee: models.ReTaskOrderFee{
+				ContractYearID: contractYear.ID,
+				ServiceID:      reServiceMS.ID,
+			},
+		})
 
 		serviceItemMS := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
@@ -833,7 +799,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.NoError(err)
 		createdServiceItemMSList := *createdServiceItemsMS
 		suite.Equal(createdServiceItemMSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
-		suite.Equal(*createdServiceItemMSList[0].LockedPriceCents, csTaskOrderFee2.PriceCents)
+		suite.Equal(*createdServiceItemMSList[0].LockedPriceCents, msTaskOrderFee.PriceCents)
 	})
 
 	// Should return a "NotFoundError" if the mtoShipmentID isn't linked to the mtoID passed in
@@ -2177,11 +2143,13 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		reason := "lorem ipsum"
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
+		contractYear := testdatagen.MakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
-					StartDate: startDate,
-					EndDate:   endDate,
+					Name:                 "Test Contract Year",
+					EscalationCompounded: 1.125,
+					StartDate:            startDate,
+					EndDate:              endDate,
 				},
 			})
 
@@ -2466,7 +2434,9 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		reServiceCodeDSH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
 		reServiceCodeFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
 
-		sitEntryDate := time.Date(2024, time.October, 24, 0, 0, 0, 0, time.UTC)
+		startDate := time.Now().AddDate(-1, 0, 0)
+		endDate := startDate.AddDate(1, 1, 1)
+		sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
 		sitPostalCode := "99999"
 		reason := "lorem ipsum"
 
@@ -2474,8 +2444,10 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
-					StartDate: testdatagen.ContractStartDate,
-					EndDate:   testdatagen.ContractEndDate,
+					Name:                 "Test Contract Year",
+					EscalationCompounded: 1.125,
+					StartDate:            startDate,
+					EndDate:              endDate,
 				},
 			})
 

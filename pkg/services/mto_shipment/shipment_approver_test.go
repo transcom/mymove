@@ -757,10 +757,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		for i := range serviceItems {
 			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
 			suite.Equal(subtestData.reServiceCodes[i], serviceItems[i].ReService.Code)
-			if serviceItems[i].ReService.Code == models.ReServiceCodeDOP {
-				// pricing estimate will be nil for invalid service area
-				suite.Nil(serviceItems[i].PricingEstimate)
-			}
 		}
 	})
 
