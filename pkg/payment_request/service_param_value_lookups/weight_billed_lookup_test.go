@@ -292,7 +292,7 @@ func (suite *ServiceParamValueLookupsSuite) TestIntlFSCWeightBilledLookup() {
 	key := models.ServiceItemParamNameWeightBilled
 
 	suite.Run("estimated and original are the same", func() {
-		_, _, paramLookup := suite.setupTestMTOServiceItemWithIntlFSCWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDDSHUT, models.MTOShipmentTypeHHG)
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithIntlFSCWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeIDSFSC, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1234", valueStr)
@@ -349,7 +349,7 @@ func (suite *ServiceParamValueLookupsSuite) TestIntlFSCWeightBilledLookup() {
 
 	suite.Run("nil ActualWeight", func() {
 		// Set the actual weight to nil
-		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithIntlFSCWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDDSHUT, models.MTOShipmentTypeHHG)
+		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithIntlFSCWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeIDSFSC, models.MTOShipmentTypeHHG)
 		mtoServiceItem.ActualWeight = nil
 		mtoServiceItem.MTOShipment.PrimeActualWeight = nil
 		suite.MustSave(&mtoServiceItem.MTOShipment)
@@ -367,7 +367,7 @@ func (suite *ServiceParamValueLookupsSuite) TestIntlFSCWeightBilledLookup() {
 
 	suite.Run("nil EstimatedWeight", func() {
 		// Set the estimated weight to nil
-		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithIntlFSCWeight(unit.Pound(1234), unit.Pound(1000), models.ReServiceCodeDOSHUT, models.MTOShipmentTypeHHG)
+		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithIntlFSCWeight(unit.Pound(1234), unit.Pound(1000), models.ReServiceCodeIDSFSC, models.MTOShipmentTypeHHG)
 		mtoServiceItem.EstimatedWeight = nil
 		suite.MustSave(&mtoServiceItem)
 
