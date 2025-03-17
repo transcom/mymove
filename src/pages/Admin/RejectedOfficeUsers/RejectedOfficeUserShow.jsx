@@ -51,30 +51,6 @@ const RejectedOfficeUserShow = () => {
   const handleClick = () => setOpen(true);
   const handleDialogClose = () => setOpen(false);
 
-  // rendering tool bar with added error/validation alerts
-  // const renderToolBar = () => {
-  //   return (
-  //     <>
-  //       {serverError && (
-  //         <Alert type="error" slim className={styles.error}>
-  //           {serverError}
-  //         </Alert>
-  //       )}
-  //       <Toolbar sx={{ display: 'flex', gap: '10px' }}>
-  //         <DeleteButton
-  //           mutationOptions={{
-  //             onSuccess: async (data) => {
-  //               // setting user data so we can use it in the delete function
-  //               setUserData(data);
-  //               handleClick();
-  //             },
-  //           }}
-  //         />
-  //       </Toolbar>
-  //     </>
-  //   );
-  // };
-
   // hard deletes a user and associated roles/privileges
   // cannot be undone, but the user is shown a confirmation modal to avoid oopsies
   const deleteUser = async () => {
