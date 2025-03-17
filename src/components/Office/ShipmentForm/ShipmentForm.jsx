@@ -547,11 +547,6 @@ const ShipmentForm = (props) => {
       destinationType,
     } = formValues;
 
-    // const deliveryDetails = delivery;
-    // if (hasDeliveryAddress === 'false' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
-    //   delete deliveryDetails.address;
-    // }
-
     let nullableTacType = tacType;
     let nullableSacType = sacType;
     if (showAccountingCodes && !isCreatePage) {
