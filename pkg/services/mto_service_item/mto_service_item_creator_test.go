@@ -1869,6 +1869,15 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		return contacts
 	}
 
+	convertCustomerIDsToFindTestMap := func(contacts models.MTOServiceItemCustomerContacts) map[uuid.UUID]bool {
+		customerContactIDMap := make(map[uuid.UUID]bool, len(contacts))
+		// load all known customer IDs into map
+		for _, contact := range contacts {
+			customerContactIDMap[contact.ID] = true
+		}
+		return customerContactIDMap
+	}
+
 	sitEntryDate := time.Now().AddDate(0, 0, 1)
 	sitDepartureDate := sitEntryDate.AddDate(0, 0, 7)
 	attemptedContact := time.Now()
@@ -1990,10 +1999,17 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// We create one set of customer contacts and attach them to each destination service item.
 		// This portion verifies that.
-		suite.Equal(createdServiceItemList[1].CustomerContacts[0], serviceItemDDFSIT.CustomerContacts[0])
-		suite.Equal(createdServiceItemList[1].CustomerContacts[1], serviceItemDDFSIT.CustomerContacts[1])
-		suite.Equal(createdServiceItemList[2].CustomerContacts[0], serviceItemDDFSIT.CustomerContacts[0])
-		suite.Equal(createdServiceItemList[2].CustomerContacts[1], serviceItemDDFSIT.CustomerContacts[1])
+		customerContactIDMap := convertCustomerIDsToFindTestMap(serviceItemDDFSIT.CustomerContacts)
+		// Verify there are only 2 customers created
+		suite.Equal(len(customerContactIDMap), 2)
+		for _, createdServiceItem := range createdServiceItemList {
+			for _, item := range createdServiceItem.CustomerContacts {
+				// remove ID from map to denote it was found
+				delete(customerContactIDMap, item.ID)
+			}
+		}
+		// found all expected IDs. expect empty map
+		suite.Equal(len(customerContactIDMap), 0)
 	})
 
 	// Successful creation of IDFSIT service item and the extra IDASIT/IDDSIT items
@@ -2060,10 +2076,18 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// We create one set of customer contacts and attach them to each destination service item.
 		// This portion verifies that.
-		suite.Equal(createdServiceItemList[1].CustomerContacts[0], serviceItemIDFSIT.CustomerContacts[0])
-		suite.Equal(createdServiceItemList[1].CustomerContacts[1], serviceItemIDFSIT.CustomerContacts[1])
-		suite.Equal(createdServiceItemList[2].CustomerContacts[0], serviceItemIDFSIT.CustomerContacts[0])
-		suite.Equal(createdServiceItemList[2].CustomerContacts[1], serviceItemIDFSIT.CustomerContacts[1])
+		customerContactIDMap := convertCustomerIDsToFindTestMap(serviceItemIDFSIT.CustomerContacts)
+		// Verify there are only 2 customers created
+		suite.Equal(len(customerContactIDMap), 2)
+		for _, createdServiceItem := range createdServiceItemList {
+			for _, item := range createdServiceItem.CustomerContacts {
+				// remove ID from map to denote it was found
+				delete(customerContactIDMap, item.ID)
+			}
+		}
+
+		// found all expected IDs. expect empty map
+		suite.Equal(len(customerContactIDMap), 0)
 	})
 
 	// Failed creation of DDFSIT because of duplicate service for shipment
