@@ -22,7 +22,7 @@ func NewInternationalOriginSITFuelSurchargePricer() services.InternationalOrigin
 
 // Price determines the price for International Origin SIT Fuel Surcharges
 func (p internationalOriginFuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceIntlFuelSurcharge(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+	return priceIntlFuelSurcharge(appCtx, models.ReServiceCodeIOSFSC, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 }
 
 func (p internationalOriginFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
