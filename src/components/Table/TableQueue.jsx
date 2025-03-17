@@ -384,7 +384,6 @@ const TableQueue = ({
                   totalCount={totalCount}
                   paramSort={paramSort}
                   paramFilters={paramFilters}
-                  isHeadquartersUser={activeRole === roleTypes.HQ}
                 />
               )}
             </div>
