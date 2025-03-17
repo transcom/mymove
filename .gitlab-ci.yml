@@ -1215,13 +1215,15 @@ integration_test_mtls:
     # - until $(curl --output /dev/null --silent --head --fail http://milmovelocal:4000); do printf '.'; sleep 1; done
     # - curl http://milmovelocal:4000
     - make bin/milmove
-    - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.txt
+    - bin/milmove migrate >> $CI_PROJECT_DIR/milmove_migrate.output 2>&1
     - make bin/prime-api-client
     - echo "Running E2E mTLS tests"
-    - ./scripts/run-e2e-mtls-test >> $CI_PROJECT_DIR/e2e_mtls_test.txt
+    - ./scripts/run-e2e-mtls-test >> $CI_PROJECT_DIR/e2e_mtls_test.output 2>&1
   artifacts:
     paths:
       - test-results/
+      - $CI_PROJECT_DIR/e2e_mtls_test.output
+      - $CI_PROJECT_DIR/milmove_migrate.output
     when: always
   after_script:
     - *announce_failure
@@ -1244,7 +1246,7 @@ integration_test_admin:
   services:
     - name: $postgres
     - name: $redis
-    - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
+    - name: registry.csde.caci.com/milmove/mymove:e2e-27a7d410
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve","--port","4000","--verbose"]
@@ -1289,12 +1291,13 @@ integration_test_admin:
     - ./node_modules/.bin/playwright test playwright/tests/admin \
         --reporter=html,junit \
         --trace=on \
-        --workers=1
+        --workers=1 >> $CI_PROJECT_DIR/playwright_test_admin.ouput 2>&1
   artifacts:
     paths:
       - playwright-report/
       - complete-playwright-report.zip
       - playwright-results.xml
+      - $CI_PROJECT_DIR/playwright_test_admin.ouput
     when: always
   after_script:
     - *announce_failure
