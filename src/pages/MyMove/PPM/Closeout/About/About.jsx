@@ -90,7 +90,7 @@ const About = () => {
       if (error?.response?.status === 412) {
         setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
       } else {
-        setErrorMessage(getResponseError(error.response, 'Failed to update MTO shipment due to server error.'));
+        setErrorMessage(getResponseError(error.response, 'Failed to update PPM shipment due to server error.'));
       }
     };
 

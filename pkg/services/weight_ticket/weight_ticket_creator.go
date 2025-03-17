@@ -48,7 +48,7 @@ func (f *weightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, p
 
 	if appCtx.Session().IsMilApp() {
 		if serviceMemberID != appCtx.Session().ServiceMemberID {
-			return nil, apperror.NewNotFoundError(ppmShipmentID, "No such shipment found for this service member")
+			return nil, apperror.NewNotFoundError(ppmShipmentID, "Service member ID in the Orders does not match Service member ID in the current session")
 		}
 	}
 
