@@ -410,6 +410,7 @@ const MoveDetails = ({
   if (isError) return <SomethingWentWrong />;
 
   const { customer, entitlement: allowances } = order;
+  const isLocalMove = order?.order_type === ORDERS_TYPE.LOCAL_MOVE;
 
   if (submittedShipments?.length > 0 && approvedOrCanceledShipments?.length > 0) {
     sections = ['requested-shipments', 'approved-shipments', ...sections];
@@ -486,7 +487,9 @@ const MoveDetails = ({
         <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
-        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
+        {!isLocalMove && enableUB && isOconusMove && (
+          <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>
+        )}
       </>
     );
   };
