@@ -2,14 +2,18 @@ import React from 'react';
 import {
   Datagrid,
   DateField,
-  Filter,
   List,
   ReferenceField,
   TextField,
   TextInput,
   TopToolbar,
   useRecordContext,
+  SearchInput,
+  FilterForm,
+  FilterButton,
 } from 'react-admin';
+
+import styles from './RejectedOfficeUserList.module.scss';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
@@ -25,7 +29,7 @@ const RejectedOfficeUserShowRoles = () => {
     }
   }
 
-  return <p>{uniqueRoleNamesList.join(', ')}</p>;
+  return <span>{uniqueRoleNamesList.join(', ')}</span>;
 };
 
 // Overriding the default toolbar
@@ -33,20 +37,36 @@ const ListActions = () => {
   return <TopToolbar />;
 };
 
-const RejectedOfficeUserListFilter = () => (
-  <Filter>
-    <TextInput source="search" alwaysOn />
-  </Filter>
+const filterList = [
+  <SearchInput source="search" alwaysOn />,
+  <TextInput label="Email" source="emails" />,
+  <TextInput label="First Name" source="firstName" />,
+  <TextInput label="Last Name" source="lastName" />,
+  <TextInput label="Office" source="offices" />,
+  <TextInput label="Rejection Reason" source="rejectionReason" />,
+  <TextInput label="Rejected On" placeholder="MM/DD/YYYY" source="rejectedOn" />,
+  <TextInput label="Roles" source="roles" />,
+];
+
+const SearchFilters = () => (
+  <div className={styles.searchContainer}>
+    <div className={styles.searchBar}>
+      <FilterForm filters={filterList} />
+    </div>
+    <div className={styles.filters}>
+      <FilterButton filters={filterList} />
+    </div>
+  </div>
 );
 
 const defaultSort = { field: 'createdAt', order: 'DESC' };
 
 const RejectedOfficeUserList = () => (
   <List
+    filters={<SearchFilters />}
     pagination={<AdminPagination />}
     perPage={25}
     sort={defaultSort}
-    filters={<RejectedOfficeUserListFilter />}
     actions={<ListActions />}
   >
     <Datagrid bulkActionButtons={false} rowClick="show" data-testid="rejected-office-user-fields">
@@ -59,8 +79,10 @@ const RejectedOfficeUserList = () => (
       </ReferenceField>
       <TextField source="status" />
       <TextField source="rejectionReason" label="Reason for rejection" />
-      <DateField showTime source="rejectedOn" label="Rejected date" />
-      <RejectedOfficeUserShowRoles sortable={false} source="roles" label="Rejected Roles" />
+      <DateField showTime source="rejectedOn" label="Rejected on" />
+      <ReferenceField label="Roles Requested" source="id" sortBy="role" reference="rejected-office-users" link={false}>
+        <RejectedOfficeUserShowRoles source="roles" />
+      </ReferenceField>
     </Datagrid>
   </List>
 );

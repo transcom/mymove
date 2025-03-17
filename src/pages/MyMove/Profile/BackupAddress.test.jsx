@@ -45,6 +45,7 @@ describe('BackupAddress page', () => {
   const fakeAddress = {
     streetAddress1: '235 Prospect Valley Road SE',
     streetAddress2: '#125',
+    streetAddress3: '3',
     city: 'El Paso',
     state: 'TX',
     postalCode: '79912',
