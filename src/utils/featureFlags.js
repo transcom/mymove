@@ -1,6 +1,6 @@
 import queryString from 'query-string';
 
-import { getBooleanFeatureFlagForUser } from '../services/internalApi';
+import { getBooleanFeatureFlagUnauthenticated, getBooleanFeatureFlagForUser } from '../services/internalApi';
 
 import { milmoveLogger } from 'utils/milmoveLog';
 
@@ -121,18 +121,34 @@ export function detectFlags(nodeEnv, host, search) {
 }
 
 // isBooleanFlagEnabled returns the Flipt feature flag value
-export function isBooleanFlagEnabled(flagKey) {
+export async function isBooleanFlagEnabled(flagKey) {
   return getBooleanFeatureFlagForUser(flagKey, {})
     .then((result) => {
       if (result && typeof result.match !== 'undefined') {
         // Found feature flag, "match" is its boolean value
         return result.match;
       }
-      throw new Error(`feature flag  is undefined ${flagKey}`);
+      throw new Error(`feature flag is undefined ${flagKey}`);
     })
     .catch((error) => {
       // On error, log it and then just return false setting it to be disabled.
       // No need to return it for extra handling.
+      milmoveLogger.error(error);
+      return false;
+    });
+}
+
+// isBooleanFlagEnabledUnauthenticated returns the Flipt feature flag value
+// only used within the customer app and for unauthenticated users
+export async function isBooleanFlagEnabledUnauthenticated(flagKey) {
+  return getBooleanFeatureFlagUnauthenticated(flagKey, {})
+    .then((result) => {
+      if (result && typeof result.match !== 'undefined') {
+        return result.match;
+      }
+      throw new Error(`feature flag is undefined ${flagKey}`);
+    })
+    .catch((error) => {
       milmoveLogger.error(error);
       return false;
     });
