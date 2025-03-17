@@ -251,6 +251,7 @@ BEGIN
             service_members.affiliation,
             origin_duty_locations.name,
             counseling_offices.name,
+			too_user.first_name,
             too_user.last_name,
 			too_user.id';
     sql_query := sql_query || format(' ORDER BY %s %s ', sort_column, sort_order);
