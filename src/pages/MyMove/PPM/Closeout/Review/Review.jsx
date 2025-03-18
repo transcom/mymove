@@ -36,7 +36,7 @@ import {
   getMTOShipmentsForMove,
   getAllMoves,
 } from 'services/internalApi';
-import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
+import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
 
