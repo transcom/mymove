@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 
 import AboutForm from 'components/Shared/PPM/Closeout/AboutForm/AboutForm';
 import { configureStore } from 'shared/store';
-import { APP_NAME } from 'constants/appConstants';
+import { APP_NAME } from 'constants/apps';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
