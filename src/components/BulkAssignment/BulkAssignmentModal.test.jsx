@@ -236,7 +236,7 @@ describe('BulkAssignmentModal', () => {
       expect(screen.getByText('Current Workload')).toBeInTheDocument();
       expect(screen.getByText('Assignment')).toBeInTheDocument();
       expect(screen.getByText('Re-assign Workload')).toBeInTheDocument();
-      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeVisible();
       expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
     });
     // Select a user to re-assign from
@@ -302,7 +302,7 @@ describe('BulkAssignmentModal', () => {
       expect(screen.getByText('Current Workload')).toBeInTheDocument();
       expect(screen.getByText('Assignment')).toBeInTheDocument();
       expect(screen.getByText('Re-assign Workload')).toBeInTheDocument();
-      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeVisible();
       expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
     });
     // Select a user to re-assign from
@@ -388,6 +388,58 @@ describe('BulkAssignmentModal', () => {
     await waitFor(() => {
       assignmentBoxesLastSwitch.forEach((assignmentBox) => {
         expect(assignmentBox.value).toEqual('0');
+      });
+    });
+  });
+  it('keeps all checkboxes selected when switching back to BA from Bulk Re-Assignment', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    await act(async () => {
+      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    });
+
+    const userSelectionBoxPreSwitch = screen.getAllByRole('checkbox').filter((checkbox) => checkbox.closest('cell'));
+    const bulkReAssignToggleSwitch = screen.getByLabelText('BulkAssignmentModeSwitch');
+
+    // check initial state
+    await waitFor(() => {
+      expect(bulkReAssignToggleSwitch).not.toBeChecked();
+      userSelectionBoxPreSwitch.forEach((checkbox) => {
+        expect(checkbox).toBeChecked();
+      });
+    });
+    // deselect a few boxes (all enabled by default)
+    await waitFor(async () => {
+      await userEvent.click(userSelectionBoxPreSwitch[0]);
+      await userEvent.click(userSelectionBoxPreSwitch[2]);
+    });
+
+    // switch to bulk re assignment
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    const userSelectionBoxFirstSwitch = screen.getAllByRole('checkbox').filter((checkbox) => checkbox.closest('cell'));
+
+    // should be in bulk re-assignment mode and checkboxes should not be visible
+    await waitFor(() => {
+      expect(bulkReAssignToggleSwitch).toBeChecked();
+      userSelectionBoxFirstSwitch.forEach((checkbox) => {
+        expect(checkbox).not.toBeVisible();
+      });
+    });
+
+    // switch back to bulk assignment
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    const userSelectionBoxSecondSwitch = screen.getAllByRole('checkbox').filter((checkbox) => checkbox.closest('cell'));
+    // back in bulk assignment mode and all checkoxes are selected
+    await waitFor(async () => {
+      expect(bulkReAssignToggleSwitch).not.toBeChecked();
+      userSelectionBoxSecondSwitch.forEach((checkbox) => {
+        expect(checkbox).toBeChecked();
       });
     });
   });
