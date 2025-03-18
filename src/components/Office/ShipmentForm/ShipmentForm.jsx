@@ -359,8 +359,15 @@ const ShipmentForm = (props) => {
 
   const submitMTOShipment = (formValues, actions) => {
     //* PPM Shipment *//
+    const newFormValues = formValues;
     if (isPPM) {
-      const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
+      if (isAdvancePage) {
+        // Delete all form values not related to advance in order to avoid duplicate move history logs and unnecessary duplicate updates
+        delete newFormValues.pickupAddress;
+        delete newFormValues.destinationAddress;
+        delete newFormValues.expectedDepartureDate;
+      }
+      const ppmShipmentBody = formatPpmShipmentForAPI(newFormValues);
 
       // Allow blank values to be entered into Pro Gear input fields
       if (
@@ -395,38 +402,11 @@ const ShipmentForm = (props) => {
                 moveCode,
                 shipmentId: newMTOShipment.id,
               });
-              if (formValues.closeoutOffice.id) {
-                mutateMoveCloseoutOffice(
-                  {
-                    locator: moveCode,
-                    ifMatchETag: move.eTag,
-                    body: { closeoutOfficeId: formValues.closeoutOffice.id },
-                  },
-                  {
-                    onSuccess: () => {
-                      actions.setSubmitting(false);
-                      navigate(currentPath, { replace: true });
-                      if (isTOO) {
-                        navigate(moveViewPath);
-                      } else {
-                        navigate(advancePath);
-                      }
-                      setErrorMessage(null);
-                      onUpdate('success');
-                    },
-                    onError: (error) => {
-                      actions.setSubmitting(false);
-                      handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
-                    },
-                  },
-                );
+              navigate(currentPath, { replace: true });
+              if (isTOO) {
+                navigate(moveViewPath);
               } else {
-                navigate(currentPath, { replace: true });
-                if (isTOO) {
-                  navigate(moveViewPath);
-                } else {
-                  navigate(advancePath);
-                }
+                navigate(advancePath);
               }
             },
             onError: (error) => {
