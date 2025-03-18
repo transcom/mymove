@@ -135,6 +135,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderCreateOrderHandler: order.CreateOrderHandlerFunc(func(params order.CreateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
 		}),
+		UploadsCreatePPMUploadHandler: uploads.CreatePPMUploadHandlerFunc(func(params uploads.CreatePPMUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.CreatePPMUpload has not yet been implemented")
+		}),
 		OfficeUsersCreateRequestedOfficeUserHandler: office_users.CreateRequestedOfficeUserHandlerFunc(func(params office_users.CreateRequestedOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.CreateRequestedOfficeUser has not yet been implemented")
 		}),
@@ -503,6 +506,8 @@ type MymoveAPI struct {
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// OrderCreateOrderHandler sets the operation handler for the create order operation
 	OrderCreateOrderHandler order.CreateOrderHandler
+	// UploadsCreatePPMUploadHandler sets the operation handler for the create p p m upload operation
+	UploadsCreatePPMUploadHandler uploads.CreatePPMUploadHandler
 	// OfficeUsersCreateRequestedOfficeUserHandler sets the operation handler for the create requested office user operation
 	OfficeUsersCreateRequestedOfficeUserHandler office_users.CreateRequestedOfficeUserHandler
 	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
@@ -834,6 +839,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderCreateOrderHandler == nil {
 		unregistered = append(unregistered, "order.CreateOrderHandler")
+	}
+	if o.UploadsCreatePPMUploadHandler == nil {
+		unregistered = append(unregistered, "uploads.CreatePPMUploadHandler")
 	}
 	if o.OfficeUsersCreateRequestedOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.CreateRequestedOfficeUserHandler")
@@ -1288,6 +1296,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/orders"] = order.NewCreateOrder(o.context, o.OrderCreateOrderHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/uploads/ppmUpload/{ppmShipmentId}"] = uploads.NewCreatePPMUpload(o.context, o.UploadsCreatePPMUploadHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
