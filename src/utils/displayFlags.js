@@ -12,7 +12,7 @@ export function objectIsMissingFieldWithCondition(object, { fieldName, condition
   if (optional) {
     return !condition || condition(object);
   }
-  return !object[fieldName] || !condition || condition(object);
+  return !object[fieldName] && (!condition || condition(object));
 }
 
 /*
