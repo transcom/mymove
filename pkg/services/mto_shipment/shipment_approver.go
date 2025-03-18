@@ -111,8 +111,8 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 						pickupZip = *portZip
 						destZip = shipment.DestinationAddress.PostalCode
 					}
-					// we need to get the mileage from DTOD first, the db proc will consume that
-					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true)
+					// we need to get the mileage first, the db proc will consume that
+					mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip)
 					if err != nil {
 						return err
 					}
@@ -247,7 +247,7 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 			deliveryLocation = shipment.DestinationAddress
 			weight = shipment.PrimeEstimatedWeight.Int()
 		}
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight, shipment.MarketCode)
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight, shipment.MarketCode, shipment.MoveTaskOrderID, shipment.ShipmentType)
 		if calcErr != nil {
 			return calcErr
 		}

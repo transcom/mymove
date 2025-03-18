@@ -43,6 +43,14 @@ var allSITServiceItemsToCheck = []models.ReServiceCode{
 	models.ReServiceCodeDOFSIT,
 	models.ReServiceCodeDOASIT,
 	models.ReServiceCodeDOSFSC,
+	models.ReServiceCodeIDDSIT,
+	models.ReServiceCodeIDASIT,
+	models.ReServiceCodeIDFSIT,
+	models.ReServiceCodeIDSFSC,
+	models.ReServiceCodeIOPSIT,
+	models.ReServiceCodeIOFSIT,
+	models.ReServiceCodeIOASIT,
+	models.ReServiceCodeIOSFSC,
 }
 
 var allAccessorialServiceItemsToCheck = []models.ReServiceCode{
@@ -689,6 +697,9 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	newMTOServiceItem.ActualWeight = services.SetOptionalPoundField(
 		v.updatedServiceItem.ActualWeight, newMTOServiceItem.ActualWeight)
 
+	newMTOServiceItem.PricingEstimate = services.SetNoNilOptionalCentField(
+		v.updatedServiceItem.PricingEstimate, newMTOServiceItem.PricingEstimate)
+
 	// Set POD Location
 	if v.updatedServiceItem.PODLocationID != nil {
 		newMTOServiceItem.PODLocationID = v.updatedServiceItem.PODLocationID
@@ -825,5 +836,18 @@ func (o *mtoServiceItemCreator) checkSITEntryDateAndFADD(serviceItem *models.MTO
 		}
 	}
 
+	return nil
+}
+
+func (o *mtoServiceItemCreator) checkSITEntryDateBeforeDepartureDate(serviceItem *models.MTOServiceItem) error {
+	if serviceItem.SITEntryDate == nil || serviceItem.SITDepartureDate == nil {
+		return nil
+	}
+
+	//Departure Date has to be after the Entry Date
+	if !serviceItem.SITDepartureDate.After(*serviceItem.SITEntryDate) {
+		return apperror.NewUnprocessableEntityError(fmt.Sprintf("the SIT Departure Date (%s) must be after the SIT Entry Date (%s)",
+			serviceItem.SITDepartureDate.Format("2006-01-02"), serviceItem.SITEntryDate.Format("2006-01-02")))
+	}
 	return nil
 }

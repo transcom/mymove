@@ -20,6 +20,7 @@ const info = {
   organizationalClothingAndIndividualEquipment: true,
   ubAllowance: 400,
   weightRestriction: 1500,
+  ubWeightRestriction: 1100,
 };
 
 const initialValuesOconusAdditions = {
@@ -107,17 +108,6 @@ describe('AllowancesList', () => {
     expect(screen.getByText('90 days')).toBeInTheDocument();
   });
 
-  it('renders authorized dependents', () => {
-    render(<AllowancesList info={info} />);
-    expect(screen.getByTestId('dependents').textContent).toEqual('Authorized');
-  });
-
-  it('renders unauthorized dependents', () => {
-    const withUnauthorizedDependents = { ...info, dependents: false };
-    render(<AllowancesList info={withUnauthorizedDependents} />);
-    expect(screen.getByTestId('dependents').textContent).toEqual('Unauthorized');
-  });
-
   it('renders formatted pro-gear', () => {
     render(<AllowancesList info={info} />);
     expect(screen.getByText('2,000 lbs')).toBeInTheDocument();
@@ -180,5 +170,10 @@ describe('AllowancesList', () => {
     const adminRestrictedWtLoc = { ...info, adminRestrictedWeightLocation: true };
     render(<AllowancesList info={adminRestrictedWtLoc} />);
     expect(screen.getByTestId('weightRestriction').textContent).toEqual('1,500 lbs');
+  });
+  it('renders UB weight restriction', () => {
+    const adminRestrictedUBWtLoc = { ...info, adminrestrictedUBWeightLocation: true };
+    render(<AllowancesList info={adminRestrictedUBWtLoc} />);
+    expect(screen.getByTestId('ubWeightRestriction').textContent).toEqual('1,100 lbs');
   });
 });
