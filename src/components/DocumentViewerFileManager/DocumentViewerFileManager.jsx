@@ -95,7 +95,7 @@ const DocumentViewerFileManager = ({
     } else if (useChevron && !showUpload) {
       setButtonHeaderChevron('chevron-down');
     }
-  }, [showUpload, title]);
+  }, [showUpload, title, useChevron]);
 
   const closeDeleteFileModal = () => {
     setCurrentFile(null);
