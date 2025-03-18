@@ -48,7 +48,7 @@ func (suite *RolesServiceSuite) TestFetchRolesPrivileges() {
 
 	// Check for errors or empty tables
 	suite.NoError(err, "Fetching role privileges should not return an error")
-	suite.NotEmpty(rolesPrivileges, "Expected role-privileges to be pre-populated in the database")
+	suite.NotEmpty(rolesPrivileges, "Expected role_privileges to be pre-populated in the database")
 
 	supervisorPrivilegeID := "463c2034-d197-4d9a-897e-8bbe64893a31"
 

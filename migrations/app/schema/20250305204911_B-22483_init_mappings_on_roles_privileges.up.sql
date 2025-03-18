@@ -20,17 +20,17 @@ $$
         delete from roles where id = cust_id;
 
         update roles set role_type = 'contracting_officer1' where id = co_id;
-        insert into roles values ('5496a188-69dc-4ae4-9dab-ce6c063d648f','contracting_officer',now(),now(),'Customer');
+        insert into roles values ('5496a188-69dc-4ae4-9dab-ce6c063d648f','contracting_officer',now(),now(),'Contracting Officer');
         update users_roles set role_id = '5496a188-69dc-4ae4-9dab-ce6c063d648f' where role_id = co_id;
         delete from roles where id = co_id;
 
         update roles set role_type = 'task_invoicing_officer1' where id = tio_id;
-        insert into roles values ('c19a5d5f-d320-4972-b294-1d760ee4b899','task_invoicing_officer',now(),now(),'Customer');
+        insert into roles values ('c19a5d5f-d320-4972-b294-1d760ee4b899','task_invoicing_officer',now(),now(),'Task Invoicing Officer');
         update users_roles set role_id = 'c19a5d5f-d320-4972-b294-1d760ee4b899' where role_id = tio_id;
         delete from roles where id = tio_id;
 
         update roles set role_type = 'task_ordering_officer1' where id = too_id;
-        insert into roles values ('2b21e867-78c3-4980-95a1-c8242b78baba','task_ordering_officer',now(),now(),'Customer');
+        insert into roles values ('2b21e867-78c3-4980-95a1-c8242b78baba','task_ordering_officer',now(),now(),'Task Ordering Officer');
         update users_roles set role_id = '2b21e867-78c3-4980-95a1-c8242b78baba' where role_id = too_id;
         delete from roles where id = too_id;
 END;
