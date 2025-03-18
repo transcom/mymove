@@ -56,7 +56,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/upload"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
-	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
+	weightparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -665,6 +665,12 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
 
+	parserComputer := weightparser.NewWeightTicketComputer()
+	weightGenerator, err := weightparser.NewWeightTicketParserGenerator(pdfGenerator)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	ghcAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{
 		handlerConfig,
 		weightticket.NewOfficeWeightTicketUpdater(weightTicketFetcher, ppmShipmentUpdater),
@@ -732,17 +738,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)
 	ghcAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
 
-	parserComputer := weightticketparser.NewWeightTicketComputer()
-	weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(pdfGenerator)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig, parserComputer, weightGenerator}
 	ghcAPI.UploadsUpdateUploadHandler = UpdateUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	ghcAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
-	ghcAPI.UploadsGetUploadStatusHandler = GetUploadStatusHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	ghcAPI.UploadsCreatePPMUploadHandler = CreatePPMUploadHandler{handlerConfig, weightGenerator, parserComputer, userUploader}
+	ghcAPI.UploadsGetUploadStatusHandler = GetUploadStatusHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	ghcAPI.TextEventStreamProducer = runtime.ByteStreamProducer() // GetUploadStatus produces Event Stream
 
 	ghcAPI.CustomerSearchCustomersHandler = SearchCustomersHandler{
