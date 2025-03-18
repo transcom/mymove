@@ -4,7 +4,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import DocumentViewerFileManager from './DocumentViewerFileManager';
 
-import { deleteUploadForDocument, createUploadForDocument, createUploadForAmdendedOrders, createUploadForPPMDocument } from 'services/ghcApi';
+import {
+  deleteUploadForDocument,
+  createUploadForDocument,
+  createUploadForAmdendedOrders,
+  createUploadForPPMDocument,
+} from 'services/ghcApi';
 
 jest.mock('services/ghcApi', () => ({
   createUploadForDocument: jest.fn(),
@@ -87,7 +92,7 @@ describe('DocumentViewerFileManager', () => {
   };
 
   const ppmProps = {
-    title:'Customer Title',
+    title: 'Customer Title',
     useChevron: true,
     className: 'test-class',
     move: { id: 'move-id', locator: 'move-locator' },
