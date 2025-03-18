@@ -293,29 +293,30 @@ func (w moveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move 
 	totalEstimatedWeight := 0
 	reweighActiveForMove := false // Reweighs should be active for all shipments in a move
 	for i := range move.MTOShipments {
-		if move.MTOShipments[i].Reweigh != nil && move.MTOShipments[i].Reweigh.ID != uuid.Nil { // Should only trigger reweights once, skip if one already exists
-			reweighActiveForMove = true // Also set var so we know to apply reweigh to any shipments in move that don't yet have one
-			break
-		}
-		if move.MTOShipments[i].ShipmentType != models.MTOShipmentTypePPM &&
-			availableShipmentStatus(move.MTOShipments[i].Status) &&
-			move.MTOShipments[i].DeletedAt == nil &&
-			updatedShipment.ID != move.MTOShipments[i].ID {
-			if move.MTOShipments[i].PrimeActualWeight != nil {
-				totalActualWeight += lowerShipmentActualWeight(move.MTOShipments[i])
+		if move.MTOShipments[i].ShipmentType != models.MTOShipmentTypePPM { // Don't include PPMs for reweighs
+			if move.MTOShipments[i].Reweigh != nil && move.MTOShipments[i].Reweigh.ID != uuid.Nil { // Should only trigger reweights once, skip if one already exists
+				reweighActiveForMove = true // Also set var so we know to apply reweigh to any shipments in move that don't yet have one
+				break
 			}
-			if move.MTOShipments[i].PrimeEstimatedWeight != nil {
-				totalEstimatedWeight += lowerShipmentEstimatedWeight(move.MTOShipments[i])
+			if availableShipmentStatus(move.MTOShipments[i].Status) &&
+				move.MTOShipments[i].DeletedAt == nil &&
+				updatedShipment.ID != move.MTOShipments[i].ID {
+				if move.MTOShipments[i].PrimeActualWeight != nil {
+					totalActualWeight += lowerShipmentActualWeight(move.MTOShipments[i])
+				}
+				if move.MTOShipments[i].PrimeEstimatedWeight != nil {
+					totalEstimatedWeight += lowerShipmentEstimatedWeight(move.MTOShipments[i])
+				}
+				results = append(results, move.MTOShipments[i])
+			} else if move.MTOShipments[i].ID == updatedShipment.ID {
+				if updatedShipment.PrimeActualWeight != nil {
+					totalActualWeight += lowerShipmentActualWeight(*updatedShipment)
+				}
+				if updatedShipment.PrimeEstimatedWeight != nil {
+					totalEstimatedWeight += lowerShipmentEstimatedWeight(*updatedShipment)
+				}
+				results = append(results, *updatedShipment)
 			}
-			results = append(results, move.MTOShipments[i])
-		} else if move.MTOShipments[i].ID == updatedShipment.ID {
-			if updatedShipment.PrimeActualWeight != nil {
-				totalActualWeight += lowerShipmentActualWeight(*updatedShipment)
-			}
-			if updatedShipment.PrimeEstimatedWeight != nil {
-				totalEstimatedWeight += lowerShipmentEstimatedWeight(*updatedShipment)
-			}
-			results = append(results, *updatedShipment)
 		}
 	}
 
@@ -323,7 +324,9 @@ func (w moveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move 
 	if reweighActiveForMove {
 		results = models.MTOShipments{}
 		for i := range move.MTOShipments {
-			if move.MTOShipments[i].Reweigh == nil && availableShipmentStatus(move.MTOShipments[i].Status) {
+			if move.MTOShipments[i].Reweigh == nil &&
+				availableShipmentStatus(move.MTOShipments[i].Status) &&
+				move.MTOShipments[i].ShipmentType != models.MTOShipmentTypePPM {
 				results = append(results, move.MTOShipments[i])
 			}
 		}
