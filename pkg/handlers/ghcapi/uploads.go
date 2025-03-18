@@ -39,8 +39,6 @@ const weightEstimatePages = 11
 
 type CreateUploadHandler struct {
 	handlers.HandlerConfig
-	services.WeightTicketComputer
-	services.WeightTicketGenerator
 }
 
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
