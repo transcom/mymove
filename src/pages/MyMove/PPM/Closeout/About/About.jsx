@@ -18,7 +18,7 @@ import { updateMTOShipment } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isWeightTicketComplete } from 'utils/shipments';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
-import { APP_NAME } from 'constants/appConstants';
+import { APP_NAME } from 'constants/apps';
 
 const About = () => {
   const [errorMessage, setErrorMessage] = useState(null);

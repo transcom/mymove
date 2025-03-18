@@ -15,7 +15,7 @@ import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateMTOShipment } from 'services/ghcApi';
 import { MTO_SHIPMENT } from 'constants/queryKeys';
-import { APP_NAME } from 'constants/appConstants';
+import { APP_NAME } from 'constants/apps';
 
 const About = () => {
   const [errorMessage, setErrorMessage] = useState(null);

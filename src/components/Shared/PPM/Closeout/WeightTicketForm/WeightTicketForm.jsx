@@ -25,7 +25,7 @@ import { formatWeight } from 'utils/formatters';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZoneLabelMobile } from 'content/uploads';
 import { uploadShape } from 'types/uploads';
-import { APP_NAME } from 'constants/appConstants';
+import { APP_NAME } from 'constants/apps';
 
 const validationSchema = Yup.object().shape({
   vehicleDescription: Yup.string().required('Required'),

@@ -27,7 +27,7 @@ import WeightTicketForm from 'components/Shared/PPM/Closeout/WeightTicketForm/We
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
-import { APP_NAME } from 'constants/appConstants';
+import { APP_NAME } from 'constants/apps';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);

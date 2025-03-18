@@ -20,7 +20,7 @@ import { formatCentsTruncateWhole } from 'utils/formatters';
 import { requiredW2AddressSchema, requiredAddressSchema } from 'utils/validation';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validationSchemas';
-import { APP_NAME } from 'constants/appConstants';
+import { APP_NAME } from 'constants/apps';
 
 const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
   const isCustomerPage = appName === APP_NAME.MYMOVE;
