@@ -2,12 +2,16 @@ package ghcapi
 
 import (
 	"net/http"
+	"net/url"
+	"strconv"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	"golang.org/x/text/encoding/charmap"
 
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/uploads"
 	uploadop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,6 +24,15 @@ import (
 )
 
 const FixturePDF = "test.pdf"
+const FixturePNG = "test.png"
+const FixtureJPG = "test.jpg"
+const FixtureTXT = "test.txt"
+const FixtureXLS = "Weight Estimator.xls"
+const FixtureXLSX = "Weight Estimator.xlsx"
+const WeightEstimatorFullXLSX = "Weight Estimator Full.xlsx"
+const WeightEstimatorPrefix = "Weight Estimator Full"
+const FixtureEmpty = "empty.pdf"
+const FixtureScreenshot = "Screenshot 2024-10-10 at 10.46.48 AM.png"
 
 func createPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, uploadop.CreateUploadParams) {
 	document := factory.BuildDocument(suite.DB(), nil, nil)
@@ -29,6 +42,61 @@ func createPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, up
 	params.File = suite.Fixture(fixtureFile)
 
 	return document, params
+}
+
+func createPPMPrereqs(suite *HandlerSuite, fixtureFile string, weightReceipt bool) (models.Document, uploadop.CreatePPMUploadParams) {
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+	weightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+		{
+			Model:    ppmShipment,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	params := uploadop.NewCreatePPMUploadParams()
+	params.DocumentID = strfmt.UUID(weightTicket.EmptyDocumentID.String())
+	params.PpmShipmentID = strfmt.UUID(ppmShipment.ID.String())
+	params.File = suite.Fixture(fixtureFile)
+	params.WeightReceipt = weightReceipt
+
+	return weightTicket.EmptyDocument, params
+}
+
+func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, uploadop.CreatePPMUploadParams) {
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+	proGear := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+		{
+			Model:    ppmShipment,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	params := uploadop.NewCreatePPMUploadParams()
+	params.DocumentID = strfmt.UUID(proGear.DocumentID.String())
+	params.PpmShipmentID = strfmt.UUID(ppmShipment.ID.String())
+	params.File = suite.Fixture(fixtureFile)
+
+	return proGear.Document, params
+}
+
+func createPPMExpensePrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, uploadop.CreatePPMUploadParams) {
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+	movingExpense := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+		{
+			Model:    ppmShipment,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	params := uploadop.NewCreatePPMUploadParams()
+	params.DocumentID = strfmt.UUID(movingExpense.DocumentID.String())
+	params.PpmShipmentID = strfmt.UUID(ppmShipment.ID.String())
+	params.File = suite.Fixture(fixtureFile)
+
+	return movingExpense.Document, params
 }
 
 func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, serviceMember models.ServiceMember, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
@@ -50,6 +118,30 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 	suite.FatalNoError(err)
 
 	handler := CreateUploadHandler{handlerConfig, parserComputer, weightGenerator}
+	response := handler.Handle(params)
+
+	return response
+}
+
+func makePPMRequest(suite *HandlerSuite, params uploadop.CreatePPMUploadParams, serviceMember models.ServiceMember, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
+	req := &http.Request{}
+	req = suite.AuthenticateRequest(req, serviceMember)
+
+	params.HTTPRequest = req
+
+	handlerConfig := suite.HandlerConfig()
+	handlerConfig.SetFileStorer(fakeS3)
+	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
+	suite.FatalNoError(err)
+
+	pdfGenerator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
+	suite.FatalNoError(err)
+
+	parserComputer := weightticketparser.NewWeightTicketComputer()
+	weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(pdfGenerator)
+	suite.FatalNoError(err)
+
+	handler := CreatePPMUploadHandler{handlerConfig, weightGenerator, parserComputer, userUploader}
 	response := handler.Handle(params)
 
 	return response
@@ -294,5 +386,224 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerFailure() {
 		queriedUpload := models.Upload{}
 		err = suite.DB().Find(&queriedUpload, uploadUser1.Upload.ID)
 		suite.NoError(err)
+	})
+}
+
+func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
+	suite.Run("uploads .xls file", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMPrereqs(suite, FixtureXLS, false)
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+
+		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+
+		upload := models.Upload{}
+		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
+
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
+		suite.NoError(err)
+		suite.Equal("V/Q6K9rVdEPVzgKbh5cn2x4Oci4XDaG4fcG04R41Iz4=", upload.Checksum)
+
+		suite.NotEmpty(createdResponse.Payload.ID)
+		suite.Equal(FixtureXLS, createdResponse.Payload.Filename)
+		suite.Equal(uploader.FileTypeExcel, createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeExcel))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
+	})
+
+	suite.Run("uploads .xlsx file", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMPrereqs(suite, FixtureXLSX, false)
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+
+		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+
+		upload := models.Upload{}
+		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
+
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
+		suite.NoError(err)
+		suite.Equal("eRZ1Cr3Ms0692k03ftoEdqXpvd/CHcbxmhEGEQBYVdY=", upload.Checksum)
+
+		suite.NotEmpty(createdResponse.Payload.ID)
+		suite.Equal(FixtureXLSX, createdResponse.Payload.Filename)
+		suite.Equal(uploader.FileTypeExcelXLSX, createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeExcelXLSX))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
+	})
+
+	suite.Run("uploads weight estimator .xlsx file (full weight)", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMPrereqs(suite, WeightEstimatorFullXLSX, true)
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+
+		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+
+		upload := models.Upload{}
+		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
+
+		suite.NoError(err)
+
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
+		// uploaded xlsx document should now be converted to a pdf so we check for pdf instead of xlsx
+		suite.NotEmpty(createdResponse.Payload.ID)
+		suite.Contains(createdResponse.Payload.Filename, WeightEstimatorPrefix)
+		suite.Equal(uploader.FileTypePDF, createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypePDF))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
+	})
+
+	suite.Run("uploads file for a progear document", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMProgearPrereqs(suite, FixturePNG)
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+
+		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+
+		upload := models.Upload{}
+		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
+
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
+		suite.NoError(err)
+		suite.Equal("/io1MRhLi2BFk9eF+lH1Ax+hyH+bPhlEK7A9/bqWlPY=", upload.Checksum)
+
+		suite.NotEmpty(createdResponse.Payload.ID)
+		suite.Equal(FixturePNG, createdResponse.Payload.Filename)
+		suite.Equal(uploader.FileTypePNG, createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypePNG))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
+	})
+
+	suite.Run("uploads file for an expense document", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMExpensePrereqs(suite, FixtureJPG)
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+
+		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+
+		upload := models.Upload{}
+		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
+
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
+		suite.NoError(err)
+		suite.Equal("ibKT78j4CJecDXC6CbGISkqWFG5eSjCjlZJHlaFRho4=", upload.Checksum)
+
+		suite.NotEmpty(createdResponse.Payload.ID)
+		suite.Equal(FixtureJPG, createdResponse.Payload.Filename)
+		suite.Equal(uploader.FileTypeJPEG, createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeJPEG))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
+	})
+
+	suite.Run("uploads file with filename characters not supported by ISO8859_1", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMExpensePrereqs(suite, FixtureScreenshot)
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+
+		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+
+		upload := models.Upload{}
+		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
+
+		// Double quote the filename to be able to handle filenames with commas in them
+		quotedFilename := strconv.Quote(upload.Filename)
+
+		filenameBuffer := make([]byte, 0)
+		for _, r := range quotedFilename {
+			if encodedRune, ok := charmap.ISO8859_1.EncodeRune(r); ok {
+				filenameBuffer = append(filenameBuffer, encodedRune)
+			}
+		}
+
+		suite.NoError(err)
+		suite.Equal("/io1MRhLi2BFk9eF+lH1Ax+hyH+bPhlEK7A9/bqWlPY=", upload.Checksum)
+
+		suite.NotEmpty(createdResponse.Payload.ID)
+		suite.Equal(FixtureScreenshot, createdResponse.Payload.Filename)
+		suite.Equal(uploader.FileTypePNG, createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypePNG))
+		suite.NotContains(createdResponse.Payload.URL, url.QueryEscape(upload.Filename))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+string(filenameBuffer)))
+	})
+}
+
+func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
+	suite.Run("documentId does not exist", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMPrereqs(suite, FixtureXLS, false)
+
+		params.DocumentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&uploadop.GetUploadStatusNotFound{}, response)
+		notFoundResponse, _ := response.(*uploadop.GetUploadStatusNotFound)
+
+		suite.Equal(uploads.GetUploadStatusNotFound{}, *notFoundResponse)
+	})
+
+	suite.Run("ppmShipmentId does not exist", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMPrereqs(suite, FixtureXLS, false)
+
+		params.PpmShipmentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&uploadop.GetUploadStatusNotFound{}, response)
+		notFoundResponse, _ := response.(*uploadop.GetUploadStatusNotFound)
+
+		suite.Equal(uploads.GetUploadStatusNotFound{}, *notFoundResponse)
+	})
+
+	suite.Run("empty file upload", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMPrereqs(suite, FixtureEmpty, false)
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.CheckResponseBadRequest(response)
+
+		badResponseErr := response.(*handlers.ErrResponse)
+		suite.Equal("File has length of 0", badResponseErr.Err.Error())
 	})
 }

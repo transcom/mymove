@@ -35,7 +35,6 @@ const DocumentViewerFileManager = ({
   onAddFile,
   title,
   mtoShipment,
-  onShowButtonPress,
   useChevron,
 }) => {
   const queryClient = useQueryClient();
@@ -85,12 +84,16 @@ const DocumentViewerFileManager = ({
   }, [documentType, fileUploadRequired]);
 
   useEffect(() => {
-    if (showUpload) {
-      setButtonHeaderChevron('chevron-up');
+    if (title && showUpload) {
       setButtonHeaderText(`Hide ${title}`);
-    } else {
-      setButtonHeaderChevron('chevron-down');
+    } else if (title && !showUpload) {
       setButtonHeaderText(`Show ${title}`);
+    }
+
+    if (useChevron && showUpload) {
+      setButtonHeaderChevron('chevron-up');
+    } else if (useChevron && !showUpload) {
+      setButtonHeaderChevron('chevron-down');
     }
   }, [showUpload, title]);
 
@@ -103,9 +106,6 @@ const DocumentViewerFileManager = ({
     e.preventDefault();
     setShowUpload((show) => !show);
     setServerError('');
-    if (onShowButtonPress) {
-      onShowButtonPress();
-    }
   };
 
   const openDeleteFileModal = (uploadId) => {
@@ -327,14 +327,12 @@ DocumentViewerFileManager.propTypes = {
   documentType: PropTypes.string.isRequired,
   title: PropTypes.string,
   mtoShipment: ShipmentShape,
-  onShowButtonPress: PropTypes.func,
   useChevron: PropTypes.bool,
 };
 
 DocumentViewerFileManager.defaultProps = {
   title: null,
   mtoShipment: null,
-  onShowButtonPress: null,
   useChevron: false,
 };
 

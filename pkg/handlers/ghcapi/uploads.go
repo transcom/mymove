@@ -579,7 +579,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					}
 					switch createErr.(type) {
 					case uploaderpkg.ErrUnsupportedContentType:
-						return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+						return uploadop.NewCreatePPMUploadUnprocessableEntity(), rollbackErr
 					case uploaderpkg.ErrTooLarge:
 						return ppmop.NewCreatePPMUploadRequestEntityTooLarge(), createErr
 					case uploaderpkg.ErrFile:
@@ -620,7 +620,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 					switch createErr.(type) {
 					case uploaderpkg.ErrUnsupportedContentType:
-						return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+						return uploadop.NewCreatePPMUploadUnprocessableEntity(), rollbackErr
 					case uploaderpkg.ErrTooLarge:
 						return ppmop.NewCreatePPMUploadRequestEntityTooLarge(), createErr
 					case uploaderpkg.ErrFile:
