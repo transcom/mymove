@@ -175,6 +175,7 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 					"DestinationAddress",
 					"SecondaryPickupAddress",
 					"SecondaryDestinationAddress",
+					"W2Address",
 				}
 
 				ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
@@ -188,6 +189,7 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				mtoShipment.PPMShipment.DestinationAddress = ppmShipment.DestinationAddress
 				mtoShipment.PPMShipment.SecondaryPickupAddress = ppmShipment.SecondaryPickupAddress
 				mtoShipment.PPMShipment.SecondaryDestinationAddress = ppmShipment.SecondaryDestinationAddress
+				mtoShipment.PPMShipment.W2Address = ppmShipment.W2Address
 			}
 
 			var agents []models.MTOAgent
@@ -206,6 +208,7 @@ type CreateMTOShipmentHandler struct {
 	handlers.HandlerConfig
 	shipmentCreator services.ShipmentCreator
 	shipmentStatus  services.ShipmentSITStatus
+	services.MoveCloseoutOfficeUpdater
 }
 
 // Handle creates the mto shipment
@@ -263,6 +266,24 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 			if err != nil {
 				return handleError(err)
+			}
+
+			if payload.PpmShipment != nil && payload.PpmShipment.CloseoutOfficeID != "" {
+				move, err := models.FetchMoveByMoveID(appCtx.DB(), mtoShipment.MoveTaskOrderID)
+				if err != nil {
+					moveFetchError := apperror.NewInternalServerError("Unable to fetch the move associated with this shipment")
+					appCtx.Logger().Error(moveFetchError.Error())
+					return mtoshipmentops.NewCreateMTOShipmentInternalServerError(), moveFetchError
+				}
+
+				moveEtag := etag.GenerateEtag(move.UpdatedAt)
+				closeoutOfficeID := uuid.FromStringOrNil(payload.PpmShipment.CloseoutOfficeID.String())
+				_, err = h.MoveCloseoutOfficeUpdater.UpdateCloseoutOffice(appCtx, move.Locator, closeoutOfficeID, moveEtag)
+				if err != nil {
+					updateCloseoutOfficeError := apperror.NewInternalServerError("Unable to update the move with a closeout office")
+					appCtx.Logger().Error(updateCloseoutOfficeError.Error())
+					return mtoshipmentops.NewCreateMTOShipmentInternalServerError(), updateCloseoutOfficeError
+				}
 			}
 
 			if mtoShipment == nil {

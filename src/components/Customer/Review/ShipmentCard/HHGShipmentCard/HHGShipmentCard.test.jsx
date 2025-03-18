@@ -23,6 +23,8 @@ const defaultProps = {
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
     streetAddress1: '17 8th St',
+    streetAddress2: '',
+    streetAddress3: '',
     city: 'New York',
     state: 'NY',
     postalCode: '11111',
@@ -80,6 +82,8 @@ const completeProps = {
 const secondaryDeliveryAddress = {
   secondaryDeliveryAddress: {
     streetAddress1: 'Some Street Name',
+    streetAddress2: '',
+    streetAddress3: '',
     city: 'New York',
     state: 'NY',
     postalCode: '111111',
@@ -89,6 +93,8 @@ const secondaryDeliveryAddress = {
 const secondaryPickupAddress = {
   secondaryPickupAddress: {
     streetAddress1: 'Some Other Street Name',
+    streetAddress2: '',
+    streetAddress3: '',
     city: 'New York',
     state: 'NY',
     postalCode: '111111',
@@ -126,7 +132,7 @@ describe('HHGShipmentCard component', () => {
     } = defaultProps.receivingAgent;
     const tableData = [
       formatCustomerDate(defaultProps.requestedPickupDate),
-      `${streetAddress1} ${city}, ${state} ${postalCode}`,
+      `${streetAddress1}  ${city}, ${state} ${postalCode}`,
       `${releasingFirstName} ${releasingLastName} ${releasingTelephone} ${releasingEmail}`,
       formatCustomerDate(defaultProps.requestedDeliveryDate),
       defaultProps.destinationZIP,
@@ -141,10 +147,10 @@ describe('HHGShipmentCard component', () => {
   it('should render without releasing/receiving agents and remarks', () => {
     const wrapper = mountHHGShipmentCard({ ...defaultProps, releasingAgent: null, receivingAgent: null, remarks: '' });
     const tableHeaders = ['Requested pickup date', 'Pickup Address', 'Requested delivery date', 'Delivery Address'];
-    const { streetAddress1, city, state, postalCode } = defaultProps.pickupLocation;
+    const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = defaultProps.pickupLocation;
     const tableData = [
       formatCustomerDate(defaultProps.requestedPickupDate),
-      `${streetAddress1} ${city}, ${state} ${postalCode}`,
+      `${streetAddress1} ${streetAddress2} ${streetAddress3}${city}, ${state} ${postalCode}`,
       formatCustomerDate(defaultProps.requestedDeliveryDate),
       defaultProps.destinationZIP,
     ];
@@ -238,6 +244,8 @@ const ubProps = {
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
     streetAddress1: '17 8th St',
+    streetAddress2: '',
+    streetAddress3: '',
     city: 'New York',
     state: 'NY',
     postalCode: '11111',
@@ -305,7 +313,7 @@ describe('HHGShipmentCard component can be reused for UB shipment card', () => {
       'Receiving agent',
       'Remarks',
     ];
-    const { streetAddress1, city, state, postalCode } = ubProps.pickupLocation;
+    const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = ubProps.pickupLocation;
     const {
       firstName: releasingFirstName,
       lastName: releasingLastName,
@@ -320,7 +328,7 @@ describe('HHGShipmentCard component can be reused for UB shipment card', () => {
     } = ubProps.receivingAgent;
     const tableData = [
       formatCustomerDate(ubProps.requestedPickupDate),
-      `${streetAddress1} ${city}, ${state} ${postalCode}`,
+      `${streetAddress1} ${streetAddress2} ${streetAddress3}${city}, ${state} ${postalCode}`,
       `${releasingFirstName} ${releasingLastName} ${releasingTelephone} ${releasingEmail}`,
       formatCustomerDate(ubProps.requestedDeliveryDate),
       ubProps.destinationZIP,
@@ -343,7 +351,7 @@ describe('HHGShipmentCard component can be reused for UB shipment card', () => {
     const { streetAddress1, city, state, postalCode } = ubProps.pickupLocation;
     const tableData = [
       formatCustomerDate(ubProps.requestedPickupDate),
-      `${streetAddress1} ${city}, ${state} ${postalCode}`,
+      `${streetAddress1}  ${city}, ${state} ${postalCode}`,
       formatCustomerDate(ubProps.requestedDeliveryDate),
       ubProps.destinationZIP,
     ];

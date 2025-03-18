@@ -36,6 +36,7 @@ import {
   FEATURE_FLAG_KEYS,
   technicalHelpDeskURL,
 } from 'shared/constants';
+import { isPPMAboutInfoComplete } from 'utils/shipments';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -205,7 +206,7 @@ const ServicesCounselingMoveDetails = ({
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
-    const submittedShipmentsNonPPM = submittedShipments.filter(
+    const submittedShipmentsNonPPMNeedsCloseout = submittedShipments.filter(
       (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     const ppmNeedsApprovalShipments = submittedShipments.filter(
@@ -290,21 +291,44 @@ const ServicesCounselingMoveDetails = ({
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
 
-    shipmentsInfo = submittedShipmentsNonPPM.map((shipment) => {
+    shipmentsInfo = submittedShipmentsNonPPMNeedsCloseout.map((shipment) => {
       const editURL =
         counselorCanEdit || counselorCanEditNonPPM
           ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               shipmentId: shipment.id,
             })}`
           : '';
-      const viewURL = // Read only view of approved documents
-        shipment?.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
-        (shipment?.ppmShipment?.weightTickets && shipment?.ppmShipment?.weightTickets[0]?.status)
-          ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_VIEW_DOCUMENT_PATH, {
+      let viewURL = '';
+      let completePpmForCustomerURL = '';
+
+      if (shipment?.shipmentType === 'PPM') {
+        // Read only view of approved documents
+        if (
+          shipment?.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
+          (shipment?.ppmShipment?.weightTickets && shipment?.ppmShipment?.weightTickets[0]?.status)
+        ) {
+          viewURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_VIEW_DOCUMENT_PATH, {
+            moveCode,
+            shipmentId: shipment.id,
+          })}`;
+        }
+        // Complete PPM for Customer URL
+        if (shipment?.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) {
+          const aboutInfoComplete = isPPMAboutInfoComplete(shipment.ppmShipment);
+          if (!aboutInfoComplete) {
+            completePpmForCustomerURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_PPM_ABOUT_PATH, {
               moveCode,
               shipmentId: shipment.id,
-            })}`
-          : '';
+            })}`;
+          } else {
+            completePpmForCustomerURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+              moveCode,
+              shipmentId: shipment.id,
+            })}`;
+          }
+        }
+      }
+
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destinationAddress: shipment.destinationAddress || {
@@ -359,6 +383,7 @@ const ServicesCounselingMoveDetails = ({
         displayInfo,
         editURL,
         viewURL,
+        completePpmForCustomerURL,
         shipmentType: shipment.shipmentType,
       };
     });
@@ -830,6 +855,7 @@ const ServicesCounselingMoveDetails = ({
                     displayInfo={shipment.displayInfo}
                     editURL={shipment.editURL}
                     viewURL={shipment.viewURL}
+                    completePpmForCustomerURL={shipment.completePpmForCustomerURL}
                     isSubmitted={false}
                     key={shipment.id}
                     shipmentId={shipment.id}
