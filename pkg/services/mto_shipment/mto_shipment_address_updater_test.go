@@ -71,7 +71,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 	suite.Run("Test updating service item destination address on shipment address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		address := factory.BuildAddress(suite.DB(), nil, nil)
+		deliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		pickUpAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Some Street",
+					City:           "Some City",
+					State:          "SC",
+					PostalCode:     "29229",
+					IsOconus:       models.BoolPointer(false),
+				},
+			},
+		}, nil)
 
 		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -86,14 +97,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				},
 			},
 			{
-				Model:    address,
+				Model:    deliveryAddress,
 				Type:     &factory.Addresses.DeliveryAddress,
 				LinkOnly: true,
 			},
 			{
-				Model:    address,
-				LinkOnly: true,
+				Model:    pickUpAddress,
 				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
 			},
 		}, nil)
 
@@ -103,9 +114,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		sitServiceItems = append(sitServiceItems, factory.BuildDestSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &twoMonthsAgo, nil)...)
 		suite.Equal(8, len(sitServiceItems))
 
-		eTag := etag.GenerateEtag(address.UpdatedAt)
+		eTag := etag.GenerateEtag(deliveryAddress.UpdatedAt)
 
-		updatedAddress := address
+		updatedAddress := deliveryAddress
 		updatedAddress.StreetAddress1 = "123 Somewhere Ln"
 
 		//  With mustBeAvailableToPrime = true, we should receive an error
@@ -128,7 +139,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 	suite.Run("Test updating origin SITDeliveryMiles on shipment pickup address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		address := factory.BuildAddress(suite.DB(), nil, nil)
+		deliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		pickUpAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Some Street",
+					City:           "Some City",
+					State:          "SC",
+					PostalCode:     "29229",
+					IsOconus:       models.BoolPointer(false),
+				},
+			},
+		}, nil)
 
 		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -143,12 +165,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				},
 			},
 			{
-				Model:    address,
+				Model:    deliveryAddress,
 				Type:     &factory.Addresses.DeliveryAddress,
 				LinkOnly: true,
 			},
 			{
-				Model:    address,
+				Model:    pickUpAddress,
 				Type:     &factory.Addresses.PickupAddress,
 				LinkOnly: true,
 			},
@@ -160,11 +182,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		sitServiceItems = append(sitServiceItems, factory.BuildDestSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &twoMonthsAgo, nil)...)
 		suite.Equal(8, len(sitServiceItems))
 
-		eTag := etag.GenerateEtag(address.UpdatedAt)
+		eTag := etag.GenerateEtag(deliveryAddress.UpdatedAt)
 
-		oldAddress := address
+		oldAddress := deliveryAddress
 		oldAddress.PostalCode = "75116"
-		newAddress := address
+		newAddress := deliveryAddress
 		newAddress.PostalCode = "67492"
 
 		//  With mustBeAvailableToPrime = true, we should receive an error
