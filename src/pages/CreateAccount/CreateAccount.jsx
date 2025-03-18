@@ -8,7 +8,7 @@ import * as Yup from 'yup';
 
 import ValidCACModal from '../../components/ValidCACModal/ValidCACModal';
 
-import styles from './SignUp.module.scss';
+import styles from './CreateAccount.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -27,7 +27,7 @@ import { registerUser } from 'services/internalApi';
 import Hint from 'components/Hint';
 import { technicalHelpDeskURL } from 'shared/constants';
 
-export const SignUp = ({ setShowLoadingSpinner }) => {
+export const CreateAccount = ({ setShowLoadingSpinner }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
   const [showEmplid, setShowEmplid] = useState(false);
@@ -257,6 +257,7 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                           id="affiliation"
                           data-testid="affiliationInput"
                           required
+                          showRequiredAsterisk
                           onChange={(e) => {
                             handleChange(e);
                             handleBranchChange(e);
@@ -270,6 +271,7 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                           maxLength="10"
                           data-testid="edipiInput"
                           required
+                          showRequiredAsterisk
                         />
                         <TextField
                           label="Confirm DoD ID number"
@@ -278,6 +280,8 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                           maxLength="10"
                           data-testid="edipiConfirmationInput"
                           disablePaste
+                          required
+                          showRequiredAsterisk
                         />
                         {showEmplid && (
                           <>
@@ -289,6 +293,8 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                               inputMode="numeric"
                               pattern="[0-9]{7}"
                               data-testid="emplidInput"
+                              required
+                              showRequiredAsterisk
                             />
                             <TextField
                               label="Confirm EMPLID"
@@ -299,26 +305,51 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                               pattern="[0-9]{7}"
                               data-testid="emplidConfirmationInput"
                               disablePaste
+                              required
+                              showRequiredAsterisk
                             />
                           </>
                         )}
                         <StyledLine />
-                        <TextField label="First Name" name="firstName" id="firstName" data-testid="firstName" />
+                        <TextField
+                          label="First Name"
+                          name="firstName"
+                          id="firstName"
+                          data-testid="firstName"
+                          required
+                          showRequiredAsterisk
+                        />
                         <TextField
                           label="Middle Initial"
                           name="middleInitial"
                           id="middleInitial"
                           data-testid="middleInitial"
                         />
-                        <TextField label="Last Name" name="lastName" id="lastName" data-testid="lastName" />
+                        <TextField
+                          label="Last Name"
+                          name="lastName"
+                          id="lastName"
+                          data-testid="lastName"
+                          required
+                          showRequiredAsterisk
+                        />
                         <StyledLine />
-                        <TextField label="Email" name="email" id="email" data-testid="email" />
+                        <TextField
+                          label="Email"
+                          name="email"
+                          id="email"
+                          data-testid="email"
+                          required
+                          showRequiredAsterisk
+                        />
                         <TextField
                           label="Confirm Email"
                           name="emailConfirmation"
                           id="emailConfirmation"
                           disablePaste
                           data-testid="emailConfirmation"
+                          required
+                          showRequiredAsterisk
                         />
                         <StyledLine />
                         <MaskedTextField
@@ -329,6 +360,8 @@ export const SignUp = ({ setShowLoadingSpinner }) => {
                           minimum="12"
                           mask="000{-}000{-}0000"
                           data-testid="telephone"
+                          required
+                          showRequiredAsterisk
                         />
                         <MaskedTextField
                           label="Secondary Telephone"
@@ -380,4 +413,4 @@ const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(SignUp);
+export default connect(() => ({}), mapDispatchToProps)(CreateAccount);

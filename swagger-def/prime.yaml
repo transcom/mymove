@@ -1382,6 +1382,37 @@ paths:
             }
           ]
         ```
+
+        **IUBPK - International UB Pack**
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        **IUBUPK - International UB Unpack**
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        **UBP - International UB**
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
         ---
 
         International Basic Service Items & Accepted Payment Request Parameters:
@@ -1850,6 +1881,11 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
         readOnly: true
       ppmType:
         type: string
