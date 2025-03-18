@@ -4,17 +4,17 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
+// import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
 import styles from './Expenses.module.scss';
 
-import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
+import ppmPageStyles from 'pages/Office/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
-import { customerRoutes } from 'constants/routes';
+import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   createUploadForPPMDocument,
@@ -28,7 +28,7 @@ import { convertDollarsToCents } from 'shared/utils';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [multiMove, setMultiMove] = useState(false);
+  // const [multiMove, setMultiMove] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -40,9 +40,9 @@ const Expenses = () => {
   );
 
   useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
+    // isBooleanFlagEnabled('multi_move').then((enabled) => {
+    //   setMultiMove(enabled);
+    // });
     if (!expenseId) {
       createMovingExpense(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
@@ -51,7 +51,7 @@ const Expenses = () => {
           } else {
             mtoShipment.ppmShipment.movingExpenses = [resp];
           }
-          const path = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
+          const path = generatePath(servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
             moveId,
             mtoShipmentId,
             expenseId: resp.id,
@@ -119,12 +119,15 @@ const Expenses = () => {
       });
   };
 
+  // const handleBack = () => {
+  //   if (multiMove) {
+  //     navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+  //   } else {
+  //     navigate(customerRoutes.MOVE_HOME_PAGE);
+  //   }
+  // };
   const handleBack = () => {
-    if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-    } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
-    }
+    navigate(-1);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -146,7 +149,7 @@ const Expenses = () => {
       .then((resp) => {
         setSubmitting(false);
         mtoShipment.ppmShipment.movingExpenses[currentIndex] = resp;
-        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+        navigate(generatePath(servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH, { mtoShipmentId }));
         dispatch(updateMTOShipment(mtoShipment));
       })
       .catch(() => {
@@ -178,7 +181,7 @@ const Expenses = () => {
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
-            <h1>ExpensesGHI</h1>
+            <h1>ExpensesJKL</h1>
             {renderError()}
             <div className={styles.introSection}>
               <p>

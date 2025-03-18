@@ -1,0 +1,7 @@
+@import 'shared/styles/_basics';
+
+.Expenses {
+  .introSection {
+    @include u-margin-bottom(5);
+  }
+}

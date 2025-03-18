@@ -35,6 +35,7 @@ const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/ReviewDocuments'));
 const About = lazy(() => import('pages/Office/PPM/Closeout/About/About'));
 const PPMReview = lazy(() => import('pages/Office/PPM/Closeout/Review/Review'));
+const PPMExpenses = lazy(() => import('pages/Office/PPM/Closeout/Expenses/Expenses'));
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
   import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
 );
@@ -163,6 +164,20 @@ const ServicesCounselingMoveInfo = () => {
         end: true,
       },
       pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_EDIT_PATH,
+        end: true,
+      },
+      pathname,
     );
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) {
@@ -231,6 +246,7 @@ const ServicesCounselingMoveInfo = () => {
           />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_ABOUT_PATH} end element={<About />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH} end element={<PPMReview />} />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_PATH} end element={<PPMExpenses />} />
           <Route
             path={servicesCounselingRoutes.MOVE_VIEW_PATH}
             end

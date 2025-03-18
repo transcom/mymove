@@ -132,6 +132,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
+		PpmCreateMovingExpenseHandler: ppm.CreateMovingExpenseHandlerFunc(func(params ppm.CreateMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateMovingExpense has not yet been implemented")
+		}),
 		OrderCreateOrderHandler: order.CreateOrderHandlerFunc(func(params order.CreateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
 		}),
@@ -501,6 +504,8 @@ type MymoveAPI struct {
 	EvaluationReportsCreateEvaluationReportHandler evaluation_reports.CreateEvaluationReportHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
+	// PpmCreateMovingExpenseHandler sets the operation handler for the create moving expense operation
+	PpmCreateMovingExpenseHandler ppm.CreateMovingExpenseHandler
 	// OrderCreateOrderHandler sets the operation handler for the create order operation
 	OrderCreateOrderHandler order.CreateOrderHandler
 	// OfficeUsersCreateRequestedOfficeUserHandler sets the operation handler for the create requested office user operation
@@ -831,6 +836,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
+	}
+	if o.PpmCreateMovingExpenseHandler == nil {
+		unregistered = append(unregistered, "ppm.CreateMovingExpenseHandler")
 	}
 	if o.OrderCreateOrderHandler == nil {
 		unregistered = append(unregistered, "order.CreateOrderHandler")
@@ -1284,6 +1292,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/moving-expenses"] = ppm.NewCreateMovingExpense(o.context, o.PpmCreateMovingExpenseHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
