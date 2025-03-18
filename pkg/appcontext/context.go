@@ -47,7 +47,7 @@ func NewAppContextFromContext(ctx context.Context, appCtx AppContext) AppContext
 		db:          appCtx.DB().WithContext(ctx),
 		logger:      logging.FromContext(ctx),
 		session:     auth.SessionFromContext(ctx),
-		httpRequest: nil,
+		httpRequest: appCtx.HTTPRequest(),
 	}
 }
 
