@@ -109,17 +109,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
-	suite.FatalNoError(err)
-
-	pdfGenerator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
-	suite.FatalNoError(err)
-
-	parserComputer := weightticketparser.NewWeightTicketComputer()
-	weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(pdfGenerator)
-	suite.FatalNoError(err)
-
-	handler := CreateUploadHandler{handlerConfig, parserComputer, weightGenerator}
+	handler := CreateUploadHandler{handlerConfig}
 	response := handler.Handle(params)
 
 	return response
