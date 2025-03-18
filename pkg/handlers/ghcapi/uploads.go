@@ -32,7 +32,6 @@ import (
 	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
-	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
 const weightEstimatePages = 11
@@ -77,14 +76,14 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				docID = &document.ID
 			}
 
-			newUserUpload, url, verrs, createErr := uploaderpkg.CreateUserUploadForDocumentWrapper(
+			newUserUpload, url, verrs, createErr := uploader.CreateUserUploadForDocumentWrapper(
 				appCtx,
 				appCtx.Session().UserID,
 				h.FileStorer(),
 				file,
 				file.Header.Filename,
-				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
-				uploaderpkg.AllowedTypesServiceMember,
+				uploader.MaxCustomerUserUploadFileSizeLimit,
+				uploader.AllowedTypesServiceMember,
 				docID,
 				models.UploadTypeOFFICE,
 			)
@@ -92,11 +91,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 			if verrs.HasAny() || createErr != nil {
 				appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 				switch createErr.(type) {
-				case uploaderpkg.ErrTooLarge:
+				case uploader.ErrTooLarge:
 					return uploadop.NewCreateUploadRequestEntityTooLarge(), rollbackErr
-				case uploaderpkg.ErrFile:
+				case uploader.ErrFile:
 					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
-				case uploaderpkg.ErrFailedToInitUploader:
+				case uploader.ErrFailedToInitUploader:
 					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
 				default:
 					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), rollbackErr
@@ -162,9 +161,9 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			userUploader, err := uploaderpkg.NewUserUploader(
+			userUploader, err := uploader.NewUserUploader(
 				h.FileStorer(),
-				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+				uploader.MaxCustomerUserUploadFileSizeLimit,
 			)
 			if err != nil {
 				appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
@@ -476,7 +475,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				}
 
 				// we already generated an afero file so we can skip that process the wrapper method does
-				newUserUpload, verrs, createErr = h.UserUploader.CreateUserUploadForDocument(appCtx, &document.ID, appCtx.Session().UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesPPMDocuments)
+				newUserUpload, verrs, createErr = h.UserUploader.CreateUserUploadForDocument(appCtx, &document.ID, appCtx.Session().UserID, uploader.File{File: aFile}, uploader.AllowedTypesPPMDocuments)
 
 				if verrs.HasAny() || createErr != nil {
 					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
@@ -487,13 +486,13 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 					}
 					switch createErr.(type) {
-					case uploaderpkg.ErrUnsupportedContentType:
+					case uploader.ErrUnsupportedContentType:
 						return uploadop.NewCreateUploadInternalServerError(), rollbackErr
-					case uploaderpkg.ErrTooLarge:
+					case uploader.ErrTooLarge:
 						return ppmop.NewCreatePPMUploadRequestEntityTooLarge(), createErr
-					case uploaderpkg.ErrFile:
+					case uploader.ErrFile:
 						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-					case uploaderpkg.ErrFailedToInitUploader:
+					case uploader.ErrFailedToInitUploader:
 						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 					default:
 						return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
@@ -513,14 +512,14 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 			} else {
-				newUserUpload, url, verrs, createErr = uploaderpkg.CreateUserUploadForDocumentWrapper(
+				newUserUpload, url, verrs, createErr = uploader.CreateUserUploadForDocumentWrapper(
 					appCtx,
 					appCtx.Session().UserID,
 					h.FileStorer(),
 					uploadedFile,
 					uploadedFile.Header.Filename,
-					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
-					uploaderpkg.AllowedTypesPPMDocuments,
+					uploader.MaxCustomerUserUploadFileSizeLimit,
+					uploader.AllowedTypesPPMDocuments,
 					&document.ID,
 					models.UploadTypeUSER,
 				)
@@ -528,13 +527,13 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				if verrs.HasAny() || createErr != nil {
 					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 					switch createErr.(type) {
-					case uploaderpkg.ErrUnsupportedContentType:
+					case uploader.ErrUnsupportedContentType:
 						return uploadop.NewCreateUploadInternalServerError(), rollbackErr
-					case uploaderpkg.ErrTooLarge:
+					case uploader.ErrTooLarge:
 						return ppmop.NewCreatePPMUploadRequestEntityTooLarge(), createErr
-					case uploaderpkg.ErrFile:
+					case uploader.ErrFile:
 						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-					case uploaderpkg.ErrFailedToInitUploader:
+					case uploader.ErrFailedToInitUploader:
 						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 					default:
 						return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
