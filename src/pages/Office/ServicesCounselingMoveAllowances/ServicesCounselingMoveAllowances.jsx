@@ -41,28 +41,30 @@ const validationSchema = Yup.object({
     .min(0, 'Storage in transit (days) must be greater than or equal to 0')
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
-  adminRestrictedWeightLocation: Yup.bool(),
-  weightRestriction: Yup.number().when('adminRestrictedWeightLocation', {
-    is: (value) => {
-      return value === true;
-    },
-    then: (schema) => {
-      return schema
-        .required('Weight restriction is required when location is restricted')
-        .min(1, 'Weight restriction must be greater than 0')
-        .max(18000, 'Weight restriction cannot exceed 18,000 lbs')
-        .transform((value) => {
-          return Number.isNaN(value) ? 0 : value;
-        });
-    },
-    otherwise: (schema) => {
-      return schema
-        .transform((value) => {
-          return Number.isNaN(value) ? 0 : value;
-        })
-        .notRequired();
-    },
-  }),
+  weightRestriction: Yup.number()
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .when('adminRestrictedWeightLocation', {
+      is: true,
+      then: (schema) =>
+        schema
+          .min(1, 'Weight restriction must be greater than 0')
+          .max(18000, 'Weight restriction cannot exceed 18,000 lbs')
+          .required('Weight restriction is required when Admin Restricted Weight Location is enabled'),
+      otherwise: (schema) => schema.notRequired().nullable(),
+    }),
+  adminRestrictedWeightLocation: Yup.boolean().notRequired(),
+  ubWeightRestriction: Yup.number()
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .when('adminRestrictedUBWeightLocation', {
+      is: true,
+      then: (schema) =>
+        schema
+          .min(1, 'UB weight restriction must be greater than 0')
+          .max(2000, 'UB weight restriction cannot exceed 2,000 lbs')
+          .required('UB weight restriction is required when Admin Restricted UB Weight Location is enabled'),
+      otherwise: (schema) => schema.notRequired().nullable(),
+    }),
+  adminRestrictedUBWeightLocation: Yup.boolean().notRequired(),
 });
 const ServicesCounselingMoveAllowances = () => {
   const { moveCode } = useParams();
@@ -100,14 +102,16 @@ const ServicesCounselingMoveAllowances = () => {
     const {
       grade,
       agency,
-      dependentsAuthorized,
       proGearWeight,
       proGearWeightSpouse,
       requiredMedicalEquipmentWeight,
       organizationalClothingAndIndividualEquipment,
       storageInTransit,
       gunSafe,
+      adminRestrictedWeightLocation,
       weightRestriction,
+      adminRestrictedUBWeightLocation,
+      ubWeightRestriction,
       accompaniedTour,
       dependentsTwelveAndOver,
       dependentsUnderTwelve,
@@ -121,14 +125,14 @@ const ServicesCounselingMoveAllowances = () => {
       reportByDate: order.report_by_date,
       grade,
       agency,
-      dependentsAuthorized,
       proGearWeight: Number(proGearWeight),
       proGearWeightSpouse: Number(proGearWeightSpouse),
       requiredMedicalEquipmentWeight: Number(requiredMedicalEquipmentWeight),
       storageInTransit: Number(storageInTransit),
       organizationalClothingAndIndividualEquipment,
       gunSafe,
-      weightRestriction: Number(weightRestriction),
+      weightRestriction: adminRestrictedWeightLocation && weightRestriction ? Number(weightRestriction) : null,
+      ubWeightRestriction: adminRestrictedUBWeightLocation && ubWeightRestriction ? Number(ubWeightRestriction) : null,
       accompaniedTour,
       dependentsTwelveAndOver: Number(dependentsTwelveAndOver),
       dependentsUnderTwelve: Number(dependentsUnderTwelve),
@@ -138,13 +142,13 @@ const ServicesCounselingMoveAllowances = () => {
 
   const { entitlement, grade, agency } = order;
   const {
-    dependentsAuthorized,
     proGearWeight,
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
     gunSafe,
     weightRestriction,
+    ubWeightRestriction,
     storageInTransit,
     dependentsUnderTwelve,
     dependentsTwelveAndOver,
@@ -154,18 +158,19 @@ const ServicesCounselingMoveAllowances = () => {
   const initialValues = {
     grade,
     agency,
-    dependentsAuthorized,
     proGearWeight: `${proGearWeight}`,
     proGearWeightSpouse: `${proGearWeightSpouse}`,
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
     storageInTransit: `${storageInTransit}`,
     gunSafe,
-    weightRestriction: `${weightRestriction}`,
+    adminRestrictedWeightLocation: weightRestriction > 0,
+    weightRestriction: weightRestriction ? `${weightRestriction}` : '0',
+    adminRestrictedUBWeightLocation: ubWeightRestriction > 0,
+    ubWeightRestriction: ubWeightRestriction ? `${ubWeightRestriction}` : '0',
     organizationalClothingAndIndividualEquipment,
     accompaniedTour,
     dependentsUnderTwelve: `${dependentsUnderTwelve}`,
     dependentsTwelveAndOver: `${dependentsTwelveAndOver}`,
-    adminRestrictedWeightLocation: false,
   };
 
   return (
@@ -202,7 +207,11 @@ const ServicesCounselingMoveAllowances = () => {
               </div>
               <div className={styles.bottom}>
                 <div className={styles.buttonGroup}>
-                  <Button disabled={formik.isSubmitting} data-testid="scAllowancesSave" type="submit">
+                  <Button
+                    disabled={formik.isSubmitting || !formik.isValid}
+                    data-testid="scAllowancesSave"
+                    type="submit"
+                  >
                     Save
                   </Button>
                   <Button type="button" secondary onClick={handleClose}>

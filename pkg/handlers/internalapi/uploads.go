@@ -70,7 +70,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				}
 
 				// Fetch document to ensure user has access to it
-				document, docErr := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, true)
+				document, docErr := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID)
 				if docErr != nil {
 					return handlers.ResponseForError(appCtx.Logger(), docErr), rollbackErr
 				}
@@ -267,7 +267,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			documentID := uuid.FromStringOrNil(params.DocumentID.String())
 
 			// Fetch document to ensure user has access to it
-			document, docErr := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, true)
+			document, docErr := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID)
 			if docErr != nil {
 				docNotFoundErr := fmt.Errorf("documentId %q was not found for this user", documentID)
 				return ppmop.NewCreatePPMUploadNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, docNotFoundErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), docNotFoundErr
@@ -335,13 +335,26 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 
 				// Ensure weight receipt PDF is not corrupted
 				if err != nil || pdfInfo.PageCount != weightEstimatePages {
+					cleanupErr := h.WeightTicketGenerator.CleanupFile(aFile)
+
+					if cleanupErr != nil {
+						appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(cleanupErr), zap.String("verrs", verrs.Error()))
+					}
+
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
 				// we already generated an afero file so we can skip that process the wrapper method does
 				newUserUpload, verrs, createErr = h.UserUploader.CreateUserUploadForDocument(appCtx, &document.ID, appCtx.Session().UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesPPMDocuments)
+
 				if verrs.HasAny() || createErr != nil {
 					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+					cleanupErr := h.WeightTicketGenerator.CleanupFile(aFile)
+
+					if cleanupErr != nil {
+						appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(cleanupErr), zap.String("verrs", verrs.Error()))
+						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+					}
 					switch createErr.(type) {
 					case uploaderpkg.ErrUnsupportedContentType:
 						return ppmop.NewCreatePPMUploadUnprocessableEntity().WithPayload(payloads.ValidationError(createErr.Error(), uuid.Nil, verrs)), createErr
@@ -354,6 +367,13 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					default:
 						return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
 					}
+				}
+
+				err = h.WeightTicketGenerator.CleanupFile(aFile)
+
+				if err != nil {
+					appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(err), zap.String("verrs", verrs.Error()))
+					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
 				url, err = h.UserUploader.PresignedURL(appCtx, newUserUpload)

@@ -24,6 +24,7 @@ import (
 	prsff "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	rejectedofficeusers "github.com/transcom/mymove/pkg/services/rejected_office_users"
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 	"github.com/transcom/mymove/pkg/services/roles"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
@@ -53,15 +54,18 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 
 	adminAPI.ServeError = handlers.ServeCustomError
 
+	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
+	userRolesCreator := usersroles.NewUsersRolesCreator()
+	newRolesFetcher := roles.NewRolesFetcher()
+
 	adminAPI.RequestedOfficeUsersIndexRequestedOfficeUsersHandler = IndexRequestedOfficeUsersHandler{
 		handlerConfig,
 		requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+		transportationOfficeFetcher,
+		newRolesFetcher,
 	}
-
-	userRolesCreator := usersroles.NewUsersRolesCreator()
-	newRolesFetcher := roles.NewRolesFetcher()
 
 	adminAPI.RequestedOfficeUsersGetRequestedOfficeUserHandler = GetRequestedOfficeUserHandler{
 		handlerConfig,
@@ -77,9 +81,23 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		newRolesFetcher,
 	}
 
+	adminAPI.RejectedOfficeUsersIndexRejectedOfficeUsersHandler = IndexRejectedOfficeUsersHandler{
+		handlerConfig,
+		rejectedofficeusers.NewRejectedOfficeUsersListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.RejectedOfficeUsersGetRejectedOfficeUserHandler = GetRejectedOfficeUserHandler{
+		handlerConfig,
+		rejectedofficeusers.NewRejectedOfficeUserFetcher(queryBuilder),
+		newRolesFetcher,
+		query.NewQueryFilter,
+	}
+
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		handlerConfig,
-		fetch.NewListFetcher(queryBuilder),
+		officeuser.NewOfficeUsersListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
@@ -124,7 +142,6 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
-	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
 	adminAPI.TransportationOfficesGetOfficeByIDHandler = GetOfficeByIdHandler{
 		handlerConfig,
 		transportationOfficeFetcher,
@@ -214,7 +231,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	adminAPI.MovesUpdateMoveHandler = UpdateMoveHandler{

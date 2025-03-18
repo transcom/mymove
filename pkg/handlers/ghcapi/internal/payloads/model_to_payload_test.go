@@ -669,6 +669,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	authorizedWeight := 8000
 	ubAllowance := 300
 	weightRestriction := 1000
+	ubWeightRestriction := 1200
 
 	entitlement := &models.Entitlement{
 		ID:                             entitlementID,
@@ -687,6 +688,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		UpdatedAt:                      time.Now(),
 		UBAllowance:                    &ubAllowance,
 		WeightRestriction:              &weightRestriction,
+		UBWeightRestriction:            &ubWeightRestriction,
 	}
 
 	returnedEntitlement := Entitlement(entitlement)
@@ -709,6 +711,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
 	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
 	suite.Equal(weightRestriction, int(*returnedEntitlement.WeightRestriction))
+	suite.Equal(ubWeightRestriction, int(*returnedEntitlement.UbWeightRestriction))
 }
 
 func (suite *PayloadsSuite) TestCreateCustomer() {
@@ -716,19 +719,9 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 	id2, _ := uuid.NewV4()
 	oktaID := "thisIsNotARealID"
 
-	oktaUser := models.CreatedOktaUser{
-		ID: oktaID,
-		Profile: struct {
-			FirstName   string `json:"firstName"`
-			LastName    string `json:"lastName"`
-			MobilePhone string `json:"mobilePhone"`
-			SecondEmail string `json:"secondEmail"`
-			Login       string `json:"login"`
-			Email       string `json:"email"`
-		}{
-			Email: "john.doe@example.com",
-		},
-	}
+	var oktaUser models.CreatedOktaUser
+	oktaUser.ID = oktaID
+	oktaUser.Profile.Email = "john.doe@example.com"
 
 	residentialAddress := models.Address{
 		StreetAddress1: "123 New St",
@@ -905,7 +898,7 @@ func (suite *PayloadsSuite) TestReServiceItem() {
 		isAutoApproved := true
 		marketCodeInternational := models.MarketCodeInternational
 		reServiceCode := models.ReServiceCodePOEFSC
-		poefscServiceName := "International POE Fuel Surcharge"
+		poefscServiceName := "International POE fuel surcharge"
 		reService := models.ReService{
 			Code: reServiceCode,
 			Name: poefscServiceName,
@@ -937,8 +930,8 @@ func (suite *PayloadsSuite) TestReServiceItems() {
 		marketCodeDomestic := models.MarketCodeDomestic
 		poefscReServiceCode := models.ReServiceCodePOEFSC
 		podfscReServiceCode := models.ReServiceCodePODFSC
-		poefscServiceName := "International POE Fuel Surcharge"
-		podfscServiceName := "International POD Fuel Surcharge"
+		poefscServiceName := "International POE fuel surcharge"
+		podfscServiceName := "International POD fuel surcharge"
 		poefscService := models.ReService{
 			Code: poefscReServiceCode,
 			Name: poefscServiceName,
@@ -1915,5 +1908,36 @@ func (suite *PayloadsSuite) TestPaymentServiceItemsPayload() {
 		suite.Equal(reServiceName2, psItem2.MtoServiceItemName)
 		suite.Equal(ghcmessages.MTOShipmentType(shipmentType), psItem2.MtoShipmentType)
 		suite.Nil(psItem2.TppsInvoiceAmountPaidPerServiceItemMillicents)
+	})
+}
+
+func (suite *PayloadsSuite) TestCounselingOffices() {
+	suite.Run("correctly maps transportaion offices to counseling offices payload", func() {
+		office1 := factory.BuildTransportationOffice(nil, []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Liberty",
+				},
+			},
+		}, nil)
+
+		office2 := factory.BuildTransportationOffice(nil, []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID:   uuid.Must(uuid.NewV4()),
+					Name: "PPPO Fort Walker",
+				},
+			},
+		}, nil)
+
+		offices := models.TransportationOffices{office1, office2}
+
+		payload := CounselingOffices(offices)
+
+		suite.IsType(payload, ghcmessages.CounselingOffices{})
+		suite.Equal(2, len(payload))
+		suite.Equal(office1.ID.String(), payload[0].ID.String())
+		suite.Equal(office2.ID.String(), payload[1].ID.String())
 	})
 }

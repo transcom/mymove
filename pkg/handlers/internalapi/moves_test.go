@@ -11,6 +11,7 @@ package internalapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"time"
 
@@ -247,7 +248,27 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	suite.Run("Submits ppm success", func() {
 		// Given: a set of orders, a move, user and servicemember
-		move := factory.BuildMove(suite.DB(), nil, nil)
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+			},
+		}, nil)
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    originDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+		}, nil)
 		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -281,7 +302,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// When: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter()}
+		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -291,7 +312,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		suite.NoError(err)
 
 		// And: Returned query to have a submitted status
-		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+		suite.Assertions.Equal(internalmessages.MoveStatusNEEDSSERVICECOUNSELING, okResponse.Payload.Status)
 		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
 
 		// And: SignedCertification was created
@@ -305,6 +326,77 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// time.Now() or having to pass in a date to MoveRouter.Submit just to be able to test it.
 		actualSubmittedAt := updatedMove.SubmittedAt
 		suite.WithinDuration(time.Now(), *actualSubmittedAt, 2*time.Second)
+	})
+
+	suite.Run("Submits ppm fails due to no closest counseling office", func() {
+		// Given: a set of orders, a move, user and servicemember
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: false,
+				},
+			},
+		}, nil)
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    originDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusDraft,
+				},
+			},
+		}, nil)
+
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
+		signingDate := strfmt.DateTime(time.Now())
+		certificate := internalmessages.CreateSignedCertificationPayload{
+			CertificationText: models.StringPointer("This is your legal message"),
+			CertificationType: &certType,
+			Date:              &signingDate,
+			Signature:         models.StringPointer("Jane Doe"),
+		}
+		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
+
+		params := moveop.SubmitMoveForApprovalParams{
+			HTTPRequest:                  req,
+			MoveID:                       strfmt.UUID(move.ID.String()),
+			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
+		}
+		// When: a move is submitted
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
+		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
+		response := handler.Handle(params)
+
+		//Expect 500 error
+		suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+		internalServerErrorResponse := response.(*handlers.ErrResponse)
+		suite.Equal(internalServerErrorResponse.Code, http.StatusInternalServerError)
+		suite.Equal(internalServerErrorResponse.Err.Error(), "Failed to find counseling office that provides counseling")
+
+		// And: SignedCertification was created
+		signedCertification := models.SignedCertification{}
+		err := suite.DB().Where("move_id = $1", move.ID).First(&signedCertification)
+		suite.Error(err)
 	})
 	suite.Run("Submits hhg shipment success", func() {
 		// Given: a set of orders, a move, user and servicemember
@@ -332,7 +424,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// And: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter()}
+		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -385,7 +477,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		// When: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter()}
+		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -435,7 +527,7 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 		// And: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 
-		handler := SubmitAmendedOrdersHandler{handlerConfig, moverouter.NewMoveRouter()}
+		handler := SubmitAmendedOrdersHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code

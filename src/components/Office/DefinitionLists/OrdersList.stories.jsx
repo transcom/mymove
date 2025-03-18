@@ -22,6 +22,7 @@ export const Basic = () => (
         ordersNumber: text('ordersInfo.ordersNumber', '999999999'),
         ordersType: text('ordersInfo.ordersType', ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION),
         ordersTypeDetail: text('ordersInfo.ordersTypeDetail', 'HHG_PERMITTED'),
+        dependents: true,
         ordersDocuments: array('ordersInfo.ordersDocuments', [
           {
             'c0a22a98-a806-47a2-ab54-2dac938667b3': {
@@ -43,6 +44,9 @@ export const Basic = () => (
         NTStac: text('ordersInfo.NTStac', '9999'),
         payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
+      }}
     />
   </div>
 );
@@ -60,6 +64,7 @@ export const AsServiceCounselor = () => (
         ordersNumber: '',
         ordersType: '',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: array('ordersInfo.ordersDocuments', [
           {
             'c0a22a98-a806-47a2-ab54-2dac938667b3': {
@@ -80,6 +85,9 @@ export const AsServiceCounselor = () => (
         NTSsac: '',
         NTStac: '',
         payGrade: text('ordersInfo.payGrade', 'E_5'),
+      }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
       }}
     />
   </div>
@@ -98,12 +106,16 @@ export const AsServiceCounselorProcessingRetirement = () => (
         ordersNumber: '',
         ordersType: 'RETIREMENT',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: null,
         tacMDC: '',
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
         payGrade: text('ordersInfo.payGrade', 'E_5'),
+      }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
       }}
     />
   </div>
@@ -122,12 +134,16 @@ export const AsServiceCounselorProcessingSeparation = () => (
         ordersNumber: '',
         ordersType: 'SEPARATION',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: null,
         tacMDC: '',
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
         payGrade: text('ordersInfo.payGrade', 'E_5'),
+      }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
       }}
     />
   </div>
@@ -145,6 +161,7 @@ export const AsTOO = () => (
         ordersNumber: '',
         ordersType: '',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: array('ordersInfo.ordersDocuments', [
           {
             'c0a22a98-a806-47a2-ab54-2dac938667b3': {
@@ -166,6 +183,9 @@ export const AsTOO = () => (
         NTStac: '',
         payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
+      }}
     />
   </div>
 );
@@ -182,6 +202,7 @@ export const AsTOOProcessingRetirement = () => (
         ordersNumber: '',
         ordersType: 'RETIREMENT',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: null,
         tacMDC: '',
         sacSDN: '',
@@ -205,12 +226,16 @@ export const AsTOOProcessingSeparation = () => (
         ordersNumber: '',
         ordersType: 'SEPARATION',
         ordersTypeDetail: '',
+        dependents: false,
         ordersDocuments: null,
         tacMDC: '',
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
         payGrade: text('ordersInfo.payGrade', 'E_5'),
+      }}
+      moveInfo={{
+        name: 'PPPO Los Angeles SFB - USAF',
       }}
     />
   </div>

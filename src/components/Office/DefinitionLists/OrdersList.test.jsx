@@ -12,6 +12,7 @@ const ordersInfo = {
   ordersNumber: '999999999',
   ordersType: 'PERMANENT_CHANGE_OF_STATION',
   ordersTypeDetail: 'HHG_PERMITTED',
+  dependents: true,
   ordersDocuments: [
     {
       'c0a22a98-a806-47a2-ab54-2dac938667b3': {
@@ -32,9 +33,16 @@ const ordersInfo = {
   payGrade: 'E_7',
 };
 
+const moveInfo = {
+  counselingOffice: {
+    name: 'PPPO Los Angeles SFB - USAF',
+  },
+};
+
 // what ordersInfo from above should be rendered as
 const expectedRenderedOrdersInfo = {
   currentDutyLocation: 'JBSA Lackland',
+  counselingOffice: 'PPPO Los Angeles SFB - USAF',
   newDutyLocation: 'JB Lewis-McChord',
   issuedDate: '08 Mar 2020',
   reportByDate: '01 Apr 2020',
@@ -65,10 +73,21 @@ const ordersInfoMissing = {
 
 describe('OrdersList', () => {
   it('renders formatted orders info', () => {
-    render(<OrdersList ordersInfo={ordersInfo} />);
+    render(<OrdersList ordersInfo={ordersInfo} moveInfo={moveInfo} />);
     Object.keys(expectedRenderedOrdersInfo).forEach((key) => {
       expect(screen.getByText(expectedRenderedOrdersInfo[key])).toBeInTheDocument();
     });
+  });
+
+  it('renders authorized dependents', () => {
+    render(<OrdersList ordersInfo={ordersInfo} />);
+    expect(screen.getByTestId('dependents').textContent).toEqual('Authorized');
+  });
+
+  it('renders unauthorized dependents', () => {
+    const withUnauthorizedDependents = { ...ordersInfo, dependents: false };
+    render(<OrdersList ordersInfo={withUnauthorizedDependents} />);
+    expect(screen.getByTestId('dependents').textContent).toEqual('Unauthorized');
   });
 
   it('renders missing orders info as warning if showMissingWarnings is included', () => {

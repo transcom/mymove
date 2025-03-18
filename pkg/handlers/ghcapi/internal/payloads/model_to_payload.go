@@ -54,7 +54,7 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 }
 
 func AssignedOfficeUser(officeUser *models.OfficeUser) *ghcmessages.AssignedOfficeUser {
-	if officeUser != nil {
+	if officeUser != nil && officeUser.FirstName != "" && officeUser.LastName != "" {
 		payload := ghcmessages.AssignedOfficeUser{
 			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
 			FirstName:    officeUser.FirstName,
@@ -122,6 +122,8 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		SCAssignedUser:                                 AssignedOfficeUser(move.SCAssignedUser),
 		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
+		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
+		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
 	}
 
 	return payload, nil
@@ -437,6 +439,18 @@ func GBLOCs(gblocs []string) ghcmessages.GBLOCs {
 	return payload
 }
 
+func CounselingOffices(counselingOffices models.TransportationOffices) ghcmessages.CounselingOffices {
+	payload := make(ghcmessages.CounselingOffices, len(counselingOffices))
+
+	for i, counselingOffice := range counselingOffices {
+		payload[i] = &ghcmessages.CounselingOffice{
+			ID:   handlers.FmtUUID(counselingOffice.ID),
+			Name: models.StringPointer(counselingOffice.Name),
+		}
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{
@@ -737,6 +751,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.WeightRestriction != nil {
 		weightRestriction = models.Int64Pointer(int64(*entitlement.WeightRestriction))
 	}
+	var ubWeightRestriction *int64
+	if entitlement.UBWeightRestriction != nil {
+		ubWeightRestriction = models.Int64Pointer(int64(*entitlement.UBWeightRestriction))
+	}
 
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
@@ -755,9 +773,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		AccompaniedTour:                accompaniedTour,
 		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		GunSafe:           gunSafe,
-		WeightRestriction: weightRestriction,
-		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe:             gunSafe,
+		WeightRestriction:   weightRestriction,
+		UbWeightRestriction: ubWeightRestriction,
+		ETag:                etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 
 }
@@ -2061,10 +2080,10 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 	}
 
 	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
-		uploadPayload.Status = "PROCESSING"
+	if err != nil {
+		uploadPayload.Status = string(models.AVStatusPROCESSING)
 	} else {
-		uploadPayload.Status = tags["av-status"]
+		uploadPayload.Status = string(models.GetAVStatusFromTags(tags))
 	}
 	return uploadPayload
 }
@@ -2083,10 +2102,10 @@ func WeightTicketUpload(storer storage.FileStorer, upload models.Upload, url str
 		IsWeightTicket: isWeightTicket,
 	}
 	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
-		uploadPayload.Status = "PROCESSING"
+	if err != nil {
+		uploadPayload.Status = string(models.AVStatusPROCESSING)
 	} else {
-		uploadPayload.Status = tags["av-status"]
+		uploadPayload.Status = string(models.GetAVStatusFromTags(tags))
 	}
 	return uploadPayload
 }
@@ -2139,10 +2158,10 @@ func PayloadForUploadModel(
 	}
 
 	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
-		uploadPayload.Status = "PROCESSING"
+	if err != nil {
+		uploadPayload.Status = string(models.AVStatusPROCESSING)
 	} else {
-		uploadPayload.Status = tags["av-status"]
+		uploadPayload.Status = string(models.GetAVStatusFromTags(tags))
 	}
 	return uploadPayload
 }
@@ -2614,13 +2633,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
-		numShipments := 0
-
-		for _, shipment := range move.MTOShipments {
-			if shipment.Status != models.MTOShipmentStatusDraft {
-				numShipments++
-			}
-		}
+		numShipments := len(move.MTOShipments)
 
 		var pickupDate, deliveryDate *strfmt.Date
 

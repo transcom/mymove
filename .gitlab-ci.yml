@@ -46,9 +46,9 @@ variables:
   RUNNER_TAG: &runner_tag milmove
   DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
 
-  postgres: &postgres postgres:16.4
+  postgres: &postgres harbor.csde.caci.com/docker.io/postgres:16.4
   #postgres: &postgres postgres:16.4
-  redis: &redis redis:5.0.6
+  redis: &redis harbor.csde.caci.com/docker.io/redis:5.0.6
 
 stages:
 - pre_checks
@@ -108,7 +108,7 @@ stages:
     fi
 
 .setup_aws_vars_com_dev: &setup_aws_vars_com_dev
-  - export AWS_DEFAULT_REGION=$COM_REGION
+  - export AWS_REGION=$COM_REGION
   - export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID
   - export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY
@@ -152,7 +152,7 @@ stages:
   #build off prd variables
   - export ECR_REPOSITORY_URI=${PRD_ACCOUNT_ID}.dkr.ecr.${PRD_REGION}.amazonaws.com
   - export APP_DOCKER_FILE=Dockerfile
-  - export TASK_DOCKER_FILE=Dockerfile
+  - export TASK_DOCKER_FILE=Dockerfile.tasks
   #TODO: update exp to prod
   - export APP_ENVIRONMENT=prd
 
@@ -220,7 +220,16 @@ stages:
       export DB_HOST=localhost
       export DB_PORT=5432
       export MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+      export DML_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
+      export DDL_TYPES_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+      export DDL_TABLES_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+      export DDL_VIEWS_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+      export DDL_FUNCTIONS_MIGRATION_MANIFEST='/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
       export MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+      export DDL_TYPES_MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
+      export DDL_TABLES_MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
+      export DDL_VIEWS_MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
+      export DDL_FUNCTIONS_MIGRATION_PATH='file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
       export EIA_KEY=db2522a43820268a41a802a16ae9fd26
 
 .setup_devseed_env_variables: &setup_devseed_env_variables
@@ -396,7 +405,7 @@ golang_lint:
   interruptible: true
   tags:
     - $DOCKER_RUNNER_TAG
-  image: golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
+  image: harbor.csde.caci.com/docker.io/golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
   script:
     - golangci-lint run --print-issued-lines=false --timeout=25m --out-format code-climate:gl-code-quality-report.json,line-number
   artifacts:
@@ -741,7 +750,6 @@ pre_test:
     - yarn danger ci --failOnErrors
     - echo "Run spectral linter on all files"
     - ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
-  allow_failure: true
   after_script:
     - *announce_failure
   artifacts:
@@ -752,8 +760,12 @@ pre_test:
         - tmp/spectral_baseline/*.json #what do we need to store for review?
         - spectral/*.json #what do we need to store for review?
       when: always
-  # rules:
-  #  - *check_server_ignore_branch
+  rules:
+   - if: '$PRE_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$PRE_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: false
+  #  - *check_server_ignore_branch  all branches for now
 
 server_test:
   stage: test
@@ -789,7 +801,16 @@ server_test:
     DB_NAME_TEST: test_db
     DTOD_USE_MOCK: 'true'
     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
+    DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+    DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+    DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+    DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
+    DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
+    DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
+    DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
     ENV: test
     ENVIRONMENT: test
@@ -816,8 +837,8 @@ server_test:
     - make bin/swagger
     - echo "server test -- build gotestsum and run scripts for report"
     - make -j 2 bin/milmove bin/gotestsum
-    - make server_test for app
-  allow_failure: true #leaving true until 5 tests failing tests are working
+    - make server_test
+    - scripts/check-failed-test /builds/milmove/mymove/tmp/test-results/gotest/app/go-test-report.xml
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/gotestsum
@@ -827,9 +848,12 @@ server_test:
       junit: /builds/milmove/mymove/tmp/test-results/gotest/app/go-test-report.xml
   after_script:
     - *announce_failure
-  # we want to make this run on every branch bc webhooks don't exist currently
-  # rules:
-  #  - *check_server_ignore_branch
+  rules:
+   - if: '$SERVER_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$SERVER_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: false
+  #  - *check_server_ignore_branch   # we want to make this run on every branch bc webhooks don't exist currently
 
 server_test_coverage:
   stage: test
@@ -849,10 +873,13 @@ server_test_coverage:
         ./scripts/ensure-go-test-coverage \
         tmp/baseline-go-coverage/go-coverage.txt \
         tmp/test-results/gotest/app/go-coverage.txt
-  allow_failure: true
   after_script:
     - *announce_failure
   rules:
+   - if: '$SERVER_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$SERVER_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true #allow failure for now
    - *check_server_ignore_branch
   ###may need to rethink the logic and intent of this they save per the following and do some PR interaction
   # only save the cache on default branch builds because we only want to
@@ -896,9 +923,12 @@ client_test:
       - /builds/milmove/mymove/jest-junit-reports
   after_script:
     - *announce_failure
-  # we want to make this run on every branch bc webhooks don't exist currently
-  # rules:
-  #  - *check_client_ignore_branch
+  rules:
+   - if: '$CLIENT_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$CLIENT_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: false
+  #  - *check_client_ignore_branch   # we want to make this run on every branch bc webhooks don't exist currently
 
 client_test_coverage:
   stage: test
@@ -922,6 +952,10 @@ client_test_coverage:
   after_script:
     - *announce_failure
   rules:
+   - if: '$CLIENT_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$CLIENT_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true #allow failure for now
    - *check_client_ignore_branch
 
 integration_test_devseed:
@@ -948,7 +982,16 @@ integration_test_devseed:
     DB_NAME: dev_db
     DB_NAME_DEV: dev_db
     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
+    DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+    DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+    DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+    DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
+    DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
+    DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
+    DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
     ENVIRONMENT: development
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
@@ -968,10 +1011,13 @@ integration_test_devseed:
      export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
      export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
     - make db_dev_fresh
-  allow_failure: true
   after_script:
     - *announce_failure
   rules:
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: false
    - *check_integration_ignore_branch
 
 integration_tests:
@@ -993,10 +1039,13 @@ integration_tests:
   script:
     - echo "TODO Add steps"
     - echo "integration_tests"
-  allow_failure: true
   after_script:
     - *announce_failure
   rules:
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true # allow failure for now
    - *check_integration_ignore_branch
 
 integration_test_mtls:
@@ -1023,7 +1072,16 @@ integration_test_mtls:
     DB_NAME: dev_db
     DB_NAME_DEV: dev_db
     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
+    DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+    DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+    DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+    DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
+    DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
+    DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
+    DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
     ENVIRONMENT: development
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
@@ -1046,10 +1104,13 @@ integration_test_mtls:
     paths:
       - test-results/
     when: always
-  allow_failure: true
   after_script:
     - *announce_failure
   rules:
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true # allow failure for now
    - *check_integration_mtls_ignore_branch
 
 integration_test_admin:
@@ -1076,7 +1137,16 @@ integration_test_admin:
     DB_NAME: dev_db
     DB_NAME_DEV: dev_db
     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
+    DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+    DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+    DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+    DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
+    DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
+    DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
+    DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
     ENVIRONMENT: development
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
@@ -1104,10 +1174,13 @@ integration_test_admin:
       - complete-playwright-report.zip
       - playwright-results.xml
     when: always
-  allow_failure: true
   after_script:
     - *announce_failure
   rules:
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true # allow failure for now
    - *check_integration_ignore_branch
 
 integration_test_my:
@@ -1134,7 +1207,16 @@ integration_test_my:
     DB_NAME: dev_db
     DB_NAME_DEV: dev_db
     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
+    DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+    DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+    DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+    DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
+    DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
+    DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
+    DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
     ENVIRONMENT: development
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
@@ -1163,10 +1245,13 @@ integration_test_my:
       - complete-playwright-report.zip
       - playwright-results.xml
     when: always
-  allow_failure: true
   after_script:
     - *announce_failure
   rules:
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true # allow failure for now
    - *check_integration_ignore_branch
 
 integration_test_office:
@@ -1193,7 +1278,16 @@ integration_test_office:
     DB_NAME: dev_db
     DB_NAME_DEV: dev_db
     MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/migrations_manifest.txt'
+    DML_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/dml_migrations_manifest.txt'
+    DDL_TYPES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_types_manifest.txt'
+    DDL_TABLES_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_tables_manifest.txt'
+    DDL_VIEWS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_views_manifest.txt'
+    DDL_FUNCTIONS_MIGRATION_MANIFEST: '/builds/milmove/mymove/migrations/app/ddl_functions_manifest.txt'
     MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/schema;file:///builds/milmove/mymove/migrations/app/secure'
+    DDL_TYPES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_types'
+    DDL_TABLES_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_tables'
+    DDL_VIEWS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_views'
+    DDL_FUNCTIONS_MIGRATION_PATH: 'file:///builds/milmove/mymove/migrations/app/ddl_migrations/ddl_functions'
     EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
     ENVIRONMENT: development
     DOD_CA_PACKAGE: /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
@@ -1220,10 +1314,13 @@ integration_test_office:
       - complete-playwright-report.zip
       - playwright-results.xml
     when: always
-  allow_failure: true
   after_script:
     - *announce_failure
   rules:
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "true"'
+     allow_failure: true
+   - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
+     allow_failure: true # allow failure for now
    - *check_integration_ignore_branch
 
 
@@ -1394,6 +1491,8 @@ deploy_tasks_dp3:
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
     - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying process TPPS task service"
+    - ./scripts/ecs-deploy-task-container process-tpps "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:
@@ -1495,7 +1594,6 @@ deploy_app_dp3:
 ########################################################
 ## STG push and deploy stages all off of main only    ##
 ########################################################
-
 build_push_app_stg:
   stage: push
   interruptible: true
@@ -1508,6 +1606,10 @@ build_push_app_stg:
   needs:
       - compile_app_client
       - compile_app_server
+      - client_test_coverage
+      - server_test_coverage
+      - pre_test
+      - integration_tests
   before_script:
     - *setup_aws_vars_stg
     - *setup_release_stg
@@ -1532,6 +1634,10 @@ build_push_migrations_stg:
   needs:
     - compile_app_server
     - compile_app_client
+    - client_test_coverage
+    - server_test_coverage
+    - pre_test
+    - integration_tests
   before_script:
     - *setup_aws_vars_stg
     - *setup_release_stg
@@ -1556,6 +1662,10 @@ build_push_tasks_stg:
   needs:
     - compile_app_server
     - compile_app_client
+    - client_test_coverage
+    - server_test_coverage
+    - pre_test
+    - integration_tests
   before_script:
     - *setup_aws_vars_stg
     - *setup_release_stg
@@ -1660,6 +1770,8 @@ deploy_tasks_stg:
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
     - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying process TPPS task service"
+    - ./scripts/ecs-deploy-task-container process-tpps "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:
@@ -1945,6 +2057,8 @@ deploy_tasks_prd:
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
     - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying process TPPS task service"
+    - ./scripts/ecs-deploy-task-container process-tpps "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:

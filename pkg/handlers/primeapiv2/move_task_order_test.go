@@ -824,14 +824,24 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NoError(movePayload.Validate(strfmt.Default))
 
 		suite.Len(movePayload.PaymentRequests, 2)
-		paymentRequestPayload := movePayload.PaymentRequests[0]
-		suite.Equal(paymentRequest.ID.String(), paymentRequestPayload.ID.String())
-		suite.Equal(successMove.ID.String(), paymentRequestPayload.MoveTaskOrderID.String())
-		suite.Equal(paymentRequest.IsFinal, *paymentRequestPayload.IsFinal)
-		suite.Equal(*paymentRequest.RejectionReason, *paymentRequestPayload.RejectionReason)
-		suite.Equal(paymentRequest.Status.String(), string(paymentRequestPayload.Status))
-		suite.Equal(paymentRequest.PaymentRequestNumber, paymentRequestPayload.PaymentRequestNumber)
-		suite.Equal(paymentRequest.RecalculationOfPaymentRequestID.String(), paymentRequestPayload.RecalculationOfPaymentRequestID.String())
+		var matchingPR *primev2messages.PaymentRequest
+		for i := range movePayload.PaymentRequests {
+			pr := movePayload.PaymentRequests[i]
+			if pr.ID.String() == paymentRequest.ID.String() {
+				matchingPR = pr
+				break
+			}
+		}
+		paymentRequestPayload := matchingPR
+
+		suite.NotNil(matchingPR, "expected to find a payment request payload matching paymentRequest.ID")
+		suite.Equal(paymentRequest.ID.String(), matchingPR.ID.String())
+		suite.Equal(successMove.ID.String(), matchingPR.MoveTaskOrderID.String())
+		suite.Equal(paymentRequest.IsFinal, *matchingPR.IsFinal)
+		suite.Equal(*paymentRequest.RejectionReason, *matchingPR.RejectionReason)
+		suite.Equal(paymentRequest.Status.String(), string(matchingPR.Status))
+		suite.Equal(paymentRequest.PaymentRequestNumber, matchingPR.PaymentRequestNumber)
+		suite.Equal(paymentRequest.RecalculationOfPaymentRequestID.String(), matchingPR.RecalculationOfPaymentRequestID.String())
 
 		// verify paymentServiceItems
 		suite.Len(paymentRequestPayload.PaymentServiceItems, 2)
@@ -1190,7 +1200,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(payload.ETag())
 	})
 
-	suite.Run("Success - return all MTOServiceItemShuttle fields assoicated with the getMoveTaskOrder", func() {
+	suite.Run("Success - return all MTOServiceItemDomesticShuttle fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(waf),
@@ -1257,14 +1267,14 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		json, err := json.Marshal(serviceItemPayload)
 		suite.NoError(err)
-		payload := primev2messages.MTOServiceItemShuttle{}
+		payload := primev2messages.MTOServiceItemDomesticShuttle{}
 		err = payload.UnmarshalJSON(json)
 		suite.NoError(err)
 
 		suite.Equal(serviceItem.MoveTaskOrderID.String(), payload.MoveTaskOrderID().String())
 		suite.Equal(serviceItem.MTOShipmentID.String(), payload.MtoShipmentID().String())
 		suite.Equal(serviceItem.ID.String(), payload.ID().String())
-		suite.Equal("MTOServiceItemShuttle", string(payload.ModelType()))
+		suite.Equal("MTOServiceItemDomesticShuttle", string(payload.ModelType()))
 		suite.Equal(string(serviceItem.ReService.Code), string(*payload.ReServiceCode))
 		suite.Equal(serviceItem.ReService.Name, payload.ReServiceName())
 		suite.Equal(string(serviceItem.Status), string(payload.Status()))
