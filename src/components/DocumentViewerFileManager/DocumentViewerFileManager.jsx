@@ -20,7 +20,7 @@ import FileUpload from 'components/FileUpload/FileUpload';
 import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import DeleteDocumentFileConfirmationModal from 'components/ConfirmationModals/DeleteDocumentFileConfirmationModal';
-import { DOCUMENT_TYPES, MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { PPM_DOCUMENT_TYPES, MOVE_DOCUMENT_TYPE } from 'shared/constants';
 import { ShipmentShape } from 'types';
 
 const DocumentViewerFileManager = ({
@@ -210,11 +210,11 @@ const DocumentViewerFileManager = ({
       .then(() => {
         if (documentType === MOVE_DOCUMENT_TYPE.SUPPORTING) {
           queryClient.invalidateQueries([MOVES, moveCode]);
-        } else if (documentType === DOCUMENT_TYPES.WEIGHT_TICKET) {
+        } else if (documentType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET) {
           queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
-        } else if (documentType === DOCUMENT_TYPES.MOVING_EXPENSE) {
+        } else if (documentType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE) {
           queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
-        } else if (documentType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+        } else if (documentType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
           queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
         } else {
           queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
@@ -239,11 +239,11 @@ const DocumentViewerFileManager = ({
       uploadAmdendedOrders(file);
     } else if (documentType === MOVE_DOCUMENT_TYPE.SUPPORTING) {
       uploadSupportingDocuments(file);
-    } else if (documentType === DOCUMENT_TYPES.WEIGHT_TICKET) {
+    } else if (documentType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET) {
       handleCreateUpload(file, true);
-    } else if (documentType === DOCUMENT_TYPES.MOVING_EXPENSE) {
+    } else if (documentType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE) {
       handleCreateUpload(file, false);
-    } else if (documentType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+    } else if (documentType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
       handleCreateUpload(file, false);
     }
   };

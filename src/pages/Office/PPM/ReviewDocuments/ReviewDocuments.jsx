@@ -22,7 +22,7 @@ import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
 import { roleTypes } from 'constants/userRoles';
 import { calculateWeightRequested } from 'hooks/custom';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
-import { DOCUMENT_TYPES } from 'shared/constants';
+import { PPM_DOCUMENT_TYPES } from 'shared/constants';
 
 export const ReviewDocuments = ({ readOnly }) => {
   const { shipmentId, moveCode } = useParams();
@@ -55,7 +55,7 @@ export const ReviewDocuments = ({ readOnly }) => {
     chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
 
   const constructWeightTicket = (weightTicket, tripNumber) => ({
-    documentSetType: DOCUMENT_TYPES.WEIGHT_TICKET,
+    documentSetType: PPM_DOCUMENT_TYPES.WEIGHT_TICKET,
     documentSet: weightTicket,
     uploads: [
       ...weightTicket.emptyDocument.uploads,
@@ -72,7 +72,7 @@ export const ReviewDocuments = ({ readOnly }) => {
   }
 
   const constructProGearWeightTicket = (weightTicket, tripNumber) => ({
-    documentSetType: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
+    documentSetType: PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
     documentSet: weightTicket,
     uploads: weightTicket.document.uploads,
     tripNumber,
@@ -88,7 +88,7 @@ export const ReviewDocuments = ({ readOnly }) => {
     // index individual input set elements by categorical type and chronological index.
     const accumulateMovingExpensesCategoricallyIndexed = (input) => {
       const constructExpenseCategoricallyIndexed = (movingExpense, categoryIndex) => ({
-        documentSetType: DOCUMENT_TYPES.MOVING_EXPENSE,
+        documentSetType: PPM_DOCUMENT_TYPES.MOVING_EXPENSE,
         documentSet: movingExpense,
         uploads: movingExpense.document.uploads,
         categoryIndex,
@@ -272,14 +272,14 @@ export const ReviewDocuments = ({ readOnly }) => {
             {serverError}
           </ErrorMessage>
           <div className={classNames(styles.top, styles.noBottomBorder)}>
-            {!readOnly && !showOverview && currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
+            {!readOnly && !showOverview && currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET && (
               <>
                 <DocumentViewerFileManager
                   title="Full Weight Documents"
                   orderId={order.orderId}
                   documentId={currentDocumentSet.documentSet.emptyDocumentId}
                   files={currentDocumentSet.documentSet.emptyDocument.uploads}
-                  documentType={DOCUMENT_TYPES.WEIGHT_TICKET}
+                  documentType={PPM_DOCUMENT_TYPES.WEIGHT_TICKET}
                   onAddFile={() => {
                     setFileUploading(true);
                   }}
@@ -291,7 +291,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                   orderId={order.orderId}
                   documentId={currentDocumentSet.documentSet.fullDocumentId}
                   files={currentDocumentSet.documentSet.fullDocument.uploads}
-                  documentType={DOCUMENT_TYPES.WEIGHT_TICKET}
+                  documentType={PPM_DOCUMENT_TYPES.WEIGHT_TICKET}
                   onAddFile={() => {
                     setFileUploading(true);
                   }}
@@ -300,13 +300,13 @@ export const ReviewDocuments = ({ readOnly }) => {
                 />
               </>
             )}
-            {!readOnly && !showOverview && currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
+            {!readOnly && !showOverview && currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE && (
               <DocumentViewerFileManager
                 title="Moving Expense Documents"
                 orderId={order.orderId}
                 documentId={currentDocumentSet.documentSet.documentId}
                 files={currentDocumentSet.documentSet.document.uploads}
-                documentType={DOCUMENT_TYPES.MOVING_EXPENSE}
+                documentType={PPM_DOCUMENT_TYPES.MOVING_EXPENSE}
                 onAddFile={() => {
                   setFileUploading(true);
                 }}
@@ -316,13 +316,13 @@ export const ReviewDocuments = ({ readOnly }) => {
             )}
             {!readOnly &&
               !showOverview &&
-              currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
+              currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
                 <DocumentViewerFileManager
                   title="Pro Gear Documents"
                   orderId={order.orderId}
                   documentId={currentDocumentSet.documentSet.documentId}
                   files={currentDocumentSet.documentSet.document.uploads}
-                  documentType={DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET}
+                  documentType={PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET}
                   onAddFile={() => {
                     setFileUploading(true);
                   }}
@@ -333,7 +333,7 @@ export const ReviewDocuments = ({ readOnly }) => {
             {!readOnly &&
               showOverview &&
               documentSets.map((documentSet) => {
-                if (documentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET) {
+                if (documentSet.documentSetType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET) {
                   return (
                     <>
                       <DocumentViewerFileManager
@@ -341,7 +341,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                         orderId={order.orderId}
                         documentId={documentSet.documentSet.emptyDocumentId}
                         files={documentSet.documentSet.emptyDocument.uploads}
-                        documentType={DOCUMENT_TYPES.WEIGHT_TICKET}
+                        documentType={PPM_DOCUMENT_TYPES.WEIGHT_TICKET}
                         onAddFile={() => {
                           setFileUploading(true);
                         }}
@@ -353,7 +353,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                         orderId={order.orderId}
                         documentId={documentSet.documentSet.fullDocumentId}
                         files={documentSet.documentSet.fullDocument.uploads}
-                        documentType={DOCUMENT_TYPES.WEIGHT_TICKET}
+                        documentType={PPM_DOCUMENT_TYPES.WEIGHT_TICKET}
                         onAddFile={() => {
                           setFileUploading(true);
                         }}
@@ -363,14 +363,14 @@ export const ReviewDocuments = ({ readOnly }) => {
                     </>
                   );
                 }
-                if (documentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+                if (documentSet.documentSetType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
                   return (
                     <DocumentViewerFileManager
                       title="Pro Gear Documents"
                       orderId={order.orderId}
                       documentId={documentSet.documentSet.documentId}
                       files={documentSet.documentSet.document.uploads}
-                      documentType={DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET}
+                      documentType={PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET}
                       onAddFile={() => {
                         setFileUploading(true);
                       }}
@@ -385,7 +385,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     orderId={order.orderId}
                     documentId={documentSet.documentSet.documentId}
                     files={documentSet.documentSet.document.uploads}
-                    documentType={DOCUMENT_TYPES.MOVING_EXPENSE}
+                    documentType={PPM_DOCUMENT_TYPES.MOVING_EXPENSE}
                     onAddFile={() => {
                       setFileUploading(true);
                     }}
@@ -413,7 +413,7 @@ export const ReviewDocuments = ({ readOnly }) => {
               />
             ) : (
               <>
-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
+                {currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET && (
                   <ReviewWeightTicket
                     key={documentSetIndex}
                     weightTicket={currentDocumentSet.documentSet}
@@ -433,7 +433,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     readOnly={readOnly}
                   />
                 )}
-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
+                {currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
                     ppmShipmentInfo={ppmShipmentInfo}
@@ -447,7 +447,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     order={order}
                   />
                 )}
-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
+                {currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE && (
                   <ReviewExpense
                     key={documentSetIndex}
                     expense={currentDocumentSet.documentSet}
