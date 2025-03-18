@@ -33,11 +33,6 @@ export const titleCase = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-export const APP_NAME = {
-  MYMOVE: 'MYMOVE',
-  OFFICE: 'OFFICE',
-};
-
 export const MOVE_STATUSES = {
   DRAFT: 'DRAFT',
   SUBMITTED: 'SUBMITTED',

@@ -19,7 +19,7 @@ import {
   deleteUploadForDocument,
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
-import { APP_NAME } from 'shared/constants';
+import { APP_NAME } from 'constants/appConstants';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);

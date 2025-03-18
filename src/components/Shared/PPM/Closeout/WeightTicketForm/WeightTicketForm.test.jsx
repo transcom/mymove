@@ -3,7 +3,7 @@ import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import WeightTicketForm from 'components/Shared/PPM/Closeout/WeightTicketForm/WeightTicketForm';
-import { APP_NAME } from 'shared/constants';
+import { APP_NAME } from 'constants/appConstants';
 
 beforeEach(() => {
   jest.clearAllMocks();
