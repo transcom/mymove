@@ -69,7 +69,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReSe
 	suite.MustSave(&otherPrice)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code models.ReServiceCode, schedule int, perUnitCents unit.Cents) {
+func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code models.ReServiceCode, schedule int) {
 	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
@@ -80,12 +80,15 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code model
 
 	service := factory.FetchReServiceByCode(suite.DB(), code)
 
-	accessorialPrice := models.ReDomesticAccessorialPrice{
-		ContractID:       contractYear.Contract.ID,
-		ServiceID:        service.ID,
-		ServicesSchedule: schedule,
-		PerUnitCents:     perUnitCents,
-	}
+	accessorialPrice := factory.FetchOrMakeAccessorialOtherPrice(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReDomesticAccessorialPrice{
+				ContractID:       contractYear.Contract.ID,
+				ServiceID:        service.ID,
+				ServicesSchedule: schedule,
+			},
+		},
+	}, nil)
 
 	suite.MustSave(&accessorialPrice)
 }

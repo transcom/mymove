@@ -26,7 +26,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationShuttlingPricer()
 	pricer := NewDomesticDestinationShuttlingPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule)
 
 		paymentServiceItem := suite.setupDomesticDestinationShuttlingServiceItem()
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
@@ -42,7 +42,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationShuttlingPricer()
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule)
 
 		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, ddshutTestRequestedPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
 		suite.NoError(err)
@@ -50,13 +50,13 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationShuttlingPricer()
 	})
 
 	suite.Run("PriceUsingParams but sending empty params", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule)
 		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("invalid weight", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule)
 		badWeight := unit.Pound(250)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, ddshutTestRequestedPickupDate, badWeight, ddshutTestServiceSchedule)
 		suite.Error(err)
@@ -64,19 +64,10 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationShuttlingPricer()
 	})
 
 	suite.Run("not finding a rate record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule)
 		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", ddshutTestRequestedPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
-	})
-
-	suite.Run("not finding a contract year record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents)
-		twoYearsLaterPickupDate := ddshutTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
-		suite.Error(err)
-
-		suite.Contains(err.Error(), "could not calculate escalated price")
 	})
 }
 

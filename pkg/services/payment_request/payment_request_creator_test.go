@@ -1385,7 +1385,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	})
 
 	// DLH price data
-	testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
 			ContractID:            contractYear.Contract.ID,
 			Contract:              contractYear.Contract,

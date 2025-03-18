@@ -29,7 +29,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticNTSPackPricer() {
 	pricer := NewDomesticNTSPackPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
+		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor)
 		paymentServiceItem := suite.setupDomesticNTSPackServiceItem()
 
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
@@ -106,35 +106,25 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackServiceItem() models
 	)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int, isPeakPeriod bool, priceCents unit.Cents, market models.Market, factor float64, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
-		testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: testdatagen.ContractStartDate,
-				EndDate:   testdatagen.ContractEndDate,
-			},
-		})
+func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int, isPeakPeriod bool, priceCents unit.Cents, market models.Market, factor float64) {
 
 	packService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
 
 	factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
 		{
 			Model: models.ReDomesticOtherPrice{
-				ContractID:   contractYear.Contract.ID,
 				ServiceID:    packService.ID,
 				IsPeakPeriod: isPeakPeriod,
 				Schedule:     schedule,
-				PriceCents:   priceCents,
 			},
 		},
 	}, nil)
 
 	ntsPackService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDNPK)
 	shipmentTypePrice := models.ReShipmentTypePrice{
-		ContractID: contractYear.Contract.ID,
-		ServiceID:  ntsPackService.ID,
-		Market:     market,
-		Factor:     factor,
+		ServiceID: ntsPackService.ID,
+		Market:    market,
+		Factor:    factor,
 	}
 
 	suite.MustSave(&shipmentTypePrice)

@@ -26,7 +26,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 	pricer := NewDomesticOriginShuttlingPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule)
 
 		paymentServiceItem := suite.setupDomesticOriginShuttlingServiceItem()
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
@@ -42,7 +42,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule)
 
 		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 		suite.NoError(err)
@@ -50,13 +50,13 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 	})
 
 	suite.Run("PriceUsingParams but sending empty params", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule)
 		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("invalid weight", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule)
 		badWeight := unit.Pound(250)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, badWeight, doshutTestServiceSchedule)
 		suite.Error(err)
@@ -64,14 +64,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 	})
 
 	suite.Run("not finding a rate record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule)
 		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
 	})
 
 	suite.Run("not finding a contract year record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule)
 		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 		suite.Error(err)
