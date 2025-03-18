@@ -294,9 +294,6 @@ export function formatMtoShipmentForDisplay({
 
 export function formatPpmShipmentForAPI(formValues) {
   let ppmShipmentValues = {
-    expectedDepartureDate: formatDateForSwagger(formValues.expectedDepartureDate),
-    pickupAddress: formatAddressForAPI(formValues.pickup.address),
-    destinationAddress: formatAddressForAPI(formValues.destination.address),
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
@@ -309,6 +306,13 @@ export function formatPpmShipmentForAPI(formValues) {
     isActualExpenseReimbursement: formValues.isActualExpenseReimbursement === 'true',
     closeoutOfficeID: formValues.closeoutOffice?.id,
   };
+
+  if (formValues.expectedDepartureDate !== undefined)
+    ppmShipmentValues.expectedDepartureDate = formatDateForSwagger(formValues.expectedDepartureDate);
+  if (formValues.pickup.address !== undefined)
+    ppmShipmentValues.pickupAddress = formatAddressForAPI(formValues.pickup.address);
+  if (formValues.destination.address !== undefined)
+    ppmShipmentValues.destinationAddress = formatAddressForAPI(formValues.destination.address);
 
   if (ppmShipmentValues.hasSecondaryPickupAddress) {
     ppmShipmentValues = {
@@ -369,7 +373,7 @@ export function formatPpmShipmentForAPI(formValues) {
 
   return {
     shipmentType: 'PPM',
-    counselorRemarks: formValues.counselorRemarks === undefined ? undefined : formValues.counselorRemarks,
+    counselorRemarks: !formValues.counselorRemarks ? undefined : formValues.counselorRemarks,
     ppmShipment: ppmShipmentValues,
   };
 }
