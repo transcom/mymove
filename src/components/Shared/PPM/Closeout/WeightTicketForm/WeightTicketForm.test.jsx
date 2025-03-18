@@ -158,6 +158,16 @@ describe('WeightTicketForm component', () => {
         expect(screen.getByRole('heading', { level: 2, name: 'Trip 2' })).toBeInTheDocument();
       });
 
+      expect(
+        screen.getByText(
+          'Weight tickets should include both an empty or full weight ticket for each segment or trip. If you’re missing a weight ticket, you’ll be able to use a government-created spreadsheet to estimate the weight.',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Weight tickets must be certified, legible, and unaltered. Files must be 25MB or smaller.'),
+      ).toBeInTheDocument();
+      expect(screen.getByText('You must upload at least one set of weight tickets to get paid for your PPM.'));
+
       expect(screen.getByRole('heading', { level: 3, name: 'Vehicle' })).toBeInTheDocument();
       expect(screen.getByLabelText('Vehicle description')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Car make and model, type of truck or van, etc.')).toBeInTheDocument();
@@ -200,6 +210,16 @@ describe('WeightTicketForm component', () => {
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 2, name: 'Trip 2' })).toBeInTheDocument();
       });
+
+      expect(
+        screen.getByText(
+          'Weight tickets should include both an empty or full weight ticket for each segment or trip. If you’re missing a weight ticket, you’ll be able to use a government-created spreadsheet to estimate the weight.',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Weight tickets must be certified, legible, and unaltered. Files must be 25MB or smaller.'),
+      ).toBeInTheDocument();
+      expect(screen.getByText('You must upload at least one set of weight tickets to get paid for your PPM.'));
 
       expect(screen.getByRole('heading', { level: 3, name: 'Vehicle' })).toBeInTheDocument();
       expect(screen.getByLabelText('Vehicle description')).toBeInstanceOf(HTMLInputElement);

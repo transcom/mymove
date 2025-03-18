@@ -10,7 +10,6 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import closingPageStyles from 'pages/Office/PPM/Closeout/Closeout.module.scss';
 import WeightTicketForm from 'components/Shared/PPM/Closeout/WeightTicketForm/WeightTicketForm';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import {
@@ -180,15 +179,6 @@ const WeightTickets = () => {
                 <ShipmentTag shipmentType={shipmentTypes.PPM} />
                 <h1>Weight Tickets</h1>
                 {renderError()}
-                <div className={closingPageStyles['closing-section']}>
-                  <p>
-                    Weight tickets should include both an empty or full weight ticket for each segment or trip. If
-                    you’re missing a weight ticket, you’ll be able to use a government-created spreadsheet to estimate
-                    the weight.
-                  </p>
-                  <p>Weight tickets must be certified, legible, and unaltered. Files must be 25MB or smaller.</p>
-                  <p>You must upload at least one set of weight tickets to get paid for your PPM.</p>
-                </div>
                 <WeightTicketForm
                   weightTicket={currentWeightTicket}
                   tripNumber={currentWeightTicketIdx + 1}
