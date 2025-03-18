@@ -11,13 +11,11 @@ import (
 	golangswaggerpaths "path"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 )
 
 // CreateUploadURL generates an URL for the create upload operation
 type CreateUploadURL struct {
-	DocumentID    *strfmt.UUID
-	WeightReceipt bool
+	DocumentID *strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -59,11 +57,6 @@ func (o *CreateUploadURL) Build() (*url.URL, error) {
 	}
 	if documentIDQ != "" {
 		qs.Set("documentId", documentIDQ)
-	}
-
-	weightReceiptQ := swag.FormatBool(o.WeightReceipt)
-	if weightReceiptQ != "" {
-		qs.Set("weightReceipt", weightReceiptQ)
 	}
 
 	_result.RawQuery = qs.Encode()
