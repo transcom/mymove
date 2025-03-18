@@ -1,5 +1,0 @@
-type: object
-properties:
-  message:
-    type: string
-    example: 'Moves/Shipments acknowledgement successfully completed'

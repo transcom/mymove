@@ -40,7 +40,6 @@ const MaskedTextField = ({
   suffix,
   prefix,
   isDisabled,
-  showRequiredAsterisk,
   ...props
 }) => {
   const [field, metaProps, helpers] = useField({ id, name, validate, ...props });
@@ -63,11 +62,6 @@ const MaskedTextField = ({
       >
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
           {label}
-          {showRequiredAsterisk && (
-            <span data-testid="requiredAsterisk" className={styles.requiredAsterisk}>
-              *
-            </span>
-          )}
         </Label>
         {description && (
           <div className={styles.description} id={`description_${descriptionRef.current}`}>
@@ -170,7 +164,6 @@ MaskedTextField.propTypes = {
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
   isDisabled: PropTypes.bool,
-  showRequiredAsterisk: PropTypes.bool,
 };
 
 MaskedTextField.defaultProps = {
@@ -198,7 +191,6 @@ MaskedTextField.defaultProps = {
   error: false,
   errorMessage: '',
   isDisabled: false,
-  showRequiredAsterisk: false,
 };
 
 export default MaskedTextField;

@@ -353,7 +353,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 			ServiceMemberID: serviceMember.ID,
 		})
 		suite.Nil(err)
-		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, serviceMember.ID)
+		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
 		suite.NotNil(departmentIndictor)
 		suite.Nil(err)
 		suite.NotNil(departmentIndictor.DepartmentIndicator)

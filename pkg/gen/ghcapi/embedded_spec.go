@@ -8235,9 +8235,6 @@ func init() {
             }
           ]
         },
-        "ppmType": {
-          "$ref": "#/definitions/PPMType"
-        },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
@@ -12655,7 +12652,8 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ]
+      ],
+      "readOnly": true
     },
     "PWSViolation": {
       "description": "A PWS violation for an evaluation report",
@@ -15169,9 +15167,6 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
-        },
-        "ppmType": {
-          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -25898,9 +25893,6 @@ func init() {
             }
           ]
         },
-        "ppmType": {
-          "$ref": "#/definitions/PPMType"
-        },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
@@ -30392,7 +30384,8 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ]
+      ],
+      "readOnly": true
     },
     "PWSViolation": {
       "description": "A PWS violation for an evaluation report",
@@ -32965,9 +32958,6 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
-        },
-        "ppmType": {
-          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",

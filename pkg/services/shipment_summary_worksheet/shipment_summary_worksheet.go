@@ -306,12 +306,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	// Fill out form fields related to Actual Expense Reimbursement status
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
 		page1.IsActualExpenseReimbursement = *data.PPMShipment.IsActualExpenseReimbursement
-		page1.GCCExpenseReimbursementType = "Actual Expense Reimbursement"
-	}
-
-	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
-		page1.IsSmallPackageReimbursement = true
-		page1.GCCExpenseReimbursementType = "Small Package Reimbursement"
+		page1.GCCIsActualExpenseReimbursement = "Actual Expense Reimbursement"
 	}
 
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
@@ -378,8 +373,6 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.WeighingFeesGTCCPaid = FormatDollars(expensesMap["WeighingFeeGTCCPaid"])
 	page2.RentalEquipmentMemberPaid = FormatDollars(expensesMap["RentalEquipmentMemberPaid"])
 	page2.RentalEquipmentGTCCPaid = FormatDollars(expensesMap["RentalEquipmentGTCCPaid"])
-	page2.SmallPackageExpenseMemberPaid = FormatDollars(expensesMap["SmallPackageExpenseMemberPaid"])
-	page2.SmallPackageExpenseGTCCPaid = FormatDollars(expensesMap["SmallPackageExpenseGTCCPaid"])
 	page2.TollsMemberPaid = FormatDollars(expensesMap["TollsMemberPaid"])
 	page2.TollsGTCCPaid = FormatDollars(expensesMap["TollsGTCCPaid"])
 	page2.OilMemberPaid = FormatDollars(expensesMap["OilMemberPaid"])
@@ -401,14 +394,8 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.SignatureDate = certificationInfo.DateField
 
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
-		page2.IncentiveExpenseReimbursementType = "Actual Expense Reimbursement"
-		page2.HeaderExpenseReimbursementType = `This PPM is being processed as actual expense reimbursement for valid expenses not to exceed the
-		government constructed cost (GCC).`
-	}
-
-	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
-		page2.IncentiveExpenseReimbursementType = "Small Package Reimbursement"
-		page2.HeaderExpenseReimbursementType = `This PPM is being processed as small package reimbursement for valid expenses not to exceed the
+		page2.IncentiveIsActualExpenseReimbursement = "Actual Expense Reimbursement"
+		page2.HeaderIsActualExpenseReimbursement = `This PPM is being processed at actual expense reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`
 	}
 
@@ -1167,11 +1154,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		isActualExpenseReimbursement = true
 	}
 
-	isSmallPackageReimbursement := false
-	if ppmShipment.PPMType == models.PPMTypeSmallPackage {
-		isSmallPackageReimbursement = true
-	}
-
 	ssd := models.ShipmentSummaryFormData{
 		AllShipments:                 ppmShipment.Shipment.MoveTaskOrder.MTOShipments,
 		ServiceMember:                serviceMember,
@@ -1188,7 +1170,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		SignedCertifications:         signedCertifications,
 		MaxSITStorageEntitlement:     maxSit,
 		IsActualExpenseReimbursement: isActualExpenseReimbursement,
-		IsSmallPackageReimbursement:  isSmallPackageReimbursement,
 	}
 	return &ssd, nil
 }
@@ -1268,11 +1249,6 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		isActualExpenseReimbursement = true
 	}
 
-	isSmallPackageReimbursement := false
-	if Page1Values.IsSmallPackageReimbursement {
-		isSmallPackageReimbursement = true
-	}
-
 	var sswCheckbox = []checkbox{
 		{
 			Pages:   []int{2},
@@ -1288,14 +1264,6 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 			Name:    "IsActualExpenseReimbursement",
 			Value:   true,
 			Default: isActualExpenseReimbursement,
-			Locked:  false,
-		},
-		{
-			Pages:   []int{1},
-			ID:      "555",
-			Name:    "IsSmallPackageReimbursement",
-			Value:   true,
-			Default: isSmallPackageReimbursement,
 			Locked:  false,
 		},
 	}

@@ -27,9 +27,8 @@ import { fieldValidationShape } from 'utils/displayFlags';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { SHIPMENT_OPTIONS_URL, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { updateMTOShipment } from 'services/ghcApi';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { ORDERS_TYPE } from 'constants/orders';
+import { updateMTOShipment } from 'services/ghcApi';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
@@ -83,9 +82,7 @@ const SubmittedRequestedShipments = ({
     fetchData();
   }, []);
 
-  const { newDutyLocation, currentDutyLocation, ordersType } = ordersInfo;
-  const isLocalMove = ordersType === ORDERS_TYPE.LOCAL_MOVE;
-
+  const { newDutyLocation, currentDutyLocation } = ordersInfo;
   useEffect(() => {
     // Check if duty locations on the orders qualify as OCONUS to conditionally render the UB shipment option
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
@@ -148,9 +145,7 @@ const SubmittedRequestedShipments = ({
         {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
-        {!isLocalMove && enableUB && isOconusMove && (
-          <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>
-        )}
+        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
       </>
     );
   };

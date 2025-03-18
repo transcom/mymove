@@ -270,38 +270,6 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /move-task-orders/acknowledge:
-    patch:
-      summary: acknowledgeMovesAndShipments
-      description: >
-        ### Functionality
-
-        This endpoint **updates** the Moves and Shipments to indicate that the
-        Prime has acknowledged the Moves and Shipments have been received.
-
-        The Move and Shipment data is expected to be sent in the request body.
-      operationId: acknowledgeMovesAndShipments
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/AcknowledgeMoves'
-      tags:
-        - moveTaskOrder
-      responses:
-        '200':
-          description: Successfully updated Move and Shipment Acknowledgements.
-          schema:
-            $ref: '#/definitions/AcknowledgeMovesShipmentsSuccessResponse'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
   /mto-shipments:
     post:
       summary: createMTOShipment
@@ -1795,43 +1763,6 @@ paths:
           ]
         ```
 
-
-        **IUBPK - International UB Pack**
-
-        ```json
-          "params": [
-            {
-              "key": "WeightBilled",
-              "value": "integer"
-            }
-          ]
-        ```
-
-
-        **IUBUPK - International UB Unpack**
-
-        ```json
-          "params": [
-            {
-              "key": "WeightBilled",
-              "value": "integer"
-            }
-          ]
-        ```
-
-
-        **UBP - International UB**
-
-        ```json
-          "params": [
-            {
-              "key": "WeightBilled",
-              "value": "integer"
-            }
-          ]
-        ```
-
-
         ---
 
 
@@ -2356,11 +2287,6 @@ definitions:
         format: date-time
         type: string
         readOnly: true
-      primeAcknowledgedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        readOnly: true
       ppmType:
         type: string
         enum:
@@ -2477,11 +2403,6 @@ definitions:
         x-nullable: true
       eTag:
         type: string
-        readOnly: true
-      primeAcknowledgedAt:
-        format: date-time
-        type: string
-        x-nullable: true
         readOnly: true
   MTOServiceItemBasic:
     description: Describes a basic service item subtype of a MTOServiceItem.
@@ -5281,11 +5202,6 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
-      primeAcknowledgedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        readOnly: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
@@ -5363,42 +5279,6 @@ definitions:
                 type: string
         required:
           - invalidFields
-  AcknowledgeShipment:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-      primeAcknowledgedAt:
-        type: string
-        format: date-time
-        example: '2025-04-13T14:15:33Z'
-  AcknowledgeMove:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: a502b4f1-b9c4-4faf-8bdd-68292501bf26
-      primeAcknowledgedAt:
-        type: string
-        format: date-time
-        example: '2025-04-13T14:15:22Z'
-      mtoShipments:
-        type: array
-        items:
-          $ref: '#/definitions/AcknowledgeShipment'
-  AcknowledgeMoves:
-    type: array
-    items:
-      $ref: '#/definitions/AcknowledgeMove'
-  AcknowledgeMovesShipmentsSuccessResponse:
-    type: object
-    properties:
-      message:
-        type: string
-        example: Moves/Shipments acknowledgement successfully completed
   VLocation:
     description: A postal code, city, and state lookup
     type: object

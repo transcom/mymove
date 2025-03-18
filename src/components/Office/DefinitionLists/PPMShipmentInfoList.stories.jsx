@@ -1,8 +1,7 @@
 import React from 'react';
+// import { object, text } from '@storybook/addon-knobs';
 
 import PPMShipmentInfoList from './PPMShipmentInfoList';
-
-import { PPM_TYPES } from 'shared/constants';
 
 export default {
   title: 'Office Components/PPM Shipment Info List',
@@ -11,7 +10,6 @@ export default {
 
 const ppmInfo = {
   ppmShipment: {
-    ppmType: PPM_TYPES.INCENTIVE_BASED,
     actualMoveDate: null,
     hasRequestedAdvance: true,
     advanceAmountRequested: 598700,

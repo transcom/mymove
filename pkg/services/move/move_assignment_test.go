@@ -337,7 +337,7 @@ func (suite *MoveServiceSuite) TestBulkMoveAssignment() {
 
 		suite.Equal(officeUser.ID, *move1.TOOAssignedID)
 		suite.Equal(officeUser.ID, *move2.TOOAssignedID)
-		suite.Nil(move3.TOOAssignedID)
+		suite.Nil(move3.SCAssignedID)
 	})
 
 	suite.Run("successfully assigns payment requests to a TIO user", func() {

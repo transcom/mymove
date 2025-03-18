@@ -540,9 +540,8 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 	} else if order.HasDependents {
 		hasDepedents = true
 	}
-	civilianTDYUBAllowance := 0 // TODO in B-22605
 	if order.Entitlement != nil {
-		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, &hasDepedents, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver, &civilianTDYUBAllowance)
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, &hasDepedents, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
 		if err == nil {
 			order.Entitlement.UBAllowance = &unaccompaniedBaggageAllowance
 		}
@@ -550,7 +549,6 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 
 	return order, nil
 }
-
 func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) (models.Order, error) {
 	order := existingOrder
 	waf := entitlements.NewWeightAllotmentFetcher()
@@ -650,9 +648,8 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	}
 
 	// Recalculate UB allowance of order entitlement
-	civilianTDYUBAllowance := 0 // TODO in B-22605
 	if order.Entitlement != nil {
-		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, order.Entitlement.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver, &civilianTDYUBAllowance)
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, order.Entitlement.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
 		if err != nil {
 			return models.Order{}, err
 		}
@@ -827,10 +824,9 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		order.DestinationGBLOC = newDestinationGBLOC
 	}
 
-	civilianTDYUBAllowance := 0 // TODO in B-22605
 	// Recalculate UB allowance of order entitlement
 	if order.Entitlement != nil {
-		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, order.Entitlement.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver, &civilianTDYUBAllowance)
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, order.Entitlement.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
 		if err == nil {
 			order.Entitlement.UBAllowance = &unaccompaniedBaggageAllowance
 		}
@@ -850,46 +846,25 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 	}
 
 	// change actual expense reimbursement to 'true' for all PPM shipments if pay grade is civilian
-	// if not, do the opposite and make the PPM type INCENTIVE_BASED
 	if order.Grade != nil && *order.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
 		moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
-		if fetchErr != nil {
-			appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(fetchErr))
+		if fetchErr != nil || len(moves) == 0 {
+			appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(err))
 		} else {
-			var move *models.Move
-			for i := range moves {
-				if moves[i].OrdersID == order.ID {
-					move = &moves[i]
-					break
-				}
-			}
-			if move == nil {
-				appCtx.Logger().Error("no move found matching order ID", zap.String("orderID", order.ID.String()))
-			} else {
-				// look at the values and see if the grade is CIVILIAN_EMPLOYEE
-				isCivilian := *order.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE
-				reimbursementVal := isCivilian
-				var ppmType models.PPMType
-				if isCivilian {
-					ppmType = models.PPMTypeActualExpense
-				} else {
-					ppmType = models.PPMTypeIncentiveBased
-				}
+			move := moves[0]
+			for i := range move.MTOShipments {
+				shipment := &move.MTOShipments[i]
 
-				for i := range move.MTOShipments {
-					shipment := &move.MTOShipments[i]
-					if shipment.ShipmentType == models.MTOShipmentTypePPM && shipment.Status == models.MTOShipmentStatusSubmitted && shipment.PPMShipment.PPMType == models.PPMTypeIncentiveBased {
-						if shipment.PPMShipment == nil {
-							appCtx.Logger().Warn("PPM shipment not found for MTO shipment", zap.String("shipmentID", shipment.ID.String()))
-							continue
-						}
-						shipment.PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(reimbursementVal)
-						shipment.PPMShipment.PPMType = ppmType
+				if shipment.ShipmentType == models.MTOShipmentTypePPM {
+					if shipment.PPMShipment == nil {
+						appCtx.Logger().Warn("PPM shipment not found for MTO shipment", zap.String("shipmentID", shipment.ID.String()))
+						continue
+					}
+					shipment.PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(true)
 
-						if verrs, err := appCtx.DB().ValidateAndUpdate(shipment.PPMShipment); verrs.HasAny() || err != nil {
-							msg := "failure saving PPM shipment when updating orders"
-							appCtx.Logger().Error(msg, zap.Error(err))
-						}
+					if verrs, err := appCtx.DB().ValidateAndUpdate(shipment.PPMShipment); verrs.HasAny() || err != nil {
+						msg := "failure saving PPM shipment when updating orders"
+						appCtx.Logger().Error(msg, zap.Error(err))
 					}
 				}
 			}

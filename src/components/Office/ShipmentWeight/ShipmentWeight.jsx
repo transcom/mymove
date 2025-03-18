@@ -31,7 +31,7 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
-        <h3 className={styles.SectionHeader}>Weight</h3>
+        <h2 className={styles.SectionHeader}>Weight</h2>
 
         <Grid row gap>
           <Grid col={6}>

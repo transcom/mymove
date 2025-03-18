@@ -455,12 +455,6 @@ describe('PrimeUIShipmentCreateForm', () => {
     const hasTertiaryDestination = await screen.findByTestId('has-tertiary-destination');
     await userEvent.click(hasTertiaryDestination);
     expect(screen.getAllByLabelText('Address 1')[5]).toHaveValue('');
-
-    expect(
-      screen.getByText('Will the movers deliver any belongings to a third address?', {
-        exact: false,
-      }),
-    ).toBeInTheDocument();
   });
 
   it('does not render secondary pickup address question for HHG_OUTOF_NTS', async () => {

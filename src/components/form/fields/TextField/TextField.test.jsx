@@ -40,32 +40,6 @@ describe('TextField component', () => {
     expect(queryByLabelText('First Name')).toHaveAttribute('id', 'firstName');
   });
 
-  it('renders the required red asterisk when prop is provided', () => {
-    const mockMeta = {
-      touched: false,
-      error: '',
-      initialError: '',
-      initialTouched: false,
-      initialValue: '',
-      value: '',
-    };
-    const mockField = {
-      value: '',
-      checked: false,
-      onChange: jest.fn(),
-      onBlur: jest.fn(),
-      multiple: undefined,
-      name: 'firstName',
-    };
-
-    useField.mockReturnValue([mockField, mockMeta]);
-
-    const { getByTestId } = render(
-      <TextField name="firstName" label="First Name" type="text" id="firstName" required showRequiredAsterisk />,
-    );
-    expect(getByTestId('requiredAsterisk')).toBeInTheDocument();
-  });
-
   it('passes a custom className prop to the input element', () => {
     useField.mockReturnValue([{}, {}]);
 

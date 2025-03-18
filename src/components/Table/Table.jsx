@@ -123,7 +123,6 @@ const Table = ({
               id="table-pagination"
               className={styles.paginationSelect}
               name="table-pagination"
-              data-testid="table-pagination"
               value={pageIndex}
               onChange={(e) => gotoPage(Number(e.target.value))}
               aria-label="page number"

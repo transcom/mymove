@@ -67,10 +67,6 @@ test.describe('TOO user', () => {
       await page.getByTestId('searchText').fill(SearchTerms[0]);
       await page.getByTestId('searchTextSubmit').click();
 
-      // Ensure we are on the first page
-      const currentPage = await page.locator('[data-testid="table-pagination"]').innerText();
-      expect(currentPage).toBe('1');
-
       const StatusFilter = page.getByTestId('MultiSelectCheckBoxFilter');
       await StatusFilter.click();
 
@@ -648,7 +644,7 @@ test.describe('TOO user', () => {
 
   test('approves a delivery address change request for an HHG shipment', async ({ officePage, page }) => {
     test.setTimeout(300000); // This one has been a headache forever. Shoehorn fix to go way above default "slow" timeout
-    const shipmentAddressUpdate = await officePage.testHarness.buildHHGMoveWithAddressChangeRequest();
+    const shipmentAddressUpdate = await officePage.testHarness.bulidHHGMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
     tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
     await tooFlowPage.waitForLoading();

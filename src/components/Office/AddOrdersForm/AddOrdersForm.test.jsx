@@ -228,8 +228,7 @@ describe('CreateMoveCustomerInfo Component', () => {
 
 describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
   it('submits the form with OCONUS values and accompanied tour selection', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(true);
-
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     render(
       <Provider params={mockParams} store={mockStore.store}>
         <AddOrdersForm {...testProps} />
@@ -242,21 +241,28 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB');
-    await userEvent.click(await screen.findByText(/Elmendorf/));
+    // Test Current Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Elmendorf/);
+    await userEvent.click(selectedOptionCurrent);
 
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
     expect(counselingOfficeLabel).toBeFalsy();
 
-    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB');
-    await userEvent.click(await screen.findByText(/Luke/));
+    // Test New Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
 
     await userEvent.click(screen.getByTestId('hasDependentsYes'));
+
+    // should now see the OCONUS inputs
     await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
     await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '2');
     await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '1');
 
     const nextBtn = screen.getByRole('button', { name: 'Next' });
+    expect(nextBtn).not.toBeDisabled();
     await userEvent.click(nextBtn);
 
     await waitFor(() => {

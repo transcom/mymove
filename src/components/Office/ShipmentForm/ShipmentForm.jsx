@@ -49,14 +49,7 @@ import {
   updateMoveCloseoutOffice,
   dateSelectionIsWeekendHoliday,
 } from 'services/ghcApi';
-import {
-  FEATURE_FLAG_KEYS,
-  getPPMTypeLabel,
-  PPM_TYPES,
-  SHIPMENT_OPTIONS,
-  SHIPMENT_TYPES,
-  technicalHelpDeskURL,
-} from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES, technicalHelpDeskURL } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -114,20 +107,14 @@ const ShipmentForm = (props) => {
   const [errorCode, setErrorCode] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [shipmentAddressUpdateReviewErrorMessage, setShipmentAddressUpdateReviewErrorMessage] = useState(null);
+
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
-  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
-  const [ppmSprFF, setPpmSprFF] = useState(false);
 
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
-    };
-    fetchData();
-  }, []);
-  useEffect(() => {
-    const fetchData = async () => {
-      setPpmSprFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR));
     };
     fetchData();
   }, []);
@@ -186,6 +173,8 @@ const ShipmentForm = (props) => {
   });
 
   const getShipmentNumber = () => {
+    // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
+    // we should fix this also b/c it doesn't display correctly in storybook
     const { search } = window.location;
     const params = new URLSearchParams(search);
     const shipmentNumber = params.get('shipmentNumber');
@@ -309,6 +298,8 @@ const ShipmentForm = (props) => {
             closeoutOffice: move.closeoutOffice,
           },
     );
+    if (isCreatePage && serviceMember?.grade === 'CIVILIAN_EMPLOYEE')
+      initialValues.isActualExpenseReimbursement = 'true';
   } else if (isMobileHome) {
     const hhgInitialValues = formatMtoShipmentForDisplay(
       isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
@@ -368,15 +359,8 @@ const ShipmentForm = (props) => {
 
   const submitMTOShipment = (formValues, actions) => {
     //* PPM Shipment *//
-    const newFormValues = formValues;
     if (isPPM) {
-      if (isAdvancePage) {
-        // Delete all form values not related to advance in order to avoid duplicate move history logs and unnecessary duplicate updates
-        delete newFormValues.pickupAddress;
-        delete newFormValues.destinationAddress;
-        delete newFormValues.expectedDepartureDate;
-      }
-      const ppmShipmentBody = formatPpmShipmentForAPI(newFormValues);
+      const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
 
       // Allow blank values to be entered into Pro Gear input fields
       if (
@@ -638,7 +622,6 @@ const ShipmentForm = (props) => {
     >
       {({ values, isValid, isSubmitting, setValues, handleSubmit, setFieldError, validateForm, ...formikProps }) => {
         const {
-          ppmType,
           hasSecondaryDestination,
           hasTertiaryDestination,
           hasDeliveryAddress,
@@ -646,16 +629,8 @@ const ShipmentForm = (props) => {
           hasSecondaryDelivery,
           hasTertiaryPickup,
           hasTertiaryDelivery,
+          isActualExpenseReimbursement,
         } = values;
-
-        const isCivilian = serviceMember?.grade === 'CIVILIAN_EMPLOYEE';
-        if (!ppmType) {
-          const type = isCivilian ? PPM_TYPES.ACTUAL_EXPENSE : PPM_TYPES.INCENTIVE_BASED;
-          setValues({
-            ...values,
-            ppmType: type,
-          });
-        }
         const lengthHasError = !!(
           (formikProps.touched.lengthFeet && formikProps.errors.lengthFeet === 'Required') ||
           (formikProps.touched.lengthInches && formikProps.errors.lengthFeet === 'Required')
@@ -849,14 +824,9 @@ const ShipmentForm = (props) => {
               <div className={styles.headerWrapper}>
                 <div>
                   <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
-                  {ppmType === PPM_TYPES.SMALL_PACKAGE && (
-                    <Tag className={styles.tagInfo} data-testid="ppmTypeTag">
-                      {getPPMTypeLabel(ppmType)}
-                    </Tag>
-                  )}
-                  {ppmType === PPM_TYPES.ACTUAL_EXPENSE && (
+                  {isActualExpenseReimbursement === 'true' && (
                     <Tag className={styles.tagInfo} data-testid="actualExpenseReimbursementTag">
-                      {getPPMTypeLabel(ppmType)}
+                      Actual Expense Reimbursement
                     </Tag>
                   )}
 
@@ -874,15 +844,7 @@ const ShipmentForm = (props) => {
                   </Button>
                 )}
               </div>
-              {isPPM && !isAdvancePage && isServiceCounselor && isCreatePage && (
-                <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                  <Alert type="warning" aria-live="polite" headingLevel="h4" data-testid="scPPMCreateWarning">
-                    Creating a PPM as a Service Counselor will automatically approve the PPM shipment and send it to the
-                    customer. Please ensure all information is correct. After creation you will not be able to edit the
-                    shipment.
-                  </Alert>
-                </SectionWrapper>
-              )}
+
               <SectionWrapper className={styles.weightAllowance}>
                 {isUB ? (
                   <p data-testid="ubWeightAllowance">
@@ -902,19 +864,6 @@ const ShipmentForm = (props) => {
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
-                {isBoat && (
-                  <BoatShipmentForm
-                    lengthHasError={lengthHasError}
-                    widthHasError={widthHasError}
-                    heightHasError={heightHasError}
-                    values={values}
-                    setFieldTouched={formikProps.setFieldTouched}
-                    setFieldError={setFieldError}
-                    validateForm={validateForm}
-                    dimensionError={dimensionError}
-                  />
-                )}
-
                 {isMobileHome && (
                   <MobileHomeShipmentForm
                     lengthHasError={lengthHasError}
@@ -928,9 +877,22 @@ const ShipmentForm = (props) => {
                   />
                 )}
 
+                {isBoat && (
+                  <BoatShipmentForm
+                    lengthHasError={lengthHasError}
+                    widthHasError={widthHasError}
+                    heightHasError={heightHasError}
+                    values={values}
+                    setFieldTouched={formikProps.setFieldTouched}
+                    setFieldError={setFieldError}
+                    validateForm={validateForm}
+                    dimensionError={dimensionError}
+                  />
+                )}
+
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
-                    <h3 className={styles.SectionHeaderExtraSpacing}>Pickup details</h3>
+                    <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
                     <Fieldset>
                       {isRequestedPickupDateAlertVisible && (
                         <Alert type="warning" aria-live="polite" headingLevel="h4">
@@ -1081,7 +1043,7 @@ const ShipmentForm = (props) => {
 
                 {showDeliveryFields && (
                   <SectionWrapper className={formStyles.formSection}>
-                    <h3 className={styles.SectionHeaderExtraSpacing}>Delivery details</h3>
+                    <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
                     <Fieldset>
                       {isRequestedDeliveryDateAlertVisible && (
                         <Alert type="warning" aria-live="polite" headingLevel="h4">
@@ -1167,7 +1129,7 @@ const ShipmentForm = (props) => {
                                 <>
                                   <h4>Third Delivery Address</h4>
                                   <FormGroup>
-                                    <p>Do you want the movers to deliver any belongings to a third address?</p>
+                                    <p>Do you want the movers to deliver any belongings from a third address?</p>
                                     <div className={formStyles.radioGroup}>
                                       <Field
                                         as={Radio}
@@ -1342,7 +1304,9 @@ const ShipmentForm = (props) => {
                                         <>
                                           <h4>Third Delivery Address</h4>
                                           <FormGroup>
-                                            <p>Do you want the movers to deliver any belongings to a third address?</p>
+                                            <p>
+                                              Do you want the movers to deliver any belongings from a third address?
+                                            </p>
                                             <div className={formStyles.radioGroup}>
                                               <Field
                                                 as={Radio}
@@ -1430,61 +1394,42 @@ const ShipmentForm = (props) => {
                 {isPPM && !isAdvancePage && (
                   <>
                     {isServiceCounselor && (
-                      <SectionWrapper
-                        className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}
-                        data-testid="ppmTypeSection"
-                      >
-                        <h3>PPM Type</h3>
+                      <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+                        <h2>Actual Expense Reimbursement</h2>
                         <FormGroup>
-                          <Label className={styles.Label} htmlFor="ppmType">
-                            Indicate the PPM Type
+                          <Label className={styles.Label} htmlFor="isActualExpenseReimbursement">
+                            Is this PPM an Actual Expense Reimbursement?
                           </Label>
                           <Field
                             as={Radio}
-                            id="isIncentiveBased"
-                            label={getPPMTypeLabel(PPM_TYPES.INCENTIVE_BASED)}
-                            name="ppmType"
-                            value={PPM_TYPES.INCENTIVE_BASED}
-                            checked={(ppmType == null && !isCivilian) || ppmType === PPM_TYPES.INCENTIVE_BASED}
-                            disabled={isCivilian}
+                            id="isActualExpenseReimbursementYes"
+                            label="Yes"
+                            name="isActualExpenseReimbursement"
+                            value="true"
+                            title="Yes"
+                            checked={isActualExpenseReimbursement === 'true'}
+                            disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
                             className={styles.buttonGroup}
-                            data-testid="isIncentiveBased"
+                            data-testid="isActualExpenseReimbursementYes"
                           />
                           <Field
                             as={Radio}
-                            id="isActualExpense"
-                            label={getPPMTypeLabel(PPM_TYPES.ACTUAL_EXPENSE)}
-                            name="ppmType"
-                            value={PPM_TYPES.ACTUAL_EXPENSE}
-                            checked={(ppmType == null && isCivilian) || ppmType === PPM_TYPES.ACTUAL_EXPENSE}
+                            id="isActualExpenseReimbursementNo"
+                            label="No"
+                            name="isActualExpenseReimbursement"
+                            value="false"
+                            title="No"
+                            checked={isActualExpenseReimbursement !== 'true'}
+                            disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
                             className={styles.buttonGroup}
-                            data-testid="isActualExpense"
+                            data-testid="isActualExpenseReimbursementNo"
                           />
-                          {ppmSprFF && (
-                            <Field
-                              as={Radio}
-                              id="isSmallPackage"
-                              label={getPPMTypeLabel(PPM_TYPES.SMALL_PACKAGE)}
-                              name="ppmType"
-                              value={PPM_TYPES.SMALL_PACKAGE}
-                              checked={ppmType === PPM_TYPES.SMALL_PACKAGE}
-                              className={styles.buttonGroup}
-                              data-testid="isSmallPackage"
-                            />
-                          )}
                         </FormGroup>
                       </SectionWrapper>
                     )}
                     <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                      <h3>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped Date' : 'Departure Date'}</h3>
-                      <DatePickerInput
-                        name="expectedDepartureDate"
-                        label={
-                          ppmType === PPM_TYPES.SMALL_PACKAGE
-                            ? 'When did the customer ship their package?'
-                            : 'Planned Departure Date'
-                        }
-                      />
+                      <h2>Departure date</h2>
+                      <DatePickerInput name="expectedDepartureDate" label="Planned Departure Date" />
                       <Hint className={ppmStyles.hint}>
                         Enter the first day you expect to move things. It&apos;s OK if the actual date is different. We
                         will ask for your actual departure date when you document and complete your PPM.
@@ -1709,7 +1654,7 @@ const ShipmentForm = (props) => {
                     </SectionWrapper>
                     {showCloseoutOffice && (
                       <SectionWrapper>
-                        <h3>Closeout office</h3>
+                        <h2>Closeout office</h2>
                         <CloseoutOfficeInput
                           hint="If there is more than one PPM for this move, the closeout office will be the same for all your PPMs."
                           name="closeoutOffice"
@@ -1719,13 +1664,11 @@ const ShipmentForm = (props) => {
                         />
                       </SectionWrapper>
                     )}
-                    {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
-                      <ShipmentCustomerSIT
-                        sitEstimatedWeight={mtoShipment.ppmShipment?.sitEstimatedWeight}
-                        sitEstimatedEntryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
-                        sitEstimatedDepartureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
-                      />
-                    )}
+                    <ShipmentCustomerSIT
+                      sitEstimatedWeight={mtoShipment.ppmShipment?.sitEstimatedWeight}
+                      sitEstimatedEntryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
+                      sitEstimatedDepartureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
+                    />
                     <ShipmentWeight
                       authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()}
                       onEstimatedWeightChange={updateEstimatedWeightValue}

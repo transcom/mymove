@@ -11,7 +11,6 @@ import { updateMTOShipment, updateMove } from 'store/entities/actions';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { MockProviders } from 'testUtils';
-import { PPM_TYPES } from 'shared/constants';
 
 const mockNavigate = jest.fn();
 
@@ -242,7 +241,6 @@ describe('DateAndLocation component', () => {
           moveTaskOrderID: mockMoveId,
           shipmentType: 'PPM',
           ppmShipment: {
-            ppmType: PPM_TYPES.INCENTIVE_BASED,
             destinationAddress: {
               city: 'Richmond',
               postalCode: '10002',
@@ -299,7 +297,6 @@ describe('DateAndLocation component', () => {
           moveTaskOrderID: mockMoveId,
           shipmentType: 'PPM',
           ppmShipment: {
-            ppmType: PPM_TYPES.INCENTIVE_BASED,
             destinationAddress: {
               city: 'Richmond',
               postalCode: '10002',
@@ -358,7 +355,6 @@ describe('DateAndLocation component', () => {
           moveTaskOrderID: mockMoveId,
           shipmentType: 'PPM',
           ppmShipment: {
-            ppmType: PPM_TYPES.INCENTIVE_BASED,
             destinationAddress: {
               city: 'Richmond',
               postalCode: '10002',
@@ -732,7 +728,6 @@ describe('DateAndLocation component', () => {
               moveTaskOrderID: mockMoveId,
               shipmentType: 'PPM',
               ppmShipment: {
-                ppmType: PPM_TYPES.INCENTIVE_BASED,
                 id: fullShipmentProps.mtoShipment.ppmShipment.id,
                 pickupAddress: {
                   streetAddress1: '234 Any St',
@@ -808,7 +803,6 @@ describe('DateAndLocation component', () => {
               moveTaskOrderID: mockMoveId,
               shipmentType: 'PPM',
               ppmShipment: {
-                ppmType: PPM_TYPES.INCENTIVE_BASED,
                 id: fullShipmentProps.mtoShipment.ppmShipment.id,
                 pickupAddress: {
                   streetAddress1: '234 Any St',
@@ -887,7 +881,6 @@ describe('DateAndLocation component', () => {
               moveTaskOrderID: mockMoveId,
               shipmentType: 'PPM',
               ppmShipment: {
-                ppmType: PPM_TYPES.INCENTIVE_BASED,
                 id: fullShipmentProps.mtoShipment.ppmShipment.id,
                 pickupAddress: {
                   streetAddress1: '234 Any St',

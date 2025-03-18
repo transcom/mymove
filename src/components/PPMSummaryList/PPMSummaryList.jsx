@@ -94,10 +94,6 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
     ppmShipment: { status, approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress },
   } = shipment;
 
-  const handleDownloadFailure = () => {
-    onDownloadError();
-  };
-
   let actionButtons;
   let content;
 
@@ -132,9 +128,8 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
               id={shipment?.ppmShipment?.id}
               label="Download Payment Packet"
               asyncRetrieval={downloadPPMPaymentPacket}
-              onFailure={handleDownloadFailure}
+              onFailure={onDownloadError}
               className="styles.btn"
-              loadingMessage="Downloading Payment Packet (PDF)..."
             />
           </div>,
         ]
@@ -143,9 +138,8 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
           id={shipment?.ppmShipment?.id}
           label="Download Payment Packet"
           asyncRetrieval={downloadPPMPaymentPacket}
-          onFailure={handleDownloadFailure}
+          onFailure={onDownloadError}
           className="styles.btn"
-          loadingMessage="Downloading Payment Packet (PDF)..."
         />
       );
 
@@ -153,6 +147,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
       break;
     default:
   }
+
   return (
     <SectionWrapper className={styles['ppm-shipment']}>
       <div className={styles['ppm-shipment__heading-section']}>
@@ -183,6 +178,7 @@ const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackC
 
 const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick, onDownloadError, onFeedbackClick }) => {
   const orderLabel = hasMany ? `PPM ${index + 1}` : 'PPM';
+
   return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick);
 };
 

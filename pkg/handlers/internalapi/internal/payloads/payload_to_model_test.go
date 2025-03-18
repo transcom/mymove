@@ -288,7 +288,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	}
 
 	ppmShipment := internalmessages.UpdatePPMShipment{
-		PpmType:                      internalmessages.PPMType(models.PPMTypeActualExpense),
 		ExpectedDepartureDate:        expectedDepartureDate,
 		PickupAddress:                &pickupAddress,
 		SecondaryPickupAddress:       &secondaryPickupAddress,
@@ -318,7 +317,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	suite.Nil(model.HasTertiaryDestinationAddress)
 	suite.True(*model.IsActualExpenseReimbursement)
 	suite.NotNil(model)
-	suite.Equal(model.PPMType, models.PPMTypeActualExpense)
 }
 
 func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromCreate() {

@@ -1,5 +1,4 @@
 import { shipmentStatuses } from 'constants/shipments';
-import { PPM_TYPES } from 'shared/constants';
 
 export const ordersLOA = {
   tac: '1111',
@@ -144,7 +143,6 @@ export const ppmInfo = {
   heading: 'PPM',
   shipmentLocator: 'EVLRPT-03',
   ppmShipment: {
-    ppmType: PPM_TYPES.INCENTIVE_BASED,
     actualMoveDate: null,
     advanceAmountRequested: 598700,
     hasRequestedAdvance: true,
@@ -171,7 +169,6 @@ export const ppmInfo = {
 export const ppmInfoApprovedOrExcluded = {
   heading: 'PPM',
   ppmShipment: {
-    ppmType: PPM_TYPES.INCENTIVE_BASED,
     actualMoveDate: null,
     advanceAmountRequested: 598700,
     hasRequestedAdvance: true,
@@ -231,7 +228,6 @@ export const ppmInfoApprovedOrExcluded = {
 export const ppmInfoRejected = {
   heading: 'PPM',
   ppmShipment: {
-    ppmType: PPM_TYPES.INCENTIVE_BASED,
     actualMoveDate: null,
     advanceAmountRequested: 598700,
     hasRequestedAdvance: true,
@@ -257,7 +253,6 @@ export const ppmInfoRejected = {
 export const ppmInfoMultiple = {
   heading: 'PPM 1',
   ppmShipment: {
-    ppmType: PPM_TYPES.INCENTIVE_BASED,
     actualMoveDate: null,
     advanceAmountRequested: 598700,
     hasRequestedAdvance: true,
@@ -283,7 +278,6 @@ export const ppmInfoMultiple = {
 export const ppmInfoMultiple2 = {
   heading: 'PPM 2',
   ppmShipment: {
-    ppmType: PPM_TYPES.INCENTIVE_BASED,
     actualMoveDate: null,
     advanceAmountRequested: 4300,
     hasRequestedAdvance: true,

@@ -388,8 +388,8 @@ export default function HeaderSection({
   updatedItemName,
   setUpdatedItemName,
   readOnly,
-  expanded,
   grade,
+  expanded,
 }) {
   const requestDetailsButtonTestId = `${sectionInfo.type}-showRequestDetailsButton`;
   const { shipmentId, moveCode } = useParams();

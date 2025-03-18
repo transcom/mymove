@@ -4,25 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { useField } from 'formik';
 import { Dropdown, FormGroup, Label } from '@trussworks/react-uswds';
 
-import styles from './DropdownInput.module.scss';
-
 import { ErrorMessage } from 'components/form/ErrorMessage';
 // import { OptionalTag } from 'components/form/OptionalTag';
 import { DropdownArrayOf } from 'types/form';
+import './DropdownInput.module.scss';
 
 export const DropdownInput = (props) => {
-  const {
-    id,
-    name,
-    label,
-    options,
-    showDropdownPlaceholderText,
-    isDisabled,
-    disableErrorLabel,
-    hint,
-    showRequiredAsterisk,
-    ...inputProps
-  } = props;
+  const { id, name, label, options, showDropdownPlaceholderText, isDisabled, disableErrorLabel, hint, ...inputProps } =
+    props;
   const [field, meta] = useField(props);
   const hasError = disableErrorLabel ? false : meta.touched && !!meta.error;
 
@@ -31,14 +20,9 @@ export const DropdownInput = (props) => {
 
   return (
     <FormGroup error={hasError}>
-      <div className={styles.labelWrapper}>
+      <div className="labelWrapper">
         <Label error={hasError} htmlFor={inputId.current} hint={hint}>
           {label}
-          {showRequiredAsterisk && (
-            <span data-testid="requiredAsterisk" className={styles.requiredAsterisk}>
-              *
-            </span>
-          )}
         </Label>
         {/* {optional && <OptionalTag />} */}
       </div>

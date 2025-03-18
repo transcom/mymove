@@ -1,7 +1,6 @@
 package services
 
 import (
-	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -10,14 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
-
-// OfficeUserListFetcher is the exported interface for fetching multiple  office users
-//
-//go:generate mockery --name OfficeUserListFetcher
-type OfficeUserListFetcher interface {
-	FetchOfficeUsersList(appCtx appcontext.AppContext, filterFuncs []func(*pop.Query), pagination Pagination, ordering QueryOrder) (models.OfficeUsers, int, error)
-	FetchOfficeUsersCount(appCtx appcontext.AppContext, filters []QueryFilter) (int, error)
-}
 
 // OfficeUserFetcher is the exported interface for fetching a single office user
 //

@@ -117,11 +117,6 @@ type MoveTaskOrder struct {
 	// Enum: [PARTIAL FULL]
 	PpmType string `json:"ppmType,omitempty"`
 
-	// prime acknowledged at
-	// Read Only: true
-	// Format: date-time
-	PrimeAcknowledgedAt *strfmt.DateTime `json:"primeAcknowledgedAt,omitempty"`
-
 	// prime counseling completed at
 	// Read Only: true
 	// Format: date-time
@@ -191,8 +186,6 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 		PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
 		PpmType string `json:"ppmType,omitempty"`
-
-		PrimeAcknowledgedAt *strfmt.DateTime `json:"primeAcknowledgedAt,omitempty"`
 
 		PrimeCounselingCompletedAt *strfmt.DateTime `json:"primeCounselingCompletedAt,omitempty"`
 
@@ -278,9 +271,6 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// ppmType
 	result.PpmType = data.PpmType
 
-	// primeAcknowledgedAt
-	result.PrimeAcknowledgedAt = data.PrimeAcknowledgedAt
-
 	// primeCounselingCompletedAt
 	result.PrimeCounselingCompletedAt = data.PrimeCounselingCompletedAt
 
@@ -340,8 +330,6 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		PpmType string `json:"ppmType,omitempty"`
 
-		PrimeAcknowledgedAt *strfmt.DateTime `json:"primeAcknowledgedAt,omitempty"`
-
 		PrimeCounselingCompletedAt *strfmt.DateTime `json:"primeCounselingCompletedAt,omitempty"`
 
 		ReferenceID string `json:"referenceId,omitempty"`
@@ -388,8 +376,6 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		PpmEstimatedWeight: m.PpmEstimatedWeight,
 
 		PpmType: m.PpmType,
-
-		PrimeAcknowledgedAt: m.PrimeAcknowledgedAt,
 
 		PrimeCounselingCompletedAt: m.PrimeCounselingCompletedAt,
 
@@ -474,10 +460,6 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePpmType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePrimeAcknowledgedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -734,18 +716,6 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validatePrimeAcknowledgedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.PrimeAcknowledgedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("primeAcknowledgedAt", "body", "date-time", m.PrimeAcknowledgedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *MoveTaskOrder) validatePrimeCounselingCompletedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.PrimeCounselingCompletedAt) { // not required
 		return nil
@@ -839,10 +809,6 @@ func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Regi
 	}
 
 	if err := m.contextValidatePaymentRequests(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidatePrimeAcknowledgedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1042,15 +1008,6 @@ func (m *MoveTaskOrder) contextValidatePaymentRequests(ctx context.Context, form
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("paymentRequests")
 		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *MoveTaskOrder) contextValidatePrimeAcknowledgedAt(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "primeAcknowledgedAt", "body", m.PrimeAcknowledgedAt); err != nil {
 		return err
 	}
 

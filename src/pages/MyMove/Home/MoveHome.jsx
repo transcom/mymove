@@ -734,7 +734,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                       label="Download AOA Paperwork (PDF)"
                                       asyncRetrieval={downloadPPMAOAPacket}
                                       onFailure={togglePPMPacketErrorModal}
-                                      loadingMessage="Downloading AOA Paperwork (PDF)..."
                                     />
                                   </p>
                                 )}
@@ -803,7 +802,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                       label="Download AOA Paperwork (PDF)"
                                       asyncRetrieval={downloadPPMAOAPacket}
                                       onFailure={togglePPMPacketErrorModal}
-                                      loadingMessage="Downloading AOA Paperwork (PDF)..."
                                     />
                                   </p>
                                 )}

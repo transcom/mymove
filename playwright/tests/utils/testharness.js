@@ -662,7 +662,7 @@ export class TestHarness {
    * @returns {Promise<Object>}
    */
 
-  async buildHHGMoveWithAddressChangeRequest() {
+  async bulidHHGMoveWithAddressChangeRequest() {
     return this.buildDefault('HHGMoveWithAddressChangeRequest');
   }
 

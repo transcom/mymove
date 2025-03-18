@@ -155,9 +155,8 @@ jest.mock('components/LocationSearchBox/api', () => ({
   ),
 }));
 
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+jest.mock('../../../utils/featureFlags', () => ({
+  isBooleanFlagEnabled: jest.fn(),
 }));
 
 const testProps = {
@@ -197,6 +196,7 @@ const initialValues = {
   report_by_date: '2020-11-26',
   has_dependents: 'no',
   origin_duty_location: {
+    provides_services_counseling: true,
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -213,7 +213,6 @@ const initialValues = {
     id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
-    provides_services_counseling: true,
   },
   counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
   new_duty_location: {
@@ -248,38 +247,6 @@ const initialValues = {
   accompanied_tour: '',
   dependents_under_twelve: '',
   dependents_twelve_and_over: '',
-  civilian_tdy_ub_allowance: '',
-};
-
-const civilianTDYTestProps = {
-  onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
-  initialValues: {
-    orders_type: ORDERS_TYPE_OPTIONS.TEMPORARY_DUTY,
-    issue_date: '',
-    report_by_date: '',
-    has_dependents: '',
-    uploaded_orders: [],
-    grade: 'CIVILIAN_EMPLOYEE',
-    origin_duty_location: { name: 'Luke AFB', address: { isOconus: false } },
-    new_duty_location: { name: 'Luke AFB', provides_services_counseling: false, address: { isOconus: true } },
-  },
-  onCancel: jest.fn(),
-  onUploadComplete: jest.fn(),
-  createUpload: jest.fn(),
-  onDelete: jest.fn(),
-  filePond: {},
-  ordersTypeOptions: [
-    { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
-    { key: 'LOCAL_MOVE', value: 'Local Move' },
-    { key: 'RETIREMENT', value: 'Retirement' },
-    { key: 'SEPARATION', value: 'Separation' },
-    { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
-    { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
-    { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
-  ],
-  currentDutyLocation: { name: 'Luke AFB', address: { isOconus: false } },
-  grade: 'CIVILIAN_EMPLOYEE',
-  orders_type: ORDERS_TYPE_OPTIONS.TEMPORARY_DUTY,
 };
 
 jest.mock('utils/featureFlags', () => ({
@@ -392,6 +359,7 @@ describe('EditOrdersForm component', () => {
     await waitFor(() => {
       expect(submitButton).not.toBeDisabled();
     });
+
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
@@ -886,85 +854,6 @@ describe('EditOrdersForm component', () => {
       expect(hasDependentsNoLocalMove).not.toBeChecked();
       expect(hasDependentsNoLocalMove).toBeEnabled();
     });
-  });
-
-  it('renders civilian TDY UB Allowance field when TDY orders type and civilian pay grade are selected ', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(true);
-
-    render(
-      <MockProviders>
-        <EditOrdersForm
-          {...civilianTDYTestProps}
-          initialValues={{
-            ...civilianTDYTestProps.initialValues,
-          }}
-        />
-      </MockProviders>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
-    });
-
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.TEMPORARY_DUTY);
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'CIVILIAN_EMPLOYEE');
-
-    await waitFor(() => {
-      expect(
-        screen.getByLabelText(/If your orders specify a specific UB weight allowance, enter it here./),
-      ).toBeInTheDocument();
-    });
-  });
-
-  it('does not render civilian TDY UB Allowance field if orders type is not TDY', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(true);
-
-    render(
-      <MockProviders>
-        <EditOrdersForm
-          {...civilianTDYTestProps}
-          initialValues={{
-            ...civilianTDYTestProps.initialValues,
-          }}
-        />
-      </MockProviders>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
-    });
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.LOCAL_MOVE);
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'CIVILIAN_EMPLOYEE');
-    await waitFor(() =>
-      expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
-      ).not.toBeInTheDocument(),
-    );
-  });
-
-  it('does not render civilian TDY UB Allowance field if grade is not CIVILIAN_EMPLOYEE', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(true);
-
-    render(
-      <MockProviders>
-        <EditOrdersForm
-          {...civilianTDYTestProps}
-          initialValues={{
-            ...civilianTDYTestProps.initialValues,
-          }}
-        />
-      </MockProviders>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
-    });
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
-    await waitFor(() =>
-      expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
-      ).not.toBeInTheDocument(),
-    );
   });
 
   afterEach(jest.restoreAllMocks);

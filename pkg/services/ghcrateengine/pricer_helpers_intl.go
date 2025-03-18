@@ -64,8 +64,7 @@ func priceInternationalShuttling(appCtx appcontext.AppContext, shuttlingCode mod
 }
 
 func priceIntlPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, services.PricingDisplayParams, error) {
-	if packUnpackCode != models.ReServiceCodeIHPK && packUnpackCode != models.ReServiceCodeIHUPK &&
-		packUnpackCode != models.ReServiceCodeIUBPK && packUnpackCode != models.ReServiceCodeIUBUPK {
+	if packUnpackCode != models.ReServiceCodeIHPK && packUnpackCode != models.ReServiceCodeIHUPK {
 		return 0, nil, fmt.Errorf("unsupported pack/unpack code of %s", packUnpackCode)
 	}
 	if len(contractCode) == 0 {

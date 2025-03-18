@@ -3325,11 +3325,6 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
-      primeAcknowledgedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        readOnly: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
@@ -3440,11 +3435,6 @@ definitions:
         readOnly: true
       eTag:
         type: string
-        readOnly: true
-      primeAcknowledgedAt:
-        format: date-time
-        type: string
-        x-nullable: true
         readOnly: true
   ClientError:
     type: object

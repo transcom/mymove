@@ -100,8 +100,3 @@ properties:
   eTag:
     type: string
     readOnly: true
-  primeAcknowledgedAt:
-    format: date-time
-    type: string
-    x-nullable: true
-    readOnly: true

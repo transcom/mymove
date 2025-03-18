@@ -323,6 +323,7 @@ describe('MtoShipmentForm component', () => {
       renderMtoShipmentForm();
 
       await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1.length).toBe(1);
       expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.streetAddress1');
@@ -1161,6 +1162,7 @@ describe('MtoShipmentForm component', () => {
       renderUBShipmentForm();
 
       await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.streetAddress1');
 

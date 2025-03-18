@@ -6982,8 +6982,6 @@ definitions:
   UpdatePPMShipment:
     type: object
     properties:
-      ppmType:
-        $ref: '#/definitions/PPMType'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.
@@ -7457,8 +7455,6 @@ definitions:
       A personally procured move is a type of shipment that a service members
       moves themselves.
     properties:
-      ppmType:
-        $ref: '#/definitions/PPMType'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.
@@ -8507,10 +8503,6 @@ definitions:
         type: string
         format: date-time
         readOnly: true
-  ReServiceItems:
-    type: array
-    items:
-      $ref: '#/definitions/ReServiceItem'
   TransportationOffices:
     type: array
     items:
@@ -8519,6 +8511,10 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/VLocation'
+  ReServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ReServiceItem'
   GBLOCs:
     type: array
     items:
@@ -9412,14 +9408,6 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  PPMType:
-    type: string
-    title: PPM Type
-    description: Defines a PPM type
-    enum:
-      - INCENTIVE_BASED
-      - ACTUAL_EXPENSE
-      - SMALL_PACKAGE
   PPMDestinationAddress:
     description: A postal address
     type: object
@@ -9819,6 +9807,15 @@ definitions:
           given SIT service items for an instance of SIT (Either Origin or
           Destination), grouped by the date they went into SIT and service items
           limited explicitly to SIT related Re Service Codes.
+  PPMType:
+    type: string
+    title: PPM Type
+    description: Defines a PPM type
+    readOnly: true
+    enum:
+      - INCENTIVE_BASED
+      - ACTUAL_EXPENSE
+      - SMALL_PACKAGE
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:

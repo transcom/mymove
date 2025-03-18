@@ -1,5 +1,4 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 
 import {
   ordersLOA,
@@ -20,7 +19,6 @@ import {
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { store } from 'shared/store';
 import { MockProviders, MockRouterProvider } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 
@@ -32,11 +30,9 @@ export default {
       // Dont wrap with permissions for the read only tests
       if (context.name.includes('Read Only')) {
         return (
-          <Provider store={store}>
-            <MockRouterProvider>
-              <Story />
-            </MockRouterProvider>
-          </Provider>
+          <MockRouterProvider>
+            <Story />
+          </MockRouterProvider>
         );
       }
 

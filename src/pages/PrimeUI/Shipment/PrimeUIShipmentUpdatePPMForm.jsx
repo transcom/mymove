@@ -183,7 +183,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                 <h4>Third destination location</h4>
                 <FormGroup>
                   <p>
-                    Will the movers deliver any belongings to a third address? (Must be near the Delivery Address.
+                    Will the movers pick up any belongings from a third address? (Must be near the Delivery Address.
                     Subject to approval.)
                   </p>
                   <div className={formStyles.radioGroup}>

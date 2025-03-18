@@ -40,11 +40,6 @@ export async function updateRequestedOfficeUser(officeUserId, body) {
   );
 }
 
-export async function getTransportationOfficeByID(officeId) {
-  const operationPath = 'Transportation offices.getOfficeById';
-  return makeAdminRequest(operationPath, { officeId }, { normalize: false });
-}
-
 export async function deleteOfficeUser(officeUserId) {
   const operationPath = 'Office users.deleteOfficeUser';
 

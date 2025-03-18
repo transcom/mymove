@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -516,10 +515,8 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
-
 		autoReweighShipments, err := moveWeights.CheckAutoReweigh(session, approvedMove.ID, &approvedShipment)
-		suite.NoError(err)
-		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
+
 		suite.NoError(err)
 
 		suite.NotNil(approvedShipment.Reweigh)
@@ -551,14 +548,11 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 			},
 		}, nil)
 
-		weight := unit.Pound(7199)
-		approvedShipment.PrimeActualWeight = &weight
-		approvedShipment.PrimeEstimatedWeight = &weight
+		actualWeight := unit.Pound(7199)
+		approvedShipment.PrimeEstimatedWeight = &actualWeight
 		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
-		suite.NoError(err)
-		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
-		suite.NoError(err)
 
+		suite.NoError(err)
 		suite.Equal(uuid.Nil, approvedShipment.Reweigh.ID)
 		mockedReweighRequestor.AssertNotCalled(suite.T(), "RequestShipmentReweigh")
 	})
@@ -605,8 +599,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
 		autoReweighShipments, err := moveWeights.CheckAutoReweigh(session, approvedMove.ID, &approvedShipment)
-		suite.NoError(err)
-		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
+
 		suite.NoError(err)
 
 		suite.NotNil(approvedShipment.Reweigh)
@@ -631,16 +624,15 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		weight := unit.Pound(3600)
+		actualWeight := unit.Pound(3600)
 
 		existingShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusCanceled,
-					ApprovedDate:         &now,
-					ScheduledPickupDate:  &pickupDate,
-					PrimeEstimatedWeight: &weight,
-					PrimeActualWeight:    &weight,
+					Status:              models.MTOShipmentStatusCanceled,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+					PrimeActualWeight:   &actualWeight,
 				},
 			},
 			{
@@ -662,11 +654,9 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 			},
 		}, nil)
 
-		approvedShipment.PrimeEstimatedWeight = &weight
-		approvedShipment.PrimeActualWeight = &weight
+		approvedShipment.PrimeActualWeight = &actualWeight
 		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
-		suite.NoError(err)
-		err = suite.DB().Eager("Reweigh").Reload(&approvedShipment)
+
 		suite.NoError(err)
 
 		err = suite.DB().Eager("Reweigh").Reload(&existingShipment)
@@ -676,7 +666,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		mockedReweighRequestor.AssertNotCalled(suite.T(), "RequestShipmentReweigh")
 	})
 
-	suite.Run("uses lower reweigh weight (based on actual weight) on shipments that already have reweighs", func() {
+	suite.Run("uses lower reweigh weight on shipments that already have reweighs", func() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
 		mockedWeightService := NewMoveWeights(&mockedReweighRequestor, waf)
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -736,88 +726,11 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		}, nil)
 
 		approvedShipment.PrimeActualWeight = &actualWeight
+		_, err := mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
 
-		err := suite.DB().Eager("Reweigh").Reload(&approvedShipment)
 		suite.NoError(err)
 
 		err = suite.DB().Eager("Reweigh").Reload(&existingShipment)
-		suite.NoError(err)
-
-		_, err = mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
-		suite.NoError(err)
-		suite.Equal(uuid.Nil, existingShipment.Reweigh.ID)
-		suite.Equal(uuid.Nil, approvedShipment.Reweigh.ID)
-		mockedReweighRequestor.AssertNotCalled(suite.T(), "RequestShipmentReweigh")
-	})
-
-	suite.Run("uses lower reweigh weight (based on estimated weight) on shipments that already have reweighs", func() {
-		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
-		mockedWeightService := NewMoveWeights(&mockedReweighRequestor, waf)
-		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-
-		now := time.Now()
-		pickupDate := now.AddDate(0, 0, 10)
-		estimatedWeight := unit.Pound(2400)
-		existingShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					ApprovedDate:         &now,
-					ScheduledPickupDate:  &pickupDate,
-					PrimeEstimatedWeight: &estimatedWeight,
-				},
-			},
-			{
-				Model:    approvedMove,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		reweighedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					ApprovedDate:         &now,
-					ScheduledPickupDate:  &pickupDate,
-					PrimeEstimatedWeight: &estimatedWeight,
-				},
-			},
-			{
-				Model:    approvedMove,
-				LinkOnly: true,
-			},
-		}, nil)
-		reweighWeight := unit.Pound(2399)
-		testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
-			Reweigh: models.Reweigh{
-				Weight: &reweighWeight,
-			},
-			MTOShipment: reweighedShipment,
-		})
-
-		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ApprovedDate:        &now,
-					ScheduledPickupDate: &pickupDate,
-				},
-			},
-			{
-				Model:    approvedMove,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
-
-		err := suite.DB().Eager("Reweigh").Reload(&approvedShipment)
-		suite.NoError(err)
-
-		err = suite.DB().Eager("Reweigh").Reload(&existingShipment)
-		suite.NoError(err)
-
-		_, err = mockedWeightService.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
 		suite.NoError(err)
 		suite.Equal(uuid.Nil, existingShipment.Reweigh.ID)
 		suite.Equal(uuid.Nil, approvedShipment.Reweigh.ID)
@@ -844,78 +757,5 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 		_, err = moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &models.MTOShipment{})
 		suite.EqualError(err, "could not determine excess weight entitlement without dependents authorization value")
-	})
-
-	suite.Run("returns error if can't find move when checking for auto-reweigh", func() {
-		randomID, err := uuid.NewV4()
-		suite.NoError(err)
-		_, err = moveWeights.CheckAutoReweigh(suite.AppContextForTest(), randomID, &models.MTOShipment{})
-		suite.EqualError(err, apperror.NewNotFoundError(randomID, "looking for Move").Error())
-	})
-
-	suite.Run("returns error if shipment returns nil when checking for auto-reweigh", func() {
-		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-
-		err := suite.DB().Save(approvedMove.Orders.Entitlement)
-		suite.NoError(err)
-
-		_, err = moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, nil)
-		suite.EqualError(err, apperror.NewBadDataError("received a nil MTO shipment, an MTO shipment must be supplied for checking reweighs").Error())
-	})
-
-	suite.Run("will correctly factor in dependents authorized when requesting a reweigh", func() {
-		now := time.Now()
-		pickupDate := now.AddDate(0, 0, 10)
-		actualWeight := unit.Pound(5000)
-
-		move1 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment1 := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ApprovedDate:        &now,
-					ScheduledPickupDate: &pickupDate,
-				},
-			},
-			{
-				Model:    move1,
-				LinkOnly: true,
-			},
-		}, nil)
-		move1.Orders.Entitlement.DependentsAuthorized = models.BoolPointer(false)
-		err := suite.DB().Save(move1.Orders.Entitlement)
-		suite.NoError(err)
-		shipment1.PrimeActualWeight = &actualWeight
-
-		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment2 := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ApprovedDate:        &now,
-					ScheduledPickupDate: &pickupDate,
-				},
-			},
-			{
-				Model:    move2,
-				LinkOnly: true,
-			},
-		}, nil)
-		move2.Orders.Entitlement.DependentsAuthorized = models.BoolPointer(true)
-		err = suite.DB().Save(move2.Orders.Entitlement)
-		suite.NoError(err)
-		shipment2.PrimeActualWeight = &actualWeight
-
-		session := suite.AppContextWithSessionForTest(&auth.Session{
-			ApplicationName: auth.OfficeApp,
-			OfficeUserID:    uuid.Must(uuid.NewV4()),
-		})
-
-		autoReweighShipments, err := moveWeights.CheckAutoReweigh(session, move1.ID, &shipment1)
-		suite.NoError(err)
-		suite.Equal(1, len(autoReweighShipments))
-		noAutoReweighShipments, err := moveWeights.CheckAutoReweigh(session, move2.ID, &shipment2)
-		suite.NoError(err)
-		suite.Equal(0, len(noAutoReweighShipments))
 	})
 }

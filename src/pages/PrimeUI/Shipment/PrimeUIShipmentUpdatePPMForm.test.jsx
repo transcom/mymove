@@ -268,13 +268,6 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
     expect(await screen.getAllByLabelText(/Address 3/)[4]).toHaveValue(
       initialValues.ppmShipment.secondaryDestinationAddress.streetAddress3,
     );
-
-    expect(
-      screen.getByText('Will the movers deliver any belongings to a third address?', {
-        exact: false,
-      }),
-    ).toBeInTheDocument();
-
     expect(screen.getAllByText('City')[4]).toBeInTheDocument();
     expect(screen.getAllByText(initialValues.ppmShipment.secondaryDestinationAddress.city)[0]).toBeInTheDocument();
     expect(screen.getAllByText('State')[4]).toBeInTheDocument();

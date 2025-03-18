@@ -3,7 +3,6 @@ import React from 'react';
 import PPMSummaryList from './PPMSummaryList';
 
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
-import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Components / PPMSummaryList',
@@ -13,11 +12,7 @@ export default {
   },
 };
 
-const Template = (args) => (
-  <MockProviders>
-    <PPMSummaryList {...args} />
-  </MockProviders>
-);
+const Template = (args) => <PPMSummaryList {...args} />;
 
 export const Submitted = Template.bind({});
 Submitted.args = {

@@ -1595,14 +1595,6 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
-      civilian_tdy_ub_allowance:
-        type: integer
-        example: 3
-        x-nullable: true
-        description: >-
-          The weight in pounds set by the customer or office user that a
-          civilian TDY move is entitled to for Unaccompanied Baggage shipment
-          types.
     required:
       - service_member_id
       - issue_date
@@ -2048,8 +2040,6 @@ definitions:
       A personally procured move is a type of shipment that a service members
       moves themselves.
     properties:
-      ppmType:
-        $ref: '#/definitions/PPMType'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.
@@ -2093,8 +2083,6 @@ definitions:
   UpdatePPMShipment:
     type: object
     properties:
-      ppmType:
-        $ref: '#/definitions/PPMType'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.
@@ -3058,6 +3046,7 @@ definitions:
     type: string
     title: PPM Type
     description: Defines a PPM type
+    readOnly: true
     enum:
       - INCENTIVE_BASED
       - ACTUAL_EXPENSE

@@ -5,8 +5,8 @@ import userEvent from '@testing-library/user-event';
 
 import ShipmentForm from './ShipmentForm';
 
-import { PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 import { ADDRESS_UPDATE_STATUS, ppmShipmentStatuses } from 'constants/shipments';
 import { tooRoutes } from 'constants/routes';
@@ -212,7 +212,6 @@ const defaultProps = {
       unaccompaniedBaggageAllowance: 400,
     },
     agency: '',
-    grade: ORDERS_PAY_GRADE_OPTIONS.E_7,
   },
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],
@@ -232,7 +231,6 @@ const mockPPMShipment = {
   ...mockMtoShipment,
   ppmShipment: {
     id: 'ppmShipmentID',
-    ppmType: PPM_TYPES.INCENTIVE_BASED,
     shipmentId: 'shipment123',
     status: ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL,
     expectedDepartureDate: '2022-04-01',
@@ -285,68 +283,10 @@ const mockPPMShipment = {
   },
 };
 
-const mockPPMShipmentSmallPackage = {
-  ...mockMtoShipment,
-  ppmShipment: {
-    id: 'ppmShipmentID',
-    ppmType: PPM_TYPES.SMALL_PACKAGE,
-    shipmentId: 'shipment123',
-    status: ppmShipmentStatuses.SUBMITTED,
-    expectedDepartureDate: '2022-04-01',
-    hasSecondaryPickupAddress: true,
-    hasSecondaryDestinationAddress: true,
-    pickupAddress: {
-      streetAddress1: '111 Test Street',
-      streetAddress2: '222 Test Street',
-      streetAddress3: 'Test Man',
-      city: 'ELIZABETHTOWN',
-      state: 'KY',
-      postalCode: '42701',
-      county: 'HARDIN',
-    },
-    secondaryPickupAddress: {
-      streetAddress1: '777 Test Street',
-      streetAddress2: '888 Test Street',
-      streetAddress3: 'Test Man',
-      city: 'ELIZABETHTOWN',
-      state: 'KY',
-      postalCode: '42702',
-      county: 'HARDIN',
-    },
-    destinationAddress: {
-      streetAddress1: '222 Test Street',
-      streetAddress2: '333 Test Street',
-      streetAddress3: 'Test Man',
-      city: 'BIG CLIFTY',
-      state: 'KY',
-      postalCode: '42712',
-      county: 'HARDIN',
-    },
-    secondaryDestinationAddress: {
-      streetAddress1: '444 Test Street',
-      streetAddress2: '555 Test Street',
-      streetAddress3: 'Test Man',
-      city: 'ELIZABETHTOWN',
-      state: 'KY',
-      postalCode: '42701',
-      county: 'HARDIN',
-    },
-    sitExpected: false,
-    estimatedWeight: 4999,
-    hasProGear: false,
-    estimatedIncentive: 1234500,
-    hasRequestedAdvance: true,
-    advanceAmountRequested: 487500,
-    advanceStatus: 'APPROVED',
-    isActualExpenseReimbursement: false,
-  },
-};
-
 const mockRejectedPPMShipment = {
   ...mockMtoShipment,
   ppmShipment: {
     id: 'ppmShipmentID',
-    ppmType: PPM_TYPES.INCENTIVE_BASED,
     shipmentId: 'shipment123',
     status: ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL,
     expectedDepartureDate: '2022-04-01',
@@ -560,24 +500,6 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getAllByTestId('ZIP')[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
       expect(screen.getAllByTestId('ZIP')[1]).toHaveAttribute('aria-label', 'delivery.address.postalCode');
-    });
-
-    it('displays the correct verbiage for 2nd and 3rd addresses', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
-
-      await userEvent.click(screen.getAllByLabelText('Yes')[1]);
-      expect(
-        await screen.findByText('Do you want the movers to deliver any belongings to a second address?'),
-      ).toBeInTheDocument();
-
-      fireEvent.click(screen.getByTestId('has-secondary-delivery'));
-
-      expect(
-        await screen.findByText('Do you want the movers to deliver any belongings to a third address?', {
-          exact: false,
-        }),
-      ).toBeInTheDocument();
     });
 
     it('renders a delivery address type for retirement orders type', async () => {
@@ -1386,8 +1308,6 @@ describe('ShipmentForm component', () => {
 
   describe('creating a new PPM shipment', () => {
     it('displays PPM content', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-
       renderWithRouter(
         <ShipmentForm
           {...defaultProps}
@@ -1398,20 +1318,6 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
-      const ppmTypeSection = await screen.findByTestId('ppmTypeSection');
-      expect(ppmTypeSection).toBeVisible();
-
-      const incentiveRadio = screen.getByTestId('isIncentiveBased');
-      expect(incentiveRadio).toBeInTheDocument();
-      expect(incentiveRadio).toHaveAttribute('value', PPM_TYPES.INCENTIVE_BASED);
-
-      const actualExpenseRadio = screen.getByTestId('isActualExpense');
-      expect(actualExpenseRadio).toBeInTheDocument();
-      expect(actualExpenseRadio).toHaveAttribute('value', PPM_TYPES.ACTUAL_EXPENSE);
-
-      const smallPackageRadio = screen.getByTestId('isSmallPackage');
-      expect(smallPackageRadio).toBeInTheDocument();
-      expect(smallPackageRadio).toHaveAttribute('value', PPM_TYPES.SMALL_PACKAGE);
     });
 
     it('PPM - delivery address street 1 is OPTIONAL', async () => {
@@ -1449,30 +1355,6 @@ describe('ShipmentForm component', () => {
         // verify required alert was not raised
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
       });
-    });
-
-    it('changes and hides relevant fields if PPM type is SMALL_PACKAGE', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-      renderWithRouter(
-        <ShipmentForm
-          {...defaultProps}
-          isCreatePage={false}
-          shipmentType={SHIPMENT_OPTIONS.PPM}
-          mtoShipment={mockPPMShipmentSmallPackage}
-          userRole={roleTypes.SERVICES_COUNSELOR}
-        />,
-      );
-
-      expect(screen.getByLabelText('When did the customer ship their package?')).toBeInTheDocument();
-
-      await waitFor(() => {
-        const smallPackageRadio = screen.getByTestId('isSmallPackage');
-        expect(smallPackageRadio).toBeInTheDocument();
-        expect(smallPackageRadio).toHaveAttribute('value', PPM_TYPES.SMALL_PACKAGE);
-        expect(screen.getAllByLabelText('Small Package Reimbursement')[0]).toBeChecked();
-      });
-
-      expect(screen.queryByText('Storage in transit')).not.toBeInTheDocument();
     });
   });
 
@@ -1611,7 +1493,6 @@ describe('ShipmentForm component', () => {
             isCreatePage={false}
             shipmentType={SHIPMENT_OPTIONS.PPM}
             mtoShipment={mockPPMShipment}
-            userRole={roleTypes.SERVICES_COUNSELOR}
           />,
         );
 
@@ -1681,14 +1562,13 @@ describe('ShipmentForm component', () => {
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
         );
 
-        expect(screen.getAllByLabelText('Incentive-based')[0]).toBeChecked();
-        expect(screen.getAllByLabelText('Actual Expense Reimbursement')[0]).not.toBeChecked();
-        await waitFor(() => {
-          expect(screen.getAllByLabelText('Small Package Reimbursement')[0]).not.toBeChecked();
-        });
-        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
-        expect(screen.getAllByLabelText('No')[1]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
+        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
+        expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[3]).not.toBeChecked();
       });
 
       it('test delivery address street 1 is OPTIONAL', async () => {
@@ -2018,8 +1898,8 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      expect(screen.getByText('PPM Type')).toBeInTheDocument();
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+      expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
       expect(screen.getByText('What address are you moving from?')).toBeInTheDocument();
       expect(screen.getByText('Second Pickup Address')).toBeInTheDocument();
       expect(
@@ -2137,30 +2017,6 @@ describe('ShipmentForm component', () => {
     it('does not display for TOO', () => {
       renderWithRouter(<ShipmentForm {...defaultSITProps} userRole={roleTypes.TOO} />);
       expect(screen.queryByRole('heading', { level: 2, name: /Storage in transit \(SIT\)/ })).not.toBeInTheDocument();
-    });
-  });
-
-  describe('creating a new PPM shipment as SC', () => {
-    it('renders the PPM shipment form correctly with warning', async () => {
-      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.PPM} isCreatePage />);
-
-      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
-      expect(await screen.findByText('PPM')).toBeInTheDocument();
-      expect(await screen.findByTestId('scPPMCreateWarning')).toBeInTheDocument();
-    });
-  });
-
-  describe('editing a PPM shipment as SC', () => {
-    it('renders the PPM shipment form correctly without warning', async () => {
-      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.PPM} isCreatePage={false} />);
-
-      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
-      expect(await screen.findByText('PPM')).toBeInTheDocument();
-      expect(
-        screen.queryByText(
-          'Creating a PPM as a Service Counselor will automatically approve the PPM shipment and send it to the customer.',
-        ),
-      ).not.toBeInTheDocument();
     });
   });
 

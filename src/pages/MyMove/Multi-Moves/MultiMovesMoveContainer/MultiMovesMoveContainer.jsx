@@ -13,7 +13,7 @@ import styles from './MultiMovesMoveContainer.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
-import { setMoveId, setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import { setMoveId } from 'store/general/actions';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { onPacketDownloadSuccessHandler } from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/internalApi';
@@ -22,7 +22,7 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
 import { MOVE_STATUSES, SHIPMENT_TYPES } from 'shared/constants';
 
-const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner }) => {
+const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -97,12 +97,10 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
   // when an item is selected in the dropdown, this function handles API calls
   const handlePPMDropdownClick = (selectedItem, id) => {
     if (selectedItem.value === 'PPM Packet') {
-      setShowLoadingSpinner(true, 'Downloading Payment Packet (PDF)...');
       downloadPPMPaymentPacket(id)
         .then((response) => {
           onPacketDownloadSuccessHandler(response);
           setFlashMessage('PPM_PACKET_DOWNLOAD_SUCCESS', 'success', 'PPM Packet successfully downloaded');
-          setShowLoadingSpinner(false, null);
         })
         .catch(() => {
           setFlashMessage(
@@ -110,16 +108,13 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
             'error',
             'An error occurred when attempting download of PPM Packet',
           );
-          setShowLoadingSpinner(false, null);
         });
     }
     if (selectedItem.value === 'AOA Packet') {
-      setShowLoadingSpinner(true, 'Downloading AOA Paperwork (PDF)...');
       downloadPPMAOAPacket(id)
         .then((response) => {
           onPacketDownloadSuccessHandler(response);
           setFlashMessage('AOA_PACKET_DOWNLOAD_SUCCESS', 'success', 'AOA Packet successfully downloaded');
-          setShowLoadingSpinner(false, null);
         })
         .catch(() => {
           setFlashMessage(
@@ -127,7 +122,6 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
             'error',
             'An error occurred when attempting download of AOA Packet',
           );
-          setShowLoadingSpinner(false, null);
         });
     }
     scrollToTop();
@@ -227,7 +221,6 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
 
 const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
-  setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
 export default connect(() => ({}), mapDispatchToProps)(MultiMovesMoveContainer);

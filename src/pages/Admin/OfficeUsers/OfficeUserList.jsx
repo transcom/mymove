@@ -4,9 +4,7 @@ import {
   CreateButton,
   Datagrid,
   ExportButton,
-  SearchInput,
-  FilterForm,
-  FilterButton,
+  Filter,
   List,
   ReferenceField,
   TextField,
@@ -17,8 +15,6 @@ import {
   useDataProvider,
 } from 'react-admin';
 import * as jsonexport from 'jsonexport/dist';
-
-import styles from './OfficeUserList.module.scss';
 
 import { OFFICE_USER_EXPORT_HEADERS } from 'constants/adminApp';
 import ImportOfficeUserButton from 'components/Admin/ImportOfficeUserButton';
@@ -92,25 +88,10 @@ const ListActions = () => {
   );
 };
 
-const filterList = [
-  <SearchInput source="search" alwaysOn />,
-  <TextInput label="Email" source="email" />,
-  <TextInput label="Telephone" source="phone" />,
-  <TextInput label="First Name" source="firstName" />,
-  <TextInput label="Last Name" source="lastName" />,
-  <TextInput label="Office" source="office" />,
-  <TextInput label="Active" source="active" placeholder="yes or no" />,
-];
-
-const SearchFilters = () => (
-  <div className={styles.searchContainer}>
-    <div className={styles.searchBar}>
-      <FilterForm filters={filterList} />
-    </div>
-    <div className={styles.filters}>
-      <FilterButton filters={filterList} />
-    </div>
-  </div>
+const OfficeUserListFilter = () => (
+  <Filter>
+    <TextInput source="search" alwaysOn />
+  </Filter>
 );
 
 const defaultSort = { field: 'last_name', order: 'ASC' };
@@ -120,7 +101,7 @@ const OfficeUserList = () => (
     pagination={<AdminPagination />}
     perPage={25}
     sort={defaultSort}
-    filters={<SearchFilters />}
+    filters={<OfficeUserListFilter />}
     actions={<ListActions />}
   >
     <Datagrid bulkActionButtons={false} rowClick="show">

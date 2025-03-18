@@ -105,6 +105,33 @@ func (suite *ModelSuite) TestIsAddressOconusForAKState() {
 	suite.Equal(true, result)
 }
 
+func (suite *ModelSuite) TestAddressIsEmpty() {
+	suite.Run("empty whitespace address", func() {
+		testAddress := m.Address{
+			StreetAddress1: " ",
+			State:          " ",
+			PostalCode:     " ",
+		}
+		suite.True(m.IsAddressEmpty(&testAddress))
+	})
+	suite.Run("empty n/a address", func() {
+		testAddress := m.Address{
+			StreetAddress1: "n/a",
+			State:          "n/a",
+			PostalCode:     "n/a",
+		}
+		suite.True(m.IsAddressEmpty(&testAddress))
+	})
+	suite.Run("nonempty address", func() {
+		testAddress := m.Address{
+			StreetAddress1: "street 1",
+			State:          "state",
+			PostalCode:     "90210",
+		}
+		suite.False(m.IsAddressEmpty(&testAddress))
+	})
+}
+
 func (suite *ModelSuite) TestAddressFormat() {
 	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
 	newAddress := &m.Address{
@@ -167,33 +194,6 @@ func (suite *ModelSuite) TestPartialAddressFormat() {
 	formattedAddress = newAddress.LineDisplayFormat()
 
 	suite.Equal("street 1, city, state 90210", formattedAddress)
-}
-
-func (suite *ModelSuite) TestAddressIsEmpty() {
-	suite.Run("empty whitespace address", func() {
-		testAddress := m.Address{
-			StreetAddress1: " ",
-			State:          " ",
-			PostalCode:     " ",
-		}
-		suite.True(m.IsAddressEmpty(&testAddress))
-	})
-	suite.Run("empty n/a address", func() {
-		testAddress := m.Address{
-			StreetAddress1: "n/a",
-			State:          "n/a",
-			PostalCode:     "n/a",
-		}
-		suite.True(m.IsAddressEmpty(&testAddress))
-	})
-	suite.Run("nonempty address", func() {
-		testAddress := m.Address{
-			StreetAddress1: "street 1",
-			State:          "state",
-			PostalCode:     "90210",
-		}
-		suite.False(m.IsAddressEmpty(&testAddress))
-	})
 }
 
 func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {

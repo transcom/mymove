@@ -257,7 +257,6 @@ export const CreateAccount = ({ setShowLoadingSpinner }) => {
                           id="affiliation"
                           data-testid="affiliationInput"
                           required
-                          showRequiredAsterisk
                           onChange={(e) => {
                             handleChange(e);
                             handleBranchChange(e);
@@ -271,7 +270,6 @@ export const CreateAccount = ({ setShowLoadingSpinner }) => {
                           maxLength="10"
                           data-testid="edipiInput"
                           required
-                          showRequiredAsterisk
                         />
                         <TextField
                           label="Confirm DoD ID number"
@@ -280,8 +278,6 @@ export const CreateAccount = ({ setShowLoadingSpinner }) => {
                           maxLength="10"
                           data-testid="edipiConfirmationInput"
                           disablePaste
-                          required
-                          showRequiredAsterisk
                         />
                         {showEmplid && (
                           <>
@@ -293,8 +289,6 @@ export const CreateAccount = ({ setShowLoadingSpinner }) => {
                               inputMode="numeric"
                               pattern="[0-9]{7}"
                               data-testid="emplidInput"
-                              required
-                              showRequiredAsterisk
                             />
                             <TextField
                               label="Confirm EMPLID"
@@ -305,51 +299,26 @@ export const CreateAccount = ({ setShowLoadingSpinner }) => {
                               pattern="[0-9]{7}"
                               data-testid="emplidConfirmationInput"
                               disablePaste
-                              required
-                              showRequiredAsterisk
                             />
                           </>
                         )}
                         <StyledLine />
-                        <TextField
-                          label="First Name"
-                          name="firstName"
-                          id="firstName"
-                          data-testid="firstName"
-                          required
-                          showRequiredAsterisk
-                        />
+                        <TextField label="First Name" name="firstName" id="firstName" data-testid="firstName" />
                         <TextField
                           label="Middle Initial"
                           name="middleInitial"
                           id="middleInitial"
                           data-testid="middleInitial"
                         />
-                        <TextField
-                          label="Last Name"
-                          name="lastName"
-                          id="lastName"
-                          data-testid="lastName"
-                          required
-                          showRequiredAsterisk
-                        />
+                        <TextField label="Last Name" name="lastName" id="lastName" data-testid="lastName" />
                         <StyledLine />
-                        <TextField
-                          label="Email"
-                          name="email"
-                          id="email"
-                          data-testid="email"
-                          required
-                          showRequiredAsterisk
-                        />
+                        <TextField label="Email" name="email" id="email" data-testid="email" />
                         <TextField
                           label="Confirm Email"
                           name="emailConfirmation"
                           id="emailConfirmation"
                           disablePaste
                           data-testid="emailConfirmation"
-                          required
-                          showRequiredAsterisk
                         />
                         <StyledLine />
                         <MaskedTextField
@@ -360,8 +329,6 @@ export const CreateAccount = ({ setShowLoadingSpinner }) => {
                           minimum="12"
                           mask="000{-}000{-}0000"
                           data-testid="telephone"
-                          required
-                          showRequiredAsterisk
                         />
                         <MaskedTextField
                           label="Secondary Telephone"
