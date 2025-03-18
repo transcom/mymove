@@ -1295,6 +1295,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.Run("If the OCONUS to CONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		var scheduledPickupDate time.Time
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1313,9 +1314,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   models.MarketCodeInternational,
-					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+					MarketCode:          models.MarketCodeInternational,
+					Status:              models.MTOShipmentStatusSubmitted,
+					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+					ScheduledPickupDate: &scheduledPickupDate,
 				},
 			},
 			{
@@ -1363,6 +1365,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.Run("If the OCONUS to OCONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		var scheduledPickupDate time.Time
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1381,9 +1384,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   models.MarketCodeInternational,
-					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+					MarketCode:          models.MarketCodeInternational,
+					Status:              models.MTOShipmentStatusSubmitted,
+					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+					ScheduledPickupDate: &scheduledPickupDate,
 				},
 			},
 			{

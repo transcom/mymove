@@ -72,7 +72,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 	suite.Run("Test updating service item destination address on shipment address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		deliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+		pickUpAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					StreetAddress1: "1234 Some Street",
@@ -102,9 +102,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				LinkOnly: true,
 			},
 			{
-				Model:    address,
-				LinkOnly: true,
+				Model:    pickUpAddress,
 				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
 			},
 		}, nil)
 
@@ -140,7 +140,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 	suite.Run("Test updating origin SITDeliveryMiles on shipment pickup address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		deliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+		pickUpAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					StreetAddress1: "1234 Some Street",
@@ -170,7 +170,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				LinkOnly: true,
 			},
 			{
-				Model:    address,
+				Model:    pickUpAddress,
 				Type:     &factory.Addresses.PickupAddress,
 				LinkOnly: true,
 			},

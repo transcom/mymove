@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+#
+# Script to check xml for failed tests
+#
+
+set -eu -o pipefail
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 [path/to/file.xml]"
+  exit 1
+fi
+
+if ! test -f "$1"; then
+  echo "FILE NOT FOUND: $1"
+  exit 1
+fi
+
+if grep "<failure" "$1"; then
+  # Grep found line = error
+  echo "LINT ERROR in $1"
+  exit 1
+fi
