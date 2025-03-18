@@ -2356,6 +2356,11 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       ppmType:
         type: string
         enum:
@@ -2472,6 +2477,11 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+        readOnly: true
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
         readOnly: true
   MTOServiceItemBasic:
     description: Describes a basic service item subtype of a MTOServiceItem.
@@ -5271,6 +5281,11 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
