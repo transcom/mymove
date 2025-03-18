@@ -77,9 +77,9 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		LEFT JOIN orders ON orders.service_member_id = service_members.id`
 
 	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-		rawquery += ` WHERE ((orders.orders_type != 'SAFETY' or orders.orders_type IS NULL) AND`
+		rawquery += ` WHERE ((orders.orders_type != 'SAFETY' OR orders.orders_type IS NULL) AND`
 	} else {
-		rawquery += ` WHERE (`
+		rawquery += ` WHERE (orders.orders_type != 'SAFETY' AND`
 	}
 
 	if params.Edipi != nil {
