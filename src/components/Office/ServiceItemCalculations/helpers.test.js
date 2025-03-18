@@ -5,20 +5,16 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 function testData(code) {
   let result;
-  if (code === 'DCRT' || code === 'DUCRT') {
-    result = {
-      ...result,
-      'Crating size (cu ft)': '4.00',
-    };
-  }
   if (code === 'DCRT' || code === 'ICRT') {
     result = {
       ...result,
+      'Crating size (cu ft)': '4.00',
       'Crating price (per cu ft)': '1.71',
     };
   } else if (code === 'DUCRT' || code === 'IUCRT') {
     result = {
       ...result,
+      'Crating size (cu ft)': '4.00',
       'Uncrating price (per cu ft)': '1.71',
     };
   } else {
