@@ -1,4 +1,40 @@
--- B-22483   Ryan McHugh   add initial mappings to roles_privileges table
+-- B-22483   Ryan McHugh   update roles with static ids, add initial mappings to roles_privileges table
+
+-- update roles with static ids
+DO
+$$
+    DECLARE
+        cust_id UUID;
+        co_id UUID;
+        tio_id UUID;
+        too_id UUID;
+    BEGIN
+        select id into cust_id from roles where role_type = 'customer';
+        select id into co_id from roles where role_type = 'contracting_officer';
+        select id into tio_id from roles where role_type = 'task_invoicing_officer';
+        select id into too_id from roles where role_type = 'task_ordering_officer';
+
+        update roles set role_type = 'customer1' where id = cust_id;
+        insert into roles values ('c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e','customer',now(),now(),'Customer');
+        update users_roles set role_id = 'c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e' where role_id = cust_id;
+        delete from roles where id = cust_id;
+
+        update roles set role_type = 'contracting_officer1' where id = co_id;
+        insert into roles values ('5496a188-69dc-4ae4-9dab-ce6c063d648f','contracting_officer',now(),now(),'Customer');
+        update users_roles set role_id = '5496a188-69dc-4ae4-9dab-ce6c063d648f' where role_id = co_id;
+        delete from roles where id = co_id;
+
+        update roles set role_type = 'task_invoicing_officer1' where id = tio_id;
+        insert into roles values ('c19a5d5f-d320-4972-b294-1d760ee4b899','task_invoicing_officer',now(),now(),'Customer');
+        update users_roles set role_id = 'c19a5d5f-d320-4972-b294-1d760ee4b899' where role_id = tio_id;
+        delete from roles where id = tio_id;
+
+        update roles set role_type = 'task_ordering_officer1' where id = too_id;
+        insert into roles values ('2b21e867-78c3-4980-95a1-c8242b78baba','task_ordering_officer',now(),now(),'Customer');
+        update users_roles set role_id = '2b21e867-78c3-4980-95a1-c8242b78baba' where role_id = too_id;
+        delete from roles where id = too_id;
+END;
+$$;
 
 -- insert applicable roles for supervisor privilege
 INSERT INTO roles_privileges (id, role_id, privilege_id, created_at, updated_at) VALUES
