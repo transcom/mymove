@@ -2308,6 +2308,21 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 	return officeUsers
 }
 
+func getAssignedUserAndID(activeRole string, queueType string, move models.Move) (*models.OfficeUser, *uuid.UUID) {
+	switch activeRole {
+	case string(roles.RoleTypeTOO):
+		switch queueType {
+		case string(models.QueueTypeTaskOrder):
+			return move.TOOAssignedUser, move.TOOAssignedID
+		case string(models.QueueTypeDestinationRequest):
+			return move.TOODestinationAssignedUser, move.TOODestinationAssignedID
+		}
+	case string(roles.RoleTypeServicesCounselor):
+		return move.SCAssignedUser, move.SCAssignedID
+	}
+	return nil, nil
+}
+
 // QueueMoves payload
 func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string, queueType string) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
