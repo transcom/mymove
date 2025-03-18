@@ -82,6 +82,17 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
     }
   }, [setFieldValue, entitlements.unaccompaniedBaggageAllowance, civilianTDYUBMove]);
 
+  // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
+  const showcivilianTDYUBAllowanceWarning = values.ubAllowance > 350 && values.ubAllowance <= 2000;
+
+  const civilianTDYUBAllowanceWeightWarning =
+    '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on the orders.';
+
+  let civilianTDYUBAllowanceWarning = '';
+  if (showcivilianTDYUBAllowanceWarning) {
+    civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
+  }
+
   return (
     <div className={styles.AllowancesDetailForm}>
       {header && <h3 data-testid="header">{header}</h3>}
@@ -203,9 +214,9 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
       {enableUB && civilianTDYUBMove && (
         <MaskedTextField
           data-testid="civilianTdyUbAllowance"
+          warning={civilianTDYUBAllowanceWarning}
           defaultValue="0"
           name="ubAllowance"
-          label="Civilian TDY UB Allowance"
           id="civilianTdyUbAllowance"
           mask={Number}
           scale={0}
@@ -213,6 +224,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           thousandsSeparator=","
           lazy={false}
           isDisabled={formIsDisabled}
+          label={"If the customer's orders specify a specific UB weight allowance, enter it here."}
         />
       )}
       <div className={styles.wrappedCheckbox}>
