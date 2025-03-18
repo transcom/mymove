@@ -35,6 +35,7 @@ type Entitlement struct {
 	ProGearWeight                                int              `db:"pro_gear_weight"`
 	ProGearWeightSpouse                          int              `db:"pro_gear_weight_spouse"`
 	WeightRestriction                            *int             `db:"weight_restriction"`
+	UBWeightRestriction                          *int             `db:"ub_weight_restriction"`
 	CreatedAt                                    time.Time        `db:"created_at"`
 	UpdatedAt                                    time.Time        `db:"updated_at"`
 }
