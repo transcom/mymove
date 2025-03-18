@@ -143,7 +143,19 @@ export const blankAddress = {
 };
 
 const updateAddressToggle = (setValues, fieldName, value, fieldKey, fieldValue) => {
-  if (fieldName === 'hasDeliveryAddress' && value === 'false') {
+  if (fieldName === 'hasSecondaryPickup' && value === 'false') {
+    // HHG
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: fieldValue,
+      hasTertiaryPickup: 'false',
+      tertiaryPickup: {
+        address: blankAddress,
+      },
+    }));
+  } else if (fieldName === 'hasDeliveryAddress' && value === 'false') {
+    // HHG
     setValues((prevValues) => ({
       ...prevValues,
       [fieldName]: value,
@@ -154,6 +166,39 @@ const updateAddressToggle = (setValues, fieldName, value, fieldKey, fieldValue) 
       },
       hasTertiaryDelivery: 'false',
       tertiaryDelivery: {
+        address: blankAddress,
+      },
+    }));
+  } else if (fieldName === 'hasSecondaryDelivery' && value === 'false') {
+    // HHG
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: fieldValue,
+      hasTertiaryDelivery: 'false',
+      tertiaryDelivery: {
+        address: blankAddress,
+      },
+    }));
+  } else if (fieldName === 'hasSecondaryPickupAddress' && value === 'false') {
+    // PPM
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: fieldValue,
+      hasTertiaryPickupAddress: 'false',
+      tertiaryPickupAddress: {
+        address: blankAddress,
+      },
+    }));
+  } else if (fieldName === 'hasSecondaryDestinationAddress' && value === 'false') {
+    // PPM
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: fieldValue,
+      hasTertiaryDestinationAddress: 'false',
+      tertiaryDestinationAddress: {
         address: blankAddress,
       },
     }));
