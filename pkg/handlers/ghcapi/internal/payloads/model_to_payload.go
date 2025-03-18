@@ -2428,25 +2428,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			serviceCounselorQueueCheck := activeRole == string(roles.RoleTypeServicesCounselor) && move.SCAssignedUser != nil
 			// if the assigned user is not in the returned list of available users append them to the end
 			if taskOrderQueueCheck || destinationRequestQueueCheck || serviceCounselorQueueCheck {
-				var assignedUser *models.OfficeUser
-				var assignedID *uuid.UUID
-
 				// Determine the assigned user and ID based on active role and queue type
-				switch activeRole {
-				case string(roles.RoleTypeTOO):
-					switch queueType {
-					case string(models.QueueTypeTaskOrder):
-						assignedUser = move.TOOAssignedUser
-						assignedID = move.TOOAssignedID
-					case string(models.QueueTypeDestinationRequest):
-						assignedUser = move.TOODestinationAssignedUser
-						assignedID = move.TOODestinationAssignedID
-					}
-				case string(roles.RoleTypeServicesCounselor):
-					assignedUser = move.SCAssignedUser
-					assignedID = move.SCAssignedID
-				}
-
+				assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
 				// Ensure assignedUser and assignedID are not nil before proceeding
 				if assignedUser != nil && assignedID != nil {
 					userFound := false
