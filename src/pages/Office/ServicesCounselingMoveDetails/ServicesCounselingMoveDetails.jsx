@@ -56,6 +56,7 @@ import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { formatDateWithUTC } from 'shared/dates';
 
 const ServicesCounselingMoveDetails = ({
   infoSavedAlert,
@@ -122,66 +123,32 @@ const ServicesCounselingMoveDetails = ({
       { fieldName: 'sacType' },
     ],
   };
-  const errorIfMissing = {
-    HHG: [
-      {
-        fieldName: 'requestedPickupDate',
-        condition: (shipment) =>
-          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
-      },
-    ],
-    HHG_INTO_NTS: [
-      {
-        fieldName: 'requestedPickupDate',
-        condition: (shipment) =>
-          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
-      },
-    ],
-    HHG_OUTOF_NTS: [
-      { fieldName: 'storageFacility' },
-      {
-        fieldName: 'requestedPickupDate',
-        condition: (shipment) =>
-          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
-      },
-    ],
-    MOBILE_HOME: [
-      {
-        fieldName: 'requestedPickupDate',
-        condition: (shipment) =>
-          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
-      },
-    ],
-    BOAT_HAUL_AWAY: [
-      {
-        fieldName: 'requestedPickupDate',
-        condition: (shipment) =>
-          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
-      },
-    ],
-    BOAT_TOW_AWAY: [
-      {
-        fieldName: 'requestedPickupDate',
-        condition: (shipment) =>
-          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
-      },
-    ],
-    UNACCOMPANIED_BAGGAGE: [
-      {
-        fieldName: 'requestedPickupDate',
-        condition: (shipment) =>
-          !(new Date(shipment?.requestedPickupDate || null).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)),
-      },
-    ],
-    PPM: [
-      {
-        fieldName: 'advanceStatus',
-        condition: (shipment) =>
-          shipment?.ppmShipment?.hasRequestedAdvance === true &&
-          shipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
-      },
-    ],
-  };
+
+  const errorIfMissing = useMemo(() => {
+    const fieldRequestedPickupDate = {
+      fieldName: 'requestedPickupDate',
+      condition: (shipment) =>
+        !(new Date(formatDateWithUTC(shipment?.requestedPickupDate) || null) > new Date().setHours(0, 0, 0, 0)),
+    };
+
+    return {
+      HHG: [{ ...fieldRequestedPickupDate }],
+      HHG_INTO_NTS: [{ ...fieldRequestedPickupDate }],
+      HHG_OUTOF_NTS: [{ fieldName: 'storageFacility' }, { ...fieldRequestedPickupDate }],
+      MOBILE_HOME: [{ ...fieldRequestedPickupDate }],
+      BOAT_HAUL_AWAY: [{ ...fieldRequestedPickupDate }],
+      BOAT_TOW_AWAY: [{ ...fieldRequestedPickupDate }],
+      UNACCOMPANIED_BAGGAGE: [{ ...fieldRequestedPickupDate }],
+      PPM: [
+        {
+          fieldName: 'advanceStatus',
+          condition: (shipment) =>
+            shipment?.ppmShipment?.hasRequestedAdvance === true &&
+            shipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
+        },
+      ],
+    };
+  }, []);
 
   let shipmentsInfo = [];
   let ppmShipmentsInfoNeedsApproval = [];

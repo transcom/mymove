@@ -46,6 +46,7 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS_URL, technicalHelpDeskURL } from 'shared/constants';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { formatDateWithUTC } from 'shared/dates';
 
 const MoveDetails = ({
   setUnapprovedShipmentCount,
@@ -77,24 +78,48 @@ const MoveDetails = ({
   // RA Validator Status: CODEOWNER ACCEPTED
   // RA Modified Severity: N/A
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const errorIfMissing = {
-    HHG_INTO_NTS: [{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }],
-    HHG_OUTOF_NTS: [
-      { fieldName: 'storageFacility' },
-      { fieldName: 'ntsRecordedWeight' },
-      { fieldName: 'serviceOrderNumber' },
-      { fieldName: 'requestedPickupDate' },
-      { fieldName: 'tacType' },
-    ],
-    PPM: [
-      {
-        fieldName: 'advanceStatus',
-        condition: (mtoShipment) =>
-          mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
-          mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
-      },
-    ],
-  };
+
+  const errorIfMissing = useMemo(() => {
+    const fieldRequestedPickupDate = {
+      fieldName: 'requestedPickupDate',
+      condition: (shipment) =>
+        !(new Date(formatDateWithUTC(shipment?.requestedPickupDate) || null) > new Date().setHours(0, 0, 0, 0)),
+    };
+
+    return {
+      HHG: [
+        {
+          ...fieldRequestedPickupDate,
+        },
+      ],
+      HHG_INTO_NTS: [
+        { fieldName: 'storageFacility' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'tacType' },
+        { ...fieldRequestedPickupDate },
+      ],
+      HHG_OUTOF_NTS: [
+        { fieldName: 'storageFacility' },
+        { fieldName: 'ntsRecordedWeight' },
+        { fieldName: 'serviceOrderNumber' },
+        { fieldName: 'requestedPickupDate' },
+        { fieldName: 'tacType' },
+        { ...fieldRequestedPickupDate },
+      ],
+      MOBILE_HOME: [{ ...fieldRequestedPickupDate }],
+      BOAT_HAUL_AWAY: [{ ...fieldRequestedPickupDate }],
+      BOAT_TOW_AWAY: [{ ...fieldRequestedPickupDate }],
+      UNACCOMPANIED_BAGGAGE: [{ ...fieldRequestedPickupDate }],
+      PPM: [
+        {
+          fieldName: 'advanceStatus',
+          condition: (mtoShipment) =>
+            mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
+            mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
+        },
+      ],
+    };
+  }, []);
 
   const navigate = useNavigate();
 
@@ -121,7 +146,7 @@ const MoveDetails = ({
 
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
-    errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
+    errorIfMissing.HHG.push([{ fieldName: 'destinationType' }]);
     errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
   }
 
@@ -361,7 +386,7 @@ const MoveDetails = ({
 
     // Set the error concern count after processing
     setShipmentErrorConcernCount(numberOfErrorIfMissingForAllShipments);
-  }, [errorIfMissing, mtoShipments, setShipmentErrorConcernCount]);
+  }, [mtoShipments, setShipmentErrorConcernCount, errorIfMissing]);
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
