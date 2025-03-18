@@ -80,7 +80,7 @@
     "swagger-client": "^3.18.5",
     "swagger-ui-dist": "^5.18.2",
     "uswds": "2.13.3",
-    "uuid": "^9.0.0",
+    "uuid": "^11.1.0",
     "webpack": "5",
     "yup": "^1.2.0"
   },
