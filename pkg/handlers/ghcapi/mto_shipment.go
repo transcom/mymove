@@ -785,7 +785,8 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 						if (shipment.Status == models.MTOShipmentStatusApproved ||
 							shipment.Status == models.MTOShipmentStatusDiversionRequested ||
 							shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
-							shipment.Reweigh.ID == uuid.Nil {
+							shipment.Reweigh.ID == uuid.Nil &&
+							shipment.ShipmentType != models.MTOShipmentTypePPM {
 							_, err := reweighRequester.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
 							if err != nil {
 								return nil, err
