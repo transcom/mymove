@@ -13,6 +13,7 @@ import {
 
 jest.mock('services/ghcApi', () => ({
   createUploadForDocument: jest.fn(),
+  createUploadForPPMDocument: jest.fn(),
   createUploadForAmdendedOrders: jest.fn(),
   createUploadForSupportingDocuments: jest.fn(),
   deleteUploadForDocument: jest.fn(),
@@ -92,7 +93,7 @@ describe('DocumentViewerFileManager', () => {
   };
 
   const ppmProps = {
-    title: 'Customer Title',
+    title: 'Custom Title',
     useChevron: true,
     className: 'test-class',
     move: { id: 'move-id', locator: 'move-locator' },
@@ -100,6 +101,7 @@ describe('DocumentViewerFileManager', () => {
     documentId: 'document-id',
     files: [{ id: 'file-1', name: 'File 1' }],
     documentType: 'WEIGHT_TICKET',
+    mtoShipment: { ppmShipment: { id: 'ppm-id' } },
     updateAmendedDocument: jest.fn(),
   };
 
