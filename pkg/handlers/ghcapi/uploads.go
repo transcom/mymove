@@ -456,6 +456,14 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				pdfFileName := strings.TrimSuffix(filenameWithoutTimestamp, filepath.Ext(filenameWithoutTimestamp)) + ".pdf" + "-" + timestamp
 				aFile, pdfInfo, err := h.WeightTicketGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
 
+				defer func() {
+					cleanupErr := h.WeightTicketGenerator.CleanupFile(aFile)
+
+					if cleanupErr != nil {
+						appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(cleanupErr), zap.String("verrs", verrs.Error()))
+					}
+				}()
+
 				// Ensure weight receipt PDF is not corrupted
 				if err != nil || pdfInfo.PageCount != weightEstimatePages {
 					cleanupErr := h.WeightTicketGenerator.CleanupFile(aFile)

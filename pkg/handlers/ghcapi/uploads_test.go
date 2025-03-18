@@ -107,6 +107,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
+
 	handler := CreateUploadHandler{handlerConfig}
 	response := handler.Handle(params)
 
