@@ -1666,6 +1666,95 @@ func init() {
         }
       }
     },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/register": {
+      "post": {
+        "description": "Creates an Okta profile and MilMove profile using the information provided.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "registration"
+        ],
+        "summary": "Self registration of a customer. This creates a MilMove and Okta profile using the information provided.",
+        "operationId": "customerRegistration",
+        "parameters": [
+          {
+            "description": "registration information",
+            "name": "registration",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateOktaAndMilMoveUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successfully registered service member"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -3880,6 +3969,86 @@ func init() {
         "year": {
           "description": "Year of the Mobile Home",
           "type": "integer"
+        }
+      }
+    },
+    "CreateOktaAndMilMoveUser": {
+      "type": "object",
+      "required": [
+        "affiliation",
+        "email",
+        "edipi",
+        "firstName",
+        "lastName",
+        "telephone"
+      ],
+      "properties": {
+        "affiliation": {
+          "title": "Branch",
+          "$ref": "#/definitions/Affiliation"
+        },
+        "edipi": {
+          "type": "string",
+          "format": "edipi",
+          "title": "DoD ID number",
+          "maxLength": 10,
+          "minLength": 10,
+          "pattern": "^\\d{10}$",
+          "x-nullable": true,
+          "example": "5789345789"
+        },
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "emailIsPreferred": {
+          "description": "Indicates if email is the preferred method of contact",
+          "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "1234567"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": false
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": false
+        },
+        "middleInitial": {
+          "type": "string",
+          "title": "Middle Initial",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "phoneIsPreferred": {
+          "description": "Indicates if phone is the preferred method of contact",
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
         }
       }
     },
@@ -8716,6 +8885,9 @@ func init() {
     },
     {
       "name": "application_parameters"
+    },
+    {
+      "name": "registration"
     }
   ]
 }`))
@@ -10469,6 +10641,98 @@ func init() {
               "schema": {
                 "$ref": "#/definitions/ValidationError"
               }
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/register": {
+      "post": {
+        "description": "Creates an Okta profile and MilMove profile using the information provided.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "registration"
+        ],
+        "summary": "Self registration of a customer. This creates a MilMove and Okta profile using the information provided.",
+        "operationId": "customerRegistration",
+        "parameters": [
+          {
+            "description": "registration information",
+            "name": "registration",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateOktaAndMilMoveUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successfully registered service member"
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -13047,6 +13311,86 @@ func init() {
         "year": {
           "description": "Year of the Mobile Home",
           "type": "integer"
+        }
+      }
+    },
+    "CreateOktaAndMilMoveUser": {
+      "type": "object",
+      "required": [
+        "affiliation",
+        "email",
+        "edipi",
+        "firstName",
+        "lastName",
+        "telephone"
+      ],
+      "properties": {
+        "affiliation": {
+          "title": "Branch",
+          "$ref": "#/definitions/Affiliation"
+        },
+        "edipi": {
+          "type": "string",
+          "format": "edipi",
+          "title": "DoD ID number",
+          "maxLength": 10,
+          "minLength": 10,
+          "pattern": "^\\d{10}$",
+          "x-nullable": true,
+          "example": "5789345789"
+        },
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "emailIsPreferred": {
+          "description": "Indicates if email is the preferred method of contact",
+          "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "1234567"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": false
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": false
+        },
+        "middleInitial": {
+          "type": "string",
+          "title": "Middle Initial",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "phoneIsPreferred": {
+          "description": "Indicates if phone is the preferred method of contact",
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
         }
       }
     },
@@ -17902,6 +18246,9 @@ func init() {
     },
     {
       "name": "application_parameters"
+    },
+    {
+      "name": "registration"
     }
   ]
 }`))
