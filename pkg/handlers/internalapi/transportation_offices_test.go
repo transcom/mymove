@@ -129,8 +129,8 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 
 	newAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
-		State:          "CA",
+		City:           "MISSOULA",
+		State:          "MT",
 		PostalCode:     "59801",
 		County:         models.StringPointer("County"),
 	}

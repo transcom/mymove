@@ -105,6 +105,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		{
 			Model: models.Address{
 				PostalCode: "59801",
+				City:       "MISSOULA",
 			},
 		},
 	}, nil)
@@ -131,6 +132,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		{
 			Model: models.Address{
 				PostalCode: "59801",
+				City:       "MISSOULA",
 			},
 		},
 	}, nil)
@@ -156,6 +158,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		{
 			Model: models.Address{
 				PostalCode: "59801",
+				City:       "MISSOULA",
 			},
 		},
 	}, nil)
