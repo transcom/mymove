@@ -238,7 +238,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
           values.civilian_tdy_ub_allowance > 350 && values.civilian_tdy_ub_allowance <= 2000;
 
         const civilianTDYUBAllowanceWeightWarning =
-          '350 lbs. is the maximum UB weight allowance for a civilian TDY unless stated otherwise on your orders.';
+          '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on your orders.';
 
         let civilianTDYUBAllowanceWarning = '';
         if (showcivilianTDYUBAllowanceWarning) {
