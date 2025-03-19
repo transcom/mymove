@@ -1,11 +1,9 @@
 package adminapi
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -27,18 +25,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
-
-func payloadToOktaAccountCreationModel(payload *adminmessages.RequestedOfficeUserUpdate) models.OktaAccountCreationTemplate {
-	return models.OktaAccountCreationTemplate{
-		FirstName:   *payload.FirstName,
-		LastName:    *payload.LastName,
-		Login:       *payload.Email,
-		Email:       *payload.Email,
-		CacEdipi:    payload.Edipi,
-		MobilePhone: *payload.Telephone,
-		GsaID:       payload.OtherUniqueID,
-	}
-}
 
 func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	var user models.User
@@ -75,81 +61,6 @@ func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.Offi
 	return payload
 }
 
-func CreateOfficeOktaAccount(appCtx appcontext.AppContext, params requested_office_users.UpdateRequestedOfficeUserParams) (*http.Response, error) {
-
-	// Payload to OktaAccountCreationTemplate
-	oktaAccountInformation := payloadToOktaAccountCreationModel(params.Body)
-
-	// Get Okta provider
-	provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
-	if err != nil {
-		appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" error getting okta provider - okta account not created")))
-		return nil, err
-	}
-
-	// Setting viper so we can access the api key in the env vars
-	v := viper.New()
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-
-	// Okta api key
-	apiKey := v.GetString(cli.OktaAPIKeyFlag)
-
-	// Okta createUser url
-	activate := "true"
-	baseURL := provider.GetCreateAccountURL(activate)
-
-	// Build okta profile body
-	oktaProfileBody := models.OktaBodyProfile{
-		FirstName:   oktaAccountInformation.FirstName,
-		LastName:    oktaAccountInformation.LastName,
-		Login:       oktaAccountInformation.Login,
-		Email:       oktaAccountInformation.Email,
-		MobilePhone: oktaAccountInformation.MobilePhone,
-		CacEdipi:    oktaAccountInformation.CacEdipi,
-		GsaID:       oktaAccountInformation.GsaID,
-	}
-
-	// Build Post request body
-	body := models.OktaAccountCreationBody{
-		Profile:  oktaProfileBody,
-		GroupIds: []string{},
-	}
-
-	// Get Okta Office Group Id and add it to the request
-	oktaOfficeGroupID := v.GetString(cli.OktaOfficeGroupIDFlag)
-	body.GroupIds = append(body.GroupIds, oktaOfficeGroupID)
-
-	// Marshall Post request body
-	marshalledBody, err := json.Marshal(body)
-	if err != nil {
-		appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" error marshalling okta post request body - okta account not created")))
-		return nil, err
-	}
-
-	// Create POST request
-	userPostReq, err := http.NewRequest("POST", baseURL, bytes.NewReader(marshalledBody))
-	if err != nil {
-		appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" error creating okta post request - okta account not created")))
-		return nil, err
-	}
-
-	// Set POST request header
-	userPostReq.Header.Add("Authorization", "SSWS "+apiKey)
-	userPostReq.Header.Add("Accept", "application/json")
-	userPostReq.Header.Add("Content-Type", "application/json")
-
-	// Execute POST request
-	client := &http.Client{}
-	res, err := client.Do(userPostReq)
-	if err != nil {
-		appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" error with okta account creation post request")))
-		return res, err
-	}
-
-	return res, nil
-}
-
 func getOfficeGroupID() (apiKey, customerGroupID string) {
 	v := viper.New()
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
@@ -175,7 +86,10 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params requested_off
 		return nil, err
 	}
 
-	users, err := models.SearchForExistingOktaUsers(appCtx, provider, apiKey, oktaEmail, &oktaEdipi, &oktaGsaId)
+	if oktaEmail == nil {
+		return nil, fmt.Errorf("required okta email is nil")
+	}
+	users, err := models.SearchForExistingOktaUsers(appCtx, provider, apiKey, *oktaEmail, &oktaEdipi, &oktaGsaId)
 	if err != nil {
 		return nil, err
 	}
@@ -187,11 +101,11 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params requested_off
 	} else if len(users) > 1 {
 		var errMsg error
 		if oktaEdipi != "" {
-			errMsg = fmt.Errorf("multiple Okta accounts found using email %s and EDIPI: %s", oktaEmail, oktaEdipi)
+			errMsg = fmt.Errorf("multiple Okta accounts found using email %s and EDIPI: %s", *oktaEmail, oktaEdipi)
 		} else if oktaGsaId != "" {
-			errMsg = fmt.Errorf("multiple Okta accounts found using email %s and GSA ID: %s", oktaEmail, oktaGsaId)
+			errMsg = fmt.Errorf("multiple Okta accounts found using email %s and GSA ID: %s", *oktaEmail, oktaGsaId)
 		} else {
-			errMsg = fmt.Errorf("multiple Okta accounts found with the given email %s, EDIPI %s, and/or GSA ID %s", oktaEmail, oktaEdipi, oktaGsaId)
+			errMsg = fmt.Errorf("multiple Okta accounts found with the given email %s, EDIPI %s, and/or GSA ID %s", *oktaEmail, oktaEdipi, oktaGsaId)
 		}
 		appCtx.Logger().Error("okta account fetch error", zap.Error(errMsg))
 		return nil, errMsg
@@ -200,8 +114,8 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params requested_off
 	profile := models.OktaProfile{
 		FirstName:   *oktaFirstName,
 		LastName:    *oktaLastName,
-		Email:       oktaEmail,
-		Login:       oktaEmail,
+		Email:       *oktaEmail,
+		Login:       *oktaEmail,
 		MobilePhone: *oktaPhone,
 		CacEdipi:    oktaEdipi,
 		GsaID:       &oktaGsaId,
