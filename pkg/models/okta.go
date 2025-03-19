@@ -28,12 +28,13 @@ type OktaUpdateProfile struct {
 }
 
 type OktaProfile struct {
-	FirstName   string `json:"firstName"`
-	LastName    string `json:"lastName"`
-	Email       string `json:"email"`
-	Login       string `json:"login"`
-	MobilePhone string `json:"mobilePhone"`
-	CacEdipi    string `json:"cac_edipi"`
+	FirstName   string  `json:"firstName"`
+	LastName    string  `json:"lastName"`
+	Email       string  `json:"email"`
+	Login       string  `json:"login"`
+	MobilePhone string  `json:"mobilePhone"`
+	CacEdipi    string  `json:"cac_edipi"`
+	GsaID       *string `json:"gsa_id"`
 }
 
 type OktaUser struct {
@@ -63,6 +64,7 @@ type CreatedOktaUser struct {
 		Login       string  `json:"login"`
 		Email       string  `json:"email"`
 		CacEdipi    *string `json:"cac_edipi"`
+		GsaID       *string `json:"gsa_id"`
 	} `json:"profile"`
 }
 
@@ -142,7 +144,8 @@ func GetOktaUser(appCtx appcontext.AppContext, provider *okta.Provider, oktaID s
 // OKTA ACCOUNT FETCHING SEVERAL USERS //
 // fetching existing users by email/edipi
 // email and edipi are unique in okta, so searching for those should be enough to ensure there isn't an existing account
-func SearchForExistingOktaUsers(appCtx appcontext.AppContext, provider *okta.Provider, apiKey, oktaEmail string, oktaEdipi *string) ([]CreatedOktaUser, error) {
+// gsaID is used for office users that do not use the typical EDIPI - this will be nil when searching for existing customers
+func SearchForExistingOktaUsers(appCtx appcontext.AppContext, provider *okta.Provider, apiKey, oktaEmail string, oktaEdipi *string, gsaID *string) ([]CreatedOktaUser, error) {
 	if oktaEmail == "" {
 		return nil, fmt.Errorf("email is required and cannot be empty")
 	}
@@ -156,12 +159,14 @@ func SearchForExistingOktaUsers(appCtx appcontext.AppContext, provider *okta.Pro
 		}
 	}
 
-	var searchFilter string
+	searchFilter := fmt.Sprintf(`profile.email eq "%s"`, oktaEmail)
 	if oktaEdipi != nil {
-		searchFilter = fmt.Sprintf(`profile.email eq "%s" or profile.cac_edipi eq "%s"`, oktaEmail, *oktaEdipi)
-	} else {
-		searchFilter = fmt.Sprintf(`profile.email eq "%s"`, oktaEmail)
+		searchFilter += fmt.Sprintf(` or profile.cac_edipi eq "%s"`, *oktaEdipi)
 	}
+	if gsaID != nil {
+		searchFilter += fmt.Sprintf(` or profile.gsa_id eq "%s"`, *gsaID)
+	}
+
 	u, err := url.Parse(provider.GetUsersURL())
 	if err != nil {
 		return nil, err

@@ -167,7 +167,7 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params registrationo
 		return nil, err
 	}
 
-	users, err := models.SearchForExistingOktaUsers(appCtx, provider, apiKey, oktaEmail, oktaEdipi)
+	users, err := models.SearchForExistingOktaUsers(appCtx, provider, apiKey, oktaEmail, oktaEdipi, nil)
 	if err != nil {
 		return nil, err
 	}
