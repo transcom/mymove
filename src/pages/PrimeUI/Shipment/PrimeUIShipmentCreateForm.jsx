@@ -254,7 +254,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                     <h4>Third Delivery Address</h4>
                     <FormGroup>
                       <p>
-                        Will the movers pick up any belongings from a third address? (Must be near the pickup address.
+                        Will the movers deliver any belongings to a third address? (Must be near the pickup address.
                         Subject to approval.)
                       </p>
                       <div className={formStyles.radioGroup}>
@@ -526,7 +526,7 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                     <h4>Second Delivery Address</h4>
                     <FormGroup>
                       <p>
-                        Will the movers pick up any belongings from a second address? (Must be near the pickup address.
+                        Will the movers deliver any belongings to a second address? (Must be near the pickup address.
                         Subject to approval.)
                       </p>
                       <div className={formStyles.radioGroup}>
@@ -568,8 +568,8 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                         <h4>Third Delivery Address</h4>
                         <FormGroup>
                           <p>
-                            Will the movers pick up any belongings from a third address? (Must be near the pickup
-                            address. Subject to approval.)
+                            Will the movers deliver any belongings to a third address? (Must be near the pickup address.
+                            Subject to approval.)
                           </p>
                           <div className={formStyles.radioGroup}>
                             <Field

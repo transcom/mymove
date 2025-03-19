@@ -34,6 +34,7 @@ export const AddressFields = ({
   const addressFieldsUUID = useRef(uuidv4());
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
+  const locationInput = window[name];
 
   const getAddress1LabelHintText = (labelHint, address1Label) => {
     if (address1Label === null) {
@@ -95,7 +96,7 @@ export const AddressFields = ({
             validate={validators?.streetAddress3}
           />
           <LocationInput
-            name={`${name}`}
+            name={`${locationInput}`}
             placeholder="Start typing a Zip or City, State Zip"
             label="Location Lookup"
             handleLocationChange={handleOnLocationChange}
