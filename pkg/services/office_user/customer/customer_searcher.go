@@ -79,7 +79,7 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
 		rawquery += ` WHERE ((orders.orders_type != 'SAFETY' OR orders.orders_type IS NULL) AND`
 	} else {
-		rawquery += ` WHERE (orders.orders_type != 'SAFETY' AND`
+		rawquery += ` WHERE (orders.orders_type != 'SAFETY' AND LEFT(service_members.edipi, 2) != 'SM' AND`
 	}
 
 	if params.Edipi != nil {
