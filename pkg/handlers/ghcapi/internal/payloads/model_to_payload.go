@@ -2424,25 +2424,19 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 				availableOfficeUsers = officeUsersSafety
 			}
 
-			taskOrderQueueCheck := activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeTaskOrder) && move.TOOAssignedUser != nil
-			destinationRequestQueueCheck := activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil
-			serviceCounselorQueueCheck := activeRole == string(roles.RoleTypeServicesCounselor) && move.SCAssignedUser != nil
-			// if the assigned user is not in the returned list of available users append them to the end
-			if taskOrderQueueCheck || destinationRequestQueueCheck || serviceCounselorQueueCheck {
-				// Determine the assigned user and ID based on active role and queue type
-				assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
-				// Ensure assignedUser and assignedID are not nil before proceeding
-				if assignedUser != nil && assignedID != nil {
-					userFound := false
-					for _, officeUser := range availableOfficeUsers {
-						if officeUser.ID == *assignedID {
-							userFound = true
-							break
-						}
+			// Determine the assigned user and ID based on active role and queue type
+			assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
+			// Ensure assignedUser and assignedID are not nil before proceeding
+			if assignedUser != nil && assignedID != nil {
+				userFound := false
+				for _, officeUser := range availableOfficeUsers {
+					if officeUser.ID == *assignedID {
+						userFound = true
+						break
 					}
-					if !userFound {
-						availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
-					}
+				}
+				if !userFound {
+					availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
 				}
 			}
 			if activeRole == string(roles.RoleTypeServicesCounselor) {
