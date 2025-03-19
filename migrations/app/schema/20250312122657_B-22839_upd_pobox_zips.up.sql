@@ -5,6 +5,12 @@
 --Las Vegas, NV 89137
 --Petaluma, CA 94953
 --Fort Worth, TX 76113
+--Spanish Fort, AL 36577
+--Davis Monthan AFB, AZ 85707
+--El Paso, TX 88545
+--Coconut Creek, FL 33097
+--North Little Rock, AR 72190
+--Madison, WI 53708
 
 DO $$
 DECLARE
@@ -19,7 +25,8 @@ BEGIN
 					 v_locations
 			   where duty_locations.address_id = addresses.id
 				 and addresses.us_post_region_cities_id = v_locations.uprc_id
-				 and v_locations.uspr_zip_id in ('98464','29230','40512','89137','94953','76113')
+				 and v_locations.uspr_zip_id in ('98464','29230','40512','89137','94953','76113','36577','85707',
+												 '88545','33097','72190','53708')
 			)
 	LOOP
 
