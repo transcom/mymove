@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -11,9 +12,11 @@ import (
 	"golang.org/x/text/encoding/charmap"
 
 	"github.com/transcom/mymove/pkg/factory"
+	ppmop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	uploadop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services/upload"
@@ -43,7 +46,7 @@ func createPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, up
 	return document, params
 }
 
-func createPPMPrereqs(suite *HandlerSuite, fixtureFile string, weightReceipt bool) (models.Document, uploadop.CreatePPMUploadParams) {
+func createPPMPrereqs(suite *HandlerSuite, fixtureFile string, weightReceipt bool) (models.Document, ppmop.CreatePPMUploadParams) {
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 	weightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
@@ -53,7 +56,7 @@ func createPPMPrereqs(suite *HandlerSuite, fixtureFile string, weightReceipt boo
 		},
 	}, nil)
 
-	params := uploadop.NewCreatePPMUploadParams()
+	params := ppmop.NewCreatePPMUploadParams()
 	params.DocumentID = strfmt.UUID(weightTicket.EmptyDocumentID.String())
 	params.PpmShipmentID = strfmt.UUID(ppmShipment.ID.String())
 	params.File = suite.Fixture(fixtureFile)
@@ -62,7 +65,7 @@ func createPPMPrereqs(suite *HandlerSuite, fixtureFile string, weightReceipt boo
 	return weightTicket.EmptyDocument, params
 }
 
-func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, uploadop.CreatePPMUploadParams) {
+func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 	proGear := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
@@ -72,7 +75,7 @@ func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Do
 		},
 	}, nil)
 
-	params := uploadop.NewCreatePPMUploadParams()
+	params := ppmop.NewCreatePPMUploadParams()
 	params.DocumentID = strfmt.UUID(proGear.DocumentID.String())
 	params.PpmShipmentID = strfmt.UUID(ppmShipment.ID.String())
 	params.File = suite.Fixture(fixtureFile)
@@ -80,7 +83,7 @@ func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Do
 	return proGear.Document, params
 }
 
-func createPPMExpensePrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, uploadop.CreatePPMUploadParams) {
+func createPPMExpensePrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 	movingExpense := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
@@ -90,7 +93,7 @@ func createPPMExpensePrereqs(suite *HandlerSuite, fixtureFile string) (models.Do
 		},
 	}, nil)
 
-	params := uploadop.NewCreatePPMUploadParams()
+	params := ppmop.NewCreatePPMUploadParams()
 	params.DocumentID = strfmt.UUID(movingExpense.DocumentID.String())
 	params.PpmShipmentID = strfmt.UUID(ppmShipment.ID.String())
 	params.File = suite.Fixture(fixtureFile)
@@ -113,9 +116,9 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 	return response
 }
 
-func makePPMRequest(suite *HandlerSuite, params uploadop.CreatePPMUploadParams, serviceMember models.ServiceMember, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
+func makePPMRequest(suite *HandlerSuite, params ppmop.CreatePPMUploadParams, officeUser models.OfficeUser, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
 	req := &http.Request{}
-	req = suite.AuthenticateRequest(req, serviceMember)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params.HTTPRequest = req
 
@@ -378,17 +381,17 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerFailure() {
 		suite.NoError(err)
 	})
 }
-
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 	suite.Run("uploads .xls file", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, FixtureXLS, false)
+		_, params := createPPMPrereqs(suite, FixtureXLS, false)
 
-		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
 
-		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+		suite.IsType(&ppmop.CreatePPMUploadCreated{}, response)
 
-		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+		createdResponse, _ := response.(*ppmop.CreatePPMUploadCreated)
 
 		upload := models.Upload{}
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
@@ -402,7 +405,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureXLS, createdResponse.Payload.Filename)
 		suite.Equal(uploader.FileTypeExcel, createdResponse.Payload.ContentType)
-		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(officeUser.UserID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeExcel))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
@@ -410,13 +413,14 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 	suite.Run("uploads .xlsx file", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, FixtureXLSX, false)
+		_, params := createPPMPrereqs(suite, FixtureXLSX, false)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
 
-		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+		suite.IsType(&ppmop.CreatePPMUploadCreated{}, response)
 
-		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+		createdResponse, _ := response.(*ppmop.CreatePPMUploadCreated)
 
 		upload := models.Upload{}
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
@@ -430,7 +434,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureXLSX, createdResponse.Payload.Filename)
 		suite.Equal(uploader.FileTypeExcelXLSX, createdResponse.Payload.ContentType)
-		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(officeUser.UserID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeExcelXLSX))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
@@ -438,13 +442,14 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 	suite.Run("uploads weight estimator .xlsx file (full weight)", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, WeightEstimatorFullXLSX, true)
+		_, params := createPPMPrereqs(suite, WeightEstimatorFullXLSX, true)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
 
-		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+		suite.IsType(&ppmop.CreatePPMUploadCreated{}, response)
 
-		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+		createdResponse, _ := response.(*ppmop.CreatePPMUploadCreated)
 
 		upload := models.Upload{}
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
@@ -458,7 +463,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Contains(createdResponse.Payload.Filename, WeightEstimatorPrefix)
 		suite.Equal(uploader.FileTypePDF, createdResponse.Payload.ContentType)
-		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(officeUser.UserID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypePDF))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
@@ -466,13 +471,14 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 	suite.Run("uploads file for a progear document", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMProgearPrereqs(suite, FixturePNG)
+		_, params := createPPMProgearPrereqs(suite, FixturePNG)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
 
-		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+		suite.IsType(&ppmop.CreatePPMUploadCreated{}, response)
 
-		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+		createdResponse, _ := response.(*ppmop.CreatePPMUploadCreated)
 
 		upload := models.Upload{}
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
@@ -486,7 +492,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixturePNG, createdResponse.Payload.Filename)
 		suite.Equal(uploader.FileTypePNG, createdResponse.Payload.ContentType)
-		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(officeUser.UserID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypePNG))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
@@ -494,13 +500,14 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 	suite.Run("uploads file for an expense document", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMExpensePrereqs(suite, FixtureJPG)
+		_, params := createPPMExpensePrereqs(suite, FixtureJPG)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
 
-		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+		suite.IsType(&ppmop.CreatePPMUploadCreated{}, response)
 
-		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+		createdResponse, _ := response.(*ppmop.CreatePPMUploadCreated)
 
 		upload := models.Upload{}
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
@@ -514,7 +521,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureJPG, createdResponse.Payload.Filename)
 		suite.Equal(uploader.FileTypeJPEG, createdResponse.Payload.ContentType)
-		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(officeUser.UserID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeJPEG))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+quotedFilename))
@@ -522,13 +529,14 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 	suite.Run("uploads file with filename characters not supported by ISO8859_1", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMExpensePrereqs(suite, FixtureScreenshot)
+		_, params := createPPMExpensePrereqs(suite, FixtureScreenshot)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
 
-		suite.IsType(&uploadop.CreatePPMUploadCreated{}, response)
+		suite.IsType(&ppmop.CreatePPMUploadCreated{}, response)
 
-		createdResponse, _ := response.(*uploadop.CreatePPMUploadCreated)
+		createdResponse, _ := response.(*ppmop.CreatePPMUploadCreated)
 
 		upload := models.Upload{}
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
@@ -549,7 +557,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureScreenshot, createdResponse.Payload.Filename)
 		suite.Equal(uploader.FileTypePNG, createdResponse.Payload.ContentType)
-		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(officeUser.UserID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
 		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypePNG))
 		suite.NotContains(createdResponse.Payload.URL, url.QueryEscape(upload.Filename))
@@ -560,36 +568,69 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 	suite.Run("documentId does not exist", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, FixtureXLS, false)
+		_, params := createPPMPrereqs(suite, FixtureXLS, false)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		params.DocumentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 
-		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
 
-		suite.IsType(&uploadop.GetUploadStatusNotFound{}, response)
-		notFoundResponse, _ := response.(*uploadop.GetUploadStatusNotFound)
+		suite.IsType(&ppmop.CreatePPMUploadNotFound{}, response)
+		notFoundResponse, _ := response.(*ppmop.CreatePPMUploadNotFound)
 
-		suite.Equal(uploadop.GetUploadStatusNotFound{}, *notFoundResponse)
+		suite.Equal(fmt.Sprintf("documentId %q was not found", params.DocumentID), *notFoundResponse.Payload.Message)
+	})
+
+	suite.Run("documentId is not associated with the PPM shipment", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		_, params := createPPMPrereqs(suite, FixtureXLS, false)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		document := factory.BuildDocument(suite.DB(), nil, nil)
+		params.DocumentID = strfmt.UUID(document.ID.String())
+
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
+
+		suite.IsType(&ppmop.CreatePPMUploadNotFound{}, response)
+		notFoundResponse, _ := response.(*ppmop.CreatePPMUploadNotFound)
+
+		suite.Equal(fmt.Sprintf("documentId %q was not found for this shipment", params.DocumentID), *notFoundResponse.Payload.Message)
 	})
 
 	suite.Run("ppmShipmentId does not exist", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, FixtureXLS, false)
+		_, params := createPPMPrereqs(suite, FixtureXLS, false)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		params.PpmShipmentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
 
-		suite.IsType(&uploadop.GetUploadStatusNotFound{}, response)
-		notFoundResponse, _ := response.(*uploadop.GetUploadStatusNotFound)
+		suite.IsType(&ppmop.CreatePPMUploadNotFound{}, response)
+		notFoundResponse, _ := response.(*ppmop.CreatePPMUploadNotFound)
 
-		suite.Equal(uploadop.GetUploadStatusNotFound{}, *notFoundResponse)
+		suite.Equal(fmt.Sprintf("documentId %q was not found for this shipment", params.DocumentID), *notFoundResponse.Payload.Message)
+	})
+
+	suite.Run("unsupported content type upload", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		_, params := createPPMPrereqs(suite, FixtureTXT, false)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
+
+		suite.IsType(&ppmop.CreatePPMUploadUnprocessableEntity{}, response)
+		invalidContentTypeResponse, _ := response.(*ppmop.CreatePPMUploadUnprocessableEntity)
+
+		unsupportedErr := uploader.NewErrUnsupportedContentType(uploader.FileTypeTextUTF8, uploader.AllowedTypesPPMDocuments)
+		suite.Equal(unsupportedErr.Error(), *invalidContentTypeResponse.Payload.Detail)
 	})
 
 	suite.Run("empty file upload", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, FixtureEmpty, false)
+		_, params := createPPMPrereqs(suite, FixtureEmpty, false)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+		response := makePPMRequest(suite, params, officeUser, fakeS3)
 
 		suite.CheckResponseBadRequest(response)
 
