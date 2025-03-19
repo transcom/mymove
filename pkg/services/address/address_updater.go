@@ -2,6 +2,7 @@ package address
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -71,17 +72,15 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		mergedAddress.CountryId = &country.ID
 	}
 
-	// if mergedAddress.City != "" && mergedAddress.PostalCode != "" {
-	// 	usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), mergedAddress.PostalCode, strings.ToUpper(mergedAddress.City))
-	// 	if err != nil {
-	// 		mergedAddress.UsPostRegionCity = nil
-	// 		mergedAddress.UsPostRegionCityID = nil
-	// 		// return nil, err
-	// 	}
+	if strings.TrimSpace(mergedAddress.City) != "" && strings.TrimSpace(mergedAddress.PostalCode) != "" && strings.TrimSpace(mergedAddress.State) != "" && strings.TrimSpace(mergedAddress.City) != address.City && strings.TrimSpace(mergedAddress.PostalCode) != address.PostalCode && strings.TrimSpace(mergedAddress.State) != address.State {
+		usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), mergedAddress.PostalCode, strings.ToUpper(mergedAddress.City))
+		if err != nil {
+			return nil, err
+		}
 
-	// 	mergedAddress.UsPostRegionCity = usprc
-	// 	mergedAddress.UsPostRegionCityID = &usprc.ID
-	// }
+		mergedAddress.UsPostRegionCity = usprc
+		mergedAddress.UsPostRegionCityID = &usprc.ID
+	}
 
 	// Evaluate address and populate addresses isOconus value
 	isOconus, err := models.IsAddressOconus(appCtx.DB(), mergedAddress)
