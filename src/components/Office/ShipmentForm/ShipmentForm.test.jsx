@@ -541,6 +541,24 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByTestId('ZIP')[1]).toHaveAttribute('aria-label', 'delivery.address.postalCode');
     });
 
+    it('displays the correct verbiage for 2nd and 3rd addresses', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+
+      await userEvent.click(screen.getAllByLabelText('Yes')[1]);
+      expect(
+        await screen.findByText('Do you want the movers to deliver any belongings to a second address?'),
+      ).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId('has-secondary-delivery'));
+
+      expect(
+        await screen.findByText('Do you want the movers to deliver any belongings to a third address?', {
+          exact: false,
+        }),
+      ).toBeInTheDocument();
+    });
+
     it('renders a second delivery address fieldset when the user has a second delivery address, pre-existing shipment', async () => {
       await act(async () => {
         renderWithRouter(
