@@ -273,6 +273,7 @@ const DocumentViewerFileManager = ({
       )}
       {!isExpandedView && (
         <Button
+          unstyled
           icon={buttonHeaderChevron}
           disabled={isFileProcessing || fileUploadRequired}
           onClick={toggleUploadVisibility}

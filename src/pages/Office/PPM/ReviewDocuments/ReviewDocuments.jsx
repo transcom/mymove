@@ -286,6 +286,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                   mtoShipment={mtoShipment}
                   useChevron
                 />
+                &nbsp;
                 <DocumentViewerFileManager
                   title="Empty Weight Documents"
                   orderId={order.orderId}

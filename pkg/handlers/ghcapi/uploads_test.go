@@ -11,7 +11,6 @@ import (
 	"golang.org/x/text/encoding/charmap"
 
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/uploads"
 	uploadop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -570,7 +569,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 		suite.IsType(&uploadop.GetUploadStatusNotFound{}, response)
 		notFoundResponse, _ := response.(*uploadop.GetUploadStatusNotFound)
 
-		suite.Equal(uploads.GetUploadStatusNotFound{}, *notFoundResponse)
+		suite.Equal(uploadop.GetUploadStatusNotFound{}, *notFoundResponse)
 	})
 
 	suite.Run("ppmShipmentId does not exist", func() {
@@ -583,7 +582,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 		suite.IsType(&uploadop.GetUploadStatusNotFound{}, response)
 		notFoundResponse, _ := response.(*uploadop.GetUploadStatusNotFound)
 
-		suite.Equal(uploads.GetUploadStatusNotFound{}, *notFoundResponse)
+		suite.Equal(uploadop.GetUploadStatusNotFound{}, *notFoundResponse)
 	})
 
 	suite.Run("empty file upload", func() {
