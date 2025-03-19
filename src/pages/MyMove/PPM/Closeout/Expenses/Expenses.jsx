@@ -178,7 +178,7 @@ const Expenses = () => {
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
-            <h1>ExpensesGHI</h1>
+            <h1>Expenses</h1>
             {renderError()}
             <div className={styles.introSection}>
               <p>
