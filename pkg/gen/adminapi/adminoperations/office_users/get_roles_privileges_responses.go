@@ -61,31 +61,6 @@ func (o *GetRolesPrivilegesOK) WriteResponse(rw http.ResponseWriter, producer ru
 	}
 }
 
-// GetRolesPrivilegesBadRequestCode is the HTTP code returned for type GetRolesPrivilegesBadRequest
-const GetRolesPrivilegesBadRequestCode int = 400
-
-/*
-GetRolesPrivilegesBadRequest invalid request
-
-swagger:response getRolesPrivilegesBadRequest
-*/
-type GetRolesPrivilegesBadRequest struct {
-}
-
-// NewGetRolesPrivilegesBadRequest creates GetRolesPrivilegesBadRequest with default headers values
-func NewGetRolesPrivilegesBadRequest() *GetRolesPrivilegesBadRequest {
-
-	return &GetRolesPrivilegesBadRequest{}
-}
-
-// WriteResponse to the client
-func (o *GetRolesPrivilegesBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(400)
-}
-
 // GetRolesPrivilegesUnauthorizedCode is the HTTP code returned for type GetRolesPrivilegesUnauthorized
 const GetRolesPrivilegesUnauthorizedCode int = 401
 

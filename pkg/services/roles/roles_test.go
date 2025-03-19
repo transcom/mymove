@@ -1,9 +1,12 @@
 package roles
 
 import (
+	"slices"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 )
@@ -50,27 +53,17 @@ func (suite *RolesServiceSuite) TestFetchRolesPrivileges() {
 	suite.NoError(err, "Fetching role privileges should not return an error")
 	suite.NotEmpty(rolesPrivileges, "Expected role_privileges to be pre-populated in the database")
 
-	supervisorPrivilegeID := "463c2034-d197-4d9a-897e-8bbe64893a31"
+	availableRoles := roles.GetAllRoleTypes()
 
-	// Initialize expected supervisor roles
-	expectedSupervisorRoles := map[string]bool{
-		"customer":                        true,
-		"task_ordering_officer":           true,
-		"task_invoicing_officer":          true,
-		"contracting_officer":             true,
-		"services_counselor":              true,
-		"prime_simulator":                 true,
-		"qae":                             true,
-		"customer_service_representative": true,
-		"gsr":                             true,
-		"headquarters":                    true,
-	}
-
-	// Assert that the expected supervisor roles match with the actual supervisor roles
+	// Assert that all roles are covered by the supervisor role
 	for _, rp := range rolesPrivileges {
-		if rp.Privilege.ID.String() == supervisorPrivilegeID {
-			_, exists := expectedSupervisorRoles[string(rp.Role.RoleType)]
-			suite.True(exists, "Role %s should have supervisor privilege", rp.Role.RoleType)
+		if rp.Privilege.PrivilegeType == models.PrivilegeTypeSupervisor {
+			index := slices.Index(availableRoles, rp.Role.RoleType)
+			suite.NotEqual(-1, index, "RoleType %s not found in availableRoles.", rp.Role.RoleType)
+			availableRoles = slices.Delete(availableRoles, index, index+1) // unique role->privilege, so remove role after check for supervisor
 		}
 	}
+
+	suite.Len(availableRoles, 1) // 'prime' role does not have mapping
+	suite.Equal(availableRoles[0], roles.RoleTypePrime)
 }

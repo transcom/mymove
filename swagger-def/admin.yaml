@@ -1692,8 +1692,6 @@ paths:
             type: array
             items:
               $ref: '#/definitions/RolePrivilege'
-        "400":
-          description: invalid request
         "401":
           description: request requires user authentication
         "404":

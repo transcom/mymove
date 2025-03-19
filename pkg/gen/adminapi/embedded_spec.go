@@ -976,9 +976,6 @@ func init() {
               }
             }
           },
-          "400": {
-            "description": "invalid request"
-          },
           "401": {
             "description": "request requires user authentication"
           },
@@ -4850,9 +4847,6 @@ func init() {
                 "$ref": "#/definitions/RolePrivilege"
               }
             }
-          },
-          "400": {
-            "description": "invalid request"
           },
           "401": {
             "description": "request requires user authentication"
