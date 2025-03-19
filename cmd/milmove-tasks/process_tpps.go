@@ -124,7 +124,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 
 	tppsInvoiceProcessor := invoice.NewTPPSPaidInvoiceReportProcessor()
 	// Process TPPS paid invoice report
