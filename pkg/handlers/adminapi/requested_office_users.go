@@ -376,7 +376,8 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 			var requestedOfficeUser *models.OfficeUser
 			transactionError := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
 				// handle Okta account creation only if the user is being approved
-				if params.Body.Status == "APPROVED" {
+				// ignore this if we are in our dev environment
+				if params.Body.Status == "APPROVED" && appCtx.Session().IDToken != "devlocal" {
 					var err error
 					_, err = fetchOrCreateOktaProfile(txAppCtx, params)
 					if err != nil {
