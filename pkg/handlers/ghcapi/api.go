@@ -414,6 +414,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		shipmentCreator,
 		shipmentSITStatus,
+		closeoutOfficeUpdater,
 	}
 
 	ghcAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
