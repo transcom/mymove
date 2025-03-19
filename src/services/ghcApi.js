@@ -34,6 +34,31 @@ export async function getPPMDocuments(key, shipmentID) {
   return makeGHCRequest('ppm.getPPMDocuments', { shipmentID }, { normalize: false });
 }
 
+export async function createWeightTicket(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createWeightTicket',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteWeightTicket({ ppmShipmentId, weightTicketId }) {
+  return makeGHCRequest(
+    'ppm.deleteWeightTicket',
+    {
+      ppmShipmentId,
+      weightTicketId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchWeightTicket({ ppmShipmentId, weightTicketId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateWeightTicket',
@@ -861,6 +886,21 @@ export async function createUploadForDocument(file, documentId) {
     {
       documentId,
       file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createUploadForPPMDocument(ppmShipmentId, documentId, file, weightReceipt) {
+  return makeGHCRequest(
+    'ppm.createPPMUpload',
+    {
+      ppmShipmentId,
+      documentId,
+      file,
+      weightReceipt,
     },
     {
       normalize: false,
