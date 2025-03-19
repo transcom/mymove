@@ -135,7 +135,7 @@ const RequestedOfficeUserEdit = () => {
   // hard deletes a user and associated roles/privileges
   // cannot be undone, but the user is shown a confirmation modal to avoid oopsies
   const deleteUser = async () => {
-    deleteOfficeUser(userData.id)
+    await deleteOfficeUser(userData.id)
       .then(() => {
         redirect('/');
       })
