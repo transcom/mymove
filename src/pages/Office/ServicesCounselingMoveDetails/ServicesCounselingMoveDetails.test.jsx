@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import moment from 'moment';
 import { generatePath } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -43,8 +42,6 @@ jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
-
-const tomorrow = moment(new Date()).add(1, 'days');
 
 const mtoShipments = [
   {
@@ -96,8 +93,8 @@ const mtoShipments = [
       streetAddress2: 'P.O. Box 12345',
       streetAddress3: 'c/o Some Person',
     },
-    requestedPickupDate: tomorrow,
-    scheduledPickupDate: tomorrow,
+    requestedPickupDate: '2020-06-04',
+    scheduledPickupDate: '2020-06-05',
     shipmentType: 'HHG',
     status: 'SUBMITTED',
     updatedAt: '2020-05-10T15:58:02.404031Z',
@@ -129,69 +126,13 @@ const mtoShipments = [
       streetAddress2: '#4',
       streetAddress3: 'c/o rabbit',
     },
-    requestedPickupDate: tomorrow,
-    scheduledPickupDate: tomorrow,
+    requestedPickupDate: '2020-06-05',
+    scheduledPickupDate: '2020-06-06',
     shipmentType: 'HHG',
     status: 'SUBMITTED',
     updatedAt: '2020-05-15T15:58:02.404031Z',
   },
 ];
-
-const shipmentInvalidRequestedPickupDate = {
-  customerRemarks: 'please treat gently',
-  counselorRemarks: 'all good',
-  destinationAddress: {
-    city: 'Fairfield',
-    country: 'US',
-    id: '672ff379-f6e3-48b4-a87d-796713f8f997',
-    postalCode: '94535',
-    state: 'CA',
-    streetAddress1: '987 Any Avenue',
-    streetAddress2: 'P.O. Box 9876',
-    streetAddress3: 'c/o Some Person',
-  },
-  eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
-  id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-  moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-  pickupAddress: {
-    city: 'Beverly Hills',
-    country: 'US',
-    eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
-    id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
-    postalCode: '90210',
-    state: 'CA',
-    streetAddress1: '123 Any Street',
-    streetAddress2: 'P.O. Box 12345',
-    streetAddress3: 'c/o Some Person',
-  },
-  secondaryPickupAddress: {
-    city: 'Los Angeles',
-    country: 'US',
-    eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
-    id: 'b941a74a-e77e-4575-bea3-e7e01b226422',
-    postalCode: '90222',
-    state: 'CA',
-    streetAddress1: '456 Any Street',
-    streetAddress2: 'P.O. Box 67890',
-    streetAddress3: 'c/o A Friendly Person',
-  },
-  secondaryDeliveryAddress: {
-    city: 'Beverly Hills',
-    country: 'US',
-    eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
-    id: '1686751b-ab36-43cf-eeee-c0f467d13c19',
-    postalCode: '90215',
-    state: 'CA',
-    streetAddress1: '123 Any Street',
-    streetAddress2: 'P.O. Box 12345',
-    streetAddress3: 'c/o Some Person',
-  },
-  requestedPickupDate: new Date(),
-  scheduledPickupDate: tomorrow,
-  shipmentType: 'HHG',
-  status: 'SUBMITTED',
-  updatedAt: '2020-05-10T15:58:02.404031Z',
-};
 
 const ntsrShipmentMissingRequiredInfo = {
   shipmentType: 'HHG_OUTOF_NTS',
@@ -478,8 +419,8 @@ const zeroIncentiveMoveDetailsQuery = {
         weightTickets: [{ emptyWeight: 0, fullWeight: 200 }],
       },
       primeActualWeight: 980,
-      requestedDeliveryDate: tomorrow,
-      requestedPickupDate: tomorrow,
+      requestedDeliveryDate: '2023-01-10',
+      requestedPickupDate: '2023-01-10',
       shipmentType: 'PPM',
       status: 'SUBMITTED',
       updatedAt: '2022-11-08T23:44:58.217Z',
@@ -711,7 +652,7 @@ const renderComponent = (props, permissions = [permissionTypes.updateShipment, p
   );
 };
 
-describe('ServiceCounselingMoveDetails page', () => {
+describe('MoveDetails page', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, ...LOADING_RETURN_VALUE });
@@ -1065,26 +1006,6 @@ describe('ServiceCounselingMoveDetails page', () => {
         useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
 
         renderComponent();
-
-        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
-        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
-      });
-
-      it('submit move details button is disabled and field error indicator present when requestedPickupDate on shipment invalid', async () => {
-        const moveDetailsQuery = {
-          ...newMoveDetailsQuery,
-          mtoShipments: [shipmentInvalidRequestedPickupDate],
-        };
-        useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-
-        renderComponent();
-
-        expect((await screen.findByTestId('requestedPickupDate')).parentElement.classList).toContain(
-          'missingInfoError',
-        );
-
-        expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
-        expect(await screen.findByTestId('shipment-missing-info-alert')).toBeVisible();
 
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
         expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();

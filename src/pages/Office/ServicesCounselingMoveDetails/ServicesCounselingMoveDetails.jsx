@@ -56,7 +56,6 @@ import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { formatDateWithUTC } from 'shared/dates';
 
 const ServicesCounselingMoveDetails = ({
   infoSavedAlert,
@@ -123,33 +122,17 @@ const ServicesCounselingMoveDetails = ({
       { fieldName: 'sacType' },
     ],
   };
-
-  const errorIfMissing = useMemo(() => {
-    const fieldRequestedPickupDate = {
-      fieldName: 'requestedPickupDate',
-      condition: (shipment) =>
-        new Date(formatDateWithUTC(shipment?.requestedPickupDate) || null) <= new Date().setHours(0, 0, 0, 0),
-      optional: true, // bypass to use condition, triggers condition if not present
-    };
-
-    return {
-      HHG: [{ ...fieldRequestedPickupDate }],
-      HHG_INTO_NTS: [{ ...fieldRequestedPickupDate }],
-      HHG_OUTOF_NTS: [{ fieldName: 'storageFacility' }, { ...fieldRequestedPickupDate }],
-      MOBILE_HOME: [{ ...fieldRequestedPickupDate }],
-      BOAT_HAUL_AWAY: [{ ...fieldRequestedPickupDate }],
-      BOAT_TOW_AWAY: [{ ...fieldRequestedPickupDate }],
-      UNACCOMPANIED_BAGGAGE: [{ ...fieldRequestedPickupDate }],
-      PPM: [
-        {
-          fieldName: 'advanceStatus',
-          condition: (shipment) =>
-            shipment?.ppmShipment?.hasRequestedAdvance === true &&
-            shipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
-        },
-      ],
-    };
-  }, []);
+  const errorIfMissing = {
+    HHG_OUTOF_NTS: [{ fieldName: 'storageFacility' }],
+    PPM: [
+      {
+        fieldName: 'advanceStatus',
+        condition: (shipment) =>
+          shipment?.ppmShipment?.hasRequestedAdvance === true &&
+          shipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
+      },
+    ],
+  };
 
   let shipmentsInfo = [];
   let ppmShipmentsInfoNeedsApproval = [];
@@ -207,7 +190,7 @@ const ServicesCounselingMoveDetails = ({
 
   if (isRetirementOrSeparation) {
     // destination type must be set for for HHG, NTSR shipments only
-    errorIfMissing.HHG.push([{ fieldName: 'destinationType' }]);
+    errorIfMissing.HHG = [{ fieldName: 'destinationType' }];
     errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
   }
 
@@ -359,7 +342,6 @@ const ServicesCounselingMoveDetails = ({
         displayInfo.agency = customerData.agency;
         displayInfo.closeoutOffice = closeoutOffice;
       }
-
       const errorIfMissingList = errorIfMissing[shipment.shipmentType];
 
       if (errorIfMissingList) {
