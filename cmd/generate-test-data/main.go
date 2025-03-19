@@ -164,7 +164,7 @@ func main() {
 	}
 
 	// run inside a transaction as some of the testdatagen needs it
-	err = appcontext.NewAppContext(dbConnection, logger, nil).NewTransaction(
+	err = appcontext.NewAppContext(dbConnection, logger, nil, nil).NewTransaction(
 		func(appCtx appcontext.AppContext) error {
 
 			namedScenario := v.GetString(namedScenarioFlag)

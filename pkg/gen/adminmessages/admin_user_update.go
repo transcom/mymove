@@ -8,8 +8,10 @@ package adminmessages
 import (
 	"context"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // AdminUserUpdate admin user update
@@ -19,6 +21,10 @@ type AdminUserUpdate struct {
 
 	// active
 	Active *bool `json:"active,omitempty"`
+
+	// email
+	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+	Email *string `json:"email,omitempty"`
 
 	// First Name
 	FirstName *string `json:"firstName,omitempty"`
@@ -32,6 +38,27 @@ type AdminUserUpdate struct {
 
 // Validate validates this admin user update
 func (m *AdminUserUpdate) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateEmail(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *AdminUserUpdate) validateEmail(formats strfmt.Registry) error {
+	if swag.IsZero(m.Email) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+		return err
+	}
+
 	return nil
 }
 
