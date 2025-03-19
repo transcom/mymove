@@ -47,6 +47,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             id="officeAccountRequestFirstName"
             data-testid="officeAccountRequestFirstName"
             showRequiredAsterisk
+            required
           />
           <TextField
             label="Middle Initial"
@@ -61,6 +62,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             id="officeAccountRequestLastName"
             data-testid="officeAccountRequestLastName"
             showRequiredAsterisk
+            required
           />
           <TextField
             label="Email"
@@ -68,6 +70,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             id="officeAccountRequestEmail"
             data-testid="officeAccountRequestEmail"
             showRequiredAsterisk
+            required
           />
           <TextField
             label="Confirm Email"
@@ -76,6 +79,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             data-testid="emailConfirmation"
             disablePaste
             showRequiredAsterisk
+            required
           />
           <MaskedTextField
             label="Telephone"
@@ -86,6 +90,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             minimum="12"
             mask="000{-}000{-}0000"
             showRequiredAsterisk
+            required
           />
           <div className={styles.section}>
             <div className={styles.inputContainer}>
@@ -138,6 +143,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             label="Transportation Office"
             searchLocations={searchTransportationOfficesOpen}
             showRequiredAsterisk
+            required
           />
           <Label data-testid="requestedRolesHeading">
             Requested Role(s)
