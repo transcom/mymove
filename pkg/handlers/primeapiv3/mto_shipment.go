@@ -231,7 +231,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					}
 				}
 
-				mtoShipment, err = h.ShipmentCreator.CreateShipment(appCtx, mtoShipment, true)
+				mtoShipment, err = h.ShipmentCreator.CreateShipment(appCtx, mtoShipment)
 			} else if err == nil {
 				appCtx.Logger().Error("primeapiv3.CreateMTOShipmentHandler error - MTO is not available to Prime")
 				return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(

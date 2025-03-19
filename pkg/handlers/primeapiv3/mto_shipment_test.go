@@ -316,8 +316,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Validate outgoing payload
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
-		// check that the mto shipment status is Approved
-		suite.Require().Equal(createMTOShipmentPayload.Status, primev3messages.MTOShipmentWithoutServiceItemsStatusAPPROVED, "MTO Shipment should have been approved")
+		// check that the mto shipment status is submitted
+		suite.Require().Equal(createMTOShipmentPayload.Status, primev3messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
@@ -357,9 +357,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Validate outgoing payload
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
-		// check that the mto shipment status is Approved
+		// check that the mto shipment status is Submitted
 		suite.Require().Equal(primev3messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE, createMTOShipmentPayload.ShipmentType, "MTO Shipment type should be unaccompanied baggage")
-		suite.Require().Equal(primev3messages.MTOShipmentWithoutServiceItemsStatusAPPROVED, createMTOShipmentPayload.Status, "MTO Shipment should have been approved")
+		suite.Require().Equal(primev3messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, createMTOShipmentPayload.Status, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
@@ -1004,7 +1004,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
 		// check that the mto shipment status is Submitted
-		suite.Require().Equal(createMTOShipmentPayload.Status, primev3messages.MTOShipmentWithoutServiceItemsStatusAPPROVED, "MTO Shipment should have been approved")
+		suite.Require().Equal(createMTOShipmentPayload.Status, primev3messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
 	})
 
 	suite.Run("POST failure - 500", func() {
@@ -1023,7 +1023,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mockCreator.On("CreateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.MTOShipment"),
-			mock.AnythingOfType("bool"),
 		).Return(nil, err)
 
 		params := mtoshipmentops.CreateMTOShipmentParams{

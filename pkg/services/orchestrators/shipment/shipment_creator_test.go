@@ -160,58 +160,10 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		return subtestData
 	}
 
-	suite.Run("Checks for reweighs if the shipment was created by the Prime", func() {
-		// Since subtestData uses an actual MoveWeights , had to re do a bunch of the setup here in order to use a mocked version for CheckAutoReweigh
-		mockMTOShipmentCreator := mocks.MTOShipmentCreator{}
-		mockPPMShipmentCreator := mocks.PPMShipmentCreator{}
-		mockBoatShipmentCreator := mocks.BoatShipmentCreator{}
-		mockMobileHomeShipmentCreator := mocks.MobileHomeShipmentCreator{}
-		mockMoveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
-
-		mockMTOShipmentCreator.
-			On(
-				createMTOShipmentMethodName,
-				mock.AnythingOfType("*appcontext.appContext"),
-				mock.AnythingOfType("*models.MTOShipment")).
-			Return(
-				func(_ appcontext.AppContext, ship *models.MTOShipment) *models.MTOShipment {
-					ship.ID = uuid.Must(uuid.NewV4())
-
-					return ship
-				},
-				func(_ appcontext.AppContext, _ *models.MTOShipment) error {
-					return nil
-				},
-			)
-
-		mockMoveTaskOrderUpdater.
-			On(
-				updatePPMTypeMethodName,
-				mock.AnythingOfType("*appcontext.appContext"),
-				mock.AnythingOfType("uuid.UUID"),
-			).
-			Return(nil, nil)
-
-		moveWeights := &mocks.MoveWeights{}
-		shipmentCreatorOrchestrator := NewShipmentCreator(&mockMTOShipmentCreator, &mockPPMShipmentCreator, &mockBoatShipmentCreator, &mockMobileHomeShipmentCreator, mtoshipment.NewShipmentRouter(), &mockMoveTaskOrderUpdater, moveWeights)
-
-		shipment := models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypeHHG,
-		}
-
-		moveWeights.On("CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("*models.MTOShipment")).Return(nil)
-		mtoShipment, err := shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &shipment, true)
-
-		moveWeights.AssertCalled(suite.T(), "CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("*models.MTOShipment"))
-
-		suite.NotNil(mtoShipment)
-		suite.NoError(err)
-	})
-
 	suite.Run("Returns an InvalidInputError if there is an error with the shipment info that was input", func() {
 		subtestData := makeSubtestData(false, false, false)
 
-		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &models.MTOShipment{}, false)
+		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &models.MTOShipment{})
 
 		suite.Nil(mtoShipment)
 
@@ -280,7 +232,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 				Roles:           roles.Roles{},
 			}
 
-			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), &tc.shipment, false)
+			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), &tc.shipment)
 
 			suite.Nil(err)
 
@@ -310,7 +262,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		session.Roles = append(session.Roles, identity.Roles...)
 		appCtx := suite.AppContextWithSessionForTest(session)
 
-		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment, false)
+		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment)
 
 		suite.Nil(err)
 
@@ -358,7 +310,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 
 			// Need to start a transaction so we can assert the call with the correct appCtx
 			err := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
-				mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(txAppCtx, &shipment, false)
+				mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(txAppCtx, &shipment)
 
 				suite.NoError(err)
 				suite.NotNil(mtoShipment)
@@ -416,7 +368,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 			Roles:           roles.Roles{},
 		}
 
-		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), shipment, false)
+		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), shipment)
 
 		suite.NoError(err)
 
@@ -481,7 +433,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 			session.Roles = append(session.Roles, identity.Roles...)
 			appCtx := suite.AppContextWithSessionForTest(session)
 
-			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment, false)
+			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment)
 
 			suite.Nil(mtoShipment)
 
@@ -495,7 +447,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 
 		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextForTest(), &models.MTOShipment{
 			ShipmentType: models.MTOShipmentTypePPM,
-		}, false)
+		})
 
 		suite.Nil(mtoShipment)
 

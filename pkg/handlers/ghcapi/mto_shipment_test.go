@@ -3723,7 +3723,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		shipmentCreator.On("CreateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.MTOShipment"),
-			mock.AnythingOfType("bool"),
 		).Return(nil, err)
 
 		// Validate incoming payload

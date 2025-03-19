@@ -262,7 +262,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 
 			var err error
-			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment, false)
+			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
 			if err != nil {
 				return handleError(err)

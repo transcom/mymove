@@ -61,7 +61,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 
-			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment, false)
+			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))

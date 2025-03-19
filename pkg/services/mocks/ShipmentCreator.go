@@ -14,9 +14,9 @@ type ShipmentCreator struct {
 	mock.Mock
 }
 
-// CreateShipment provides a mock function with given fields: appCtx, shipment, createdByPrime
-func (_m *ShipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, createdByPrime bool) (*models.MTOShipment, error) {
-	ret := _m.Called(appCtx, shipment, createdByPrime)
+// CreateShipment provides a mock function with given fields: appCtx, shipment
+func (_m *ShipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, shipment)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateShipment")
@@ -24,19 +24,19 @@ func (_m *ShipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment
 
 	var r0 *models.MTOShipment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, bool) (*models.MTOShipment, error)); ok {
-		return rf(appCtx, shipment, createdByPrime)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipment)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, bool) *models.MTOShipment); ok {
-		r0 = rf(appCtx, shipment, createdByPrime)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) *models.MTOShipment); ok {
+		r0 = rf(appCtx, shipment)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, bool) error); ok {
-		r1 = rf(appCtx, shipment, createdByPrime)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
+		r1 = rf(appCtx, shipment)
 	} else {
 		r1 = ret.Error(1)
 	}

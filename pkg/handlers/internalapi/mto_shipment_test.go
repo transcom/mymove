@@ -712,7 +712,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		mockShipmentCreator.On("CreateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.MTOShipment"),
-			mock.AnythingOfType("bool"),
 		).Return(nil, err)
 
 		handler := CreateMTOShipmentHandler{

@@ -36,7 +36,7 @@ func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipm
 }
 
 // CreateShipment creates a shipment, taking into account different shipment types and their needs.
-func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, createdByPrime bool) (*models.MTOShipment, error) {
+func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOShipment, error) {
 	if err := validateShipment(appCtx, *shipment, s.checks...); err != nil {
 		return nil, err
 	}
@@ -66,10 +66,6 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 		}
 	}
 
-	if createdByPrime && shipment.ShipmentType != models.MTOShipmentTypePPM {
-		shipment.Status = models.MTOShipmentStatusApproved
-	}
-
 	var mtoShipment *models.MTOShipment
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
@@ -77,12 +73,6 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 
 		if err != nil {
 			return err
-		}
-
-		if createdByPrime && shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			if err := s.moveWeights.CheckAutoReweigh(appCtx, shipment.MoveTaskOrderID, shipment); err != nil {
-				return err
-			}
 		}
 
 		if !isPPMShipment {
