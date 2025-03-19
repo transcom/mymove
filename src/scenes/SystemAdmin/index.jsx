@@ -95,7 +95,7 @@ class AdminWrapper extends Component {
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/invalid-permissions" element={<InvalidPermissions />} />
             {/* system is basename of admin app, see https://marmelab.com/react-admin/Routing.html#using-react-admin-inside-a-route */}
-            <Route path="/system/*" element={this.state.isLoggedIn ? <Home /> : <SignIn />} />)
+            <Route path="/system/*" element={this.state.isLoggedIn ? <Home /> : <SignIn />} />
             <Route path="*" element={<Navigate to="/system" />} />
           </Routes>
         </div>
