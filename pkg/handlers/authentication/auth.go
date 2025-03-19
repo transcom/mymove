@@ -1270,6 +1270,8 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 	}
 
 	if appCtx.Session().IsMilApp() {
+		// we need to see if this user is pre-existing
+		// if we can't find one, then we'll create a user
 		user, err = models.GetUserFromOktaID(appCtx.DB(), oktaUser.Sub)
 		if err == sql.ErrNoRows {
 			user, err = models.CreateUser(appCtx.DB(), oktaUser.Sub, oktaUser.Email)
@@ -1324,8 +1326,9 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 			zap.String("OID_Email", oktaUser.Email),
 			zap.String("user.id", user.ID.String()),
 		)
-		err = models.UpdateUserOktaID(appCtx.DB(), user, oktaUser.Sub)
-
+		if oktaUser.Sub != user.OktaID {
+			err = models.UpdateUserOktaID(appCtx.DB(), user, oktaUser.Sub)
+		}
 	}
 
 	if err != nil {
