@@ -359,8 +359,15 @@ const ShipmentForm = (props) => {
 
   const submitMTOShipment = (formValues, actions) => {
     //* PPM Shipment *//
+    const newFormValues = formValues;
     if (isPPM) {
-      const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
+      if (isAdvancePage) {
+        // Delete all form values not related to advance in order to avoid duplicate move history logs and unnecessary duplicate updates
+        delete newFormValues.pickupAddress;
+        delete newFormValues.destinationAddress;
+        delete newFormValues.expectedDepartureDate;
+      }
+      const ppmShipmentBody = formatPpmShipmentForAPI(newFormValues);
 
       // Allow blank values to be entered into Pro Gear input fields
       if (
@@ -1129,7 +1136,7 @@ const ShipmentForm = (props) => {
                                 <>
                                   <h4>Third Delivery Address</h4>
                                   <FormGroup>
-                                    <p>Do you want the movers to deliver any belongings from a third address?</p>
+                                    <p>Do you want the movers to deliver any belongings to a third address?</p>
                                     <div className={formStyles.radioGroup}>
                                       <Field
                                         as={Radio}
@@ -1304,9 +1311,7 @@ const ShipmentForm = (props) => {
                                         <>
                                           <h4>Third Delivery Address</h4>
                                           <FormGroup>
-                                            <p>
-                                              Do you want the movers to deliver any belongings from a third address?
-                                            </p>
+                                            <p>Do you want the movers to deliver any belongings to a third address?</p>
                                             <div className={formStyles.radioGroup}>
                                               <Field
                                                 as={Radio}
