@@ -67,6 +67,13 @@ describe('BulkAssignmentModal', () => {
 
   it('shows cancel confirmation modal when close icon is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
+    await screen.findByRole('button', { name: 'Cancel' });
+
+    await act(async () => {
+      expect(await screen.getByText('person, test1')).toBeInTheDocument();
+      const assignment = await screen.getAllByTestId('assignment')[0];
+      await userEvent.type(assignment, '1');
+    });
 
     const closeButton = await screen.findByTestId('modalCloseButton');
 
@@ -75,21 +82,54 @@ describe('BulkAssignmentModal', () => {
     expect(screen.getByTestId('cancelModalYes')).toBeInTheDocument();
   });
 
-  it('shows cancel confirmation modal when the Cancel button is clicked', async () => {
+  it('does not show cancel confirmation if form is unchanged and cancel is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
-    await userEvent.click(cancelButton);
+    await act(async () => {
+      await userEvent.click(cancelButton);
+    });
 
+    await waitFor(() => {
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('shows cancel confirmation modal when the Cancel button is click if form has changed', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
+
+    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
+
+    await act(async () => {
+      expect(await screen.getByText('user, sc')).toBeInTheDocument();
+      const assignment = await screen.getAllByTestId('assignment')[0];
+      await userEvent.type(assignment, '1');
+    });
+
+    await userEvent.click(cancelButton);
     expect(screen.getByTestId('cancelModalYes')).toBeInTheDocument();
   });
 
-  it('calls the submit function when Save button is clicked', async () => {
+  it('disables the save button if form is unchanged', async () => {
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
+    const saveButton = await screen.findByTestId('modalSubmitButton');
+    expect(saveButton).toBeDisabled();
+    await userEvent.click(saveButton);
+    expect(onSubmit).toHaveBeenCalledTimes(0);
+  });
+
+  it('calls the submit function when Save button is clicked if form is changed', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    const saveButton = await screen.findByRole('button', { name: 'Save' });
+    await screen.findByRole('button', { name: 'Cancel' });
 
+    await act(async () => {
+      expect(await screen.getByText('person, test1')).toBeInTheDocument();
+      const assignment = await screen.getAllByTestId('assignment')[0];
+      await userEvent.type(assignment, '1');
+    });
+    const saveButton = await screen.findByTestId('modalSubmitButton');
     await userEvent.click(saveButton);
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -115,10 +155,8 @@ describe('BulkAssignmentModal', () => {
     await userEvent.click(equalAssignButton);
     const row1 = await screen.getAllByTestId('assignment')[0];
     const row2 = await screen.getAllByTestId('assignment')[1];
-    const row3 = await screen.getAllByTestId('assignment')[1];
-    expect(row1.value).toEqual('2');
-    expect(row2.value).toEqual('2');
-    expect(row3.value).toEqual('2');
+    expect(row1.value).toEqual('0');
+    expect(row2.value).toEqual('1');
   });
 
   it('select/deselect all checkbox works', async () => {
@@ -194,6 +232,13 @@ describe('BulkAssignmentModal', () => {
   it('closes the modal when the close is confirmed', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
+    await screen.findByRole('button', { name: 'Cancel' });
+
+    await act(async () => {
+      expect(await screen.getByText('person, test1')).toBeInTheDocument();
+      const assignment = await screen.getAllByTestId('assignment')[0];
+      await userEvent.type(assignment, '1');
+    });
     const closeButton = await screen.findByTestId('modalCloseButton');
 
     await userEvent.click(closeButton);
@@ -207,6 +252,13 @@ describe('BulkAssignmentModal', () => {
   it('close confirmation goes away when clicking no', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
+    await screen.findByRole('button', { name: 'Cancel' });
+
+    await act(async () => {
+      expect(await screen.getByText('person, test1')).toBeInTheDocument();
+      const assignment = await screen.getAllByTestId('assignment')[0];
+      await userEvent.type(assignment, '1');
+    });
     const closeButton = await screen.findByTestId('modalCloseButton');
     await userEvent.click(closeButton);
 

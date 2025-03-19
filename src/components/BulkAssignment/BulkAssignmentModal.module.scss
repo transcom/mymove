@@ -2,7 +2,7 @@
 
 .BulkModal {
   min-width: 650px !important;
-  max-width: 60vw;
+  max-width: 50vw;
   overflow-y: auto;
   max-height: 90vh;
   overflow-x: hidden;
@@ -57,7 +57,12 @@
 
       &:first-child {
         width: 20px;
+        padding-right: 3em;
       }
+    }
+
+    .UserNameHeader {
+      text-align: left;
     }
 
     td {
@@ -115,5 +120,17 @@
     max-width: 100px;
     height: 42px;
     align-items: center;
+  }
+}
+
+.BulkAssignmentButtonsContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  .BulkAssignmentButtonsLeft {
+    display: flex;
+    flex-direction: row;
   }
 }
