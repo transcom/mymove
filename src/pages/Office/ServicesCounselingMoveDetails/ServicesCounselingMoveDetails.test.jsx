@@ -338,6 +338,9 @@ const newMoveDetailsQuery = {
   isSuccess: true,
 };
 
+const draftMoveDetailsQuery = { ...newMoveDetailsQuery };
+draftMoveDetailsQuery.move.status = MOVE_STATUSES.DRAFT;
+
 const zeroIncentiveMoveDetailsQuery = {
   ...newMoveDetailsQuery,
   move: {
@@ -1894,6 +1897,30 @@ describe('MoveDetails page', () => {
         expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
         expect(screen.queryByRole('combobox')).toBeInTheDocument(); // Add a new shipment ButtonDropdown
         expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
+      });
+    });
+
+    describe('move in draft status', () => {
+      it('submit move details button is on page', async () => {
+        useMoveDetailsQueries.mockReturnValue(draftMoveDetailsQuery);
+
+        renderComponent();
+
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+      });
+
+      it('renders submit and view/edit buttons/links', async () => {
+        useMoveDetailsQueries.mockReturnValue(draftMoveDetailsQuery);
+
+        renderComponent();
+
+        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(screen.queryByRole('combobox')).toBeInTheDocument(); // Add a new shipment ButtonDropdown
+        const shipmentEditButtons = await screen.findAllByRole('button', { name: 'Edit shipment' });
+        expect(shipmentEditButtons.length).toBe(2);
         expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
