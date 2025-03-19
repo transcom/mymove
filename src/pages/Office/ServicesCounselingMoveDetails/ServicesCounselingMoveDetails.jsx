@@ -285,10 +285,13 @@ const ServicesCounselingMoveDetails = ({
 
     counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
     reviewWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
-    counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
+    counselorCanEdit =
+      move.status === (MOVE_STATUSES.NEEDS_SERVICE_COUNSELING || MOVE_STATUSES.DRAFT) &&
+      ppmShipmentsOtherStatuses.length > 0;
     counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
-      move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
+      (move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING || move.status === MOVE_STATUSES.DRAFT) &&
+      shipmentsInfo.shipmentType !== 'PPM';
 
     shipmentsInfo = submittedShipmentsNonPPMNeedsCloseout.map((shipment) => {
       const editURL =
@@ -643,6 +646,7 @@ const ServicesCounselingMoveDetails = ({
   const counselorCanEditOrdersAndAllowances = () => {
     if (counselorCanEdit || counselorCanEditNonPPM) return true;
     if (
+      move.status === MOVE_STATUSES.DRAFT ||
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
       move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
       (move.status === MOVE_STATUSES.APPROVALS_REQUESTED && !move.availableToPrimeAt) // status is set to 'Approval Requested' if customer uploads amended orders.
