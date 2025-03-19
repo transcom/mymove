@@ -12,7 +12,7 @@ import { OfficeUserInfoShape } from 'types/index';
 
 export const LocationInput = (props) => {
   const { label, name, displayAddress, placeholder, isDisabled, handleLocationChange, officeUser } = props;
-  const [field, meta, helpers] = useField(props);
+  const [field, meta] = useField(props);
   const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
 
   return (
@@ -21,7 +21,7 @@ export const LocationInput = (props) => {
       name={name}
       input={{
         value: field.value,
-        onChange: helpers.setValue,
+        onChange: handleLocationChange,
         locationState: () => {},
         name,
       }}
