@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './DocumentViewerFileManager.module.scss';
 
@@ -12,13 +13,15 @@ import {
   createUploadForSupportingDocuments,
   deleteUploadForDocument,
   getOrder,
+  createUploadForPPMDocument,
 } from 'services/ghcApi';
-import { ORDERS_DOCUMENTS, MOVES, ORDERS } from 'constants/queryKeys';
+import { ORDERS_DOCUMENTS, MOVES, ORDERS, DOCUMENTS } from 'constants/queryKeys';
 import FileUpload from 'components/FileUpload/FileUpload';
 import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import DeleteDocumentFileConfirmationModal from 'components/ConfirmationModals/DeleteDocumentFileConfirmationModal';
-import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { PPM_DOCUMENT_TYPES, MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { ShipmentShape } from 'types';
 
 const DocumentViewerFileManager = ({
   className,
@@ -30,6 +33,9 @@ const DocumentViewerFileManager = ({
   updateAmendedDocument,
   fileUploadRequired,
   onAddFile,
+  title,
+  mtoShipment,
+  useChevron,
 }) => {
   const queryClient = useQueryClient();
   const filePondEl = useRef();
@@ -39,7 +45,8 @@ const DocumentViewerFileManager = ({
   const [serverError, setServerError] = useState('');
   const [showUpload, setShowUpload] = useState(false);
   const [isExpandedView, setIsExpandedView] = useState(false);
-  const [buttonHeaderText, setButtonHeaderText] = useState('Manage Documents');
+  const [buttonHeaderText, setButtonHeaderText] = useState(title !== null ? title : 'Manage Documents');
+  const [buttonHeaderChevron, setButtonHeaderChevron] = useState('chevron-up');
 
   const moveId = move?.id;
   const moveCode = move?.locator;
@@ -76,6 +83,20 @@ const DocumentViewerFileManager = ({
     }
   }, [documentType, fileUploadRequired]);
 
+  useEffect(() => {
+    if (title && showUpload) {
+      setButtonHeaderText(`Hide ${title}`);
+    } else if (title && !showUpload) {
+      setButtonHeaderText(`Show ${title}`);
+    }
+
+    if (useChevron && showUpload) {
+      setButtonHeaderChevron('chevron-up');
+    } else if (useChevron && !showUpload) {
+      setButtonHeaderChevron('chevron-down');
+    }
+  }, [showUpload, title, useChevron]);
+
   const closeDeleteFileModal = () => {
     setCurrentFile(null);
     setIsDeleteModalOpen(false);
@@ -106,6 +127,23 @@ const DocumentViewerFileManager = ({
       })
       .finally(() => {
         queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
+        setIsFileProcessing(false);
+      });
+  };
+
+  const handleCreateUpload = async (file, weightReceipt) => {
+    const newFile = appendTimestampToFilename(file);
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, newFile, weightReceipt)
+      .then(() => {
+        queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
+      })
+      .catch((e) => {
+        const { response } = e;
+        const error = `Failed to upload due to server error: ${response?.body?.detail}`;
+        setServerError(error);
+      })
+      .finally(() => {
+        queryClient.invalidateQueries([DOCUMENTS, mtoShipment.Id]);
         setIsFileProcessing(false);
       });
   };
@@ -172,6 +210,12 @@ const DocumentViewerFileManager = ({
       .then(() => {
         if (documentType === MOVE_DOCUMENT_TYPE.SUPPORTING) {
           queryClient.invalidateQueries([MOVES, moveCode]);
+        } else if (documentType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET) {
+          queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
+        } else if (documentType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE) {
+          queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
+        } else if (documentType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+          queryClient.invalidateQueries([DOCUMENTS, mtoShipment.id]);
         } else {
           queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
         }
@@ -195,6 +239,12 @@ const DocumentViewerFileManager = ({
       uploadAmdendedOrders(file);
     } else if (documentType === MOVE_DOCUMENT_TYPE.SUPPORTING) {
       uploadSupportingDocuments(file);
+    } else if (documentType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET) {
+      handleCreateUpload(file, true);
+    } else if (documentType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE) {
+      handleCreateUpload(file, false);
+    } else if (documentType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+      handleCreateUpload(file, false);
     }
   };
 
@@ -221,8 +271,20 @@ const DocumentViewerFileManager = ({
           fileInfo={currentFile}
         />
       )}
-      {!isExpandedView && (
+      {!isExpandedView && !useChevron && (
         <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
+          {buttonHeaderText}
+        </Button>
+      )}
+      {!isExpandedView && useChevron && (
+        <Button
+          unstyled
+          icon={buttonHeaderChevron}
+          disabled={isFileProcessing || fileUploadRequired}
+          onClick={toggleUploadVisibility}
+        >
+          {useChevron && <FontAwesomeIcon icon={buttonHeaderChevron} />}
+          &nbsp;
           {buttonHeaderText}
         </Button>
       )}
@@ -269,6 +331,15 @@ DocumentViewerFileManager.propTypes = {
   documentId: PropTypes.string.isRequired,
   files: PropTypes.array.isRequired,
   documentType: PropTypes.string.isRequired,
+  title: PropTypes.string,
+  mtoShipment: ShipmentShape,
+  useChevron: PropTypes.bool,
+};
+
+DocumentViewerFileManager.defaultProps = {
+  title: null,
+  mtoShipment: null,
+  useChevron: false,
 };
 
 export default DocumentViewerFileManager;

@@ -70,6 +70,8 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	})
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// uploads.CreatePPMUploadMaxParseMemory = 32 << 20
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// uploads.CreateUploadMaxParseMemory = 32 << 20
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// move.UploadAdditionalDocumentsMaxParseMemory = 32 << 20
@@ -174,6 +176,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.OrderCreateOrderHandler == nil {
 		api.OrderCreateOrderHandler = order.CreateOrderHandlerFunc(func(params order.CreateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
+		})
+	}
+	if api.UploadsCreatePPMUploadHandler == nil {
+		api.UploadsCreatePPMUploadHandler = uploads.CreatePPMUploadHandlerFunc(func(params uploads.CreatePPMUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.CreatePPMUpload has not yet been implemented")
 		})
 	}
 	if api.OfficeUsersCreateRequestedOfficeUserHandler == nil {
