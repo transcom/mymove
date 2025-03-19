@@ -61,6 +61,7 @@ const EditOrdersForm = ({
   const [ordersType, setOrdersType] = useState(initialValues.orders_type);
   const [grade, setGrade] = useState(initialValues.grade);
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
+  const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -287,6 +288,10 @@ const EditOrdersForm = ({
         if (showcivilianTDYUBAllowanceWarning) {
           civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
         }
+
+        const toggleCivilianTDYUBTooltip = () => {
+          setShowCivilianTDYUBTooltip((prev) => !prev);
+        };
 
         return (
           <Form className={`${formStyles.form} ${styles.EditOrdersForm}`}>
@@ -555,17 +560,18 @@ const EditOrdersForm = ({
                       lazy={false}
                       labelHint="Optional"
                       label={
-                        <span className={styles.labelwithToolTip}>
+                        <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
                           If your orders specify a specific UB weight allowance, enter it here.
                           <ToolTip
-                            text="If you do not specify a UB weight allowance, the default of  0 lbs will be used."
-                            position="right"
+                            text="If you do not specify a UB weight allowance, the default of 0 lbs will be used."
+                            position="left"
                             icon="info-circle"
                             color="blue"
                             data-testid="civilianTDYUBAllowanceToolTip"
+                            isVisible={showCivilianTDYUBTooltip}
                             closeOnLeave
                           />
-                        </span>
+                        </Label>
                       }
                     />
                   </div>

@@ -43,6 +43,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [ordersType, setOrdersType] = useState('');
   const [grade, setGrade] = useState('');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
+  const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
 
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
@@ -244,6 +245,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
         if (showcivilianTDYUBAllowanceWarning) {
           civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
         }
+
+        const toggleCivilianTDYUBTooltip = () => {
+          setShowCivilianTDYUBTooltip((prev) => !prev);
+        };
+
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
             <h1>Tell us about your move orders</h1>
@@ -496,17 +502,18 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                       lazy={false}
                       labelHint="Optional"
                       label={
-                        <span className={styles.labelwithToolTip}>
+                        <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
                           If your orders specify a specific UB weight allowance, enter it here.
                           <ToolTip
-                            text="If you do not specify a UB weight allowance, the default of  0 lbs will be used."
-                            position="right"
+                            text="If you do not specify a UB weight allowance, the default of 0 lbs will be used."
+                            position="left"
                             icon="info-circle"
                             color="blue"
                             data-testid="civilianTDYUBAllowanceToolTip"
+                            isVisible={showCivilianTDYUBTooltip}
                             closeOnLeave
                           />
-                        </span>
+                        </Label>
                       }
                     />
                   </div>
