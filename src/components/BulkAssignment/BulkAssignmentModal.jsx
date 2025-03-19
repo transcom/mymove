@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { Alert, Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
@@ -69,6 +68,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
       const data = await getBulkAssignmentData(queueType);
       setBulkAssignmentData(data);
       initUserData(data?.availableOfficeUsers);
+
       if (!data.bulkAssignmentMoveIDs) {
         setIsDisabled(true);
         setNumberOfMoves(0);
@@ -118,7 +118,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
             initialValues={initialValues}
           >
             {({ handleChange, setValues, values }) => {
-              const handleAssignmentChange = (event, user, i) => {
               const handleAssignmentChange = (event, user, i) => {
                 handleChange(event);
                 setIsError(false);
