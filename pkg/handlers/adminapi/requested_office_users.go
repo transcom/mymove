@@ -158,8 +158,7 @@ func getOfficeGroupID() (apiKey, customerGroupID string) {
 }
 
 // fetchOrCreateOktaProfile send some requests to the Okta Users API
-// handles seeing if an okta user already exists with the form data, if not - it will then create one
-// this creates a user in Okta assigned to the customer group (allowing access to the customer application)
+// checks if a user already exists and if not, an okta account is created with access to the office group/application
 func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params requested_office_users.UpdateRequestedOfficeUserParams) (*models.CreatedOktaUser, error) {
 	apiKey, officeGroupID := getOfficeGroupID()
 
@@ -377,7 +376,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 			var requestedOfficeUser *models.OfficeUser
 			transactionError := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
 				// handle Okta account creation only if the user is being approved
-				if params.Body.Status == "APPROVED" && appCtx.Session().IDToken != "devlocal" {
+				if params.Body.Status == "APPROVED" {
 					var err error
 					_, err = fetchOrCreateOktaProfile(txAppCtx, params)
 					if err != nil {
@@ -430,7 +429,6 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				return nil
 			})
 
-			// Handle transaction errors
 			if transactionError != nil {
 				appCtx.Logger().Error("Transaction error while updating requested office user", zap.Error(transactionError))
 				return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), transactionError

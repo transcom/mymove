@@ -153,17 +153,17 @@ func SearchForExistingOktaUsers(appCtx appcontext.AppContext, provider *okta.Pro
 		return nil, fmt.Errorf("invalid email format: %s", oktaEmail)
 	}
 
-	if oktaEdipi != nil {
+	if oktaEdipi != nil && *oktaEdipi != "" {
 		if !isValidEdipi(*oktaEdipi) {
 			return nil, fmt.Errorf("invalid EDIPI format: %s", *oktaEdipi)
 		}
 	}
 
 	searchFilter := fmt.Sprintf(`profile.email eq "%s"`, oktaEmail)
-	if oktaEdipi != nil {
+	if oktaEdipi != nil && *oktaEdipi != "" {
 		searchFilter += fmt.Sprintf(` or profile.cac_edipi eq "%s"`, *oktaEdipi)
 	}
-	if gsaID != nil {
+	if gsaID != nil && *gsaID != "" {
 		searchFilter += fmt.Sprintf(` or profile.gsa_id eq "%s"`, *gsaID)
 	}
 
