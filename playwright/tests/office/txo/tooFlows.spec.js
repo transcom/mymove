@@ -67,6 +67,10 @@ test.describe('TOO user', () => {
       await page.getByTestId('searchText').fill(SearchTerms[0]);
       await page.getByTestId('searchTextSubmit').click();
 
+      // Ensure we are on the first page
+      const currentPage = await page.locator('[data-testid="table-pagination"]').innerText();
+      expect(currentPage).toBe('1');
+
       const StatusFilter = page.getByTestId('MultiSelectCheckBoxFilter');
       await StatusFilter.click();
 
