@@ -442,7 +442,7 @@ func getQueue(queueName string) models.QueueType {
 	case "COUNSELING":
 		queueType = models.QueueTypeCounseling
 	case "CLOSEOUT":
-		return models.QueueTypeCloseout
+		queueType = models.QueueTypeCloseout
 	case "TASK_ORDER":
 		queueType = models.QueueTypeTaskOrder
 	case "PAYMENT_REQUEST":
