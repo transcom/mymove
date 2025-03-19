@@ -314,7 +314,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 			// Only attempt to create an Okta account IF params.Body.Status is APPROVED
 			// Track if Okta account was successfully created or not
 			// we will skip this check if using the local dev environment
-			if params.Body.Status == "APPROVED" && appCtx.Session().IDToken != "devlocal" {
+			if params.Body.Status == "APPROVED" {
 				oktaAccountCreationResponse, createAccountError := CreateOfficeOktaAccount(appCtx, params)
 				if createAccountError != nil || oktaAccountCreationResponse.StatusCode != http.StatusOK {
 					// If there is an error creating the account or there is a respopnse code other than 200 then the account was not succssfully created
@@ -323,8 +323,6 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				}
 
 				if oktaAccountCreationResponse.StatusCode == http.StatusOK {
-
-					// Get the response Body
 					response, responseErr := io.ReadAll(oktaAccountCreationResponse.Body)
 					if responseErr != nil {
 						appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" could not read response body")))
@@ -348,7 +346,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			if verrs != nil {
-				appCtx.Logger().Error(err.Error())
+				appCtx.Logger().Error(verrs.Error())
 				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), verrs
 			}
 
