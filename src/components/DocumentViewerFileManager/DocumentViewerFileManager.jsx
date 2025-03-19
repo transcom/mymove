@@ -271,7 +271,12 @@ const DocumentViewerFileManager = ({
           fileInfo={currentFile}
         />
       )}
-      {!isExpandedView && (
+      {!isExpandedView && !useChevron && (
+        <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
+          {buttonHeaderText}
+        </Button>
+      )}
+      {!isExpandedView && useChevron && (
         <Button
           unstyled
           icon={buttonHeaderChevron}
