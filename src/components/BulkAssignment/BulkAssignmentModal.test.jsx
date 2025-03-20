@@ -42,6 +42,7 @@ const bulkAssignmentData = {
     'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed4',
     'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed5',
     'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed6',
+    'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed7',
   ],
 };
 
@@ -62,7 +63,7 @@ describe('BulkAssignmentModal', () => {
       </MockProviders>,
     );
 
-    expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment (6)' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment (7)' })).toBeInTheDocument();
   });
 
   it('shows cancel confirmation modal when close icon is clicked', async () => {
@@ -85,7 +86,7 @@ describe('BulkAssignmentModal', () => {
   it('does not show cancel confirmation if form is unchanged and cancel is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
+    const cancelButton = await screen.findByRole('button', { name: 'Close' });
 
     await act(async () => {
       await userEvent.click(cancelButton);
@@ -153,10 +154,14 @@ describe('BulkAssignmentModal', () => {
     await screen.findByRole('table');
     const equalAssignButton = await screen.getByTestId('modalEqualAssignButton');
     await userEvent.click(equalAssignButton);
-    const row1 = await screen.getAllByTestId('assignment')[0];
-    const row2 = await screen.getAllByTestId('assignment')[1];
-    expect(row1.value).toEqual('0');
-    expect(row2.value).toEqual('1');
+    const assignmentBoxes = await screen.getAllByTestId('assignment');
+
+    const row1 = assignmentBoxes[0];
+    const row2 = assignmentBoxes[1];
+    await waitFor(() => {
+      expect(row1.value).toEqual('3');
+      expect(row2.value).toEqual('2');
+    });
   });
 
   it('select/deselect all checkbox works', async () => {
@@ -207,19 +212,12 @@ describe('BulkAssignmentModal', () => {
             'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed4',
             'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed5',
             'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed6',
+            'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed7',
           ],
           userData: [
             {
               ID: '045c3048-df9a-4d44-88ed-8cd6e2100e08',
               moveAssignments: 1,
-            },
-            {
-              ID: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42a',
-              moveAssignments: 0,
-            },
-            {
-              ID: '4b1f2722-b0bf-4b16-b8c4-49b4e49ba42c',
-              moveAssignments: 0,
             },
           ],
         },

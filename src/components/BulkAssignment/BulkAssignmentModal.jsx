@@ -57,13 +57,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
     return values.userData.every((user) => user.moveAssignments === 0);
   };
 
-  const handleCancelClick = (values) => () => {
-    setIsError(false);
-    if (isFormUnchanged(values)) {
-      onClose();
-    } else setShowCancelModal(true);
-  };
-
   const initUserData = (availableOfficeUsers) => {
     const officeUsers = [];
     const selectedOfficeUsers = {};
@@ -124,7 +117,11 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                 return;
               }
 
-              const bulkAssignmentSavePayload = values;
+              const bulkAssignmentSavePayload = {
+                moveData: values.moveData,
+                userData: values.userData.filter((user) => user.moveAssignments > 0),
+              };
+
               onSubmit({ bulkAssignmentSavePayload });
               onClose();
             }}
@@ -132,6 +129,14 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
             initialValues={initialValues}
           >
             {({ handleChange, setValues, values }) => {
+              const handleCancelClick = (cValues) => () => {
+                setIsError(false);
+                if (isFormUnchanged(cValues)) {
+                  onClose(); // Log before calling
+                } else {
+                  setShowCancelModal(true);
+                }
+              };
               const setAllCheckboxes = (setTo) => {
                 const newSelectedUsers = {};
 
@@ -221,6 +226,10 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                     newValues.userData.find((u) => u.ID === officeUser.ID).moveAssignments = 0;
                   }
                 });
+                setValues({
+                  ...values,
+                  ...newValues,
+                });
               };
 
               return (
@@ -248,84 +257,88 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                   )}
                   <Form>
                     <table>
-                      <tr>
-                        <th>
-                          <input
-                            data-testid="selectDeselectAllButton"
-                            hidden={isBulkReAssignmentMode}
-                            type="checkbox"
-                            checked={isAllSelected()}
-                            onChange={() => {
-                              const allSelected = Object.keys(selectedUsers).every((id) => selectedUsers[id]);
-                              const newSelectedUsers = {};
+                      <thead>
+                        <tr>
+                          <th>
+                            <input
+                              data-testid="selectDeselectAllButton"
+                              hidden={isBulkReAssignmentMode}
+                              type="checkbox"
+                              checked={isAllSelected()}
+                              onChange={() => {
+                                const allSelected = Object.keys(selectedUsers).every((id) => selectedUsers[id]);
+                                const newSelectedUsers = {};
 
-                              bulkAssignmentData.availableOfficeUsers.forEach((user) => {
-                                newSelectedUsers[user.officeUserId] = !allSelected;
-                              });
+                                bulkAssignmentData.availableOfficeUsers.forEach((user) => {
+                                  newSelectedUsers[user.officeUserId] = !allSelected;
+                                });
 
-                              setSelectedUsers(newSelectedUsers);
-                            }}
-                          />
-                        </th>
-                        <th>User</th>
-                        <th>Current Workload</th>
-                        <th>Assignment</th>
-                        {isBulkReAssignmentMode && <th>Re-assign Workload</th>}
-                      </tr>
-                      {bulkAssignmentData?.availableOfficeUsers?.map((user, i) => {
-                        return (
-                          <tr key={user.officeUserId}>
-                            <td>
-                              <input
-                                data-testid="bulkAssignmentUserCheckbox"
-                                hidden={isBulkReAssignmentMode}
-                                type="checkbox"
-                                checked={selectedUsers[user.officeUserId] && selectedRadio !== user.officeUserId}
-                                disabled={
-                                  selectedRadio === user.officeUserId ||
-                                  (isBulkReAssignmentMode && selectedRadio == null)
-                                }
-                                onChange={() => handleCheckboxChange(user.officeUserId)}
-                              />
-                            </td>
-                            <td>
-                              <p data-testid="bulkAssignmentUser">{userName(user)}</p>
-                            </td>
-                            <td className={styles.BulkAssignmentDataCenter}>
-                              <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
-                            </td>
-                            <td className={styles.BulkAssignmentDataCenter}>
-                              <input
-                                className={styles.BulkAssignmentAssignment}
-                                type="number"
-                                name={`userData.${i}.moveAssignments`}
-                                id={user.officeUserId}
-                                data-testid="assignment"
-                                min={0}
-                                value={values.userData[i]?.moveAssignments || 0}
-                                disabled={
-                                  selectedRadio === user.officeUserId ||
-                                  (isBulkReAssignmentMode && selectedRadio == null)
-                                }
-                                onChange={(event) => {
-                                  handleAssignmentChange(event, user, i);
-                                }}
-                              />
-                            </td>
-                            {isBulkReAssignmentMode && (
-                              <td className={styles.BulkAssignmentDataCenter}>
+                                setSelectedUsers(newSelectedUsers);
+                              }}
+                            />
+                          </th>
+                          <th>User</th>
+                          <th>Current Workload</th>
+                          <th>Assignment</th>
+                          {isBulkReAssignmentMode && <th>Re-assign Workload</th>}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {bulkAssignmentData?.availableOfficeUsers?.map((user, i) => {
+                          return (
+                            <tr key={user.officeUserId}>
+                              <td>
                                 <input
-                                  type="radio"
-                                  name={`userData.${i}.moveReAssignment`}
-                                  value={user.officeUserId}
-                                  checked={selectedRadio === user.officeUserId}
-                                  onChange={() => handleRadioChange(user.officeUserId)}
+                                  data-testid="bulkAssignmentUserCheckbox"
+                                  hidden={isBulkReAssignmentMode}
+                                  type="checkbox"
+                                  checked={selectedUsers[user.officeUserId] && selectedRadio !== user.officeUserId}
+                                  disabled={
+                                    selectedRadio === user.officeUserId ||
+                                    (isBulkReAssignmentMode && selectedRadio == null)
+                                  }
+                                  onChange={() => handleCheckboxChange(user.officeUserId)}
                                 />
                               </td>
-                            )}
-                          </tr>
-                        );
-                      })}
+                              <td>
+                                <p data-testid="bulkAssignmentUser">{userName(user)}</p>
+                              </td>
+                              <td className={styles.BulkAssignmentDataCenter}>
+                                <p data-testid="bulkAssignmentUserWorkload">{user.workload || 0}</p>
+                              </td>
+                              <td className={styles.BulkAssignmentDataCenter}>
+                                <input
+                                  className={styles.BulkAssignmentAssignment}
+                                  type="number"
+                                  name={`userData.${i}.moveAssignments`}
+                                  id={user.officeUserId}
+                                  data-testid="assignment"
+                                  min={0}
+                                  value={values.userData[i]?.moveAssignments || 0}
+                                  disabled={
+                                    selectedRadio === user.officeUserId ||
+                                    (isBulkReAssignmentMode && selectedRadio == null)
+                                  }
+                                  onChange={(event) => {
+                                    handleAssignmentChange(event, user, i);
+                                  }}
+                                />
+                              </td>
+                              {isBulkReAssignmentMode && (
+                                <td className={styles.BulkAssignmentDataCenter}>
+                                  <input
+                                    type="radio"
+                                    name={`userData.${i}.moveReAssignment`}
+                                    value={user.officeUserId}
+                                    checked={selectedRadio === user.officeUserId}
+                                    onChange={() => handleRadioChange(user.officeUserId)}
+                                  />
+                                </td>
+                              )}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
                     </table>
                     {showCancelModal ? (
                       <div className={styles.areYouSureSection}>
@@ -355,7 +368,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                         <div className={styles.BulkAssignmentButtonsContainer}>
                           <div className={styles.BulkAssignmentButtonsLeft}>
                             <Button
-                              disabled={isSaveDisabled}
+                              disabled={isSaveDisabled || isFormUnchanged(values)}
                               data-focus="true"
                               type="submit"
                               data-testid="modalSubmitButton"
@@ -366,7 +379,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                               type="button"
                               className={styles.button}
                               unstyled
-                              onClick={() => handleCancelClick(values)}
+                              onClick={handleCancelClick(values)}
                               data-testid="modalCancelButton"
                             >
                               {closeText}
