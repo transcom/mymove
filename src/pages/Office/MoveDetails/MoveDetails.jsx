@@ -373,7 +373,7 @@ const MoveDetails = ({
     let numberOfErrorIfMissingForAllShipments = 0;
 
     // Process each shipment to accumulate errors
-    mtoShipments?.forEach((mtoShipment) => {
+    submittedShipments?.forEach((mtoShipment) => {
       const errorIfMissingList = errorIfMissing[mtoShipment.shipmentType];
 
       if (errorIfMissingList) {
@@ -387,7 +387,7 @@ const MoveDetails = ({
 
     // Set the error concern count after processing
     setShipmentErrorConcernCount(numberOfErrorIfMissingForAllShipments);
-  }, [mtoShipments, setShipmentErrorConcernCount, errorIfMissing]);
+  }, [submittedShipments, setShipmentErrorConcernCount, errorIfMissing]);
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
