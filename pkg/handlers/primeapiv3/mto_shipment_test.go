@@ -286,7 +286,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.Run("Successful POST - Integration Test", func() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:   Create an mto shipment on an available move
-		// Expected:   Successful submission, status should be APPROVED
+		// Expected:   Successful submission, status should be SUBMITTED
 		handler, move := setupTestData(false, true)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
@@ -324,7 +324,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.Run("Successful POST - Integration Test - Unaccompanied Baggage", func() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:   Create an mto shipment on an available move
-		// Expected:   Successful submission, status should be APPROVED
+		// Expected:   Successful submission, status should be SUBMITTED
 
 		suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", "true") // Set to true in order to test UB shipments can be created with UB flag on
 
@@ -366,7 +366,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.Run("Successful POST/PATCH - Integration Test (PPM)", func() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:      Create a PPM shipment on an available move
-		// Expected:   Successful submission, status should be APPROVED
+		// Expected:   Successful submission, status should be SUBMITTED
 		handler, move := setupTestData(true, false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
