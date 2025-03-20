@@ -324,7 +324,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 	suite.Run("500 error - Internal Server error. Unsuccessful fetch ", func() {
 		// Test:				GetOfficeUserHandler, Fetcher
 		// Set up:				Provide a valid req with the fake office user ID to the endpoint
-		// Expected Outcome:	The office user is returned and we get a 404 NotFound.
+		// Expected Outcome:	The office user is not returned and we get a 500 server error.
 		fakeID := "3b9c2975-4e54-40ea-a781-bab7d6e4a502"
 		params := officeuserop.GetOfficeUserParams{
 			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/office_users/%s", fakeID)),
@@ -1101,7 +1101,7 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 		}
 
 		mockFetcher := mocks.RoleAssociater{}
-		mockFetcher.On("FetchRolesPrivileges", mock.AnythingOfType("*appcontext.appContext")).Return(nil, apperror.NotFoundError{})
+		mockFetcher.On("FetchRolesPrivileges", mock.AnythingOfType("*appcontext.appContext")).Return(nil, sql.ErrNoRows)
 
 		handler := GetRolesPrivilegesHandler{
 			suite.HandlerConfig(),

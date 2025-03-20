@@ -53,7 +53,10 @@ func (suite *RolesServiceSuite) TestFetchRolesPrivileges() {
 	suite.NoError(err, "Fetching role privileges should not return an error")
 	suite.NotEmpty(rolesPrivileges, "Expected role_privileges to be pre-populated in the database")
 
-	availableRoles := roles.GetAllRoleTypes()
+	availableRoles, err := rf.FetchRoleTypes(suite.AppContextForTest())
+
+	suite.NoError(err, "FetchRoleTypes should not error")
+	suite.NotEmpty(availableRoles, "FetchRoleTypes should return values")
 
 	// Assert that all roles are covered by the supervisor role
 	for _, rp := range rolesPrivileges {
@@ -66,4 +69,42 @@ func (suite *RolesServiceSuite) TestFetchRolesPrivileges() {
 
 	suite.Len(availableRoles, 1) // 'prime' role does not have mapping
 	suite.Equal(availableRoles[0], roles.RoleTypePrime)
+}
+
+func (suite *RolesServiceSuite) TestFetchRoleTypes() {
+	// Initialize the roles fetcher
+	rf := NewRolesFetcher()
+
+	// Fetch role types
+	roleTypes, err := rf.FetchRoleTypes(suite.AppContextForTest())
+
+	// Check for errors or empty tables
+	suite.NoError(err, "Fetching role types should not return an error")
+	suite.NotEmpty(roleTypes, "Expected roles to be pre-populated in the database with own role_type")
+
+	rolesToMatch := []roles.RoleType{
+		roles.RoleTypeTOO,
+		roles.RoleTypeCustomer,
+		roles.RoleTypeTIO,
+		roles.RoleTypeContractingOfficer,
+		roles.RoleTypeServicesCounselor,
+		roles.RoleTypePrimeSimulator,
+		roles.RoleTypeQae,
+		roles.RoleTypeCustomerServiceRepresentative,
+		roles.RoleTypePrime,
+		roles.RoleTypeHQ,
+		roles.RoleTypeGSR,
+	}
+
+	suite.Len(roleTypes, len(rolesToMatch), "Only expect the roleTypes in rolesToMatch")
+
+	// // Assert that only expected roleTypes are included in list
+	for _, roleType := range roleTypes {
+
+		index := slices.Index(rolesToMatch, roleType)
+		suite.NotEqual(-1, index, "RoleType %s not found in rolesToMatch.", roleType)
+		rolesToMatch = slices.Delete(rolesToMatch, index, index+1) // unique roleType, so remove after match
+	}
+
+	suite.Empty(rolesToMatch, "roleTypes should be 1->1 with rolesToMatch")
 }

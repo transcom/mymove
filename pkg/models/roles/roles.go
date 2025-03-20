@@ -54,22 +54,6 @@ func (r Role) TableName() string {
 	return "roles"
 }
 
-func GetAllRoleTypes() []RoleType {
-	return []RoleType{
-		RoleTypeTOO,
-		RoleTypeCustomer,
-		RoleTypeTIO,
-		RoleTypeContractingOfficer,
-		RoleTypeServicesCounselor,
-		RoleTypePrimeSimulator,
-		RoleTypeQae,
-		RoleTypeCustomerServiceRepresentative,
-		RoleTypePrime,
-		RoleTypeHQ,
-		RoleTypeGSR,
-	}
-}
-
 // Roles is a slice of Role objects
 type Roles []Role
 

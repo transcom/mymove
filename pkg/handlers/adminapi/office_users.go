@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -684,14 +685,11 @@ func (h GetRolesPrivilegesHandler) Handle(params officeuserop.GetRolesPrivileges
 
 			rolesPrivileges, err := h.RoleAssociater.FetchRolesPrivileges(appCtx)
 
-			if err != nil {
-				switch err.(type) {
-				case apperror.NotFoundError:
-					return officeuserop.NewGetRolesPrivilegesNotFound(), err
-				default:
-					appCtx.Logger().Error(err.Error())
-					return officeuserop.NewGetRolesPrivilegesInternalServerError(), err
-				}
+			if err != nil && errors.Is(err, sql.ErrNoRows) {
+				return officeuserop.NewGetRolesPrivilegesNotFound(), err
+			} else if err != nil {
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewGetRolesPrivilegesInternalServerError(), err
 			}
 
 			var payload []*adminmessages.RolePrivilege

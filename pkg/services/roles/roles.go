@@ -30,3 +30,9 @@ func (f rolesFetcher) FetchRolesPrivileges(appCtx appcontext.AppContext) ([]mode
 	err := appCtx.DB().Q().EagerPreload("Role", "Privilege").All(&rolesPrivileges)
 	return rolesPrivileges, err
 }
+
+func (f rolesFetcher) FetchRoleTypes(appCtx appcontext.AppContext) ([]roles.RoleType, error) {
+	var roleTypes []roles.RoleType
+	err := appCtx.DB().RawQuery("SELECT DISTINCT role_type FROM roles").All(&roleTypes)
+	return roleTypes, err
+}

@@ -14,4 +14,5 @@ import (
 type RoleAssociater interface {
 	FetchRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Roles, error)
 	FetchRolesPrivileges(appCtx appcontext.AppContext) ([]models.RolePrivilege, error)
+	FetchRoleTypes(appCtx appcontext.AppContext) ([]roles.RoleType, error)
 }
