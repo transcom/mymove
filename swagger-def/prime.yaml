@@ -209,6 +209,35 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
+  /move-task-orders/acknowledge:
+    patch:
+      summary: acknowledgeMovesAndShipments
+      description: |
+        ### Functionality
+        This endpoint **updates** the Moves and Shipments to indicate that the Prime has acknowledged the Moves and Shipments have been received.
+        The Move and Shipment data is expected to be sent in the request body.
+      operationId: acknowledgeMovesAndShipments
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: 'definitions/prime/AcknowledgeMoves.yaml'
+      tags:
+        - moveTaskOrder
+      responses:
+        '200':
+          description: Successfully updated Move and Shipment Acknowledgements.
+          schema:
+            $ref: 'definitions/prime/AcknowledgeMovesShipmentsSuccessResponse.yaml'
+        '422':
+          $ref: 'responses/UnprocessableEntity.yaml'
+        '500':
+          $ref: '#/responses/ServerError'
   /mto-shipments:
     post:
       summary: createMTOShipment
@@ -1836,6 +1865,11 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
         readOnly: true
       ppmType:
         type: string
