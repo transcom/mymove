@@ -1228,4 +1228,76 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 		suite.Equal(unacknowledgedPrimeMove.ID, primeMoves[0].ID)
 		suite.Nil(primeMoves[0].PrimeAcknowledgedAt)
 	})
+
+	suite.Run("Retrieves moves where prime acknowledgement on the move or any one of its shipments occurred after the acknowledegAfter date", func() {
+		aWeekAgo := time.Now().AddDate(0, 0, -7)
+		yesterday := time.Now().AddDate(0, 0, -1)
+		today := time.Now()
+
+		// Prime Move that was acknowledged today
+		moveAcknowledgedToday := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: &today,
+				},
+			},
+		}, nil)
+
+		// Prime Move that was acknowledged a week ago
+		factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: &aWeekAgo,
+				},
+			}}, nil)
+
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
+
+		//Fetch moves acknowledged after yesterday
+		searchParams := services.MoveTaskOrderFetcherParams{
+			AcknowledgedAfter: &yesterday,
+		}
+		primeMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.NotNil(primeMoves)
+		suite.Len(primeMoves, 1, "Only the move that was acknowledged after yesterday should be present.")
+		suite.Equal(moveAcknowledgedToday.ID, primeMoves[0].ID)
+		suite.Equal(moveAcknowledgedToday.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), primeMoves[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
+	})
+
+	suite.Run("Retrieves moves where prime acknowledgement on the move or any one of its shipments occurred before the acknowledegBefore date", func() {
+		aWeekAgo := time.Now().AddDate(0, 0, -7)
+		yesterday := time.Now().AddDate(0, 0, -1)
+		today := time.Now()
+
+		// Prime Move that was acknowledged today
+		factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: &today,
+				},
+			},
+		}, nil)
+
+		// Prime Move that was acknowledged a week ago
+		moveAcknowledgedAWeekAgo := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: &aWeekAgo,
+				},
+			}}, nil)
+
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
+
+		//Fetch moves acknowledged after yesterday
+		searchParams := services.MoveTaskOrderFetcherParams{
+			AcknowledgedBefore: &yesterday,
+		}
+		primeMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.NotNil(primeMoves)
+		suite.Len(primeMoves, 1, "Only the move that was acknowledged before yesterday should be present.")
+		suite.Equal(moveAcknowledgedAWeekAgo.ID, primeMoves[0].ID)
+		suite.Equal(moveAcknowledgedAWeekAgo.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), primeMoves[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
+	})
 }

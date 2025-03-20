@@ -444,6 +444,8 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	if searchParams != nil {
 		sql = sql + getSinceFilter(searchParams.Since, &sqlParams)
 		sql = sql + getPrimeAcknowledgedFilter(searchParams.Acknowledged)
+		sql = sql + getPrimeAcknowledgedAfterFilter(searchParams.AcknowledgedAfter, &sqlParams)
+		sql = sql + getPrimeAcknowledgedBeforeFilter(searchParams.AcknowledgedBefore, &sqlParams)
 	}
 	sql = sql + `;`
 
@@ -519,6 +521,56 @@ func getPrimeAcknowledgedFilter(acknowledged *bool) string {
       					AND mto_shipments.prime_acknowledged_at IS NULL
   					)`
 	}
+}
+
+func getPrimeAcknowledgedAfterFilter(acknowledgedAfter *time.Time, sqlParams *[]any) string {
+
+	if acknowledgedAfter == nil {
+		// No filtering on acknowledgedAfter
+		return ""
+	}
+
+	// Determine the next available query param
+	nextParam := len(*sqlParams) + 1
+	sinceParamIndex := strconv.Itoa(nextParam)
+
+	// Include only moves where either the move or any of its shipments prime_acknowledged_at date is after the acknowledgedAfter time
+	sql := ` AND moves.prime_acknowledged_at > $` + sinceParamIndex + `
+				OR EXISTS (
+					SELECT 1
+					FROM mto_shipments
+					WHERE mto_shipments.move_id = moves.id
+		  			AND mto_shipments.prime_acknowledged_at > $` + sinceParamIndex + `
+	  			)`
+
+	// Add the acknowledgedAfter parameter value to the sqlParams slice
+	*sqlParams = append(*sqlParams, *acknowledgedAfter)
+	return sql
+}
+
+func getPrimeAcknowledgedBeforeFilter(acknowledgedBefore *time.Time, sqlParams *[]any) string {
+
+	if acknowledgedBefore == nil {
+		// No filtering on acknowledgedBefore
+		return ""
+	}
+
+	// Determine the next available query param
+	nextParam := len(*sqlParams) + 1
+	sinceParamIndex := strconv.Itoa(nextParam)
+
+	// Include only moves where either the move or any of its shipments prime_acknowledged_at date is before the acknowledgedBefore time
+	sql := ` AND moves.prime_acknowledged_at < $` + sinceParamIndex + `
+				OR EXISTS (
+					SELECT 1
+					FROM mto_shipments
+					WHERE mto_shipments.move_id = moves.id
+		  			AND mto_shipments.prime_acknowledged_at < $` + sinceParamIndex + `
+	  			)`
+
+	// Add the acknowledgedBefore parameter value to the sqlParams slice
+	*sqlParams = append(*sqlParams, *acknowledgedBefore)
+	return sql
 }
 
 func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrdersAmendments(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, services.MoveOrderAmendmentAvailableSinceCounts, error) {
