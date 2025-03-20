@@ -1700,6 +1700,83 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/uploads:
+    post:
+      summary: Create a new upload for a PPM weight ticket, pro-gear, or moving expense document
+      description: Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.
+      operationId: createPPMUpload
+      tags:
+        - ppm
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm shipment
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+        - in: query
+          name: weightReceipt
+          type: boolean
+          description: If the upload is a Weight Receipt
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '413':
+          description: payload is too large
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/weight-ticket:
+    post:
+      summary: Creates a weight ticket document
+      description: Created a weight ticket document with the given information
+      operationId: createWeightTicket
+      tags:
+        - ppm
+      parameters:
+        - $ref: 'parameters/ppmShipmentId.yaml'
+      responses:
+        '200':
+          description: returns new weight ticket object
+          schema:
+            $ref: 'definitions/WeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'
@@ -1738,6 +1815,42 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a weight ticket by ID
+      description: |
+        Removes a single weight ticket from the closeout line items for a PPM shipment. Soft deleted
+        records are not visible in milmove, but are kept in the database. This may change the PPM shipment's final
+        incentive.
+      operationId: deleteWeightTicket
+      tags:
+        - ppm
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - description: ID of the weight ticket to be deleted
+          in: path
+          name: weightTicketId
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the weight ticket
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -6938,14 +7051,29 @@ definitions:
   UpdateWeightTicket:
     type: object
     properties:
+      vehicleDescription:
+        description: Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.
+        type: string
+        x-nullable: true
+        x-omitempty: false
       emptyWeight:
         description: Weight of the vehicle when empty.
         type: integer
         minimum: 0
+      missingEmptyWeightTicket:
+        description: Indicates if the customer is missing a weight ticket for the vehicle weight when empty.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       fullWeight:
         description: The weight of the vehicle when full.
         type: integer
         minimum: 0
+      missingFullWeightTicket:
+        description: Indicates if the customer is missing a weight ticket for the vehicle weight when full.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       ownsTrailer:
         description: Indicates if the customer used a trailer they own for the move.
         type: boolean
