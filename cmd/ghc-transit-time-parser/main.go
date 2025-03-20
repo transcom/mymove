@@ -104,7 +104,7 @@ func main() {
 		}
 	}()
 
-	appCtx := appcontext.NewAppContext(db, logger, nil)
+	appCtx := appcontext.NewAppContext(db, logger, nil, nil)
 
 	// Now kick off the parsing
 	err = transittime.Parse(appCtx, xlsxDataSheets, params)

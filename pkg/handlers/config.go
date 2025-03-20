@@ -125,7 +125,9 @@ func (c *Config) AppContextFromRequest(r *http.Request) appcontext.AppContext {
 	return appcontext.NewAppContext(
 		c.dBFromContext(r.Context()),
 		c.loggerFromRequest(r),
-		c.sessionFromRequest(r))
+		c.sessionFromRequest(r),
+		r,
+	)
 }
 
 // AuditableAppContextFromRequestWithErrors creates a transaction and sets local

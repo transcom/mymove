@@ -113,8 +113,7 @@ const ShipmentDisplay = ({
                 )}
                 {displayInfo.isDiversion && <Tag className="usa-tag--diversion">diversion</Tag>}
                 {(displayInfo.shipmentStatus === shipmentStatuses.CANCELED ||
-                  displayInfo.status === shipmentStatuses.CANCELED ||
-                  displayInfo.ppmShipment?.status === ppmShipmentStatuses.CANCELED) && (
+                  displayInfo.status === shipmentStatuses.CANCELED) && (
                   <Tag className="usa-tag--cancellation">canceled</Tag>
                 )}
                 {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
@@ -125,7 +124,14 @@ const ShipmentDisplay = ({
                 )}
                 {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
                 {displayInfo.ppmShipment?.status && (
-                  <Tag className="usa-tag--ppmStatus" data-testid="ppmStatusTag">
+                  <Tag
+                    className={
+                      displayInfo.ppmShipment.status !== ppmShipmentStatuses.CANCELED
+                        ? 'usa-tag--ppmStatus'
+                        : 'usa-tag--cancellation'
+                    }
+                    data-testid="ppmStatusTag"
+                  >
                     {ppmShipmentStatusLabels[displayInfo.ppmShipment?.status]}
                   </Tag>
                 )}

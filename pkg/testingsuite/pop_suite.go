@@ -360,12 +360,12 @@ func (suite *PopTestSuite) Logger() *zap.Logger {
 
 // AppContextForTest returns the AppContext for the test suite
 func (suite *PopTestSuite) AppContextForTest() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.Logger(), nil)
+	return appcontext.NewAppContext(suite.DB(), suite.Logger(), nil, nil)
 }
 
 // AppContextWithSessionForTest returns the AppContext for the test suite
 func (suite *PopTestSuite) AppContextWithSessionForTest(session *auth.Session) appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.Logger(), session)
+	return appcontext.NewAppContext(suite.DB(), suite.Logger(), session, nil)
 }
 
 // Truncate deletes all data from the specified tables.

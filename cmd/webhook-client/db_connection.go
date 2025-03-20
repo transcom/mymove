@@ -59,7 +59,7 @@ func dbConnection(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	appCtx := appcontext.NewAppContext(db, logger, nil)
+	appCtx := appcontext.NewAppContext(db, logger, nil, nil)
 
 	// Create notification
 	notification, err := notificationCreate(appCtx)

@@ -156,7 +156,7 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 		logger.Fatal("DB is not ready for connections", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 
 	builder := dutyStations.NewMigrationBuilder()
 	insertions, err := builder.Build(appCtx, dutyStationsFilename)

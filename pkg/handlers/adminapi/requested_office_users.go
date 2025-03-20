@@ -32,8 +32,8 @@ func payloadToOktaAccountCreationModel(payload *adminmessages.RequestedOfficeUse
 	return models.OktaAccountCreationTemplate{
 		FirstName:   *payload.FirstName,
 		LastName:    *payload.LastName,
-		Login:       payload.Email,
-		Email:       payload.Email,
+		Login:       *payload.Email,
+		Email:       *payload.Email,
 		CacEdipi:    payload.Edipi,
 		MobilePhone: *payload.Telephone,
 		GsaID:       payload.OtherUniqueID,

@@ -10,11 +10,16 @@
 package user
 
 import (
+	"fmt"
+	"net/http/httptest"
+
+	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/notifications/mocks"
@@ -43,9 +48,13 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 	activeStatus := true
 	inactiveStatus := false
 
+	oktaProvider := okta.NewOktaProvider(suite.Logger())
+	err := oktaProvider.RegisterOktaProvider("adminProvider", "OrgURL", "CallbackURL", "fakeToken", "secret", []string{"openid", "profile", "email"})
+	suite.NoError(err)
+
 	suite.Run("Deactivate a user successfully", func() {
 		// This case should send an email to sys admins
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		user := factory.BuildDefaultUser(suite.DB())
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
@@ -71,7 +80,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//            	to update the office_users table. Both tables have an ACTIVE
 		//				status set to False.
 
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
@@ -116,7 +125,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//            	to update the admin_users table. Both tables have an ACTIVE
 		//				status set to False.
 
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		adminUser := factory.BuildAdminUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.AdminUser{
@@ -149,6 +158,147 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
+	suite.Run("Updates email for user and associated admin user successfully", func() {
+		adminUser := factory.BuildAdminUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.AdminUser{
+					Active: true,
+					Email:  "adminUser@mail.mil",
+				},
+			},
+			{
+				Model: models.User{
+					Active:    true,
+					OktaEmail: "adminUser@mail.mil",
+				},
+			},
+		}, nil)
+
+		request := httptest.NewRequest("PATCH", fmt.Sprintf("/users/%s", adminUser.UserID.String()), nil)
+
+		session := &auth.Session{
+			ApplicationName: auth.AdminApp,
+			Hostname:        "adminlocal",
+		}
+
+		ctx := auth.SetSessionInRequestContext(request, session)
+		request = request.WithContext(ctx)
+		// session.HTTPRequest = request
+
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session, request)
+
+		// these mocked endpoints fetch an exact user
+		mockAndActivateOktaGETEndpointNoError(adminUser.User.OktaID)
+		mockAndActivateOktaPOSTEndpointNoError(adminUser.User.OktaID)
+
+		// update the email (this should also update admin user email)
+		adminUser.User.OktaEmail = "anotherAdminUser@mail.mil"
+		mockSender := setUpMockNotificationSender()
+		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
+		updatedUser, verr, err := updater.UpdateUser(appCtx, *adminUser.UserID, &adminUser.User)
+
+		// Fetch updated admin user to confirm status
+		updatedAdminUser := models.AdminUser{}
+		suite.DB().Eager("User").Find(&updatedAdminUser, adminUser.ID)
+
+		suite.Nil(verr)
+		suite.Nil(err)
+		suite.Equal(updatedUser.OktaEmail, updatedAdminUser.Email)
+	})
+
+	suite.Run("Updates email for user and associated office user successfully", func() {
+		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					Email:  "officeUser@mail.mil",
+				},
+			},
+			{
+				Model: models.User{
+					Active:    true,
+					OktaEmail: "officeUser@mail.mil",
+				},
+			},
+		}, nil)
+
+		request := httptest.NewRequest("PATCH", fmt.Sprintf("/users/%s", officeUser.UserID.String()), nil)
+
+		session := &auth.Session{
+			ApplicationName: auth.AdminApp,
+			Hostname:        "adminlocal",
+		}
+
+		ctx := auth.SetSessionInRequestContext(request, session)
+		request = request.WithContext(ctx)
+		// session.HTTPRequest = request
+
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session, request)
+
+		// these mocked endpoints fetch an exact user
+		mockAndActivateOktaGETEndpointNoError(officeUser.User.OktaID)
+		mockAndActivateOktaPOSTEndpointNoError(officeUser.User.OktaID)
+
+		// update the email (this should also update admin user email)
+		officeUser.User.OktaEmail = "anotherOfficeUser@mail.mil"
+		mockSender := setUpMockNotificationSender()
+		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
+		updatedUser, verr, err := updater.UpdateUser(appCtx, *officeUser.UserID, &officeUser.User)
+
+		// Fetch updated admin user to confirm status
+		updatedOfficeUser := models.OfficeUser{}
+		suite.DB().Eager("User").Find(&updatedOfficeUser, officeUser.ID)
+
+		suite.Nil(verr)
+		suite.Nil(err)
+		suite.Equal(updatedUser.OktaEmail, updatedOfficeUser.Email)
+	})
+
+	suite.Run("Updates email for user and associated service member user successfully", func() {
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					PersonalEmail: models.StringPointer("serviceMember@mail.mil"),
+				},
+			},
+			{
+				Model: models.User{
+					Active:    true,
+					OktaEmail: "serviceMember@mail.mil",
+				},
+			},
+		}, nil)
+
+		request := httptest.NewRequest("PATCH", fmt.Sprintf("/users/%s", serviceMember.UserID.String()), nil)
+
+		session := &auth.Session{
+			ApplicationName: auth.AdminApp,
+			Hostname:        "adminlocal",
+		}
+
+		ctx := auth.SetSessionInRequestContext(request, session)
+		request = request.WithContext(ctx)
+		// session.HTTPRequest = request
+
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), session, request)
+
+		// mocking return responses from okta
+		mockAndActivateOktaGETEndpointNoError(serviceMember.User.OktaID)
+		mockAndActivateOktaPOSTEndpointNoError(serviceMember.User.OktaID)
+
+		serviceMember.User.OktaEmail = "anotherServiceMember@mail.mil"
+		mockSender := setUpMockNotificationSender()
+		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
+		updatedUser, verr, err := updater.UpdateUser(appCtx, serviceMember.UserID, &serviceMember.User)
+
+		updatedServiceMember := models.ServiceMember{}
+		suite.DB().Eager("User").Find(&updatedServiceMember, serviceMember.ID)
+
+		suite.Nil(verr)
+		suite.Nil(err)
+		suite.Equal(&updatedUser.OktaEmail, updatedServiceMember.PersonalEmail)
+	})
+
 	suite.Run("Activate a user successfully", func() {
 		// Under test: updateUser
 		// Mocked:     notificationSender
@@ -157,7 +307,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		// Expected outcome:
 		//           	updateUser updates the user to active
 		//              A notification is sent to sys admins
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		// Make an inactive user
 		user := factory.BuildUser(suite.DB(), nil, nil)
 
@@ -183,7 +333,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		// Expected outcome:
 		//           	updateUser returns the active user
 		//              A notification is NOT sent to sys admins
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		user := factory.BuildUser(suite.DB(), nil,
 			[]factory.Trait{
 				factory.GetTraitActiveUser,
@@ -209,7 +359,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		// Expected outcome:
 		//           	updateUser returns the inactive user
 		//              A notification is NOT sent to sys admins
-		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
 
@@ -223,4 +373,50 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		suite.False(updatedUser.Active)
 		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 0)
 	})
+}
+
+func mockAndActivateOktaGETEndpointNoError(oktaID string) {
+	httpmock.Activate()
+	getUsersEndpoint := "OrgURL/api/v1/users/" + oktaID
+	response := fmt.Sprintf(`{
+			"id": "%s",
+			"status": "ACTIVE",
+			"created": "2025-02-07T20:39:47.000Z",
+			"activated": "2025-02-07T20:39:47.000Z",
+			"profile": {
+				"firstName": "First",
+				"lastName": "Last",
+				"mobilePhone": "555-555-5555",
+				"secondEmail": "",
+				"login": "email@email.com",
+				"email": "email@email.com",
+				"cac_edipi": "1234567890"
+			}
+		}`, oktaID)
+
+	httpmock.RegisterResponder("GET", getUsersEndpoint,
+		httpmock.NewStringResponder(200, response))
+}
+
+func mockAndActivateOktaPOSTEndpointNoError(oktaID string) {
+	httpmock.Activate()
+	updateUsersEndpoint := "OrgURL/api/v1/users/" + oktaID
+	response := fmt.Sprintf(`{
+			"id": "%s",
+			"status": "ACTIVE",
+			"created": "2025-02-07T20:39:47.000Z",
+			"activated": "2025-02-07T20:39:47.000Z",
+			"profile": {
+				"firstName": "First",
+				"lastName": "Last",
+				"mobilePhone": "555-555-5555",
+				"secondEmail": "",
+				"login": "email@email.com",
+				"email": "email@email.com",
+				"cac_edipi": "1234567890"
+			}
+		}`, oktaID)
+
+	httpmock.RegisterResponder("POST", updateUsersEndpoint,
+		httpmock.NewStringResponder(200, response))
 }

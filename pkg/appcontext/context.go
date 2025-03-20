@@ -2,6 +2,7 @@ package appcontext
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/gobuffalo/pop/v6"
 	"go.uber.org/zap"
@@ -20,29 +21,33 @@ type AppContext interface {
 	Logger() *zap.Logger
 	NewTransaction(func(appCtx AppContext) error) error
 	Session() *auth.Session
+	HTTPRequest() *http.Request
 }
 
 type appContext struct {
-	db      *pop.Connection
-	logger  *zap.Logger
-	session *auth.Session
+	db          *pop.Connection
+	logger      *zap.Logger
+	session     *auth.Session
+	httpRequest *http.Request
 }
 
 // NewAppContext creates a new AppContext
-func NewAppContext(db *pop.Connection, logger *zap.Logger, session *auth.Session) AppContext {
+func NewAppContext(db *pop.Connection, logger *zap.Logger, session *auth.Session, r *http.Request) AppContext {
 	return &appContext{
-		db:      db,
-		logger:  logger,
-		session: session,
+		db:          db,
+		logger:      logger,
+		session:     session,
+		httpRequest: r,
 	}
 }
 
 // NewAppContextFromContext creates a new AppContext taking context.Context into account and pulling some values from it
 func NewAppContextFromContext(ctx context.Context, appCtx AppContext) AppContext {
 	return &appContext{
-		db:      appCtx.DB().WithContext(ctx),
-		logger:  logging.FromContext(ctx),
-		session: auth.SessionFromContext(ctx),
+		db:          appCtx.DB().WithContext(ctx),
+		logger:      logging.FromContext(ctx),
+		session:     auth.SessionFromContext(ctx),
+		httpRequest: appCtx.HTTPRequest(),
 	}
 }
 
@@ -63,11 +68,15 @@ func (ac *appContext) NewTransaction(fn func(appCtx AppContext) error) error {
 		return fn(ac)
 	}
 	return ac.db.Transaction(func(tx *pop.Connection) error {
-		txnAppCtx := NewAppContext(tx, ac.logger, ac.session)
+		txnAppCtx := NewAppContext(tx, ac.logger, ac.session, ac.httpRequest)
 		return fn(txnAppCtx)
 	})
 }
 
 func (ac *appContext) Session() *auth.Session {
 	return ac.session
+}
+
+func (ac *appContext) HTTPRequest() *http.Request {
+	return ac.httpRequest
 }

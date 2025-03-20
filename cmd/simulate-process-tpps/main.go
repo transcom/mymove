@@ -84,7 +84,7 @@ func main() {
 	// Create new TPPS Paid Invoice Report Processor
 	processor := processor.NewTPPSPaidInvoiceReportProcessor()
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 
 	testTPPSPaidInvoiceReportFilePath := "pkg/services/invoice/fixtures/tpps_paid_invoice_report_testfile_tpps_pickup_dir.csv"
 

@@ -114,7 +114,7 @@ const OfficeUserEdit = ({ adminUser }) => {
       >
         <TextInput source="id" disabled />
         <TextInput source="userId" label="User Id" disabled />
-        <TextInput source="email" disabled />
+        <TextInput source="email" />
         <TextInput source="firstName" />
         <TextInput source="middleInitials" />
         <TextInput source="lastName" />

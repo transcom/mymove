@@ -649,7 +649,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 			zap.DebugLevel,
 		)
 		logger := zap.New(core)
-		appCtx := appcontext.NewAppContext(nil, logger, nil)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
 
 		tppsData := []tppsResponse.TPPSData{
 			{
@@ -677,7 +677,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 			zap.DebugLevel,
 		)
 		logger := zap.New(core)
-		appCtx := appcontext.NewAppContext(nil, logger, nil)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
 
 		tppsData := []tppsResponse.TPPSData{
 			{
@@ -706,7 +706,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 			zap.DebugLevel,
 		)
 		logger := zap.New(core)
-		appCtx := appcontext.NewAppContext(nil, logger, nil)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
 
 		tppsData := []tppsResponse.TPPSData{
 			{
@@ -736,7 +736,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 			zap.DebugLevel,
 		)
 		logger := zap.New(core)
-		appCtx := appcontext.NewAppContext(nil, logger, nil)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
 
 		tppsData := []tppsResponse.TPPSData{
 			{
@@ -767,7 +767,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 			zap.DebugLevel,
 		)
 		logger := zap.New(core)
-		appCtx := appcontext.NewAppContext(nil, logger, nil)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
 
 		tppsData := []tppsResponse.TPPSData{
 			{
@@ -799,7 +799,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 			zap.DebugLevel,
 		)
 		logger := zap.New(core)
-		appCtx := appcontext.NewAppContext(nil, logger, nil)
+		appCtx := appcontext.NewAppContext(nil, logger, nil, nil)
 
 		tppsData := []tppsResponse.TPPSData{
 			{
