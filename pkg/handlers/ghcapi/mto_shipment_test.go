@@ -5138,10 +5138,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			sitstatus.NewShipmentSITStatus(),
 		}
 
+		rejectionReason := "test"
+
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusDraft,
+					Status:          models.MTOShipmentStatusRejected,
+					RejectionReason: &rejectionReason,
 				},
 			},
 		}, nil)
