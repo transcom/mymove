@@ -83,7 +83,8 @@ const MoveDetails = ({
     const fieldRequestedPickupDate = {
       fieldName: 'requestedPickupDate',
       condition: (shipment) =>
-        new Date(formatDateWithUTC(shipment?.requestedPickupDate) || null) <= new Date().setHours(0, 0, 0, 0),
+        new Date(formatDateWithUTC(shipment?.requestedPickupDate) || null).setHours(0, 0, 0, 0) <=
+        new Date().setHours(0, 0, 0, 0),
       optional: true, // bypass to use condition, triggers condition if not present
     };
 
