@@ -16,9 +16,9 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	addressCreator := address.NewAddressCreator()
 	newAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "12345",
+		City:           "FORT BRAGG",
+		State:          "CA",
+		PostalCode:     "95437",
 	}
 	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
 	suite.NoError(err)
@@ -72,15 +72,15 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 
 	newAddress2 := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
+		City:           "VIRGINIA BEACH",
+		State:          "VA",
 		PostalCode:     "23456",
 	}
 	createdAddress2, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress2)
 	suite.NoError(err)
 
 	location7 := models.DutyLocation{
-		Name:      "Very Long City Name, OH 23456",
+		Name:      "Very Long City Name, VA 23456",
 		AddressID: createdAddress2.ID,
 	}
 	suite.MustSave(&location7)
@@ -94,9 +94,9 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 		{query: "ft be", dutyLocations: []string{"Fort Belvoir", "Fort Bragg", "NAS Fallon", "NAS Fort Worth JRB"}},
 		{query: "davis-mon", dutyLocations: []string{"Davis Monthan AFB", "NAS Fallon", "JB Elmendorf-Richardson"}},
 		{query: "jber", dutyLocations: []string{"JB Elmendorf-Richardson", "NAS Fort Worth JRB"}},
-		{query: "naval air", dutyLocations: []string{"NAS Fallon", "NAS Fort Worth JRB", "Very Long City Name, OH 23456", "Fort Belvoir", "Davis Monthan AFB"}},
+		{query: "naval air", dutyLocations: []string{"NAS Fallon", "NAS Fort Worth JRB", "Very Long City Name, VA 23456", "Fort Belvoir", "Davis Monthan AFB"}},
 		{query: "zzzzz", dutyLocations: []string{}},
-		{query: "23456", dutyLocations: []string{"Very Long City Name, OH 23456"}},
+		{query: "23456", dutyLocations: []string{"Very Long City Name, VA 23456"}},
 	}
 
 	for _, ts := range tests {
@@ -113,18 +113,18 @@ func (suite *ModelSuite) TestFindDutyLocationExcludeStates() {
 	addressCreator := address.NewAddressCreator()
 	newAKAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
+		City:           "ANCHORAGE",
 		State:          "AK",
-		PostalCode:     "12345",
+		PostalCode:     "99515",
 	}
 	createdAddress1, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAKAddress)
 	suite.NoError(err)
 
 	newHIAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
+		City:           "PEARL HARBOR",
 		State:          "HI",
-		PostalCode:     "12345",
+		PostalCode:     "96860",
 	}
 	createdAddress2, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newHIAddress)
 	suite.NoError(err)

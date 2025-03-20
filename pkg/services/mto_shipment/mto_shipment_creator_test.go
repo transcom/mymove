@@ -362,6 +362,112 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal("02", (*createdShipment2.ShipmentLocator)[7:9])
 	})
 
+	suite.Run("If the shipment is created successfully it should have populate addresses us_post_region_cities populated", func() {
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		fetcher := fetch.NewFetcher(builder)
+		addressCreator := address.NewAddressCreator()
+		shipmentCreator := NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "177 Q st",
+					City:           "Solomons",
+					State:          "MD",
+					PostalCode:     "20688",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Over Here Street",
+					City:           "Houston",
+					State:          "TX",
+					PostalCode:     "77083",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1:     "4367 A st",
+					City:               "Dowell",
+					State:              "MD",
+					PostalCode:         "20688",
+					UsPostRegionCityID: nil,
+					UsPostRegionCity:   nil,
+				},
+				Type: &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "12 Here Street",
+					City:           "Houston",
+					State:          "TX",
+					PostalCode:     "77083",
+				},
+				Type: &factory.Addresses.SecondaryDeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "49 C st",
+					City:           "Dowell",
+					State:          "MD",
+					PostalCode:     "20688",
+				},
+				Type: &factory.Addresses.TertiaryPickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "1 Street",
+					City:           "Houston",
+					State:          "TX",
+					PostalCode:     "77083",
+				},
+				Type: &factory.Addresses.TertiaryDeliveryAddress,
+			},
+		}, nil)
+
+		mtoShipment.PickupAddress.UsPostRegionCity = nil
+		mtoShipment.PickupAddress.UsPostRegionCityID = nil
+		mtoShipment.SecondaryPickupAddress.UsPostRegionCity = nil
+		mtoShipment.SecondaryPickupAddress.UsPostRegionCityID = nil
+		mtoShipment.TertiaryPickupAddress.UsPostRegionCity = nil
+		mtoShipment.TertiaryPickupAddress.UsPostRegionCityID = nil
+		mtoShipment.DestinationAddress.UsPostRegionCity = nil
+		mtoShipment.DestinationAddress.UsPostRegionCityID = nil
+		mtoShipment.SecondaryDeliveryAddress.UsPostRegionCity = nil
+		mtoShipment.SecondaryDeliveryAddress.UsPostRegionCityID = nil
+		mtoShipment.TertiaryDeliveryAddress.UsPostRegionCity = nil
+		mtoShipment.TertiaryDeliveryAddress.UsPostRegionCityID = nil
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
+
+		createdShipment, err := shipmentCreator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+
+		suite.NoError(err)
+		suite.NotNil(createdShipment)
+		suite.NotEmpty(createdShipment.ShipmentLocator)
+		suite.NotNil(createdShipment.PickupAddress.UsPostRegionCityID)
+		suite.NotNil(createdShipment.PickupAddress.UsPostRegionCity)
+		suite.NotNil(createdShipment.SecondaryPickupAddress.UsPostRegionCityID)
+		suite.NotNil(createdShipment.SecondaryPickupAddress.UsPostRegionCity)
+		suite.NotNil(createdShipment.TertiaryPickupAddress.UsPostRegionCityID)
+		suite.NotNil(createdShipment.TertiaryPickupAddress.UsPostRegionCity)
+		suite.NotNil(createdShipment.DestinationAddress.UsPostRegionCityID)
+		suite.NotNil(createdShipment.DestinationAddress.UsPostRegionCity)
+		suite.NotNil(createdShipment.SecondaryDeliveryAddress.UsPostRegionCityID)
+		suite.NotNil(createdShipment.SecondaryDeliveryAddress.UsPostRegionCity)
+		suite.NotNil(createdShipment.TertiaryDeliveryAddress.UsPostRegionCityID)
+		suite.NotNil(createdShipment.TertiaryDeliveryAddress.UsPostRegionCity)
+	})
+
 	suite.Run("If the shipment is created successfully with a destination address type it should be returned", func() {
 		destinationType := models.DestinationTypeHomeOfRecord
 		subtestData := suite.createSubtestData(nil)

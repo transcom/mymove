@@ -2,6 +2,7 @@ package address
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gofrs/uuid"
 
@@ -65,6 +66,16 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, err
 	}
 	transformedAddress.IsOconus = &isOconus
+
+	if (transformedAddress.UsPostRegionCityID == nil || transformedAddress.UsPostRegionCity == nil) && transformedAddress.City != "" && transformedAddress.PostalCode != "" {
+		usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), transformedAddress.PostalCode, strings.ToUpper(transformedAddress.City))
+		if err != nil {
+			return nil, err
+		}
+
+		transformedAddress.UsPostRegionCity = usprc
+		transformedAddress.UsPostRegionCityID = &usprc.ID
+	}
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().Eager().ValidateAndCreate(&transformedAddress)
