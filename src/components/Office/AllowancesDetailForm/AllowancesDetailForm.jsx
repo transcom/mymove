@@ -214,7 +214,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
       {enableUB && civilianTDYUBMove && (
         <MaskedTextField
           data-testid="civilianTdyUbAllowance"
-          warning={civilianTDYUBAllowanceWarning}
+          warning={<span style={{ color: '#6e7377' }}>{civilianTDYUBAllowanceWarning}</span>}
           defaultValue="0"
           name="ubAllowance"
           id="civilianTdyUbAllowance"
