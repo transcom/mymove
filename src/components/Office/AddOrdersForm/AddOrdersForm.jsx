@@ -452,7 +452,7 @@ const AddOrdersForm = ({
                   <div>
                     <MaskedTextField
                       data-testid="civilianTdyUbAllowance"
-                      warning={civilianTDYUBAllowanceWarning}
+                      warning={<span style={{ color: '#6e7377' }}>{civilianTDYUBAllowanceWarning}</span>}
                       defaultValue="0"
                       name="civilianTdyUbAllowance"
                       id="civilianTdyUbAllowance"
