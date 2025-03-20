@@ -40,6 +40,7 @@ tags:
   - name: featureFlags
   - name: okta_profile
   - name: application_parameters
+  - name: registration
 definitions:
   ApplicationParameters:
     type: object
@@ -2543,6 +2544,93 @@ definitions:
     required:
       - id
       - name
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    description: Military branch of service
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marine Corps
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      SPACE_FORCE: Space Force
+      OTHER: OTHER
+  CreateOktaAndMilMoveUser:
+    type: object
+    properties:
+      affiliation:
+        $ref: '#/definitions/Affiliation'
+        title: Branch
+      email:
+        type: string
+        example: user@userdomain.com
+        title: Email
+        x-nullable: false
+      edipi:
+        type: string
+        format: edipi
+        example: '5789345789'
+        pattern: ^\d{10}$
+        minLength: 10
+        maxLength: 10
+        x-nullable: true
+        title: DoD ID number
+      emplid:
+        type: string
+        pattern: ^\d{7}$
+        minLength: 7
+        maxLength: 7
+        example: '1234567'
+        x-nullable: true
+        title: USCG EMPLID
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: false
+      middleInitial:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initial
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: false
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        example: 212-555-5555
+        x-nullable: false
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        example: 212-555-5555
+        x-nullable: false
+      phoneIsPreferred:
+        description: Indicates if phone is the preferred method of contact
+        type: boolean
+      emailIsPreferred:
+        description: Indicates if email is the preferred method of contact
+        type: boolean
+    required:
+      - affiliation
+      - email
+      - edipi
+      - firstName
+      - lastName
+      - telephone
   FeatureFlagBoolean:
     description: A feature flag
     type: object
@@ -2787,27 +2875,6 @@ definitions:
       - city
       - state
       - postalCode
-  Affiliation:
-    type: string
-    x-nullable: true
-    title: Branch of service
-    description: Military branch of service
-    enum:
-      - ARMY
-      - NAVY
-      - MARINES
-      - AIR_FORCE
-      - COAST_GUARD
-      - SPACE_FORCE
-      - OTHER
-    x-display-value:
-      ARMY: Army
-      NAVY: Navy
-      MARINES: Marine Corps
-      AIR_FORCE: Air Force
-      COAST_GUARD: Coast Guard
-      SPACE_FORCE: Space Force
-      OTHER: OTHER
   TransportationOffice:
     type: object
     properties:
@@ -4383,6 +4450,71 @@ definitions:
       - state
       - postalCode
 paths:
+  /open/register:
+    post:
+      summary: >-
+        Self registration of a customer. This creates a MilMove and Okta profile
+        using the information provided.
+      description: >-
+        Creates an Okta profile and MilMove profile using the information
+        provided.
+      operationId: customerRegistration
+      tags:
+        - registration
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: registration
+          required: true
+          description: registration information
+          schema:
+            $ref: '#/definitions/CreateOktaAndMilMoveUser'
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: successfully registered service member
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          description: internal server error
+  /open/feature-flags/boolean/{key}:
+    post:
+      summary: >-
+        Determines if a feature flag is enabled. Only used for unauthenticated
+        users.
+      description: Determines if a feature flag is enabled.
+      operationId: booleanFeatureFlagUnauthenticated
+      tags:
+        - featureFlags
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: key
+          type: string
+          required: true
+          description: Feature Flag Key
+        - in: body
+          name: flagContext
+          required: true
+          description: context for the feature flag request
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Boolean Feature Flag Status
+          schema:
+            $ref: '#/definitions/FeatureFlagBoolean'
+        '401':
+          description: request requires user authentication
+        '500':
+          description: internal server error
   /feature-flags/user-boolean/{key}:
     post:
       summary: Determines if a user has a feature flag enabled

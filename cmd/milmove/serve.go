@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -670,7 +671,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dbConnection = initializeDB(v, logger)
 
 	// set up appcontext
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 
 	// now that we have the appcontext, register telemetry observers
 	err = telemetry.RegisterDBStatsObserver(appCtx, telemetryConfig)
@@ -823,6 +824,30 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		go startListener(mutualTLSServer, logger, true)
 	}
 
+	var pprofServer *http.Server
+	pprofStr := os.Getenv("PPROF_ENABLED")
+	pprofEnabled, err := strconv.ParseBool(pprofStr)
+
+	if err != nil {
+		pprofEnabled = false
+	}
+
+	// only use pprof in a dev environment and never in prod
+	if pprofEnabled && dbEnv == "development" {
+		pprofServer = &http.Server{
+			Addr:              ":6060",
+			ReadHeaderTimeout: 3 * time.Second,
+		}
+
+		go func() {
+			logger.Info("Starting pprof listener")
+
+			if err := pprofServer.ListenAndServe(); err != http.ErrServerClosed {
+				logger.Info("Failed to start pprof listener", zap.Error(err))
+			}
+		}()
+	}
+
 	// make sure we flush any pending startup messages
 	loggerSync()
 
@@ -879,6 +904,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		wg.Add(1)
 		go func() {
 			shutdownErrors.Store(healthServer, healthServer.Shutdown(ctx))
+			wg.Done()
+		}()
+	}
+
+	if pprofEnabled && isDevOrTest {
+		wg.Add(1)
+		go func() {
+			shutdownErrors.Store(pprofServer, pprofServer.Shutdown(ctx))
 			wg.Done()
 		}()
 	}

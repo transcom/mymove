@@ -4845,6 +4845,12 @@ func init() {
           },
           {
             "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "description": "Used to illustrate which user is assigned to this move.\n",
             "name": "assignedTo",
             "in": "query"
@@ -8170,6 +8176,11 @@ func init() {
         "hasProGear"
       ],
       "properties": {
+        "closeoutOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
         "destinationAddress": {
           "allOf": [
             {
@@ -22075,6 +22086,12 @@ func init() {
           },
           {
             "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "description": "Used to illustrate which user is assigned to this move.\n",
             "name": "assignedTo",
             "in": "query"
@@ -25822,6 +25839,11 @@ func init() {
         "hasProGear"
       ],
       "properties": {
+        "closeoutOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
         "destinationAddress": {
           "allOf": [
             {
