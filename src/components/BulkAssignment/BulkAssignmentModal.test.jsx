@@ -6,6 +6,8 @@ import { BulkAssignmentModal } from 'components/BulkAssignment/BulkAssignmentMod
 import { QUEUE_TYPES } from 'constants/queues';
 import { MockProviders } from 'testUtils';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { milmoveLogger } from 'utils/milmoveLog';
+import { getBulkAssignmentData } from 'services/ghcApi';
 
 let onClose;
 let onSubmit;
@@ -42,6 +44,7 @@ const bulkAssignmentData = {
     'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed4',
     'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed5',
     'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed6',
+    'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed7',
   ],
 };
 
@@ -62,7 +65,32 @@ describe('BulkAssignmentModal', () => {
       </MockProviders>,
     );
 
-    expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment (6)' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment (7)' })).toBeInTheDocument();
+  });
+
+  it('handles API error gracefully', async () => {
+    // Override getBulkAssignmentData to throw an error
+    getBulkAssignmentData.mockImplementationOnce(() => Promise.reject(new Error('API error')));
+
+    // Spy on the logger to verify error handling
+    jest.spyOn(milmoveLogger, 'error').mockImplementation(() => {});
+
+    render(
+      <MockProviders>
+        <BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(milmoveLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining('Error fetching bulk assignment data:'),
+        expect.any(Error),
+      );
+    });
+
+    // Check that the save button is disabled since data loading failed
+    const saveButton = await screen.findByTestId('modalSubmitButton');
+    expect(saveButton).toBeDisabled();
   });
 
   it('shows cancel confirmation modal when close icon is clicked', async () => {
@@ -85,11 +113,15 @@ describe('BulkAssignmentModal', () => {
   it('does not show cancel confirmation if form is unchanged and cancel is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
+    const cancelButton = await screen.findByRole('button', { name: 'Close' });
 
-    await userEvent.click(cancelButton);
+    await act(async () => {
+      await userEvent.click(cancelButton);
+    });
 
-    expect(onClose).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('shows cancel confirmation modal when the Cancel button is click if form has changed', async () => {
@@ -149,10 +181,14 @@ describe('BulkAssignmentModal', () => {
     await screen.findByRole('table');
     const equalAssignButton = await screen.getByTestId('modalEqualAssignButton');
     await userEvent.click(equalAssignButton);
-    const row1 = await screen.getAllByTestId('assignment')[0];
-    const row2 = await screen.getAllByTestId('assignment')[1];
-    expect(row1.value).toEqual('2');
-    expect(row2.value).toEqual('2');
+    const assignmentBoxes = await screen.getAllByTestId('assignment');
+
+    const row1 = assignmentBoxes[0];
+    const row2 = assignmentBoxes[1];
+    await waitFor(() => {
+      expect(row1.value).toEqual('3');
+      expect(row2.value).toEqual('2');
+    });
   });
 
   it('select/deselect all checkbox works', async () => {
@@ -203,6 +239,7 @@ describe('BulkAssignmentModal', () => {
             'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed4',
             'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed5',
             'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed6',
+            'fee7f916-35a6-4c0b-9ea6-a1d8094b3ed7',
           ],
           userData: [
             {
@@ -276,7 +313,7 @@ describe('BulkAssignmentModal', () => {
       expect(screen.getByText('Current Workload')).toBeInTheDocument();
       expect(screen.getByText('Assignment')).toBeInTheDocument();
       expect(screen.getByText('Re-assign Workload')).toBeInTheDocument();
-      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeVisible();
       expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
     });
     // Select a user to re-assign from
@@ -342,7 +379,7 @@ describe('BulkAssignmentModal', () => {
       expect(screen.getByText('Current Workload')).toBeInTheDocument();
       expect(screen.getByText('Assignment')).toBeInTheDocument();
       expect(screen.getByText('Re-assign Workload')).toBeInTheDocument();
-      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('selectDeselectAllButton')).not.toBeVisible();
       expect(screen.queryByTestId('Equal Assign')).not.toBeInTheDocument();
     });
     // Select a user to re-assign from
@@ -429,6 +466,78 @@ describe('BulkAssignmentModal', () => {
       assignmentBoxesLastSwitch.forEach((assignmentBox) => {
         expect(assignmentBox.value).toEqual('0');
       });
+    });
+  });
+  it('keeps all checkboxes selected when switching back to BA from Bulk Re-Assignment', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    await act(async () => {
+      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    });
+
+    const userSelectionBoxPreSwitch = screen.getAllByRole('checkbox').filter((checkbox) => checkbox.closest('cell'));
+    const bulkReAssignToggleSwitch = screen.getByLabelText('BulkAssignmentModeSwitch');
+
+    // check initial state
+    await waitFor(() => {
+      expect(bulkReAssignToggleSwitch).not.toBeChecked();
+      userSelectionBoxPreSwitch.forEach((checkbox) => {
+        expect(checkbox).toBeChecked();
+      });
+    });
+    // deselect a few boxes (all enabled by default)
+    await waitFor(async () => {
+      await userEvent.click(userSelectionBoxPreSwitch[0]);
+      await userEvent.click(userSelectionBoxPreSwitch[2]);
+    });
+
+    // switch to bulk re assignment
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    const userSelectionBoxFirstSwitch = screen.getAllByRole('checkbox').filter((checkbox) => checkbox.closest('cell'));
+
+    // should be in bulk re-assignment mode and checkboxes should not be visible
+    await waitFor(() => {
+      expect(bulkReAssignToggleSwitch).toBeChecked();
+      userSelectionBoxFirstSwitch.forEach((checkbox) => {
+        expect(checkbox).not.toBeVisible();
+      });
+    });
+
+    // switch back to bulk assignment
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    const userSelectionBoxSecondSwitch = screen.getAllByRole('checkbox').filter((checkbox) => checkbox.closest('cell'));
+    // back in bulk assignment mode and all checkoxes are selected
+    await waitFor(async () => {
+      expect(bulkReAssignToggleSwitch).not.toBeChecked();
+      userSelectionBoxSecondSwitch.forEach((checkbox) => {
+        expect(checkbox).toBeChecked();
+      });
+    });
+  });
+  it('equal assign does nothing when no users are selected', async () => {
+    await act(async () => {
+      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    });
+    await screen.findByRole('table');
+
+    // Deselect all users using the select/deselect all checkbox
+    const selectDeselectAllButton = await screen.getByTestId('selectDeselectAllButton');
+    await userEvent.click(selectDeselectAllButton);
+
+    // Click the equal assign button
+    const equalAssignButton = await screen.getByTestId('modalEqualAssignButton');
+    await userEvent.click(equalAssignButton);
+
+    // Verify that all assignment inputs remain 0
+    const assignmentBoxes = await screen.getAllByTestId('assignment');
+    assignmentBoxes.forEach((box) => {
+      expect(box.value).toEqual('0');
     });
   });
 });
