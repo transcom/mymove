@@ -12,12 +12,17 @@ import styles from './EditOrdersForm.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
 import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import {
+  civilianTDYUBAllowanceWeightWarning,
+  FEATURE_FLAG_KEYS,
+  MOVE_STATUSES,
+  documentSizeLimitMsg,
+} from 'shared/constants';
 import { Form } from 'components/form/Form';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { FEATURE_FLAG_KEYS, MOVE_STATUSES, documentSizeLimitMsg } from 'shared/constants';
 import profileImage from 'scenes/Review/images/profile.png';
 import { DropdownArrayOf } from 'types';
 import { ExistingUploadsShape } from 'types/uploads';
@@ -284,9 +289,6 @@ const EditOrdersForm = ({
         // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
         const showcivilianTDYUBAllowanceWarning =
           values.civilian_tdy_ub_allowance > 350 && values.civilian_tdy_ub_allowance <= 2000;
-
-        const civilianTDYUBAllowanceWeightWarning =
-          '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on your orders.';
 
         let civilianTDYUBAllowanceWarning = '';
         if (showcivilianTDYUBAllowanceWarning) {

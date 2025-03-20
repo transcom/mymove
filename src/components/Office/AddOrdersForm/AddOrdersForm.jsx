@@ -6,7 +6,7 @@ import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-us
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
+import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../../shared/constants';
 
 import styles from './AddOrdersForm.module.scss';
 
@@ -220,9 +220,6 @@ const AddOrdersForm = ({
         // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
         const showcivilianTDYUBAllowanceWarning =
           values.civilianTdyUbAllowance > 350 && values.civilianTdyUbAllowance <= 2000;
-
-        const civilianTDYUBAllowanceWeightWarning =
-          '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on your orders.';
 
         let civilianTDYUBAllowanceWarning = '';
         if (showcivilianTDYUBAllowanceWarning) {
