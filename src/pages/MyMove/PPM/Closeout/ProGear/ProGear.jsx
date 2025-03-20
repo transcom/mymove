@@ -25,7 +25,7 @@ import {
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
-import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm';
+import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 
 const ProGear = () => {
