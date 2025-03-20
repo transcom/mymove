@@ -654,6 +654,7 @@ type ApproveShipmentsHandler struct {
 	services.ShipmentApprover
 	services.ShipmentSITStatus
 	services.MoveTaskOrderUpdater
+	services.MoveWeights
 }
 
 // Handle approves one or more shipments
@@ -792,6 +793,11 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 								return nil, err
 							}
 						}
+					}
+				} else { // If previous check didn't trigger, make sure that any new shipments don't push the move over the weight trigger
+					err := h.MoveWeights.CheckAutoReweigh(appCtx, move.ID, &(*approvedShipments)[0])
+					if err != nil {
+						return handleError(err)
 					}
 				}
 			}

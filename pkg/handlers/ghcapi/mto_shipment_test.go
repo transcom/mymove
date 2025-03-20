@@ -1050,6 +1050,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 
 		approveParams := shipmentops.ApproveShipmentsParams{
@@ -1113,6 +1114,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1158,6 +1160,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1203,6 +1206,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1248,6 +1252,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1293,6 +1298,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1330,6 +1336,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1370,6 +1377,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,

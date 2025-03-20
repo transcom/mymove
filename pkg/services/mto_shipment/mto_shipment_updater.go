@@ -765,9 +765,10 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
-		if ((dbShipment.PrimeEstimatedWeight == nil) || (*newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight)) ||
-			((newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight == nil) ||
-				(newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight != nil && *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight)) {
+		if dbShipment.Status == models.MTOShipmentStatusApproved &&
+			(((dbShipment.PrimeEstimatedWeight == nil) || (*newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight)) ||
+				((newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight == nil) ||
+					(newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight != nil && *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight))) {
 			err := f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
 			if err != nil {
 				return err
