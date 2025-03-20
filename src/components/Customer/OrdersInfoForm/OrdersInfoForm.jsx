@@ -30,6 +30,8 @@ import { milmoveLogger } from 'utils/milmoveLog';
 
 let originMeta;
 let newDutyMeta = '';
+const requiredHint = '*';
+
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
@@ -249,18 +251,19 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
         const toggleCivilianTDYUBTooltip = () => {
           setShowCivilianTDYUBTooltip((prev) => !prev);
         };
-
+        const requiredFieldsMessage = <div>Fields marked with * are required.</div>;
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
             <h1>Tell us about your move orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
+              {requiredFieldsMessage}
               <DropdownInput
                 label="Orders type"
                 name="orders_type"
                 options={filteredOrderTypeOptions}
                 required
-                hint="Required"
+                hint={requiredHint}
                 onChange={(e) => {
                   handleChange(e);
                   handleOrderTypeChange(e);
@@ -270,7 +273,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 name="issue_date"
                 label="Orders date"
                 required
-                hint="Required"
+                hint={requiredHint}
                 renderInput={(input) => (
                   <>
                     {input}
@@ -281,14 +284,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 )}
               />
               <DatePickerInput
-                hint="Required"
+                hint={requiredHint}
                 name="report_by_date"
                 label={formatLabelReportByDate(values.orders_type)}
                 required
               />
               <DutyLocationInput
                 label="Current duty location"
-                hint="Required"
+                hint={requiredHint}
                 name="origin_duty_location"
                 id="origin_duty_location"
                 onDutyLocationChange={(e) => {
@@ -304,7 +307,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     label="Counseling office"
                     name="counseling_office_id"
                     id="counseling_office_id"
-                    hint="Required"
+                    hint={requiredHint}
                     required
                     options={counselingOfficeOptions}
                   />
@@ -355,7 +358,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   name="new_duty_location"
                   label="New duty location"
                   displayAddress={false}
-                  hint="Required"
+                  hint={requiredHint}
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
                     setNewDutyLocation(e);
@@ -364,7 +367,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               )}
 
               <FormGroup>
-                <Label hint="Required">Are dependents included in your orders?</Label>
+                <Label hint={requiredHint}>Are dependents included in your orders?</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -399,7 +402,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <Label hint={requiredHint}>Is this an accompanied tour?</Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -474,7 +477,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               )}
 
               <DropdownInput
-                hint="Required"
+                hint={requiredHint}
                 label="Pay grade"
                 name="grade"
                 id="grade"

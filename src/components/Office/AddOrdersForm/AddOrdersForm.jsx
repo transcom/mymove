@@ -27,6 +27,7 @@ import Hint from 'components/Hint';
 let originMeta;
 let newDutyMeta = '';
 const requiredHint = '*';
+
 const AddOrdersForm = ({
   onSubmit,
   ordersTypeOptions,
