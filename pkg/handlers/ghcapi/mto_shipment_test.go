@@ -684,6 +684,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 
 		approveParams := shipmentops.ApproveShipmentParams{
@@ -709,6 +710,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		uuid := uuid.Must(uuid.NewV4())
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.AssertNumberOfCalls(suite.T(), "ApproveShipment", 0)
 
@@ -721,6 +724,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -749,6 +753,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.NotFoundError{})
 
@@ -761,6 +767,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -789,6 +796,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.ConflictError{})
 
@@ -801,6 +810,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -829,6 +839,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.PreconditionFailedError{})
 
@@ -841,6 +853,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -869,6 +882,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
@@ -881,6 +896,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -909,6 +925,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
 
@@ -921,6 +939,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
