@@ -357,7 +357,7 @@ const originPrice = (params, shipmentType, serviceCode) => {
   );
 };
 
-const unaccompaniedBaggagePrice = (params, shipmentType) => {
+const ubPrice = (params, shipmentType) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.InternationalUbPrice;
 
@@ -1107,7 +1107,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
     case SERVICE_ITEM_CODES.UBP:
       result = [
         billableWeight(params),
-        unaccompaniedBaggagePrice(params, shipmentType),
+        ubPrice(params, shipmentType),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
