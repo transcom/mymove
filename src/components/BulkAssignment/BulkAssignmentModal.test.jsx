@@ -6,6 +6,8 @@ import { BulkAssignmentModal } from 'components/BulkAssignment/BulkAssignmentMod
 import { QUEUE_TYPES } from 'constants/queues';
 import { MockProviders } from 'testUtils';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { milmoveLogger } from 'utils/milmoveLog';
+import { getBulkAssignmentData } from 'services/ghcApi';
 
 let onClose;
 let onSubmit;
@@ -64,6 +66,31 @@ describe('BulkAssignmentModal', () => {
     );
 
     expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment (7)' })).toBeInTheDocument();
+  });
+
+  it('handles API error gracefully', async () => {
+    // Override getBulkAssignmentData to throw an error
+    getBulkAssignmentData.mockImplementationOnce(() => Promise.reject(new Error('API error')));
+
+    // Spy on the logger to verify error handling
+    jest.spyOn(milmoveLogger, 'error').mockImplementation(() => {});
+
+    render(
+      <MockProviders>
+        <BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(milmoveLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining('Error fetching bulk assignment data:'),
+        expect.any(Error),
+      );
+    });
+
+    // Check that the save button is disabled since data loading failed
+    const saveButton = await screen.findByTestId('modalSubmitButton');
+    expect(saveButton).toBeDisabled();
   });
 
   it('shows cancel confirmation modal when close icon is clicked', async () => {
@@ -491,6 +518,26 @@ describe('BulkAssignmentModal', () => {
       userSelectionBoxSecondSwitch.forEach((checkbox) => {
         expect(checkbox).toBeChecked();
       });
+    });
+  });
+  it('equal assign does nothing when no users are selected', async () => {
+    await act(async () => {
+      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    });
+    await screen.findByRole('table');
+
+    // Deselect all users using the select/deselect all checkbox
+    const selectDeselectAllButton = await screen.getByTestId('selectDeselectAllButton');
+    await userEvent.click(selectDeselectAllButton);
+
+    // Click the equal assign button
+    const equalAssignButton = await screen.getByTestId('modalEqualAssignButton');
+    await userEvent.click(equalAssignButton);
+
+    // Verify that all assignment inputs remain 0
+    const assignmentBoxes = await screen.getAllByTestId('assignment');
+    assignmentBoxes.forEach((box) => {
+      expect(box.value).toEqual('0');
     });
   });
 });
