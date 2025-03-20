@@ -234,14 +234,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
 						appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler error", zap.Error(e.Unwrap()))
-						if strings.Contains(e.Unwrap().Error(), "At least one address for a UB shipment must be OCONUS") {
-							return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
-								payloads.ClientError(handlers.InternalServerErrMessage,
-									e.Unwrap().Error(),
-									h.GetTraceIDFromRequest(params.HTTPRequest),
-								),
-							), err
-						}
 					}
 					return mtoshipmentops.
 						NewUpdateMTOShipmentInternalServerError().
