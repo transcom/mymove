@@ -65,16 +65,16 @@ func (o *DeleteAssignedOfficeUser) ServeHTTP(rw http.ResponseWriter, r *http.Req
 // swagger:model DeleteAssignedOfficeUserBody
 type DeleteAssignedOfficeUserBody struct {
 
-	// role type
+	// queue type
 	// Required: true
-	RoleType *string `json:"roleType"`
+	QueueType *string `json:"queueType"`
 }
 
 // Validate validates this delete assigned office user body
 func (o *DeleteAssignedOfficeUserBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateRoleType(formats); err != nil {
+	if err := o.validateQueueType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -84,9 +84,9 @@ func (o *DeleteAssignedOfficeUserBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *DeleteAssignedOfficeUserBody) validateRoleType(formats strfmt.Registry) error {
+func (o *DeleteAssignedOfficeUserBody) validateQueueType(formats strfmt.Registry) error {
 
-	if err := validate.Required("body"+"."+"roleType", "body", o.RoleType); err != nil {
+	if err := validate.Required("body"+"."+"queueType", "body", o.QueueType); err != nil {
 		return err
 	}
 
