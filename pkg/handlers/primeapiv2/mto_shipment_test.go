@@ -162,7 +162,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
 		}
-		newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		if ubFeatureFlag {
+			newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddressAKZone1})
+		} else {
+			newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		}
 		destinationAddress = primev2messages.Address{
 			City:           &newAddress.City,
 			PostalCode:     &newAddress.PostalCode,

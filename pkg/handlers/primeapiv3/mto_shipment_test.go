@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 
-	setupAddresses := func() {
+	setupAddresses := func(isUBShipment bool) {
 		// Make stubbed addresses just to collect address data for payload
 		newAddress := factory.BuildAddress(nil, []factory.Customization{
 			{
@@ -148,7 +148,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
 		}
-		newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		if isUBShipment {
+			newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddressAKZone1})
+
+		} else {
+			newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		}
 		destinationAddress = primev3messages.Address{
 			City:           &newAddress.City,
 			PostalCode:     &newAddress.PostalCode,
@@ -261,7 +266,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		setupAddresses()
+		setupAddresses(ubFeatureFlag)
 		return handler, move
 	}
 
@@ -276,7 +281,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		setupAddresses()
+		setupAddresses(false)
 		return handler, move
 	}
 

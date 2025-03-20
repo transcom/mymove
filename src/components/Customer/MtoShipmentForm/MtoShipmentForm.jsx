@@ -139,7 +139,13 @@ class MtoShipmentForm extends Component {
         })
         .catch((e) => {
           const { response } = e;
-          const errorMessage = getResponseError(response, 'failed to create MTO shipment due to server error');
+          let errorMessage = getResponseError(response, 'failed to create MTO shipment due to server error');
+
+          if (response?.body?.invalidFields) {
+            const keys = Object.keys(response?.body?.invalidFields);
+            const firstError = response?.body?.invalidFields[keys[0]][0];
+            errorMessage = firstError;
+          }
 
           this.setState({ errorMessage });
         });
@@ -305,15 +311,9 @@ class MtoShipmentForm extends Component {
             <GridContainer>
               <Grid row>
                 <Grid col desktop={{ col: 8, offset: 2 }}>
-                  {errorMessage && !isUB && (
+                  {errorMessage && (
                     <Alert type="error" headingLevel="h4" heading="An error occurred">
                       {errorMessage}
-                    </Alert>
-                  )}
-
-                  {errorMessage && isUB && (
-                    <Alert type="error" headingLevel="h4" heading="An error occurred">
-                      At least one address for a UB shipment must be OCONUS
                     </Alert>
                   )}
 

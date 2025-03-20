@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"strings"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -97,7 +99,16 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
 						appCtx.Logger().Error("internalapi.CreateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
+						if strings.Contains(e.Unwrap().Error(), "At least one address for a UB shipment must be OCONUS") {
+							return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+								payloads.ClientError(handlers.InternalServerErrMessage,
+									e.Unwrap().Error(),
+									h.GetTraceIDFromRequest(params.HTTPRequest),
+								),
+							), err
+						}
 					}
+
 					return mtoshipmentops.
 						NewCreateMTOShipmentInternalServerError().
 						WithPayload(
@@ -222,12 +233,15 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				case apperror.QueryError:
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
-						appCtx.
-							Logger().
-							Error(
-								"internalapi.UpdateMTOShipmentHandler error",
-								zap.Error(e.Unwrap()),
-							)
+						appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler error", zap.Error(e.Unwrap()))
+						if strings.Contains(e.Unwrap().Error(), "At least one address for a UB shipment must be OCONUS") {
+							return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+								payloads.ClientError(handlers.InternalServerErrMessage,
+									e.Unwrap().Error(),
+									h.GetTraceIDFromRequest(params.HTTPRequest),
+								),
+							), err
+						}
 					}
 					return mtoshipmentops.
 						NewUpdateMTOShipmentInternalServerError().

@@ -1250,6 +1250,39 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal("Secondary pickup address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGOutOfNTS), err.Error())
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
+
+	suite.Run("InvalidInputError - At least one UB address must be OCONUS", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		pickupAddress := factory.BuildDefaultAddress(suite.DB())
+		deliveryAddress := factory.BuildDefaultAddress(suite.DB())
+
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    deliveryAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+				},
+			},
+		}, nil)
+		clearShipmentIDFields(&shipment)
+
+		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), &shipment)
+
+		suite.Error(err)
+		suite.Equal("At least one address for a UB shipment must be OCONUS", err.Error())
+		suite.IsType(apperror.InvalidInputError{}, err)
+	})
 }
 
 // Clears all the ID fields that we need to be null for a new shipment to get created:

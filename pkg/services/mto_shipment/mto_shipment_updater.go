@@ -405,14 +405,6 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		return nil, err
 	}
 
-	//For UB shipments, check if at least one address is OCONUS
-	if updatedShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-		err = checkUBShipmentForOconusAddress(*updatedShipment)
-		if err != nil {
-			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, nil, "At least one address must be an OCONUS address")
-		}
-	}
-
 	var updatedAgents []models.MTOAgent
 	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&updatedAgents)
 	if err != nil {
