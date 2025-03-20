@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
@@ -437,26 +439,17 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	        FROM moves INNER JOIN orders ON moves.orders_id = orders.id
 	        WHERE moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE`
 
-	if searchParams != nil && searchParams.Since != nil {
-		sql = sql + ` AND (moves.updated_at >= $1 OR orders.updated_at >= $1 OR
-                          (moves.id IN (SELECT mto_shipments.move_id
-                                        FROM mto_shipments WHERE mto_shipments.updated_at >= $1
-                                        UNION
-                                        SELECT mto_service_items.move_id
-			                            FROM mto_service_items
-			                            WHERE mto_service_items.updated_at >= $1
-			                            UNION
-			                            SELECT payment_requests.move_id
-			                            FROM payment_requests
-			                            WHERE payment_requests.updated_at >= $1
-										UNION
-										SELECT mto_shipments.move_id
-										FROM mto_shipments
-										INNER JOIN reweighs ON reweighs.shipment_id = mto_shipments.id
-										WHERE reweighs.updated_at >= $1)));`
-		err = appCtx.DB().RawQuery(sql, *searchParams.Since).All(&moveTaskOrders)
+	sqlParams := []any{}
+
+	if searchParams != nil {
+		sql = sql + getSinceFilter(searchParams.Since, &sqlParams)
+		sql = sql + getPrimeAcknowledgedFilter(searchParams.Acknowledged)
+	}
+	sql = sql + `;`
+
+	if len(sqlParams) > 0 {
+		err = appCtx.DB().RawQuery(sql, sqlParams...).All(&moveTaskOrders)
 	} else {
-		sql = sql + `;`
 		err = appCtx.DB().RawQuery(sql).All(&moveTaskOrders)
 	}
 
@@ -465,6 +458,67 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	}
 
 	return moveTaskOrders, nil
+}
+
+func getSinceFilter(since *time.Time, sqlParams *[]any) string {
+
+	if since == nil {
+		// No filtering on Since
+		return ""
+	}
+
+	// Determine the next available query param
+	nextParam := len(*sqlParams) + 1
+	sinceParamIndex := strconv.Itoa(nextParam)
+
+	sql := ` AND (moves.updated_at >= $` + sinceParamIndex + ` OR orders.updated_at >= $` + sinceParamIndex + ` OR
+					  (moves.id IN (SELECT mto_shipments.move_id
+									FROM mto_shipments WHERE mto_shipments.updated_at >= $` + sinceParamIndex + `
+									UNION
+									SELECT mto_service_items.move_id
+									FROM mto_service_items
+									WHERE mto_service_items.updated_at >= $` + sinceParamIndex + `
+									UNION
+									SELECT payment_requests.move_id
+									FROM payment_requests
+									WHERE payment_requests.updated_at >= $` + sinceParamIndex + `
+									UNION
+									SELECT mto_shipments.move_id
+									FROM mto_shipments
+									INNER JOIN reweighs ON reweighs.shipment_id = mto_shipments.id
+									WHERE reweighs.updated_at >= $` + sinceParamIndex + `)))`
+
+	// Add the since parameter value to the sqlParams slice
+	*sqlParams = append(*sqlParams, *since)
+	return sql
+}
+
+func getPrimeAcknowledgedFilter(acknowledged *bool) string {
+
+	if acknowledged == nil {
+		// No filtering on prime acknowledged filter
+		return ""
+	}
+
+	if *acknowledged {
+		// filter out any moves where either the move or any of it's shipments are not acknowledged
+		return ` AND moves.prime_acknowledged_at IS NOT NULL
+					AND NOT EXISTS (
+    					SELECT 1
+    					FROM mto_shipments
+    					WHERE mto_shipments.move_id = moves.id
+      					AND mto_shipments.prime_acknowledged_at IS NULL
+  					)`
+	} else {
+		//  Include only moves where the move or any of its shipments are not acknowledged
+		return ` AND moves.prime_acknowledged_at IS NULL
+					OR EXISTS (
+    					SELECT 1
+    					FROM mto_shipments
+    					WHERE mto_shipments.move_id = moves.id
+      					AND mto_shipments.prime_acknowledged_at IS NULL
+  					)`
+	}
 }
 
 func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrdersAmendments(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, services.MoveOrderAmendmentAvailableSinceCounts, error) {

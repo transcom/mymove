@@ -1164,3 +1164,68 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 		suite.Contains(moveIDs, primeMove2.ID)
 	})
 }
+
+func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgements() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+	falseValue := false
+	trueValue := true
+	suite.Run("Retrieves only moves without prime acknowledgement", func() {
+		now := time.Now()
+		// Prime Move that has NOT been acknowledged
+		factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: nil,
+				},
+			},
+		}, nil)
+
+		//Prime move that has already been acknowledged
+		acknowledgedPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: &now,
+				},
+			}}, nil)
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
+		searchParams := services.MoveTaskOrderFetcherParams{
+			Acknowledged: &trueValue,
+		}
+		primeMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.NotNil(primeMoves)
+		suite.Len(primeMoves, 1, "Only the move that has already been acknowledged should be present.")
+		suite.Equal(acknowledgedPrimeMove.ID, primeMoves[0].ID)
+		suite.Equal(acknowledgedPrimeMove.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), primeMoves[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
+	})
+
+	suite.Run("Retrieves moves without prime acknowledgement", func() {
+		now := time.Now()
+		// Prime Move that has NOT been acknowledged
+		unacknowledgedPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: nil,
+				},
+			},
+		}, nil)
+
+		//Prime move that has already been acknowledged
+		factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: &now,
+				},
+			}}, nil)
+		fetcher := m.NewMoveTaskOrderFetcher(waf)
+		searchParams := services.MoveTaskOrderFetcherParams{
+			Acknowledged: &falseValue,
+		}
+		primeMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.NotNil(primeMoves)
+		suite.Len(primeMoves, 1, "Only the move that has NOT been acknowledged should be present.")
+		suite.Equal(unacknowledgedPrimeMove.ID, primeMoves[0].ID)
+		suite.Nil(primeMoves[0].PrimeAcknowledgedAt)
+	})
+}
