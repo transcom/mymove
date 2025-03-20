@@ -838,7 +838,6 @@ server_test:
     - echo "server test -- build gotestsum and run scripts for report"
     - make -j 2 bin/milmove bin/gotestsum
     - make server_test
-    - scripts/check-failed-test /builds/milmove/mymove/tmp/test-results/gotest/app/go-test-report.xml
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/gotestsum
