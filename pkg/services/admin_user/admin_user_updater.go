@@ -71,7 +71,7 @@ func (o *adminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uuid
 				return verrs
 			}
 
-			if existingUser.OktaID != "" {
+			if existingUser.OktaID != "" && appCtx.Session().IDToken == "devlocal" {
 				apiKey := models.GetOktaAPIKey()
 				oktaID := existingUser.OktaID
 				req := appCtx.HTTPRequest()

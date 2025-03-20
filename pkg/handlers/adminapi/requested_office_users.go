@@ -112,11 +112,11 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params requested_off
 	}
 
 	profile := models.OktaProfile{
-		FirstName:   *oktaFirstName,
-		LastName:    *oktaLastName,
-		Email:       *oktaEmail,
-		Login:       *oktaEmail,
-		MobilePhone: *oktaPhone,
+		FirstName:   handlers.GetStringOrEmpty(oktaFirstName),
+		LastName:    handlers.GetStringOrEmpty(oktaLastName),
+		Email:       handlers.GetStringOrEmpty(oktaEmail),
+		Login:       handlers.GetStringOrEmpty(oktaEmail),
+		MobilePhone: handlers.GetStringOrEmpty(oktaPhone),
 		CacEdipi:    oktaEdipi,
 		GsaID:       &oktaGsaId,
 	}
