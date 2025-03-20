@@ -107,7 +107,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		suite.Equal(4, len(*shipmentPostalCodeRateAreas))
 
 		suite.Equal(true, isRateAreaEquals(rateAreaAK1, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(true, isRateAreaEquals(rateAreaAK1, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(false, isRateAreaEquals(rateAreaAK1, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(true, isRateAreaEquals(rateAreaAK2, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(true, isRateAreaEquals(rateAreaCA, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
 
@@ -120,7 +120,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		suite.Equal(false, isRateAreaEquals(rateAreaAK1, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateAreaAK1, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateAreaAK2, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(false, isRateAreaEquals(rateAreaAK2, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
+		suite.Equal(true, isRateAreaEquals(rateAreaAK2, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateAreaAK2, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateAreaCA, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
 		suite.Equal(false, isRateAreaEquals(rateAreaCA, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))

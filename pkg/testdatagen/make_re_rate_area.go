@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -13,12 +12,15 @@ import (
 // FetchOrMakeReRateArea returns the ReRateArea for a given rate area code, or creates one if
 // the rate area does not exist yet.
 func FetchOrMakeReRateArea(db *pop.Connection, assertions Assertions) models.ReRateArea {
-	var contractYear models.ReContractYear
-	if assertions.ReContractYear.ID == uuid.Nil {
-		contractYear = MakeReContractYear(db, assertions)
-	} else {
-		contractYear = assertions.ReContractYear
+
+	contractYear := models.ReContractYear{
+		StartDate: ContractStartDate,
+		EndDate:   ContractEndDate,
 	}
+
+	contractYear = FetchOrMakeReContractYear(db, Assertions{
+		ReContractYear: contractYear,
+	})
 
 	var existingReRateAreas models.ReRateAreas
 	code := "US42"

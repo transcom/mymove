@@ -333,7 +333,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 						},
 						{
 							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-							Value:       "2019-12-16",
+							Value:       "2024-12-16",
 						},
 					},
 				},
@@ -397,7 +397,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 						},
 						{
 							ServiceItemParamKeyID: serviceItemParamKey2.ID,
-							Value:                 "2019-12-16",
+							Value:                 "2024-12-16",
 						},
 						{
 							ServiceItemParamKeyID: serviceItemParamKey3.ID,
@@ -600,7 +600,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 						},
 						{
 							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-							Value:       "2022-03-16",
+							Value:       "2024-03-16",
 						},
 					},
 					Status: models.PaymentServiceItemStatusApproved,
@@ -688,7 +688,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 						},
 						{
 							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-							Value:       "2022-03-16",
+							Value:       "2024-03-16",
 						},
 					},
 					Status: models.PaymentServiceItemStatusRequested,
@@ -1162,7 +1162,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 						},
 						{
 							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-							Value:       "2019-12-16",
+							Value:       "2024-12-16",
 						},
 					},
 				},
@@ -1195,7 +1195,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 						},
 						{
 							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-							Value:       "2019-12-16",
+							Value:       "2024-12-16",
 						},
 					},
 				},
@@ -1227,7 +1227,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 						},
 						{
 							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-							Value:       "2019-12-16",
+							Value:       "2024-12-16",
 						},
 					},
 				},
@@ -1333,7 +1333,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	testZip3Distance := 1234
 
 	// ((testOriginalWeight / 100.0) * testZip3Distance * testDLHRate * testEscalationCompounded) / 1000
-	testDLHTotalPrice := unit.Cents(17485484)
+	testDLHTotalPrice := unit.Cents(19436828)
 
 	//
 	// Test data setup
@@ -1398,7 +1398,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 
 	// Make move and shipment
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.January, 15, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.June, 15, 0, 0, 0, 0, time.UTC)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,

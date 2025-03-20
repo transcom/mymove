@@ -2773,15 +2773,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("Update RDD on UB Shipment on status change", func() {
-		reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             reContract,
-				ContractID:           reContract.ID,
-				StartDate:            time.Now(),
-				EndDate:              time.Now().AddDate(1, 0, 0),
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
