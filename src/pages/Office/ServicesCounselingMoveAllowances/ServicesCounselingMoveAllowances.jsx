@@ -11,7 +11,7 @@ import AllowancesDetailForm from '../../../components/Office/AllowancesDetailFor
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -68,7 +68,7 @@ const validationSchema = Yup.object({
   ubAllowance: Yup.number()
     .transform((value) => (Number.isNaN(value) ? 0 : value))
     .min(0, 'UB weight allowance must be 0 or more')
-    .max(2000, 'UB weight allowance cannot exceed 2000 lbs.'),
+    .max(2000, 'UB weight allowance cannot exceed 2,000 lbs.'),
 });
 const ServicesCounselingMoveAllowances = () => {
   const { moveCode } = useParams();
@@ -180,7 +180,7 @@ const ServicesCounselingMoveAllowances = () => {
 
   const civilianTDYUBMove =
     order.order_type === ORDERS_TYPE.TEMPORARY_DUTY &&
-    order.grade === 'CIVILIAN_EMPLOYEE' &&
+    order.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE &&
     (order.originDutyLocation?.address?.isOconus || order.destinationDutyLocation?.address?.isOconus);
 
   return (

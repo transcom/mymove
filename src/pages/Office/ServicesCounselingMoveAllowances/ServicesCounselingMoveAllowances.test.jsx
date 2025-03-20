@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingMoveAllowances from 'pages/Office/ServicesCounselingMoveAllowances/ServicesCounselingMoveAllowances';
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
@@ -155,7 +155,7 @@ const useCivilianTDYOrdersDocumentQueriesReturnValue = {
         ubAllowance: 351,
       },
       first_name: 'Leo',
-      grade: 'CIVILIAN_EMPLOYEE',
+      grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
       id: '1',
       last_name: 'Spacemen',
       order_number: 'ORDER3',

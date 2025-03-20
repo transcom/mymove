@@ -6,7 +6,7 @@ import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-us
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
+import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../../shared/constants';
 
 import styles from './AddOrdersForm.module.scss';
 
@@ -14,7 +14,7 @@ import ToolTip from 'shared/ToolTip/ToolTip';
 import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
@@ -81,7 +81,7 @@ const AddOrdersForm = ({
       ? Yup.number()
           .transform((value) => (Number.isNaN(value) ? 0 : value))
           .min(0, 'UB weight allowance must be 0 or more')
-          .max(2000, 'UB weight allowance cannot exceed 2000 lbs.')
+          .max(2000, 'UB weight allowance cannot exceed 2,000 lbs.')
       : Yup.number().notRequired(),
   });
 
@@ -128,7 +128,11 @@ const AddOrdersForm = ({
 
   useEffect(() => {
     if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
-      if (isOconusMove && ordersType === ORDERS_TYPE.TEMPORARY_DUTY && grade === 'CIVILIAN_EMPLOYEE') {
+      if (
+        isOconusMove &&
+        ordersType === ORDERS_TYPE.TEMPORARY_DUTY &&
+        grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE
+      ) {
         setIsCivilianTDYMove(true);
       } else {
         setIsCivilianTDYMove(false);
@@ -216,9 +220,6 @@ const AddOrdersForm = ({
         // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
         const showcivilianTDYUBAllowanceWarning =
           values.civilianTdyUbAllowance > 350 && values.civilianTdyUbAllowance <= 2000;
-
-        const civilianTDYUBAllowanceWeightWarning =
-          '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on your orders.';
 
         let civilianTDYUBAllowanceWarning = '';
         if (showcivilianTDYUBAllowanceWarning) {
