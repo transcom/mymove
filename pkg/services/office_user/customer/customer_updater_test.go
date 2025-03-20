@@ -44,9 +44,9 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 			Telephone: models.StringPointer("123-455-3399"),
 			ResidentialAddress: &models.Address{
 				StreetAddress1: "123 New Street",
-				City:           "Newcity",
+				City:           "BARRE",
 				State:          "MA",
-				PostalCode:     "12345",
+				PostalCode:     "01005",
 			},
 			BackupContacts: backupContacts,
 			CacValidated:   true,
