@@ -491,7 +491,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   <div>
                     <MaskedTextField
                       data-testid="civilianTDYUBAllowance"
-                      warning={<span style={{ color: '#6e7377' }}>{civilianTDYUBAllowanceWarning}</span>}
+                      warning={
+                        <span className={styles.civilianUBAllowanceWarning}>{civilianTDYUBAllowanceWarning}</span>
+                      }
                       defaultValue="0"
                       name="civilian_tdy_ub_allowance"
                       id="civilianTDYUBAllowance"
