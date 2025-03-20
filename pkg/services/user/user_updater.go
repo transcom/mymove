@@ -108,7 +108,7 @@ func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, use
 		}
 
 		// if the user email is being updated, we need to also update the Okta profile
-		if updatingEmail && foundUser.OktaEmail != "" {
+		if updatingEmail && foundUser.OktaEmail != "" && appCtx.Session().IDToken == "devlocal" {
 			req := appCtx.HTTPRequest()
 			if req == nil {
 				return fmt.Errorf("failed to retrieve HTTP request from session")
