@@ -72,7 +72,7 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		mergedAddress.CountryId = &country.ID
 	}
 
-	if strings.TrimSpace(mergedAddress.City) != "" && strings.TrimSpace(mergedAddress.PostalCode) != "" && strings.TrimSpace(mergedAddress.State) != "" && strings.TrimSpace(mergedAddress.City) != address.City && strings.TrimSpace(mergedAddress.PostalCode) != address.PostalCode && strings.TrimSpace(mergedAddress.State) != address.State {
+	if strings.TrimSpace(mergedAddress.City) != "" && strings.TrimSpace(mergedAddress.PostalCode) != "" {
 		usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), mergedAddress.PostalCode, strings.ToUpper(mergedAddress.City))
 		if err != nil {
 			return nil, err
