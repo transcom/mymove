@@ -14,7 +14,9 @@ import { formatDate, formatCents, formatWeight } from 'utils/formatters';
 import { MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries, usePPMShipmentDocsQueries } from 'hooks/queries';
-import { PPM_TYPES } from 'shared/constants';
+import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
+import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { getTotalPackageWeightSPR, hasProGearSPR, hasSpouseProGearSPR } from 'utils/ppmCloseout';
 
 export const sectionTypes = {
   incentives: 'incentives',
@@ -60,7 +62,7 @@ const OpenModalButton = ({ onClick, isDisabled, dataTestId, ariaLabel }) => (
 const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly, grade) => {
   const aoaRequestedValue = `$${formatCents(sectionInfo.advanceAmountRequested)}`;
   const aoaValue = `$${formatCents(sectionInfo.advanceAmountReceived)}`;
-  const isCivilian = grade === 'CIVILIAN_EMPLOYEE';
+  const isCivilian = grade === ORDERS_PAY_GRADE_OPTIONS.CIVILIAN_EMPLOYEE;
 
   const renderHaulType = (haulType) => {
     if (haulType === '') {
@@ -97,15 +99,15 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
       return (
         <div className={classnames(styles.Details)}>
           <div>
-            <Label>Actual Expense Reimbursement</Label>
-            <span data-testid="isActualExpenseReimbursement" className={styles.light}>
-              {isFetchingItems && updatedItemName === 'isActualExpenseReimbursement' ? (
+            <Label>Expense Type</Label>
+            <span data-testid="expenseType" className={styles.light}>
+              {isFetchingItems && updatedItemName === 'expenseType' ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
                 <>
-                  {sectionInfo.isActualExpenseReimbursement ? 'Yes' : 'No'}
+                  {getPPMTypeLabel(sectionInfo.ppmType)}
                   <OpenModalButton
-                    onClick={() => handleEditOnClick(sectionInfo.type, 'isActualExpenseReimbursement')}
+                    onClick={() => handleEditOnClick(sectionInfo.type, 'expenseType')}
                     isDisabled={isFetchingItems || readOnly || isCivilian}
                   />
                 </>
@@ -176,46 +178,65 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               )}
             </span>
           </div>
-          <div>
-            <Label>Miles</Label>
-            <span className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('miles') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                sectionInfo.miles
-              )}
-            </span>
-          </div>
-          <div>
-            <Label>Estimated Net Weight</Label>
-            <span className={styles.light}>{formatWeight(sectionInfo.estimatedWeight)}</span>
-          </div>
-          <div>
-            <Label>Actual Net Weight</Label>
-            <span>{formatWeight(sectionInfo.actualWeight)}</span>
-          </div>
-          <div>
-            <Label>Allowable Weight</Label>
-            {isFetchingItems && updatedItemName === 'allowableWeight' ? (
-              <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-            ) : (
-              <>
-                <b>{formatWeight(sectionInfo.allowableWeight)}</b>
-                <OpenModalButton
-                  onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
-                  isDisabled={isFetchingItems || readOnly}
-                  dataTestId="editAllowableWeightButton"
-                  ariaLabel="Edit allowable weight"
+          {sectionInfo.ppmType !== PPM_TYPES.SMALL_PACKAGE ? (
+            <>
+              <div>
+                <Label>Miles</Label>
+                <span className={styles.light}>
+                  {isFetchingItems && isRecalulatedItem('miles') ? (
+                    <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                  ) : (
+                    sectionInfo.miles
+                  )}
+                </span>
+              </div>
+              <div>
+                <Label>Estimated Net Weight</Label>
+                <span className={styles.light}>{formatWeight(sectionInfo.estimatedWeight)}</span>
+              </div>
+              <div>
+                <Label>Actual Net Weight</Label>
+                <span>{formatWeight(sectionInfo.actualWeight)}</span>
+              </div>
+              <div>
+                <Label>Allowable Weight</Label>
+                {isFetchingItems && updatedItemName === 'allowableWeight' ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  <>
+                    <b>{formatWeight(sectionInfo.allowableWeight)}</b>
+                    <OpenModalButton
+                      onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
+                      isDisabled={isFetchingItems || readOnly}
+                      dataTestId="editAllowableWeightButton"
+                      ariaLabel="Edit allowable weight"
+                    />
+                  </>
+                )}
+                <ToolTip
+                  icon="info-circle"
+                  style={{ display: 'inline-block', height: '15px', margin: '0' }}
+                  textAreaSize="large"
+                  text="The total PPM weight moved (all trips combined). The Counselor may edit this field to reflect the customer's remaining weight entitlement if the combined weight of all shipments exceeds the customer's weight entitlement."
                 />
-              </>
-            )}
-            <ToolTip
-              icon="info-circle"
-              style={{ display: 'inline-block', height: '15px', margin: '0' }}
-              textAreaSize="large"
-              text="The total PPM weight moved (all trips combined). The Counselor may edit this field to reflect the customer's remaining weight entitlement if the combined weight of all shipments exceeds the customer's weight entitlement."
-            />
-          </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <Label>Total Weight Shipped</Label>
+                <span>{formatWeight(getTotalPackageWeightSPR(sectionInfo.movingExpenses))}</span>
+              </div>
+              <div>
+                <Label>Pro-gear</Label>
+                <span>{hasProGearSPR(sectionInfo.movingExpenses)}</span>
+              </div>
+              <div>
+                <Label>Spouse Pro-gear</Label>
+                <span>{hasSpouseProGearSPR(sectionInfo.movingExpenses)}</span>
+              </div>
+            </>
+          )}
         </div>
       );
 
@@ -494,9 +515,10 @@ export default function HeaderSection({
           actualDestinationPostalCode: values.destinationAddress?.postalCode,
         };
         break;
-      case 'isActualExpenseReimbursement':
+      case 'expenseType':
         body = {
-          isActualExpenseReimbursement: values.isActualExpenseReimbursement === 'true',
+          ppmType: values.ppmType,
+          isActualExpenseReimbursement: values.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
         };
         break;
 
@@ -541,6 +563,7 @@ export default function HeaderSection({
           sectionInfo={sectionInfo}
           editItemName={itemName}
           sectionType={sectionType}
+          grade={grade}
         />
       )}
     </section>

@@ -335,17 +335,19 @@ export default function ReviewExpense({
                     <option key={x.key}>{x.value}</option>
                   ))}
                 </select>
-                <TextField
-                  defaultValue={description}
-                  name="description"
-                  label="Description"
-                  id="description"
-                  className={styles.displayValue}
-                  disabled={readOnly}
-                  onBlur={(e) => {
-                    setDescriptionString(e.target.value);
-                  }}
-                />
+                {movingExpenseType !== expenseTypes.SMALL_PACKAGE && (
+                  <TextField
+                    defaultValue={description}
+                    name="description"
+                    label="Description"
+                    id="description"
+                    className={styles.displayValue}
+                    disabled={readOnly}
+                    onBlur={(e) => {
+                      setDescriptionString(e.target.value);
+                    }}
+                  />
+                )}
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
                     <div className="labelWrapper">

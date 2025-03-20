@@ -10,6 +10,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMCloseoutQuery } from 'hooks/queries';
 import { formatCustomerContactFullAddress } from 'utils/formatters';
+import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
 
 const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemName, readOnly }) => {
   const { ppmCloseout, isLoading, isError } = usePPMCloseoutQuery(ppmShipmentInfo.id);
@@ -84,12 +85,16 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, sh
     actualWeight: ppmShipmentInfo.actualWeight,
     isActualExpenseReimbursement: ppmShipmentInfo.isActualExpenseReimbursement,
     allowableWeight: ppmShipmentInfo.allowableWeight,
+    movingExpenses: ppmShipmentInfo.movingExpenses,
   };
 
   return (
     <header className={classnames(styles.PPMHeaderSummary)}>
       <div className={styles.header}>
         <h3>PPM {ppmNumber}</h3>
+        {shipmentInfo?.ppmType === PPM_TYPES.SMALL_PACKAGE && (
+          <Tag data-testid="smallPackageTag">{getPPMTypeLabel(shipmentInfo.ppmType)}</Tag>
+        )}
         {shipmentInfo.isActualExpenseReimbursement && (
           <Tag className={styles.tagInfo}>actual expense reimbursement</Tag>
         )}
@@ -127,5 +132,3 @@ PPMHeaderSummary.propTypes = {
 };
 
 PPMHeaderSummary.defaultProps = {};
-
-// TODO: Add shape/propType/defaults for incentives and GCC components here.

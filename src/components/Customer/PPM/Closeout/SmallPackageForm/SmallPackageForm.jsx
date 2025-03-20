@@ -5,6 +5,7 @@ import { Field, useFormikContext } from 'formik';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import TextField from 'components/form/fields/TextField/TextField';
 import Hint from 'components/Hint';
+import formStyles from 'styles/form.module.scss';
 
 const SmallPackageForm = () => {
   const { values } = useFormikContext();
@@ -25,21 +26,24 @@ const SmallPackageForm = () => {
         label="Package shipment cost"
         id="amount"
         mask={Number}
-        scale={2} // digits after point, 0 for integers
-        signed={false} // disallow negative
-        radix="." // fractional delimiter
-        mapToRadix={['.']} // symbols to process as radix
-        padFractionalZeros // if true, then pads zeros at end to the length of scale
+        scale={2}
+        signed={false}
+        radix="."
+        mapToRadix={['.']}
+        padFractionalZeros
         thousandsSeparator=","
-        lazy={false} // immediate masking evaluation
+        lazy={false}
         prefix="$"
+        showRequiredAsterisk
       />
       <Hint>
         Note: Any carrier insurance purchased is not a reimbursable expense. Do not add carrier insurance to the total
         above.
       </Hint>
       <TextField label="Tracking number" name="trackingNumber" id="trackingNumber" />
-      <legend className="usa-label">Was this pro-gear?</legend>
+      <legend className="usa-label">
+        Was this pro-gear?<span className={formStyles.requiredAsterisk}>*</span>
+      </legend>
       <div>
         <Field
           as={Radio}
@@ -105,6 +109,7 @@ const SmallPackageForm = () => {
           thousandsSeparator=","
           lazy={false}
           suffix="lbs"
+          showRequiredAsterisk
         />
       )}
     </>

@@ -23,7 +23,6 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uu
 
 	if err != nil {
 		return nil, nil, err
-
 	}
 
 	if payload.FirstName != nil {

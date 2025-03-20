@@ -10,7 +10,12 @@ import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import { MoveShape } from 'types/customerShapes';
 import { formatCents, formatWeight } from 'utils/formatters';
-import { calculateTotalMovingExpensesAmount } from 'utils/ppmCloseout';
+import {
+  calculateTotalMovingExpensesAmount,
+  getNonProGearWeightSPR,
+  getProGearWeightSPR,
+  getTotalPackageWeightSPR,
+} from 'utils/ppmCloseout';
 import {
   calculateTotalNetWeightForProGearWeightTickets,
   getTotalNetWeightForWeightTickets,
@@ -18,6 +23,7 @@ import {
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 import affiliations from 'content/serviceMemberAgencies';
+import { PPM_TYPES } from 'shared/constants';
 
 const validationSchema = Yup.object().shape({
   signature: Yup.string().required('Required'),
@@ -36,6 +42,12 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
     affiliation === affiliations.SPACE_FORCE;
 
   const totalExpensesClaimed = calculateTotalMovingExpensesAmount(mtoShipment?.ppmShipment?.movingExpenses);
+  const ppmShipment = mtoShipment?.ppmShipment || {};
+  const { ppmType } = ppmShipment;
+
+  const totalNonProGearWeightSPR = getNonProGearWeightSPR(mtoShipment?.ppmShipment?.movingExpenses);
+  const totalProGearWeightSPR = getProGearWeightSPR(mtoShipment?.ppmShipment?.movingExpenses);
+  const totalWeightSPR = getTotalPackageWeightSPR(mtoShipment?.ppmShipment?.movingExpenses);
 
   return (
     <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
@@ -70,9 +82,20 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
           <div className={styles.shipmentTotals}>
             <h3>This PPM includes:</h3>
             <ul>
-              <li>{formatWeight(totalNetWeight)} total net weight</li>
-              <li>{formatWeight(totalProGearWeight)} of pro-gear</li>
-              <li>${formatCents(totalExpensesClaimed)} in expenses claimed</li>
+              {ppmType === PPM_TYPES.SMALL_PACKAGE ? (
+                <>
+                  <li>${formatCents(totalExpensesClaimed)} in expenses claimed</li>
+                  <li>{formatWeight(totalNonProGearWeightSPR)} total expense weight</li>
+                  <li>{formatWeight(totalProGearWeightSPR)} total pro-gear weight</li>
+                  <li>{formatWeight(totalWeightSPR)} in total weight</li>
+                </>
+              ) : (
+                <>
+                  <li>{formatWeight(totalNetWeight)} total net weight</li>
+                  <li>{formatWeight(totalProGearWeight)} of pro-gear</li>
+                  <li>${formatCents(totalExpensesClaimed)} in expenses claimed</li>
+                </>
+              )}
             </ul>
           </div>
 

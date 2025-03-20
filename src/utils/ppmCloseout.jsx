@@ -2,6 +2,8 @@ import React from 'react';
 import { generatePath, Link } from 'react-router-dom';
 import moment from 'moment';
 
+import { formatAddress } from './shipmentDisplay';
+
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
 import { isExpenseComplete, isWeightTicketComplete, isProGearComplete } from 'utils/shipments';
@@ -33,8 +35,8 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
           label: 'Departure date:',
           value: formatCustomerDate(ppmShipment.actualMoveDate),
         },
-        { id: 'startingZIP', label: 'Starting ZIP:', value: ppmShipment.actualPickupPostalCode },
-        { id: 'endingZIP', label: 'Ending ZIP:', value: ppmShipment.actualDestinationPostalCode },
+        { id: 'startingZIP', label: 'Starting Address:', value: formatAddress(ppmShipment.pickupAddress) },
+        { id: 'endingZIP', label: 'Ending Address:', value: formatAddress(ppmShipment.destinationAddress) },
         {
           id: 'advance',
           label: 'Advance:',
@@ -168,6 +170,12 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
     }
 
     if (isSmallPackageExpense) {
+      const weight = formatWeight(expense.weightShipped);
+      contents.rows.push({
+        id: 'shippedWeight',
+        label: 'Weight:',
+        value: weight,
+      });
       contents.rows.push({
         id: 'isProGear',
         label: 'Pro-gear:',
@@ -201,4 +209,30 @@ export const calculateTotalMovingExpensesAmount = (movingExpenses = []) => {
       ? prev + curr.amount
       : prev;
   }, 0);
+};
+
+export const getNonProGearWeightSPR = (expenses) => {
+  return expenses
+    .filter((expense) => expense.isProGear !== true)
+    .reduce((total, expense) => total + (expense.weightShipped || 0), 0);
+};
+
+export const getProGearWeightSPR = (expenses) => {
+  return expenses
+    .filter((expense) => expense.isProGear === true)
+    .reduce((total, expense) => total + (expense.weightShipped || 0), 0);
+};
+
+export const getTotalPackageWeightSPR = (expenses) => {
+  return expenses.reduce((total, expense) => total + (expense.weightShipped || 0), 0);
+};
+
+export const hasProGearSPR = (expenses) => {
+  return expenses.some((expense) => expense.isProGear === true) ? 'Yes' : 'No';
+};
+
+export const hasSpouseProGearSPR = (expenses) => {
+  return expenses.some((expense) => expense.isProGear === true && expense.proGearBelongsToSelf === false)
+    ? 'Yes'
+    : 'No';
 };

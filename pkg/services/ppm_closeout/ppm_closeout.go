@@ -253,6 +253,11 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 
 func (p *ppmCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (unit.Pound, error) {
 	var totalWeight unit.Pound
+	// small package PPMs do not have an actual weight because they are expense-based only
+	if ppmShipment.PPMType == models.PPMTypeSmallPackage {
+		return unit.Pound(0), nil
+	}
+
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
 			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil && (weightTicket.Status == nil || *weightTicket.Status != models.PPMDocumentStatusRejected) {
