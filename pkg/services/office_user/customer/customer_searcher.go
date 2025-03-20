@@ -69,7 +69,7 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 	FROM service_members AS service_members
 		JOIN users ON users.id = service_members.user_id
 		LEFT JOIN orders ON orders.service_member_id = service_members.id
-		WHERE (orders.orders_type != 'SAFETY' OR LEFT(service_members.edipi, 2) != 'SM' AND`
+		WHERE ((orders.orders_type != 'SAFETY' OR LEFT(service_members.edipi, 2) != 'SM') AND`
 
 	if params.Edipi != nil {
 		rawquery += ` service_members.edipi = $1) ) distinct_customers`
