@@ -30,7 +30,7 @@ func BuildAdminUser(db *pop.Connection, customs []Customization, traits []Trait)
 	}
 
 	// Create the associated user model
-	user := BuildUser(db, customs, nil)
+	user := BuildUserAndUsersRoles(db, customs, nil)
 
 	// create adminuser
 	adminUser := models.AdminUser{

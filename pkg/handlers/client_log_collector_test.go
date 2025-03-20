@@ -38,7 +38,7 @@ func (suite *ClientLogCollectorSuite) TestClientLogHandler() {
 			zapcore.DebugLevel,
 		)
 	}))
-	appCtx := appcontext.NewAppContext(suite.DB(), logger, nil)
+	appCtx := appcontext.NewAppContext(suite.DB(), logger, nil, nil)
 	handler := NewClientLogHandler(appCtx)
 
 	logUpload := ClientLogUpload{
