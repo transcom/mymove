@@ -68,6 +68,16 @@ type CreatedOktaUser struct {
 	} `json:"profile"`
 }
 
+type OktaError struct {
+	ErrorCode    string `json:"errorCode"`
+	ErrorSummary string `json:"errorSummary"`
+	ErrorLink    string `json:"errorLink"`
+	ErrorId      string `json:"errorId"`
+	ErrorCauses  []struct {
+		ErrorSummary string `json:"errorSummary"`
+	} `json:"errorCauses"`
+}
+
 // ensures a valid email address
 func isValidEmail(email string) bool {
 	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
