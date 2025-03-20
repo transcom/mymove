@@ -640,6 +640,18 @@ const ServicesCounselingMoveDetails = ({
     setIsCancelMoveModalVisible(false);
   };
 
+  const counselorCanEditOrdersAndAllowances = () => {
+    if (counselorCanEdit || counselorCanEditNonPPM) return true;
+    if (
+      move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
+      move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
+      (move.status === MOVE_STATUSES.APPROVALS_REQUESTED && !move.availableToPrimeAt) // status is set to 'Approval Requested' if customer uploads amended orders.
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   const allShipmentsDeleted = mtoShipments.every((shipment) => !!shipment.deletedAt);
   const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
@@ -689,7 +701,9 @@ const ServicesCounselingMoveDetails = ({
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="orders"
-            showTag={Boolean(!hasMissingOrdersRequiredInfo && hasAmendedOrders)}
+            showTag={Boolean(
+              !hasMissingOrdersRequiredInfo && hasAmendedOrders && counselorCanEditOrdersAndAllowances(),
+            )}
             testID="newOrdersNavTag"
           >
             NEW
