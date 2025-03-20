@@ -124,11 +124,13 @@ export const PPM_TYPES = {
   SMALL_PACKAGE: 'SMALL_PACKAGE',
 };
 
-export const ppmTypeLabels = [
-  { key: PPM_TYPES.INCENTIVE_BASED, label: 'Incentive-based' },
-  { key: PPM_TYPES.ACTUAL_EXPENSE, label: 'Actual Expense' },
-  { key: PPM_TYPES.SMALL_PACKAGE, label: 'Small Package' },
-];
+const PPM_TYPE_LABELS_MAP = {
+  [PPM_TYPES.INCENTIVE_BASED]: 'Incentive-based',
+  [PPM_TYPES.ACTUAL_EXPENSE]: 'Actual Expense Reimbursement',
+  [PPM_TYPES.SMALL_PACKAGE]: 'Small Package Reimbursement',
+};
+
+export const getPPMTypeLabel = (type) => PPM_TYPE_LABELS_MAP[type];
 
 // These constants are used for forming URLs that have the shipment type in
 // them so that they are human readable.
