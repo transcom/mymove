@@ -69,7 +69,7 @@ import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
-import { datePickerFormat, formatDate } from 'shared/dates';
+import { datePickerFormat, formatDate, formatDateWithUTC } from 'shared/dates';
 import { isPreceedingAddressComplete } from 'shared/utils';
 
 const ShipmentForm = (props) => {
@@ -125,6 +125,7 @@ const ShipmentForm = (props) => {
   const [isRequestedDeliveryDateAlertVisible, setIsRequestedDeliveryDateAlertVisible] = useState(false);
   const [requestedPickupDateAlertMessage, setRequestedPickupDateAlertMessage] = useState('');
   const [requestedDeliveryDateAlertMessage, setRequestedDeliveryDateAlertMessage] = useState('');
+  const [requestedPickupDateErrorMessage, setRequestedPickupDateErrorMessage] = useState('');
   const DEFAULT_COUNTRY_CODE = 'US';
 
   const queryClient = useQueryClient();
@@ -706,6 +707,7 @@ const ShipmentForm = (props) => {
         };
 
         const handlePickupDateChange = (e) => {
+          setRequestedPickupDateErrorMessage('');
           setValues({
             ...values,
             pickup: {
@@ -726,6 +728,13 @@ const ShipmentForm = (props) => {
             setIsRequestedPickupDateAlertVisible,
             onErrorHandler,
           );
+          // requestedPickupDate must be in the future for non-PPM shipments
+          if (
+            !isPPM &&
+            new Date(formatDateWithUTC(e) || null).setHours(0, 0, 0, 0) <= new Date().setHours(0, 0, 0, 0)
+          ) {
+            setRequestedPickupDateErrorMessage('Requested pickup date must be in the future.');
+          }
         };
 
         const handleDeliveryDateChange = (e) => {
@@ -904,6 +913,11 @@ const ShipmentForm = (props) => {
                       {isRequestedPickupDateAlertVisible && (
                         <Alert type="warning" aria-live="polite" headingLevel="h4">
                           {requestedPickupDateAlertMessage}
+                        </Alert>
+                      )}
+                      {requestedPickupDateErrorMessage && (
+                        <Alert type="error" aria-live="assertive" headingLevel="h4">
+                          {requestedPickupDateErrorMessage}
                         </Alert>
                       )}
                       <DatePickerInput
@@ -1729,7 +1743,7 @@ const ShipmentForm = (props) => {
                   {!isPPM && (
                     <Button
                       data-testid="submitForm"
-                      disabled={isSubmitting || !isValid}
+                      disabled={isSubmitting || !isValid || requestedPickupDateErrorMessage}
                       type="submit"
                       onClick={handleSubmit}
                     >
