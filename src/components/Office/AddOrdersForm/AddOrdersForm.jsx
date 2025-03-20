@@ -81,7 +81,7 @@ const AddOrdersForm = ({
       ? Yup.number()
           .transform((value) => (Number.isNaN(value) ? 0 : value))
           .min(0, 'UB weight allowance must be 0 or more')
-          .max(2000, 'UB weight allowance cannot exceed 2000 lbs.')
+          .max(2000, 'UB weight allowance cannot exceed 2,000 lbs.')
       : Yup.number().notRequired(),
   });
 
