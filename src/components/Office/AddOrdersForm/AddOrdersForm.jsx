@@ -18,14 +18,15 @@ import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { showCounselingOffices } from 'services/ghcApi';
 import Hint from 'components/Hint';
 
 let originMeta;
 let newDutyMeta = '';
+const requiredHint = '*';
 const AddOrdersForm = ({
   onSubmit,
   ordersTypeOptions,
@@ -183,12 +184,15 @@ const AddOrdersForm = ({
           }
           setPrevOrderType(value);
         };
+
+        const requiredFieldsMessage = <div>Fields marked with * are required.</div>;
         return (
           <Form className={`${formStyles.form}`}>
             <ConnectedFlashMessage />
             <h1>Tell us about the orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
+              {requiredFieldsMessage}
               <DropdownInput
                 label="Orders type"
                 name="ordersType"
@@ -199,10 +203,10 @@ const AddOrdersForm = ({
                   handleOrderTypeChange(e);
                 }}
                 isDisabled={isSafetyMoveSelected || isBluebarkMoveSelected}
-                hint="Required"
+                hint={requiredHint}
               />
-              <DatePickerInput name="issueDate" label="Orders date" required hint="Required" />
-              <DatePickerInput name="reportByDate" label="Report by date" required hint="Required" />
+              <DatePickerInput name="issueDate" label="Orders date" required hint={requiredHint} />
+              <DatePickerInput name="reportByDate" label="Report by date" required hint={requiredHint} />
 
               <DutyLocationInput
                 label="Current duty location"
@@ -214,7 +218,7 @@ const AddOrdersForm = ({
                 }}
                 metaOverride={originMeta}
                 required
-                hint="Required"
+                hint={requiredHint}
               />
               {currentDutyLocation.provides_services_counseling && (
                 <div>
@@ -223,7 +227,7 @@ const AddOrdersForm = ({
                     name="counselingOfficeId"
                     id="counselingOfficeId"
                     data-testid="counselingOfficeSelect"
-                    hint="Required"
+                    hint={requiredHint}
                     required
                     options={counselingOfficeOptions}
                   />
@@ -264,7 +268,7 @@ const AddOrdersForm = ({
                     displayAddress={false}
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
-                    hint="Required"
+                    hint={requiredHint}
                     onDutyLocationChange={(e) => {
                       setNewDutyLocation(e);
                     }}
@@ -275,7 +279,7 @@ const AddOrdersForm = ({
                   name="newDutyLocation"
                   label="New duty location"
                   required
-                  hint="Required"
+                  hint={requiredHint}
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
                     setNewDutyLocation(e);
@@ -284,7 +288,7 @@ const AddOrdersForm = ({
               )}
 
               <FormGroup>
-                <Label hint="Required">Are dependents included in the orders?</Label>
+                <Label hint={requiredHint}>Are dependents included in the orders?</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -319,7 +323,7 @@ const AddOrdersForm = ({
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <Label hint={requiredHint}>Is this an accompanied tour?</Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -399,7 +403,7 @@ const AddOrdersForm = ({
                 id="grade"
                 required
                 options={payGradeOptions}
-                hint="Required"
+                hint={requiredHint}
               />
             </SectionWrapper>
 
