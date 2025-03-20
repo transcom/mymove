@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 
 import { MockProviders } from 'testUtils';
-import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm';
+import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 
 const defaultProps = {
   onBack: jest.fn(),
