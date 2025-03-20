@@ -37,7 +37,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
   useEffect(() => {
     const fetchFlag = async () => {
       setIsBulkReAssignmentEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BULK_RE_ASSIGNMENT));
-      setIsBulkReAssignmentEnabled(true);
     };
     fetchFlag();
   }, []);
