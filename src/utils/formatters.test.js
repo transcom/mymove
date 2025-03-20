@@ -5,7 +5,7 @@ import { formatQAReportID } from './formatters';
 
 import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
 import { MOVE_STATUSES } from 'shared/constants';
-import { ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 
 describe('formatters', () => {
   describe('format date for customer app', () => {
@@ -555,7 +555,7 @@ describe('constructSCOrderOconusFields', () => {
       newDutyLocation: { address: { isOconus: true } },
       hasDependents: true,
       ordersType: ORDERS_TYPE.TEMPORARY_DUTY,
-      grade: 'CIVILIAN_EMPLOYEE',
+      grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
       accompaniedTour: 'yes',
       dependentsUnderTwelve: '5',
       dependentsTwelveAndOver: '1',

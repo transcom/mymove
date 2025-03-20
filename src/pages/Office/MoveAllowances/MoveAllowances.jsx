@@ -16,7 +16,7 @@ import { updateAllowance } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS } from 'constants/queryKeys';
 import { permissionTypes } from 'constants/permissions';
@@ -195,7 +195,7 @@ const MoveAllowances = () => {
 
   const civilianTDYUBMove =
     order.order_type === ORDERS_TYPE.TEMPORARY_DUTY &&
-    order.grade === 'CIVILIAN_EMPLOYEE' &&
+    order.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE &&
     (order.originDutyLocation?.address?.isOconus || order.destinationDutyLocation?.address?.isOconus);
 
   return (

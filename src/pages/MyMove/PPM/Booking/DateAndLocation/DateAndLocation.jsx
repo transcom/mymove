@@ -21,6 +21,7 @@ import { ShipmentShape } from 'types/shipment';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { validatePostalCode } from 'utils/validation';
 import { formatAddressForAPI } from 'utils/formatMtoShipment';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -39,7 +40,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.SPACE_FORCE;
   const isNewShipment = !mtoShipment?.id;
-  const isCivilian = move.orders?.grade === 'CIVILIAN_EMPLOYEE';
+  const isCivilian = move.orders?.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE;
 
   useEffect(() => {
     isBooleanFlagEnabled('multi_move').then((enabled) => {

@@ -71,6 +71,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { datePickerFormat, formatDate } from 'shared/dates';
 import { isPreceedingAddressComplete } from 'shared/utils';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 const ShipmentForm = (props) => {
   const {
@@ -298,7 +299,7 @@ const ShipmentForm = (props) => {
             closeoutOffice: move.closeoutOffice,
           },
     );
-    if (isCreatePage && serviceMember?.grade === 'CIVILIAN_EMPLOYEE')
+    if (isCreatePage && serviceMember?.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE)
       initialValues.isActualExpenseReimbursement = 'true';
   } else if (isMobileHome) {
     const hhgInitialValues = formatMtoShipmentForDisplay(
@@ -1413,7 +1414,7 @@ const ShipmentForm = (props) => {
                             value="true"
                             title="Yes"
                             checked={isActualExpenseReimbursement === 'true'}
-                            disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
+                            disabled={serviceMember?.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE}
                             className={styles.buttonGroup}
                             data-testid="isActualExpenseReimbursementYes"
                           />
@@ -1425,7 +1426,7 @@ const ShipmentForm = (props) => {
                             value="false"
                             title="No"
                             checked={isActualExpenseReimbursement !== 'true'}
-                            disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
+                            disabled={serviceMember?.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE}
                             className={styles.buttonGroup}
                             data-testid="isActualExpenseReimbursementNo"
                           />
