@@ -124,7 +124,7 @@ func processTPPS(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 
 	tppsInvoiceProcessor := invoice.NewTPPSPaidInvoiceReportProcessor()
 	// Process TPPS paid invoice report
@@ -257,9 +257,17 @@ func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (str
 		return "", fmt.Errorf("tmp directory (%s) is not mutable, cannot write /tmp file for TPPS processing", tempDir)
 	}
 
-	localFilePath := filepath.Join(tempDir, filepath.Base(key))
+	localFilePath := filepath.Join(tempDir, filepath.Base(filepath.Clean(key)))
+	absoluteLocalFilePath, err := filepath.Abs(localFilePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve absolute path: %w", err)
+	}
 
-	file, err := os.Create(localFilePath)
+	if !strings.HasPrefix(absoluteLocalFilePath, tempDir) {
+		return "", fmt.Errorf("path traversal detected, rejecting file: %s", absoluteLocalFilePath)
+	}
+
+	file, err := os.Create(absoluteLocalFilePath)
 	if err != nil {
 		logger.Error("Failed to create tmp file", zap.Error(err))
 		return "", err
@@ -272,17 +280,15 @@ func downloadS3File(logger *zap.Logger, s3Client S3API, bucket, key string) (str
 		return "", err
 	}
 
-	_, err = os.ReadFile(localFilePath)
-	if err != nil {
-		logger.Error("Failed to read tmp file contents", zap.Error(err))
+	if _, err := os.Stat(absoluteLocalFilePath); err != nil {
+		logger.Error("File does not exist or is inaccessible", zap.Error(err))
 		return "", err
 	}
 
-	logger.Info(fmt.Sprintf("Successfully wrote S3 file contents to local file: %s", localFilePath))
+	logger.Info(fmt.Sprintf("Successfully wrote S3 file contents to local file: %s", absoluteLocalFilePath))
+	logFileContents(logger, absoluteLocalFilePath)
 
-	logFileContents(logger, localFilePath)
-
-	return localFilePath, nil
+	return absoluteLocalFilePath, nil
 }
 
 // convert to UTF-8 encoding
