@@ -11,7 +11,7 @@ import { selectProGearEntitlements } from 'store/entities/selectors';
 import Fieldset from 'shared/Fieldset';
 import { ProGearTicketShape } from 'types/shipment';
 import { CheckboxField } from 'components/form/fields/CheckboxField';
-import WeightTicketUpload from 'components/Customer/PPM/Closeout/WeightTicketUpload/WeightTicketUpload';
+import WeightTicketUpload from 'components/Shared/PPM/Closeout/WeightTicketUpload/WeightTicketUpload';
 import Hint from 'components/Hint';
 import TextField from 'components/form/fields/TextField/TextField';
 import styles from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm.module.scss';
