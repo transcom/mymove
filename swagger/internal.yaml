@@ -2040,6 +2040,8 @@ definitions:
       A personally procured move is a type of shipment that a service members
       moves themselves.
     properties:
+      ppmType:
+        $ref: '#/definitions/PPMType'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.
@@ -2083,6 +2085,8 @@ definitions:
   UpdatePPMShipment:
     type: object
     properties:
+      ppmType:
+        $ref: '#/definitions/PPMType'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.
@@ -3046,7 +3050,6 @@ definitions:
     type: string
     title: PPM Type
     description: Defines a PPM type
-    readOnly: true
     enum:
       - INCENTIVE_BASED
       - ACTUAL_EXPENSE
