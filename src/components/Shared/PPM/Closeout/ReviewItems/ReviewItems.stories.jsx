@@ -3,12 +3,12 @@ import { Grid, GridContainer, Link } from '@trussworks/react-uswds';
 import { action } from '@storybook/addon-actions';
 import { v4 as uuidv4 } from 'uuid';
 
-import ReviewItems from 'components/Office/PPM/Closeout/ReviewItems/ReviewItems';
+import ReviewItems from 'components/Shared/PPM/Closeout/ReviewItems/ReviewItems';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { formatCents, formatWeight } from 'utils/formatters';
 
 export default {
-  title: 'Office Components / PPM Closeout / Review Items',
+  title: 'Shared Components / PPM Closeout / Review Items',
   component: ReviewItems,
   decorators: [
     (Story) => (

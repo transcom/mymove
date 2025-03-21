@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Link } from '@trussworks/react-uswds';
 
-import ReviewItems from 'components/Office/PPM/Closeout/ReviewItems/ReviewItems';
+import ReviewItems from 'components/Shared/PPM/Closeout/ReviewItems/ReviewItems';
 
 describe('ReviewItems component', () => {
   it('displays a single review item with required fields', () => {

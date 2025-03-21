@@ -3,7 +3,8 @@ import classnames from 'classnames';
 import { FormGroup, Label, Link, Alert } from '@trussworks/react-uswds';
 import { string, bool, func, shape } from 'prop-types';
 
-import styles from 'components/Customer/PPM/Closeout/WeightTicketUpload/WeightTicketUpload.module.scss';
+import styles from './WeightTicketUpload.module.scss';
+
 import Hint from 'components/Hint';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';

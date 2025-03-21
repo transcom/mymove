@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { userEvent, within } from '@storybook/testing-library';
 
-import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
+import AboutForm from 'components/Shared/PPM/Closeout/AboutForm/AboutForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 import { configureStore } from 'shared/store';
@@ -11,7 +11,7 @@ import { configureStore } from 'shared/store';
 const mockStore = configureStore({});
 
 export default {
-  title: 'Customer Components / PPM Closeout / About PPM Form',
+  title: 'Shared Components / PPM Closeout / About PPM Form',
   component: AboutForm,
   decorators: [
     (Story) => (
