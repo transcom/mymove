@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	edi "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -345,5 +346,114 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 		ValidHhgProgramCodeForLoaReturnValue := false
 		// When LoaHsGdsCd is nil, so the ValidHhgProgramCodeForLoa should be false
 		suite.Equal(loasWithValidityCheck[0].ValidHhgProgramCodeForLoa, &ValidHhgProgramCodeForLoaReturnValue)
+	})
+
+	// TestValidateDFASFields explicitly tests the DFAS field mapping enforcement.
+	suite.Run("Validate DFAS fields", func() {
+		appCtx := suite.AppContextForTest()
+		_, startDate, endDate, _ := setupTest()
+
+		suite.Run("No missing required dfas fields", func() {
+			loaFY := 12
+			validLoa := factory.BuildLineOfAccounting(appCtx.DB(), []factory.Customization{
+				{
+					Model: models.LineOfAccounting{
+						LoaBgnDt:               &startDate,
+						LoaEndDt:               &endDate,
+						LoaSysID:               models.StringPointer("valid"),
+						LoaHsGdsCd:             models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
+						LoaDptID:               models.StringPointer("1"),
+						LoaTnsfrDptNm:          models.StringPointer("1"),
+						LoaBafID:               models.StringPointer("1"),
+						LoaTrsySfxTx:           models.StringPointer("1"),
+						LoaMajClmNm:            models.StringPointer("1"),
+						LoaOpAgncyID:           models.StringPointer("1"),
+						LoaAlltSnID:            models.StringPointer("1"),
+						LoaUic:                 models.StringPointer("1"),
+						LoaPgmElmntID:          models.StringPointer("1"),
+						LoaTskBdgtSblnTx:       models.StringPointer("1"),
+						LoaDfAgncyAlctnRcpntID: models.StringPointer("1"),
+						LoaJbOrdNm:             models.StringPointer("1"),
+						LoaSbaltmtRcpntID:      models.StringPointer("1"),
+						LoaWkCntrRcpntNm:       models.StringPointer("1"),
+						LoaMajRmbsmtSrcID:      models.StringPointer("1"),
+						LoaDtlRmbsmtSrcID:      models.StringPointer("1"),
+						LoaCustNm:              models.StringPointer("1"),
+						LoaObjClsID:            models.StringPointer("1"),
+						LoaSrvSrcID:            models.StringPointer("1"),
+						LoaSpclIntrID:          models.StringPointer("1"),
+						LoaBdgtAcntClsNm:       models.StringPointer("1"),
+						LoaDocID:               models.StringPointer("1"),
+						LoaClsRefID:            models.StringPointer("1"),
+						LoaInstlAcntgActID:     models.StringPointer("1"),
+						LoaLclInstlID:          models.StringPointer("1"),
+						LoaTrnsnID:             models.StringPointer("1"),
+						LoaFmsTrnsactnID:       models.StringPointer("1"),
+						LoaBgFyTx:              &loaFY,
+						LoaEndFyTx:             &loaFY,
+					},
+				},
+			}, nil)
+			missing := validateDFASFields(validLoa)
+			suite.Empty(missing)
+		})
+
+		suite.Run("Missing all required DFAS fields", func() {
+			// Create an invalid LOA by leaving out EVERYTHING
+			// We'll just validate against the missing fields at the end to make sure our required
+			// stuff is present
+			invalidLoa := factory.BuildLineOfAccounting(appCtx.DB(), []factory.Customization{
+				{
+					Model: models.LineOfAccounting{
+						LoaBgnDt:               nil,
+						LoaEndDt:               nil,
+						LoaSysID:               nil,
+						LoaHsGdsCd:             nil,
+						LoaDptID:               nil,
+						LoaTnsfrDptNm:          nil,
+						LoaBafID:               nil,
+						LoaTrsySfxTx:           nil,
+						LoaMajClmNm:            nil,
+						LoaOpAgncyID:           nil,
+						LoaAlltSnID:            nil,
+						LoaUic:                 nil,
+						LoaPgmElmntID:          nil,
+						LoaTskBdgtSblnTx:       nil,
+						LoaDfAgncyAlctnRcpntID: nil,
+						LoaJbOrdNm:             nil,
+						LoaSbaltmtRcpntID:      nil,
+						LoaWkCntrRcpntNm:       nil,
+						LoaMajRmbsmtSrcID:      nil,
+						LoaDtlRmbsmtSrcID:      nil,
+						LoaCustNm:              nil,
+						LoaObjClsID:            nil,
+						LoaSrvSrcID:            nil,
+						LoaSpclIntrID:          nil,
+						LoaBdgtAcntClsNm:       nil,
+						LoaDocID:               nil,
+						LoaClsRefID:            nil,
+						LoaInstlAcntgActID:     nil,
+						LoaLclInstlID:          nil,
+						LoaTrnsnID:             nil,
+						LoaFmsTrnsactnID:       nil,
+					},
+				},
+			}, nil)
+
+			requiredDfasFields := []string{
+				edi.FA2DetailCodeA1.String(),
+				edi.FA2DetailCodeA4.String(),
+				edi.FA2DetailCodeA5.String(),
+				edi.FA2DetailCodeF1.String(),
+				edi.FA2DetailCodeJ1.String(),
+				edi.FA2DetailCodeA3.String(),
+				edi.FA2DetailCodeB3.String(),
+			}
+			missing := validateDFASFields(invalidLoa)
+			suite.Len(missing, len(requiredDfasFields)) // Make sure that's all of them
+			for _, dfasField := range requiredDfasFields {
+				suite.Contains(missing, dfasField)
+			}
+		})
 	})
 }

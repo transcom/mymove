@@ -140,8 +140,8 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			if !tc.shouldTheBodyBeCompletelyNil {
 				body = &ghcmessages.FetchLineOfAccountingPayload{
 					DepartmentIndicator: departmentIndicator,
-					EffectiveDate:       effectiveDate,
-					TacCode:             tacCode,
+					EffectiveDate:       &effectiveDate,
+					TacCode:             &tacCode,
 				}
 			}
 
@@ -165,12 +165,13 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 		}
 		req := httptest.NewRequest("POST", "/lines-of-accounting", nil)
 		departmentIndicator := ghcmessages.DepartmentIndicator(models.DepartmentIndicatorARMY)
+		now := strfmt.Date(time.Now())
 		params := linesofaccountingop.RequestLineOfAccountingParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.FetchLineOfAccountingPayload{
 				DepartmentIndicator: &departmentIndicator,
-				EffectiveDate:       strfmt.Date(time.Now()),
-				TacCode:             "MOCK",
+				EffectiveDate:       &now,
+				TacCode:             models.StringPointer("MOCK"),
 			},
 		}
 
@@ -187,13 +188,14 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			LineOfAccountingFetcher: mockLoaFetcher,
 		}
 		req := httptest.NewRequest("POST", "/lines-of-accounting", nil)
+		now := strfmt.Date(time.Now())
 		departmentIndicator := ghcmessages.DepartmentIndicator(models.DepartmentIndicatorARMY)
 		params := linesofaccountingop.RequestLineOfAccountingParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.FetchLineOfAccountingPayload{
 				DepartmentIndicator: &departmentIndicator,
-				EffectiveDate:       strfmt.Date(time.Now()),
-				TacCode:             "MOCK",
+				EffectiveDate:       &now,
+				TacCode:             models.StringPointer("MOCK"),
 			},
 		}
 
