@@ -246,6 +246,9 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
+        {generateDetailText({
+          'Estimated Price': details.estimatedPrice !== undefined || null ? details.estimatedPrice : '-',
+        })}
       </dl>
     </div>
   );
