@@ -838,6 +838,17 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 		AdjustedNetWeight:    handlers.PoundPtrFromInt64Ptr(weightTicket.AdjustedNetWeight),
 		NetWeightRemarks:     handlers.FmtString(weightTicket.NetWeightRemarks),
 	}
+
+	if weightTicket.VehicleDescription != nil {
+		model.VehicleDescription = handlers.FmtString(*weightTicket.VehicleDescription)
+	}
+	if weightTicket.MissingEmptyWeightTicket != nil {
+		model.MissingEmptyWeightTicket = handlers.FmtBool(*weightTicket.MissingEmptyWeightTicket)
+	}
+	if weightTicket.MissingFullWeightTicket != nil {
+		model.MissingFullWeightTicket = handlers.FmtBool(*weightTicket.MissingFullWeightTicket)
+	}
+
 	return model
 }
 
