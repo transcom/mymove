@@ -6,7 +6,7 @@ import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-us
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../../shared/constants';
+import { civilianTDYUBAllowanceWeightWarningOfficeUser, FEATURE_FLAG_KEYS } from '../../../shared/constants';
 
 import styles from './AddOrdersForm.module.scss';
 
@@ -49,6 +49,7 @@ const AddOrdersForm = ({
   const [ordersType, setOrdersType] = useState('');
   const [grade, setGrade] = useState('');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
+  const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
   const { customerId: serviceMemberId } = useParams();
 
   const validationSchema = Yup.object().shape({
@@ -223,8 +224,13 @@ const AddOrdersForm = ({
 
         let civilianTDYUBAllowanceWarning = '';
         if (showcivilianTDYUBAllowanceWarning) {
-          civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
+          civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarningOfficeUser;
         }
+
+        const toggleCivilianTDYUBTooltip = () => {
+          setShowCivilianTDYUBTooltip((prev) => !prev);
+        };
+
         return (
           <Form className={`${formStyles.form}`}>
             <ConnectedFlashMessage />
@@ -453,9 +459,7 @@ const AddOrdersForm = ({
                   <div>
                     <MaskedTextField
                       data-testid="civilianTdyUbAllowance"
-                      warning={
-                        <span className={styles.civilianUBAllowanceWarning}>{civilianTDYUBAllowanceWarning}</span>
-                      }
+                      warning={civilianTDYUBAllowanceWarning}
                       defaultValue="0"
                       name="civilianTdyUbAllowance"
                       id="civilianTdyUbAllowance"
@@ -464,19 +468,24 @@ const AddOrdersForm = ({
                       signed={false}
                       thousandsSeparator=","
                       lazy={false}
-                      labelHint="Optional"
+                      labelHint={<span className={styles.civilianUBAllowanceWarning}>Optional</span>}
                       label={
-                        <span className={styles.labelwithToolTip}>
+                        <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
                           If the customer&apos;s orders specify a specific UB weight allowance, enter it here.
                           <ToolTip
-                            text="If you do not specify a UB weight allowance, the default of  0 lbs will be used."
-                            position="right"
+                            text={
+                              <span className={styles.toolTipText}>
+                                If you do not specify a UB weight allowance, the default of 0 lbs will be used.
+                              </span>
+                            }
+                            position="left"
                             icon="info-circle"
                             color="blue"
                             data-testid="civilianTDYUBAllowanceToolTip"
+                            isVisible={showCivilianTDYUBTooltip}
                             closeOnLeave
                           />
-                        </span>
+                        </Label>
                       }
                     />
                   </div>
