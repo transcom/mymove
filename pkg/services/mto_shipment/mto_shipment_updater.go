@@ -1416,14 +1416,24 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 			var milesCalculated int
 
 			if TOOApprovalRequired {
-				if serviceItem.SITDestinationOriginalAddress != nil {
+				// do not calculate mileage if destination address is OCONUS. zero mileage will prevent pricing to be calculated.
+				if serviceItem.SITDestinationOriginalAddress != nil &&
+					(shipment.MarketCode != models.MarketCodeInternational ||
+						(shipment.MarketCode == models.MarketCodeInternational && !*serviceItem.SITDestinationOriginalAddress.IsOconus)) {
 					// if TOO approval was required, shipment destination address has been updated at this point
 					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
 				}
 			} else {
 				// if TOO approval was not required, use the newAddress
-				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+				// do not calculate mileage if destination address is OCONUS. zero mileage will prevent pricing to be calculated.
+				if serviceItem.SITDestinationOriginalAddress != nil &&
+					(shipment.MarketCode != models.MarketCodeInternational ||
+						(shipment.MarketCode == models.MarketCodeInternational && !*serviceItem.SITDestinationOriginalAddress.IsOconus)) {
+					// if TOO approval was required, shipment destination address has been updated at this point
+					milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+				}
 			}
+
 			if err != nil {
 				return err
 			}

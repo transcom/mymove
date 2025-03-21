@@ -292,7 +292,9 @@ func priceIntlFuelSurcharge(_ appcontext.AppContext, fuelSurchargeCode models.Re
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
 	}
-	if distance <= 0 {
+	// zero represents pricing will not be calculated
+	// this to handle when origin/destination addresses are OCONUS
+	if distance < 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}
 	if weight < minInternationalWeight {

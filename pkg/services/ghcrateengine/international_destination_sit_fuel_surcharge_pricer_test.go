@@ -95,7 +95,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalDestinationSITFuel
 			"Missing Distance": {
 				priceArgs: priceArgs{
 					actualPickupDate:                 idsfscActualPickupDate,
-					distance:                         unit.Miles(0),
+					distance:                         unit.Miles(-1),
 					weight:                           idsfscTestWeight,
 					fscWeightBasedDistanceMultiplier: idsfscWeightDistanceMultiplier,
 					eiaFuelPrice:                     idsfscFuelPrice,
