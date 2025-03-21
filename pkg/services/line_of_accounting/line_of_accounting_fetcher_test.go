@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	edi "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -438,8 +439,16 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 					},
 				},
 			}, nil)
-			requiredDfasFields := []string{"A1", "A4", "A5", "F1",
-				"J1", "A3", "B3"}
+
+			requiredDfasFields := []string{
+				edi.FA2DetailCodeA1.String(),
+				edi.FA2DetailCodeA4.String(),
+				edi.FA2DetailCodeA5.String(),
+				edi.FA2DetailCodeF1.String(),
+				edi.FA2DetailCodeJ1.String(),
+				edi.FA2DetailCodeA3.String(),
+				edi.FA2DetailCodeB3.String(),
+			}
 			missing := validateDFASFields(invalidLoa)
 			suite.Len(missing, len(requiredDfasFields)) // Make sure that's all of them
 			for _, dfasField := range requiredDfasFields {
