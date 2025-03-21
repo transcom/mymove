@@ -493,15 +493,6 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	mtoServiceItemDOASIT.SITEntryDate = &recalculateSITEntryDate
 	suite.MustSave(&mtoServiceItemDOASIT)
 
-	domServiceAreaPriceDOASIT := models.ReDomesticServiceAreaPrice{
-		ContractID:            contractYear.Contract.ID,
-		ServiceID:             mtoServiceItemDOASIT.ReServiceID,
-		IsPeakPeriod:          false,
-		DomesticServiceAreaID: serviceArea.ID,
-		PriceCents:            recalculateTestDomServiceAreaPriceDOASIT,
-	}
-	suite.MustSave(&domServiceAreaPriceDOASIT)
-
 	doasitPaymentServiceItem := models.PaymentServiceItem{
 		MTOServiceItemID: mtoServiceItemDOASIT.ID,
 		MTOServiceItem:   mtoServiceItemDOASIT,
