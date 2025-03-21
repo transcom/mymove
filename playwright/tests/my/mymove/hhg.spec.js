@@ -47,7 +47,7 @@ test.describe('HHG', () => {
     const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
-    await page.locator('input[id="pickupAddress-location-input"]').fill('90212');
+    await page.locator('input[id="pickupAddress-input"]').fill('90212');
     await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -55,7 +55,7 @@ test.describe('HHG', () => {
     await pickupAddress.getByText('Yes').click();
     await pickupAddress.getByLabel('Address 1').nth(1).fill('8 Q St');
     await pickupAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryPickupAddress-location-input"]').fill('90212');
+    await page.locator('input[id="secondaryPickupAddress-input"]').fill('90212');
     await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -64,7 +64,7 @@ test.describe('HHG', () => {
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
     await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
-    await page.locator('input[id="deliveryAddress-location-input"]').fill('20636');
+    await page.locator('input[id="deliveryAddress-input"]').fill('20636');
     await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -73,7 +73,7 @@ test.describe('HHG', () => {
     await deliveryAddress.getByText('Yes').nth(1).click();
     await deliveryAddress.getByLabel('Address 1').nth(1).fill('9 Q St');
     await deliveryAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryDeliveryAddress-location-input"]').fill('08004');
+    await page.locator('input[id="secondaryDeliveryAddress-input"]').fill('08004');
     await expect(page.getByText(secondaryDeliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();
@@ -156,7 +156,7 @@ test.describe('(MultiMove) HHG', () => {
     const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
-    await page.locator('input[id="pickup.address-location-input"]').fill('08004');
+    await page.locator('input[id="pickup.address-input"]').fill('08004');
     await expect(page.getByText(location, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -164,7 +164,7 @@ test.describe('(MultiMove) HHG', () => {
     await pickupAddress.getByText('Yes').click();
     await pickupAddress.getByLabel('Address 1').nth(1).fill('8 Q St');
     await pickupAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryPickup.address-location-input"]').fill('08004');
+    await page.locator('input[id="secondaryPickup.address-input"]').fill('08004');
     await expect(page.getByText(location, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -174,7 +174,7 @@ test.describe('(MultiMove) HHG', () => {
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
     await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
-    await page.locator('input[id="delivery.address-location-input"]').fill('20636');
+    await page.locator('input[id="delivery.address-input"]').fill('20636');
     await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -182,7 +182,7 @@ test.describe('(MultiMove) HHG', () => {
     await deliveryAddress.getByText('Yes').nth(1).click();
     await deliveryAddress.getByLabel('Address 1').nth(1).fill('9 Q St');
     await deliveryAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryDelivery.address-location-input"]').fill('08004');
+    await page.locator('input[id="secondaryDelivery.address-input"]').fill('08004');
     await expect(page.getByText(location, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();
@@ -266,7 +266,7 @@ test.describe('(MultiMove) HHG', () => {
     const pickupLocation = 'LAWTON, OK 73505 (COMANCHE)';
     const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('123 Warm St.');
-    await page.locator('input[id="pickup.address-location-input"]').fill('73505');
+    await page.locator('input[id="pickup.address-input"]').fill('73505');
     await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -275,7 +275,7 @@ test.describe('(MultiMove) HHG', () => {
     const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('123 Cold Ave.');
-    await page.locator('input[id="delivery.address-location-input"]').fill('99505');
+    await page.locator('input[id="delivery.address-input"]').fill('99505');
     await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();
