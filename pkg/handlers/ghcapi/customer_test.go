@@ -79,9 +79,9 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	}
 	currentAddress := ghcmessages.Address{
 		StreetAddress1: handlers.FmtString("123 New Street"),
-		City:           handlers.FmtString("Newcity"),
-		State:          handlers.FmtString("MA"),
-		PostalCode:     handlers.FmtString("12345"),
+		City:           handlers.FmtString("NICHOLASVILLE"),
+		State:          handlers.FmtString("KY"),
+		PostalCode:     handlers.FmtString("40356"),
 	}
 	body.CurrentAddress.Address = currentAddress
 
