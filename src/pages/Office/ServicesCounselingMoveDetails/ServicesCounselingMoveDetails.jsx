@@ -899,7 +899,7 @@ const ServicesCounselingMoveDetails = ({
                     data-testid="view-edit-orders"
                     to={`../${servicesCounselingRoutes.ORDERS_EDIT_PATH}`}
                   >
-                    View and edit orders
+                    View {counselorCanEditOrdersAndAllowances() && 'and edit'} orders
                   </Link>
                 )
               }
@@ -918,7 +918,7 @@ const ServicesCounselingMoveDetails = ({
                     data-testid="edit-allowances"
                     to={`../${servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}`}
                   >
-                    Edit allowances
+                    {counselorCanEditOrdersAndAllowances() ? 'Edit ' : 'View'} allowances
                   </Link>
                 )
               }
