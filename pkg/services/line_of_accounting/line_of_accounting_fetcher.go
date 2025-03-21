@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	edi "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -300,21 +301,21 @@ func newDfasValidator() []dfasField {
 	// to their getter and whether or not it's required
 	return []dfasField{
 		{
-			Code:     "A1",
+			Code:     edi.FA2DetailCodeA1.String(),
 			Required: true,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaDptID
 			},
 		},
 		{
-			Code:     "A2",
+			Code:     edi.FA2DetailCodeA2.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaTnsfrDptNm
 			},
 		},
 		{
-			Code:     "A3",
+			Code:     edi.FA2DetailCodeA3.String(),
 			Required: true,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				// A3 is a concatenation of the fiscal years
@@ -326,175 +327,175 @@ func newDfasValidator() []dfasField {
 			},
 		},
 		{
-			Code:     "A4",
+			Code:     edi.FA2DetailCodeA4.String(),
 			Required: true,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaBafID
 			},
 		},
 		{
-			Code:     "A5",
+			Code:     edi.FA2DetailCodeA5.String(),
 			Required: true,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaTrsySfxTx
 			},
 		},
 		{
-			Code:     "A6",
+			Code:     edi.FA2DetailCodeA6.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaMajClmNm
 			},
 		},
 		{
-			Code:     "B1",
+			Code:     edi.FA2DetailCodeB1.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaOpAgncyID
 			},
 		},
 		{
-			Code:     "B2",
+			Code:     edi.FA2DetailCodeB2.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaAlltSnID
 			},
 		},
 		{
-			Code:     "B3",
+			Code:     edi.FA2DetailCodeB3.String(),
 			Required: true,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaUic
 			},
 		},
 		{
-			Code:     "C1",
+			Code:     edi.FA2DetailCodeC1.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaPgmElmntID
 			},
 		},
 		{
-			Code:     "C2",
+			Code:     edi.FA2DetailCodeC2.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaTskBdgtSblnTx
 			},
 		},
 		{
-			Code:     "D1",
+			Code:     edi.FA2DetailCodeD1.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaDfAgncyAlctnRcpntID
 			},
 		},
 		{
-			Code:     "D4",
+			Code:     edi.FA2DetailCodeD4.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaJbOrdNm
 			},
 		},
 		{
-			Code:     "D6",
+			Code:     edi.FA2DetailCodeD6.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaSbaltmtRcpntID
 			},
 		},
 		{
-			Code:     "D7",
+			Code:     edi.FA2DetailCodeD7.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaWkCntrRcpntNm
 			},
 		},
 		{
-			Code:     "E1",
+			Code:     edi.FA2DetailCodeE1.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaMajRmbsmtSrcID
 			},
 		},
 		{
-			Code:     "E2",
+			Code:     edi.FA2DetailCodeE2.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaDtlRmbsmtSrcID
 			},
 		},
 		{
-			Code:     "E3",
+			Code:     edi.FA2DetailCodeE3.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaCustNm
 			},
 		},
 		{
-			Code:     "F1",
+			Code:     edi.FA2DetailCodeF1.String(),
 			Required: true,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaObjClsID
 			},
 		},
 		{
-			Code:     "F3",
+			Code:     edi.FA2DetailCodeF3.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaSrvSrcID
 			},
 		},
 		{
-			Code:     "G2",
+			Code:     edi.FA2DetailCodeG2.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaSpclIntrID
 			},
 		},
 		{
-			Code:     "I1",
+			Code:     edi.FA2DetailCodeI1.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaBdgtAcntClsNm
 			},
 		},
 		{
-			Code:     "J1",
+			Code:     edi.FA2DetailCodeJ1.String(),
 			Required: true,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaDocID
 			},
 		},
 		{
-			Code:     "K6",
+			Code:     edi.FA2DetailCodeK6.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaClsRefID
 			},
 		},
 		{
-			Code:     "L1",
+			Code:     edi.FA2DetailCodeL1.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaInstlAcntgActID
 			},
 		},
 		{
-			Code:     "M1",
+			Code:     edi.FA2DetailCodeM1.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaLclInstlID
 			},
 		},
 		{
-			Code:     "N1",
+			Code:     edi.FA2DetailCodeN1.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaTrnsnID
 			},
 		},
 		{
-			Code:     "P5",
+			Code:     edi.FA2DetailCodeP5.String(),
 			Required: false,
 			Getter: func(loa *models.LineOfAccounting) *string {
 				return loa.LoaFmsTrnsactnID
