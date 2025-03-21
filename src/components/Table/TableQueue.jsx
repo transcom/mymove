@@ -388,6 +388,7 @@ const TableQueue = ({
                   totalCount={totalCount}
                   paramSort={paramSort}
                   paramFilters={paramFilters}
+                  activeRole={activeRole}
                 />
               )}
             </div>

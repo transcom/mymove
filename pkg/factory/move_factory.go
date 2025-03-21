@@ -67,6 +67,13 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		counselingOffice = BuildTransportationOffice(db, tempCounselingOfficeCustoms, nil)
 	}
 
+	var tooDestinationAssignedUser models.OfficeUser
+	tempTOODestinationAssignedUserCustoms := customs
+	tooDestinationAssignedUserResult := findValidCustomization(customs, OfficeUsers.TOODestinationAssignedUser)
+	if tooDestinationAssignedUserResult != nil {
+		tempTOODestinationAssignedUserCustoms = convertCustomizationInList(tempTOODestinationAssignedUserCustoms, OfficeUsers.TOODestinationAssignedUser, OfficeUser)
+		tooDestinationAssignedUser = BuildOfficeUser(db, tempTOODestinationAssignedUserCustoms, nil)
+	}
 	var defaultReferenceID string
 	var err error
 	if db != nil {
@@ -125,6 +132,10 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.SCAssignedID = &scAssignedUser.ID
 	}
 
+	if tooDestinationAssignedUserResult != nil {
+		move.TOODestinationAssignedUser = &tooDestinationAssignedUser
+		move.TOODestinationAssignedID = &tooDestinationAssignedUser.ID
+	}
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&move, cMove)
 
