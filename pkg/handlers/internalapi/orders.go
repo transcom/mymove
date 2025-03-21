@@ -88,6 +88,9 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		if order.Entitlement.WeightRestriction != nil {
 			entitlement.WeightRestriction = models.Int64Pointer(int64(*order.Entitlement.WeightRestriction))
 		}
+		if order.Entitlement.UBWeightRestriction != nil {
+			entitlement.UbWeightRestriction = models.Int64Pointer(int64(*order.Entitlement.UBWeightRestriction))
+		}
 	}
 	var originDutyLocation models.DutyLocation
 	originDutyLocation = models.DutyLocation{}

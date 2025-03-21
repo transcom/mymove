@@ -6,7 +6,7 @@ import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-us
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
+import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../../shared/constants';
 
 import styles from './AddOrdersForm.module.scss';
 
@@ -14,7 +14,7 @@ import ToolTip from 'shared/ToolTip/ToolTip';
 import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
@@ -46,6 +46,9 @@ const AddOrdersForm = ({
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
+  const [ordersType, setOrdersType] = useState('');
+  const [grade, setGrade] = useState('');
+  const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const { customerId: serviceMemberId } = useParams();
 
   const validationSchema = Yup.object().shape({
@@ -73,6 +76,12 @@ const AddOrdersForm = ({
       : Yup.number().notRequired(),
     dependentsTwelveAndOver: showDependentAgeFields
       ? Yup.number().min(0).required('Required')
+      : Yup.number().notRequired(),
+    civilianTdyUbAllowance: isCivilianTDYMove
+      ? Yup.number()
+          .transform((value) => (Number.isNaN(value) ? 0 : value))
+          .min(0, 'UB weight allowance must be 0 or more')
+          .max(2000, 'UB weight allowance cannot exceed 2,000 lbs.')
       : Yup.number().notRequired(),
   });
 
@@ -116,6 +125,29 @@ const AddOrdersForm = ({
       }
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, serviceMemberId]);
+
+  useEffect(() => {
+    if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
+      if (
+        isOconusMove &&
+        ordersType === ORDERS_TYPE.TEMPORARY_DUTY &&
+        grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE
+      ) {
+        setIsCivilianTDYMove(true);
+      } else {
+        setIsCivilianTDYMove(false);
+      }
+    }
+  }, [
+    currentDutyLocation,
+    newDutyLocation,
+    isOconusMove,
+    hasDependents,
+    enableUB,
+    ordersType,
+    grade,
+    isCivilianTDYMove,
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -169,6 +201,7 @@ const AddOrdersForm = ({
         };
         const handleOrderTypeChange = (e) => {
           const { value } = e.target;
+          setOrdersType(value);
           if (value === ORDERS_TYPE.STUDENT_TRAVEL || value === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS) {
             setHasDependentsDisabled(true);
             handleHasDependentsChange({ target: { value: 'yes' } });
@@ -183,6 +216,15 @@ const AddOrdersForm = ({
           }
           setPrevOrderType(value);
         };
+
+        // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
+        const showcivilianTDYUBAllowanceWarning =
+          values.civilianTdyUbAllowance > 350 && values.civilianTdyUbAllowance <= 2000;
+
+        let civilianTDYUBAllowanceWarning = '';
+        if (showcivilianTDYUBAllowanceWarning) {
+          civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
+        }
         return (
           <Form className={`${formStyles.form}`}>
             <ConnectedFlashMessage />
@@ -400,7 +442,46 @@ const AddOrdersForm = ({
                 required
                 options={payGradeOptions}
                 hint="Required"
+                onChange={(e) => {
+                  setGrade(e.target.value);
+                  handleChange(e);
+                }}
               />
+
+              {isCivilianTDYMove && (
+                <FormGroup>
+                  <div>
+                    <MaskedTextField
+                      data-testid="civilianTdyUbAllowance"
+                      warning={
+                        <span className={styles.civilianUBAllowanceWarning}>{civilianTDYUBAllowanceWarning}</span>
+                      }
+                      defaultValue="0"
+                      name="civilianTdyUbAllowance"
+                      id="civilianTdyUbAllowance"
+                      mask={Number}
+                      scale={0}
+                      signed={false}
+                      thousandsSeparator=","
+                      lazy={false}
+                      labelHint="Optional"
+                      label={
+                        <span className={styles.labelwithToolTip}>
+                          If the customer&apos;s orders specify a specific UB weight allowance, enter it here.
+                          <ToolTip
+                            text="If you do not specify a UB weight allowance, the default of  0 lbs will be used."
+                            position="right"
+                            icon="info-circle"
+                            color="blue"
+                            data-testid="civilianTDYUBAllowanceToolTip"
+                            closeOnLeave
+                          />
+                        </span>
+                      }
+                    />
+                  </div>
+                </FormGroup>
+              )}
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
