@@ -221,12 +221,12 @@ export const LocationSearchBoxComponent = ({
   };
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
-  const hasLocation = !!value;
+  const hasLocation = !!value && !!value.address;
 
   return (
     <FormGroup>
       <div className="labelWrapper">
-        <Label hint={hint} htmlFor={inputId} className={labelClasses}>
+        <Label hint={hint} htmlFor={inputId} className={labelClasses} data-testid={`${name}-label`}>
           {title}
         </Label>
       </div>
@@ -245,7 +245,11 @@ export const LocationSearchBoxComponent = ({
           onKeyDown={handleKeyDown}
           onInputChange={changeInputText}
           placeholder={placeholder || 'Start typing a duty location...'}
-          value={hasLocation ? value : null}
+          value={
+            (handleLocationOnChange && !!value && value.city !== '') || (!handleLocationOnChange && hasLocation)
+              ? value
+              : ''
+          }
           noOptionsMessage={noOptionsMessage}
           onFocus={handleFocus}
           styles={isDisabled ? disabledStyles : customStyles}

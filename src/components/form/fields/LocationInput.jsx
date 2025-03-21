@@ -25,6 +25,7 @@ export const LocationInput = (props) => {
         locationState: () => {},
         name,
       }}
+      hint="Required"
       errorMsg={errorString}
       displayAddress={displayAddress}
       placeholder={placeholder}

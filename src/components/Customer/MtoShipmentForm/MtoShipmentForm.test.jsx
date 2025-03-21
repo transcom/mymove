@@ -121,9 +121,9 @@ const mockMtoShipmentUB = {
   destinationAddress: {
     id: uuidv4(),
     streetAddress1: '441 SW Rio de la Plata Drive',
-    city: 'Tacoma',
+    city: 'Auburn',
     state: 'WA',
-    postalCode: '98421',
+    postalCode: '98001',
   },
   shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
 };
@@ -211,9 +211,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByTestId('City')).toBeInstanceOf(HTMLLabelElement);
-      expect(screen.getByTestId('State')).toBeInstanceOf(HTMLLabelElement);
-      expect(screen.getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByLabelText(/Location Lookup/)).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByTitle('Yes, I have a second pickup address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not have a second pickup address')).toBeInstanceOf(HTMLInputElement);
@@ -306,23 +304,25 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('uses the current residence address for pickup address when checked', async () => {
-      const { queryByLabelText, queryAllByLabelText, getAllByTestId } = renderMtoShipmentForm();
+      const { queryByLabelText, queryAllByLabelText } = renderMtoShipmentForm();
 
       await userEvent.click(queryByLabelText('Use my current address'));
 
       await waitFor(() => {
         expect(queryAllByLabelText(/Address 1/)[0]).toHaveValue(defaultProps.currentResidence.streetAddress1);
         expect(queryAllByLabelText(/Address 2/)[0]).toHaveValue('');
-        expect(getAllByTestId('City')[0]).toHaveTextContent(defaultProps.currentResidence.city);
-        expect(getAllByTestId(/State/)[0]).toHaveTextContent(defaultProps.currentResidence.state);
-        expect(getAllByTestId(/ZIP/)[0]).toHaveTextContent(defaultProps.currentResidence.postalCode);
+        expect(
+          screen.getAllByText(
+            `${defaultProps.currentResidence.city}, ${defaultProps.currentResidence.state} ${defaultProps.currentResidence.postalCode} ()`,
+          ),
+        );
       });
     });
 
     it('renders a second address fieldset when the user has a second pickup address', async () => {
       renderMtoShipmentForm();
 
-      await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+      await userEvent.click(screen.getByTestId('has-secondary-pickup'));
 
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1.length).toBe(1);
@@ -331,40 +331,7 @@ describe('MtoShipmentForm component', () => {
       const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
       expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
 
-      const city = screen.getAllByTestId('City');
-      expect(city[0]).toHaveAttribute('aria-label', 'pickup.address.city');
-
-      const state = screen.getAllByTestId(/State/);
-      expect(state[0]).toHaveAttribute('aria-label', 'pickup.address.state');
-
-      const zip = screen.getAllByTestId(/ZIP/);
-      expect(zip[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
-    });
-
-    it('renders a second address fieldset when the user has a pickup address', async () => {
-      renderMtoShipmentForm();
-
-      await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
-
-      const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
-      expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.streetAddress1');
-      expect(streetAddress1[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
-
-      const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
-      expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
-      expect(streetAddress2[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
-
-      const city = screen.getAllByTestId('City');
-      expect(city[0]).toHaveAttribute('aria-label', 'pickup.address.city');
-      expect(city[1]).toHaveAttribute('aria-label', 'delivery.address.city');
-
-      const state = screen.getAllByTestId('State');
-      expect(state[0]).toHaveAttribute('aria-label', 'pickup.address.state');
-      expect(state[1]).toHaveAttribute('aria-label', 'delivery.address.state');
-
-      const zip = screen.getAllByTestId('ZIP');
-      expect(zip[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
-      expect(zip[1]).toHaveAttribute('aria-label', 'delivery.address.postalCode');
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(1);
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
@@ -380,17 +347,23 @@ describe('MtoShipmentForm component', () => {
       expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
       expect(streetAddress2[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
 
-      const city = screen.getAllByTestId('City');
-      expect(city[0]).toHaveAttribute('aria-label', 'pickup.address.city');
-      expect(city[1]).toHaveAttribute('aria-label', 'delivery.address.city');
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(2);
+    });
 
-      const state = screen.getAllByTestId('State');
-      expect(state[0]).toHaveAttribute('aria-label', 'pickup.address.state');
-      expect(state[1]).toHaveAttribute('aria-label', 'delivery.address.state');
+    it('renders a second address fieldset when the user has a delivery address', async () => {
+      renderMtoShipmentForm();
 
-      const zip = screen.getAllByTestId('ZIP');
-      expect(zip[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
-      expect(zip[1]).toHaveAttribute('aria-label', 'delivery.address.postalCode');
+      await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+
+      const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
+      expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.streetAddress1');
+      expect(streetAddress1[1]).toHaveAttribute('name', 'delivery.address.streetAddress1');
+
+      const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
+      expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
+      expect(streetAddress2[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
+
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(2);
     });
 
     it('renders the secondary delivery address question once a user says they have a primary delivery address', async () => {
@@ -420,17 +393,7 @@ describe('MtoShipmentForm component', () => {
       expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
       expect(streetAddress2[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
 
-      const city = screen.getAllByTestId('City');
-      expect(city[0]).toHaveAttribute('aria-label', 'pickup.address.city');
-      expect(city[1]).toHaveAttribute('aria-label', 'delivery.address.city');
-
-      const state = await screen.getAllByTestId(/State/);
-      expect(state[0]).toHaveAttribute('aria-label', 'pickup.address.state');
-      expect(state[1]).toHaveAttribute('aria-label', 'delivery.address.state');
-
-      const zip = await screen.getAllByTestId(/ZIP/);
-      expect(zip[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
-      expect(zip[1]).toHaveAttribute('aria-label', 'delivery.address.postalCode');
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(2);
     });
 
     it('goes back when the back button is clicked', async () => {
@@ -610,16 +573,12 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[0]).toHaveTextContent('San Antonio');
-      expect(screen.getAllByTestId('State')[0]).toHaveTextContent('TX');
-      expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent('78234');
+      expect(screen.getByText('San Antonio, TX 78234 ()'));
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[1]).toHaveTextContent('Tacoma');
-      expect(screen.getAllByTestId('State')[1]).toHaveTextContent('WA');
-      expect(screen.getAllByTestId('ZIP')[1]).toHaveTextContent('98421');
+      expect(screen.getByText('Tacoma, WA 98421 ()'));
       expect(
         screen.getByLabelText(
           'Are there things about this shipment that your counselor or movers should discuss with you?',
@@ -651,9 +610,9 @@ describe('MtoShipmentForm component', () => {
         secondaryDeliveryAddress: {
           streetAddress1: '3373 NW Martin Luther King Jr Blvd',
           streetAddress2: '',
-          city: mockMtoShipment.destinationAddress.city,
-          state: mockMtoShipment.destinationAddress.state,
-          postalCode: mockMtoShipment.destinationAddress.postalCode,
+          city: 'Auburn',
+          state: 'WA',
+          postalCode: '98002',
         },
       };
       const expectedDateSelectionIsWeekendHolidayResponse = {
@@ -676,28 +635,17 @@ describe('MtoShipmentForm component', () => {
       const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
       expect(streetAddress2.length).toBe(4);
 
-      const city = screen.getAllByTestId('City');
-      expect(city.length).toBe(4);
-
-      const state = screen.getAllByTestId('State');
-      expect(state.length).toBe(4);
-
-      const zip = screen.getAllByTestId('ZIP');
-      expect(zip.length).toBe(4);
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(4);
 
       // Secondary pickup address should be the 2nd address
       expect(streetAddress1[1]).toHaveValue('142 E Barrel Hoop Circle');
       expect(streetAddress2[1]).toHaveValue('#4A');
-      expect(city[1]).toHaveTextContent('Corpus Christi');
-      expect(state[1]).toHaveTextContent('TX');
-      expect(zip[1]).toHaveTextContent('78412');
+      expect(screen.getByText('Corpus Christi, TX 78412 ()'));
 
       // Secondary delivery address should be the 4th address
       expect(streetAddress1[3]).toHaveValue('3373 NW Martin Luther King Jr Blvd');
       expect(streetAddress2[3]).toHaveValue('');
-      expect(city[3]).toHaveTextContent(mockMtoShipment.destinationAddress.city);
-      expect(state[3]).toHaveTextContent(mockMtoShipment.destinationAddress.state);
-      expect(zip[3]).toHaveTextContent(mockMtoShipment.destinationAddress.postalCode);
+      expect(screen.getByText('Auburn, WA 98002 ()'));
     });
 
     it('does not allow the user to save the form if the address fields on a secondary addreess is the only one filled out', async () => {
@@ -789,7 +737,13 @@ describe('MtoShipmentForm component', () => {
         customerRemarks: mockMtoShipmentUB.customerRemarks,
         requestedPickupDate: mockMtoShipmentUB.requestedPickupDate,
         requestedDeliveryDate: mockMtoShipmentUB.requestedDeliveryDate,
-        destinationAddress: { ...mockMtoShipmentUB.destinationAddress, streetAddress2: '' },
+        destinationAddress: {
+          ...mockMtoShipmentUB.destinationAddress,
+          city: 'Tacoma',
+          state: 'WA',
+          postalCode: '98421',
+          streetAddress2: '',
+        },
         secondaryDeliveryAddress: undefined,
         hasSecondaryDeliveryAddress: false,
         secondaryPickupAddress: undefined,
@@ -895,16 +849,12 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[0]).toHaveTextContent('San Antonio');
-      expect(screen.getAllByTestId('State')[0]).toHaveTextContent('TX');
-      expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent('78234');
+      expect(screen.getByText('San Antonio, TX 78234 ()'));
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[1]).toHaveTextContent('Tacoma');
-      expect(screen.getAllByTestId('State')[1]).toHaveTextContent('WA');
-      expect(screen.getAllByTestId('ZIP')[1]).toHaveTextContent('98421');
+      expect(screen.getByText('Tacoma, WA 98421 ()'));
       expect(
         screen.getByLabelText(
           'Are there things about this shipment that your counselor or movers should discuss with you?',
@@ -1049,9 +999,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByTestId('City')).toBeInstanceOf(HTMLLabelElement);
-      expect(screen.getByTestId('State')).toBeInstanceOf(HTMLLabelElement);
-      expect(screen.getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByLabelText(/Location Lookup/)).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByTitle('Yes, I have a second pickup address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not have a second pickup address')).toBeInstanceOf(HTMLInputElement);
@@ -1145,16 +1093,18 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('uses the current residence address for pickup address when checked', async () => {
-      const { queryByLabelText, queryAllByLabelText, getAllByTestId } = renderUBShipmentForm();
+      const { queryByLabelText, queryAllByLabelText } = renderUBShipmentForm();
 
       await userEvent.click(queryByLabelText('Use my current address'));
 
       await waitFor(() => {
         expect(queryAllByLabelText(/Address 1/)[0]).toHaveValue(defaultProps.currentResidence.streetAddress1);
         expect(queryAllByLabelText(/Address 2/)[0]).toHaveValue('');
-        expect(getAllByTestId('City')[0]).toHaveTextContent(defaultProps.currentResidence.city);
-        expect(getAllByTestId('State')[0]).toHaveTextContent(defaultProps.currentResidence.state);
-        expect(getAllByTestId('ZIP')[0]).toHaveTextContent(defaultProps.currentResidence.postalCode);
+        expect(
+          screen.getAllByText(
+            `${defaultProps.currentResidence.city}, ${defaultProps.currentResidence.state} ${defaultProps.currentResidence.postalCode} ()`,
+          ),
+        );
       });
     });
 
@@ -1169,14 +1119,7 @@ describe('MtoShipmentForm component', () => {
       const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
       expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
 
-      const city = screen.getAllByTestId('City');
-      expect(city[0]).toHaveAttribute('aria-label', 'pickup.address.city');
-
-      const state = screen.getAllByTestId('State');
-      expect(state[0]).toHaveAttribute('aria-label', 'pickup.address.state');
-
-      const zip = screen.getAllByTestId('ZIP');
-      expect(zip[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(1);
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
@@ -1192,17 +1135,7 @@ describe('MtoShipmentForm component', () => {
       expect(streetAddress2[0]).toHaveAttribute('name', 'pickup.address.streetAddress2');
       expect(streetAddress2[1]).toHaveAttribute('name', 'delivery.address.streetAddress2');
 
-      const city = screen.getAllByTestId('City');
-      expect(city[0]).toHaveAttribute('aria-label', 'pickup.address.city');
-      expect(city[1]).toHaveAttribute('aria-label', 'delivery.address.city');
-
-      const state = screen.getAllByTestId('State');
-      expect(state[0]).toHaveAttribute('aria-label', 'pickup.address.state');
-      expect(state[1]).toHaveAttribute('aria-label', 'delivery.address.state');
-
-      const zip = screen.getAllByTestId('ZIP');
-      expect(zip[0]).toHaveAttribute('aria-label', 'pickup.address.postalCode');
-      expect(zip[1]).toHaveAttribute('aria-label', 'delivery.address.postalCode');
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(2);
     });
 
     it('renders the secondary delivery address question once a user says they have a primary delivery address', async () => {
@@ -1231,17 +1164,7 @@ describe('MtoShipmentForm component', () => {
       expect(streetAddress2.length).toBe(3);
       expect(streetAddress2[2]).toHaveAttribute('name', 'secondaryDelivery.address.streetAddress2');
 
-      const city = screen.getAllByTestId('City');
-      expect(city.length).toBe(3);
-      expect(city[2]).toHaveAttribute('aria-label', 'secondaryDelivery.address.city');
-
-      const state = screen.getAllByTestId('State');
-      expect(state.length).toBe(3);
-      expect(state[2]).toHaveAttribute('aria-label', 'secondaryDelivery.address.state');
-
-      const zip = screen.getAllByTestId('ZIP');
-      expect(zip.length).toBe(3);
-      expect(zip[2]).toHaveAttribute('aria-label', 'secondaryDelivery.address.postalCode');
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(3);
     });
 
     it('goes back when the back button is clicked', async () => {
@@ -1369,16 +1292,20 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[0]).toHaveTextContent('San Antonio');
-      expect(screen.getAllByTestId('State')[0]).toHaveTextContent('TX');
-      expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent('78234');
+      expect(
+        screen.getAllByText(
+          `${mockMtoShipmentUB.pickupAddress.city}, ${mockMtoShipmentUB.pickupAddress.state} ${mockMtoShipmentUB.pickupAddress.postalCode} ()`,
+        ),
+      );
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[1]).toHaveTextContent('Tacoma');
-      expect(screen.getAllByTestId('State')[1]).toHaveTextContent('WA');
-      expect(screen.getAllByTestId('ZIP')[1]).toHaveTextContent('98421');
+      expect(
+        screen.getAllByText(
+          `${mockMtoShipmentUB.destinationAddress.city}, ${mockMtoShipmentUB.destinationAddress.state} ${mockMtoShipmentUB.destinationAddress.postalCode} ()`,
+        ),
+      );
       expect(
         screen.getByLabelText(
           'Are there things about this shipment that your counselor or movers should discuss with you?',
@@ -1410,9 +1337,9 @@ describe('MtoShipmentForm component', () => {
         secondaryDeliveryAddress: {
           streetAddress1: '3373 NW Martin Luther King Jr Blvd',
           streetAddress2: '',
-          city: mockMtoShipmentUB.destinationAddress.city,
-          state: mockMtoShipmentUB.destinationAddress.state,
-          postalCode: mockMtoShipmentUB.destinationAddress.postalCode,
+          city: 'Auburn',
+          state: 'WA',
+          postalCode: '98002',
         },
       };
       const expectedDateSelectionIsWeekendHolidayResponse = {
@@ -1435,28 +1362,17 @@ describe('MtoShipmentForm component', () => {
       const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
       expect(streetAddress2.length).toBe(4);
 
-      const city = screen.getAllByTestId('City');
-      expect(city.length).toBe(4);
-
-      const state = screen.getAllByTestId('State');
-      expect(state.length).toBe(4);
-
-      const zip = screen.getAllByTestId('ZIP');
-      expect(zip.length).toBe(4);
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(4);
 
       // Secondary pickup address should be the 2nd address
       expect(streetAddress1[1]).toHaveValue('142 E Barrel Hoop Circle');
       expect(streetAddress2[1]).toHaveValue('#4A');
-      expect(city[1]).toHaveTextContent('Corpus Christi');
-      expect(state[1]).toHaveTextContent('TX');
-      expect(zip[1]).toHaveTextContent('78412');
+      expect(screen.getByText('Corpus Christi, TX 78412 ()'));
 
       // Secondary delivery address should be the 4th address
       expect(streetAddress1[3]).toHaveValue('3373 NW Martin Luther King Jr Blvd');
       expect(streetAddress2[3]).toHaveValue('');
-      expect(city[3]).toHaveTextContent(mockMtoShipmentUB.destinationAddress.city);
-      expect(state[3]).toHaveTextContent(mockMtoShipmentUB.destinationAddress.state);
-      expect(zip[3]).toHaveTextContent(mockMtoShipmentUB.destinationAddress.postalCode);
+      expect(screen.getByText('Auburn, WA 98002 ()'));
     });
 
     it('does not allow the user to save the form if the secondary addreess is the only one filled out', async () => {
@@ -1640,16 +1556,13 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[0]).toHaveTextContent('San Antonio');
-      expect(screen.getAllByTestId(/State/)[0]).toHaveTextContent('TX');
-      expect(screen.getAllByTestId(/ZIP/)[0]).toHaveTextContent('78234');
+      expect(screen.getByText('San Antonio, TX 78234 ()'));
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[1]).toHaveTextContent('Tacoma');
-      expect(screen.getAllByTestId(/State/)[1]).toHaveTextContent('WA');
-      expect(screen.getAllByTestId(/ZIP/)[1]).toHaveTextContent('98421');
+      expect(screen.getByText('Auburn, WA 98001 ()'));
+
       expect(
         screen.getByLabelText(
           'Are there things about this shipment that your counselor or movers should discuss with you?',
@@ -1790,9 +1703,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByTestId('City')).toBeInstanceOf(HTMLLabelElement);
-      expect(screen.getByTestId(/State/)).toBeInstanceOf(HTMLLabelElement);
-      expect(screen.getByTestId(/ZIP/)).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByLabelText('Location Lookup', { exact: false })).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText(/First name/)).toHaveAttribute('name', 'pickup.agent.firstName');
