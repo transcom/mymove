@@ -238,6 +238,51 @@ func (o *CreateMovingExpenseNotFound) WriteResponse(rw http.ResponseWriter, prod
 	}
 }
 
+// CreateMovingExpensePreconditionFailedCode is the HTTP code returned for type CreateMovingExpensePreconditionFailed
+const CreateMovingExpensePreconditionFailedCode int = 412
+
+/*
+CreateMovingExpensePreconditionFailed Precondition failed
+
+swagger:response createMovingExpensePreconditionFailed
+*/
+type CreateMovingExpensePreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewCreateMovingExpensePreconditionFailed creates CreateMovingExpensePreconditionFailed with default headers values
+func NewCreateMovingExpensePreconditionFailed() *CreateMovingExpensePreconditionFailed {
+
+	return &CreateMovingExpensePreconditionFailed{}
+}
+
+// WithPayload adds the payload to the create moving expense precondition failed response
+func (o *CreateMovingExpensePreconditionFailed) WithPayload(payload *ghcmessages.Error) *CreateMovingExpensePreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create moving expense precondition failed response
+func (o *CreateMovingExpensePreconditionFailed) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateMovingExpensePreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateMovingExpenseUnprocessableEntityCode is the HTTP code returned for type CreateMovingExpenseUnprocessableEntity
 const CreateMovingExpenseUnprocessableEntityCode int = 422
 
