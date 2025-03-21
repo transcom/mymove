@@ -14,7 +14,7 @@ import { EntitlementShape } from 'types/order';
 import { formatWeight } from 'utils/formatters';
 import Hint from 'components/Hint';
 
-const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisabled }) => {
+const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisabled, civilianTDYUBMove }) => {
   const [enableUB, setEnableUB] = useState(false);
   const renderOconusFields = !!(
     entitlements?.accompaniedTour ||
@@ -75,6 +75,23 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
       setFieldValue('ubWeightRestriction', null);
     }
   };
+
+  useEffect(() => {
+    if (civilianTDYUBMove) {
+      setFieldValue('ubAllowance', `${entitlements.unaccompaniedBaggageAllowance}`);
+    }
+  }, [setFieldValue, entitlements.unaccompaniedBaggageAllowance, civilianTDYUBMove]);
+
+  // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
+  const showcivilianTDYUBAllowanceWarning = values.ubAllowance > 350 && values.ubAllowance <= 2000;
+
+  const civilianTDYUBAllowanceWeightWarning =
+    '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on the orders.';
+
+  let civilianTDYUBAllowanceWarning = '';
+  if (showcivilianTDYUBAllowanceWarning) {
+    civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
+  }
 
   return (
     <div className={styles.AllowancesDetailForm}>
@@ -194,6 +211,22 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
         <dt>Standard weight allowance</dt>
         <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
       </dl>
+      {enableUB && civilianTDYUBMove && (
+        <MaskedTextField
+          data-testid="civilianTdyUbAllowance"
+          warning={<span className={styles.civilianUBAllowanceWarning}>{civilianTDYUBAllowanceWarning}</span>}
+          defaultValue="0"
+          name="ubAllowance"
+          id="civilianTdyUbAllowance"
+          mask={Number}
+          scale={0}
+          signed={false}
+          thousandsSeparator=","
+          lazy={false}
+          isDisabled={formIsDisabled}
+          label={"If the customer's orders specify a specific UB weight allowance, enter it here."}
+        />
+      )}
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
           data-testid="ocieInput"
@@ -279,11 +312,13 @@ AllowancesDetailForm.propTypes = {
   branchOptions: DropdownArrayOf.isRequired,
   header: PropTypes.string,
   formIsDisabled: PropTypes.bool,
+  civilianTDYUBMove: PropTypes.bool,
 };
 
 AllowancesDetailForm.defaultProps = {
   header: null,
   formIsDisabled: false,
+  civilianTDYUBMove: false,
 };
 
 export default AllowancesDetailForm;
