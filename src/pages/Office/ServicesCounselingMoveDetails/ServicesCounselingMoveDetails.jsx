@@ -902,7 +902,6 @@ const ServicesCounselingMoveDetails = ({
             <DetailsPanel
               title="Orders"
               editButton={
-                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
@@ -922,7 +921,6 @@ const ServicesCounselingMoveDetails = ({
             <DetailsPanel
               title="Allowances"
               editButton={
-                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
