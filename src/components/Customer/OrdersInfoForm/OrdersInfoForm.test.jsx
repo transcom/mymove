@@ -499,7 +499,7 @@ describe('OrdersInfoForm component', () => {
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus AFB/, { exact: true });
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
