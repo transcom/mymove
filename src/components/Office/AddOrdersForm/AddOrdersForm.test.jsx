@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
@@ -152,16 +152,56 @@ describe('CreateMoveCustomerInfo Component', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Tell us about the orders')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Orders date/)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Report by date/)).toBeInTheDocument();
-      expect(screen.getByText(/Are dependents included in the orders?/)).toBeInTheDocument();
-      expect(screen.getByTestId('hasDependentsYes')).toBeInTheDocument();
-      expect(screen.getByTestId('hasDependentsNo')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
-      expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
+      const formGroupElements = {
+        ordersType: { selector: /Orders type/, fn: (src) => src.getByLabelText },
+        ordersDate: { selector: /Orders date/, fn: (src) => src.getByLabelText },
+        reportByDate: { selector: /Report by date/, fn: (src) => src.getByLabelText },
+        currentDutyLocation: { selector: /Current duty location/, fn: (src) => src.getByLabelText },
+        newDutyLocation: { selector: /New duty location/, fn: (src) => src.getByLabelText },
+        includedDependents: { selector: /Are dependents included in the orders?/, fn: (src) => src.getByText },
+        paygrade: { selector: /Pay grade/, fn: (src) => src.getByLabelText },
+      };
+
+      const otherElements = {
+        hasDependentsYes: { selector: 'hasDependentsYes', fn: (src) => src.getByTestId },
+        hasDependentsNo: { selector: 'hasDependentsNo', fn: (src) => src.getByTestId },
+        tellUsAboutYourOrders: { selector: 'Tell us about the orders', fn: (src) => src.getByText },
+      };
+
+      const formGroupElementsByOrder = [
+        formGroupElements.ordersType,
+        formGroupElements.ordersDate,
+        formGroupElements.reportByDate,
+        formGroupElements.currentDutyLocation,
+        formGroupElements.newDutyLocation,
+        formGroupElements.includedDependents,
+        formGroupElements.paygrade,
+      ];
+
+      const getRequiredIndicator = (selectedValue) => {
+        const spans = Array.from(selectedValue.querySelectorAll('div > div > label > span'));
+        const result = spans.find((span) => span.textContent === '*');
+        expect(result).toHaveClass('usa-hint');
+        return result;
+      };
+
+      const formGroup = screen.getAllByTestId('formGroup');
+
+      expect(formGroup.length).toBe(7);
+
+      formGroupElementsByOrder.forEach(({ selector, fn }, i) => {
+        const formElement = formGroup[i];
+        const formTarget = fn(within(formElement))(selector);
+        expect(formTarget).toBeInTheDocument();
+
+        const requiredIndicator = getRequiredIndicator(formElement);
+        expect(requiredIndicator).toBeInTheDocument();
+      });
+
+      Object.values(otherElements).forEach(({ selector, fn }) => {
+        const formTarget = fn(screen)(selector);
+        expect(formTarget).toBeInTheDocument();
+      });
     });
   });
 
