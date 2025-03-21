@@ -893,12 +893,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 				// update mileage for origin SITs. this is to ensure when UpdateEstimatedPricingForShipmentBasicServiceItems
 				// is executed it is using most up to date mileage using lates addresses.
-				err = UpdateOriginSITServiceItemsSITDeliveryMiles(f.planner, appCtx, newShipment)
-				if err != nil {
-					return err
-				}
-				// update mileage for destination SITs.
-				err = UpdateDestinationSITServiceItemsSITDeliveryMiles(f.planner, appCtx, newShipment, newShipment.DestinationAddress, false)
+				err = UpdateSITServiceItemsSITDeliveryMiles(f.planner, appCtx, newShipment)
 				if err != nil {
 					return err
 				}
@@ -1441,8 +1436,8 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 	return nil
 }
 
-func UpdateOriginSITServiceItemsSITDeliveryMiles(planner route.Planner, appCtx appcontext.AppContext, newShipment *models.MTOShipment) error {
-	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGOriginalAddress"}
+func UpdateSITServiceItemsSITDeliveryMiles(planner route.Planner, appCtx appcontext.AppContext, newShipment *models.MTOShipment) error {
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems.SITDestinationOriginalAddress"}
 	mtoShipment, err := FindShipment(appCtx, newShipment.ID, eagerAssociations...)
 	if err != nil {
 		return err
@@ -1453,18 +1448,38 @@ func UpdateOriginSITServiceItemsSITDeliveryMiles(planner route.Planner, appCtx a
 		serviceItem := s
 		reServiceCode := serviceItem.ReService.Code
 		var milesCalculated int
+
 		if reServiceCode == models.ReServiceCodeDOPSIT ||
 			reServiceCode == models.ReServiceCodeDOSFSC ||
 			reServiceCode == models.ReServiceCodeIOPSIT ||
 			reServiceCode == models.ReServiceCodeIOSFSC {
 
-			milesCalculated, err = planner.ZipTransitDistance(appCtx, newShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
-
-			if err != nil {
-				return err
+			// International shipments -- only determine mileage if origin SIT's pickup is CONUS
+			if mtoShipment.MarketCode != models.MarketCodeInternational ||
+				(mtoShipment.MarketCode == models.MarketCodeInternational && !*serviceItem.SITOriginHHGOriginalAddress.IsOconus) {
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, newShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+				if err != nil {
+					return err
+				}
 			}
 			serviceItem.SITDeliveryMiles = &milesCalculated
+			mtoServiceItems = append(mtoServiceItems, serviceItem)
+		}
 
+		if reServiceCode == models.ReServiceCodeDDDSIT ||
+			reServiceCode == models.ReServiceCodeDDSFSC ||
+			reServiceCode == models.ReServiceCodeIDDSIT ||
+			reServiceCode == models.ReServiceCodeIDSFSC {
+
+			// International shipments -- only determine mileage if international destination SITs delivery is CONUS
+			if mtoShipment.MarketCode != models.MarketCodeInternational ||
+				(mtoShipment.MarketCode == models.MarketCodeInternational && !*serviceItem.SITDestinationOriginalAddress.IsOconus) {
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, newShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+				if err != nil {
+					return err
+				}
+			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
 			mtoServiceItems = append(mtoServiceItems, serviceItem)
 		}
 	}

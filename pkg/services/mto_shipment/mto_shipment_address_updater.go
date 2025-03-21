@@ -73,11 +73,16 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, shipment 
 			var err error
 
 			// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
+			// International Shipments -- Do not calculate if original pickup is OCONUS
 			if serviceItem.SITOriginHHGOriginalAddress != nil {
-				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+				if mtoShipment.MarketCode != models.MarketCodeInternational ||
+					(mtoShipment.MarketCode == models.MarketCodeInternational && !*serviceItem.SITOriginHHGOriginalAddress.IsOconus) {
+					milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+				}
 			} else {
 				milesCalculated, err = planner.ZipTransitDistance(appCtx, oldAddress.PostalCode, newAddress.PostalCode)
 			}
+
 			if err != nil {
 				return nil, err
 			}
