@@ -4,10 +4,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import DocumentViewerFileManager from './DocumentViewerFileManager';
 
-import { deleteUploadForDocument, createUploadForDocument, createUploadForAmdendedOrders } from 'services/ghcApi';
+import {
+  deleteUploadForDocument,
+  createUploadForDocument,
+  createUploadForAmdendedOrders,
+  createUploadForPPMDocument,
+} from 'services/ghcApi';
 
 jest.mock('services/ghcApi', () => ({
   createUploadForDocument: jest.fn(),
+  createUploadForPPMDocument: jest.fn(),
   createUploadForAmdendedOrders: jest.fn(),
   createUploadForSupportingDocuments: jest.fn(),
   deleteUploadForDocument: jest.fn(),
@@ -86,6 +92,19 @@ describe('DocumentViewerFileManager', () => {
     updateAmendedDocument: jest.fn(),
   };
 
+  const ppmProps = {
+    title: 'Custom Title',
+    useChevron: true,
+    className: 'test-class',
+    move: { id: 'move-id', locator: 'move-locator' },
+    orderId: 'order-id',
+    documentId: 'document-id',
+    files: [{ id: 'file-1', name: 'File 1' }],
+    documentType: 'WEIGHT_TICKET',
+    mtoShipment: { ppmShipment: { id: 'ppm-id' } },
+    updateAmendedDocument: jest.fn(),
+  };
+
   const defaultPropsAmended = {
     className: 'test-class',
     move: { id: 'move-id', locator: 'move-locator' },
@@ -112,6 +131,12 @@ describe('DocumentViewerFileManager', () => {
   it('shows upload section when Manage Orders button is clicked', () => {
     renderWithQueryClient(<DocumentViewerFileManager {...defaultProps} />);
     fireEvent.click(screen.getByText('Manage Orders'));
+    expect(screen.getByText('Drag files here or click to upload')).toBeInTheDocument();
+  });
+
+  it('shows upload section when custom title button is clicked', () => {
+    renderWithQueryClient(<DocumentViewerFileManager {...ppmProps} />);
+    fireEvent.click(screen.getByText('Show Custom Title'));
     expect(screen.getByText('Drag files here or click to upload')).toBeInTheDocument();
   });
 
@@ -233,6 +258,23 @@ describe('DocumentViewerFileManager', () => {
     await createUploadForDocument(mockFile, 'document-id');
 
     expect(createUploadForDocument).toHaveBeenCalledWith(mockFile, 'document-id');
+  });
+
+  it('uploads a ppm document successfully', async () => {
+    createUploadForPPMDocument.mockResolvedValueOnce({});
+
+    renderWithQueryClient(<DocumentViewerFileManager {...ppmProps} />);
+
+    fireEvent.click(screen.getByText('Show Custom Title'));
+
+    const uploadButton = screen.getByTestId('file-upload-input');
+    const mockFile = new File(['content'], 'weight_ticket', { type: 'application/pdf' });
+
+    fireEvent.click(uploadButton);
+
+    await createUploadForPPMDocument(mockFile, 'mtoShipment-id');
+
+    expect(createUploadForPPMDocument).toHaveBeenCalledWith(mockFile, 'mtoShipment-id');
   });
 
   it('uploads an amended orders document successfully', async () => {
