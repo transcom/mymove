@@ -168,7 +168,7 @@ describe('DateAndLocationForm component', () => {
         expect(address2[1]).toHaveValue('');
         expect(
           screen.getAllByText(
-            `${defaultProps.destinationDutyLocation.city}, ${defaultProps.destinationDutyLocation.state} ${defaultProps.destinationDutyLocation.postalCode} ()`,
+            `${defaultProps.destinationDutyLocation.address.city}, ${defaultProps.destinationDutyLocation.address.state} ${defaultProps.destinationDutyLocation.address.postalCode} ()`,
           ),
         );
       });

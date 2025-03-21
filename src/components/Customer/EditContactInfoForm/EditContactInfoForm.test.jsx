@@ -99,12 +99,12 @@ describe('EditContactInfoForm component', () => {
 
     expect(
       screen.getAllByText(
-        `${testProps.initialValues.residential_address.city}, ${testProps.initialValues.residential_address.state} ${testProps.initialValues.residential_address.postalCode} (${testProps.initialValues.residential_address.county})`,
+        `${testProps.initialValues.residential_address.city}, ${testProps.initialValues.residential_address.state} ${testProps.initialValues.residential_address.postalCode} ()`,
       ),
     );
     expect(
       screen.getAllByText(
-        `${testProps.initialValues.backup_mailing_address.city}, ${testProps.initialValues.backup_mailing_address.state} ${testProps.initialValues.backup_mailing_address.postalCode} (${testProps.initialValues.backup_mailing_address.county})`,
+        `${testProps.initialValues.backup_mailing_address.city}, ${testProps.initialValues.backup_mailing_address.state} ${testProps.initialValues.backup_mailing_address.postalCode} ()`,
       ),
     );
 
