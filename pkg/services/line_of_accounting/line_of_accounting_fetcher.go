@@ -86,7 +86,8 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 		}
 		linesOfAccounting[currLoaIndex].ValidHhgProgramCodeForLoa = &validHhgProgramCodeForLoa
 
-		valid, missingRequiredDfasFields := validateDFASFields(loa)
+		missingRequiredDfasFields := validateDFASFields(loa)
+		valid := len(missingRequiredDfasFields) == 0
 		if !valid {
 			var errMessage string
 			for _, missingField := range missingRequiredDfasFields {
@@ -123,7 +124,7 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 // and return whether or not it is valid as well as which required
 // DFAS fields it may be missing.
 // NOTE: This only returns REQUIRED missing fields, not optional.
-func validateDFASFields(loa models.LineOfAccounting) (bool, []string) {
+func validateDFASFields(loa models.LineOfAccounting) []string {
 	dfasFields := newDfasValidator()
 
 	// Only track the missing codes that ARE "REQUIRED"
@@ -146,8 +147,7 @@ func validateDFASFields(loa models.LineOfAccounting) (bool, []string) {
 	}
 
 	// If we have any required fields missing, this LOA is invalid
-	isValid := len(missingRequiredCodes) == 0
-	return isValid, missingRequiredCodes
+	return missingRequiredCodes
 }
 
 func (f linesOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.LineOfAccounting) string {
