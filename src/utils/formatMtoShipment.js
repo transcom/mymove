@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
-import { MTOAgentType, SHIPMENT_TYPES } from 'shared/constants';
+import { MTOAgentType, PPM_TYPES, SHIPMENT_TYPES } from 'shared/constants';
 import { parseDate } from 'shared/dates';
 import { formatDelimitedNumber, parseSwaggerDate } from 'utils/formatters';
 import { roleTypes } from 'constants/userRoles';
@@ -87,6 +87,7 @@ const emptyAddressShape = {
 
 export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment = {}, closeoutOffice = {} }) {
   const displayValues = {
+    ppmType: ppmShipment.ppmType,
     expectedDepartureDate: ppmShipment.expectedDepartureDate,
     pickup: {
       address: ppmShipment.pickupAddress || emptyAddressShape,
@@ -129,7 +130,7 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     advance: (ppmShipment.advanceAmountRequested / 100 || '').toString(),
     closeoutOffice,
     counselorRemarks,
-    isActualExpenseReimbursement: ppmShipment.isActualExpenseReimbursement ? 'true' : 'false',
+    isActualExpenseReimbursement: ppmShipment.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
   };
 
   if (ppmShipment.hasSecondaryPickupAddress) {
@@ -294,6 +295,7 @@ export function formatMtoShipmentForDisplay({
 
 export function formatPpmShipmentForAPI(formValues) {
   let ppmShipmentValues = {
+    ppmType: formValues.ppmType,
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
@@ -303,7 +305,7 @@ export function formatPpmShipmentForAPI(formValues) {
     hasSecondaryDestinationAddress: formValues.hasSecondaryDestination === 'true',
     hasTertiaryPickupAddress: formValues.hasTertiaryPickup === 'true',
     hasTertiaryDestinationAddress: formValues.hasTertiaryDestination === 'true',
-    isActualExpenseReimbursement: formValues.isActualExpenseReimbursement === 'true',
+    isActualExpenseReimbursement: formValues.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
     closeoutOfficeID: formValues.closeoutOffice?.id,
   };
 
