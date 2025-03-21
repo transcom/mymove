@@ -38,6 +38,13 @@
   .grow {
     flex-grow: 1;
   }
+
+  .center {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    text-align: center;
+  }
 }
 
 .formSection {
