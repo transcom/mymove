@@ -14,10 +14,14 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PPMShipmentSuite) TestReviewDocuments() {
+	mockSSWPPMComputer := mocks.SSWPPMComputer{}
+
 	setUpPPMShipperRouterMock := func(returnValue ...interface{}) services.PPMShipmentRouter {
 		mockRouter := &mocks.PPMShipmentRouter{}
 
@@ -57,7 +61,8 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 
 	suite.Run("Returns an error if PPM ID is invalid", func() {
 		submitter := NewPPMShipmentReviewDocuments(
-			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil),
+			setUpSignedCertificationUpdaterMock(nil, nil), &mockSSWPPMComputer,
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -75,9 +80,9 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 
 	suite.Run("Returns an error if PPM shipment does not exist", func() {
 		nonexistentPPMShipmentID := uuid.Must(uuid.NewV4())
-
 		submitter := NewPPMShipmentReviewDocuments(
-			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil),
+			setUpSignedCertificationUpdaterMock(nil, nil), &mockSSWPPMComputer,
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -109,7 +114,8 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 		)
 
 		submitter := NewPPMShipmentReviewDocuments(
-			setUpPPMShipperRouterMock(fakeErr), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			setUpPPMShipperRouterMock(fakeErr), setUpSignedCertificationCreatorMock(nil, nil),
+			setUpSignedCertificationUpdaterMock(nil, nil), &mockSSWPPMComputer,
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -180,8 +186,11 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 				return nil
 			})
 
+		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+		SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
+		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000), nil)
 		submitter := NewPPMShipmentReviewDocuments(
-			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(),
+			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(), SSWPPMComputer,
 		)
 
 		txErr := session.NewTransaction(func(txAppCtx appcontext.AppContext) error {
