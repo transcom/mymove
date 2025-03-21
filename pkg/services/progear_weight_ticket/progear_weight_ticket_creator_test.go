@@ -13,8 +13,8 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
 		session := &auth.Session{
-			ApplicationName: auth.MilApp,
 			ServiceMemberID: serviceMemberID,
+			ApplicationName: auth.MilApp,
 		}
 
 		progearWeightTicketCreator := NewCustomerProgearWeightTicketCreator()
@@ -27,11 +27,11 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 		suite.Equal(serviceMemberID, progearWeightTicket.Document.ServiceMemberID)
 	})
 
-	suite.Run("Fails when an invalid ppmShipmentID is used", func() {
+	suite.Run("Fails when an invalid ppmShipmentID is used - Customer", func() {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
-			ApplicationName: auth.MilApp,
 			ServiceMemberID: serviceMember.ID,
+			ApplicationName: auth.MilApp,
 		}
 
 		progearWeightTicketCreator := NewCustomerProgearWeightTicketCreator()
@@ -44,10 +44,10 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 		suite.ErrorIs(err, expectedErr)
 	})
 
-	suite.Run("Fails when session has invalid serviceMemberID", func() {
+	suite.Run("Fails when session has invalid serviceMemberID - Customer", func() {
 		session := &auth.Session{
-			ApplicationName: auth.MilApp,
 			ServiceMemberID: uuid.Must(uuid.NewV4()),
+			ApplicationName: auth.MilApp,
 		}
 		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
@@ -65,8 +65,8 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
 		session := &auth.Session{
-			ApplicationName: auth.OfficeApp,
 			ServiceMemberID: serviceMemberID,
+			ApplicationName: auth.OfficeApp,
 		}
 
 		progearWeightTicketCreator := NewCustomerProgearWeightTicketCreator()
@@ -79,11 +79,11 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 		suite.Equal(serviceMemberID, progearWeightTicket.Document.ServiceMemberID)
 	})
 
-	suite.Run("Fails when an invalid ppmShipmentID is used", func() {
+	suite.Run("Fails when an invalid ppmShipmentID is used - Office", func() {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
-			ApplicationName: auth.MilApp,
 			ServiceMemberID: serviceMember.ID,
+			ApplicationName: auth.OfficeApp,
 		}
 
 		progearWeightTicketCreator := NewCustomerProgearWeightTicketCreator()
@@ -92,23 +92,6 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 		suite.Nil(progearWeightTicket)
 
 		expectedErr := apperror.NewNotFoundError(uuid.Nil, "while looking for PPMShipment")
-
-		suite.ErrorIs(err, expectedErr)
-	})
-
-	suite.Run("Fails when session has invalid serviceMemberID", func() {
-		session := &auth.Session{
-			ApplicationName: auth.MilApp,
-			ServiceMemberID: uuid.Must(uuid.NewV4()),
-		}
-		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
-
-		progearWeightTicketCreator := NewCustomerProgearWeightTicketCreator()
-		progearWeightTicket, err := progearWeightTicketCreator.CreateProgearWeightTicket(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
-
-		suite.Nil(progearWeightTicket)
-
-		expectedErr := apperror.NewNotFoundError(ppmShipment.ID, "while looking for PPMShipment")
 
 		suite.ErrorIs(err, expectedErr)
 	})

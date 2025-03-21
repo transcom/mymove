@@ -9,6 +9,7 @@ import {
   selectMTOShipmentById,
   selectProGearWeightTicketAndIndexById,
   selectServiceMemberFromLoggedInUser,
+  selectOrdersForLoggedInUser,
 } from 'store/entities/selectors';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
@@ -27,6 +28,8 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
+import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
+import { APP_NAME } from 'constants/apps';
 
 const ProGear = () => {
   const dispatch = useDispatch();
@@ -35,6 +38,10 @@ const ProGear = () => {
   const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
   const serviceMemberId = serviceMember.id;
 
+  const orders = useSelector((state) => selectOrdersForLoggedInUser(state));
+  const entitlements = Object.values(orders)?.[0].entitlement;
+
+  const appName = APP_NAME.MYMOVE;
   const { moveId, mtoShipmentId, proGearId } = useParams();
 
   const [multiMove, setMultiMove] = useState(false);
@@ -86,6 +93,14 @@ const ProGear = () => {
     const moves = getAllMoves(serviceMemberId);
     dispatch(updateAllMoves(moves));
   }, [proGearId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
+
+  const handleErrorMessage = (error) => {
+    if (error?.response?.status === 412) {
+      setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
+    } else {
+      setErrorMessage('Failed to save updated trip record');
+    }
+  };
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
@@ -199,8 +214,8 @@ const ProGear = () => {
             updateMtoShipment(values);
             navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
           })
-          .catch(() => {
-            setErrorMessage('Failed to fetch shipment information');
+          .catch((error) => {
+            handleErrorMessage(error);
           });
       })
       .catch(() => {
@@ -245,6 +260,7 @@ const ProGear = () => {
               </p>
             </div>
             <ProGearForm
+              entitlements={entitlements}
               proGear={currentProGearWeightTicket}
               setNumber={currentIndex + 1}
               onBack={handleBack}
@@ -252,6 +268,7 @@ const ProGear = () => {
               onCreateUpload={handleCreateUpload}
               onUploadComplete={handleUploadComplete}
               onUploadDelete={handleUploadDelete}
+              appName={appName}
             />
           </Grid>
         </Grid>

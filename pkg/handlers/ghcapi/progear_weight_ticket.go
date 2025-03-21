@@ -35,7 +35,7 @@ func (h CreateProGearWeightTicketHandler) Handle(params progearops.CreateProGear
 			progear, err := h.progearCreator.CreateProgearWeightTicket(appCtx, ppmShipmentID)
 
 			if err != nil {
-				appCtx.Logger().Error("internalapi.CreateProgearWeightTicketHandler", zap.Error(err))
+				appCtx.Logger().Error("ghcapi.CreateProgearWeightTicketHandler", zap.Error(err))
 				switch err.(type) {
 				case apperror.InvalidInputError:
 					return progearops.NewCreateProGearWeightTicketUnprocessableEntity(), err
@@ -132,16 +132,14 @@ type DeleteProGearWeightTicketHandler struct {
 func (h DeleteProGearWeightTicketHandler) Handle(params progearops.DeleteProGearWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+			errPayload := &ghcmessages.Error{Message: &errInstance}
 			if appCtx.Session() == nil {
 				noSessionErr := apperror.NewSessionError("No user session")
-				appCtx.Logger().Error("internalapi.DeleteProgearWeightTicketHandler", zap.Error(noSessionErr))
 				return progearops.NewDeleteProGearWeightTicketUnauthorized(), noSessionErr
 			}
-
-			if !appCtx.Session().IsMilApp() || appCtx.Session().ServiceMemberID == uuid.Nil {
-				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
-				appCtx.Logger().Error("internalapi.DeleteProgearWeightTicketHandler", zap.Error(noServiceMemberIDErr))
-				return progearops.NewDeleteProGearWeightTicketForbidden(), noServiceMemberIDErr
+			if !appCtx.Session().IsOfficeApp() {
+				return progearops.NewDeleteProGearWeightTicketForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
 			}
 
 			// Make sure the service member is not modifying another service member's PPM
@@ -150,7 +148,7 @@ func (h DeleteProGearWeightTicketHandler) Handle(params progearops.DeleteProGear
 			progearWeightTicketID := uuid.FromStringOrNil(params.ProGearWeightTicketID.String())
 			err := h.progearDeleter.DeleteProgearWeightTicket(appCtx, ppmID, progearWeightTicketID)
 			if err != nil {
-				appCtx.Logger().Error("internalapi.DeleteProgearWeightTicketHandler", zap.Error(err))
+				appCtx.Logger().Error("ghcapi.DeleteProgearWeightTicketHandler", zap.Error(err))
 
 				switch err.(type) {
 				case apperror.NotFoundError:

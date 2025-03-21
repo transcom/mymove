@@ -5,6 +5,7 @@ import { act } from 'react-dom/test-utils';
 
 import { MockProviders } from 'testUtils';
 import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
+import { APP_NAME } from 'constants/apps';
 
 const defaultProps = {
   onBack: jest.fn(),
@@ -71,8 +72,8 @@ const proGearWithDocumentProps = {
 
 describe('ProGearForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load with defaults', () => {
-      render(<ProGearForm {...defaultProps} />, { wrapper: MockProviders });
+    it('renders blank form on load with defaults - Customer page', () => {
+      render(<ProGearForm {...defaultProps} appName={APP_NAME.MYMOVE} />, { wrapper: MockProviders });
 
       expect(screen.getByRole('heading', { level: 2, name: 'Set 1' })).toBeInTheDocument();
       expect(screen.getByText('Who does this pro-gear belong to?')).toBeInstanceOf(HTMLLabelElement);
@@ -80,6 +81,18 @@ describe('ProGearForm component', () => {
       expect(screen.getByLabelText('My spouse')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+    });
+
+    it('renders blank form on load with defaults - Office page', () => {
+      render(<ProGearForm {...defaultProps} appName={APP_NAME.OFFICE} />, { wrapper: MockProviders });
+
+      expect(screen.getByRole('heading', { level: 2, name: 'Set 1' })).toBeInTheDocument();
+      expect(screen.getByText('Who does this pro-gear belong to?')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByLabelText('Me')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('My spouse')).toBeInstanceOf(HTMLInputElement);
+
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -127,10 +140,20 @@ describe('ProGearForm component', () => {
         expect(defaultProps.onSubmit).toHaveBeenCalledWith(expectedPayload, expect.anything());
       });
     });
-    it('calls the onBack prop when the Return To Homepage button is clicked', async () => {
-      render(<ProGearForm {...defaultProps} />, { wrapper: MockProviders });
+    it('calls the onBack prop when the Return To Homepage button is clicked - Customer page', async () => {
+      render(<ProGearForm {...defaultProps} appName={APP_NAME.MYMOVE} />, { wrapper: MockProviders });
 
       await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+
+      await waitFor(() => {
+        expect(defaultProps.onBack).toHaveBeenCalled();
+      });
+    });
+
+    it('calls the onBack prop when the Return To Homepage button is clicked - Office page', async () => {
+      render(<ProGearForm {...defaultProps} appName={APP_NAME.OFFICE} />, { wrapper: MockProviders });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();

@@ -448,3 +448,28 @@ func (suite *PayloadsSuite) TestWeightTicketModelFromUpdate() {
 		suite.Nil(result.MissingFullWeightTicket)
 	})
 }
+
+func (suite *PayloadsSuite) TestProGearWeightTicketModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		weight := int64(100)
+		status := ghcmessages.PPMDocumentStatusAPPROVED
+		reason := "Valid reason"
+		hasWeightTickets, belongsToSelf := true, true
+
+		input := &ghcmessages.UpdateProGearWeightTicket{
+			Weight:           &weight,
+			HasWeightTickets: hasWeightTickets,
+			BelongsToSelf:    belongsToSelf,
+			Status:           status,
+			Reason:           reason,
+		}
+
+		result := ProgearWeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.ProgearWeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weight), result.Weight)
+		suite.Equal(hasWeightTickets, *result.HasWeightTickets)
+		suite.Equal(belongsToSelf, *result.BelongsToSelf)
+		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
+	})
+}
