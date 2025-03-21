@@ -101,6 +101,7 @@ const EditOrders = ({
       allowances.dependents_under_twelve !== undefined ? `${allowances.dependents_under_twelve}` : '',
     dependents_twelve_and_over:
       allowances.dependents_twelve_and_over !== undefined ? `${allowances.dependents_twelve_and_over}` : '',
+    civilian_tdy_ub_allowance: allowances.ub_allowance !== undefined ? `${allowances.ub_allowance}` : '',
   };
 
   const showAllOrdersTypes = context.flags?.allOrdersTypes;
@@ -190,6 +191,12 @@ const EditOrders = ({
               Number(fieldValues.dependents_twelve_and_over) ?? 0
             : // If CONUS or no dependents, omit this field altogether
               null,
+        civilian_tdy_ub_allowance: isOconus
+          ? // If OCONUS
+            // then provide the civilian TDY UB allowance. Default to 0 if not present
+            Number(fieldValues.civilian_tdy_ub_allowance) ?? 0
+          : // If CONUS, omit this field altogether
+            null,
       };
       /* eslint-enable no-nested-ternary */
     };
