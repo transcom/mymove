@@ -153,19 +153,40 @@ describe('CreateMoveCustomerInfo Component', () => {
 
     await waitFor(() => {
       const formGroupElements = {
-        ordersType: { selector: /Orders type/, fn: (src) => src.getByLabelText },
-        ordersDate: { selector: /Orders date/, fn: (src) => src.getByLabelText },
-        reportByDate: { selector: /Report by date/, fn: (src) => src.getByLabelText },
-        currentDutyLocation: { selector: /Current duty location/, fn: (src) => src.getByLabelText },
-        newDutyLocation: { selector: /New duty location/, fn: (src) => src.getByLabelText },
-        includedDependents: { selector: /Are dependents included in the orders?/, fn: (src) => src.getByText },
-        paygrade: { selector: /Pay grade/, fn: (src) => src.getByLabelText },
+        ordersType: { selector: /Orders type/, fn: (src) => src.getByLabelText, elementType: HTMLSelectElement },
+        ordersDate: { selector: /Orders date/, fn: (src) => src.getByLabelText, elementType: HTMLInputElement },
+        reportByDate: { selector: /Report by date/, fn: (src) => src.getByLabelText, elementType: HTMLInputElement },
+        currentDutyLocation: {
+          selector: /Current duty location/,
+          fn: (src) => src.getByLabelText,
+          elementType: HTMLInputElement,
+        },
+        newDutyLocation: {
+          selector: /New duty location/,
+          fn: (src) => src.getByLabelText,
+          elementType: HTMLInputElement,
+        },
+        includedDependents: {
+          selector: /Are dependents included in the orders?/,
+          fn: (src) => src.getByText,
+          elementType: HTMLLabelElement,
+        },
+        paygrade: { selector: /Pay grade/, fn: (src) => src.getByLabelText, elementType: HTMLSelectElement },
       };
 
       const otherElements = {
-        hasDependentsYes: { selector: 'hasDependentsYes', fn: (src) => src.getByTestId },
-        hasDependentsNo: { selector: 'hasDependentsNo', fn: (src) => src.getByTestId },
-        tellUsAboutYourOrders: { selector: 'Tell us about the orders', fn: (src) => src.getByText },
+        hasDependentsYes: { selector: 'hasDependentsYes', fn: (src) => src.getByTestId, elementType: HTMLInputElement },
+        hasDependentsNo: { selector: 'hasDependentsNo', fn: (src) => src.getByTestId, elementType: HTMLInputElement },
+        tellUsAboutYourOrders: {
+          selector: 'Tell us about the orders',
+          fn: (src) => src.getByText,
+          elementType: HTMLHeadingElement,
+        },
+        requiredIndicatorMessage: {
+          selector: 'Fields marked with * are required.',
+          fn: (src) => src.getByText,
+          elementType: HTMLDivElement,
+        },
       };
 
       const formGroupElementsByOrder = [
@@ -186,21 +207,21 @@ describe('CreateMoveCustomerInfo Component', () => {
       };
 
       const formGroup = screen.getAllByTestId('formGroup');
-
       expect(formGroup.length).toBe(7);
 
-      formGroupElementsByOrder.forEach(({ selector, fn }, i) => {
+      formGroupElementsByOrder.forEach(({ selector, fn, elementType }, i) => {
         const formElement = formGroup[i];
         const formTarget = fn(within(formElement))(selector);
         expect(formTarget).toBeInTheDocument();
-
+        expect(formTarget).toBeInstanceOf(elementType);
         const requiredIndicator = getRequiredIndicator(formElement);
         expect(requiredIndicator).toBeInTheDocument();
       });
 
-      Object.values(otherElements).forEach(({ selector, fn }) => {
+      Object.values(otherElements).forEach(({ selector, fn, elementType }) => {
         const formTarget = fn(screen)(selector);
         expect(formTarget).toBeInTheDocument();
+        expect(formTarget).toBeInstanceOf(elementType);
       });
     });
   });

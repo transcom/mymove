@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
@@ -233,24 +233,84 @@ const mockStore = configureStore({});
 
 describe('OrdersInfoForm component', () => {
   it('renders the form inputs', async () => {
-    const { getByLabelText } = render(
+    render(
       <Provider store={mockStore.store}>
         <OrdersInfoForm {...testProps} />
       </Provider>,
     );
 
     await waitFor(() => {
-      expect(getByLabelText(/Orders type/)).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText(/Orders type/)).toBeRequired();
-      expect(getByLabelText(/Orders date/)).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText(/Orders date/)).toBeRequired();
-      expect(getByLabelText(/Report by date/)).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText(/Report by date/)).toBeRequired();
-      expect(getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText(/New duty location/)).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText(/Pay grade/)).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText(/Current duty location/)).toBeInstanceOf(HTMLInputElement);
+      const formGroupElements = {
+        ordersType: { selector: /Orders type/, fn: (src) => src.getByLabelText, elementType: HTMLSelectElement },
+        ordersDate: { selector: /Orders date/, fn: (src) => src.getByLabelText, elementType: HTMLInputElement },
+        reportByDate: { selector: /Report by date/, fn: (src) => src.getByLabelText, elementType: HTMLInputElement },
+        currentDutyLocation: {
+          selector: /Current duty location/,
+          fn: (src) => src.getByLabelText,
+          elementType: HTMLInputElement,
+        },
+        newDutyLocation: {
+          selector: /New duty location/,
+          fn: (src) => src.getByLabelText,
+          elementType: HTMLInputElement,
+        },
+        includedDependents: {
+          selector: /Are dependents included in your orders?/,
+          fn: (src) => src.getByText,
+          elementType: HTMLLabelElement,
+        },
+        paygrade: { selector: /Pay grade/, fn: (src) => src.getByLabelText, elementType: HTMLSelectElement },
+      };
+
+      const otherElements = {
+        hasDependentsYes: { selector: 'hasDependentsYes', fn: (src) => src.getByTestId, elementType: HTMLInputElement },
+        hasDependentsNo: { selector: 'hasDependentsNo', fn: (src) => src.getByTestId, elementType: HTMLInputElement },
+        tellUsAboutYourOrders: {
+          selector: 'Tell us about your move orders',
+          fn: (src) => src.getByText,
+          elementType: HTMLHeadingElement,
+        },
+        requiredIndicatorMessage: {
+          selector: 'Fields marked with * are required.',
+          fn: (src) => src.getByText,
+          elementType: HTMLDivElement,
+        },
+      };
+
+      const formGroupElementsByOrder = [
+        formGroupElements.ordersType,
+        formGroupElements.ordersDate,
+        formGroupElements.reportByDate,
+        formGroupElements.currentDutyLocation,
+        formGroupElements.newDutyLocation,
+        formGroupElements.includedDependents,
+        formGroupElements.paygrade,
+      ];
+
+      const getRequiredIndicator = (selectedValue) => {
+        const spans = Array.from(selectedValue.querySelectorAll('div > div > label > span'));
+        const result = spans.find((span) => span.textContent === '*');
+        expect(result).toHaveClass('usa-hint');
+        return result;
+      };
+
+      const formGroup = screen.getAllByTestId('formGroup');
+      expect(formGroup.length).toBe(7);
+
+      formGroupElementsByOrder.forEach(({ selector, fn, elementType }, i) => {
+        const formElement = formGroup[i];
+        const formTarget = fn(within(formElement))(selector);
+        expect(formTarget).toBeInTheDocument();
+        expect(formTarget).toBeInstanceOf(elementType);
+        const requiredIndicator = getRequiredIndicator(formElement);
+        expect(requiredIndicator).toBeInTheDocument();
+      });
+
+      Object.values(otherElements).forEach(({ selector, fn, elementType }) => {
+        const formTarget = fn(screen)(selector);
+        expect(formTarget).toBeInTheDocument();
+        expect(formTarget).toBeInstanceOf(elementType);
+      });
     });
   });
 
