@@ -182,6 +182,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.UsersDeleteUserHandler = DeleteUserHandler{
+		handlerConfig,
+		user.NewUserDeleter(queryBuilder),
+	}
+
 	adminAPI.AdminUsersGetAdminUserHandler = GetAdminUserHandler{
 		handlerConfig,
 		adminuser.NewAdminUserFetcher(queryBuilder),
