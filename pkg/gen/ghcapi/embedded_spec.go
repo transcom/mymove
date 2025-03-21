@@ -8176,6 +8176,11 @@ func init() {
         "hasProGear"
       ],
       "properties": {
+        "closeoutOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
         "destinationAddress": {
           "allOf": [
             {
@@ -8229,6 +8234,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -12647,8 +12655,7 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ],
-      "readOnly": true
+      ]
     },
     "PWSViolation": {
       "description": "A PWS violation for an evaluation report",
@@ -15162,6 +15169,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -25829,6 +25839,11 @@ func init() {
         "hasProGear"
       ],
       "properties": {
+        "closeoutOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
         "destinationAddress": {
           "allOf": [
             {
@@ -25882,6 +25897,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -30374,8 +30392,7 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ],
-      "readOnly": true
+      ]
     },
     "PWSViolation": {
       "description": "A PWS violation for an evaluation report",
@@ -32948,6 +32965,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
