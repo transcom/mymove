@@ -890,6 +890,19 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 					return err
 				}
 			} else {
+
+				// update mileage for origin SITs. this is to ensure when UpdateEstimatedPricingForShipmentBasicServiceItems
+				// is executed it is using most up to date mileage using lates addresses.
+				err = UpdateOriginSITServiceItemsSITDeliveryMiles(f.planner, appCtx, newShipment)
+				if err != nil {
+					return err
+				}
+				// update mileage for destination SITs.
+				err = UpdateDestinationSITServiceItemsSITDeliveryMiles(f.planner, appCtx, newShipment, newShipment.DestinationAddress, false)
+				if err != nil {
+					return err
+				}
+
 				// if we don't have the port data, that's okay - we can update the other service items except for PODFSC/POEFSC
 				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), newShipment, nil)
 				if err != nil {
@@ -1414,6 +1427,51 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&mtoServiceItems)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating final destination address of service item")
+		} else if err != nil {
+			return apperror.NewQueryError("Service item", err, "")
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return transactionError
+	}
+
+	return nil
+}
+
+func UpdateOriginSITServiceItemsSITDeliveryMiles(planner route.Planner, appCtx appcontext.AppContext, newShipment *models.MTOShipment) error {
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGOriginalAddress"}
+	mtoShipment, err := FindShipment(appCtx, newShipment.ID, eagerAssociations...)
+	if err != nil {
+		return err
+	}
+
+	mtoServiceItems := mtoShipment.MTOServiceItems
+	for _, s := range mtoServiceItems {
+		serviceItem := s
+		reServiceCode := serviceItem.ReService.Code
+		var milesCalculated int
+		if reServiceCode == models.ReServiceCodeDOPSIT ||
+			reServiceCode == models.ReServiceCodeDOSFSC ||
+			reServiceCode == models.ReServiceCodeIOPSIT ||
+			reServiceCode == models.ReServiceCodeIOSFSC {
+
+			milesCalculated, err = planner.ZipTransitDistance(appCtx, newShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+
+			if err != nil {
+				return err
+			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
+
+			mtoServiceItems = append(mtoServiceItems, serviceItem)
+		}
+	}
+	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		verrs, err := txnCtx.DB().ValidateAndUpdate(&mtoServiceItems)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(newShipment.ID, err, verrs, "invalid input found while updating final destination address of service item")
 		} else if err != nil {
 			return apperror.NewQueryError("Service item", err, "")
 		}

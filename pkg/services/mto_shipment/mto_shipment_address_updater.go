@@ -65,7 +65,9 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, shipment 
 		serviceItem := s
 		reServiceCode := serviceItem.ReService.Code
 		if reServiceCode == models.ReServiceCodeDOPSIT ||
-			reServiceCode == models.ReServiceCodeDOSFSC {
+			reServiceCode == models.ReServiceCodeDOSFSC ||
+			reServiceCode == models.ReServiceCodeIOPSIT ||
+			reServiceCode == models.ReServiceCodeIOSFSC {
 
 			var milesCalculated int
 			var err error
@@ -79,6 +81,7 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, shipment 
 			if err != nil {
 				return nil, err
 			}
+
 			serviceItem.SITDeliveryMiles = &milesCalculated
 
 			updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
@@ -210,14 +213,15 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 		return nil, apperror.NewQueryError("Address", err, "")
 	}
 
-	_, err = UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(&mtoShipment.MTOServiceItems, newAddress, appCtx)
+	_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, &mtoShipment, newAddress, &oldAddress, appCtx)
 	if err != nil {
 		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
 	}
 
-	_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, &mtoShipment, newAddress, &oldAddress, appCtx)
+	// update the service item pricing if relevant fields have changed..ie mileage
+	err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &mtoShipment, nil)
 	if err != nil {
-		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
+		return nil, err
 	}
 
 	return address, nil
