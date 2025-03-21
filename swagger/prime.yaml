@@ -2968,6 +2968,10 @@ definitions:
               movers, based on weight tickets.
             x-nullable: true
             x-omitempty: false
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
         required:
           - reason
           - reServiceCode
@@ -3192,6 +3196,10 @@ definitions:
             enum:
               - DDSHUT
               - DOSHUT
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
   UpdateMTOServiceItemInternationalShuttle:
     description: >
       Subtype used to provide the estimated weight and actual weight for
