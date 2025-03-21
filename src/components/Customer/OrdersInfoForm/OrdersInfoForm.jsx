@@ -492,9 +492,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   <div>
                     <MaskedTextField
                       data-testid="civilianTDYUBAllowance"
-                      warning={
-                        <span className={styles.civilianUBAllowanceWarning}>{civilianTDYUBAllowanceWarning}</span>
-                      }
+                      warning={civilianTDYUBAllowanceWarning}
                       defaultValue="0"
                       name="civilian_tdy_ub_allowance"
                       id="civilianTDYUBAllowance"
@@ -503,12 +501,16 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                       signed={false}
                       thousandsSeparator=","
                       lazy={false}
-                      labelHint="Optional"
+                      labelHint={<span className={styles.civilianUBAllowanceWarning}>Optional</span>}
                       label={
                         <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
                           If your orders specify a specific UB weight allowance, enter it here.
                           <ToolTip
-                            text="If you do not specify a UB weight allowance, the default of 0 lbs will be used."
+                            text={
+                              <span className={styles.toolTipText}>
+                                If you do not specify a UB weight allowance, the default of 0 lbs will be used.
+                              </span>
+                            }
                             position="left"
                             icon="info-circle"
                             color="blue"
