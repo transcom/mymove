@@ -4179,7 +4179,7 @@ func createHHGWithOriginSITServiceItems(
 			Model: factory.BuildAddress(db, []factory.Customization{
 				{
 					Model: models.Address{
-						City:       "Harlem",
+						City:       "GROVETOWN",
 						State:      "GA",
 						PostalCode: "30813",
 					},
@@ -4450,7 +4450,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 			Model: factory.BuildAddress(db, []factory.Customization{
 				{
 					Model: models.Address{
-						City:       "Harlem",
+						City:       "GROVETOWN",
 						State:      "GA",
 						PostalCode: "30813",
 					},

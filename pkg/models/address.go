@@ -50,7 +50,7 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	}
 	address := Address{}
 	var response *Address
-	if err := dbConnection.Q().Eager("Country").Find(&address, id); err != nil {
+	if err := dbConnection.Q().Eager("Country", "UsPostRegionCity").Find(&address, id); err != nil {
 		response = nil
 		if err.Error() != RecordNotFoundErrorString {
 			// This is an unknown error from the db
