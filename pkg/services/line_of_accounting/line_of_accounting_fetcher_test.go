@@ -393,8 +393,7 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 					},
 				},
 			}, nil)
-			valid, missing := validateDFASFields(validLoa)
-			suite.True(valid)
+			missing := validateDFASFields(validLoa)
 			suite.Empty(missing)
 		})
 
@@ -441,8 +440,7 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 			}, nil)
 			requiredDfasFields := []string{"A1", "A4", "A5", "F1",
 				"J1", "A3", "B3"}
-			valid, missing := validateDFASFields(invalidLoa)
-			suite.False(valid)
+			missing := validateDFASFields(invalidLoa)
 			suite.Len(missing, len(requiredDfasFields)) // Make sure that's all of them
 			for _, dfasField := range requiredDfasFields {
 				suite.Contains(missing, dfasField)
