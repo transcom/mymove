@@ -87,6 +87,12 @@ const AddOrders = ({
               Number(values.dependents_twelve_and_over) ?? 0
             : // If CONUS or no dependents, omit this field altogether
               null,
+        civilian_tdy_ub_allowance: isOconus
+          ? // If OCONUS
+            // then provide the civilian TDY UB allowance. Default to 0 if not present
+            Number(values.civilian_tdy_ub_allowance) ?? 0
+          : // If CONUS, omit this field altogether
+            null,
       };
       /* eslint-enable no-nested-ternary */
     };
@@ -138,6 +144,7 @@ const AddOrders = ({
     dependents_under_twelve: '',
     dependents_twelve_and_over: '',
     counseling_office_id: '',
+    civilian_tdy_ub_allowance: '',
   };
 
   // Only allow PCS unless feature flag is on

@@ -3,7 +3,9 @@ import {
   ArrayField,
   Datagrid,
   DateField,
-  Filter,
+  SearchInput,
+  FilterForm,
+  FilterButton,
   List,
   ReferenceField,
   TextField,
@@ -17,17 +19,9 @@ import {
 } from 'react-admin';
 import jsonExport from 'jsonexport/dist';
 
+import styles from './RequestedOfficeUserList.module.scss';
+
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
-
-const RequestedOfficeUserListFilter = (props) => (
-  <Filter {...props}>
-    <TextInput label="Search by Name/Email" source="search" alwaysOn resettable />
-    <TextInput label="Transportation Office" source="offices" alwaysOn resettable />
-    <TextInput label="Roles" source="rolesSearch" alwaysOn resettable />
-  </Filter>
-);
-
-const defaultSort = { field: 'createdAt', order: 'DESC' };
 
 const UserRolesToString = (user) => {
   const { roles } = user;
@@ -96,13 +90,36 @@ const ListActions = () => {
   );
 };
 
+const RequestedOfficeUserListFilter = [
+  <SearchInput source="search" alwaysOn />,
+  <TextInput label="Email" source="email" />,
+  <TextInput label="First Name" source="firstName" />,
+  <TextInput label="Last Name" source="lastName" />,
+  <TextInput label="Office" source="office" />,
+  <TextInput label="Requested On" placeholder="MM/DD/YYYY" source="requestedOn" />,
+  <TextInput label="Roles" source="roles" />,
+];
+
+const SearchFilters = () => (
+  <div className={styles.searchContainer}>
+    <div className={styles.searchBar}>
+      <FilterForm filters={RequestedOfficeUserListFilter} />
+    </div>
+    <div className={styles.filters}>
+      <FilterButton filters={RequestedOfficeUserListFilter} />
+    </div>
+  </div>
+);
+
+const defaultSort = { field: 'createdAt', order: 'DESC' };
+
 const RequestedOfficeUserList = () => {
   return (
     <List
       pagination={<AdminPagination />}
       perPage={25}
       sort={defaultSort}
-      filters={<RequestedOfficeUserListFilter />}
+      filters={<SearchFilters />}
       actions={<ListActions />}
     >
       <Datagrid bulkActionButtons={false} rowClick="show" data-testid="requested-office-user-fields">

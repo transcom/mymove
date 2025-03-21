@@ -31,6 +31,12 @@ type UpdateWeightTicket struct {
 	// Minimum: 0
 	FullWeight *int64 `json:"fullWeight,omitempty"`
 
+	// Indicates if the customer is missing a weight ticket for the vehicle weight when empty.
+	MissingEmptyWeightTicket *bool `json:"missingEmptyWeightTicket"`
+
+	// Indicates if the customer is missing a weight ticket for the vehicle weight when full.
+	MissingFullWeightTicket *bool `json:"missingFullWeightTicket"`
+
 	// Remarks explaining any edits made to the net weight
 	NetWeightRemarks string `json:"netWeightRemarks,omitempty"`
 
@@ -45,6 +51,9 @@ type UpdateWeightTicket struct {
 
 	// Indicates if the trailer that the customer used meets all the criteria to be claimable.
 	TrailerMeetsCriteria bool `json:"trailerMeetsCriteria,omitempty"`
+
+	// Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.
+	VehicleDescription *string `json:"vehicleDescription"`
 }
 
 // Validate validates this update weight ticket

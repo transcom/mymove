@@ -4089,6 +4089,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -4347,6 +4350,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilian_tdy_ub_allowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counseling_office_id": {
           "type": "string",
@@ -6874,8 +6883,7 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ],
-      "readOnly": true
+      ]
     },
     "PatchMovePayload": {
       "type": "object",
@@ -8029,6 +8037,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -13425,6 +13436,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -13683,6 +13697,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilian_tdy_ub_allowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counseling_office_id": {
           "type": "string",
@@ -16215,8 +16235,7 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ],
-      "readOnly": true
+      ]
     },
     "PatchMovePayload": {
       "type": "object",
@@ -17372,6 +17391,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",

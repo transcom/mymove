@@ -22,7 +22,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	state := "FL"
 	postalcode := "33621"
 	country := models.Country{
-		Country: "US",
+		Country:     "US",
+		CountryName: "United States",
 	}
 	county := "HILLSBOROUGH"
 
@@ -41,6 +42,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 
 	expectedPPMShipment := models.PPMShipment{
 		ID:                           ppmShipmentID,
+		PPMType:                      models.PPMTypeActualExpense,
 		PickupAddress:                &expectedAddress,
 		DestinationAddress:           &expectedAddress,
 		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
@@ -68,6 +70,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 
+		suite.Equal(internalmessages.PPMType(models.PPMTypeActualExpense), returnedPPMShipment.PpmType)
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
 	})
 }

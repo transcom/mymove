@@ -26,6 +26,13 @@ jest.mock('services/primeApi', () => ({
   createPaymentRequest: jest.fn(),
 }));
 
+const mockSetFlashMessage = jest.fn();
+
+jest.mock('react-redux', () => ({
+  ...jest.requireActual('react-redux'),
+  connect: jest.fn(() => (component) => (props) => component({ ...props, setFlashMessage: mockSetFlashMessage })),
+}));
+
 const moveTaskOrder = {
   id: '1',
   moveCode: 'LN4T89',
@@ -267,6 +274,13 @@ describe('CreatePaymentRequest page', () => {
       });
 
       await waitFor(() => {
+        expect(mockSetFlashMessage).toHaveBeenCalledWith(
+          `MSG_CREATE_PAYMENT_SUCCESS${moveTaskOrder.moveCode}`,
+          'success',
+          'Successfully created payment request',
+          '',
+          true,
+        );
         expect(mockNavigate).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');
       });
     });

@@ -68,6 +68,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
       const data = await getBulkAssignmentData(queueType);
       setBulkAssignmentData(data);
       initUserData(data?.availableOfficeUsers);
+
       if (!data.bulkAssignmentMoveIDs) {
         setIsDisabled(true);
         setNumberOfMoves(0);
@@ -158,7 +159,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
                   ...newValues,
                 });
               };
-
               return (
                 <>
                   {!showCancelModal && <ModalClose handleClick={handleCancelClick(values)} />}

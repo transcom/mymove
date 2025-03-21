@@ -27,9 +27,9 @@ import {
   getTableQueueSortParamSessionStorageValue,
   getSelectionOptionLabel,
 } from 'components/Table/utils';
-import { roleTypes } from 'constants/userRoles';
 import { saveBulkAssignmentData } from 'services/ghcApi';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
+import { roleTypes } from 'constants/userRoles';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -345,10 +345,7 @@ const TableQueue = ({
     setIsBulkAssignModalVisible(false);
   };
 
-  const onSubmitBulk = (bulkAssignmentSaveData) => {
-    const bulkAssignmentSavePayload = { ...bulkAssignmentSaveData };
-    bulkAssignmentSavePayload.bulkAssignmentSavePayload.userData =
-      bulkAssignmentSaveData.bulkAssignmentSavePayload.userData.filter((user) => user.moveAssignments > 0);
+  const onSubmitBulk = (bulkAssignmentSavePayload) => {
     mutateBulkAssignment({ queueType, ...bulkAssignmentSavePayload });
   };
 
@@ -391,6 +388,7 @@ const TableQueue = ({
                   totalCount={totalCount}
                   paramSort={paramSort}
                   paramFilters={paramFilters}
+                  activeRole={activeRole}
                 />
               )}
             </div>

@@ -54,8 +54,8 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
-import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const ServicesCounselingMoveDetails = ({
   infoSavedAlert,
@@ -293,7 +293,13 @@ const ServicesCounselingMoveDetails = ({
 
     shipmentsInfo = submittedShipmentsNonPPMNeedsCloseout.map((shipment) => {
       const editURL =
-        counselorCanEdit || counselorCanEditNonPPM
+        // This ternary checks if the shipment is a PPM. If so, PPM Shipments are editable at any time based on their ppm status.
+        // If the shipment is not a PPM, it uses the existing counselorCanEdit checks for move status
+        (shipment.shipmentType !== 'PPM' && (counselorCanEdit || counselorCanEditNonPPM)) ||
+        (shipment.shipmentType === 'PPM' &&
+          (shipment.ppmShipment.status === ppmShipmentStatuses.DRAFT ||
+            shipment.ppmShipment.status === ppmShipmentStatuses.SUBMITTED ||
+            shipment.ppmShipment.status === ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL))
           ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               shipmentId: shipment.id,
             })}`
