@@ -137,10 +137,8 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(len(identity.Roles), 1)
 	suite.Equal(identity.Roles[0].RoleType, tooRole.RoleType)
 
-	supervisorPrivilege := models.Privilege{
-		ID:            uuid.FromStringOrNil("463c2034-d197-4d9a-897e-8bbe64893a31"),
-		PrivilegeType: models.PrivilegeTypeSupervisor,
-	}
+	supervisorPrivilege := factory.FetchOrBuildPrivilegeByPrivilegeType(suite.DB(), m.PrivilegeTypeSupervisor)
+
 	sueOktaID := factory.MakeRandomString(20)
 	sue := factory.BuildUser(suite.DB(), []factory.Customization{
 		{
