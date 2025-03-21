@@ -29,11 +29,11 @@ const (
 
 // Privilege represents a Privilege for users
 type Privilege struct {
-	ID            uuid.UUID     `json:"id" db:"id" rw:"r"`
-	PrivilegeType PrivilegeType `json:"privilege_type" db:"privilege_type" rw:"r"`
-	PrivilegeName PrivilegeName `json:"privilege_name" db:"privilege_name" rw:"r"`
-	CreatedAt     time.Time     `json:"created_at" db:"created_at" rw:"r"`
-	UpdatedAt     time.Time     `json:"updated_at" db:"updated_at" rw:"r"`
+	ID            uuid.UUID     `json:"id" db:"id"`
+	PrivilegeType PrivilegeType `json:"privilege_type" db:"privilege_type"`
+	PrivilegeName PrivilegeName `json:"privilege_name" db:"privilege_name"`
+	CreatedAt     time.Time     `json:"created_at" db:"created_at"`
+	UpdatedAt     time.Time     `json:"updated_at" db:"updated_at"`
 }
 
 // TableName overrides the table name used by Pop.
