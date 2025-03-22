@@ -513,13 +513,13 @@ func getPrimeAcknowledgedFilter(acknowledged *bool) string {
   					)`
 	} else {
 		//  Include only moves where the move or any of its shipments are not acknowledged
-		return ` AND moves.prime_acknowledged_at IS NULL
+		return ` AND (moves.prime_acknowledged_at IS NULL
 					OR EXISTS (
     					SELECT 1
     					FROM mto_shipments
     					WHERE mto_shipments.move_id = moves.id
       					AND mto_shipments.prime_acknowledged_at IS NULL
-  					)`
+  					))`
 	}
 }
 
@@ -535,13 +535,13 @@ func getPrimeAcknowledgedAfterFilter(acknowledgedAfter *time.Time, sqlParams *[]
 	sinceParamIndex := strconv.Itoa(nextParam)
 
 	// Include only moves where either the move or any of its shipments prime_acknowledged_at date is after the acknowledgedAfter time
-	sql := ` AND moves.prime_acknowledged_at > $` + sinceParamIndex + `
+	sql := ` AND (moves.prime_acknowledged_at >= $` + sinceParamIndex + `
 				OR EXISTS (
 					SELECT 1
 					FROM mto_shipments
 					WHERE mto_shipments.move_id = moves.id
-		  			AND mto_shipments.prime_acknowledged_at > $` + sinceParamIndex + `
-	  			)`
+		  			AND mto_shipments.prime_acknowledged_at >= $` + sinceParamIndex + `
+	  			))`
 
 	// Add the acknowledgedAfter parameter value to the sqlParams slice
 	*sqlParams = append(*sqlParams, *acknowledgedAfter)
@@ -560,13 +560,13 @@ func getPrimeAcknowledgedBeforeFilter(acknowledgedBefore *time.Time, sqlParams *
 	sinceParamIndex := strconv.Itoa(nextParam)
 
 	// Include only moves where either the move or any of its shipments prime_acknowledged_at date is before the acknowledgedBefore time
-	sql := ` AND moves.prime_acknowledged_at < $` + sinceParamIndex + `
+	sql := ` AND (moves.prime_acknowledged_at <= $` + sinceParamIndex + `
 				OR EXISTS (
 					SELECT 1
 					FROM mto_shipments
 					WHERE mto_shipments.move_id = moves.id
-		  			AND mto_shipments.prime_acknowledged_at < $` + sinceParamIndex + `
-	  			)`
+		  			AND mto_shipments.prime_acknowledged_at <= $` + sinceParamIndex + `
+	  			))`
 
 	// Add the acknowledgedBefore parameter value to the sqlParams slice
 	*sqlParams = append(*sqlParams, *acknowledgedBefore)
