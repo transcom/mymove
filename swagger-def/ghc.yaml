@@ -7155,6 +7155,9 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+      description:
+        description: Description of pro gear included in trips set.
+        type: string
   ApproveShipments:
     type: object
     properties:

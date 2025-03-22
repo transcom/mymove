@@ -15527,6 +15527,10 @@ func init() {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean"
         },
+        "description": {
+          "description": "Description of pro gear included in trips set.",
+          "type": "string"
+        },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
           "type": "boolean"
@@ -33713,6 +33717,10 @@ func init() {
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean"
+        },
+        "description": {
+          "description": "Description of pro gear included in trips set.",
+          "type": "string"
         },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",

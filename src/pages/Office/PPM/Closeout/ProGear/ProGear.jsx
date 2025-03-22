@@ -77,7 +77,6 @@ const ProGear = () => {
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
-
     // Create a date-time stamp in the format "yyyymmddhh24miss"
     const now = new Date();
     const timestamp =
@@ -87,16 +86,13 @@ const ProGear = () => {
       now.getHours().toString().padStart(2, '0') +
       now.getMinutes().toString().padStart(2, '0') +
       now.getSeconds().toString().padStart(2, '0');
-
     // Create a new filename with the timestamp prepended
     const newFileName = `${file.name}-${timestamp}`;
-
     // Create and return a new File object with the new filename
     const newFile = new File([file], newFileName, { type: file.type });
-
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, newFile, false)
+    createUploadForPPMDocument(ppmShipment?.id, documentId, newFile, true)
       .then((upload) => {
-        documents?.proGearWeightTickets[currentIndex][fieldName].uploads.push(upload);
+        documents?.ProGearWeightTickets[currentIndex][fieldName]?.uploads.push(upload);
         setFieldTouched(fieldName, true);
         return upload;
       })
@@ -114,10 +110,10 @@ const ProGear = () => {
   const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
     deleteUploadForDocument(uploadId, null, ppmShipment?.id)
       .then(() => {
-        const filteredUploads = documents?.proGearWeightTickets[currentIndex][fieldName].uploads.filter(
+        const filteredUploads = documents?.ProGearWeightTickets[currentIndex][fieldName].uploads.filter(
           (upload) => upload.id !== uploadId,
         );
-        documents.proGearWeightTickets[currentIndex][fieldName].uploads = filteredUploads;
+        documents.ProGearWeightTickets[currentIndex][fieldName].uploads = filteredUploads;
         setFieldValue(fieldName, filteredUploads, true);
         setFieldTouched(fieldName, true, true);
       })
@@ -147,8 +143,10 @@ const ProGear = () => {
     }
     const payload = {
       belongsToSelf,
+      description: values.description,
+      weight: Number(values.weight),
       ppmShipment: {
-        id: ppmShipment?.id,
+        id: ppmShipment.id,
       },
       shipmentType: mtoShipment.shipmentType,
       actualSpouseProGearWeight: parseInt(spouseProGear, 10),
@@ -159,7 +157,7 @@ const ProGear = () => {
 
     mutatePatchProGearWeightTicket({
       ppmShipmentId: currentProGearWeightTicket.ppmShipmentId,
-      proGearId: currentProGearWeightTicket.id,
+      proGearWeightTicketId: currentProGearWeightTicket.id,
       payload,
       eTag: currentProGearWeightTicket.eTag,
     });

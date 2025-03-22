@@ -820,6 +820,11 @@ func ProgearWeightTicketModelFromUpdate(progearWeightTicket *ghcmessages.UpdateP
 		Status:           (*models.PPMDocumentStatus)(handlers.FmtString(string(progearWeightTicket.Status))),
 		Reason:           handlers.FmtString(progearWeightTicket.Reason),
 	}
+
+	if progearWeightTicket.Description != "" {
+		model.Description = handlers.FmtString(progearWeightTicket.Description)
+	}
+
 	return model
 }
 
