@@ -34,6 +34,31 @@ export async function getPPMDocuments(key, shipmentID) {
   return makeGHCRequest('ppm.getPPMDocuments', { shipmentID }, { normalize: false });
 }
 
+export async function createWeightTicket(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createWeightTicket',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteWeightTicket({ ppmShipmentId, weightTicketId }) {
+  return makeGHCRequest(
+    'ppm.deleteWeightTicket',
+    {
+      ppmShipmentId,
+      weightTicketId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchWeightTicket({ ppmShipmentId, weightTicketId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateWeightTicket',
@@ -64,6 +89,18 @@ export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eT
   );
 }
 
+export async function createProGearWeightTicket(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createProGearWeightTicket',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTicketId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateProGearWeightTicket',
@@ -72,6 +109,19 @@ export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTic
       proGearWeightTicketId,
       'If-Match': eTag,
       updateProGearWeightTicket: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteProGearWeightTicket({ ppmShipmentId, proGearWeightTicketId }) {
+  return makeGHCRequest(
+    'ppm.deleteProGearWeightTicket',
+    {
+      ppmShipmentId,
+      proGearWeightTicketId,
     },
     {
       normalize: false,
@@ -861,6 +911,21 @@ export async function createUploadForDocument(file, documentId) {
     {
       documentId,
       file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createUploadForPPMDocument(ppmShipmentId, documentId, file, weightReceipt) {
+  return makeGHCRequest(
+    'ppm.createPPMUpload',
+    {
+      ppmShipmentId,
+      documentId,
+      file,
+      weightReceipt,
     },
     {
       normalize: false,
