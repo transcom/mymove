@@ -34,7 +34,7 @@ func (p internationalDestinationSITFuelSurchargePricer) PriceUsingParams(appCtx 
 	mtoShipment := params[0].PaymentServiceItem.MTOServiceItem.MTOShipment
 
 	if mtoShipment.ID == uuid.Nil {
-		err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment", "MTOServiceItems.SITDestinationOriginalAddress").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
+		err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment", "MTOServiceItem.SITDestinationOriginalAddress").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:

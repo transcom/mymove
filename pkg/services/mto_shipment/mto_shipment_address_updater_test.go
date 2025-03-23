@@ -203,7 +203,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			mock.Anything,
 			mock.Anything,
 		).Return(465, nil)
-		mtoServiceItems, _ := UpdateOriginSITServiceItemSITDeliveryMiles(planner, &externalShipment, &newAddress, &oldAddress, suite.AppContextForTest())
+
+		addressCreator := address.NewAddressCreator()
+
+		mtoServiceItems, _ := UpdateOriginSITServiceItemSITDeliveryMiles(planner, addressCreator, &externalShipment, &newAddress, &oldAddress, suite.AppContextForTest())
 		suite.Equal(2, len(*mtoServiceItems))
 		for _, mtoServiceItem := range *mtoServiceItems {
 			if mtoServiceItem.ReService.Code == "DOSFSC" || mtoServiceItem.ReService.Code == "DOPSIT" {
@@ -302,8 +305,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		planner := &mocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			"67492", //new zip
-			"20688", //SITOriginHHGOriginalAddress
+			"20688",
+			"67492",
 		).Return(5, nil)
 
 		mtoShipmentAddressIntlSITUpdater := NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater)
@@ -386,6 +389,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				LinkOnly: true,
 			},
 			{
+				Model:    actualAddress,
+				Type:     &factory.Addresses.SITOriginHHGActualAddress,
+				LinkOnly: true,
+			},
+			{
 				Model: models.MTOServiceItem{
 					Status:          models.MTOServiceItemStatusApproved,
 					PricingEstimate: nil,
@@ -422,14 +430,21 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		_, err = mtoShipmentAddressIntlSITUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &newAddress, externalShipment.ID, eTag, false)
 		suite.Nil(err)
 
-		err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", externalShipment.ID).Order("created_at asc").All(&serviceItems)
+		err = suite.AppContextForTest().DB().Eager("SITOriginHHGOriginalAddress", "SITOriginHHGActualAddress",
+			"ReService").Where("mto_shipment_id = ?", externalShipment.ID).Order("created_at asc").All(&serviceItems)
+
 		suite.NoError(err)
 		suite.Equal(1, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
 			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC)
 			// verify mileage and pricing were not calcuated because of OCONUS origin pickup - SITOriginHHGOriginalAddress
-			suite.Equal(*serviceItems[i].PricingEstimate, unit.Cents(0))
-			suite.Equal(*serviceItems[i].SITDeliveryMiles, 0)
+			suite.Nil(serviceItems[i].PricingEstimate)
+			suite.Nil(serviceItems[i].SITDeliveryMiles)
+			suite.NotNil(serviceItems[i].SITOriginHHGActualAddressID)
+			// verify SITOriginHHGOriginalAddress was updated with new postal code
+			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, newAddress.PostalCode)
+			// verify SITOriginHHGOriginalAddress was not changed
+			suite.Equal(serviceItems[i].SITOriginHHGOriginalAddress.PostalCode, actualAddress.PostalCode)
 		}
 	})
 }
