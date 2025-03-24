@@ -375,7 +375,6 @@ describe('MtoShipmentForm component', () => {
 
       await userEvent.click(queryByLabelText('Use my current address'));
       await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
-
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress1');
 
