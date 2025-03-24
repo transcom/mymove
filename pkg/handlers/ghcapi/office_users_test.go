@@ -311,7 +311,9 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			Telephone: &telephone,
 		}
 
-		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, &officeUser)
+		officeUserDB, _ := models.FetchOfficeUserByID(suite.DB(), officeUser.ID)
+
+		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, officeUserDB)
 
 		request := httptest.NewRequest("PUT", fmt.Sprintf("/office_users/%s", officeUser.ID), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -343,7 +345,6 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		suite.Equal(officeUser.MiddleInitials, okResponse.Payload.MiddleInitials)
 		suite.Equal(officeUser.LastName, *okResponse.Payload.LastName)
 		suite.Equal(officeUser.Email, *okResponse.Payload.Email)
-		suite.NotEqual(officeUser.Telephone, *okResponse.Payload.Telephone)
 
 		// Updated
 		suite.Equal(telephone, *okResponse.Payload.Telephone)

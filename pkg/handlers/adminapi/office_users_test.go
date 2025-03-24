@@ -862,7 +862,9 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 
-		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, &officeUser)
+		officeUserDB, _ := models.FetchOfficeUserByID(suite.DB(), officeUser.ID)
+
+		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, officeUserDB)
 
 		mockUpdater := mocks.OfficeUserUpdater{}
 		mockUpdater.On("UpdateOfficeUser",
@@ -956,7 +958,9 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 
-		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, &officeUser)
+		officeUserDB, _ := models.FetchOfficeUserByID(suite.DB(), officeUser.ID)
+
+		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, officeUserDB)
 
 		mockUpdater := mocks.OfficeUserUpdater{}
 		mockUpdater.
