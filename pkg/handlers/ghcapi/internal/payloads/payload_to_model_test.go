@@ -227,6 +227,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	}
 
 	ppmShipment := ghcmessages.CreatePPMShipment{
+		PpmType:               ghcmessages.PPMType(models.PPMTypeIncentiveBased),
 		ExpectedDepartureDate: expectedDepartureDate,
 		PickupAddress:         struct{ ghcmessages.Address }{pickupAddress},
 		DestinationAddress: struct {
@@ -239,6 +240,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	suite.NotNil(model)
 	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
 	suite.Equal(model.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
+	suite.Equal(model.PPMType, models.PPMTypeIncentiveBased)
 	suite.NotNil(model)
 
 	// test when street address 1 contains white spaces
