@@ -2213,7 +2213,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "98421")
-			suite.Equal(unit.Cents(656532), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(720983), *ppmMaxIncentive)
 		})
 
 		suite.Run("Max Incentive - Success using db authorized weight and not estimated for OCONUS -> CONUS", func() {
@@ -2293,13 +2293,13 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "30813")
-			suite.Equal(unit.Cents(676692), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(743383), *ppmMaxIncentive)
 		})
 	})
 
 	suite.Run("Final Incentive", func() {
 		suite.Run("Final Incentive - Success using estimated weight for CONUS -> OCONUS", func() {
-			updatedMoveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			updatedMoveDate := time.Date(2024, time.March, 15, 0, 0, 0, 0, time.UTC)
 			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
@@ -2360,11 +2360,11 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"74133", "98421")
-			suite.Equal(unit.Cents(459178), *ppmFinalIncentive)
+			suite.Equal(unit.Cents(504512), *ppmFinalIncentive)
 		})
 
 		suite.Run("Final Incentive - Success using estimated weight for OCONUS -> CONUS", func() {
-			updatedMoveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			updatedMoveDate := time.Date(2024, time.March, 15, 0, 0, 0, 0, time.UTC)
 			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
@@ -2425,14 +2425,14 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "74133")
-			suite.Equal(unit.Cents(423178), *ppmFinalIncentive)
+			suite.Equal(unit.Cents(464562), *ppmFinalIncentive)
 		})
 	})
 
 	suite.Run("SIT Costs for OCONUS PPMs", func() {
 		suite.Run("CalculateSITCost - Success using estimated weight for CONUS -> OCONUS", func() {
 			originLocation := models.SITLocationTypeOrigin
-			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			entryDate := time.Date(2024, time.March, 15, 0, 0, 0, 0, time.UTC)
 			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
@@ -2483,7 +2483,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 		suite.Run("CalculateSITCost - Success using estimated weight for CONUS -> OCONUS", func() {
 			originLocation := models.SITLocationTypeDestination
-			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			entryDate := time.Date(2024, time.March, 15, 0, 0, 0, 0, time.UTC)
 			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
@@ -2534,7 +2534,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 		suite.Run("CalculatePPMSITEstimatedCost - Success for OCONUS PPM", func() {
 			originLocation := models.SITLocationTypeDestination
-			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			entryDate := time.Date(2024, time.March, 15, 0, 0, 0, 0, time.UTC)
 			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
@@ -2585,7 +2585,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 		suite.Run("CalculatePPMSITEstimatedCostBreakdown - Success for OCONUS PPM", func() {
 			originLocation := models.SITLocationTypeDestination
-			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			entryDate := time.Date(2024, time.March, 15, 0, 0, 0, 0, time.UTC)
 			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.PPMShipment{
