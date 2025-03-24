@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useFormikContext } from 'formik';
+import { Label } from '@trussworks/react-uswds';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
@@ -13,6 +14,7 @@ import { DropdownArrayOf } from 'types/form';
 import { EntitlementShape } from 'types/order';
 import { formatWeight } from 'utils/formatters';
 import Hint from 'components/Hint';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisabled, civilianTDYUBMove }) => {
   const [enableUB, setEnableUB] = useState(false);
@@ -85,12 +87,13 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
   // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
   const showcivilianTDYUBAllowanceWarning = values.ubAllowance > 350 && values.ubAllowance <= 2000;
 
-  const civilianTDYUBAllowanceWeightWarning =
-    '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on the orders.';
-
   let civilianTDYUBAllowanceWarning = '';
   if (showcivilianTDYUBAllowanceWarning) {
-    civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
+    civilianTDYUBAllowanceWarning = (
+      <div className={styles.civilianUBAllowanceWarning}>
+        350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on the orders.
+      </div>
+    );
   }
 
   return (
@@ -214,7 +217,7 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
       {enableUB && civilianTDYUBMove && (
         <MaskedTextField
           data-testid="civilianTdyUbAllowance"
-          warning={<span className={styles.civilianUBAllowanceWarning}>{civilianTDYUBAllowanceWarning}</span>}
+          warning={civilianTDYUBAllowanceWarning}
           defaultValue="0"
           name="ubAllowance"
           id="civilianTdyUbAllowance"
@@ -224,7 +227,23 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           thousandsSeparator=","
           lazy={false}
           isDisabled={formIsDisabled}
-          label={"If the customer's orders specify a specific UB weight allowance, enter it here."}
+          label={
+            <Label className={styles.labelwithToolTip}>
+              If the customer&apos;s orders specify a specific UB weight allowance, enter it here.
+              <ToolTip
+                text={
+                  <span className={styles.toolTipText}>
+                    Optional. If you do not specify a UB weight allowance, the default of 0 lbs will be used.
+                  </span>
+                }
+                position="left"
+                icon="info-circle"
+                color="blue"
+                data-testid="civilianTDYUBAllowanceToolTip"
+                closeOnLeave
+              />
+            </Label>
+          }
         />
       )}
       <div className={styles.wrappedCheckbox}>
