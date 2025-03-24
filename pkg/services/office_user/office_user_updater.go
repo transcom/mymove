@@ -7,7 +7,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -19,7 +18,7 @@ type officeUserUpdater struct {
 }
 
 // UpdateOfficeUser updates an office user
-func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate, primaryTransportationOfficeID uuid.UUID) (*models.OfficeUser, *validate.Errors, error) {
+func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *models.OfficeUser, primaryTransportationOfficeID uuid.UUID) (*models.OfficeUser, *validate.Errors, error) {
 	updateUserAndOkta := false
 	var foundUser models.OfficeUser
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
@@ -28,29 +27,31 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uu
 		return nil, nil, err
 	}
 
-	if payload.Email != nil && foundUser.Email != *payload.Email {
-		foundUser.Email = *payload.Email
-		updateUserAndOkta = true
-	}
+	if payload != nil {
+		if payload.Email != "" && payload.Email != foundUser.Email {
+			foundUser.Email = payload.Email
+			updateUserAndOkta = true
+		}
 
-	if payload.FirstName != nil {
-		foundUser.FirstName = *payload.FirstName
-	}
+		if payload.FirstName != "" {
+			foundUser.FirstName = payload.FirstName
+		}
 
-	if payload.MiddleInitials != nil {
-		foundUser.MiddleInitials = payload.MiddleInitials
-	}
+		if payload.MiddleInitials != nil {
+			foundUser.MiddleInitials = payload.MiddleInitials
+		}
 
-	if payload.LastName != nil {
-		foundUser.LastName = *payload.LastName
-	}
+		if payload.LastName != "" {
+			foundUser.LastName = payload.LastName
+		}
 
-	if payload.Telephone != nil {
-		foundUser.Telephone = *payload.Telephone
-	}
+		if payload.Telephone != "" {
+			foundUser.Telephone = payload.Telephone
+		}
 
-	if payload.Active != nil {
-		foundUser.Active = *payload.Active
+		if payload.Active != foundUser.Active {
+			foundUser.Active = payload.Active
+		}
 	}
 
 	transportationOfficeID := primaryTransportationOfficeID.String()
