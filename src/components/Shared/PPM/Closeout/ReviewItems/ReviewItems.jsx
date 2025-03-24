@@ -19,7 +19,7 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
             <span className={styles.emptyMessage}>{emptyMessage}</span>
           </div>
         )}
-        {contents?.map(({ id, isComplete, draftMessage, subheading, rows, onDelete, renderEditLink }) => {
+        {contents?.map(({ id, isComplete, draftMessage, subheading, rows, onDelete, renderEditLink }, idx) => {
           return (
             <div className={classnames({ [styles.headingWrapper]: !!renderAddButton })} key={id}>
               {isComplete === false && (
@@ -47,7 +47,7 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
                 <div className={styles.actionContainer}>
                   {onDelete && (
                     <>
-                      <Button type="button" unstyled onClick={onDelete}>
+                      <Button data-testid={`weightMovedDelete-${idx + 1}`} type="button" unstyled onClick={onDelete}>
                         Delete
                       </Button>
                       <span className={styles.actionSeparator}>|</span>
