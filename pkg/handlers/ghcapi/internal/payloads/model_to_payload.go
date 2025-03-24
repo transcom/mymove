@@ -751,6 +751,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.WeightRestriction != nil {
 		weightRestriction = models.Int64Pointer(int64(*entitlement.WeightRestriction))
 	}
+	var ubWeightRestriction *int64
+	if entitlement.UBWeightRestriction != nil {
+		ubWeightRestriction = models.Int64Pointer(int64(*entitlement.UBWeightRestriction))
+	}
 
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
@@ -769,9 +773,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		AccompaniedTour:                accompaniedTour,
 		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		GunSafe:           gunSafe,
-		WeightRestriction: weightRestriction,
-		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe:             gunSafe,
+		WeightRestriction:   weightRestriction,
+		UbWeightRestriction: ubWeightRestriction,
+		ETag:                etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 
 }
@@ -982,6 +987,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	payloadPPMShipment := &ghcmessages.PPMShipment{
 		ID:                             *handlers.FmtUUID(ppmShipment.ID),
+		PpmType:                        ghcmessages.PPMType(ppmShipment.PPMType),
 		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
 		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
 		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
@@ -2628,13 +2634,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
-		numShipments := 0
-
-		for _, shipment := range move.MTOShipments {
-			if shipment.Status != models.MTOShipmentStatusDraft {
-				numShipments++
-			}
-		}
+		numShipments := len(move.MTOShipments)
 
 		var pickupDate, deliveryDate *strfmt.Date
 

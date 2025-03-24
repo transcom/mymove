@@ -485,7 +485,14 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 
-		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					PPMType: models.PPMTypeIncentiveBased,
+					Status:  models.PPMShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 		move := ppmShipment.Shipment.MoveTaskOrder
 
 		order := move.Orders
@@ -540,6 +547,41 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.EqualError(err, fmt.Sprintf("Invalid input for ID: %s. TransportationAccountingCode cannot be blank.", order.ID))
 		suite.Nil(updatedOrder)
 		suite.IsType(apperror.InvalidInputError{}, err)
+	})
+
+	suite.Run("Updating order grade to civilian changes submitted PPMs to PPM type ACTUAL_EXPENSE", func() {
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		orderUpdater := NewOrderUpdater(moveRouter)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					PPMType: models.PPMTypeIncentiveBased,
+					Status:  models.PPMShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+		move := ppmShipment.Shipment.MoveTaskOrder
+		order := move.Orders
+
+		grade := ghcmessages.GradeCIVILIANEMPLOYEE
+		body := ghcmessages.CounselingUpdateOrderPayload{
+			Grade: &grade,
+		}
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		var moved models.Move
+		err := suite.DB().Find(&moved, move.ID)
+		suite.NoError(err)
+
+		_, _, errs := orderUpdater.UpdateOrderAsCounselor(suite.AppContextForTest(), order.ID, body, eTag)
+		suite.NoError(errs)
+
+		var updatedPPMShipment models.PPMShipment
+		err = suite.DB().Find(&updatedPPMShipment, ppmShipment.ID)
+
+		suite.NoError(err)
+		suite.EqualValues(true, *updatedPPMShipment.IsActualExpenseReimbursement)
+		suite.Equal(updatedPPMShipment.PPMType, models.PPMTypeActualExpense)
 	})
 }
 
@@ -678,6 +720,32 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		suite.Nil(updatedOrder.Entitlement.WeightRestriction)
 	})
 
+	suite.Run("Updates the UB allowance when ubWeightRestriction is null", func() {
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Entitlement{
+					UBWeightRestriction: models.IntPointer(1200),
+				},
+			},
+		}, nil).Orders
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateAllowancePayload{
+			UbWeightRestriction: nil,
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+		suite.NoError(err)
+		suite.Nil(updatedOrder.Entitlement.UBWeightRestriction)
+	})
+
 	suite.Run("Updates the allowance when all fields are valid with dependents", func() {
 		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
@@ -772,6 +840,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			DependentsTwelveAndOver:        models.Int64Pointer(1),
 			DependentsUnderTwelve:          models.Int64Pointer(2),
 			WeightRestriction:              models.Int64Pointer(0),
+			UbWeightRestriction:            models.Int64Pointer(0),
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -800,6 +869,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 		weightRestriction := models.Int64Pointer(5000)
+		ubWeightRestriction := models.Int64Pointer(2000)
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{
 			Agency: &affiliation,
@@ -809,6 +879,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			ProGearWeightSpouse:            proGearWeightSpouse,
 			RequiredMedicalEquipmentWeight: rmeWeight,
 			WeightRestriction:              weightRestriction,
+			UbWeightRestriction:            ubWeightRestriction,
 		}
 
 		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
@@ -829,6 +900,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
 		suite.Equal(*payload.WeightRestriction, int64(*updatedOrder.Entitlement.WeightRestriction))
+		suite.Equal(*payload.UbWeightRestriction, int64(*updatedOrder.Entitlement.UBWeightRestriction))
 	})
 
 	suite.Run("Updates the allowance when weightRestriction is null", func() {
@@ -855,6 +927,32 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		err = suite.DB().Find(&orderInDB, order.ID)
 		suite.NoError(err)
 		suite.Nil(updatedOrder.Entitlement.WeightRestriction)
+	})
+
+	suite.Run("Updates the UB allowance when ubWeightRestriction is null", func() {
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Entitlement{
+					UBWeightRestriction: models.IntPointer(1200),
+				},
+			},
+		}, nil).Orders
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.CounselingUpdateAllowancePayload{
+			UbWeightRestriction: nil,
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+		suite.NoError(err)
+		suite.Nil(updatedOrder.Entitlement.UBWeightRestriction)
 	})
 
 	suite.Run("Updates the allowance when all fields are valid with dependents present and authorized", func() {

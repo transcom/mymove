@@ -62,7 +62,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 	vLocationServices := address.NewVLocation()
 
