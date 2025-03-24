@@ -112,6 +112,7 @@ export const LocationSearchBoxComponent = ({
   placeholder,
   isDisabled,
   handleLocationOnChange,
+  showRequiredAsterisk,
 }) => {
   const { value, onChange, locationState, name: inputName } = input;
 
@@ -217,6 +218,11 @@ export const LocationSearchBoxComponent = ({
       <div className="labelWrapper">
         <Label hint={hint} htmlFor={inputId} className={labelClasses}>
           {title}
+          {showRequiredAsterisk && (
+            <span data-testid="requiredAsterisk" className={styles.requiredAsterisk}>
+              *
+            </span>
+          )}
         </Label>
       </div>
       <div className={inputContainerClasses}>
@@ -296,12 +302,14 @@ LocationSearchBoxComponent.propTypes = {
   searchLocations: PropTypes.func,
   showAddress: PropTypes.func.isRequired,
   isDisabled: PropTypes.bool,
+  showRequiredAsterisk: PropTypes.bool,
 };
 
 LocationSearchBoxComponent.defaultProps = {
   ...LocationSearchBoxContainer.defaultProps,
   searchLocations: SearchDutyLocations,
   isDisabled: false,
+  showRequiredAsterisk: false,
 };
 
 export default LocationSearchBoxContainer;
