@@ -35,6 +35,7 @@ import {
   SHIPMENT_OPTIONS,
   FEATURE_FLAG_KEYS,
   technicalHelpDeskURL,
+  SHIPMENT_TYPES,
 } from 'shared/constants';
 import { isPPMAboutInfoComplete } from 'utils/shipments';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
@@ -291,7 +292,7 @@ const ServicesCounselingMoveDetails = ({
     counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
       (move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING || move.status === MOVE_STATUSES.DRAFT) &&
-      shipmentsInfo.shipmentType !== 'PPM';
+      shipmentsInfo.shipmentType !== SHIPMENT_TYPES.PPM;
 
     shipmentsInfo = submittedShipmentsNonPPMNeedsCloseout.map((shipment) => {
       const editURL =
