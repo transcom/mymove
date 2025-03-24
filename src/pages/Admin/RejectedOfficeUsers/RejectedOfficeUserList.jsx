@@ -103,10 +103,10 @@ const defaultSort = { field: 'createdAt', order: 'DESC' };
 
 const RejectedOfficeUserList = () => (
   <List
+    filters={<RejectedOfficeUserListFilter />}
     pagination={<AdminPagination />}
     perPage={25}
     sort={defaultSort}
-    filters={<RejectedOfficeUserListFilter />}
     actions={<ListActions />}
   >
     <Datagrid bulkActionButtons={false} rowClick="show" data-testid="rejected-office-user-fields">
