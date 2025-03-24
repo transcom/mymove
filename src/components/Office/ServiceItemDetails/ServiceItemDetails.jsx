@@ -656,7 +656,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
   }
   detailSectionElements.push(
-    <div className={styles.detailType}>
+    <div>
       {details.rejectionReason &&
         generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
     </div>,
