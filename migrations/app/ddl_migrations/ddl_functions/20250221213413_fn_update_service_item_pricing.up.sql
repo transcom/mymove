@@ -21,8 +21,6 @@ DECLARE
     fuel_price NUMERIC;
     cents_above_baseline NUMERIC;
     price_difference NUMERIC;
-    is_pickup_oconus BOOLEAN;
-    is_destination_oconus BOOLEAN;
 BEGIN
     SELECT ms.id, ms.pickup_address_id, ms.destination_address_id, ms.requested_pickup_date, ms.prime_estimated_weight
     INTO shipment
@@ -129,8 +127,7 @@ BEGIN
 
                 -- Pricing will not be executed if origin pickup is OCONUS. This is achieved with ZERO mileage in the calculation.
                 IF service_code = ''IOSFSC'' AND service_item.sit_origin_hhg_original_address_id IS NOT NULL THEN
-                    is_pickup_oconus := get_is_oconus(service_item.sit_origin_hhg_original_address_id);
-                    IF is_pickup_oconus THEN
+                    IF get_is_oconus(service_item.sit_origin_hhg_original_address_id) THEN
                         distance := 0;
                         RAISE NOTICE ''Pickup[service_item.sit_origin_hhg_original_address_id: %] is OCONUS. Distance will be set to 0 to cause pricing to be 0 cents'', service_item.sit_destination_original_address_id;
                     END IF;
@@ -138,8 +135,7 @@ BEGIN
 
                 -- Pricing will not be executed if origin destination is OCONUS. This is achieved with ZERO mileage in the calculation.
                 IF service_code = ''IDSFSC'' AND service_item.sit_destination_original_address_id IS NOT NULL THEN
-                    is_destination_oconus := get_is_oconus(service_item.sit_destination_original_address_id);
-                    IF is_destination_oconus THEN
+                    IF get_is_oconus(service_item.sit_destination_original_address_id) THEN
                         distance := 0;
                         RAISE NOTICE ''Destination[service_item.sit_destination_original_address_id: %] is OCONUS. Distance will be set to 0 to cause pricing to be 0 cents'', service_item.sit_destination_original_address_id;
                     END IF;
