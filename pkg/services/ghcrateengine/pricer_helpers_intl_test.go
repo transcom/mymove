@@ -305,7 +305,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlFuelSurchargeSIT() {
 		suite.Error(err)
 		suite.Contains(err.Error(), "ActualPickupDate is required")
 
-		invalidDistance := unit.Miles(0)
+		invalidDistance := unit.Miles(-1)
 		_, _, err = priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, invalidDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Distance must be greater than 0")
