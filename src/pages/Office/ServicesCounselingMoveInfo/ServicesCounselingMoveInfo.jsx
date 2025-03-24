@@ -255,6 +255,7 @@ const ServicesCounselingMoveInfo = () => {
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_ABOUT_PATH} end element={<About />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH} end element={<PPMReview />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_PATH} end element={<PPMExpenses />} />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} end element={<PPMExpenses />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH} end element={<WeightTickets />} />
           <Route
             path={servicesCounselingRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH}

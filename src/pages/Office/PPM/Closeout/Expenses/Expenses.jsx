@@ -32,7 +32,7 @@ const Expenses = () => {
   const { moveCode, shipmentId, expenseId } = useParams();
 
   const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
-  const moveId = mtoShipment?.moveId;
+  // const moveId = mtoShipment?.moveId;
 
   const expenses = documents?.ppmShipment?.movingExpenses ?? [];
 
@@ -53,8 +53,8 @@ const Expenses = () => {
           } else {
             mtoShipment.ppmShipment.movingExpenses = [resp];
           }
-          const path = generatePath(servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
-            moveId,
+          const path = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
+            moveCode,
             shipmentId,
             expenseId: resp.id,
           });
@@ -65,7 +65,7 @@ const Expenses = () => {
           setErrorMessage('Failed to create trip record');
         });
     }
-  }, [expenseId, moveId, shipmentId, navigate, dispatch, mtoShipment]);
+  }, [expenseId, moveCode, shipmentId, navigate, dispatch, mtoShipment]);
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentExpense[`${fieldName}Id`];
@@ -165,7 +165,9 @@ const Expenses = () => {
     );
   };
 
-  if (isError) return <SomethingWentWrong />;
+  if (isError) {
+    return <SomethingWentWrong />;
+  }
 
   if (!mtoShipment || !currentExpense) {
     return renderError() || <LoadingPlaceholder />;
