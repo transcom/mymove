@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { func } from 'prop-types';
-import { Fieldset } from '@trussworks/react-uswds';
+import { Fieldset, Label } from '@trussworks/react-uswds';
+import { useFormikContext } from 'formik';
+
+import styles from './OfficeAccountRequestFields.module.scss';
 
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -8,6 +11,23 @@ import { CheckboxField, DutyLocationInput } from 'components/form/fields';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
 
 export const OfficeAccountRequestFields = ({ render }) => {
+  const { values } = useFormikContext();
+  const [edipiRequired, setEdipiRequired] = useState(false);
+  const [uniqueIdRequired, setUniqueIdRequired] = useState(false);
+
+  useEffect(() => {
+    if (values.officeAccountRequestEdipi !== '') {
+      setEdipiRequired(true);
+    } else {
+      setEdipiRequired(false);
+    }
+    if (values.officeAccountRequestOtherUniqueId !== '') {
+      setUniqueIdRequired(true);
+    } else {
+      setUniqueIdRequired(false);
+    }
+  }, [values.officeAccountRequestEdipi, values.officeAccountRequestOtherUniqueId]);
+
   const firstNameFieldName = 'officeAccountRequestFirstName';
   const middleInitialFieldName = 'officeAccountRequestMiddleInitial';
   const lastNameFieldName = 'officeAccountRequestLastName';
@@ -21,45 +41,116 @@ export const OfficeAccountRequestFields = ({ render }) => {
     <Fieldset>
       {render(
         <>
-          <TextField label="First Name" name={firstNameFieldName} id="officeAccountRequestFirstName" />
+          <TextField
+            label="First Name"
+            name={firstNameFieldName}
+            id="officeAccountRequestFirstName"
+            data-testid="officeAccountRequestFirstName"
+            showRequiredAsterisk
+            required
+          />
           <TextField
             label="Middle Initial"
             name={middleInitialFieldName}
             id="officeAccountRequestMiddleInitial"
+            data-testid="officeAccountRequestMiddleInitial"
             labelHint="optional"
           />
-          <TextField label="Last Name" name={lastNameFieldName} id="officeAccountRequestLastName" />
-          <TextField label="Email" name={emailField} id="officeAccountRequestEmail" />
+          <TextField
+            label="Last Name"
+            name={lastNameFieldName}
+            id="officeAccountRequestLastName"
+            data-testid="officeAccountRequestLastName"
+            showRequiredAsterisk
+            required
+          />
+          <TextField
+            label="Email"
+            name={emailField}
+            id="officeAccountRequestEmail"
+            data-testid="officeAccountRequestEmail"
+            showRequiredAsterisk
+            required
+          />
+          <TextField
+            label="Confirm Email"
+            name="emailConfirmation"
+            id="emailConfirmation"
+            data-testid="emailConfirmation"
+            disablePaste
+            showRequiredAsterisk
+            required
+          />
           <MaskedTextField
             label="Telephone"
             id="officeAccountRequestTelephone"
+            data-testid="officeAccountRequestTelephone"
             name={telephoneFieldName}
             type="tel"
             minimum="12"
             mask="000{-}000{-}0000"
+            showRequiredAsterisk
+            required
           />
-          <TextField
-            label="DODID#"
-            labelHint="10 digit number"
-            name={edipiFieldName}
-            id="officeAccountRequestEdipi"
-            maxLength="10"
-            inputMode="numeric"
-            data-testid="officeAccountRequestEdipi"
-          />
-          <TextField
-            label="Other Unique ID"
-            labelHint="If not using DODID#"
-            name={otherUniqueIdName}
-            id="officeAccountRequestOtherUniqueId"
-            data-testid="officeAccountRequestOtherUniqueId"
-          />
+          <div className={styles.section}>
+            <div className={styles.inputContainer}>
+              <TextField
+                label="DODID#"
+                labelHint="10 digit number"
+                name={edipiFieldName}
+                id="officeAccountRequestEdipi"
+                data-testid="officeAccountRequestEdipi"
+                maxLength="10"
+                inputMode="numeric"
+              />
+            </div>
+            <div className={styles.inputContainer}>
+              <TextField
+                label="Confirm DODID#"
+                name="edipiConfirmation"
+                id="edipiConfirmation"
+                data-testid="edipiConfirmation"
+                maxLength="10"
+                disablePaste
+                showRequiredAsterisk={edipiRequired}
+              />
+            </div>
+          </div>
+          <div className={styles.section}>
+            <div className={styles.inputContainer}>
+              <TextField
+                label="Other Unique ID"
+                labelHint="If not using DODID#"
+                name={otherUniqueIdName}
+                id="officeAccountRequestOtherUniqueId"
+                data-testid="officeAccountRequestOtherUniqueId"
+              />
+            </div>
+            <div className={styles.inputContainer}>
+              <TextField
+                label="Confirm Other Unique ID"
+                name="otherUniqueIdConfirmation"
+                id="otherUniqueIdConfirmation"
+                data-testid="otherUniqueIdConfirmation"
+                disablePaste
+                showRequiredAsterisk={uniqueIdRequired}
+              />
+            </div>
+          </div>
           <DutyLocationInput
+            data-testid="transportationOfficeSelector"
             name={transportationOfficeDropDown}
             label="Transportation Office"
             searchLocations={searchTransportationOfficesOpen}
+            showRequiredAsterisk
+            required
           />
-          <h4>Requested Role(s)</h4>
+          <Label data-testid="requestedRolesHeading">
+            Requested Role(s)
+            <span data-testid="requiredAsterisk" className={styles.requiredAsterisk}>
+              *
+            </span>
+          </Label>
           <CheckboxField
             id="headquartersCheckBox"
             data-testid="headquartersCheckBox"
