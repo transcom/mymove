@@ -139,8 +139,10 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 		estimatedHHGWeight := unit.Pound(7199)
 		estimatedUBWeight := unit.Pound(250)
+		primeActualWeightUB := unit.Pound(300)
 		approvedHHGShipment.PrimeEstimatedWeight = &estimatedHHGWeight
 		approvedUbShipment.PrimeEstimatedWeight = &estimatedUBWeight
+		approvedUbShipment.PrimeActualWeight = &primeActualWeightUB
 		_, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), move.ID, approvedHHGShipment)
 		suite.Nil(verrs)
 		suite.NoError(err)
@@ -294,6 +296,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		now := time.Now()
 		estimatedUbWeight := unit.Pound(250)
 		estimatedWeight := unit.Pound(7199 - estimatedUbWeight)
+		actualUBWeight := unit.Pound(300)
 
 		// Add an OCONUS address so it qualifies for UB allowance
 		// The allowance based on these params should be 500 ub
@@ -353,6 +356,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 					ScheduledPickupDate:  &pickupDate,
 					ShipmentType:         models.MTOShipmentTypeUnaccompaniedBaggage,
 					PrimeEstimatedWeight: &estimatedUbWeight,
+					PrimeActualWeight:    &actualUBWeight,
 				},
 			},
 			{
