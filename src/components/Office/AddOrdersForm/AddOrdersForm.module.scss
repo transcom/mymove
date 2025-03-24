@@ -23,11 +23,17 @@
   font-weight: normal !important;
 }
 
-.civilianUBAllowanceWarning {
+.civilianUBAllowanceLabel {
   display: flex;
   align-items: center;
   color: #6e7377;
   font-style: normal !important;
   font-weight: normal !important;
   font-size: 13px !important;
+}
+
+.civilianUBAllowanceWarning {
+  border-left: 0.25rem #ffbe2e solid !important;
+  padding-left: 1rem !important;
+  position: relative !important;
 }
