@@ -260,7 +260,7 @@ func (p *ppmCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (u
 			}
 		}
 	} else {
-		return unit.Pound(0), apperror.NewPPMNoWeightTicketsError(ppmShipment.ID, "")
+		return unit.Pound(0), nil //unit.Pound(0), apperror.NewPPMNoWeightTicketsError(ppmShipment.ID, "")
 	}
 	return totalWeight, nil
 }
