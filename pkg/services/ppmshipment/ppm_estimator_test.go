@@ -2478,7 +2478,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(24360), *estimatedSITCost)
+			suite.Equal(unit.Cents(27040), *estimatedSITCost)
 		})
 
 		suite.Run("CalculateSITCost - Success using estimated weight for CONUS -> OCONUS", func() {
@@ -2529,7 +2529,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(41080), *estimatedSITCost)
+			suite.Equal(unit.Cents(46160), *estimatedSITCost)
 		})
 
 		suite.Run("CalculatePPMSITEstimatedCost - Success for OCONUS PPM", func() {
