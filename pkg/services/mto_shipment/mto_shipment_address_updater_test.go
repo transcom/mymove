@@ -278,6 +278,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				LinkOnly: true,
 			},
 			{
+				Model:    actualAddress,
+				Type:     &factory.Addresses.SITOriginHHGActualAddress,
+				LinkOnly: true,
+			},
+			{
 				Model: models.MTOServiceItem{
 					Status:          models.MTOServiceItemStatusApproved,
 					PricingEstimate: nil,
@@ -324,7 +329,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		}
 	})
 
-	suite.Run("Successful - UpdateMTOShipmentAddress - OCONUS Original Pickup - should not calculate mileage and pricing", func() {
+	suite.Run("Successful - UpdateMTOShipmentAddress - OCONUS Original Pickup - should not calculate pricing", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		address := factory.BuildAddress(suite.DB(), nil, nil)
 		actualAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -438,8 +443,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		for i := 0; i < len(serviceItems); i++ {
 			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC)
 			// verify mileage and pricing were not calcuated because of OCONUS origin pickup - SITOriginHHGOriginalAddress
-			suite.Nil(serviceItems[i].PricingEstimate)
-			suite.Nil(serviceItems[i].SITDeliveryMiles)
+			suite.Equal(*serviceItems[i].PricingEstimate, unit.Cents(0))
+			suite.NotNil(serviceItems[i].SITDeliveryMiles)
 			suite.NotNil(serviceItems[i].SITOriginHHGActualAddressID)
 			// verify SITOriginHHGOriginalAddress was updated with new postal code
 			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, newAddress.PostalCode)

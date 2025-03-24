@@ -1416,22 +1416,16 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 			var milesCalculated int
 
 			if TOOApprovalRequired {
-				// do not calculate mileage if destination address is OCONUS. zero mileage will prevent pricing to be calculated.
-				if serviceItem.SITDestinationOriginalAddress != nil &&
-					(shipment.MarketCode != models.MarketCodeInternational ||
-						(shipment.MarketCode == models.MarketCodeInternational && !*serviceItem.SITDestinationOriginalAddress.IsOconus)) {
+				if serviceItem.SITDestinationOriginalAddress != nil {
 					// if TOO approval was required, shipment destination address has been updated at this point
 					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
 				}
 			} else {
 				// if TOO approval was not required, use the newAddress
-				// do not calculate mileage if destination address is OCONUS. zero mileage will prevent pricing to be calculated.
-				if serviceItem.SITDestinationOriginalAddress != nil &&
-					(shipment.MarketCode != models.MarketCodeInternational ||
-						(shipment.MarketCode == models.MarketCodeInternational && !*serviceItem.SITDestinationOriginalAddress.IsOconus)) {
-					// if TOO approval was required, shipment destination address has been updated at this point
-					milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
-				}
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+			}
+			if err != nil {
+				return err
 			}
 
 			if err != nil {
@@ -1462,7 +1456,7 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 }
 
 func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx appcontext.AppContext, addressCreator services.AddressCreator, newShipment *models.MTOShipment) error {
-	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems.SITDestinationOriginalAddress"}
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGActualAddress", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems.SITDestinationFinalAddress", "MTOServiceItems.SITDestinationOriginalAddress"}
 	mtoShipment, err := FindShipment(appCtx, newShipment.ID, eagerAssociations...)
 	if err != nil {
 		return err
@@ -1479,10 +1473,8 @@ func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx a
 			reServiceCode == models.ReServiceCodeIOPSIT ||
 			reServiceCode == models.ReServiceCodeIOSFSC {
 
-			// Update service items only if pickup postal code changed.
-			// International shipments -- only determine mileage if origin SIT's pickup is CONUS
-			if newShipment.PickupAddress.PostalCode != serviceItem.SITOriginHHGOriginalAddress.PostalCode {
-				// update SITOriginHHGActualAddress with new zip
+			if newShipment.PickupAddress.PostalCode != serviceItem.SITOriginHHGActualAddress.PostalCode {
+				// Update SITOriginHHGActualAddress with new zip. We only care about zip.
 				clonedAddress := newShipment.PickupAddress.Copy()
 				clonedAddress.ID = uuid.Nil
 				newSITOriginHHGActualAddress, err := addressCreator.CreateAddress(appCtx, clonedAddress)
@@ -1492,16 +1484,16 @@ func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx a
 				// update actual with new address
 				serviceItem.SITOriginHHGActualAddress = newSITOriginHHGActualAddress
 				serviceItem.SITOriginHHGActualAddressID = &newSITOriginHHGActualAddress.ID
-				if mtoShipment.MarketCode != models.MarketCodeInternational ||
-					(mtoShipment.MarketCode == models.MarketCodeInternational && !*serviceItem.SITOriginHHGOriginalAddress.IsOconus) {
-					milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGActualAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
-					if err != nil {
-						return err
-					}
-					serviceItem.SITDeliveryMiles = &milesCalculated
-				}
-				mtoServiceItems = append(mtoServiceItems, serviceItem)
 			}
+
+			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGActualAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+			if err != nil {
+				return err
+			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
+
+			mtoServiceItems = append(mtoServiceItems, serviceItem)
+
 		}
 
 		if reServiceCode == models.ReServiceCodeDDDSIT ||
@@ -1509,29 +1501,34 @@ func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx a
 			reServiceCode == models.ReServiceCodeIDDSIT ||
 			reServiceCode == models.ReServiceCodeIDSFSC {
 
-			// Update service items only if destination postal code changed.
-			// International shipments -- only determine mileage if international destination SITs delivery is CONUS
-			if newShipment.DestinationAddress.PostalCode != serviceItem.SITDestinationOriginalAddress.PostalCode {
-				// update SITDestinationFinalAddress with new zip
+			if newShipment.DestinationAddress.PostalCode != serviceItem.SITDestinationFinalAddress.PostalCode {
+				// Update SITDestinationFinalAddress with new zip if different.  We only care about zip.
 				clonedAddress := newShipment.DestinationAddress.Copy()
 				clonedAddress.ID = uuid.Nil
 				newSITDestinationFinalAddress, err := addressCreator.CreateAddress(appCtx, clonedAddress)
 				if err != nil {
 					return err
 				}
-				// update final with new address
 				serviceItem.SITDestinationFinalAddress = newSITDestinationFinalAddress
 				serviceItem.SITDestinationFinalAddressID = &newSITDestinationFinalAddress.ID
-				if mtoShipment.MarketCode != models.MarketCodeInternational ||
-					(mtoShipment.MarketCode == models.MarketCodeInternational && !*serviceItem.SITDestinationOriginalAddress.IsOconus) {
-					milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
-					if err != nil {
-						return err
-					}
-					serviceItem.SITDeliveryMiles = &milesCalculated
-				}
-				mtoServiceItems = append(mtoServiceItems, serviceItem)
 			}
+
+			// When update is done before service item is Approved. SITDestinationOriginalAddress will be nil
+			// when not Approved.
+			destinationOriginalPostalCode := newShipment.DestinationAddress.PostalCode
+
+			if serviceItem.SITDestinationOriginalAddress != nil {
+				destinationOriginalPostalCode = serviceItem.SITDestinationOriginalAddress.PostalCode
+			}
+
+			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, destinationOriginalPostalCode)
+			if err != nil {
+				return err
+			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
+
+			mtoServiceItems = append(mtoServiceItems, serviceItem)
+
 		}
 	}
 	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {

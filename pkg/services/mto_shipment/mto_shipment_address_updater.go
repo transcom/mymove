@@ -54,7 +54,7 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, addressCr
 	// Change the SITDeliveryMiles of origin SIT service items
 	var updatedMtoServiceItems models.MTOServiceItems
 
-	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems"}
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems.SITOriginHHGActualAddress", "MTOServiceItems"}
 	mtoShipment, err := FindShipment(appCtx, shipment.ID, eagerAssociations...)
 	if err != nil {
 		return &updatedMtoServiceItems, err
@@ -69,46 +69,40 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, addressCr
 			reServiceCode == models.ReServiceCodeIOPSIT ||
 			reServiceCode == models.ReServiceCodeIOSFSC {
 
-			// Update only if new address postal code is different from old address.
-			if oldAddress.PostalCode != newAddress.PostalCode {
-				if serviceItem.SITOriginHHGOriginalAddress != nil {
-					// Double check if new address postal code is different than from SITOriginHHGActualAddress. If different
-					// update service item with new actual postal code and mileage.
-					if serviceItem.SITOriginHHGOriginalAddress.PostalCode != newAddress.PostalCode {
-						clonedAddress := newAddress.Copy()
-						clonedAddress.ID = uuid.Nil
-						newSITOriginHHGActualAddress, err := addressCreator.CreateAddress(appCtx, clonedAddress)
-						if err != nil {
-							return nil, err
-						}
-						// update SITOriginHHGActualAddress with new postal code
-						serviceItem.SITOriginHHGActualAddress = newSITOriginHHGActualAddress
-						serviceItem.SITOriginHHGActualAddressID = &newSITOriginHHGActualAddress.ID
-
-						if mtoShipment.MarketCode != models.MarketCodeInternational ||
-							(mtoShipment.MarketCode == models.MarketCodeInternational && !*serviceItem.SITOriginHHGOriginalAddress.IsOconus) {
-							// International Shipments -- Do not calculate if original pickup is OCONUS
-							milesCalculated, err := planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGOriginalAddress.PostalCode, serviceItem.SITOriginHHGActualAddress.PostalCode)
-							if err != nil {
-								return nil, err
-							}
-							serviceItem.SITDeliveryMiles = &milesCalculated
-						}
-
-						updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
-					}
-				} else {
-					// When will origin serviceItem not have SITOriginHHGOriginalAddress?
-					milesCalculated, err := planner.ZipTransitDistance(appCtx, oldAddress.PostalCode, newAddress.PostalCode)
+			if serviceItem.SITOriginHHGOriginalAddress != nil {
+				// Double check if new address postal code is different than from SITOriginHHGActualAddress. If different
+				// update service item with new actual postal code.
+				if serviceItem.SITOriginHHGActualAddress.PostalCode != newAddress.PostalCode {
+					clonedAddress := newAddress.Copy()
+					clonedAddress.ID = uuid.Nil
+					newSITOriginHHGActualAddress, err := addressCreator.CreateAddress(appCtx, clonedAddress)
 					if err != nil {
 						return nil, err
 					}
-					serviceItem.SITDeliveryMiles = &milesCalculated
-					updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
+					// update SITOriginHHGActualAddress with new postal code
+					serviceItem.SITOriginHHGActualAddress = newSITOriginHHGActualAddress
+					serviceItem.SITOriginHHGActualAddressID = &newSITOriginHHGActualAddress.ID
 				}
+				milesCalculated, err := planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGOriginalAddress.PostalCode, serviceItem.SITOriginHHGActualAddress.PostalCode)
+				if err != nil {
+					return nil, err
+				}
+				serviceItem.SITDeliveryMiles = &milesCalculated
+
+				updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
+
+			} else {
+				// When will origin serviceItem not have SITOriginHHGOriginalAddress?
+				milesCalculated, err := planner.ZipTransitDistance(appCtx, oldAddress.PostalCode, newAddress.PostalCode)
+				if err != nil {
+					return nil, err
+				}
+				serviceItem.SITDeliveryMiles = &milesCalculated
+				updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
 			}
 		}
 	}
+
 	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		// update service item SITDeliveryMiles
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&updatedMtoServiceItems)
