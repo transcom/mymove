@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/transcom/mymove/pkg/gen/adminmessages"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // UpdateOfficeUserOKCode is the HTTP code returned for type UpdateOfficeUserOK
@@ -26,7 +26,7 @@ type UpdateOfficeUserOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *adminmessages.OfficeUser `json:"body,omitempty"`
+	Payload *ghcmessages.OfficeUser `json:"body,omitempty"`
 }
 
 // NewUpdateOfficeUserOK creates UpdateOfficeUserOK with default headers values
@@ -36,13 +36,13 @@ func NewUpdateOfficeUserOK() *UpdateOfficeUserOK {
 }
 
 // WithPayload adds the payload to the update office user o k response
-func (o *UpdateOfficeUserOK) WithPayload(payload *adminmessages.OfficeUser) *UpdateOfficeUserOK {
+func (o *UpdateOfficeUserOK) WithPayload(payload *ghcmessages.OfficeUser) *UpdateOfficeUserOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update office user o k response
-func (o *UpdateOfficeUserOK) SetPayload(payload *adminmessages.OfficeUser) {
+func (o *UpdateOfficeUserOK) SetPayload(payload *ghcmessages.OfficeUser) {
 	o.Payload = payload
 }
 
@@ -62,11 +62,16 @@ func (o *UpdateOfficeUserOK) WriteResponse(rw http.ResponseWriter, producer runt
 const UpdateOfficeUserBadRequestCode int = 400
 
 /*
-UpdateOfficeUserBadRequest Invalid Request
+UpdateOfficeUserBadRequest The request payload is invalid
 
 swagger:response updateOfficeUserBadRequest
 */
 type UpdateOfficeUserBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateOfficeUserBadRequest creates UpdateOfficeUserBadRequest with default headers values
@@ -75,23 +80,43 @@ func NewUpdateOfficeUserBadRequest() *UpdateOfficeUserBadRequest {
 	return &UpdateOfficeUserBadRequest{}
 }
 
+// WithPayload adds the payload to the update office user bad request response
+func (o *UpdateOfficeUserBadRequest) WithPayload(payload *ghcmessages.Error) *UpdateOfficeUserBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update office user bad request response
+func (o *UpdateOfficeUserBadRequest) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateOfficeUserBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(400)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // UpdateOfficeUserUnauthorizedCode is the HTTP code returned for type UpdateOfficeUserUnauthorized
 const UpdateOfficeUserUnauthorizedCode int = 401
 
 /*
-UpdateOfficeUserUnauthorized Must be authenticated to use this end point
+UpdateOfficeUserUnauthorized The request was denied
 
 swagger:response updateOfficeUserUnauthorized
 */
 type UpdateOfficeUserUnauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateOfficeUserUnauthorized creates UpdateOfficeUserUnauthorized with default headers values
@@ -100,23 +125,43 @@ func NewUpdateOfficeUserUnauthorized() *UpdateOfficeUserUnauthorized {
 	return &UpdateOfficeUserUnauthorized{}
 }
 
+// WithPayload adds the payload to the update office user unauthorized response
+func (o *UpdateOfficeUserUnauthorized) WithPayload(payload *ghcmessages.Error) *UpdateOfficeUserUnauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update office user unauthorized response
+func (o *UpdateOfficeUserUnauthorized) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateOfficeUserUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // UpdateOfficeUserForbiddenCode is the HTTP code returned for type UpdateOfficeUserForbidden
 const UpdateOfficeUserForbiddenCode int = 403
 
 /*
-UpdateOfficeUserForbidden Not authorized to update an Office User
+UpdateOfficeUserForbidden The request was denied
 
 swagger:response updateOfficeUserForbidden
 */
 type UpdateOfficeUserForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateOfficeUserForbidden creates UpdateOfficeUserForbidden with default headers values
@@ -125,23 +170,43 @@ func NewUpdateOfficeUserForbidden() *UpdateOfficeUserForbidden {
 	return &UpdateOfficeUserForbidden{}
 }
 
+// WithPayload adds the payload to the update office user forbidden response
+func (o *UpdateOfficeUserForbidden) WithPayload(payload *ghcmessages.Error) *UpdateOfficeUserForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update office user forbidden response
+func (o *UpdateOfficeUserForbidden) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateOfficeUserForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(403)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // UpdateOfficeUserNotFoundCode is the HTTP code returned for type UpdateOfficeUserNotFound
 const UpdateOfficeUserNotFoundCode int = 404
 
 /*
-UpdateOfficeUserNotFound Office User not found
+UpdateOfficeUserNotFound The requested resource wasn't found
 
 swagger:response updateOfficeUserNotFound
 */
 type UpdateOfficeUserNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateOfficeUserNotFound creates UpdateOfficeUserNotFound with default headers values
@@ -150,23 +215,43 @@ func NewUpdateOfficeUserNotFound() *UpdateOfficeUserNotFound {
 	return &UpdateOfficeUserNotFound{}
 }
 
+// WithPayload adds the payload to the update office user not found response
+func (o *UpdateOfficeUserNotFound) WithPayload(payload *ghcmessages.Error) *UpdateOfficeUserNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update office user not found response
+func (o *UpdateOfficeUserNotFound) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateOfficeUserNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(404)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // UpdateOfficeUserInternalServerErrorCode is the HTTP code returned for type UpdateOfficeUserInternalServerError
 const UpdateOfficeUserInternalServerErrorCode int = 500
 
 /*
-UpdateOfficeUserInternalServerError Server error
+UpdateOfficeUserInternalServerError A server error occurred
 
 swagger:response updateOfficeUserInternalServerError
 */
 type UpdateOfficeUserInternalServerError struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateOfficeUserInternalServerError creates UpdateOfficeUserInternalServerError with default headers values
@@ -175,10 +260,25 @@ func NewUpdateOfficeUserInternalServerError() *UpdateOfficeUserInternalServerErr
 	return &UpdateOfficeUserInternalServerError{}
 }
 
+// WithPayload adds the payload to the update office user internal server error response
+func (o *UpdateOfficeUserInternalServerError) WithPayload(payload *ghcmessages.Error) *UpdateOfficeUserInternalServerError {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update office user internal server error response
+func (o *UpdateOfficeUserInternalServerError) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateOfficeUserInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(500)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
