@@ -19,33 +19,21 @@ type MoveWeights struct {
 }
 
 // CheckAutoReweigh provides a mock function with given fields: appCtx, moveID, updatedShipment
-func (_m *MoveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
+func (_m *MoveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) error {
 	ret := _m.Called(appCtx, moveID, updatedShipment)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CheckAutoReweigh")
 	}
 
-	var r0 models.MTOShipments
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.MTOShipment) (models.MTOShipments, error)); ok {
-		return rf(appCtx, moveID, updatedShipment)
-	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.MTOShipment) models.MTOShipments); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.MTOShipment) error); ok {
 		r0 = rf(appCtx, moveID, updatedShipment)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(models.MTOShipments)
-		}
+		r0 = ret.Error(0)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *models.MTOShipment) error); ok {
-		r1 = rf(appCtx, moveID, updatedShipment)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // CheckExcessWeight provides a mock function with given fields: appCtx, moveID, updatedShipment
@@ -85,6 +73,36 @@ func (_m *MoveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uu
 	}
 
 	return r0, r1, r2
+}
+
+// GetAutoReweighShipments provides a mock function with given fields: appCtx, move, updatedShipment
+func (_m *MoveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (*models.MTOShipments, error) {
+	ret := _m.Called(appCtx, move, updatedShipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoReweighShipments")
+	}
+
+	var r0 *models.MTOShipments
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move, *models.MTOShipment) (*models.MTOShipments, error)); ok {
+		return rf(appCtx, move, updatedShipment)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move, *models.MTOShipment) *models.MTOShipments); ok {
+		r0 = rf(appCtx, move, updatedShipment)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.MTOShipments)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.Move, *models.MTOShipment) error); ok {
+		r1 = rf(appCtx, move, updatedShipment)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewMoveWeights creates a new instance of MoveWeights. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
