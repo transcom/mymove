@@ -6,7 +6,7 @@ import {
   getMtoShipmentLabel,
 } from './formatMtoShipment';
 
-import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
+import { MTOAgentType, PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
 
 describe('formatMtoShipmentForDisplay', () => {
   const emptyAgentShape = {
@@ -518,6 +518,7 @@ describe('formatPpmShipmentForDisplay', () => {
 
   it('converts an existing shipment to formatted display values', () => {
     const api = {
+      ppmType: PPM_TYPES.INCENTIVE_BASED,
       expectedDepatureDate: '2022-12-25',
       hasSecondaryPickupAddress: true,
       hasSecondaryDestinationAddress: true,
@@ -587,6 +588,8 @@ describe('formatPpmShipmentForDisplay', () => {
     };
 
     const display = formatPpmShipmentForDisplay({ ppmShipment: api, counselorRemarks: 'test remarks' });
+
+    expect(display.ppmType).toEqual(api.ppmType);
 
     expect(display.pickup.address).toEqual(api.pickupAddress);
 
