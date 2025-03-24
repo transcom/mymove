@@ -225,6 +225,137 @@ export class ServiceCounselorPage extends OfficePage {
 
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
   }
+
+  /**
+   * @param {Object} options
+   * @param {boolean} [options.hasTrailer=false]
+   * @param {boolean} [options.ownTrailer=false]
+   * @param {boolean} [options.useConstructedWeight=false]
+   * returns {Promise<void>}
+   */
+  async fillOutWeightTicketPage(options) {
+    const { hasTrailer = false, ownTrailer = false, useConstructedWeight = false } = options;
+    await this.page.locator('input[name="vehicleDescription"]').fill('Kia Forte');
+    await this.page.locator('input[name="vehicleDescription"]').blur();
+
+    await this.page.getByLabel('Empty weight').clear();
+    await this.page.getByLabel('Empty weight').fill('1000');
+    await this.page.getByLabel('Empty weight').blur();
+    if (useConstructedWeight) {
+      // this page has multiple labels with the same text, grab the
+      // first one for Empty Weight. Not sure why getByLabel does not work
+      await this.page.locator('label').getByText("I don't have this weight ticket").first().click();
+
+      const emptyRental = this.page.locator('label').getByText(
+        `Since you do not have a certified weight ticket, upload the registration or rental agreement for the vehicle used
+        during the PPM`,
+      );
+
+      await expect(emptyRental).toBeVisible();
+      let filepond = emptyRental.locator('../..').locator('.filepond--wrapper');
+      await expect(filepond).toBeVisible();
+
+      await this.uploadFileViaFilepond(filepond, 'sampleWeightTicket.jpg');
+
+      // wait for the file to be visible in the uploads
+      await expect(
+        filepond
+          .locator('../..')
+          .locator('p')
+          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+      ).toBeVisible();
+
+      await this.page.getByLabel('Full weight').clear();
+      await this.page.getByLabel('Full weight').fill('3000');
+
+      // this page has multiple labels with the same text, grab the
+      // second one for Full Weight. Not sure why getByLabel does not work
+      await this.page.locator('label').getByText("I don't have this weight ticket").nth(1).click();
+
+      const fullConstructed = this.page
+        .locator('label')
+        .getByText('Upload your completed constructed weight spreadsheet');
+
+      await expect(fullConstructed).toBeVisible();
+      filepond = fullConstructed.locator('../..').locator('.filepond--wrapper');
+      await expect(filepond).toBeVisible();
+
+      await this.uploadFileViaFilepond(filepond, 'constructedWeight.xlsx');
+
+      // weight estimator file should be converted to .pdf so we verify it was
+      const re = /constructedWeight.+\.pdf-\d{14}$/;
+
+      // wait for the file to be visible in the uploads
+      await expect(filepond.locator('../..').locator('p').getByText(re, { exact: false })).toBeVisible();
+    } else {
+      // find the label, then find the filepond wrapper. Not sure why
+      // getByLabel doesn't work
+      const emptyWeightLabel = this.page.locator('label').getByText('Upload empty weight ticket', { exact: true });
+      await expect(emptyWeightLabel).toBeVisible();
+      const emptyFilepond = emptyWeightLabel.locator('../..').locator('.filepond--wrapper');
+      await expect(emptyFilepond).toBeVisible();
+
+      await this.uploadFileViaFilepond(emptyFilepond, 'sampleWeightTicket.jpg');
+
+      // wait for the file to be visible in the uploads
+      await expect(
+        emptyFilepond
+          .locator('../..')
+          .locator('p')
+          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+      ).toBeVisible();
+
+      await this.page.getByLabel('Full Weight').clear();
+      await this.page.getByLabel('Full Weight').fill('3000');
+
+      // find the label, then find the filepond wrapper. Not sure why
+      // getByLabel doesn't work
+      const fullWeightLabel = this.page.locator('label').getByText('Upload full weight ticket', { exact: true });
+      await expect(fullWeightLabel).toBeVisible();
+      const fullFilepond = fullWeightLabel.locator('../..').locator('.filepond--wrapper');
+      await expect(fullFilepond).toBeVisible();
+
+      await this.uploadFileViaFilepond(fullFilepond, 'sampleWeightTicket.jpg');
+      // wait for the file to be visible in the uploads
+      await expect(
+        fullFilepond
+          .locator('../..')
+          .locator('p')
+          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
+      ).toBeVisible();
+    }
+
+    await expect(this.page.locator('.tripWeightTotal')).toContainText('Trip weight: 2,000 lbs');
+
+    if (hasTrailer) {
+      // the page design makes it hard to click without using a css locator
+      await this.page.locator('label[for="yesOwnsTrailer"]').click();
+      if (ownTrailer) {
+        // the page design makes it hard to click without using a css locator
+        await this.page.locator('label[for="yestrailerMeetsCriteria"]').click();
+
+        // find the label, then find the filepond wrapper, not sure
+        // why getByLabel does not work
+        const ownershipLabel = this.page.locator('label').getByText('Upload proof of ownership', { exact: true });
+        await expect(ownershipLabel).toBeVisible();
+        const ownershipFilepond = ownershipLabel.locator('../..').locator('.filepond--wrapper');
+        await expect(ownershipFilepond).toBeVisible();
+
+        await this.uploadFileViaFilepond(ownershipFilepond, 'trailerOwnership.pdf');
+
+        // wait for the file to be visible in the uploads
+        await expect(
+          ownershipFilepond
+            .locator('../..')
+            .locator('p')
+            .getByText(/trailerOwnership\.pdf-\d{14}/, { exact: false }),
+        ).toBeVisible();
+      } else {
+        // the page design makes it hard to click without using a css locator
+        await this.page.locator('label[for="notrailerMeetsCriteria"]').click();
+      }
+    }
+  }
 }
 
 /**
