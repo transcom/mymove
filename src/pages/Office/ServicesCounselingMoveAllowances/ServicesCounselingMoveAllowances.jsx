@@ -11,7 +11,7 @@ import AllowancesDetailForm from '../../../components/Office/AllowancesDetailFor
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -65,6 +65,10 @@ const validationSchema = Yup.object({
       otherwise: (schema) => schema.notRequired().nullable(),
     }),
   adminRestrictedUBWeightLocation: Yup.boolean().notRequired(),
+  ubAllowance: Yup.number()
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .min(0, 'UB weight allowance must be 0 or more')
+    .max(2000, 'UB weight allowance cannot exceed 2,000 lbs.'),
 });
 const ServicesCounselingMoveAllowances = () => {
   const { moveCode } = useParams();
@@ -136,6 +140,7 @@ const ServicesCounselingMoveAllowances = () => {
       accompaniedTour,
       dependentsTwelveAndOver: Number(dependentsTwelveAndOver),
       dependentsUnderTwelve: Number(dependentsUnderTwelve),
+      ubAllowance: Number(values.ubAllowance),
     };
     return mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
@@ -173,6 +178,11 @@ const ServicesCounselingMoveAllowances = () => {
     dependentsTwelveAndOver: `${dependentsTwelveAndOver}`,
   };
 
+  const civilianTDYUBMove =
+    order.order_type === ORDERS_TYPE.TEMPORARY_DUTY &&
+    order.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE &&
+    (order.originDutyLocation?.address?.isOconus || order.destinationDutyLocation?.address?.isOconus);
+
   return (
     <div className={styles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -203,6 +213,7 @@ const ServicesCounselingMoveAllowances = () => {
                   entitlements={order.entitlement}
                   branchOptions={branchDropdownOption}
                   header="Counseling"
+                  civilianTDYUBMove={civilianTDYUBMove}
                 />
               </div>
               <div className={styles.bottom}>
