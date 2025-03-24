@@ -1099,7 +1099,7 @@ integration_test_mtls:
   image: $DOCKER_APP_IMAGE
   services:
     - name: $postgres
-    - name: $
+    - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
@@ -1253,8 +1253,9 @@ integration_test_admin:
     - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
-      command: ["serve","--port","4000","--verbose"]
+      command: ["serve","-p","4000","--verbose"]
   variables:
+    FF_NETWORK_PER_BUILD: "true"
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
