@@ -63,6 +63,12 @@ export const WEIGHT_TICKET_SET_TYPE = {
   PRO_GEAR: 'PRO_GEAR',
 };
 
+export const PPM_DOCUMENT_TYPES = {
+  WEIGHT_TICKET: 'WEIGHT_TICKET',
+  PROGEAR_WEIGHT_TICKET: 'PROGEAR_WEIGHT_TICKET',
+  MOVING_EXPENSE: 'MOVING_EXPENSE',
+};
+
 export const UPLOAD_SCAN_STATUS = {
   CLEAN: 'CLEAN',
   INFECTED: 'INFECTED',
@@ -271,5 +277,8 @@ const ADDRESS_LABELS_MAP = {
 
 export const civilianTDYUBAllowanceWeightWarning =
   '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on your orders.';
+
+export const civilianTDYUBAllowanceWeightWarningOfficeUser =
+  '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on the orders.';
 
 export const getAddressLabel = (type) => ADDRESS_LABELS_MAP[type];
