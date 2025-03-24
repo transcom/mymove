@@ -9,7 +9,7 @@ variables:
   #Docker config
   DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
   #hard code sha as newer version of debian is needed for pre-test
-  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app
+  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app-ubuntu
   DOCKER_BASE_IMAGE: milmove01/transcom-docker:base
   DOCKERHUB_USERNAME: DOCKERHUB_USERNAME
   DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
@@ -331,8 +331,6 @@ stages:
      echo "Installing Playwright dependencies"
      yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
      ./node_modules/.bin/playwright install
-     ./node_modules/.bin/playwright install --with-deps
-
 
 sast:
   stage: pre_checks
@@ -1612,7 +1610,7 @@ push_otel_collector_image_dp3:
     - *setup_aws_vars_dp3
     - *setup_release_dp3
   image:
-    name: $DOCKER_BASE_IMAGE
+    name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
     - compile_app_server
@@ -1888,7 +1886,7 @@ push_otel_collector_image_stg:
     - $Gitlab_Runner_Tag
   environment: stg
   image:
-    name: $DOCKER_BASE_IMAGE
+    name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
     - compile_app_server
@@ -2174,7 +2172,7 @@ push_otel_collector_image_prd:
     - $Gitlab_Runner_Tag
   environment: prd
   image:
-    name: $DOCKER_BASE_IMAGE
+    name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
     - prod_approval
