@@ -16,7 +16,7 @@ const UserEdit = () => (
       reValidateMode="onBlur"
     >
       <TextInput source="id" disabled />
-      <TextInput source="oktaEmail" disabled />
+      <TextInput source="oktaEmail" />
       <SelectInput
         source="active"
         choices={[
