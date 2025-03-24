@@ -74,6 +74,18 @@ export async function patchWeightTicket({ ppmShipmentId, weightTicketId, payload
   );
 }
 
+export async function createMovingExpense(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createMovingExpense',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateMovingExpense',

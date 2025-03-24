@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
@@ -13,37 +13,39 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
-import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
 import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import {
-  createUploadForPPMDocument,
-  createMovingExpense,
-  deleteUpload,
-  patchMovingExpense,
-} from 'services/internalApi';
+import { createMovingExpense } from 'services/ghcApi';
+// TBD: internal apis to be converted
+import { createUploadForPPMDocument, deleteUpload, patchMovingExpense } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { formatDateForSwagger } from 'shared/dates';
 import { convertDollarsToCents } from 'shared/utils';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
-  // const [multiMove, setMultiMove] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { moveId, mtoShipmentId, expenseId } = useParams();
+  const { moveCode, shipmentId, expenseId } = useParams();
 
-  const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
-  const { expense: currentExpense, index: currentIndex } = useSelector((state) =>
-    selectExpenseAndIndexById(state, mtoShipmentId, expenseId),
-  );
+  const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
+  const moveId = mtoShipment?.moveId;
+
+  const expenses = documents?.ppmShipment?.movingExpenses ?? [];
+
+  const currentExpense = expenses?.find((item) => item.id === expenseId) ?? null;
+  const currentIndex = Array.isArray(expenses) ? expenses.findIndex((ele) => ele.id === expenseId) : -1;
+
+  const expensePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_PATH, {
+    moveCode,
+    shipmentId,
+  });
 
   useEffect(() => {
-    // isBooleanFlagEnabled('multi_move').then((enabled) => {
-    //   setMultiMove(enabled);
-    // });
-    if (!expenseId) {
+    if (!expenseId && mtoShipment?.ppmShipment?.id) {
       createMovingExpense(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
           if (mtoShipment?.ppmShipment?.movingExpenses) {
@@ -53,7 +55,7 @@ const Expenses = () => {
           }
           const path = generatePath(servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
             moveId,
-            mtoShipmentId,
+            shipmentId,
             expenseId: resp.id,
           });
           navigate(path, { replace: true });
@@ -63,7 +65,7 @@ const Expenses = () => {
           setErrorMessage('Failed to create trip record');
         });
     }
-  }, [expenseId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment]);
+  }, [expenseId, moveId, shipmentId, navigate, dispatch, mtoShipment]);
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentExpense[`${fieldName}Id`];
@@ -119,15 +121,8 @@ const Expenses = () => {
       });
   };
 
-  // const handleBack = () => {
-  //   if (multiMove) {
-  //     navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-  //   } else {
-  //     navigate(customerRoutes.MOVE_HOME_PAGE);
-  //   }
-  // };
   const handleBack = () => {
-    navigate(-1);
+    navigate(expensePath);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -149,7 +144,7 @@ const Expenses = () => {
       .then((resp) => {
         setSubmitting(false);
         mtoShipment.ppmShipment.movingExpenses[currentIndex] = resp;
-        navigate(generatePath(servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH, { mtoShipmentId }));
+        navigate(generatePath(servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH, { shipmentId }));
         dispatch(updateMTOShipment(mtoShipment));
       })
       .catch(() => {
@@ -170,6 +165,8 @@ const Expenses = () => {
     );
   };
 
+  if (isError) return <SomethingWentWrong />;
+
   if (!mtoShipment || !currentExpense) {
     return renderError() || <LoadingPlaceholder />;
   }
@@ -181,7 +178,7 @@ const Expenses = () => {
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
-            <h1>ExpensesJKL</h1>
+            <h1>Expenses</h1>
             {renderError()}
             <div className={styles.introSection}>
               <p>
