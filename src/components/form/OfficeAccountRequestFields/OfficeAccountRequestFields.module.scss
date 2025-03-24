@@ -1,0 +1,18 @@
+@import 'shared/styles/colors';
+
+.section {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.inputContainer {
+    flex: 1;
+    min-width: 0;
+}
+
+.requiredAsterisk {
+    color: $color-red;
+    font-weight: bold;
+}
+
