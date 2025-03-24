@@ -1098,22 +1098,22 @@ paths:
         '200':
           description: Successfully updated the specified MTO shipment.
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/shipments/approve":
+            $ref: 'definitions/MTOShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/shipments/approve':
     post:
       consumes:
         - application/json
@@ -1124,26 +1124,26 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/ApproveShipments"
+            $ref: '#/definitions/ApproveShipments'
       responses:
-        "200":
+        '200':
           description: Successfully approved the shipments
           schema:
             type: array
             items:
-              $ref: "definitions/MTOShipment.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+              $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - shipment
       description: Approves multiple shipments in one request
@@ -1151,7 +1151,7 @@ paths:
       summary: Approves multiple shipments at once
       x-permissions:
         - update.shipment
-  "/shipments/{shipmentID}/approve":
+  '/shipments/{shipmentID}/approve':
     parameters:
       - description: ID of the shipment
         in: path
@@ -3944,11 +3944,11 @@ paths:
         '200':
           description: Successfully returned all moves matching the criteria
           schema:
-            $ref: "#/definitions/QueueMovesResult"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/destination-requests:
     get:
       produces:
@@ -4051,14 +4051,14 @@ paths:
           type: string
           description: filters using a counselingOffice name of the move
       responses:
-        "200":
+        '200':
           description: Successfully returned all moves matching the criteria
           schema:
-            $ref: "#/definitions/QueueMovesResult"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/payment-requests:
     get:
       produces:
@@ -5656,7 +5656,7 @@ definitions:
         description: The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members
         x-nullable: true
       counselingOffice:
-        $ref: "definitions/TransportationOffice.yaml"
+        $ref: 'definitions/TransportationOffice.yaml'
       counselingOfficeId:
         type: string
         format: uuid
@@ -6187,7 +6187,7 @@ definitions:
         example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
       grade:
-        $ref: "#/definitions/Grade"
+        $ref: '#/definitions/Grade'
       hasDependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -6803,6 +6803,8 @@ definitions:
   UpdatePPMShipment:
     type: object
     properties:
+      ppmType:
+        $ref: 'definitions/PPMType.yaml'
       expectedDepartureDate:
         description: >
           Date the customer expects to move.
@@ -7263,6 +7265,8 @@ definitions:
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
+      ppmType:
+        $ref: 'definitions/PPMType.yaml'
       expectedDepartureDate:
         description: >
           Date the customer expects to move.
@@ -7735,10 +7739,10 @@ definitions:
         format: uuid
         type: string
       destinationGBLOC:
-        example: "AGFM"
+        example: 'AGFM'
         type: string
       destinationPostalCode:
-        example: "90210"
+        example: '90210'
         type: string
       referenceId:
         example: 1001-3456
@@ -8306,7 +8310,7 @@ definitions:
   CounselingOffices:
     type: array
     items:
-      $ref: "#/definitions/CounselingOffice"
+      $ref: '#/definitions/CounselingOffice'
   CounselingOffice:
     type: object
     properties:
