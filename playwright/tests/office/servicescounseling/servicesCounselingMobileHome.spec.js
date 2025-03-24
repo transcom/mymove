@@ -184,7 +184,7 @@ test.describe('Services counselor user', () => {
     await pickupAddressGroup.getByLabel('Address 2').nth(0).clear();
     await pickupAddressGroup.getByLabel('Address 3').nth(0).clear();
     await page.locator('input[id="pickup.address-input"]').fill('08004');
-    await expect(pickupAddressGroup.getByText(pickupLocation, { exact: true })).toBeVisible();
+    await expect(pickupAddressGroup.getByText(pickupLocation, { exact: true }).nth(0)).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Secondary pickup address
@@ -193,7 +193,7 @@ test.describe('Services counselor user', () => {
     await pickupAddressGroup.getByLabel('Address 2').nth(1).clear();
     await pickupAddressGroup.getByLabel('Address 3').nth(1).clear();
     await page.locator('input[id="secondaryPickup.address-input"]').fill('08004');
-    await expect(pickupAddressGroup.getByText(pickupLocation, { exact: true })).toBeVisible();
+    await expect(pickupAddressGroup.getByText(pickupLocation, { exact: true }).nth(1)).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Releasing agent
