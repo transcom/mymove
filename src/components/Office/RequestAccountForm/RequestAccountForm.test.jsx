@@ -39,23 +39,27 @@ describe('RequestAccountForm component', () => {
   it('renders the form inputs', async () => {
     renderWithRouter(<RequestAccountForm {...testProps} />);
 
-    const firstName = await screen.findByLabelText('First Name');
+    const firstName = screen.getByTestId('officeAccountRequestFirstName');
     expect(firstName).toBeInstanceOf(HTMLInputElement);
     expect(firstName).toHaveValue(testProps.initialValues.officeAccountRequestFirstName);
 
-    const middleInitial = await screen.findByLabelText('First Name');
+    const middleInitial = screen.getByTestId('officeAccountRequestMiddleInitial');
     expect(middleInitial).toBeInstanceOf(HTMLInputElement);
     expect(middleInitial).toHaveValue(testProps.initialValues.officeAccountRequestMiddleInitial);
 
-    const lastName = await screen.findByLabelText('Last Name');
+    const lastName = screen.getByTestId('officeAccountRequestLastName');
     expect(lastName).toBeInstanceOf(HTMLInputElement);
     expect(lastName).toHaveValue(testProps.initialValues.officeAccountRequestLastName);
 
-    const email = await screen.findByLabelText('Email');
+    const email = screen.getByTestId('officeAccountRequestEmail');
     expect(email).toBeInstanceOf(HTMLInputElement);
     expect(email).toHaveValue(testProps.initialValues.officeAccountRequestEmail);
 
-    const telephone = await screen.findByLabelText('Telephone');
+    const emailConfirmation = screen.getByTestId('emailConfirmation');
+    expect(emailConfirmation).toBeInstanceOf(HTMLInputElement);
+    expect(emailConfirmation).toHaveValue(testProps.initialValues.officeAccountRequestEmail);
+
+    const telephone = screen.getByTestId('officeAccountRequestTelephone');
     expect(telephone).toBeInstanceOf(HTMLInputElement);
     expect(telephone).toHaveValue(testProps.initialValues.officeAccountRequestTelephone);
 
@@ -63,11 +67,19 @@ describe('RequestAccountForm component', () => {
     expect(edipi).toBeInstanceOf(HTMLInputElement);
     expect(edipi).toHaveValue(testProps.initialValues.officeAccountRequestEdipi);
 
+    const edipiConfirmation = screen.getByTestId('edipiConfirmation');
+    expect(edipiConfirmation).toBeInstanceOf(HTMLInputElement);
+    expect(edipiConfirmation).toHaveValue(testProps.initialValues.officeAccountRequestEdipi);
+
     const uniqueId = screen.getByTestId('officeAccountRequestOtherUniqueId');
     expect(uniqueId).toBeInstanceOf(HTMLInputElement);
     expect(uniqueId).toHaveValue(testProps.initialValues.officeAccountRequestOtherUniqueId);
 
-    const transportationOffice = screen.getByLabelText('Transportation Office');
+    const uniqueIdConfirmation = screen.getByTestId('otherUniqueIdConfirmation');
+    expect(uniqueIdConfirmation).toBeInstanceOf(HTMLInputElement);
+    expect(uniqueIdConfirmation).toHaveValue(testProps.initialValues.officeAccountRequestOtherUniqueId);
+
+    const transportationOffice = screen.getByLabelText(/^Transportation Office/i);
     expect(transportationOffice).toBeInstanceOf(HTMLInputElement);
     expect(transportationOffice).toHaveTextContent('');
 
@@ -94,6 +106,10 @@ describe('RequestAccountForm component', () => {
     const qsaCheckbox = screen.getByTestId('qualityAssuranceEvaluatorCheckBox');
     expect(qsaCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(qsaCheckbox).not.toBeChecked(false);
+
+    const gsrCheckbox = screen.getByTestId('governmentSurveillanceRepresentativeCheckbox');
+    expect(gsrCheckbox).toBeInstanceOf(HTMLInputElement);
+    expect(gsrCheckbox).not.toBeChecked(false);
   });
 
   it('cancels requesting office account when cancel button is clicked', async () => {
@@ -129,14 +145,17 @@ describe('RequestAccountForm component', () => {
 
     renderWithRouter(<RequestAccountForm {...testProps} />);
 
-    await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
-    await userEvent.type(screen.getByLabelText('Last Name'), 'Banks');
-    await userEvent.type(screen.getByLabelText('Email'), 'banks@us.navy.mil');
-    await userEvent.type(screen.getByLabelText('Telephone'), '333-333-3333');
+    await userEvent.type(screen.getByTestId('officeAccountRequestFirstName'), 'Bob');
+    await userEvent.type(screen.getByTestId('officeAccountRequestLastName'), 'Banks');
+    await userEvent.type(screen.getByTestId('officeAccountRequestEmail'), 'banks@us.navy.mil');
+    await userEvent.type(screen.getByTestId('emailConfirmation'), 'banks@us.navy.mil');
+    await userEvent.type(screen.getByTestId('officeAccountRequestTelephone'), '333-333-3333');
     await userEvent.type(screen.getByTestId('officeAccountRequestEdipi'), '1111111111');
-    await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), '1111111111');
+    await userEvent.type(screen.getByTestId('edipiConfirmation'), '1111111111');
+    await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), 'uniqueID123');
+    await userEvent.type(screen.getByTestId('otherUniqueIdConfirmation'), 'uniqueID123');
 
-    const transportationOfficeInput = screen.getByLabelText('Transportation Office');
+    const transportationOfficeInput = screen.getByLabelText(/^Transportation Office/i);
     await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
     await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
 
@@ -149,7 +168,7 @@ describe('RequestAccountForm component', () => {
     expect(testProps.onSubmit).toHaveBeenCalled();
   });
 
-  it('Throws error requesting office account with invalid email domanin', async () => {
+  it('Throws error requesting office account with invalid email domain', async () => {
     const mockOfficeId = '3210a533-19b8-4805-a564-7eb452afce10';
     const mockTransportationOffice = {
       address: {
@@ -174,9 +193,9 @@ describe('RequestAccountForm component', () => {
 
     renderWithRouter(<RequestAccountForm {...testProps} />);
 
-    await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
-    await userEvent.type(screen.getByLabelText('Last Name'), 'Banks');
-    await userEvent.type(screen.getByLabelText('Email'), 'banks@gmail.com');
+    await userEvent.type(screen.getByTestId('officeAccountRequestFirstName'), 'Bob');
+    await userEvent.type(screen.getByTestId('officeAccountRequestLastName'), 'Banks');
+    await userEvent.type(screen.getByTestId('officeAccountRequestEmail'), 'banks@gmail.com');
 
     const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
     await userEvent.click(tooCheckbox);
