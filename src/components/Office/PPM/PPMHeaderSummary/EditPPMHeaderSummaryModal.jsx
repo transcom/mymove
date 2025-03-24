@@ -112,7 +112,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         name="pickupAddress"
                         legend="Pickup Address"
                         className={styles.AddressFieldSet}
-                        locationLookup
                         formikProps={formikProps}
                       />
                     )}
@@ -121,7 +120,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         name="destinationAddress"
                         legend="Delivery Address"
                         className={styles.AddressFieldSet}
-                        locationLookup
                         formikProps={formikProps}
                       />
                     )}

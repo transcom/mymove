@@ -162,7 +162,7 @@ export class ServiceCounselorPage extends OfficePage {
     const storageAddress = this.page.getByRole('heading', { name: 'Storage facility address' }).locator('..');
     await storageAddress.getByLabel('Address 1').fill('148 S East St');
     await storageAddress.getByLabel('Address 2').fill('Suite 7A');
-    await this.page.locator('input[id="storageFacility.address-location-input"]').fill('30301');
+    await this.page.locator('input[id="storageFacility.address-input"]').fill('30301');
     await expect(storageAddress.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
     await this.page.getByLabel('Lot number').fill('1111111');
@@ -176,7 +176,7 @@ export class ServiceCounselorPage extends OfficePage {
     const deliveryLocation = this.page.getByRole('group', { name: 'Delivery Address' });
     await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
-    await this.page.locator('input[id="delivery.address-location-input"]').fill('36101');
+    await this.page.locator('input[id="delivery.address-input"]').fill('36101');
     await expect(deliveryLocation.getByText(DeliveryLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
@@ -201,12 +201,12 @@ export class ServiceCounselorPage extends OfficePage {
     const LocationLookup = 'YUMA, AZ 85369 (YUMA)';
 
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="pickupAddress-location-input"]').fill('85369');
+    await this.page.locator('input[id="pickupAddress-input"]').fill('85369');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="destinationAddress-location-input"]').fill('85369');
+    await this.page.locator('input[id="destinationAddress-input"]').fill('85369');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
@@ -218,7 +218,7 @@ export class ServiceCounselorPage extends OfficePage {
     }
 
     await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="w2Address-location-input"]').fill('85369');
+    await this.page.locator('input[id="w2Address-input"]').fill('85369');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 

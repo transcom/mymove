@@ -47,8 +47,8 @@ const ShipmentDisplay = ({
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
   const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
-  const [ppmSprFF, setPpmSprFF] = useState(false);
   const [enableCompletePPMCloseoutForCustomer, setEnableCompletePPMCloseoutForCustomer] = useState(false);
+  const [ppmSprFF, setPpmSprFF] = useState(false);
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
     objectIsMissingFieldWithCondition(displayInfo, requiredInfo),

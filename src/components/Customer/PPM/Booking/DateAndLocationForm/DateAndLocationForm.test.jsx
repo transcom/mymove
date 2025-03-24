@@ -57,28 +57,22 @@ describe('DateAndLocationForm component', () => {
         </Provider>,
       );
       expect(screen.getByRole('heading', { level: 2, name: 'Pickup Address' })).toBeInTheDocument();
-      const postalCodes = screen.getAllByTestId('ZIP');
+      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
       const address1 = screen.getAllByLabelText(/Address 1/);
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const address3 = screen.getAllByLabelText('Address 3', { exact: false });
-      const state = screen.getAllByTestId(/State/);
-      const city = screen.getAllByTestId(/City/);
 
       expect(address1[0]).toBeInstanceOf(HTMLInputElement);
       expect(address2[0]).toBeInstanceOf(HTMLInputElement);
       expect(address3[0]).toBeInstanceOf(HTMLInputElement);
-      expect(state[0]).toBeInstanceOf(HTMLLabelElement);
-      expect(city[0]).toBeInstanceOf(HTMLLabelElement);
-      expect(postalCodes[0]).toBeInstanceOf(HTMLLabelElement);
+      expect(locationLookups[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Delivery Address' })).toBeInTheDocument();
       expect(address1[1]).toBeInstanceOf(HTMLInputElement);
       expect(address2[1]).toBeInstanceOf(HTMLInputElement);
       expect(address3[1]).toBeInstanceOf(HTMLInputElement);
-      expect(state[1]).toBeInstanceOf(HTMLLabelElement);
-      expect(city[1]).toBeInstanceOf(HTMLLabelElement);
-      expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+      expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Closeout Office' })).toBeInTheDocument();
@@ -98,13 +92,15 @@ describe('DateAndLocationForm component', () => {
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
-      const postalCodes = screen.getAllByTestId(/ZIP/);
-      expect(postalCodes[0]).toHaveTextContent('');
       await act(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
       await waitFor(() => {
-        expect(postalCodes[0]).toHaveTextContent(defaultProps.serviceMember.residential_address.postalCode);
+        expect(
+          screen.getAllByText(
+            `${defaultProps.serviceMember.residential_address.city}, ${defaultProps.serviceMember.residential_address.state} ${defaultProps.serviceMember.residential_address.postalCode} (${defaultProps.serviceMember.residential_address.county})`,
+          ),
+        );
       });
     });
 
@@ -117,10 +113,17 @@ describe('DateAndLocationForm component', () => {
       await act(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
-      const postalCodes = screen.getAllByTestId(/ZIP/);
 
       await waitFor(() => {
-        expect(postalCodes[0]).toHaveTextContent(defaultProps.serviceMember.residential_address.postalCode);
+        expect(screen.getAllByText('Start typing a Zip or City, State Zip').length).toBe(1);
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getAllByText(
+            `${defaultProps.serviceMember.residential_address.city}, ${defaultProps.serviceMember.residential_address.state} ${defaultProps.serviceMember.residential_address.postalCode} (${defaultProps.serviceMember.residential_address.county})`,
+          ),
+        );
       });
 
       await act(async () => {
@@ -128,7 +131,7 @@ describe('DateAndLocationForm component', () => {
       });
 
       await waitFor(() => {
-        expect(postalCodes[0]).toHaveTextContent('');
+        expect(screen.getAllByText('Start typing a Zip or City, State Zip').length).toBe(2);
       });
     });
 
@@ -142,17 +145,13 @@ describe('DateAndLocationForm component', () => {
         const hasSecondaryPickupAddress = await screen.getAllByLabelText('Yes')[1];
 
         await userEvent.click(hasSecondaryPickupAddress);
-        const postalCodes = screen.getAllByTestId(/ZIP/);
+        const locationLookups = screen.getAllByLabelText(/Location Lookup/);
         const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
         const address2 = screen.getAllByLabelText('Address 2', { exact: false });
-        const state = screen.getAllByTestId(/State/);
-        const city = screen.getAllByTestId(/City/);
         await waitFor(() => {
           expect(address1[1]).toBeInstanceOf(HTMLInputElement);
           expect(address2[1]).toBeInstanceOf(HTMLInputElement);
-          expect(city[1]).toBeInstanceOf(HTMLLabelElement);
-          expect(state[1]).toBeInstanceOf(HTMLLabelElement);
-          expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+          expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
         });
       });
     });
@@ -165,16 +164,15 @@ describe('DateAndLocationForm component', () => {
           </Provider>,
         );
         await userEvent.click(screen.getByLabelText('Use my current delivery address'));
-        const postalCodes = screen.getAllByTestId(/ZIP/);
         const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
         const address2 = screen.getAllByLabelText('Address 2', { exact: false });
-        const state = screen.getAllByTestId(/State/);
-        const city = screen.getAllByTestId(/City/);
         expect(address1[1]).toHaveValue(defaultProps.destinationDutyLocation.address.streetAddress1);
         expect(address2[1]).toHaveValue('');
-        expect(city[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.city);
-        expect(state[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.state);
-        expect(postalCodes[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.postalCode);
+        expect(
+          screen.getAllByText(
+            `${defaultProps.destinationDutyLocation.address.city}, ${defaultProps.destinationDutyLocation.address.state} ${defaultProps.destinationDutyLocation.address.postalCode} (${defaultProps.destinationDutyLocation.address.county})`,
+          ),
+        );
       });
     });
   });
@@ -188,34 +186,28 @@ describe('DateAndLocationForm component', () => {
       );
 
       await userEvent.click(screen.getByLabelText('Use my current delivery address'));
-      const postalCodes = screen.getAllByTestId(/ZIP/);
       const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
-      const state = screen.getAllByTestId(/State/);
-      const city = screen.getAllByTestId(/City/);
       expect(address1[1]).toHaveValue(defaultProps.destinationDutyLocation.address.streetAddress1);
       expect(address2[1]).toHaveValue('');
-      expect(city[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.city);
-      expect(state[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.state);
-      expect(postalCodes[1]).toHaveTextContent(defaultProps.destinationDutyLocation.address.postalCode);
+      expect(
+        screen.getAllByText(
+          `${defaultProps.destinationDutyLocation.address.city}, ${defaultProps.destinationDutyLocation.address.state} ${defaultProps.destinationDutyLocation.address.postalCode} (${defaultProps.destinationDutyLocation.address.county})`,
+        ),
+      );
 
       const hasSecondaryDestinationAddress = await screen.getAllByLabelText('Yes')[1];
       await userEvent.click(hasSecondaryDestinationAddress);
-
-      const secondaryPostalCodes = screen.getAllByTestId(/ZIP/);
+      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
       const secondaryAddress1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const secondaryAddress2 = screen.getAllByLabelText('Address 2', { exact: false });
       const secondaryAddress3 = screen.getAllByLabelText('Address 3', { exact: false });
-      const secondaryState = screen.getAllByTestId(/State/);
-      const secondaryCity = screen.getAllByTestId(/City/);
 
       await waitFor(() => {
         expect(secondaryAddress1[2]).toBeInstanceOf(HTMLInputElement);
         expect(secondaryAddress2[2]).toBeInstanceOf(HTMLInputElement);
         expect(secondaryAddress3[2]).toBeInstanceOf(HTMLInputElement);
-        expect(secondaryState[2]).toBeInstanceOf(HTMLLabelElement);
-        expect(secondaryCity[2]).toBeInstanceOf(HTMLLabelElement);
-        expect(secondaryPostalCodes[2]).toBeInstanceOf(HTMLLabelElement);
+        expect(locationLookups[2]).toBeInstanceOf(HTMLInputElement);
       });
     });
   });
@@ -349,7 +341,7 @@ describe('validates form fields and displays error messages', () => {
         // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the delivery address
         // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
         const hints = document.getElementsByClassName('usa-hint');
-        expect(hints.length).toBe(11);
+        expect(hints.length).toBe(5);
         // verify labelHints are actually 'Optional'
         for (let i = 0; i < hints.length; i += 1) {
           expect(hints[i]).toHaveTextContent('Required');
@@ -369,17 +361,14 @@ describe('validates form fields and displays error messages', () => {
       const hasTertiaryPickupAddress = screen.getAllByLabelText('Yes')[2];
 
       await userEvent.click(hasTertiaryPickupAddress);
-      const postalCodes = screen.getAllByTestId(/ZIP/);
+      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
       const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
-      const state = screen.getAllByTestId(/State/);
-      const city = screen.getAllByTestId(/City/);
+
       await waitFor(() => {
         expect(address1[1]).toBeInstanceOf(HTMLInputElement);
         expect(address2[1]).toBeInstanceOf(HTMLInputElement);
-        expect(city[1]).toBeInstanceOf(HTMLLabelElement);
-        expect(state[1]).toBeInstanceOf(HTMLLabelElement);
-        expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+        expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
       });
     });
   });
@@ -393,20 +382,16 @@ describe('validates form fields and displays error messages', () => {
       const hasTertiaryDestinationAddress = screen.getAllByLabelText('Yes')[2];
 
       await userEvent.click(hasTertiaryDestinationAddress);
-      const postalCodes = screen.getAllByTestId(/ZIP/);
       const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const address3 = screen.getAllByLabelText('Address 3', { exact: false });
-      const state = screen.getAllByTestId(/State/);
-      const city = screen.getAllByTestId(/City/);
+      const locationLookup = screen.getAllByLabelText('Location Lookup', { exact: false });
 
       await waitFor(() => {
         expect(address1[1]).toBeInstanceOf(HTMLInputElement);
         expect(address2[1]).toBeInstanceOf(HTMLInputElement);
         expect(address3[1]).toBeInstanceOf(HTMLInputElement);
-        expect(state[1]).toBeInstanceOf(HTMLLabelElement);
-        expect(city[1]).toBeInstanceOf(HTMLLabelElement);
-        expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+        expect(locationLookup[1]).toBeInstanceOf(HTMLInputElement);
       });
     });
   });
@@ -455,53 +440,35 @@ describe('validates form fields and displays error messages', () => {
       await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
 
       const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
-      const state = screen.getAllByTestId(/State/);
-      const city = screen.getAllByTestId(/City/);
-      const postalCodes = screen.getAllByTestId(/ZIP/);
-      const county = screen.getAllByTestId(/County/);
 
       // verify pickup address is populated
       expect(address1[0]).toHaveValue('123 Main');
-      expect(city[0]).toHaveTextContent('Fort Benning');
-      expect(state[0]).toHaveTextContent('GA');
-      expect(postalCodes[0]).toHaveTextContent('90210');
-      expect(county[0]).toHaveTextContent('Muscogee');
+      expect(screen.getByText('Fort Benning, GA 90210 (Muscogee)'));
 
       await waitFor(() => {
         expect(address1[1]).toBeInstanceOf(HTMLInputElement);
-        expect(city[1]).toBeInstanceOf(HTMLLabelElement);
-        expect(state[1]).toBeInstanceOf(HTMLLabelElement);
-        expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
-        expect(county[1]).toBeInstanceOf(HTMLLabelElement);
+        expect(screen.getAllByLabelText(/Location Lookup/)[1]).toBeInstanceOf(HTMLInputElement);
       });
 
       // verify 2nd pickup is populated
       expect(screen.getByRole('heading', { level: 4, name: 'Second Pickup Address' })).toBeInTheDocument();
       expect(address1[1]).toHaveValue('777 Test Street');
-      expect(city[1]).toHaveTextContent('ELIZABETHTOWN');
-      expect(state[1]).toHaveTextContent('KY');
-      expect(postalCodes[1]).toHaveTextContent('42702');
-      expect(county[1]).toHaveTextContent('Hardin');
+      expect(screen.getAllByText('ELIZABETHTOWN, KY 42702 (Hardin)')[1]);
 
       // verify delivery address is populated
       expect(address1[2]).toHaveValue('658 West Ave');
-      expect(city[2]).toHaveTextContent('Fort Benning');
-      expect(state[2]).toHaveTextContent('GA');
-      expect(postalCodes[2]).toHaveTextContent('94611');
+      expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[2]);
 
       await waitFor(() => {
         expect(address1[3]).toBeInstanceOf(HTMLInputElement);
-        expect(city[3]).toBeInstanceOf(HTMLLabelElement);
-        expect(state[3]).toBeInstanceOf(HTMLLabelElement);
-        expect(postalCodes[3]).toBeInstanceOf(HTMLLabelElement);
-        expect(county[3]).toBeInstanceOf(HTMLLabelElement);
+        expect(screen.getAllByLabelText(/Location Lookup/)[3]).toBeInstanceOf(HTMLInputElement);
+
       });
       // verify 2nd delivery address is populated
       expect(screen.getByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
+
       expect(address1[3]).toHaveValue('68 West Elm');
-      expect(city[3]).toHaveTextContent('Fort Benning');
-      expect(state[3]).toHaveTextContent('GA');
-      expect(postalCodes[3]).toHaveTextContent('94611');
+      expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[3]);
 
       // now clear out 2nd pickup address1 text, should raise required alert
       await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
