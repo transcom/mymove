@@ -51,5 +51,16 @@ describe('DropdownInput', () => {
     });
   });
 
+  describe('with showRequiredAsterisk prop', () => {
+    const wrapper = shallow(
+      <DropdownInput showRequiredAsterisk name="dropdown" label="label" options={[{ key: 'key', value: 'value' }]} />,
+    );
+
+    it('renders a required asterisk', () => {
+      const asterisk = wrapper.find('[data-testid="requiredAsterisk"]');
+      expect(asterisk.exists()).toBe(true);
+    });
+  });
+
   afterEach(jest.resetAllMocks);
 });
