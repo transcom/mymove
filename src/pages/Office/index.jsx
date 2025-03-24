@@ -615,7 +615,7 @@ OfficeApp.defaultProps = {
 const mapStateToProps = (state) => {
   const user = selectLoggedInUser(state);
   return {
-    swaggerError: state.swaggerInternal.hasErrored,
+    swaggerError: state.swaggerInternal?.hasErrored,
     officeUserId: user?.office_user?.id,
     loginIsLoading: selectGetCurrentUserIsLoading(state),
     userIsLoggedIn: selectIsLoggedIn(state),
