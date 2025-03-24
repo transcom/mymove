@@ -28,7 +28,7 @@ func (o *requestedOfficeUserUpdater) UpdateRequestedOfficeUser(appCtx appcontext
 		return nil, nil, err
 	}
 
-	if payload.Email != nil {
+	if payload.Email != nil && officeUser.Email != *payload.Email {
 		officeUser.Email = *payload.Email
 		updateUserEmail = true
 	}
