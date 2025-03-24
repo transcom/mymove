@@ -35,7 +35,7 @@ WHERE NOT EXISTS (select * from duty_locations where id = '031c9627-94ed-459b-a0
 update re_us_post_regions
    set is_po_box = false
  where uspr_zip_id = '85707';
- 
+
 INSERT INTO public.duty_locations
 (id, "name", affiliation, address_id, created_at, updated_at, transportation_office_id, provides_services_counseling)
 SELECT '25ae7d0e-a350-426b-8d71-6bdd8d31dd96'::uuid, 'Davis Monthan AFB, AZ 85707', null, '977b63a3-2dfd-4505-b0be-da83e67dacc3'::uuid, now(), now(), '54156892-dff1-4657-8998-39ff4e3a259e'::uuid, true
